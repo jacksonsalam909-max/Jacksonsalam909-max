@@ -57,11 +57,11 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 .block-buttons{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .block-buttons button{flex:1;min-width:80px;padding:8px;border:2px solid #bbb;background:#fff;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px;transition:0.2s}
 .block-buttons button.selected{border-color:#0f4c75;background:#0f4c75;color:#fff}
+.tbl-action-btn{padding:5px 8px;border:0;border-radius:5px;cursor:pointer;font-size:11px;background:#0f4c75;color:#fff}
+.tbl-cancel-btn{padding:5px 8px;border:0;border-radius:5px;cursor:pointer;font-size:11px;background:#666;color:#fff}
 .daily-filter-box{margin:10px 0 8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .daily-filter-box label{font-weight:bold;color:#0f4c75;font-size:12px}
 .daily-filter-box select{max-width:220px}
-.tbl-action-btn{padding:5px 8px;border:0;border-radius:5px;cursor:pointer;font-size:11px;background:#0f4c75;color:#fff}
-.tbl-cancel-btn{padding:5px 8px;border:0;border-radius:5px;cursor:pointer;font-size:11px;background:#666;color:#fff}
 @media print{.no-print{display:none}body{background:#fff}}
 </style></head><body>
 
@@ -101,7 +101,7 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 <button class="btn" onclick="clearSearch()">Clear</button>
 </div>
 <div id="patientResultInfo" class="search-result"></div>
-<table id="tbl_total"><tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr></table>
+<table id="tbl_total"><tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr></table>
 <div id="pagination_total" class="pagination no-print"></div>
 </div>
 
@@ -227,8 +227,36 @@ function renderPatientTable(){
  let end=start+ITEMS_PER_PAGE;
  let pageData=dataToShow.slice(start,end);
  let tbl=document.getElementById('tbl_total');
- tbl.innerHTML='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr>';
- pageData.forEach((p,i)=>{tbl.innerHTML+=`<tr><td>${start+i+1}</td><td>${p.name||''}</td><td>${p.shri||''}</td><td>${p.contact||''}</td><td>${p.pmjay||''}</td><td>${p.addr||''}</td></tr>`});
+ tbl.innerHTML='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr>';
+ pageData.forEach((p,i)=>{
+  let actualIndex=patients.indexOf(p);
+  if(p.editing){
+   tbl.innerHTML+=`<tr>
+    <td>${start+i+1}</td>
+    <td><input id="edit_name_${actualIndex}" value="${(p.name||'').replace(/"/g,'&quot;')}" style="min-width:120px"></td>
+    <td><input id="edit_shri_${actualIndex}" value="${(p.shri||'').replace(/"/g,'&quot;')}" style="min-width:100px"></td>
+    <td><input id="edit_contact_${actualIndex}" value="${(p.contact||'').replace(/"/g,'&quot;')}" style="min-width:110px"></td>
+    <td><input id="edit_pmjay_${actualIndex}" value="${(p.pmjay||'').replace(/"/g,'&quot;')}" style="min-width:110px"></td>
+    <td><input id="edit_addr_${actualIndex}" value="${(p.addr||'').replace(/"/g,'&quot;')}" style="min-width:120px"></td>
+    <td>
+     <button class="tbl-action-btn" onclick="saveEditedPatient(${actualIndex})">Save</button>
+     <button class="tbl-cancel-btn" onclick="cancelEditPatient(${actualIndex})">Cancel</button>
+    </td>
+   </tr>`;
+  }else{
+   tbl.innerHTML+=`<tr>
+    <td>${start+i+1}</td>
+    <td>${p.name||''}</td>
+    <td>${p.shri||''}</td>
+    <td>${p.contact||''}</td>
+    <td>${p.pmjay||''}</td>
+    <td>${p.addr||''}</td>
+    <td>
+     <button class="tbl-action-btn" onclick="startEditPatient(${actualIndex})">Edit</button>
+    </td>
+   </tr>`;
+  }
+ });
  renderPagination(totalPages);
 }
 
@@ -330,7 +358,7 @@ function searchPatients(){
  let filtered=patients.filter(p=>[p.name,p.shri,p.contact,p.pmjay,p.addr].some(v=>normalize(v).includes(q)));
  if(!filtered.length){
   let tbl=document.getElementById('tbl_total');
-  tbl.innerHTML='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr><tr><td colspan="6" style="text-align:center;color:#666;">No patient found</td></tr>';
+  tbl.innerHTML='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr><tr><td colspan="7" style="text-align:center;color:#666;">No patient found</td></tr>';
   document.getElementById('pagination_total').innerHTML='';
   document.getElementById('patientResultInfo').style.display='block';
   document.getElementById('patientResultInfo').innerHTML='<strong>No patient found.</strong> Try another name, SHRI ID, or contact number.';
@@ -343,6 +371,34 @@ function searchPatients(){
 
 function clearSearch(){document.getElementById('search_patient').value='';currentPatientPage=1;searchPatients();}
 function addNewPatient(){let p={name:document.getElementById('n_name').value,shri:document.getElementById('n_shri').value,contact:document.getElementById('n_contact').value,pmjay:document.getElementById('n_pmjay').value,addr:document.getElementById('n_addr').value};if(!p.name){alert('Enter patient name');return}patients.push(p);save();render();document.getElementById('n_name').value='';document.getElementById('n_shri').value='';document.getElementById('n_contact').value='';document.getElementById('n_pmjay').value='';document.getElementById('n_addr').value='';alert('Patient Added');}
+
+function startEditPatient(index){
+ patients[index].editing=true;
+ render();
+}
+
+function cancelEditPatient(index){
+ patients[index].editing=false;
+ render();
+}
+
+function saveEditedPatient(index){
+ let name=document.getElementById('edit_name_'+index)?.value.trim();
+ let shri=document.getElementById('edit_shri_'+index)?.value.trim();
+ let contact=document.getElementById('edit_contact_'+index)?.value.trim();
+ let pmjay=document.getElementById('edit_pmjay_'+index)?.value.trim();
+ let addr=document.getElementById('edit_addr_'+index)?.value.trim();
+ if(!name){alert('Name is required');return;}
+ patients[index].name=name;
+ patients[index].shri=shri;
+ patients[index].contact=contact;
+ patients[index].pmjay=pmjay;
+ patients[index].addr=addr;
+ patients[index].editing=false;
+ save();
+ render();
+}
+
 function showSuggest(inp,listId){let v=normalize(inp.value);let box=document.getElementById(listId);box.innerHTML='';if(!v){box.style.display='none';return;}let matches=patients.filter(p=>normalize(p.name).includes(v)).slice(0,10);if(!matches.length){box.style.display='none';return;}box.style.display='block';matches.forEach(p=>{let div=document.createElement('div');div.textContent=`${p.name} | SHRI: ${p.shri||'-'} | Contact: ${p.contact||'-'}`;div.onclick=()=>{document.getElementById(listId==='d_slist'?'d_name':listId==='b_slist'?'b_name':'').value=p.name;box.style.display='none';};box.appendChild(div);});}
 
 function resetDailyForm(){
