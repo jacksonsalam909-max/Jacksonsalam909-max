@@ -4590,8 +4590,6 @@ var patientData = [
     "shriId": "252097"
   }
 ];
-
-export default patientData;
     
    
   
