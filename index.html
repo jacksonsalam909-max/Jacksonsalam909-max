@@ -8,7 +8,7 @@ body{background:#f1f5f9}
 /* NEW LOGIN PAGE - SHIJA DOME NIGHT */
 #loginPage{position:fixed;inset:0;z-index:9999;background:#000 url('Shija_dome_night.jpeg') center/cover no-repeat;display:flex;align-items:center;justify-content:flex-end;padding-right:5vw}
 #loginPage::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.15),rgba(0,0,0,.65))}
-.loginBox{position:relative;z-index:2;width:440px;max-width:92vw;background:rgba(15,22,35,.38);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:28px}
+.loginBox{position:relative;z-index:2;width:440px;max-width:92vw;background:rgba(15,22,35,.38);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:30px}
 .loginBox h2{color:#fff!important;font-size:30px!important;text-align:left!important}
 .loginBox p{color:#c8d6e6!important;font-size:13px!important}
 .loginBox input{background:rgba(0,0,0,.55)!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:12px!important;padding:14px!important;color:#fff!important;width:100%;margin:8px 0}
@@ -38,6 +38,9 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 .search-row .btn{margin:0;padding:9px 16px}
 .search-result{display:none;margin:0 0 12px;padding:12px;border:1px solid #d9e1ee;border-radius:8px;background:#f8fafc;color:#1f2937;font-size:12px;line-height:1.6}
 .search-result strong{color:#0f4c75}
+.kft-month-section{margin-bottom:20px;padding:12px;background:#f0f4f8;border-radius:8px;border-left:4px solid #0f4c75}
+.kft-month-section h4{color:#0f4c75;margin-bottom:8px}
+.kft-collection-label{font-size:11px;color:#666;margin-bottom:8px}
 @media print{.no-print{display:none}body{background:#fff}}
 </style></head><body>
 
@@ -103,7 +106,14 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 
 <div class="box" id="tab_kft" style="display:none">
 <h3>4. KFT Report</h3>
-<table id="tbl_kft"><tr><th>Name</th></tr></table>
+<div class="search-row no-print">
+<input id="search_kft" placeholder="Search by Patient Name or SHRI ID..." oninput="filterKFTBySearch()">
+<select id="kft_month" onchange="filterKFTByMonth()" style="flex:1">
+<option value="">All Months</option>
+</select>
+<button class="btn" onclick="clearKFTSearch()" style="flex:0;margin:0">Clear</button>
+</div>
+<div id="kft_report_container"></div>
 <button class="btn" style="background:#1a9e5a" onclick="saveKFT()">Save KFT</button>
 </div>
 
@@ -116,8 +126,8 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 <button class="btn" onclick="generateBill()">Generate Bill</button><button class="btn" style="background:#1a9e5a" onclick="window.print()">Print</button>
 <div class="bill" id="bill">
 <div class="bill-h"><h3>SHIJA HOSPITALS & RESEARCH INSTITUTE PVT LTD</h3><p style="font-size:10px">Langol, Imphal - Bill of Supply</p></div>
-<div class="bill-i"><div>Name: <b id="o_name">-</b><br>Age/Sex: <b id="o_age">-</b><br>Bed: <b id="o_bed">-</b><br>Doctor: Dr.Guliver<br>Address: <b id="o_addr">-</b><br>Payer: PMJAY<br>SHRI ID: <b id="o_shri">-</b></div><div>IP: <b id="o_ip">-</b><br>Date: <b id="o_date">-</b><br>GST: 0%<br>Status: Not Sent</div></div>
-<table class="bill-t"><tr><th>SL</th><th style="text-align:left">ITEM NAME</th><th>DATE</th><th>QTY</th><th>AMOUNT</th><th>NET</th></tr><tr class="head-row"><td colspan="6">NEPHROLOGY PROCEDURE</td></tr><tr><td>1</td><td>Dialysis - Per Session</td><td id="m_date">-</td><td>1</td><td>2,660</td><td>2,660</td></tr></table>
+<div class="bill-i"><div>Name: <b id="o_name">-</b><br>Age/Sex: <b id="o_age">-</b><br>Bed: <b id="o_bed">-</b><br>Doctor: Dr.Guliver<br>Address: <b id="o_addr">-</b><br>Payer: PMJAY<br>SHRI ID: <b id="o_shri">-</b><br>IP No: <b id="o_ip">-</b><br>Date: <b id="o_date">-</b></div></div>
+<table class="bill-t"><tr><th>SL</th><th style="text-align:left">ITEM NAME</th><th>DATE</th><th>QTY</th><th>AMOUNT</th><th>NET</th></tr><tr class="head-row"><td colspan="6">NEPHROLOGY PROCEDURE</td></tr><tr><td>1</td><td>HAEMODIALYSIS SESSION (4 HRS)</td><td><b id="m_date">-</b></td><td>1</td><td>₹2,660</td><td>₹2,660</td></tr></table>
 <div style="padding:8px;font-size:11px;text-align:right">Gross: ₹2,660 | Net: ₹2,660 | Company: ₹2,660</div>
 <div style="display:flex;justify-content:space-between;margin-top:28px;padding:8px;font-size:11px"><span>Signature</span><span>Authorized</span></div>
 </div>
@@ -144,8 +154,8 @@ let kft=JSON.parse(localStorage.getItem('shija_kft')||'{}');
 
 const normalize = (value='') => String(value ?? '').trim().toLowerCase();
 
-function save(){localStorage.setItem('shija_patients',JSON.stringify(patients));localStorage.setItem('shija_daily',JSON.stringify(daily));localStorage.setItem('shija_kft',JSON.stringify(kft));render();}
-function showTab(t){document.querySelectorAll('[id^=tab_]').forEach(e=>e.style.display='none');document.getElementById('tab_'+t).style.display='block';document.querySelectorAll('.menu button').forEach(e=>e.classList.remove('active'));document.getElementById('b_'+t).classList.add('active');}
+function save(){localStorage.setItem('shija_patients',JSON.stringify(patients));localStorage.setItem('shija_daily',JSON.stringify(daily));localStorage.setItem('shija_kft',JSON.stringify(kft));renderKFT();}
+function showTab(t){document.querySelectorAll('[id^=tab_]').forEach(e=>e.style.display='none');document.getElementById('tab_'+t).style.display='block';document.querySelectorAll('.menu button').forEach(e=>e.classList.remove('active'));document.getElementById('b_'+t).classList.add('active');if(t==='kft'){initKFTView();}}
 function render(){
  document.getElementById('c_total').textContent=patients.length;
  document.getElementById('c_daily').textContent=daily.length;
@@ -155,9 +165,6 @@ function render(){
  let td=document.getElementById('tbl_daily');
  td.innerHTML='<tr><th>Date</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Action</th></tr>';
  daily.forEach((d,i)=>{td.innerHTML+=`<tr><td>${d.date}</td><td>${d.name}</td><td>${d.shri}</td><td>${d.contact}</td><td><button onclick="daily.splice(${i},1);save()">X</button></td></tr>`});
- let tk=document.getElementById('tbl_kft');
- tk.innerHTML='<tr><th>Name</th></tr>';
- patients.forEach(p=>{tk.innerHTML+=`<tr><td>${p.name}</td></tr>`});
 
  const resultBox=document.getElementById('patientResultInfo');
  const q=normalize(document.getElementById('search_patient')?.value || '');
@@ -194,7 +201,7 @@ function searchPatients(){
  }
  filtered.forEach(p=>{tbl.innerHTML+=`<tr><td>${p.name||''}</td><td>${p.shri||''}</td><td>${p.contact||''}</td><td>${p.pmjay||''}</td><td>${p.addr||''}</td></tr>`});
  document.getElementById('patientResultInfo').style.display='block';
- document.getElementById('patientResultInfo').innerHTML = filtered.slice(0,5).map(p=>`<div><strong>${p.name || 'Unknown'}</strong> | SHRI: ${p.shri || '-'} | Contact: ${p.contact || '-'} | PMJAY: ${p.pmjay || '-'} | Address: ${p.addr || '-'}</div>`).join('');
+ document.getElementById('patientResultInfo').innerHTML = filtered.slice(0,5).map(p=>`<div><strong>${p.name || 'Unknown'}</strong> | SHRI: ${p.shri || '-'} | Contact: ${p.contact || '-'} | PMJAY: ${p.pmjay || '-'}</div>`).join('');
 }
 function clearSearch(){document.getElementById('search_patient').value='';searchPatients();}
 document.getElementById('excel').addEventListener('change',e=>{
@@ -204,11 +211,104 @@ document.getElementById('excel').addEventListener('change',e=>{
   save();alert('Uploaded '+data.length+' patients');
  };r.readAsBinaryString(f);
 });
-function addNewPatient(){let p={name:document.getElementById('n_name').value,shri:document.getElementById('n_shri').value,contact:document.getElementById('n_contact').value,pmjay:document.getElementById('n_pmjay').value,addr:document.getElementById('n_addr').value};if(p.name){patients.push(p);document.getElementById('n_name').value='';document.getElementById('n_shri').value='';document.getElementById('n_contact').value='';document.getElementById('n_pmjay').value='';document.getElementById('n_addr').value='';save();}else{alert('Enter patient name')}}
-function showSuggest(inp,listId){let v=normalize(inp.value);let box=document.getElementById(listId);box.innerHTML='';if(!v){box.style.display='none';return}let matches=patients.filter(p=>normalize(p.name).includes(v));matches.slice(0,5).forEach(m=>{box.innerHTML+=`<div onclick="document.getElementById('${listId}').parentElement.querySelector('input').value='${m.name.replace(/'/g,"\\'")}';showSuggest({value:''},'${listId}')">${m.name}</div>`});box.style.display=matches.length?'block':'none'}
-function addDaily(){let name=document.getElementById('d_name').value;if(!name){alert('Enter name');return}let found=patients.find(p=>normalize(p.name)===normalize(name))||{name,shri:'',contact:''};daily.push({date:document.getElementById('d_date').value,name:found.name,shri:found.shri,contact:found.contact});document.getElementById('d_name').value='';save()}
+function addNewPatient(){let p={name:document.getElementById('n_name').value,shri:document.getElementById('n_shri').value,contact:document.getElementById('n_contact').value,pmjay:document.getElementById('n_pmjay').value,addr:document.getElementById('n_addr').value};if(!p.name){alert('Enter patient name');return}patients.push(p);document.querySelectorAll('#tab_add input').forEach(i=>i.value='');save();alert('Patient added');}
+function showSuggest(inp,listId){let v=normalize(inp.value);let box=document.getElementById(listId);box.innerHTML='';if(!v){box.style.display='none';return}let matches=patients.filter(p=>normalize(p.name).includes(v));matches.slice(0,5).forEach(p=>{let d=document.createElement('div');d.textContent=p.name;d.onclick=()=>{inp.value=p.name;box.style.display='none'};box.appendChild(d)});box.style.display=matches.length?'block':'none';}
+function addDaily(){let name=document.getElementById('d_name').value;if(!name){alert('Enter name');return}let found=patients.find(p=>normalize(p.name)===normalize(name))||{name,shri:'',contact:''};daily.push({date:document.getElementById('d_date').value,name:found.name,shri:found.shri,contact:found.contact});document.getElementById('d_name').value='';save();alert('Record added');}
 function saveKFT(){save();alert('KFT Saved')}
-function autoFillBill(){let name=document.getElementById('b_name').value;let p=patients.find(x=>normalize(x.name)===normalize(name))||{};if(p){document.getElementById('b_shri').value=p.shri||'';document.getElementById('b_contact').value=p.contact||''}}
+function autoFillBill(){let name=document.getElementById('b_name').value;let p=patients.find(x=>normalize(x.name)===normalize(name))||{};if(p){document.getElementById('b_shri').value=p.shri||'';document.getElementById('b_addr').value=p.addr||''}}
+
+// KFT REPORT FUNCTIONS
+function getCollectionDates(year, month) {
+  return [`${year}-${String(month).padStart(2,'0')}-01`, `${year}-${String(month).padStart(2,'0')}-15`];
+}
+
+function getMonthYear(dateString) {
+  let d = new Date(dateString);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}`;
+}
+
+function initKFTView() {
+  let months = new Set();
+  daily.forEach(d => {
+    if(d.date) months.add(getMonthYear(d.date));
+  });
+  
+  let selectEl = document.getElementById('kft_month');
+  selectEl.innerHTML = '<option value="">All Months</option>';
+  Array.from(months).sort().reverse().forEach(m => {
+    let opt = document.createElement('option');
+    opt.value = m;
+    let [y, mo] = m.split('-');
+    let monthName = new Date(y, mo-1).toLocaleString('en-US', {month:'long', year:'numeric'});
+    opt.textContent = monthName;
+    selectEl.appendChild(opt);
+  });
+  renderKFT();
+}
+
+function filterKFTBySearch() {
+  renderKFT();
+}
+
+function filterKFTByMonth() {
+  renderKFT();
+}
+
+function clearKFTSearch() {
+  document.getElementById('search_kft').value = '';
+  document.getElementById('kft_month').value = '';
+  renderKFT();
+}
+
+function renderKFT() {
+  let searchQ = normalize(document.getElementById('search_kft')?.value || '');
+  let selectedMonth = document.getElementById('kft_month')?.value || '';
+  let container = document.getElementById('kft_report_container');
+  container.innerHTML = '';
+  
+  let groupedByMonth = {};
+  daily.forEach(d => {
+    if(!d.date) return;
+    let monthKey = getMonthYear(d.date);
+    if(selectedMonth && monthKey !== selectedMonth) return;
+    
+    let patient = patients.find(p => normalize(p.name) === normalize(d.name));
+    if(searchQ) {
+      if(!normalize(d.name).includes(searchQ) && !normalize(d.shri).includes(searchQ)) return;
+    }
+    
+    if(!groupedByMonth[monthKey]) groupedByMonth[monthKey] = [];
+    groupedByMonth[monthKey].push(d);
+  });
+  
+  if(Object.keys(groupedByMonth).length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:#666;margin:20px 0">No KFT records found</p>';
+    return;
+  }
+  
+  Object.keys(groupedByMonth).sort().reverse().forEach(monthKey => {
+    let [y, mo] = monthKey.split('-');
+    let monthName = new Date(y, mo-1).toLocaleString('en-US', {month:'long', year:'numeric'});
+    let [collectionDates, collectionDates15] = getCollectionDates(y, mo);
+    
+    let section = document.createElement('div');
+    section.className = 'kft-month-section';
+    section.innerHTML = `<h4>${monthName}</h4>
+      <div class="kft-collection-label">📅 Collection Dates: ${collectionDates} & ${collectionDates15}</div>`;
+    
+    let table = document.createElement('table');
+    table.innerHTML = '<tr><th>Date</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Action</th></tr>';
+    
+    groupedByMonth[monthKey].forEach((d, i) => {
+      let row = `<tr><td>${d.date}</td><td>${d.name}</td><td>${d.shri||'-'}</td><td>${d.contact||'-'}</td><td><button onclick="daily.splice(daily.indexOf(${JSON.stringify(d).replace(/"/g,'\\"')}), 1); save()" style="padding:4px 8px;background:#d32f2f;color:#fff;border:0;border-radius:4px;cursor:pointer">Delete</button></td></tr>`;
+      table.innerHTML += row;
+    });
+    
+    section.appendChild(table);
+    container.appendChild(section);
+  });
+}
+
 function today(){let d=new Date();return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
 function generateBill(){
  let name=document.getElementById('b_name').value;let p=patients.find(x=>normalize(x.name)===normalize(name))||{};
