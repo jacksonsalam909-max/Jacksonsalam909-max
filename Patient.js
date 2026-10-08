@@ -4502,6 +4502,98 @@ const patientData = [
     "shriId": "316427"
   },
   {
+    "id": 537,
+    "patientName": "NINGTHOUJAM NAOBOY SINGH",
+    "address": "HEIROK PART I, HEITUPPOKPI",
+    "pmjayId": "ME1M06J25",
+    "aadhaarNo": "601647000000",
+    "contactNo": "9856820530",
+    "shriId": "316427"
+  },
+  {
+    "id": 538,
+    "patientName": "JOY RUNGSHUNG",
+    "address": "SENAPATI",
+    "pmjayId": "PWM0BRTGA",
+    "aadhaarNo": "726786000000",
+    "contactNo": "9862746582",
+    "shriId": "324303"
+  },
+  {
+    "id": 540,
+    "patientName": "WAHENGBAM INDRAJIT SINGH",
+    "address": "SHAJIROK IMPHAL WEST MANIPUR 795113",
+    "pmjayId": "POYMOKO1W",
+    "aadhaarNo": "442305000000",
+    "contactNo": "6009385668",
+    "shriId": "317301"
+  },
+  {
+    "id": 542,
+    "patientName": "CHABUNGBAM RAJANIKANTA SINGH",
+    "address": "KODOMPOKPI MAYAI LEIKAI 795009 IMPHAL\nWEST MANIPUR 795140",
+    "pmjayId": "ME1NYH3IM",
+    "aadhaarNo": "490616000000",
+    "contactNo": "8837319475",
+    "shriId": "309834"
+  },
+  {
+    "id": 544,
+    "patientName": "ANGOM KABOKLEI DEVI",
+    "address": "LEIMARAM AWANG LEIKAI 795134\nBISHNUPUR MANIPUR 795134",
+    "pmjayId": "ME1GCPLWS",
+    "aadhaarNo": "474455000000",
+    "contactNo": "9856476851",
+    "shriId": "211443"
+  },
+  {
+    "id": 546,
+    "patientName": "IROM MANORANJAN SINGH",
+    "address": "KHABI AWANG LEIKAI",
+    "pmjayId": "ME1MUS2D2",
+    "aadhaarNo": "852284000000",
+    "contactNo": "9366209614",
+    "shriId": "307375"
+  },
+  {
+    "id": 549,
+    "patientName": "KHUNDONGBAM IBOPISHAK SINGH",
+    "address": "HEIROK PART II",
+    "pmjayId": "PAYFI29ON",
+    "aadhaarNo": "629707000000",
+    "contactNo": "8119967534",
+    "shriId": "326984"
+  },
+  {
+    "id": 550,
+    "patientName": "NAOREM MUHINDRO SINGH",
+    "address": "KHURAI TOP KHONGNANGKHONG",
+    "pmjayId": "ME1KQ8DNE",
+    "aadhaarNo": "247617000000",
+    "contactNo": "9862719435",
+    "shriId": "329666"
+  },
+  {
+    "id": 551,
+    "patientName": "ARIBAM ANJALI DEVI",
+    "address": "NAGAMAPAL PHOUGEISHANGBAM LEIKAI",
+    "pmjayId": "ME1CLXHE9",
+    "aadhaarNo": "389936000000",
+    "contactNo": "8787885709",
+    "shriId": "331517"
+  },
+  {
+    "id": 552,
+    "patientName": "SHAGOLSHEM IBOYAIMA SINGH",
+    "address": "NAMBOL WARD NO.14 BISHNUPUR DISTRICT",
+    "pmjayId": "ME1DJTBLQ",
+    "aadhaarNo": "733436000000",
+    "contactNo": "6009354107",
+    "shriId": "252097"
+  }
+];
+
+export default patientData;
     
    
   
