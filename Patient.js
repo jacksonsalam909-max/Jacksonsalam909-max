@@ -3366,7 +3366,7 @@ const patientData = [
     "aadhaarNo": "286952000000",
     "contactNo": "8730941594",
     "shriId": "291532"
-      },
+  },
   {
     "id": 401,
     "patientName": "MAYENGBAM GITA DEVI",
