@@ -1,80 +1,32 @@
-<!DOCTYPE html>
-<html><head><script src="Patient.js"></script><meta charset="UTF-8"><meta name=viewport content="width=device-width,initial-scale=1">
-<title>SHIJA Dialysis Dashboard - Login</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name=viewport content="width=device-width,initial-scale=1"><title>SHIJA Dashboard - Home</title><script src="Patient.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial}
-body{background:linear-gradient(135deg,#e0f2fe 0%,#f0f9ff 40%,#fef3c7 100%);min-height:100vh}
-#loginPage{position:fixed;inset:0;z-index:9999;background:#000 url('Shija_dome_night.jpeg') center/cover no-repeat;display:flex;align-items:center;justify-content:flex-end;padding-right:5vw}
-#loginPage::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.15),rgba(0,0,0,.65))}
-.loginBox{position:relative;z-index:2;width:440px;max-width:92vw;background:rgba(15,22,35,.38);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:24px}
-.loginBox h2{color:#fff!important;font-size:30px!important}
-.loginBox input{background:rgba(0,0,0,.55)!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:12px!important;padding:14px!important;color:#fff!important;width:100%;margin:8px 0}
-.loginBtn{background:#f8d210!important;color:#111!important;border-radius:12px!important;padding:14px!important;font-weight:800!important;width:100%;cursor:pointer;border:0!important}
-.top{background:linear-gradient(90deg,#0f4c75,#1e7bb8,#0f4c75);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 15px rgba(15,76,117,.3)}
-.dash{max-width:1100px;margin:16px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:0 12px}
-.card{padding:18px 12px;border-radius:16px;text-align:center;box-shadow:0 8px 20px #0001;cursor:pointer;color:#fff;transition:.25s;border:1px solid rgba(255,255,255,.3)}
-.card:hover{transform:translateY(-4px)}
-.card b{font-size:28px;display:block;font-weight:900}
-.card span{font-size:11px;font-weight:600}
+body{background:linear-gradient(135deg,#e0f2fe,#f0f9ff 40%,#fef3c7 100%);min-height:100vh}
+.top{background:linear-gradient(90deg,#0f4c75,#1e7bb8,#0f4c75);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+.dash{max-width:1100px;margin:40px auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:0 16px}
+.card{padding:30px 20px;border-radius:20px;text-align:center;box-shadow:0 10px 25px #0001;color:#fff;cursor:pointer;text-decoration:none;display:block;transition:.3s}
+.card:hover{transform:translateY(-6px)}
+.card div{font-size:48px;margin-bottom:10px}
+.card b{font-size:32px;display:block;font-weight:900}
+.card span{font-size:14px;font-weight:600}
 .card:nth-child(1){background:linear-gradient(135deg,#3b82f6,#1d4ed8)}
 .card:nth-child(2){background:linear-gradient(135deg,#10b981,#059669)}
 .card:nth-child(3){background:linear-gradient(135deg,#f59e0b,#d97706)}
 .card:nth-child(4){background:linear-gradient(135deg,#8b5cf6,#6d28d9)}
 .card:nth-child(5){background:linear-gradient(135deg,#ec4899,#be185d)}
-.menu{max-width:1100px;margin:12px auto;display:flex;gap:8px;flex-wrap:wrap;padding:0 12px}
-.menu button{padding:11px 16px;border:0;border-radius:12px;background:#fff;font-weight:700;cursor:pointer;box-shadow:0 2px 8px #0001;font-size:13px;border:1px solid #e2e8f0}
-.menu button.active{background:linear-gradient(135deg,#0f4c75,#1e6fa8);color:#fff}
-.box{max-width:1100px;margin:12px auto;background:#fff;padding:18px;border-radius:16px;box-shadow:0 8px 24px #0000000d;border:1px solid #eef2f7}
-.box h3{color:#0f4c75;margin-bottom:12px;font-size:18px;border-left:4px solid #0f4c75;padding-left:10px}
-.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-input,select{padding:10px 12px;border:1.5px solid #cbd5e1;border-radius:10px;width:100%;font-size:13px;background:#f8fafc}
-.btn{padding:11px 18px;border:0;border-radius:10px;background:linear-gradient(135deg,#0f4c75,#1e7bb8);color:#fff;font-weight:700;cursor:pointer;margin-top:8px}
-table{width:100%;border-collapse:separate;border-spacing:0;margin-top:14px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px #0001;border:1px solid #e2e8f0}
-th{background:linear-gradient(135deg,#0f4c75,#1e6fa8);color:#fff;padding:10px 8px;font-size:11px}
-td{border-bottom:1px solid #f1f5f9;padding:9px 8px;font-size:12px;background:#fff}
-.tbl-action-btn{padding:6px 12px;border:0;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:11px;font-weight:600;cursor:pointer}
-.tbl-del-btn{padding:6px 12px;border:0;border-radius:8px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;margin-left:6px;font-size:11px;font-weight:600;cursor:pointer}
-.tbl-cancel-btn{padding:6px 12px;border:0;border-radius:8px;background:#64748b;color:#fff;font-size:11px;cursor:pointer}
-@media(max-width:700px){.dash{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+@media(max-width:700px){.dash{grid-template-columns:repeat(2,1fr)}}
 </style></head><body>
-<div id="loginPage"><div class="loginBox"><h2>SHIJA HOSPITALS</h2><p>Dialysis Dashboard Login</p><input id="l_user" placeholder="Username"><input id="l_pass" type="password" placeholder="Password"><button class="loginBtn" onclick="doLogin()">Login</button><p id="l_err" style="color:red;font-size:11px;margin-top:6px"></p></div></div>
-<div id="app" style="display:none">
-<div class="top"><h2>SHIJA Dialysis Dashboard</h2><button onclick="doLogout()" style="padding:6px 12px;border:0;border-radius:6px;background:#fff;color:#0f4c75;font-weight:bold;cursor:pointer">Logout</button></div>
+<div class="top"><h2>🏥 SHIJA Dialysis Dashboard</h2><button onclick="localStorage.removeItem('shija_logged');location.reload()" style="padding:8px 14px;border:0;border-radius:8px;background:#fff;color:#0f4c75;font-weight:700;cursor:pointer">Logout</button></div>
+<div style="max-width:1100px;margin:20px auto;padding:0 16px"><h2 style="color:#0f4c75">Welcome</h2><p style="color:#64748b">Click any card to open separate page</p></div>
 <div class="dash">
-<div class="card" onclick="showTab('total')"><div style="font-size:26px">👥</div><b id="c_total">0</b><span>Total Patient</span></div>
-<div class="card" onclick="showTab('add')"><div style="font-size:26px">➕</div><b>Add New</b><span>Add New Patient</span></div>
-<div class="card" onclick="showTab('daily')"><div style="font-size:26px">💉</div><b id="c_daily">0</b><span>Daily Dialysis</span></div>
-<div class="card" onclick="showTab('kft')"><div style="font-size:26px">🧪</div><b id="c_kft">0</b><span>KFT Report</span></div>
-<div class="card" onclick="showTab('bill')"><div style="font-size:26px">🧾</div><b>Bill</b><span>Bill Generator</span></div>
+<a href="total.html" class="card"><div>👥</div><b id="c_total">0</b><span>Total Patients</span></a>
+<a href="add.html" class="card"><div>➕</div><b>Add New</b><span>Add Patient</span></a>
+<a href="daily.html" class="card"><div>💉</div><b id="c_daily">0</b><span>Daily Dialysis</span></a>
+<a href="kft.html" class="card"><div>🧪</div><b id="c_kft">0</b><span>KFT Report</span></a>
+<a href="bill.html" class="card"><div>🧾</div><b>Bill</b><span>Bill Generator</span></a>
 </div>
-<div class="menu"><button id="b_total" class="active" onclick="showTab('total')">1. Total Patient</button><button id="b_add" onclick="showTab('add')">2. Add New</button><button id="b_daily" onclick="showTab('daily')">3. Daily</button><button id="b_kft" onclick="showTab('kft')">4. KFT</button><button id="b_bill" onclick="showTab('bill')">5. Bill</button></div>
-
-<div class="box" id="tab_total">
-<div style="display:flex;gap:8px;margin-bottom:12px"><input id="search_patient" placeholder="Search by Name, SHRI ID, Contact..." oninput="searchPatients()" style="flex:1"><button class="btn" onclick="clearSearch()" style="margin:0">Clear</button></div>
-<table id="tbl_total"><tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr></table>
-<div id="pagination_total" style="display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap"></div>
-</div>
-
-<div class="box" id="tab_add" style="display:none"><h3>2. Add New Patient</h3><div class="grid"><input id="n_name" placeholder="Patient Name *"><input id="n_shri" placeholder="SHRI ID"><input id="n_contact" placeholder="Contact"><input id="n_pmjay" placeholder="PMJAY ID"><input id="n_addr" placeholder="Address"><button class="btn" style="margin:0" onclick="addNewPatient()">Add Patient</button></div></div>
-<div class="box" id="tab_daily" style="display:none"><h3>3. Daily Record</h3><table id="tbl_daily"></table></div>
-<div class="box" id="tab_kft" style="display:none"><h3>4. KFT Report</h3><div id="kft_report_container">KFT data here</div></div>
-<div class="box" id="tab_bill" style="display:none"><h3>5. Bill Generator</h3><p>Bill generator - same as before</p></div>
-</div>
-
 <script>
-const DEFAULT_USER="admin",DEFAULT_PASS="admin123";
-function doLogin(){let u=document.getElementById('l_user').value.trim(),p=document.getElementById('l_pass').value.trim();if(u===DEFAULT_USER&&p===DEFAULT_PASS){localStorage.setItem('shija_logged','1');document.getElementById('loginPage').style.display='none';document.getElementById('app').style.display='block';}else{document.getElementById('l_err').textContent='Wrong';}}
-function doLogout(){localStorage.removeItem('shija_logged');location.reload();}
-if(localStorage.getItem('shija_logged')==='1'){document.getElementById('loginPage').style.display='none';document.getElementById('app').style.display='block';}
-let excelRaw=(typeof patientData!=='undefined')?patientData:[];let patients=excelRaw.map(p=>({name:(p.patientName||p.name||'').trim(),shri:String(p.shriId||p.shri||'').trim(),contact:String(p.contactNo||p.contact||'').trim(),pmjay:String(p.pmjayId||p.pmjay||'').trim(),addr:(p.address||p.addr||'').trim()})).filter(p=>p.name);
-let localPatients=JSON.parse(localStorage.getItem('shija_patients')||'[]');let seen=new Set();let all=[];[...patients,...localPatients].forEach(p=>{let k=p.name.toLowerCase();if(!seen.has(k)){seen.add(k);all.push(p);}});patients=all;
-function save(){localStorage.setItem('shija_patients',JSON.stringify(patients));}
-function showTab(t){document.querySelectorAll('[id^=tab_]').forEach(e=>e.style.display='none');document.getElementById('tab_'+t).style.display='block';document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));document.getElementById('b_'+t).classList.add('active');}
-function render(){document.getElementById('c_total').textContent=patients.length;let tbl=document.getElementById('tbl_total');tbl.innerHTML='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr>';patients.slice(0,50).forEach((p,i)=>{tbl.innerHTML+=`<tr><td>${i+1}</td><td>${p.name}</td><td>${p.shri}</td><td>${p.contact}</td><td>${p.pmjay}</td><td>${p.addr}</td><td><button class="tbl-action-btn" onclick="editPat(${i})">Edit</button><button class="tbl-del-btn" onclick="delPat(${i})">Delete</button></td></tr>`;});}
-function delPat(i){if(confirm('Delete '+patients[i].name+'?')){patients.splice(i,1);save();render();}}
-function searchPatients(){let q=document.getElementById('search_patient').value.toLowerCase();let tbl=document.getElementById('tbl_total');tbl.innerHTML='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr>';patients.filter(p=>[p.name,p.shri,p.contact].some(v=>(v||'').toLowerCase().includes(q))).forEach((p,i)=>{tbl.innerHTML+=`<tr><td>${i+1}</td><td>${p.name}</td><td>${p.shri}</td><td>${p.contact}</td><td>${p.pmjay}</td><td>${p.addr}</td><td><button class="tbl-action-btn">Edit</button><button class="tbl-del-btn" onclick="delPat(${i})">Delete</button></td></tr>`;});}
-function clearSearch(){document.getElementById('search_patient').value='';render();}
-function addNewPatient(){let p={name:document.getElementById('n_name').value,shri:document.getElementById('n_shri').value,contact:document.getElementById('n_contact').value,pmjay:document.getElementById('n_pmjay').value,addr:document.getElementById('n_addr').value};if(!p.name){alert('Enter name');return;}patients.push(p);save();render();alert('Added');}
-render();
+let excelRaw=(typeof patientData!=='undefined')?patientData:[]; let daily=JSON.parse(localStorage.getItem('shija_daily')||'[]'); let kft=JSON.parse(localStorage.getItem('shija_kft_entries')||'[]');
+let total=excelRaw.length + JSON.parse(localStorage.getItem('shija_patients')||'[]').length;
+document.getElementById('c_total').textContent=total; document.getElementById('c_daily').textContent=daily.length; document.getElementById('c_kft').textContent=kft.length;
 </script></body></html>
