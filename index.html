@@ -8,7 +8,7 @@ body{background:#f1f5f9}
 /* NEW LOGIN PAGE - SHIJA DOME NIGHT */
 #loginPage{position:fixed;inset:0;z-index:9999;background:#000 url('Shija_dome_night.jpeg') center/cover no-repeat;display:flex;align-items:center;justify-content:flex-end;padding-right:5vw}
 #loginPage::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.15),rgba(0,0,0,.65))}
-.loginBox{position:relative;z-index:2;width:440px;max-width:92vw;background:rgba(15,22,35,.38);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:40px}
+.loginBox{position:relative;z-index:2;width:440px;max-width:92vw;background:rgba(15,22,35,.38);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.18);border-radius:18px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
 .loginBox h2{color:#fff!important;font-size:30px!important;text-align:left!important}
 .loginBox p{color:#c8d6e6!important;font-size:13px!important}
 .loginBox input{background:rgba(0,0,0,.55)!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:12px!important;padding:14px!important;color:#fff!important;width:100%;margin:8px 0}
@@ -36,6 +36,8 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 .search-row{display:flex;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #ddd}
 .search-row input{flex:1}
 .search-row .btn{margin:0;padding:9px 16px}
+.search-result{display:none;margin:0 0 12px;padding:12px;border:1px solid #d9e1ee;border-radius:8px;background:#f8fafc;color:#1f2937;font-size:12px;line-height:1.6}
+.search-result strong{color:#0f4c75}
 @media print{.no-print{display:none}body{background:#fff}}
 </style></head><body>
 
@@ -78,13 +80,14 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 <input id="search_patient" placeholder="Search by Name, SHRI ID, or Contact..." oninput="searchPatients()">
 <button class="btn" onclick="clearSearch()">Clear</button>
 </div>
+<div id="patientResultInfo" class="search-result"></div>
 <table id="tbl_total"><tr><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr></table>
 </div>
 
 <div class="box" id="tab_add" style="display:none">
 <h3>2. Add New Patient</h3>
 <div class="grid">
-<input id="n_name" placeholder="Patient Name *"><input id="n_shri" placeholder="SHRI ID"><input id="n_contact" placeholder="Contact Number"><input id="n_pmjay" placeholder="PMJAY ID"><input id="n_addr" placeholder="Address">
+<input id="n_name" placeholder="Patient Name *"><input id="n_shri" placeholder="SHRI ID"><input id="n_contact" placeholder="Contact Number"><input id="n_pmjay" placeholder="PMJAY ID"><input id="n_addr" placeholder="Address"><input id="n_note" placeholder="Notes">
 </div><button class="btn" onclick="addNewPatient()">Add Patient</button>
 </div>
 
@@ -108,15 +111,15 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 <h3>5. Bill Generator - Exact Shija Bill</h3>
 <div class="grid">
 <div class="suggest"><input id="b_name" placeholder="Patient Name - hint" oninput="showSuggest(this,'b_slist');autoFillBill()"><div id="b_slist" class="slist" style="display:none"></div></div>
-<input id="b_shri" placeholder="SHRI ID"><input id="b_ip" placeholder="IP No"><input id="b_age" placeholder="Age/Sex" value="56Y/F"><input id="b_bed" placeholder="Bed No" value="D-3402"><input id="b_date" placeholder="Date" value="">
+<input id="b_shri" placeholder="SHRI ID"><input id="b_ip" placeholder="IP No"><input id="b_age" placeholder="Age/Sex" value="56Y/F"><input id="b_bed" placeholder="Bed No" value="D-3402"><input id="b_date" placeholder="Date" value=""><input id="b_doc" placeholder="Doctor" value="Dr.Guliver">
 </div>
 <button class="btn" onclick="generateBill()">Generate Bill</button><button class="btn" style="background:#1a9e5a" onclick="window.print()">Print</button>
 <div class="bill" id="bill">
 <div class="bill-h"><h3>SHIJA HOSPITALS & RESEARCH INSTITUTE PVT LTD</h3><p style="font-size:10px">Langol, Imphal - Bill of Supply</p></div>
-<div class="bill-i"><div>Name: <b id="o_name">-</b><br>Age/Sex: <b id="o_age">-</b><br>Bed: <b id="o_bed">-</b><br>Doctor: Dr.Guliver<br>Address: <b id="o_addr">-</b><br>Payer: PMJAY<br>SHRI ID: <b id="o_shri">-</b><br>IP: <b id="o_ip">-</b></div><div>Invoice: <b id="o_inv">-</b><br>Date: <b id="o_date">-</b><br>Ref: <b id="o_ref">-</b></div></div>
-<table class="bill-t"><tr><th>SL</th><th style="text-align:left">ITEM NAME</th><th>DATE</th><th>QTY</th><th>AMOUNT</th><th>NET</th></tr><tr class="head-row"><td colspan="6">NEPHROLOGY PROCEDURE</td></tr><tr><td>1</td><td>HEMODIALYSIS (4HRS)</td><td id="b_item_date">-</td><td>1</td><td>2,660</td><td>2,660</td></tr></table>
-<div style="padding:8px;font-size:11px;text-align:right">Gross: ₹2,660 | Net: ₹2,660 | Company: ₹2,660<div style="display:flex;justify-content:space-between;margin-top:28px"><span>Signature</span><span>Stamp</span></div></div>
-</div>
+<div class="bill-i"><div>Name: <b id="o_name">-</b><br>Age/Sex: <b id="o_age">-</b><br>Bed: <b id="o_bed">-</b><br>Doctor: Dr.Guliver<br>Address: <b id="o_addr">-</b><br>Payer: PMJAY<br>SHRI ID: <b id="o_shri">-</b><br>IP No: <b id="o_ip">-</b></div><div>Bill Date: <b id="o_date">-</b><br>Patient No: <b id="o_no">-</b></div></div>
+<table class="bill-t"><tr><th>SL</th><th style="text-align:left">ITEM NAME</th><th>DATE</th><th>QTY</th><th>AMOUNT</th><th>NET</th></tr><tr class="head-row"><td colspan="6">NEPHROLOGY PROCEDURE</td></tr><tr><td>1</td><td>Dialysis</td><td id="m_date">-</td><td>1</td><td>₹2,660</td><td>₹2,660</td></tr></table>
+<div style="padding:8px;font-size:11px;text-align:right">Gross: ₹2,660 | Net: ₹2,660 | Company: ₹2,660</div>
+<div style="display:flex;justify-content:space-between;margin-top:28px;padding:8px;font-size:11px"><span>Signature</span><span>Authorized</span></div>
 </div>
 </div>
 
@@ -138,41 +141,85 @@ if(localStorage.getItem('shija_logged')==='1'){document.getElementById('loginPag
 let patients=JSON.parse(localStorage.getItem('shija_patients')||'[]');
 let daily=JSON.parse(localStorage.getItem('shija_daily')||'[]');
 let kft=JSON.parse(localStorage.getItem('shija_kft')||'{}');
-function save(){localStorage.setItem('shija_patients',JSON.stringify(patients));localStorage.setItem('shija_daily',JSON.stringify(daily));localStorage.setItem('shija_kft',JSON.stringify(kft));render()}
-function showTab(t){document.querySelectorAll('[id^=tab_]').forEach(e=>e.style.display='none');document.getElementById('tab_'+t).style.display='block';document.querySelectorAll('.menu button').forEach(e=>e.classList.remove('active'));document.getElementById('b_'+t).classList.add('active');if(t==='total'){document.getElementById('search_patient').value='';searchPatients()}}
+
+const normalize = (value='') => String(value ?? '').trim().toLowerCase();
+
+function save(){localStorage.setItem('shija_patients',JSON.stringify(patients));localStorage.setItem('shija_daily',JSON.stringify(daily));localStorage.setItem('shija_kft',JSON.stringify(kft));render();}
+function showTab(t){document.querySelectorAll('[id^=tab_]').forEach(e=>e.style.display='none');document.getElementById('tab_'+t).style.display='block';document.querySelectorAll('.menu button').forEach(btn=>btn.classList.toggle('active',btn.id==='b_'+t));}
 function render(){
- document.getElementById('c_total').textContent=patients.length;document.getElementById('c_daily').textContent=daily.length;
- let tbl=document.getElementById('tbl_total');tbl.innerHTML='<tr><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr>';
- patients.forEach(p=>{tbl.innerHTML+=`<tr><td>${p.name}</td><td>${p.shri}</td><td>${p.contact}</td><td>${p.pmjay}</td><td>${p.addr}</td></tr>`});
- let td=document.getElementById('tbl_daily');td.innerHTML='<tr><th>Date</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Action</th></tr>';
- daily.forEach((d,i)=>{td.innerHTML+=`<tr><td>${d.date}</td><td>${d.name}</td><td>${d.shri}</td><td>${d.contact}</td><td><button onclick="daily.splice(${i},1);save()">X</button></td></tr>`});
- let tk=document.getElementById('tbl_kft');tk.innerHTML='<tr><th>Name</th><th>SHRI ID</th><th>KFT Status</th></tr>';
- patients.forEach(p=>{let st=kft[p.shri||p.name]||'Not Received';tk.innerHTML+=`<tr><td>${p.name}</td><td>${p.shri}</td><td><select onchange="kft['${(p.shri||p.name).replace(/'/g,'')}']=this.value"><option>Not Received</option><option>Received</option></select></td></tr>`});
-}
-function searchPatients(){
- let q=document.getElementById('search_patient').value.toLowerCase();
+ document.getElementById('c_total').textContent=patients.length;
+ document.getElementById('c_daily').textContent=daily.length;
  let tbl=document.getElementById('tbl_total');
  tbl.innerHTML='<tr><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr>';
- let filtered=patients.filter(p=>p.name.toLowerCase().includes(q)||p.shri.toLowerCase().includes(q)||p.contact.toLowerCase().includes(q));
- filtered.forEach(p=>{tbl.innerHTML+=`<tr><td>${p.name}</td><td>${p.shri}</td><td>${p.contact}</td><td>${p.pmjay}</td><td>${p.addr}</td></tr>`});
+ patients.forEach(p=>{tbl.innerHTML+=`<tr><td>${p.name||''}</td><td>${p.shri||''}</td><td>${p.contact||''}</td><td>${p.pmjay||''}</td><td>${p.addr||''}</td></tr>`});
+ let td=document.getElementById('tbl_daily');
+ td.innerHTML='<tr><th>Date</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Action</th></tr>';
+ daily.forEach((d,i)=>{td.innerHTML+=`<tr><td>${d.date}</td><td>${d.name}</td><td>${d.shri}</td><td>${d.contact}</td><td><button onclick="daily.splice(${i},1);save()">X</button></td></tr>`});
+ let tk=document.getElementById('tbl_kft');
+ tk.innerHTML='<tr><th>Name</th><th>SHRI ID</th><th>KFT Status</th></tr>';
+ patients.forEach(p=>{let st=kft[p.shri||p.name]||'Not Received';tk.innerHTML+=`<tr><td>${p.name}</td><td>${p.shri}</td><td><select onchange="kft['${String(p.shri||p.name).replace(/'/g,'')}']=this.value;save()"><option value="Not Received" ${st==='Not Received'?'selected':''}>Not Received</option><option value="Received" ${st==='Received'?'selected':''}>Received</option><option value="Pending" ${st==='Pending'?'selected':''}>Pending</option></select></td></tr>`});
+
+ const resultBox=document.getElementById('patientResultInfo');
+ const q=normalize(document.getElementById('search_patient')?.value || '');
+ if(!q){
+  resultBox.style.display='none';
+  resultBox.innerHTML='';
+  return;
+ }
+ let filtered=patients.filter(p=>[p.name,p.shri,p.contact,p.pmjay,p.addr].some(v=>normalize(v).includes(q)));
+ if(!filtered.length){
+  resultBox.style.display='block';
+  resultBox.innerHTML='<strong>No patient found.</strong> Try another name, SHRI ID, or contact number.';
+  return;
+ }
+ resultBox.style.display='block';
+ resultBox.innerHTML = filtered.slice(0,5).map(p=>`<div><strong>${p.name || 'Unknown'}</strong> | SHRI: ${p.shri || '-'} | Contact: ${p.contact || '-'} | PMJAY: ${p.pmjay || '-'} | Address: ${p.addr || '-'}</div>`).join('');
 }
-function clearSearch(){document.getElementById('search_patient').value='';searchPatients()}
+function searchPatients(){
+ let q=normalize(document.getElementById('search_patient').value);
+ let tbl=document.getElementById('tbl_total');
+ tbl.innerHTML='<tr><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr>';
+ if(!q){
+  patients.forEach(p=>{tbl.innerHTML+=`<tr><td>${p.name||''}</td><td>${p.shri||''}</td><td>${p.contact||''}</td><td>${p.pmjay||''}</td><td>${p.addr||''}</td></tr>`});
+  document.getElementById('patientResultInfo').style.display='none';
+  document.getElementById('patientResultInfo').innerHTML='';
+  return;
+ }
+ let filtered=patients.filter(p=>[p.name,p.shri,p.contact,p.pmjay,p.addr].some(v=>normalize(v).includes(q)));
+ if(!filtered.length){
+  tbl.innerHTML+='<tr><td colspan="5" style="text-align:center;color:#666;">No patient found</td></tr>';
+  document.getElementById('patientResultInfo').style.display='block';
+  document.getElementById('patientResultInfo').innerHTML='<strong>No patient found.</strong> Try another name, SHRI ID, or contact number.';
+  return;
+ }
+ filtered.forEach(p=>{tbl.innerHTML+=`<tr><td>${p.name||''}</td><td>${p.shri||''}</td><td>${p.contact||''}</td><td>${p.pmjay||''}</td><td>${p.addr||''}</td></tr>`});
+ document.getElementById('patientResultInfo').style.display='block';
+ document.getElementById('patientResultInfo').innerHTML = filtered.slice(0,5).map(p=>`<div><strong>${p.name || 'Unknown'}</strong> | SHRI: ${p.shri || '-'} | Contact: ${p.contact || '-'} | PMJAY: ${p.pmjay || '-'} | Address: ${p.addr || '-'}</div>`).join('');
+}
+function clearSearch(){document.getElementById('search_patient').value='';searchPatients();}
 document.getElementById('excel').addEventListener('change',e=>{
  let f=e.target.files[0];let r=new FileReader();r.onload=function(ev){
   let wb=XLSX.read(ev.target.result,{type:'binary'});let sh=wb.Sheets[wb.SheetNames[0]];let data=XLSX.utils.sheet_to_json(sh);
-  data.forEach(row=>{let name=row['Patient Name']||row['Name']||Object.values(row)[0];let shri=row['SHRI ID']||'';let contact=row['Contact Number']||row['Contact']||'';let pmjay=row['PMJAY ID']||'';let addr=row['Address']||'';if(name)patients.push({name,shri,contact,pmjay,addr})});
+  data.forEach(row=>{let name=row['Patient Name']||row['Name']||Object.values(row)[0]||'';let shri=row['SHRI ID']||'';let contact=row['Contact Number']||row['Contact']||'';let pmjay=row['PMJAY ID']||'';let addr=row['Address']||'';patients.push({name:String(name).trim(),shri:String(shri).trim(),contact:String(contact).trim(),pmjay:String(pmjay).trim(),addr:String(addr).trim()});});
   save();alert('Uploaded '+data.length+' patients');
  };r.readAsBinaryString(f);
 });
-function addNewPatient(){let p={name:document.getElementById('n_name').value,shri:document.getElementById('n_shri').value,contact:document.getElementById('n_contact').value,pmjay:document.getElementById('n_pmjay').value,addr:document.getElementById('n_addr').value};if(!p.name){alert('Name is required');return}patients.push(p);document.getElementById('n_name').value='';document.getElementById('n_shri').value='';document.getElementById('n_contact').value='';document.getElementById('n_pmjay').value='';document.getElementById('n_addr').value='';save();alert('Patient Added')}
-function showSuggest(inp,listId){let v=inp.value.toLowerCase();let box=document.getElementById(listId);box.innerHTML='';if(!v){box.style.display='none';return}let m=patients.filter(p=>p.name.toLowerCase().includes(v));m.forEach(p=>{let d=document.createElement('div');d.textContent=p.name;d.onclick=()=>{inp.value=p.name;box.style.display='none'};box.appendChild(d)});box.style.display=m.length?'block':'none'}
-function addDaily(){let name=document.getElementById('d_name').value;if(!name){alert('Enter name');return}let found=patients.find(p=>p.name.toLowerCase()==name.toLowerCase())||{name,shri:'',contact:''};daily.push({date:document.getElementById('d_date').value,name:found.name,shri:found.shri,contact:found.contact});document.getElementById('d_name').value='';save()}
+function addNewPatient(){let p={name:document.getElementById('n_name').value,shri:document.getElementById('n_shri').value,contact:document.getElementById('n_contact').value,pmjay:document.getElementById('n_pmjay').value,addr:document.getElementById('n_addr').value};if(!p.name){alert('Enter patient name');return}patients.push(p);save();document.getElementById('n_name').value='';document.getElementById('n_shri').value='';document.getElementById('n_contact').value='';document.getElementById('n_pmjay').value='';document.getElementById('n_addr').value='';}
+function showSuggest(inp,listId){let v=normalize(inp.value);let box=document.getElementById(listId);box.innerHTML='';if(!v){box.style.display='none';return}let matches=patients.filter(p=>normalize(p.name).includes(v)||normalize(p.shri).includes(v)||normalize(p.contact).includes(v));matches.slice(0,8).forEach(p=>{let div=document.createElement('div');div.textContent=`${p.name} - ${p.shri || 'No SHRI'} - ${p.contact || 'No contact'}`;div.onclick=()=>{inp.value=p.name;box.style.display='none';if(listId==='b_slist'){autoFillBill();} else if(listId==='d_slist'){document.getElementById('d_name').value=p.name;}};box.appendChild(div);});box.style.display=matches.length?'block':'none';}
+function addDaily(){let name=document.getElementById('d_name').value;if(!name){alert('Enter name');return}let found=patients.find(p=>normalize(p.name)===normalize(name))||{name,shri:'',contact:''};daily.push({date:document.getElementById('d_date').value,name:found.name,shri:found.shri,contact:found.contact});save();document.getElementById('d_name').value='';}
 function saveKFT(){save();alert('KFT Saved')}
-function autoFillBill(){let name=document.getElementById('b_name').value;let p=patients.find(x=>x.name.toLowerCase()==name.toLowerCase());if(p){document.getElementById('b_shri').value=p.shri;document.getElementById('b_addr').value=p.addr}}
+function autoFillBill(){let name=document.getElementById('b_name').value;let p=patients.find(x=>normalize(x.name)===normalize(name))||{};if(p){document.getElementById('b_shri').value=p.shri||'';document.getElementById('b_age').value=p.age||'56Y/F';document.getElementById('b_bed').value=p.bed||'D-3402';document.getElementById('o_addr').textContent=p.addr||'-';} }
 function today(){let d=new Date();return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
 function generateBill(){
- let name=document.getElementById('b_name').value;let p=patients.find(x=>x.name.toLowerCase()==name.toLowerCase())||{};
- document.getElementById('o_name').textContent=name||'-';document.getElementById('o_shri').textContent=document.getElementById('b_shri').value||p.shri||'-';document.getElementById('o_ip').textContent=document.getElementById('b_ip').value||'-';document.getElementById('o_age').textContent=document.getElementById('b_age').value||'-';document.getElementById('o_bed').textContent=document.getElementById('b_bed').value||'-';document.getElementById('o_addr').textContent=document.getElementById('b_addr').value||p.addr||'-';document.getElementById('o_date').textContent=document.getElementById('b_date').value||today()
+ let name=document.getElementById('b_name').value;let p=patients.find(x=>normalize(x.name)===normalize(name))||{};
+ document.getElementById('o_name').textContent=name||'-';
+ document.getElementById('o_shri').textContent=document.getElementById('b_shri').value||p.shri||'-';
+ document.getElementById('o_ip').textContent=document.getElementById('b_ip').value||'-';
+ document.getElementById('o_age').textContent=document.getElementById('b_age').value||'-';
+ document.getElementById('o_bed').textContent=document.getElementById('b_bed').value||'-';
+ document.getElementById('o_addr').textContent=p.addr||'-';
+ document.getElementById('o_date').textContent=document.getElementById('b_date').value||'-';
+ document.getElementById('m_date').textContent=document.getElementById('b_date').value||'-';
 }
 (function(){let t=new Date();t.setDate(t.getDate()+1);document.getElementById('d_date').valueAsDate=t;render()})();
 </script></body></html>
