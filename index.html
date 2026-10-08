@@ -204,7 +204,23 @@ function doLogin(){
 function doLogout(){localStorage.removeItem('shija_logged');location.reload();}
 if(localStorage.getItem('shija_logged')==='1'){document.getElementById('loginPage').style.display='none';document.getElementById('app').style.display='block';}
 
-let patients=JSON.parse(localStorage.getItem('shija_patients')||'[]');
+// ===== FIX: Load 508 Excel patients + localStorage - works on PC & Mobile =====
+let excelRaw = (typeof patientData !== 'undefined') ? patientData : (typeof patientsData !== 'undefined' ? patientsData : []);
+let excelPatients = excelRaw.map(p => ({
+  name: (p.patientName || p.name || '').trim(),
+  shri: String(p.shriId || p.shri || '').trim(),
+  contact: String(p.contactNo || p.contact || '').trim(),
+  pmjay: String(p.pmjayId || p.pmjay || '').trim(),
+  addr: (p.address || p.addr || '').trim()
+})).filter(p => p.name);
+
+let localPatients = JSON.parse(localStorage.getItem('shija_patients')||'[]');
+let seen = new Set();
+let patients = [];
+[...excelPatients, ...localPatients].forEach(p => {
+  let key = p.name.toLowerCase();
+  if(!seen.has(key)){ seen.add(key); patients.push(p); }
+});
 let daily=JSON.parse(localStorage.getItem('shija_daily')||'[]');
 let kft=JSON.parse(localStorage.getItem('shija_kft')||'{}');
 let kftEntries=JSON.parse(localStorage.getItem('shija_kft_entries')||'[]');
