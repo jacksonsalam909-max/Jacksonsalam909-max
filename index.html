@@ -33,14 +33,20 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 .bill-h{text-align:center;padding:6px;border-bottom:2px solid #000}.bill-i{display:flex;justify-content:space-between;padding:6px 8px;font-size:11px;line-height:1.35;border-bottom:1px solid #000}
 .bill-t{width:100%;border-collapse:collapse}.bill-t th{background:#8b8b8b;font-size:10px;padding:3px;border:1px solid #000}.bill-t td{font-size:11px;padding:2px 4px;border-left:1px solid #000;border-right:1px solid #000}
 .head-row td{background:#e9e9e9!important;font-weight:bold!important;border:1px solid #000!important;height:16px!important;padding:2px 5px!important}
-.search-row{display:flex;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #ddd}
-.search-row input{flex:1}
+.search-row{display:flex;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #ddd;flex-wrap:wrap}
+.search-row input{flex:1;min-width:200px}
 .search-row .btn{margin:0;padding:9px 16px}
 .search-result{display:none;margin:0 0 12px;padding:12px;border:1px solid #d9e1ee;border-radius:8px;background:#f8fafc;color:#1f2937;font-size:12px;line-height:1.6}
 .search-result strong{color:#0f4c75}
 .kft-month-section{margin-bottom:20px;padding:12px;background:#f0f4f8;border-radius:8px;border-left:4px solid #0f4c75}
 .kft-month-section h4{color:#0f4c75;margin-bottom:8px}
 .kft-collection-label{font-size:11px;color:#666;margin-bottom:8px}
+.kft-entry-form{background:#f9f9f9;padding:12px;border-radius:8px;margin-bottom:15px;border:1px solid #e0e0e0}
+.kft-entry-form .grid{grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.status-btns{display:flex;gap:6px;margin-top:8px}
+.status-btns button{flex:1;padding:8px;border:2px solid #bbb;background:#fff;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px;transition:0.2s}
+.status-btns button.received{border-color:#1a9e5a;background:#e8f5e9;color:#1a9e5a}
+.status-btns button.notreceived{border-color:#d32f2f;background:#ffebee;color:#d32f2f}
 @media print{.no-print{display:none}body{background:#fff}}
 </style></head><body>
 
@@ -105,7 +111,21 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 </div>
 
 <div class="box" id="tab_kft" style="display:none">
-<h3>4. KFT Report</h3>
+<h3>4. KFT Report - Add Patient with Date & Status</h3>
+<div class="kft-entry-form">
+<div class="grid" style="grid-template-columns:1fr 1fr 1fr;gap:8px">
+<div class="suggest">
+<input id="kft_patient_search" placeholder="Search Patient Name - hint" oninput="showKFTPatientSuggest()">
+<div id="kft_suggest_list" class="slist" style="display:none"></div>
+</div>
+<input type="date" id="kft_entry_date">
+<button class="btn" style="margin:0" onclick="openKFTEntryModal()">Add KFT Entry</button>
+</div>
+<div class="status-btns" style="display:none" id="kft_status_btns">
+<button onclick="setKFTStatus('received')" class="received">✓ Received</button>
+<button onclick="setKFTStatus('notreceived')" class="notreceived">✗ Not Received</button>
+</div>
+</div>
 <div class="search-row no-print">
 <input id="search_kft" placeholder="Search by Patient Name or SHRI ID..." oninput="filterKFTBySearch()">
 <select id="kft_month" onchange="filterKFTByMonth()" style="flex:1">
@@ -151,10 +171,11 @@ if(localStorage.getItem('shija_logged')==='1'){document.getElementById('loginPag
 let patients=JSON.parse(localStorage.getItem('shija_patients')||'[]');
 let daily=JSON.parse(localStorage.getItem('shija_daily')||'[]');
 let kft=JSON.parse(localStorage.getItem('shija_kft')||'{}');
+let kftEntries=JSON.parse(localStorage.getItem('shija_kft_entries')||'[]');
 
 const normalize = (value='') => String(value ?? '').trim().toLowerCase();
 
-function save(){localStorage.setItem('shija_patients',JSON.stringify(patients));localStorage.setItem('shija_daily',JSON.stringify(daily));localStorage.setItem('shija_kft',JSON.stringify(kft));renderKFT();}
+function save(){localStorage.setItem('shija_patients',JSON.stringify(patients));localStorage.setItem('shija_daily',JSON.stringify(daily));localStorage.setItem('shija_kft',JSON.stringify(kft));localStorage.setItem('shija_kft_entries',JSON.stringify(kftEntries));renderKFT();}
 function showTab(t){document.querySelectorAll('[id^=tab_]').forEach(e=>e.style.display='none');document.getElementById('tab_'+t).style.display='block';document.querySelectorAll('.menu button').forEach(e=>e.classList.remove('active'));document.getElementById('b_'+t).classList.add('active');if(t==='kft'){initKFTView()}}
 function render(){
  document.getElementById('c_total').textContent=patients.length;
@@ -213,6 +234,55 @@ document.getElementById('excel').addEventListener('change',e=>{
 });
 function addNewPatient(){let p={name:document.getElementById('n_name').value,shri:document.getElementById('n_shri').value,contact:document.getElementById('n_contact').value,pmjay:document.getElementById('n_pmjay').value,addr:document.getElementById('n_addr').value};if(!p.name){alert('Name required');return}patients.push(p);save();render();['n_name','n_shri','n_contact','n_pmjay','n_addr'].forEach(id=>{document.getElementById(id).value=''})}
 function showSuggest(inp,listId){let v=normalize(inp.value);let box=document.getElementById(listId);box.innerHTML='';if(!v){box.style.display='none';return;}let matches=patients.filter(p=>normalize(p.name).includes(v));if(!matches.length){box.style.display='none';return;}box.style.display='block';matches.forEach(p=>{let div=document.createElement('div');div.textContent=`${p.name} | SHRI: ${p.shri||'-'} | Contact: ${p.contact||'-'}`;div.onclick=()=>{inp.value=p.name;box.style.display='none'};box.appendChild(div)})}
+
+// KFT PATIENT SUGGESTION
+let currentKFTPatient=null;
+function showKFTPatientSuggest(){
+ let v=normalize(document.getElementById('kft_patient_search').value);
+ let box=document.getElementById('kft_suggest_list');
+ box.innerHTML='';
+ if(!v){box.style.display='none';return;}
+ let matches=patients.filter(p=>normalize(p.name).includes(v)).slice(0,10);
+ if(!matches.length){box.style.display='none';return;}
+ box.style.display='block';
+ matches.forEach(p=>{
+  let div=document.createElement('div');
+  div.textContent=`${p.name} | SHRI: ${p.shri||'-'} | Contact: ${p.contact||'-'}`;
+  div.onclick=()=>{
+   document.getElementById('kft_patient_search').value=p.name;
+   currentKFTPatient=p;
+   box.style.display='none';
+  };
+  box.appendChild(div);
+ });
+}
+
+function openKFTEntryModal(){
+ if(!currentKFTPatient){alert('Select a patient first');return}
+ if(!document.getElementById('kft_entry_date').value){alert('Select a date');return}
+ document.getElementById('kft_status_btns').style.display='flex';
+}
+
+function setKFTStatus(status){
+ if(!currentKFTPatient){alert('Select patient');return}
+ let entry={
+  name:currentKFTPatient.name,
+  shri:currentKFTPatient.shri,
+  contact:currentKFTPatient.contact,
+  date:document.getElementById('kft_entry_date').value,
+  status:status,
+  timestamp:new Date().toLocaleString()
+ };
+ kftEntries.push(entry);
+ save();
+ document.getElementById('kft_patient_search').value='';
+ document.getElementById('kft_entry_date').value='';
+ document.getElementById('kft_status_btns').style.display='none';
+ currentKFTPatient=null;
+ alert('KFT Entry Added: '+entry.name+' - '+status.toUpperCase());
+ renderKFT();
+}
+
 function addDaily(){let name=document.getElementById('d_name').value;if(!name){alert('Enter name');return}let found=patients.find(p=>normalize(p.name)===normalize(name))||{name,shri:'',contact:''};daily.push({date:document.getElementById('d_date').value,name:found.name,shri:found.shri,contact:found.contact});save();document.getElementById('d_name').value='';render()}
 function saveKFT(){save();alert('KFT Saved')}
 function autoFillBill(){let name=document.getElementById('b_name').value;let p=patients.find(x=>normalize(x.name)===normalize(name))||{};if(p){document.getElementById('b_shri').value=p.shri||'';document.getElementById('b_addr').value=p.addr||''}}
@@ -229,8 +299,8 @@ function getMonthYear(dateString) {
 
 function initKFTView() {
   let months = new Set();
-  daily.forEach(d => {
-    if(d.date) months.add(getMonthYear(d.date));
+  kftEntries.forEach(e => {
+    if(e.date) months.add(getMonthYear(e.date));
   });
   
   let selectEl = document.getElementById('kft_month');
@@ -267,18 +337,17 @@ function renderKFT() {
   container.innerHTML = '';
   
   let groupedByMonth = {};
-  daily.forEach(d => {
-    if(!d.date) return;
-    let monthKey = getMonthYear(d.date);
+  kftEntries.forEach(e => {
+    if(!e.date) return;
+    let monthKey = getMonthYear(e.date);
     if(selectedMonth && monthKey !== selectedMonth) return;
     
-    let patient = patients.find(p => normalize(p.name) === normalize(d.name));
     if(searchQ) {
-      if(!normalize(d.name).includes(searchQ) && !normalize(d.shri).includes(searchQ)) return;
+      if(!normalize(e.name).includes(searchQ) && !normalize(e.shri).includes(searchQ)) return;
     }
     
     if(!groupedByMonth[monthKey]) groupedByMonth[monthKey] = [];
-    groupedByMonth[monthKey].push(d);
+    groupedByMonth[monthKey].push(e);
   });
   
   if(Object.keys(groupedByMonth).length === 0) {
@@ -297,10 +366,11 @@ function renderKFT() {
       <div class="kft-collection-label">📅 Collection Dates: ${collectionDates} & ${collectionDates15}</div>`;
     
     let table = document.createElement('table');
-    table.innerHTML = '<tr><th>Date</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Action</th></tr>';
+    table.innerHTML = '<tr><th>Date</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Status</th><th>Action</th></tr>';
     
-    groupedByMonth[monthKey].forEach((d, i) => {
-      let row = `<tr><td>${d.date}</td><td>${d.name}</td><td>${d.shri||'-'}</td><td>${d.contact||'-'}</td><td><button onclick="daily.splice(daily.indexOf(daily.find(x=>x.date=='${d.date}'&&x.name=='${d.name}')), 1);save();renderKFT()">X</button></td></tr>`;
+    groupedByMonth[monthKey].forEach((e, i) => {
+      let statusBadge = e.status==='received'?'<span style="background:#e8f5e9;color:#1a9e5a;padding:2px 6px;border-radius:3px;font-weight:bold">✓ Received</span>':'<span style="background:#ffebee;color:#d32f2f;padding:2px 6px;border-radius:3px;font-weight:bold">✗ Not Received</span>';
+      let row = `<tr><td>${e.date}</td><td>${e.name}</td><td>${e.shri||'-'}</td><td>${e.contact||'-'}</td><td>${statusBadge}</td><td><button onclick="kftEntries.splice(${kftEntries.indexOf(e)},1);save();renderKFT()" style="padding:4px 8px;background:#d32f2f;color:#fff;border:0;border-radius:4px;cursor:pointer">Delete</button></td></tr>`;
       table.innerHTML += row;
     });
     
@@ -321,5 +391,5 @@ function generateBill(){
  document.getElementById('o_date').textContent=document.getElementById('b_date').value||'-';
  document.getElementById('m_date').textContent=document.getElementById('b_date').value||'-';
 }
-(function(){let t=new Date();t.setDate(t.getDate()+1);document.getElementById('d_date').valueAsDate=t;render()})();
+(function(){let t=new Date();t.setDate(t.getDate()+1);document.getElementById('d_date').valueAsDate=t;document.getElementById('kft_entry_date').valueAsDate=new Date();render()})();
 </script></body></html>
