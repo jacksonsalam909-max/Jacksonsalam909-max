@@ -57,6 +57,11 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 .block-buttons{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .block-buttons button{flex:1;min-width:80px;padding:8px;border:2px solid #bbb;background:#fff;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px;transition:0.2s}
 .block-buttons button.selected{border-color:#0f4c75;background:#0f4c75;color:#fff}
+.daily-filter-box{margin:10px 0 8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.daily-filter-box label{font-weight:bold;color:#0f4c75;font-size:12px}
+.daily-filter-box select{max-width:220px}
+.tbl-action-btn{padding:5px 8px;border:0;border-radius:5px;cursor:pointer;font-size:11px;background:#0f4c75;color:#fff}
+.tbl-cancel-btn{padding:5px 8px;border:0;border-radius:5px;cursor:pointer;font-size:11px;background:#666;color:#fff}
 @media print{.no-print{display:none}body{background:#fff}}
 </style></head><body>
 
@@ -123,6 +128,18 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 <div class="block-buttons" id="blockButtons"></div>
 </div>
 <button class="btn" id="finalAddBtn" style="display:none;margin-top:12px" onclick="addDaily()">Add to Record</button>
+<div class="daily-filter-box">
+<label for="daily_time_filter">Filter by time:</label>
+<select id="daily_time_filter" onchange="render()">
+<option value="all">All Times</option>
+<option value="7:00 AM">7:00 AM</option>
+<option value="12:00 PM">12:00 PM</option>
+<option value="5:00 PM">5:00 PM</option>
+<option value="9:00 PM">9:00 PM</option>
+<option value="12:00 AM">12:00 AM</option>
+<option value="2:00 AM">2:00 AM</option>
+</select>
+</div>
 <table id="tbl_daily"><tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Time</th><th>Prev Date</th><th>Block</th><th>Action</th></tr></table>
 </div>
 
@@ -231,13 +248,58 @@ function renderPagination(totalPages){
  let nextBtn=document.createElement('button');nextBtn.textContent='Next →';nextBtn.onclick=()=>{if(currentPatientPage<totalPages){currentPatientPage++;renderPatientTable();}};nextBtn.disabled=currentPatientPage===totalPages;pag.appendChild(nextBtn);
 }
 
+function renderDailyTable(){
+ let td=document.getElementById('tbl_daily');
+ let selectedFilter=document.getElementById('daily_time_filter')?.value || 'all';
+ let filtered = selectedFilter==='all' ? daily : daily.filter(d => (d.time||'')===selectedFilter);
+ td.innerHTML='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Time</th><th>Prev Date</th><th>Block</th><th>Action</th></tr>';
+ filtered.forEach((d, index)=>{
+  let actualIndex = daily.indexOf(d);
+  if(d.editing){
+   td.innerHTML += `
+    <tr>
+     <td>${actualIndex+1}</td>
+     <td><input id="edit_name_${actualIndex}" value="${(d.name||'').replace(/"/g,'&quot;')}" style="min-width:120px"></td>
+     <td><input id="edit_shri_${actualIndex}" value="${(d.shri||'').replace(/"/g,'&quot;')}" style="min-width:110px"></td>
+     <td>
+      <select id="edit_time_${actualIndex}">
+       ${TIME_SLOTS.map(t => `<option value="${t}" ${t===d.time?'selected':''}>${t}</option>`).join('')}
+      </select>
+     </td>
+     <td><input type="date" id="edit_prev_${actualIndex}" value="${d.prevDate||''}" style="min-width:120px"></td>
+     <td>
+      <select id="edit_block_${actualIndex}">
+       ${BLOCKS.map(b => `<option value="${b}" ${b===d.block?'selected':''}>${b}</option>`).join('')}
+      </select>
+     </td>
+     <td>
+      <button class="tbl-action-btn" onclick="saveEditedDaily(${actualIndex})">Save</button>
+      <button class="tbl-cancel-btn" onclick="cancelEditDaily(${actualIndex})">Cancel</button>
+     </td>
+    </tr>`;
+  }else{
+   td.innerHTML += `
+    <tr>
+     <td>${actualIndex+1}</td>
+     <td>${d.name||''}</td>
+     <td>${d.shri||''}</td>
+     <td>${d.time||'-'}</td>
+     <td>${d.prevDate||'-'}</td>
+     <td>${d.block||'-'}</td>
+     <td>
+      <button class="tbl-action-btn" onclick="startEditDaily(${actualIndex})">Edit</button>
+      <button class="tbl-cancel-btn" onclick="deleteDaily(${actualIndex})">Delete</button>
+     </td>
+    </tr>`;
+  }
+ });
+}
+
 function render(){
  document.getElementById('c_total').textContent=patients.length;
  document.getElementById('c_daily').textContent=daily.length;
  renderPatientTable();
- let td=document.getElementById('tbl_daily');
- td.innerHTML='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Time</th><th>Prev Date</th><th>Block</th><th>Action</th></tr>';
- daily.forEach((d,i)=>{td.innerHTML+=`<tr><td>${i+1}</td><td>${d.name}</td><td>${d.shri}</td><td>${d.time||'-'}</td><td>${d.prevDate||'-'}</td><td>${d.block||'-'}</td><td><button onclick="daily.splice(${i},1);save();render()">X</button></td></tr>`});
+ renderDailyTable();
 
  const resultBox=document.getElementById('patientResultInfo');
  const q=normalize(document.getElementById('search_patient')?.value || '');
@@ -354,6 +416,41 @@ function addDaily(){
  render();
  resetDailyForm();
  alert('Daily Record Added');
+}
+
+function deleteDaily(index){
+ if(confirm('Delete this dialysis record?')){
+  daily.splice(index,1);
+  save();
+  render();
+ }
+}
+
+function startEditDaily(index){
+ daily[index].editing=true;
+ render();
+}
+
+function cancelEditDaily(index){
+ daily[index].editing=false;
+ render();
+}
+
+function saveEditedDaily(index){
+ let name=document.getElementById('edit_name_'+index)?.value.trim();
+ let shri=document.getElementById('edit_shri_'+index)?.value.trim();
+ let time=document.getElementById('edit_time_'+index)?.value;
+ let prevDate=document.getElementById('edit_prev_'+index)?.value;
+ let block=document.getElementById('edit_block_'+index)?.value;
+ if(!name){alert('Name is required');return;}
+ daily[index].name=name;
+ daily[index].shri=shri;
+ daily[index].time=time;
+ daily[index].prevDate=prevDate;
+ daily[index].block=block;
+ daily[index].editing=false;
+ save();
+ render();
 }
 
 let currentKFTPatient=null;
