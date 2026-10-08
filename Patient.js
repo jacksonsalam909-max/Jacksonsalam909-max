@@ -1,5 +1,3 @@
-// Sheet: Table 1
-
 const patientData = [
   {
     "id": 1,
