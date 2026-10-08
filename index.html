@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name=viewport content="width=device-width,initial-scale=1">
+<title>SHIJA Dialysis Dashboard - Login</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#f1f5f9}
+/* LOGIN PAGE */
+#loginPage{position:fixed;inset:0;background:linear-gradient(135deg,#0f4c75,#1a9e5a);display:flex;align-items:center;justify-content:center;z-index:9999}
+.loginBox{background:#fff;padding:28px;border-radius:14px;width:92%;max-width:360px;box-shadow:0 10px 30px #0003;text-align:center}
+.loginBox h2{color:#0f4c75;margin-bottom:6px}
+.loginBox p{font-size:11px;color:#666;margin-bottom:14px}
+.loginBox input{padding:12px;border:1px solid #bbb;border-radius:8px;width:100%;font-size:14px;margin:6px 0}
+.loginBtn{padding:12px;border:0;border-radius:8px;background:#0f4c75;color:#fff;font-weight:bold;width:100%;margin-top:10px;cursor:pointer}
+.top{background:#0f4c75;color:#fff;padding:12px;text-align:center;display:flex;justify-content:space-between;align-items:center}
+.dash{max-width:1100px;margin:12px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:0 10px}
+.card{background:#fff;padding:12px;border-radius:10px;text-align:center;box-shadow:0 2px 8px #0001;cursor:pointer}
+.card b{font-size:20px;display:block;color:#0f4c75}
+.menu{max-width:1100px;margin:10px auto;display:flex;gap:6px;flex-wrap:wrap;padding:0 10px}
+.menu button{padding:10px 14px;border:0;border-radius:8px;background:#fff;font-weight:bold;cursor:pointer;box-shadow:0 1px 4px #0001}
+.menu button.active{background:#0f4c75;color:#fff}
+.box{max-width:1100px;margin:10px auto;background:#fff;padding:14px;border-radius:12px;box-shadow:0 2px 10px #0001}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+input,select{padding:9px;border:1px solid #bbb;border-radius:7px;width:100%;font-size:13px}
+.btn{padding:10px 16px;border:0;border-radius:7px;background:#0f4c75;color:#fff;font-weight:bold;cursor:pointer;margin-top:8px}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th{background:#0f4c75;color:#fff;padding:6px;font-size:11px}
+td{border:1px solid #ddd;padding:5px;font-size:12px}
+.suggest{position:relative}.slist{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #bbb;max-height:140px;overflow:auto;z-index:99}
+.slist div{padding:6px;cursor:pointer;font-size:12px;border-bottom:1px solid #eee}.slist div:hover{background:#e3f2fd}
+.bill{max-width:800px;margin:15px auto;background:#fff;border:1px solid #000}
+.bill-h{text-align:center;padding:6px;border-bottom:2px solid #000}.bill-i{display:flex;justify-content:space-between;padding:6px 8px;font-size:11px;line-height:1.35;border-bottom:1px solid #000}
+.bill-t{width:100%;border-collapse:collapse}.bill-t th{background:#8b8b8b;font-size:10px;padding:3px;border:1px solid #000}.bill-t td{font-size:11px;padding:2px 4px;border-left:1px solid #000;border-right:1px solid #000}
+.head-row td{background:#e9e9e9!important;font-weight:bold!important;border:1px solid #000!important;height:16px!important;padding:2px 5px!important}
+@media print{.no-print{display:none}body{background:#fff}}
+</style></head><body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage">
+<div class="loginBox">
+<h2>SHIJA HOSPITALS</h2>
+<p>Dialysis Dashboard Login</p>
+<input id="l_user" placeholder="Username">
+<input id="l_pass" type="password" placeholder="Password">
+<button class="loginBtn" onclick="doLogin()">Login</button>
+<p style="margin-top:10px;font-size:10px">Default: admin / admin123</p>
+<p id="l_err" style="color:red;font-size:11px;margin-top:6px"></p>
+</div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+<div class="top"><h2>SHIJA Dialysis Dashboard</h2><button onclick="doLogout()" style="padding:6px 12px;border:0;border-radius:6px;background:#fff;color:#0f4c75;font-weight:bold;cursor:pointer">Logout</button></div>
+<div class="dash">
+<div class="card" onclick="showTab('total')"><b id="c_total">0</b>Total Patient</div>
+<div class="card" onclick="showTab('add')"><b>+</b>Add New Patient</div>
+<div class="card" onclick="showTab('daily')"><b id="c_daily">0</b>Daily Dialysis</div>
+<div class="card" onclick="showTab('kft')"><b id="c_kft">0</b>KFT Report</div>
+<div class="card" onclick="showTab('bill')"><b>₹</b>Bill Generator</div>
+</div>
+<div class="menu no-print">
+<button id="b_total" class="active" onclick="showTab('total')">1. Total Patient</button>
+<button id="b_add" onclick="showTab('add')">2. Add New Patient</button>
+<button id="b_daily" onclick="showTab('daily')">3. Daily Record</button>
+<button id="b_kft" onclick="showTab('kft')">4. KFT Report</button>
+<button id="b_bill" onclick="showTab('bill')">5. Bill Generator</button>
+</div>
+
+<div class="box" id="tab_total">
+<h3>1. Total Patient - Upload Excel</h3>
+<p style="font-size:11px;color:#555">Columns: Patient Name | SHRI ID | Contact | PMJAY ID | Address</p>
+<input type="file" id="excel" accept=".xlsx,.xls,.csv" style="margin-top:8px">
+<table id="tbl_total"><tr><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr></table>
+</div>
+
+<div class="box" id="tab_add" style="display:none">
+<h3>2. Add New Patient</h3>
+<div class="grid">
+<input id="n_name" placeholder="Patient Name *"><input id="n_shri" placeholder="SHRI ID"><input id="n_contact" placeholder="Contact Number"><input id="n_pmjay" placeholder="PMJAY ID"><input id="n_addr" placeholder="Address" style="grid-column:span 2"><input id="n_age" placeholder="Age/Sex" value="56Y/F">
+</div><button class="btn" onclick="addNewPatient()">Add Patient</button>
+</div>
+
+<div class="box" id="tab_daily" style="display:none">
+<h3>3. Daily Dialysis Record</h3>
+<div class="grid">
+<input type="date" id="d_date">
+<div class="suggest"><input id="d_name" placeholder="Type Name - hint" oninput="showSuggest(this,'d_slist')"><div id="d_slist" class="slist" style="display:none"></div></div>
+<button class="btn" style="margin:0" onclick="addDaily()">Add</button>
+</div>
+<table id="tbl_daily"><tr><th>Date</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Action</th></tr></table>
+</div>
+
+<div class="box" id="tab_kft" style="display:none">
+<h3>4. KFT Report</h3>
+<table id="tbl_kft"><tr><th>Name</th><th>SHRI ID</th><th>KFT Status</th></tr></table>
+<button class="btn" style="background:#1a9e5a" onclick="saveKFT()">Save KFT</button>
+</div>
+
+<div class="box" id="tab_bill" style="display:none">
+<h3>5. Bill Generator - Exact Shija Bill</h3>
+<div class="grid">
+<div class="suggest"><input id="b_name" placeholder="Patient Name - hint" oninput="showSuggest(this,'b_slist');autoFillBill()"><div id="b_slist" class="slist" style="display:none"></div></div>
+<input id="b_shri" placeholder="SHRI ID"><input id="b_ip" placeholder="IP No"><input id="b_age" placeholder="Age/Sex" value="56Y/F"><input id="b_bed" placeholder="Bed No" value="D-3402"><input id="b_dis" placeholder="Discharge Time"><input id="b_billno" placeholder="Bill No"><input id="b_mob" placeholder="Mobile"><input id="b_adm" placeholder="Adm Date">
+</div>
+<button class="btn" onclick="generateBill()">Generate Bill</button><button class="btn" style="background:#1a9e5a" onclick="window.print()">Print</button>
+<div class="bill" id="bill">
+<div class="bill-h"><h3>SHIJA HOSPITALS & RESEARCH INSTITUTE PVT LTD</h3><p style="font-size:10px">Langol, Imphal - Bill of Supply</p></div>
+<div class="bill-i"><div>Name: <b id="o_name">-</b><br>Age/Sex: <b id="o_age">-</b><br>Bed: <b id="o_bed">-</b><br>Doctor: Dr.Guliver<br>Address: <b id="o_addr">-</b><br>Payer: PMJAY<br>SHRI ID: <b id="o_shri">-</b><br>IP: <b id="o_ip">-</b></div><div style="text-align:right">Adm: <b id="o_adm">-</b><br>Discharge: <b id="o_dis">-</b><br>Bill No: <b id="o_billno">-</b><br>Bill Date: <b id="o_bdate">-</b><br>Mobile: <b id="o_mob">-</b><br>Speciality: Nephrology</div></div>
+<table class="bill-t"><tr><th>SL</th><th style="text-align:left">ITEM NAME</th><th>DATE</th><th>QTY</th><th>AMOUNT</th><th>NET</th></tr><tr class="head-row"><td colspan="6">NEPHROLOGY PROCEDURE</td></tr><tr><td style="text-align:center">1</td><td>Haemodialysis Subsequent Visit PMJAY</td><td id="o_date" style="text-align:center">-</td><td style="text-align:center">1</td><td style="text-align:right">₹2,660.00</td><td style="text-align:right">₹2,660.00</td></tr><tr style="font-weight:bold"><td colspan="4" style="border:none"></td><td style="text-align:center;border:1px solid #000">Sub Total</td><td style="text-align:right;border:1px solid #000">₹2,660.00</td></tr></table>
+<div style="padding:8px;font-size:11px;text-align:right">Gross: ₹2,660 | Net: ₹2,660 | Company: ₹2,660<div style="display:flex;justify-content:space-between;margin-top:28px"><span>Signature</span><span>Patient Sign</span></div></div>
+</div>
+</div>
+</div>
+
+<script>
+// LOGIN LOGIC
+const DEFAULT_USER="admin", DEFAULT_PASS="admin123";
+function doLogin(){
+ let u=document.getElementById('l_user').value.trim();
+ let p=document.getElementById('l_pass').value.trim();
+ if(u===DEFAULT_USER && p===DEFAULT_PASS){
+  localStorage.setItem('shija_logged','1');
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('app').style.display='block';
+ }else{ document.getElementById('l_err').textContent='Wrong username or password!'; }
+}
+function doLogout(){localStorage.removeItem('shija_logged');location.reload();}
+if(localStorage.getItem('shija_logged')==='1'){document.getElementById('loginPage').style.display='none';document.getElementById('app').style.display='block';}
+
+let patients=JSON.parse(localStorage.getItem('shija_patients')||'[]');
+let daily=JSON.parse(localStorage.getItem('shija_daily')||'[]');
+let kft=JSON.parse(localStorage.getItem('shija_kft')||'{}');
+function save(){localStorage.setItem('shija_patients',JSON.stringify(patients));localStorage.setItem('shija_daily',JSON.stringify(daily));localStorage.setItem('shija_kft',JSON.stringify(kft));render()}
+function showTab(t){document.querySelectorAll('[id^=tab_]').forEach(e=>e.style.display='none');document.getElementById('tab_'+t).style.display='block';document.querySelectorAll('.menu button').forEach(e=>e.classList.remove('active'));document.getElementById('b_'+t).classList.add('active')}
+function render(){
+ document.getElementById('c_total').textContent=patients.length;document.getElementById('c_daily').textContent=daily.length;
+ let tbl=document.getElementById('tbl_total');tbl.innerHTML='<tr><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr>';
+ patients.forEach(p=>{tbl.innerHTML+=`<tr><td>${p.name}</td><td>${p.shri}</td><td>${p.contact}</td><td>${p.pmjay}</td><td>${p.addr}</td></tr>`});
+ let td=document.getElementById('tbl_daily');td.innerHTML='<tr><th>Date</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Action</th></tr>';
+ daily.forEach((d,i)=>{td.innerHTML+=`<tr><td>${d.date}</td><td>${d.name}</td><td>${d.shri}</td><td>${d.contact}</td><td><button onclick="daily.splice(${i},1);save()">X</button></td></tr>`});
+ let tk=document.getElementById('tbl_kft');tk.innerHTML='<tr><th>Name</th><th>SHRI ID</th><th>KFT Status</th></tr>';
+ patients.forEach(p=>{let st=kft[p.shri||p.name]||'Not Received';tk.innerHTML+=`<tr><td>${p.name}</td><td>${p.shri}</td><td><select onchange="kft['${(p.shri||p.name).replace(/'/g,'')}']=this.value"><option ${st=='Received'?'selected':''}>Received</option><option ${st=='Not Received'?'selected':''}>Not Received</option></select></td></tr>`});
+}
+document.getElementById('excel').addEventListener('change',e=>{
+ let f=e.target.files[0];let r=new FileReader();r.onload=function(ev){
+  let wb=XLSX.read(ev.target.result,{type:'binary'});let sh=wb.Sheets[wb.SheetNames[0]];let data=XLSX.utils.sheet_to_json(sh);
+  data.forEach(row=>{let name=row['Patient Name']||row['Name']||Object.values(row)[0];let shri=row['SHRI ID']||'';let contact=row['Contact Number']||row['Contact']||'';let pmjay=row['PMJAY ID']||'';let addr=row['Address']||'';if(name) patients.push({name,shri,contact,pmjay,addr,age:'56Y/F'});});
+  save();alert('Uploaded '+data.length+' patients');
+ };r.readAsBinaryString(f);
+});
+function addNewPatient(){let p={name:document.getElementById('n_name').value,shri:document.getElementById('n_shri').value,contact:document.getElementById('n_contact').value,pmjay:document.getElementById('n_pmjay').value,addr:document.getElementById('n_addr').value,age:document.getElementById('n_age').value};if(!p.name){alert('Enter Name');return}patients.push(p);save();document.getElementById('n_name').value='';alert('Added to Total');}
+function showSuggest(inp,listId){let v=inp.value.toLowerCase();let box=document.getElementById(listId);box.innerHTML='';if(!v){box.style.display='none';return}let m=patients.filter(p=>p.name.toLowerCase().includes(v)).slice(0,8);if(!m.length){box.style.display='none';return}m.forEach(p=>{let d=document.createElement('div');d.textContent=p.name+' | '+p.shri;d.onclick=()=>{inp.value=p.name;box.style.display='none';if(inp.id=='b_name') autoFillBill();};box.appendChild(d)});box.style.display='block';}
+function addDaily(){let name=document.getElementById('d_name').value;if(!name){alert('Enter name');return}let found=patients.find(p=>p.name.toLowerCase()==name.toLowerCase())||{name,shri:'',contact:''};daily.push({date:document.getElementById('d_date').value||new Date().toISOString().split('T')[0],name:found.name,shri:found.shri,contact:found.contact});save();document.getElementById('d_name').value='';}
+function saveKFT(){save();alert('KFT Saved')}
+function autoFillBill(){let name=document.getElementById('b_name').value;let p=patients.find(x=>x.name.toLowerCase()==name.toLowerCase());if(p){document.getElementById('b_shri').value=p.shri;document.getElementById('b_mob').value=p.contact;}}
+function today(){let d=new Date();return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+function generateBill(){
+ let name=document.getElementById('b_name').value;let p=patients.find(x=>x.name.toLowerCase()==name.toLowerCase())||{};
+ document.getElementById('o_name').textContent=name||'-';document.getElementById('o_shri').textContent=document.getElementById('b_shri').value||p.shri||'-';document.getElementById('o_ip').textContent=document.getElementById('b_ip').value||'-';document.getElementById('o_age').textContent=document.getElementById('b_age').value;document.getElementById('o_bed').textContent=document.getElementById('b_bed').value;document.getElementById('o_dis').textContent=document.getElementById('b_dis').value||'Not Discharged';document.getElementById('o_billno').textContent=document.getElementById('b_billno').value||'SHIC'+Math.floor(100000+Math.random()*900000);document.getElementById('o_adm').textContent=document.getElementById('b_adm').value||today();document.getElementById('o_bdate').textContent=today();document.getElementById('o_date').textContent=today().split(' ')[0];document.getElementById('o_mob').textContent=document.getElementById('b_mob').value||p.contact||'-';document.getElementById('o_addr').textContent=p.addr||'-';
+}
+(function(){let t=new Date();t.setDate(t.getDate()+1);document.getElementById('d_date').valueAsDate=t;render()})();
+</script></body></html>
