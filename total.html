@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name=viewport content="width=device-width,initial-scale=1"><title>Total Patients</title><script src="Patient.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial}
+body{background:linear-gradient(135deg,#e0f2fe,#f0f9ff 40%,#fef3c7 100%);min-height:100vh}
+.top{background:linear-gradient(90deg,#0f4c75,#1e7bb8,#0f4c75);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+.box{max-width:1100px;margin:20px auto;background:#fff;padding:20px;border-radius:16px;box-shadow:0 8px 24px #0000000d}
+table{width:100%;border-collapse:separate;border-spacing:0;margin-top:14px;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0}
+th{background:linear-gradient(135deg,#0f4c75,#1e6fa8);color:#fff;padding:10px 8px;font-size:11px}
+td{border-bottom:1px solid #f1f5f9;padding:9px 8px;font-size:12px;background:#fff}
+.btn{padding:11px 18px;border:0;border-radius:10px;background:linear-gradient(135deg,#0f4c75,#1e7bb8);color:#fff;font-weight:700;cursor:pointer}
+input{padding:11px 12px;border:1.5px solid #cbd5e1;border-radius:10px;width:100%;background:#f8fafc}
+.tbl-action-btn{padding:6px 12px;border:0;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:11px;font-weight:600;cursor:pointer}
+.tbl-del-btn{padding:6px 12px;border:0;border-radius:8px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;margin-left:6px;font-size:11px;font-weight:600;cursor:pointer}
+</style></head><body>
+<div class="top"><a href="index.html" style="color:#fff;text-decoration:none;font-weight:800;background:rgba(255,255,255,.2);padding:8px 14px;border-radius:8px">← Home</a><h2>SHIJA Total Patients</h2><div style="width:70px"></div></div>
+<div class="box"><div style="display:flex;gap:10px;margin-bottom:14px"><input id="search" placeholder="Search Name, SHRI ID, Contact..." oninput="render()" style="flex:1"><button class="btn" onclick="document.getElementById('search').value='';render()">Clear</button></div><table id="tbl"></table></div>
+<script>
+let excelRaw=(typeof patientData!=='undefined')?patientData:[]; let lp=JSON.parse(localStorage.getItem('shija_patients')||'[]'); let seen=new Set(); let patients=[];
+let mapped = excelRaw.map(function(p){return {name:(p.patientName||p.name||'').trim(), shri:String(p.shriId||p.shri||'').trim(), contact:String(p.contactNo||p.contact||'').trim(), pmjay:String(p.pmjayId||p.pmjay||'').trim(), addr:(p.address||p.addr||'').trim()}}).filter(function(p){return p.name});
+[].concat(mapped, lp).forEach(function(p){let k=p.name.toLowerCase(); if(!seen.has(k)){seen.add(k); patients.push(p);}});
+function save(){localStorage.setItem('shija_patients',JSON.stringify(patients));}
+function render(){
+ let q=(document.getElementById('search').value||'').toLowerCase();
+ let tbl=document.getElementById('tbl');
+ let html='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr>';
+ let filtered=patients.filter(function(p){return [p.name,p.shri,p.contact,p.pmjay].some(function(v){return (v||'').toLowerCase().includes(q)});});
+ filtered.forEach(function(p,i){
+  html+='<tr><td>'+(i+1)+'</td><td>'+p.name+'</td><td>'+p.shri+'</td><td>'+p.contact+'</td><td>'+p.pmjay+'</td><td>'+p.addr+'</td><td><button class="tbl-action-btn" onclick="edit('+i+')">Edit</button><button class="tbl-del-btn" onclick="del('+i+')">Delete</button></td></tr>';
+ });
+ tbl.innerHTML=html;
+}
+function del(i){ if(confirm('Delete '+patients[i].name+'?')){ patients.splice(i,1); save(); render(); } }
+function edit(i){ let n=prompt('Edit Name', patients[i].name); if(n){ patients[i].name=n; save(); render(); } }
+render();
+</script></body></html>
