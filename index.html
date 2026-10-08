@@ -46,6 +46,11 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 .status-btns button{flex:1;padding:8px;border:2px solid #bbb;background:#fff;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px;transition:0.2s}
 .status-btns button.received{border-color:#1a9e5a;background:#e8f5e9;color:#1a9e5a}
 .status-btns button.notreceived{border-color:#d32f2f;background:#ffebee;color:#d32f2f}
+.pagination{display:flex;gap:4px;margin-top:12px;justify-content:center;flex-wrap:wrap;align-items:center}
+.pagination button,.pagination span{padding:6px 10px;border:1px solid #bbb;background:#fff;border-radius:4px;cursor:pointer;font-size:12px}
+.pagination button:hover{background:#e3f2fd;border-color:#0f4c75}
+.pagination button.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
+.pagination span{border:none;background:none}
 @media print{.no-print{display:none}body{background:#fff}}
 </style></head><body>
 
@@ -79,13 +84,14 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 
 <div class="box" id="tab_total">
 <h3>1. Total Patient</h3>
-<p style="font-size:11px;color:#555">Columns: Patient Name | SHRI ID | Contact | PMJAY ID | Address</p>
+<p style="font-size:11px;color:#555">Columns: SL | Patient Name | SHRI ID | Contact | PMJAY ID | Address</p>
 <div class="search-row no-print">
 <input id="search_patient" placeholder="Search by Name, SHRI ID, or Contact..." oninput="searchPatients()">
 <button class="btn" onclick="clearSearch()">Clear</button>
 </div>
 <div id="patientResultInfo" class="search-result"></div>
-<table id="tbl_total"><tr><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr></table>
+<table id="tbl_total"><tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr></table>
+<div id="pagination_total" class="pagination no-print"></div>
 </div>
 
 <div class="box" id="tab_add" style="display:none">
@@ -149,6 +155,9 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 
 <script>
 const DEFAULT_USER="admin", DEFAULT_PASS="admin123";
+const ITEMS_PER_PAGE=10;
+let currentPatientPage=1;
+
 function doLogin(){
  let u=document.getElementById('l_user').value.trim();
  let p=document.getElementById('l_pass').value.trim();
@@ -169,13 +178,46 @@ let kftEntries=JSON.parse(localStorage.getItem('shija_kft_entries')||'[]');
 const normalize = (value='') => String(value ?? '').trim().toLowerCase();
 
 function save(){localStorage.setItem('shija_patients',JSON.stringify(patients));localStorage.setItem('shija_daily',JSON.stringify(daily));localStorage.setItem('shija_kft',JSON.stringify(kft));localStorage.setItem('shija_kft_entries',JSON.stringify(kftEntries));}
-function showTab(t){document.querySelectorAll('[id^=tab_]').forEach(e=>e.style.display='none');document.getElementById('tab_'+t).style.display='block';document.querySelectorAll('.menu button').forEach(b=>b.classList.toggle('active',b.id==='b_'+t));}
+function showTab(t){document.querySelectorAll('[id^=tab_]').forEach(e=>e.style.display='none');document.getElementById('tab_'+t).style.display='block';document.querySelectorAll('.menu button').forEach(b=>b.classList.toggle('active',b.id==='b_'+t));if(t==='total'){currentPatientPage=1;renderPatientTable();}}
+
+function renderPatientTable(){
+ let q=normalize(document.getElementById('search_patient')?.value || '');
+ let dataToShow=patients;
+ if(q){
+  dataToShow=patients.filter(p=>[p.name,p.shri,p.contact,p.pmjay,p.addr].some(v=>normalize(v).includes(q)));
+ }
+ let totalPages=Math.ceil(dataToShow.length/ITEMS_PER_PAGE);
+ if(currentPatientPage>totalPages && totalPages>0){currentPatientPage=totalPages;}
+ if(currentPatientPage<1){currentPatientPage=1;}
+ let start=(currentPatientPage-1)*ITEMS_PER_PAGE;
+ let end=start+ITEMS_PER_PAGE;
+ let pageData=dataToShow.slice(start,end);
+ let tbl=document.getElementById('tbl_total');
+ tbl.innerHTML='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr>';
+ pageData.forEach((p,i)=>{tbl.innerHTML+=`<tr><td>${start+i+1}</td><td>${p.name||''}</td><td>${p.shri||''}</td><td>${p.contact||''}</td><td>${p.pmjay||''}</td><td>${p.addr||''}</td></tr>`});
+ renderPagination(totalPages);
+}
+
+function renderPagination(totalPages){
+ let pag=document.getElementById('pagination_total');
+ pag.innerHTML='';
+ if(totalPages<=1){return;}
+ let prevBtn=document.createElement('button');prevBtn.textContent='← Previous';prevBtn.onclick=()=>{if(currentPatientPage>1){currentPatientPage--;renderPatientTable();}};prevBtn.disabled=currentPatientPage===1;pag.appendChild(prevBtn);
+ for(let i=1;i<=totalPages;i++){
+  if(i===1||(i>=currentPatientPage-1&&i<=currentPatientPage+1)||i===totalPages){
+   if(i>1&&i!==currentPatientPage-1&&i!==currentPatientPage){
+    let ellipsis=document.createElement('span');ellipsis.textContent='...';pag.appendChild(ellipsis);
+   }
+   let btn=document.createElement('button');btn.textContent=i;btn.onclick=()=>{currentPatientPage=i;renderPatientTable();};if(i===currentPatientPage){btn.classList.add('active');}pag.appendChild(btn);
+  }
+ }
+ let nextBtn=document.createElement('button');nextBtn.textContent='Next →';nextBtn.onclick=()=>{if(currentPatientPage<totalPages){currentPatientPage++;renderPatientTable();}};nextBtn.disabled=currentPatientPage===totalPages;pag.appendChild(nextBtn);
+}
+
 function render(){
  document.getElementById('c_total').textContent=patients.length;
  document.getElementById('c_daily').textContent=daily.length;
- let tbl=document.getElementById('tbl_total');
- tbl.innerHTML='<tr><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr>';
- patients.forEach(p=>{tbl.innerHTML+=`<tr><td>${p.name||''}</td><td>${p.shri||''}</td><td>${p.contact||''}</td><td>${p.pmjay||''}</td><td>${p.addr||''}</td></tr>`});
+ renderPatientTable();
  let td=document.getElementById('tbl_daily');
  td.innerHTML='<tr><th>Date</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Action</th></tr>';
  daily.forEach((d,i)=>{td.innerHTML+=`<tr><td>${d.date}</td><td>${d.name}</td><td>${d.shri}</td><td>${d.contact}</td><td><button onclick="daily.splice(${i},1);save();render()">X</button></td></tr>`});
@@ -196,28 +238,31 @@ function render(){
  resultBox.style.display='block';
  resultBox.innerHTML = filtered.slice(0,5).map(p=>`<div><strong>${p.name || 'Unknown'}</strong> | SHRI: ${p.shri || '-'} | Contact: ${p.contact || '-'} | PMJAY: ${p.pmjay || '-'} | Address: ${p.addr || '-'}</div>`).join('');
 }
+
 function searchPatients(){
+ currentPatientPage=1;
  let q=normalize(document.getElementById('search_patient').value);
- let tbl=document.getElementById('tbl_total');
- tbl.innerHTML='<tr><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr>';
  if(!q){
-  patients.forEach(p=>{tbl.innerHTML+=`<tr><td>${p.name||''}</td><td>${p.shri||''}</td><td>${p.contact||''}</td><td>${p.pmjay||''}</td><td>${p.addr||''}</td></tr>`});
+  renderPatientTable();
   document.getElementById('patientResultInfo').style.display='none';
   document.getElementById('patientResultInfo').innerHTML='';
   return;
  }
  let filtered=patients.filter(p=>[p.name,p.shri,p.contact,p.pmjay,p.addr].some(v=>normalize(v).includes(q)));
  if(!filtered.length){
-  tbl.innerHTML+='<tr><td colspan="5" style="text-align:center;color:#666;">No patient found</td></tr>';
+  let tbl=document.getElementById('tbl_total');
+  tbl.innerHTML='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr><tr><td colspan="6" style="text-align:center;color:#666;">No patient found</td></tr>';
+  document.getElementById('pagination_total').innerHTML='';
   document.getElementById('patientResultInfo').style.display='block';
   document.getElementById('patientResultInfo').innerHTML='<strong>No patient found.</strong> Try another name, SHRI ID, or contact number.';
   return;
  }
- filtered.forEach(p=>{tbl.innerHTML+=`<tr><td>${p.name||''}</td><td>${p.shri||''}</td><td>${p.contact||''}</td><td>${p.pmjay||''}</td><td>${p.addr||''}</td></tr>`});
+ renderPatientTable();
  document.getElementById('patientResultInfo').style.display='block';
  document.getElementById('patientResultInfo').innerHTML = filtered.slice(0,5).map(p=>`<div><strong>${p.name || 'Unknown'}</strong> | SHRI: ${p.shri || '-'} | Contact: ${p.contact || '-'} | PMJAY: ${p.pmjay || '-'} | Address: ${p.addr || '-'}</div>`).join('');
 }
-function clearSearch(){document.getElementById('search_patient').value='';searchPatients();}
+
+function clearSearch(){document.getElementById('search_patient').value='';currentPatientPage=1;searchPatients();}
 function addNewPatient(){let p={name:document.getElementById('n_name').value,shri:document.getElementById('n_shri').value,contact:document.getElementById('n_contact').value,pmjay:document.getElementById('n_pmjay').value,addr:document.getElementById('n_addr').value};if(!p.name){alert('Patient name is required');return;}patients.push(p);save();render();document.getElementById('n_name').value='';document.getElementById('n_shri').value='';document.getElementById('n_contact').value='';document.getElementById('n_pmjay').value='';document.getElementById('n_addr').value='';alert('Patient added');}
 function showSuggest(inp,listId){let v=normalize(inp.value);let box=document.getElementById(listId);box.innerHTML='';if(!v){box.style.display='none';return;}let matches=patients.filter(p=>normalize(p.name).includes(v)||normalize(p.shri).includes(v)||normalize(p.contact).includes(v)).slice(0,10);if(!matches.length){box.style.display='none';return;}box.style.display='block';matches.forEach(p=>{let div=document.createElement('div');div.textContent=`${p.name} | SHRI: ${p.shri||'-'} | Contact: ${p.contact||'-'}`;div.onclick=()=>{inp.value=p.name;box.style.display='none';if(listId==='b_slist'){autoFillBill();}if(listId==='d_slist'){document.getElementById('d_name').value=p.name;}};box.appendChild(div);});}
 
