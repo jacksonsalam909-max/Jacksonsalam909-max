@@ -1,6 +1,4 @@
-// Auto-generated from patient_data_2026-10-02 (1).xlsx
-// Sheet: Table 1
-const patientData = [
+var patientData = [
   {
     "id": 1,
     "patientName": "THOKCHOM AJIT SINGH",
