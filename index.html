@@ -7,7 +7,7 @@
 body{background:#f1f5f9}
 #loginPage{position:fixed;inset:0;z-index:9999;background:#000 url('Shija_dome_night.jpeg') center/cover no-repeat;display:flex;align-items:center;justify-content:flex-end;padding-right:5vw}
 #loginPage::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.15),rgba(0,0,0,.65))}
-.loginBox{position:relative;z-index:2;width:440px;max-width:92vw;background:rgba(15,22,35,.38);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.18);border-radius:18px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.loginBox{position:relative;z-index:2;width:440px;max-width:92vw;background:rgba(15,22,35,.38);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:24px}
 .loginBox h2{color:#fff!important;font-size:30px!important;text-align:left!important}
 .loginBox p{color:#c8d6e6!important;font-size:13px!important}
 .loginBox input{background:rgba(0,0,0,.55)!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:12px!important;padding:14px!important;color:#fff!important;width:100%;margin:8px 0}
@@ -30,7 +30,7 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 .slist div{padding:10px;cursor:pointer;font-size:12px;border-bottom:1px solid #eee}.slist div:hover{background:#e3f2fd;font-weight:bold}
 .bill{max-width:800px;margin:15px auto;background:#fff;border:1px solid #000}
 .bill-h{text-align:center;padding:6px;border-bottom:2px solid #000}.bill-i{display:flex;justify-content:space-between;padding:6px 8px;font-size:11px;line-height:1.35;border-bottom:1px solid #000}
-.bill-t{width:100%;border-collapse:collapse}.bill-t th{background:#8b8b8b;font-size:10px;padding:3px;border:1px solid #000}.bill-t td{font-size:11px;padding:2px 4px;border-left:1px solid #000;border-right:1px solid #000;border-bottom:1px solid #000}
+.bill-t{width:100%;border-collapse:collapse}.bill-t th{background:#8b8b8b;font-size:10px;padding:3px;border:1px solid #000}.bill-t td{font-size:11px;padding:2px 4px;border-left:1px solid #000;border-right:1px solid #000}
 .head-row td{background:#e9e9e9!important;font-weight:bold!important;border:1px solid #000!important;height:16px!important;padding:2px 5px!important}
 .search-row{display:flex;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #ddd;flex-wrap:wrap}
 .search-row input{flex:1;min-width:200px}
@@ -51,6 +51,12 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 .pagination button:hover{background:#e3f2fd;border-color:#0f4c75}
 .pagination button.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
 .pagination span{border:none;background:none}
+.time-buttons{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.time-buttons button{flex:1;min-width:70px;padding:8px;border:2px solid #bbb;background:#fff;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px;transition:0.2s}
+.time-buttons button.selected{border-color:#0f4c75;background:#0f4c75;color:#fff}
+.block-buttons{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.block-buttons button{flex:1;min-width:80px;padding:8px;border:2px solid #bbb;background:#fff;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px;transition:0.2s}
+.block-buttons button.selected{border-color:#0f4c75;background:#0f4c75;color:#fff}
 @media print{.no-print{display:none}body{background:#fff}}
 </style></head><body>
 
@@ -97,18 +103,27 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 <div class="box" id="tab_add" style="display:none">
 <h3>2. Add New Patient</h3>
 <div class="grid">
-<input id="n_name" placeholder="Patient Name *"><input id="n_shri" placeholder="SHRI ID"><input id="n_contact" placeholder="Contact Number"><input id="n_pmjay" placeholder="PMJAY ID"><input id="n_addr" placeholder="Address"><button class="btn" onclick="addNewPatient()">Add Patient</button>
+<input id="n_name" placeholder="Patient Name *"><input id="n_shri" placeholder="SHRI ID"><input id="n_contact" placeholder="Contact Number"><input id="n_pmjay" placeholder="PMJAY ID"><input id="n_addr" placeholder="Address"><button class="btn" style="margin:0" onclick="addNewPatient()">Add</button>
 </div>
 </div>
 
 <div class="box" id="tab_daily" style="display:none">
 <h3>3. Daily Dialysis Record</h3>
 <div class="grid">
-<input type="date" id="d_date">
 <div class="suggest"><input id="d_name" placeholder="Type Name - hint" oninput="showSuggest(this,'d_slist')"><div id="d_slist" class="slist" style="display:none"></div></div>
-<button class="btn" style="margin:0" onclick="addDaily()">Add</button>
+<input type="date" id="d_prev_date" placeholder="Previous Dialysis Date">
+<button class="btn" style="margin:0" onclick="showTimeOptions()">Next Step</button>
 </div>
-<table id="tbl_daily"><tr><th>Date</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Action</th></tr></table>
+<div id="timeSlotContainer" style="display:none;margin-top:12px">
+<label style="font-weight:bold;display:block;margin-bottom:8px">Select Time Slot:</label>
+<div class="time-buttons" id="timeSlotButtons"></div>
+</div>
+<div id="blockSelectionContainer" style="display:none;margin-top:12px">
+<label style="font-weight:bold;display:block;margin-bottom:8px">Select Block:</label>
+<div class="block-buttons" id="blockButtons"></div>
+</div>
+<button class="btn" id="finalAddBtn" style="display:none;margin-top:12px" onclick="addDaily()">Add to Record</button>
+<table id="tbl_daily"><tr><th>Time</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Prev Date</th><th>Block</th><th>Action</th></tr></table>
 </div>
 
 <div class="box" id="tab_kft" style="display:none">
@@ -142,14 +157,13 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 <h3>5. Bill Generator - Exact Shija Bill</h3>
 <div class="grid">
 <div class="suggest"><input id="b_name" placeholder="Patient Name - hint" oninput="showSuggest(this,'b_slist');autoFillBill()"><div id="b_slist" class="slist" style="display:none"></div></div>
-<input id="b_shri" placeholder="SHRI ID"><input id="b_ip" placeholder="IP No"><input id="b_age" placeholder="Age/Sex" value="56Y/F"><input id="b_bed" placeholder="Bed No" value="D-3402"><input id="b_date" type="date" placeholder="Bill Date"><input id="b_addr" placeholder="Address"></div>
-<button class="btn" onclick="generateBill()">Generate Bill</button><button class="btn" style="background:#1a9e5a" onclick="window.print()">Print</button>
+<input id="b_shri" placeholder="SHRI ID"><input id="b_ip" placeholder="IP No"><input id="b_age" placeholder="Age/Sex" value="56Y/F"><input id="b_bed" placeholder="Bed No" value="D-3402"><input id="b_addr" placeholder="Address"><input type="date" id="b_date"><button class="btn" onclick="generateBill()">Generate Bill</button><button class="btn" style="background:#1a9e5a" onclick="window.print()">Print</button>
 <div class="bill" id="bill">
 <div class="bill-h"><h3>SHIJA HOSPITALS & RESEARCH INSTITUTE PVT LTD</h3><p style="font-size:10px">Langol, Imphal - Bill of Supply</p></div>
-<div class="bill-i"><div>Name: <b id="o_name">-</b><br>Age/Sex: <b id="o_age">-</b><br>Bed: <b id="o_bed">-</b><br>Doctor: Dr.Guliver<br>Address: <b id="o_addr">-</b><br>Payer: PMJAY<br>SHRI ID: <b id="o_shri">-</b><br>IP No: <b id="o_ip">-</b></div><div>Bill Date: <b id="o_date">-</b><br>Bill Time: <b id="m_date">-</b><br>Ref. No: <b id="m_ref">-</b></div></div>
-<table class="bill-t"><tr><th>SL</th><th style="text-align:left">ITEM NAME</th><th>DATE</th><th>QTY</th><th>AMOUNT</th><th>NET</th></tr><tr class="head-row"><td colspan="6">NEPHROLOGY PROCEDURE</td></tr><tr><td>1</td><td>Dialysis Procedure</td><td id="m_date2">-</td><td>1</td><td>₹2,660</td><td>₹2,660</td></tr></table>
+<div class="bill-i"><div>Name: <b id="o_name">-</b><br>Age/Sex: <b id="o_age">-</b><br>Bed: <b id="o_bed">-</b><br>Doctor: Dr.Guliver<br>Address: <b id="o_addr">-</b><br>Payer: PMJAY<br>SHRI ID: <b id="o_shri">-</b><br>IP: <b id="o_ip">-</b></div><div>Date: <b id="o_date">-</b><br>Bill No: <b id="o_bill">-</b><br>Ref: <b id="o_ref">-</b><br>Mobile: 9862036999<br>GSTIN: 05AACFU1521C1ZN</div></div>
+<table class="bill-t"><tr><th>SL</th><th style="text-align:left">ITEM NAME</th><th>DATE</th><th>QTY</th><th>AMOUNT</th><th>NET</th></tr><tr class="head-row"><td colspan="6">NEPHROLOGY PROCEDURE</td></tr><tr><td>1</td><td>Dialysis Session (4hrs/8hrs)</td><td id="m_date2">-</td><td>1</td><td>₹2,660</td><td>₹2,660</td></tr></table>
 <div style="padding:8px;font-size:11px;text-align:right">Gross: ₹2,660 | Net: ₹2,660 | Company: ₹2,660</div>
-<div style="display:flex;justify-content:space-between;margin-top:28px;padding:8px;font-size:11px"><span>Signature</span><span>Authorized</span></div>
+<div style="display:flex;justify-content:space-between;margin-top:28px;padding:8px;font-size:11px"><span>Signature</span><span>Authorized</span><span id="m_date">-</span></div>
 </div>
 </div>
 
@@ -157,6 +171,9 @@ td{border:1px solid #ddd;padding:5px;font-size:12px}
 const DEFAULT_USER="admin", DEFAULT_PASS="admin123";
 const ITEMS_PER_PAGE=10;
 let currentPatientPage=1;
+const TIME_SLOTS=['7:00 AM','12:00 PM','5:00 PM','9:00 PM','12:00 AM','2:00 AM'];
+const BLOCKS=['Itocha','Main'];
+let selectedTime='',selectedBlock='';
 
 function doLogin(){
  let u=document.getElementById('l_user').value.trim();
@@ -178,7 +195,7 @@ let kftEntries=JSON.parse(localStorage.getItem('shija_kft_entries')||'[]');
 const normalize = (value='') => String(value ?? '').trim().toLowerCase();
 
 function save(){localStorage.setItem('shija_patients',JSON.stringify(patients));localStorage.setItem('shija_daily',JSON.stringify(daily));localStorage.setItem('shija_kft',JSON.stringify(kft));localStorage.setItem('shija_kft_entries',JSON.stringify(kftEntries));}
-function showTab(t){document.querySelectorAll('[id^=tab_]').forEach(e=>e.style.display='none');document.getElementById('tab_'+t).style.display='block';document.querySelectorAll('.menu button').forEach(b=>b.classList.toggle('active',b.id==='b_'+t));if(t==='total'){currentPatientPage=1;renderPatientTable();}}
+function showTab(t){document.querySelectorAll('[id^=tab_]').forEach(e=>e.style.display='none');document.getElementById('tab_'+t).style.display='block';document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));document.getElementById('b_'+t).classList.add('active');if(t==='daily'){resetDailyForm();}}
 
 function renderPatientTable(){
  let q=normalize(document.getElementById('search_patient')?.value || '');
@@ -219,8 +236,8 @@ function render(){
  document.getElementById('c_daily').textContent=daily.length;
  renderPatientTable();
  let td=document.getElementById('tbl_daily');
- td.innerHTML='<tr><th>Date</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Action</th></tr>';
- daily.forEach((d,i)=>{td.innerHTML+=`<tr><td>${d.date}</td><td>${d.name}</td><td>${d.shri}</td><td>${d.contact}</td><td><button onclick="daily.splice(${i},1);save();render()">X</button></td></tr>`});
+ td.innerHTML='<tr><th>Time</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Prev Date</th><th>Block</th><th>Action</th></tr>';
+ daily.forEach((d,i)=>{td.innerHTML+=`<tr><td>${d.time||'-'}</td><td>${d.name}</td><td>${d.shri}</td><td>${d.contact}</td><td>${d.prevDate||'-'}</td><td>${d.block||'-'}</td><td><button onclick="daily.splice(${i},1);save();render()">X</button></td></tr>`});
 
  const resultBox=document.getElementById('patientResultInfo');
  const q=normalize(document.getElementById('search_patient')?.value || '');
@@ -263,8 +280,81 @@ function searchPatients(){
 }
 
 function clearSearch(){document.getElementById('search_patient').value='';currentPatientPage=1;searchPatients();}
-function addNewPatient(){let p={name:document.getElementById('n_name').value,shri:document.getElementById('n_shri').value,contact:document.getElementById('n_contact').value,pmjay:document.getElementById('n_pmjay').value,addr:document.getElementById('n_addr').value};if(!p.name){alert('Patient name is required');return;}patients.push(p);save();render();document.getElementById('n_name').value='';document.getElementById('n_shri').value='';document.getElementById('n_contact').value='';document.getElementById('n_pmjay').value='';document.getElementById('n_addr').value='';alert('Patient added');}
-function showSuggest(inp,listId){let v=normalize(inp.value);let box=document.getElementById(listId);box.innerHTML='';if(!v){box.style.display='none';return;}let matches=patients.filter(p=>normalize(p.name).includes(v)||normalize(p.shri).includes(v)||normalize(p.contact).includes(v)).slice(0,10);if(!matches.length){box.style.display='none';return;}box.style.display='block';matches.forEach(p=>{let div=document.createElement('div');div.textContent=`${p.name} | SHRI: ${p.shri||'-'} | Contact: ${p.contact||'-'}`;div.onclick=()=>{inp.value=p.name;box.style.display='none';if(listId==='b_slist'){autoFillBill();}if(listId==='d_slist'){document.getElementById('d_name').value=p.name;}};box.appendChild(div);});}
+function addNewPatient(){let p={name:document.getElementById('n_name').value,shri:document.getElementById('n_shri').value,contact:document.getElementById('n_contact').value,pmjay:document.getElementById('n_pmjay').value,addr:document.getElementById('n_addr').value};if(!p.name){alert('Enter patient name');return}patients.push(p);save();render();document.getElementById('n_name').value='';document.getElementById('n_shri').value='';document.getElementById('n_contact').value='';document.getElementById('n_pmjay').value='';document.getElementById('n_addr').value='';alert('Patient Added');}
+function showSuggest(inp,listId){let v=normalize(inp.value);let box=document.getElementById(listId);box.innerHTML='';if(!v){box.style.display='none';return;}let matches=patients.filter(p=>normalize(p.name).includes(v)).slice(0,10);if(!matches.length){box.style.display='none';return;}box.style.display='block';matches.forEach(p=>{let div=document.createElement('div');div.textContent=`${p.name} | SHRI: ${p.shri||'-'} | Contact: ${p.contact||'-'}`;div.onclick=()=>{document.getElementById(listId==='d_slist'?'d_name':listId==='b_slist'?'b_name':'').value=p.name;box.style.display='none';};box.appendChild(div);});}
+
+function resetDailyForm(){
+ document.getElementById('d_name').value='';
+ document.getElementById('d_prev_date').value='';
+ document.getElementById('timeSlotContainer').style.display='none';
+ document.getElementById('blockSelectionContainer').style.display='none';
+ document.getElementById('finalAddBtn').style.display='none';
+ selectedTime='';
+ selectedBlock='';
+}
+
+function showTimeOptions(){
+ let name=document.getElementById('d_name').value.trim();
+ if(!name){alert('Select a patient name');return;}
+ document.getElementById('timeSlotContainer').style.display='block';
+ document.getElementById('blockSelectionContainer').style.display='none';
+ document.getElementById('finalAddBtn').style.display='none';
+ renderTimeSlots();
+}
+
+function renderTimeSlots(){
+ let container=document.getElementById('timeSlotButtons');
+ container.innerHTML='';
+ TIME_SLOTS.forEach(time=>{
+  let btn=document.createElement('button');
+  btn.textContent=time;
+  btn.onclick=()=>selectTime(time,btn);
+  if(time===selectedTime){btn.classList.add('selected');}
+  container.appendChild(btn);
+ });
+}
+
+function selectTime(time,btn){
+ selectedTime=time;
+ document.querySelectorAll('#timeSlotButtons button').forEach(b=>b.classList.remove('selected'));
+ btn.classList.add('selected');
+ document.getElementById('blockSelectionContainer').style.display='block';
+ renderBlockButtons();
+}
+
+function renderBlockButtons(){
+ let container=document.getElementById('blockButtons');
+ container.innerHTML='';
+ BLOCKS.forEach(block=>{
+  let btn=document.createElement('button');
+  btn.textContent=block;
+  btn.onclick=()=>selectBlock(block,btn);
+  if(block===selectedBlock){btn.classList.add('selected');}
+  container.appendChild(btn);
+ });
+}
+
+function selectBlock(block,btn){
+ selectedBlock=block;
+ document.querySelectorAll('#blockButtons button').forEach(b=>b.classList.remove('selected'));
+ btn.classList.add('selected');
+ document.getElementById('finalAddBtn').style.display='block';
+}
+
+function addDaily(){
+ let name=document.getElementById('d_name').value;
+ let prevDate=document.getElementById('d_prev_date').value;
+ if(!name){alert('Enter name');return;}
+ if(!selectedTime){alert('Select a time slot');return;}
+ if(!selectedBlock){alert('Select a block');return;}
+ let found=patients.find(p=>normalize(p.name)===normalize(name))||{name,shri:'',contact:''};
+ let entry={name:found.name,shri:found.shri,contact:found.contact,time:selectedTime,prevDate:prevDate,block:selectedBlock};
+ daily.push(entry);
+ save();
+ render();
+ resetDailyForm();
+ alert('Daily Record Added');
+}
 
 let currentKFTPatient=null;
 function showKFTPatientSuggest(){
@@ -313,18 +403,17 @@ function setKFTStatus(status){
  renderKFT();
 }
 
-function addDaily(){let name=document.getElementById('d_name').value;if(!name){alert('Enter name');return}let found=patients.find(p=>normalize(p.name)===normalize(name))||{name,shri:'',contact:''};daily.push({date:document.getElementById('d_date').value||new Date().toISOString().slice(0,10),name:found.name,shri:found.shri,contact:found.contact});save();render();document.getElementById('d_name').value='';}
 function saveKFT(){save();alert('KFT Saved')}
-function autoFillBill(){let name=document.getElementById('b_name').value;let p=patients.find(x=>normalize(x.name)===normalize(name))||{};if(p){document.getElementById('b_shri').value=p.shri||'';document.getElementById('b_addr').value=p.addr||'';document.getElementById('o_addr').textContent=p.addr||'-';}}
+function autoFillBill(){let name=document.getElementById('b_name').value;let p=patients.find(x=>normalize(x.name)===normalize(name))||{};if(p){document.getElementById('b_shri').value=p.shri||'';document.getElementById('b_addr').value=p.addr||'';}}
 
 function getCollectionDates(year, month) { return [`${year}-${String(month).padStart(2,'0')}-01`, `${year}-${String(month).padStart(2,'0')}-15`]; }
 function getMonthYear(dateString) { let d = new Date(dateString); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}`; }
 const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-function initKFTView() { let selectEl = document.getElementById('kft_month'); selectEl.innerHTML = '<option value="">All Months</option>'; let currentYear = new Date().getFullYear(); for(let i = 0; i < 12; i++) { let month = i + 1; let value = `${currentYear}-${String(month).padStart(2,'0')}`; let label = `${monthNames[i]} ${currentYear}`; let option = document.createElement('option'); option.value = value; option.textContent = label; selectEl.appendChild(option); } }
+function initKFTView() { let selectEl = document.getElementById('kft_month'); selectEl.innerHTML = '<option value="">All Months</option>'; let currentYear = new Date().getFullYear(); for(let i = 0; i < 12; i++) { let month = i + 1; selectEl.innerHTML += `<option value="${currentYear}-${String(month).padStart(2,'0')}">${monthNames[i]} ${currentYear}</option>`; } }
 function filterKFTBySearch() { renderKFT(); }
 function filterKFTByMonth() { renderKFT(); }
 function clearKFTSearch() { document.getElementById('search_kft').value = ''; document.getElementById('kft_month').value = ''; renderKFT(); }
-function renderKFT() { let searchQ = normalize(document.getElementById('search_kft')?.value || ''); let selectedMonth = document.getElementById('kft_month')?.value || ''; let container = document.getElementById('kft_report_container'); container.innerHTML = ''; let entries = [...kftEntries].filter(e => (!searchQ || normalize(e.name).includes(searchQ) || normalize(e.shri).includes(searchQ)) && (!selectedMonth || getMonthYear(e.date) === selectedMonth)); if(!entries.length){ container.innerHTML='<p style="color:#666;font-size:12px">No KFT records found.</p>'; return; } let groups = {}; entries.forEach(e => { let key = getMonthYear(e.date); if(!groups[key]) groups[key]=[]; groups[key].push(e); }); Object.keys(groups).sort().forEach(monthKey => { let section = document.createElement('div'); section.className='kft-month-section'; let title = document.createElement('h4'); title.textContent = `${monthNames[Number(monthKey.split('-')[1])-1]} ${monthKey.split('-')[0]}`; section.appendChild(title); let label = document.createElement('div'); label.className='kft-collection-label'; label.textContent = 'Collection Dates: ' + getCollectionDates(Number(monthKey.split('-')[0]), Number(monthKey.split('-')[1])).join(' / '); section.appendChild(label); let table = document.createElement('table'); table.innerHTML = '<tr><th>Date</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>Status</th></tr>'; groups[monthKey].forEach(e => { table.innerHTML += `<tr><td>${e.date}</td><td>${e.name}</td><td>${e.shri||'-'}</td><td>${e.contact||'-'}</td><td>${e.status}</td></tr>`; }); section.appendChild(table); container.appendChild(section); }); }
+function renderKFT() { let searchQ = normalize(document.getElementById('search_kft')?.value || ''); let selectedMonth = document.getElementById('kft_month')?.value || ''; let container = document.getElementById('kft_report_container'); if(!searchQ && !selectedMonth) { let grouped = {}; kftEntries.forEach(e => { let key = getMonthYear(e.date); if(!grouped[key]) grouped[key] = []; grouped[key].push(e); }); container.innerHTML = Object.keys(grouped).sort().reverse().map(month => { let entries = grouped[month]; let monthDate = new Date(month + '-01'); return `<div class="kft-month-section"><h4>${monthNames[monthDate.getMonth()]} ${monthDate.getFullYear()}</h4>${entries.map((e, idx) => `<div style="padding:8px;background:#fafafa;margin-bottom:6px;border-radius:6px;border-left:3px solid ${e.status==='received'?'#1a9e5a':'#d32f2f'}"><div><strong>${e.name}</strong> (SHRI: ${e.shri||'-'}) | Contact: ${e.contact||'-'}</div><div style="font-size:11px;color:#666">Date: ${e.date} | Status: <span style="font-weight:bold;color:${e.status==='received'?'#1a9e5a':'#d32f2f'}">${e.status.toUpperCase()}</span></div></div>`).join('')}</div>`; }).join(''); } else { let filtered = kftEntries.filter(e => { let matchSearch = !searchQ || [e.name, e.shri, e.contact].some(v => normalize(v).includes(searchQ)); let matchMonth = !selectedMonth || getMonthYear(e.date) === selectedMonth; return matchSearch && matchMonth; }); container.innerHTML = filtered.length ? `<div style="padding:12px;background:#f0f4f8;border-radius:8px">${filtered.map(e => `<div style="padding:8px;background:#fff;margin-bottom:6px;border-radius:4px;border-left:3px solid ${e.status==='received'?'#1a9e5a':'#d32f2f'}"><strong>${e.name}</strong> (${e.shri||'-'}) | ${e.contact||'-'} | <span style="font-weight:bold;color:${e.status==='received'?'#1a9e5a':'#d32f2f'}">${e.status}</span> | ${e.date}</div>`).join('')}</div>` : '<div style="padding:12px;color:#666">No results found</div>'; } }
 function today(){let d=new Date();return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
 function generateBill(){
  let name=document.getElementById('b_name').value;let p=patients.find(x=>normalize(x.name)===normalize(name))||{};
@@ -338,5 +427,5 @@ function generateBill(){
  document.getElementById('m_date').textContent=today();
  document.getElementById('m_date2').textContent=document.getElementById('b_date').value||'-';
 }
-(function(){let t=new Date();t.setDate(t.getDate()+1);document.getElementById('d_date').valueAsDate=t;document.getElementById('kft_entry_date').valueAsDate=new Date();initKFTView();render()})();
+(function(){let t=new Date();t.setDate(t.getDate()+1);document.getElementById('d_prev_date').valueAsDate=t;document.getElementById('kft_entry_date').valueAsDate=new Date();initKFTView();render()})();
 </script></body></html>
