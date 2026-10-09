@@ -1,4 +1,10 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name=viewport content="width=device-width,initial-scale=1"><title>SHIJA Dashboard - Home</title><script src="Patient.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHIJA Dashboard - Home</title>
+<script src="Patient.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial}
 body{background:linear-gradient(135deg,#e0f2fe,#f0f9ff 40%,#fef3c7 100%);min-height:100vh}
@@ -15,9 +21,31 @@ body{background:linear-gradient(135deg,#e0f2fe,#f0f9ff 40%,#fef3c7 100%);min-hei
 .card:nth-child(4){background:linear-gradient(135deg,#8b5cf6,#6d28d9)}
 .card:nth-child(5){background:linear-gradient(135deg,#ec4899,#be185d)}
 @media(max-width:700px){.dash{grid-template-columns:repeat(2,1fr)}}
-</style></head><body>
-<div class="top"><h2>SHIJA Dialysis Dashboard</h2><button onclick="localStorage.removeItem('shija_logged');location.reload()" style="padding:8px 14px;border:0;border-radius:8px;background:#fff;color:#0f4c75;font-weight:700;cursor:pointer">Logout</button></div>
-<div style="max-width:1100px;margin:20px auto;padding:0 16px"><h2 style="color:#0f4c75">Welcome</h2><p style="color:#64748b">Click any card to open separate page</p></div>
+</style>
+</head>
+<body>
+
+<script>
+// Login check - if not logged in, go to login
+if(localStorage.getItem('shija_logged')!=='1'){
+  window.location.href='login.html';
+}
+function doLogout(){
+  localStorage.removeItem('shija_logged');
+  window.location.href='login.html';
+}
+</script>
+
+<div class="top">
+<h2>SHIJA Dialysis Dashboard</h2>
+<button onclick="doLogout()" style="padding:8px 14px;border:0;border-radius:8px;background:#fff;color:#0f4c75;font-weight:700;cursor:pointer">Logout</button>
+</div>
+
+<div style="max-width:1100px;margin:20px auto;padding:0 16px">
+<h2 style="color:#0f4c75">Welcome</h2>
+<p style="color:#64748b">Click any card to open separate page</p>
+</div>
+
 <div class="dash">
 <a href="total.html" class="card"><div></div><b id="c_total">0</b><span>Total Patients</span></a>
 <a href="add.html" class="card"><div></div><b>Add New</b><span>Add Patient</span></a>
@@ -25,8 +53,16 @@ body{background:linear-gradient(135deg,#e0f2fe,#f0f9ff 40%,#fef3c7 100%);min-hei
 <a href="kft.html" class="card"><div></div><b id="c_kft">0</b><span>KFT Report</span></a>
 <a href="bill.html" class="card"><div></div><b>Bill</b><span>Bill Generator</span></a>
 </div>
+
 <script>
-let excelRaw=(typeof patientData!=='undefined')?patientData:[]; let daily=JSON.parse(localStorage.getItem('shija_daily')||'[]'); let kft=JSON.parse(localStorage.getItem('shija_kft_entries')||'[]');
+let excelRaw=(typeof patientData!=='undefined')?patientData:[]; 
+let daily=JSON.parse(localStorage.getItem('shija_daily')||'[]'); 
+let kft=JSON.parse(localStorage.getItem('shija_kft_entries')||'[]');
 let total=excelRaw.length + JSON.parse(localStorage.getItem('shija_patients')||'[]').length;
-document.getElementById('c_total').textContent=total; document.getElementById('c_daily').textContent=daily.length; document.getElementById('c_kft').textContent=kft.length;
-</script></body></html>
+document.getElementById('c_total').textContent=total||0; 
+document.getElementById('c_daily').textContent=daily.length; 
+document.getElementById('c_kft').textContent=kft.length;
+</script>
+
+</body>
+</html>
