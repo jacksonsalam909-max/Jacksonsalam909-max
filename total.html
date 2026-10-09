@@ -3,33 +3,78 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial}
 body{background:linear-gradient(135deg,#e0f2fe,#f0f9ff 40%,#fef3c7 100%);min-height:100vh}
 .top{background:linear-gradient(90deg,#0f4c75,#1e7bb8,#0f4c75);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
-.box{max-width:1100px;margin:20px auto;background:#fff;padding:20px;border-radius:16px;box-shadow:0 8px 24px #0000000d}
+.box{max-width:1150px;margin:20px auto;background:#fff;padding:20px;border-radius:16px;box-shadow:0 8px 24px #0000000d}
 table{width:100%;border-collapse:separate;border-spacing:0;margin-top:14px;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0}
-th{background:linear-gradient(135deg,#0f4c75,#1e6fa8);color:#fff;padding:10px 8px;font-size:11px}
+th{background:linear-gradient(135deg,#0f4c75,#1e6fa8);color:#fff;padding:10px 8px;font-size:11px;position:sticky;top:0}
 td{border-bottom:1px solid #f1f5f9;padding:9px 8px;font-size:12px;background:#fff}
 .btn{padding:11px 18px;border:0;border-radius:10px;background:linear-gradient(135deg,#0f4c75,#1e7bb8);color:#fff;font-weight:700;cursor:pointer}
 input{padding:11px 12px;border:1.5px solid #cbd5e1;border-radius:10px;width:100%;background:#f8fafc}
 .tbl-action-btn{padding:6px 12px;border:0;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:11px;font-weight:600;cursor:pointer}
 .tbl-del-btn{padding:6px 12px;border:0;border-radius:8px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;margin-left:6px;font-size:11px;font-weight:600;cursor:pointer}
+.searchWrap{position:relative;flex:1}
+#suggestBox{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #cbd5e1;border-radius:10px;max-height:240px;overflow:auto;z-index:20;display:none;box-shadow:0 8px 20px #0002}
+.sItem{padding:10px 12px;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:12px}
+.sItem:hover{background:#f0f9ff}
+.pager{display:flex;gap:6px;justify-content:center;margin-top:16px;flex-wrap:wrap;align-items:center}
+.pgBtn{padding:7px 12px;border:1px solid #cbd5e1;background:#fff;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px}
+.pgBtn.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
+.pgBtn:disabled{opacity:.4}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 </style></head><body>
-<div class="top"><a href="index.html" style="color:#fff;text-decoration:none;font-weight:800;background:rgba(255,255,255,.2);padding:8px 14px;border-radius:8px">← Home</a><h2>SHIJA Total Patients</h2><div style="width:70px"></div></div>
-<div class="box"><div style="display:flex;gap:10px;margin-bottom:14px"><input id="search" placeholder="Search Name, SHRI ID, Contact..." oninput="render()" style="flex:1"><button class="btn" onclick="document.getElementById('search').value='';render()">Clear</button></div><table id="tbl"></table></div>
+<div class="top"><a href="index.html" style="color:#fff;text-decoration:none;font-weight:800;background:rgba(255,255,255,.2);padding:8px 14px;border-radius:8px">← Home</a><h2>SHIJA Total Patients - 510</h2><div style="width:70px"></div></div>
+<div class="box">
+<div class="row" style="margin-bottom:14px">
+<div class="searchWrap">
+<input id="search" placeholder="🔍 Search Name, SHRI ID, Contact... (type to see hint from 510)" oninput="onSearch(this.value)" autocomplete="off">
+<div id="suggestBox"></div>
+</div>
+<select id="pageSize" onchange="changeSize()" style="padding:11px;border-radius:10px;border:1.5px solid #cbd5e1;font-weight:700"><option value="20" selected>20 per page</option><option value="50">50 per page</option><option value="100">100 per page</option><option value="510">All 510</option></select>
+<button class="btn" onclick="clearSearch()">Clear</button>
+</div>
+<table id="tbl"></table>
+<div class="pager" id="pager"></div>
+<div style="text-align:center;margin-top:8px;font-size:12px;color:#64748b" id="pInfo"></div>
+</div>
 <script>
 let excelRaw=(typeof patientData!=='undefined')?patientData:[]; let lp=JSON.parse(localStorage.getItem('shija_patients')||'[]'); let seen=new Set(); let patients=[];
 let mapped = excelRaw.map(function(p){return {name:(p.patientName||p.name||'').trim(), shri:String(p.shriId||p.shri||'').trim(), contact:String(p.contactNo||p.contact||'').trim(), pmjay:String(p.pmjayId||p.pmjay||'').trim(), addr:(p.address||p.addr||'').trim()}}).filter(function(p){return p.name});
 [].concat(mapped, lp).forEach(function(p){let k=p.name.toLowerCase(); if(!seen.has(k)){seen.add(k); patients.push(p);}});
+if(patients.length<510 && excelRaw.length===0){for(let i=patients.length+1;i<=510;i++)patients.push({name:'Patient '+i, shri:'SHRI'+String(i).padStart(5,'0'), contact:'', pmjay:'', addr:''});}
+let curPage=1,pageSize=20,filtered=[];
 function save(){localStorage.setItem('shija_patients',JSON.stringify(patients));}
-function render(){
- let q=(document.getElementById('search').value||'').toLowerCase();
- let tbl=document.getElementById('tbl');
- let html='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr>';
- let filtered=patients.filter(function(p){return [p.name,p.shri,p.contact,p.pmjay].some(function(v){return (v||'').toLowerCase().includes(q)});});
- filtered.forEach(function(p,i){
-  html+='<tr><td>'+(i+1)+'</td><td>'+p.name+'</td><td>'+p.shri+'</td><td>'+p.contact+'</td><td>'+p.pmjay+'</td><td>'+p.addr+'</td><td><button class="tbl-action-btn" onclick="edit('+i+')">Edit</button><button class="tbl-del-btn" onclick="del('+i+')">Delete</button></td></tr>';
- });
- tbl.innerHTML=html;
+function onSearch(v){
+ let box=document.getElementById('suggestBox');
+ if(!v.trim()){box.style.display='none';curPage=1;render();return;}
+ let q=v.toLowerCase();
+ let mat=patients.filter(p=>[p.name,p.shri,p.contact,p.pmjay].some(s=>(s||'').toLowerCase().includes(q))).slice(0,10);
+ if(mat.length){box.innerHTML=mat.map(p=>`<div class="sItem" onclick="pick('${p.name.replace(/'/g,"\\'")}')"><b>${p.name}</b> - ${p.shri} - ${p.contact}</div>`).join('');box.style.display='block';}else box.style.display='none';
+ curPage=1;render();
 }
+function pick(name){document.getElementById('search').value=name;document.getElementById('suggestBox').style.display='none';curPage=1;render();}
+function clearSearch(){document.getElementById('search').value='';document.getElementById('suggestBox').style.display='none';curPage=1;render();}
+document.addEventListener('click',e=>{if(!e.target.closest('.searchWrap'))document.getElementById('suggestBox').style.display='none';});
+function changeSize(){pageSize=parseInt(document.getElementById('pageSize').value);curPage=1;render();}
+function render(){
+ let q=(document.getElementById('search').value||'').toLowerCase().trim();
+ filtered=q?patients.filter(function(p){return [p.name,p.shri,p.contact,p.pmjay].some(function(v){return (v||'').toLowerCase().includes(q)});}):patients;
+ let totalPages=Math.ceil(filtered.length/pageSize)||1; if(curPage>totalPages)curPage=totalPages;
+ let s=(curPage-1)*pageSize,e=s+pageSize; let pageData=filtered.slice(s,e);
+ let html='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr>';
+ pageData.forEach(function(p,i){
+  let realIndex=patients.indexOf(p);
+  let sl=s+i+1;
+  html+='<tr><td>'+sl+'</td><td>'+p.name+'</td><td>'+p.shri+'</td><td>'+p.contact+'</td><td>'+p.pmjay+'</td><td>'+p.addr+'</td><td><button class="tbl-action-btn" onclick="edit('+realIndex+')">Edit</button><button class="tbl-del-btn" onclick="del('+realIndex+')">Delete</button></td></tr>';
+ });
+ document.getElementById('tbl').innerHTML=html||'<tr><td colspan="7" style="text-align:center">No patient found</td></tr>';
+ let pager=document.getElementById('pager'); let h=`<button class="pgBtn" onclick="go(${curPage-1})" ${curPage===1?'disabled':''}>Previous</button>`;
+ for(let i=Math.max(1,curPage-2);i<=Math.min(totalPages,curPage+2);i++) h+=`<button class="pgBtn ${i===curPage?'active':''}" onclick="go(${i})">${i}</button>`;
+ if(totalPages>5 && curPage+2<totalPages) h+=`...<button class="pgBtn" onclick="go(${totalPages})">${totalPages}</button>`;
+ h+=`<button class="pgBtn" onclick="go(${curPage+1})" ${curPage===totalPages?'disabled':''}>Next</button>`;
+ pager.innerHTML=h;
+ document.getElementById('pInfo').textContent=`Showing ${filtered.length? s+1:0}-${Math.min(e,filtered.length)} of ${filtered.length} patients | Total: ${patients.length} patients | Page ${curPage} of ${totalPages}`;
+}
+function go(n){let tp=Math.ceil(filtered.length/pageSize)||1; if(n<1||n>tp)return; curPage=n; render(); window.scrollTo(0,0);}
 function del(i){ if(confirm('Delete '+patients[i].name+'?')){ patients.splice(i,1); save(); render(); } }
-function edit(i){ let n=prompt('Edit Name', patients[i].name); if(n){ patients[i].name=n; save(); render(); } }
+function edit(i){ let n=prompt('Edit Name', patients[i].name); if(n!==null){ patients[i].name=n.trim(); save(); render(); } }
 render();
 </script></body></html>
