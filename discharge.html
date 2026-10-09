@@ -25,118 +25,125 @@ body{background:#f1f5f9;min-height:100vh}
 .pag button{padding:5px 10px;border:0;border-radius:6px;background:#ffffff22;color:#fff;cursor:pointer;font-weight:700}
 .pag button:disabled{opacity:.4}
 .tbl{width:100%;border-collapse:collapse}
-.tbl th{background:#f8fafc;font-size:11px;color:#475569;padding:10px 8px;text-align:left;border-bottom:1px solid #e2e8f0}
+.tbl th{background:#f8fafc;font-size:11px;color:#475569;padding:10px 8px;text-align:left}
 .tbl td{padding:10px 8px;font-size:12px;border-bottom:1px solid #f1f5f9}
 .btn-sm{padding:6px 12px;border:0;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;margin-right:4px}
-.dis{background:#ef4444;color:#fff}
-.claim{background:#0ea5e9;color:#fff}
-.remove{background:#e2e8f0;color:#475569}
-.empty{padding:30px;text-align:center;color:#94a3b8;font-size:13px}
+.dis{background:#ef4444;color:#fff}.claim{background:#0ea5e9;color:#fff}.remove{background:#e2e8f0;color:#475569}
 </style></head><body>
 <div class="top"><h3>Discharge Patient</h3><a href="index.html">← Home</a></div>
 <div class="wrap">
 
 <div class="row">
  <div class="box"><label>Select Date</label><input type="date" id="disDate"></div>
- <div class="box"><label>Filter by Time</label>
-  <select id="timeFilter"><option>7AM</option><option>12PM</option><option>5PM</option><option>9PM</option><option>12AM</option><option>2AM</option></select>
- </div>
+ <div class="box"><label>Filter by Time</label><select id="timeFilter"><option>7AM</option><option>12PM</option><option>5PM</option><option>9PM</option><option>12AM</option><option>2AM</option></select></div>
 </div>
 
 <div class="search-wrap">
 <label>Search Patient by Name from Total 510 Patients</label>
-<input id="search" placeholder="Type name... from 510 patients" autocomplete="off" oninput="showHints()" onfocus="showHints()">
+<input id="search" placeholder="Start typing name... (min 2 letters)" autocomplete="off" oninput="showHints()" onfocus="showHints()">
 <div class="suggest" id="suggest"></div>
 <div class="count" id="cnt"></div>
 </div>
 
 <div class="list-box">
-<div class="list-head">
-<b>Selected List - <span id="listCount">0</span></b>
-<div class="pag">
-<label>Show:</label>
-<select id="pageSize" onchange="changePageSize()">
- <option value="10">10</option>
- <option value="20">20</option>
- <option value="30">30</option>
- <option value="50" selected>50</option>
-</select>
-<button onclick="prevPage()" id="prevBtn">‹ Prev</button>
-<span id="pageInfo">Page 1</span>
-<button onclick="nextPage()" id="nextBtn">Next ›</button>
+<div class="list-head"><b>Selected List - <span id="listCount">0</span></b>
+<div class="pag"><select id="pageSize" onchange="changePageSize()"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50" selected>50</option></select><button onclick="prevPage()" id="prevBtn">‹ Prev</button><span id="pageInfo">Page 1</span><button onclick="nextPage()" id="nextBtn">Next ›</button></div>
 </div>
-</div>
-<div style="overflow-x:auto">
-<table class="tbl"><thead><tr><th>SL No</th><th>Name</th><th>SHRI ID</th><th>PMJAY ID</th><th>Action</th></tr></thead>
-<tbody id="selectedBody"></tbody></table>
-</div>
+<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>SL No</th><th>Name</th><th>SHRI ID</th><th>PMJAY ID</th><th>Action</th></tr></thead><tbody id="selectedBody"></tbody></table></div>
 </div>
 
 </div>
 <script>
 if(localStorage.getItem('shija_logged')!=='1') location.href='login.html';
 document.getElementById('disDate').valueAsDate=new Date();
-
 let selectedList=JSON.parse(localStorage.getItem('shija_selected_discharge')||'[]');
-let currentPage=1;
-let pageSize=50;
+let currentPage=1,pageSize=50;
 
-function getAll(){let excel=(typeof patientData!=='undefined')?patientData:[];let local=JSON.parse(localStorage.getItem('shija_patients')||'[]');return [...excel,...local];}
+// === FIND NAME KEY AUTOMATICALLY ===
+function getName(p){
+ if(!p) return 'Unknown';
+ // Try all possible name keys
+ let keys = Object.keys(p);
+ let nameKey = keys.find(k=>k.toLowerCase().includes('patient') && k.toLowerCase().includes('name')) ||
+               keys.find(k=>k.toLowerCase()==='name') ||
+               keys.find(k=>k.toLowerCase().includes('name')) ||
+               keys.find(k=>k.toLowerCase().includes('patient'));
+ return nameKey? p[nameKey] : 'Unknown';
+}
+function getShri(p){ return p.id||p.ID||p.SHRI||p.shri_id||p.SHRI_ID||p.Sl_No||p.sl_no||p['SHRI ID']||'-'; }
+function getPmjay(p){ return p.pmjay||p.PMJAY||p.pmjay_id||p.PMJAY_ID||p['PMJAY ID']||'-'; }
+
+function getAll(){
+ let excel=(typeof patientData!=='undefined')?patientData:[];
+ let local=JSON.parse(localStorage.getItem('shija_patients')||'[]');
+ return [...excel,...local];
+}
 function getDischarged(){return JSON.parse(localStorage.getItem('shija_discharged')||'[]');}
 
 function showHints(){
- let q=document.getElementById('search').value.trim().toLowerCase();
+ let input=document.getElementById('search');
+ let q=input.value.trim().toLowerCase();
  let all=getAll();
+ let box=document.getElementById('suggest');
+
+ // IMPORTANT: Only search when user types 2+ letters and ONLY BY NAME
+ if(q.length < 2){ box.style.display='none'; document.getElementById('cnt').innerText=`Total Database: ${all.length} Patients | Type min 2 letters of patient NAME`; return; }
+
  let disIds=new Set(getDischarged().map(d=>String(d.id).toLowerCase()));
  let selIds=new Set(selectedList.map(d=>String(d.shri).toLowerCase()));
- let active=all.filter(p=>{let id=String(p.id||p.ID||p.SHRI||p.shri_id||p.SHRI_ID||p.Sl_No||'').toLowerCase();return!disIds.has(id)&&!selIds.has(id);});
- let filtered=active;
- if(q) filtered=active.filter(p=>{let name=String(p.name||p.Name||p.patient_name||'').toLowerCase();let shri=String(p.id||p.ID||p.SHRI||'').toLowerCase();return name.includes(q)||shri.includes(q);});
- else filtered=active.slice(0,50);
- document.getElementById('cnt').innerText=`Total: ${all.length} | Matching: ${filtered.length} | Time: ${document.getElementById('timeFilter').value}`;
- let box=document.getElementById('suggest');
- if(!filtered.length){box.style.display='none';return;}
+
+ let active=all.filter(p=>{
+  let id=String(getShri(p)).toLowerCase();
+  return!disIds.has(id) &&!selIds.has(id);
+ });
+
+ // SEARCH ONLY BY NAME FROM 510
+ let filtered=active.filter(p=>{
+  let name=String(getName(p)).toLowerCase();
+  return name.includes(q);
+ });
+
+ document.getElementById('cnt').innerText=`Total: ${all.length} | Name matching '${q}': ${filtered.length}`;
+ if(!filtered.length){ box.style.display='none'; return; }
+
  box.style.display='block';
- box.innerHTML=filtered.slice(0,100).map(p=>{let name=p.name||p.Name||p.patient_name||'Unknown';let shri=p.id||p.ID||p.SHRI||p.shri_id||p.SHRI_ID||'-';let pmjay=p.pmjay||p.PMJAY||p.pmjay_id||'-';return `<div onclick="addToList('${String(shri).replace(/'/g,"")}')"><b>${name}</b><br><small style="color:#64748b">SHRI: ${shri} | PMJAY: ${pmjay}</small></div>`;}).join('');
+ box.innerHTML=filtered.slice(0,50).map(p=>{
+   let name=getName(p);
+   let shri=getShri(p);
+   let pmjay=getPmjay(p);
+   return `<div onclick="addToList('${String(shri).replace(/'/g,"")}')"><b style="color:#0f4c75">${name}</b><br><small style="color:#64748b">SHRI: ${shri} | PMJAY: ${pmjay}</small></div>`;
+ }).join('');
+
+ // Debug: show first patient keys in console to help you
+ if(all.length>0) console.log('First patient keys:', Object.keys(all[0]), 'First patient:', all[0]);
 }
 
 function addToList(shriId){
  let all=getAll();
- let p=all.find(x=>String(x.id||x.ID||x.SHRI||x.shri_id||x.SHRI_ID||x.Sl_No||'').toLowerCase()===String(shriId).toLowerCase());
+ let p=all.find(x=>String(getShri(x)).toLowerCase()===String(shriId).toLowerCase());
  if(!p) return;
- selectedList.push({name:p.name||p.Name||p.patient_name||'Unknown',shri:shriId,pmjay:p.pmjay||p.PMJAY||p.pmjay_id||'-',date:document.getElementById('disDate').value,time:document.getElementById('timeFilter').value});
+ selectedList.push({name:getName(p),shri:getShri(p),pmjay:getPmjay(p),date:document.getElementById('disDate').value,time:document.getElementById('timeFilter').value});
  localStorage.setItem('shija_selected_discharge',JSON.stringify(selectedList));
- document.getElementById('search').value='';document.getElementById('suggest').style.display='none';
- currentPage=1; renderList();
+ document.getElementById('search').value=''; document.getElementById('suggest').style.display='none'; currentPage=1; renderList();
 }
-
 function changePageSize(){pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderList();}
 function prevPage(){if(currentPage>1){currentPage--;renderList();}}
-function nextPage(){let totalPages=Math.ceil(selectedList.length/pageSize);if(currentPage<totalPages){currentPage++;renderList();}}
-
+function nextPage(){let tp=Math.ceil(selectedList.length/pageSize);if(currentPage<tp){currentPage++;renderList();}}
 function renderList(){
  let body=document.getElementById('selectedBody');
  document.getElementById('listCount').innerText=selectedList.length;
- let totalPages=Math.ceil(selectedList.length/pageSize)||1;
- document.getElementById('pageInfo').innerText=`Page ${currentPage} of ${totalPages}`;
+ let tp=Math.ceil(selectedList.length/pageSize)||1;
+ document.getElementById('pageInfo').innerText=`Page ${currentPage} of ${tp}`;
  document.getElementById('prevBtn').disabled=currentPage===1;
- document.getElementById('nextBtn').disabled=currentPage===totalPages;
-
- if(!selectedList.length){body.innerHTML=`<tr><td colspan="5" style="padding:30px;text-align:center;color:#94a3b8">No patient selected yet. Search from 510 above.</td></tr>`;return;}
-
+ document.getElementById('nextBtn').disabled=currentPage===tp;
+ if(!selectedList.length){body.innerHTML=`<tr><td colspan="5" style="padding:30px;text-align:center;color:#94a3b8">No patient selected yet.</td></tr>`;return;}
  let start=(currentPage-1)*pageSize;
  let pageData=selectedList.slice(start,start+pageSize);
- body.innerHTML=pageData.map((d,i)=>{
-  let realIndex=start+i;
-  return `<tr><td>${realIndex+1}</td><td><b>${d.name}</b></td><td>${d.shri}</td><td style="color:#b91c1c;font-weight:700">${d.pmjay}</td>
-  <td><button class="btn-sm dis" onclick="doDischarge(${realIndex})">Discharge</button><button class="btn-sm claim" onclick="doClaim(${realIndex})">Claim</button><button class="btn-sm remove" onclick="removeSel(${realIndex})">X</button></td></tr>`;
- }).join('');
+ body.innerHTML=pageData.map((d,i)=>{let ri=start+i;return `<tr><td>${ri+1}</td><td><b>${d.name}</b></td><td>${d.shri}</td><td style="color:#b91c1c;font-weight:700">${d.pmjay}</td><td><button class="btn-sm dis" onclick="doDischarge(${ri})">Discharge</button><button class="btn-sm claim" onclick="doClaim(${ri})">Claim</button><button class="btn-sm remove" onclick="removeSel(${ri})">X</button></td></tr>`;}).join('');
 }
-
-function doDischarge(idx){let d=selectedList[idx];if(!confirm(`Discharge ${d.name}?`)) return;let dis=getDischarged();dis.push({id:d.shri,name:d.name,pmjay:d.pmjay,date:d.date,time:d.time,discharged_at:new Date().toLocaleString(),type:'Discharge'});localStorage.setItem('shija_discharged',JSON.stringify(dis));selectedList.splice(idx,1);localStorage.setItem('shija_selected_discharge',JSON.stringify(selectedList));if(currentPage>1&&selectedList.length%pageSize===0)currentPage--;renderList();}
-function doClaim(idx){let d=selectedList[idx];if(!confirm(`Claim for ${d.name}?`)) return;let dis=getDischarged();dis.push({id:d.shri,name:d.name,pmjay:d.pmjay,date:d.date,time:d.time,discharged_at:new Date().toLocaleString(),type:'Claim'});localStorage.setItem('shija_discharged',JSON.stringify(dis));selectedList.splice(idx,1);localStorage.setItem('shija_selected_discharge',JSON.stringify(selectedList));if(currentPage>1&&selectedList.length%pageSize===0)currentPage--;renderList();}
-function removeSel(idx){selectedList.splice(idx,1);localStorage.setItem('shija_selected_discharge',JSON.stringify(selectedList));if(currentPage>1&&selectedList.length%pageSize===0)currentPage--;renderList();}
-
+function doDischarge(idx){let d=selectedList[idx];if(!confirm(`Discharge ${d.name}?`)) return;let dis=getDischarged();dis.push({id:d.shri,name:d.name,pmjay:d.pmjay,date:d.date,time:d.time,discharged_at:new Date().toLocaleString(),type:'Discharge'});localStorage.setItem('shija_discharged',JSON.stringify(dis));selectedList.splice(idx,1);localStorage.setItem('shija_selected_discharge',JSON.stringify(selectedList));renderList();}
+function doClaim(idx){let d=selectedList[idx];if(!confirm(`Claim for ${d.name}?`)) return;let dis=getDischarged();dis.push({id:d.shri,name:d.name,pmjay:d.pmjay,date:d.date,time:d.time,discharged_at:new Date().toLocaleString(),type:'Claim'});localStorage.setItem('shija_discharged',JSON.stringify(dis));selectedList.splice(idx,1);localStorage.setItem('shija_selected_discharge',JSON.stringify(selectedList));renderList();}
+function removeSel(idx){selectedList.splice(idx,1);localStorage.setItem('shija_selected_discharge',JSON.stringify(selectedList));renderList();}
 document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap')) document.getElementById('suggest').style.display='none';});
 renderList(); showHints();
 </script>
