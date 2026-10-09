@@ -1,143 +1,54 @@
 <!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KFT Report - SHIJA</title>
 <script src="Patient.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial}
 body{background:#f1f5f9}
-.top{background:linear-gradient(90deg,#0f4c75,#1e7bb8);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.top{background:linear-gradient(90deg,#0f4c75,#1e7bb8);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
 .top a{color:#fff;text-decoration:none;background:#ffffff22;padding:6px 12px;border-radius:8px}
-.wrap{max-width:1400px;margin:12px auto;padding:0 12px}
-.card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 4px 12px #0001;margin-bottom:12px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-input,select{padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;outline:0}
-.btn{padding:11px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
-.btn-blue{background:#0f4c75;color:#fff}
+.wrap{max-width:1100px;margin:14px auto;padding:0 12px}
+.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 4px 12px #0001;margin-bottom:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+select,input{padding:11px 14px;border:1px solid #cbd5e1;border-radius:10px;outline:0;font-weight:600}
+.btn{padding:11px 18px;border:0;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
 .btn-green{background:#10b981;color:#fff}
-.btn-red{background:#ef4444;color:#fff}
-.btn-dark{background:#334155;color:#fff}
-.btn-export{background:#16a34a;color:#fff;border:2px solid #15803d}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th,td{padding:7px;border:1px solid #e2e8f0;text-align:left}
-th{background:#0f4c75;color:#fff;position:sticky;top:0;font-size:11px}
+.btn-orange{background:#f59e0b;color:#111}
+.dateBox{display:flex;gap:10px}
+.dateOpt{padding:12px 20px;border:2px solid #cbd5e1;border-radius:12px;background:#fff;font-weight:800;cursor:pointer;min-width:130px;text-align:center}
+.dateOpt.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+th,td{padding:9px;border:1px solid #e2e8f0;text-align:left}
+th{background:#0f4c75;color:#fff;position:sticky;top:0}
 tr:nth-child(even){background:#f8fafc}
-.toggle{width:82px;padding:7px;border-radius:20px;border:0;font-weight:800;cursor:pointer;font-size:11px}
+.toggle{width:115px;padding:8px;border-radius:20px;border:0;font-weight:800;cursor:pointer}
 .yes{background:#10b981;color:#fff}
-.no{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
-.chip{padding:6px 12px;border-radius:20px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-size:11px;font-weight:700}
-.chip.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
-.chip.green.active{background:#10b981;border-color:#10b981}
-.chip.red.active{background:#ef4444;border-color:#ef4444}
-.filterBox{border:1px dashed #cbd5e1;border-radius:10px;padding:10px;margin:8px 0;background:#f8fafc}
-.filterTitle{font-weight:800;font-size:12px;margin-bottom:6px;color:#0f4c75}
-@media print{@page{size:A4 landscape;margin:10mm}.noPrint{display:none!important}}
+.no{background:#ef4444;color:#fff}
+.toggle:disabled{opacity:0.5;cursor:not-allowed}
+.locked{background:#e0f2fe;border:1px solid #bae6fd;color:#0f4c75;padding:10px;border-radius:10px;margin:10px 0;font-weight:700;text-align:center}
+.statBox{flex:1;padding:10px;border-radius:12px;text-align:center;border:2px solid #e2e8f0;background:#fff;min-width:100px}
 </style></head><body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='index.html'}</script>
-<div class="top"><b>🧪 KFT Report - Filter Submit / Not Submit (1st & 15th)</b><div class="row"><a href="index.html">Home</a></div></div>
-
+<div class="top"><b>🧪 KFT Report - 1st & 15th</b><a href="index.html">Home</a></div>
 <div class="wrap">
-<div class="card noPrint">
-<div class="row">
-<div>Year: <select id="yearSel"></select></div>
-<div>Month: <select id="monthSel"><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select></div>
-<div><input id="searchBox" placeholder="Search Name / SHRI ID..." oninput="render()" style="min-width:200px"></div>
-<div><button class="btn btn-green" onclick="markAll(true)">✅ All Submit</button></div>
-<div><button class="btn btn-red" onclick="markAll(false)">❌ All Not Submit</button></div>
-<div><button class="btn btn-export" onclick="exportExcel()">📗 EXPORT EXCEL</button></div>
-<div><button class="btn btn-dark" onclick="window.print()">🖨️ A4 PRINT</button></div>
+<div class="card">
+<div class="row"><div>Year: <select id="yearSel"></select></div><div>Month: <select id="monthSel"><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select></div></div>
+<div style="margin-top:14px;font-weight:800;color:#0f4c75">2. Select Date:</div>
+<div class="dateBox" style="margin-top:8px"><div id="d1" class="dateOpt active" onclick="setDate('1')">📅 1st of Every Month</div><div id="d15" class="dateOpt" onclick="setDate('15')">📅 15th of Every Month</div></div>
+<div class="row" style="margin-top:14px"><input id="search" placeholder="Search Name / SHRI ID (510 patients)" oninput="render()" style="flex:1;min-width:200px"><button class="btn btn-green" id="saveBtn" onclick="saveLock()">💾 SAVE</button><button class="btn btn-orange" id="editBtn" onclick="enableEdit()" style="display:none">✏️ EDIT</button></div>
+<div id="lockMsg" class="locked" style="display:none">🔒 Saved & Locked. Click EDIT to change</div>
+<div class="row" style="margin-top:10px"><div class="statBox"><div>Total</div><b style="font-size:22px;color:#0f4c75" id="totalP">0</b><div>Patients</div></div><div class="statBox" style="border-color:#10b981;background:#dcfce7"><div>Submit</div><b style="font-size:22px;color:#10b981" id="cYes">0</b><div>Completed</div></div><div class="statBox" style="border-color:#ef4444;background:#fee2e2"><div>Not Submit</div><b style="font-size:22px;color:#ef4444" id="cNo">0</b><div>Pending</div></div></div>
 </div>
-
-<!-- FILTER SECTION YOU ASKED -->
-<div class="filterBox">
-<div class="filterTitle">🔍 FILTER - Show patients who Submit / Not Submit:</div>
-<div class="row">
-<span style="font-size:11px;font-weight:700">Overall:</span>
-<div class="chip active" onclick="setFilter('all',this)">All <b id="cAll">510</b></div>
-<div class="chip green" onclick="setFilter('done',this)">✅ Both Submit (<b id="cDone">0</b>)</div>
-<div class="chip red" onclick="setFilter('pending',this)">❌ Both Not Submit (<b id="cPend">0</b>)</div>
-<div class="chip" onclick="setFilter('partial',this)">⚠️ Partial (<b id="cPart">0</b>)</div>
+<div class="card"><h3 style="text-align:center;color:#0f4c75" id="titleH">KFT Report</h3><table><thead><tr><th>Sl No</th><th>Patient Name</th><th>SHRI ID</th><th>Contact</th><th id="statusHead">KFT Status</th></tr></thead><tbody id="tbl"></tbody></table></div>
 </div>
-<div class="row" style="margin-top:8px">
-<span style="font-size:11px;font-weight:700">KFT 1st Filter:</span>
-<div class="chip active" data-g="f1" onclick="setF1('all',this)">All 1st</div>
-<div class="chip green" data-g="f1" onclick="setF1('yes',this)">✅ Submit on 1st</div>
-<div class="chip red" data-g="f1" onclick="setF1('no',this)">❌ Not Submit on 1st</div>
-<span style="font-size:11px;font-weight:700;margin-left:12px">KFT 15th Filter:</span>
-<div class="chip active" data-g="f15" onclick="setF15('all',this)">All 15th</div>
-<div class="chip green" data-g="f15" onclick="setF15('yes',this)">✅ Submit on 15th</div>
-<div class="chip red" data-g="f15" onclick="setF15('no',this)">❌ Not Submit on 15th</div>
-</div>
-<div style="font-size:11px;color:#64748b;margin-top:6px">Showing: <b id="showing">0</b> patients | Use filters to see who submitted or not</div>
-</div>
-</div>
-
-<div class="card" id="printArea">
-<h3 style="text-align:center">SHIJA HOSPITALS - KFT Submission Report</h3>
-<p style="text-align:center;font-size:12px">Month: <b id="pMonth"></b> | Year: <b id="pYear"></b> | Filter: <span id="pFilter"></span></p>
-<table>
-<thead><tr><th>Sl No</th><th>Patient Name</th><th>SHRI ID</th><th>Contact</th><th>KFT - 1st <span id="h1"></span></th><th>KFT - 15th <span id="h15"></span></th><th>Overall</th></tr></thead>
-<tbody id="tbl"></tbody>
-</table>
-</div>
-</div>
-
 <script>
-let raw=(typeof patientData!=='undefined')?patientData:[];
-let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');
-let patients=[...raw,...extra];
-if(!patients.length) patients=[{patientName:'Demo Patient 1',shriId:'1001',contactNo:'98765'},{patientName:'Demo Patient 2',shriId:'1002',contactNo:''}];
-
-let yearSel=document.getElementById('yearSel'), now=new Date();
-for(let y=now.getFullYear()-2;y<=now.getFullYear()+1;y++){let o=document.createElement('option');o.value=y;o.textContent=y;if(y===now.getFullYear())o.selected=true;yearSel.appendChild(o);}
-document.getElementById('monthSel').value=now.getMonth();
-
-let fAll='all', f1='all', f15='all';
-function getKey(y,m,shri,day){return `kft_${y}_${m}_${shri}_${day}`;}
-function load(y,m,shri,day){return localStorage.getItem(getKey(y,m,shri,day))==='1';}
-function set(y,m,shri,day,v){localStorage.setItem(getKey(y,m,shri,day), v?'1':'0');}
-
-function setFilter(v,el){fAll=v; document.querySelectorAll('.chip[onclick^=\"setFilter\"]').forEach(c=>c.classList.remove('active')); el.classList.add('active'); render();}
-function setF1(v,el){f1=v; document.querySelectorAll('.chip[data-g=\"f1\"]').forEach(c=>c.classList.remove('active')); el.classList.add('active'); render();}
-function setF15(v,el){f15=v; document.querySelectorAll('.chip[data-g=\"f15\"]').forEach(c=>c.classList.remove('active')); el.classList.add('active'); render();}
-
-function markAll(val){let y=yearSel.value,m=document.getElementById('monthSel').value; if(!confirm(`Mark ALL visible as ${val?'Submit':'Not Submit'}?`))return; let list=getFilteredRaw(); list.forEach(p=>{let s=p.shriId||p.patientName; set(y,m,s,'1',val); set(y,m,s,'15',val);}); render();}
-
-function getFilteredRaw(){
- let search=document.getElementById('searchBox').value.toLowerCase();
- return patients.filter(p=>!search|| (p.patientName||'').toLowerCase().includes(search) || (p.shriId||'').toLowerCase().includes(search));
-}
-
-function render(){
- let y=yearSel.value,m=document.getElementById('monthSel').value;
- let months=["January","February","March","April","May","June","July","August","September","October","November","December"];
- document.getElementById('pMonth').textContent=months[m]; document.getElementById('pYear').textContent=y;
- document.getElementById('h1').textContent=months[m].slice(0,3)+' 1, '+y; document.getElementById('h15').textContent=months[m].slice(0,3)+' 15, '+y;
- 
- // counts
- let done=0,pend=0,part=0;
- patients.forEach(p=>{let s=p.shriId||p.patientName; let a=load(y,m,s,'1'),b=load(y,m,s,'15'); if(a&&b)done++; else if(!a&&!b)pend++; else part++;});
- document.getElementById('cAll').textContent=patients.length; document.getElementById('cDone').textContent=done; document.getElementById('cPend').textContent=pend; document.getElementById('cPart').textContent=part;
- document.getElementById('pFilter').textContent=`Overall:${fAll}, 1st:${f1}, 15th:${f15}`;
-
- let list=getFilteredRaw().filter(p=>{
-  let s=p.shriId||p.patientName; let a=load(y,m,s,'1'),b=load(y,m,s,'15');
-  if(fAll==='done' && !(a&&b)) return false;
-  if(fAll==='pending' && !(!a&&!b)) return false;
-  if(fAll==='partial' && !((a&&!b)||(!a&&b))) return false;
-  if(f1==='yes' && !a) return false;
-  if(f1==='no' && a) return false;
-  if(f15==='yes' && !b) return false;
-  if(f15==='no' && b) return false;
-  return true;
- });
- document.getElementById('showing').textContent=list.length;
- document.getElementById('tbl').innerHTML=list.map((p,i)=>{let s=p.shriId||p.patientName; let a=load(y,m,s,'1'),b=load(y,m,s,'15'); let st=a&&b?'✅ Both Submit':(!a&&!b?'❌ Both Not Submit':'⚠️ Partial'); return `<tr><td>${i+1}</td><td>${p.patientName}</td><td>${p.shriId||''}</td><td>${p.contactNo||''}</td><td><button class="toggle ${a?'yes':'no'}" onclick="tog('${s.replace(/'/g,"\\'")}','1')">${a?'✅ Submit':'❌ Not Submit'}</button></td><td><button class="toggle ${b?'yes':'no'}" onclick="tog('${s.replace(/'/g,"\\'")}','15')">${b?'✅ Submit':'❌ Not Submit'}</button></td><td>${st}</td></tr>`;}).join('')||`<tr><td colspan="7" style="text-align:center">No patients match filter</td></tr>`;
-}
-function tog(shri,day){let y=yearSel.value,m=document.getElementById('monthSel').value; let cur=load(y,m,shri,day); set(y,m,shri,day,!cur); render();}
-function exportExcel(){
- let y=yearSel.value,m=document.getElementById('monthSel').value; let mn=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][m];
- let list=getFilteredRaw().filter(p=>{let s=p.shriId||p.patientName; let a=load(y,m,s,'1'),b=load(y,m,s,'15'); if(fAll==='done' && !(a&&b)) return false; if(fAll==='pending' && !(!a&&!b)) return false; if(fAll==='partial' && !((a&&!b)||(!a&&b))) return false; if(f1==='yes' && !a) return false; if(f1==='no' && a) return false; if(f15==='yes' && !b) return false; if(f15==='no' && b) return false; return true;});
- let data=list.map((p,i)=>{let s=p.shriId||p.patientName; return {"Sl No":i+1,"Patient Name":p.patientName,"SHRI ID":p.shriId||'',"KFT 1st":load(y,m,s,'1')?'Submit':'Not Submit',"KFT 15th":load(y,m,s,'15')?'Submit':'Not Submit'};});
- let ws=XLSX.utils.json_to_sheet(data); let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'KFT_'+mn); XLSX.writeFile(wb,`KFT_${mn}_${y}_${fAll}_${f1}_${f15}.xlsx`);
-}
-yearSel.addEventListener('change',render); document.getElementById('monthSel').addEventListener('change',render); render();
+let raw=(typeof patientData!=='undefined')?patientData:[];let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');let patients=[...raw,...extra];if(!patients.length)patients=[{patientName:'Demo Patient 1',shriId:'1001',contactNo:'98765'},{patientName:'Demo Patient 2',shriId:'1002',contactNo:''}];
+let yearSel=document.getElementById('yearSel'),now=new Date();for(let y=now.getFullYear()-2;y<=now.getFullYear()+1;y++){let o=document.createElement('option');o.value=y;o.textContent=y;if(y===now.getFullYear())o.selected=true;yearSel.appendChild(o);}document.getElementById('monthSel').value=now.getMonth();
+let selDate='1',isLocked=false;
+function getKey(y,m,day){return `kft_lock_${y}_${m}_${day}`;}function getPKey(y,m,shri,day){return `kft_${y}_${m}_${shri}_${day}`;}function load(y,m,shri,day){return localStorage.getItem(getPKey(y,m,shri,day))==='1';}function setVal(y,m,shri,day,v){localStorage.setItem(getPKey(y,m,shri,day), v?'1':'0');}
+function setDate(d){selDate=d;document.getElementById('d1').classList.toggle('active',d==='1');document.getElementById('d15').classList.toggle('active',d==='15');checkLock();render();}
+function checkLock(){let y=yearSel.value,m=document.getElementById('monthSel').value;isLocked=localStorage.getItem(getKey(y,m,selDate))==='1';document.getElementById('saveBtn').style.display=isLocked?'none':'inline-block';document.getElementById('editBtn').style.display=isLocked?'inline-block':'none';document.getElementById('lockMsg').style.display=isLocked?'block':'none';}
+function saveLock(){let y=yearSel.value,m=document.getElementById('monthSel').value;if(!confirm(`Save KFT for ${selDate} ${document.getElementById('monthSel').options[m].text} ${y}?`))return;localStorage.setItem(getKey(y,m,selDate),'1');checkLock();render();alert('✅ Saved & Locked');}
+function enableEdit(){if(!confirm('Enable Edit?'))return;let y=yearSel.value,m=document.getElementById('monthSel').value;localStorage.setItem(getKey(y,m,selDate),'0');checkLock();render();}
+function render(){let y=yearSel.value,m=document.getElementById('monthSel').value;let months=["January","February","March","April","May","June","July","August","September","October","November","December"];let search=document.getElementById('search').value.toLowerCase();document.getElementById('titleH').textContent=`KFT Report - ${months[m]} ${selDate}, ${y} - All ${patients.length} Patients`;document.getElementById('statusHead').textContent=`KFT Status - ${months[m]} ${selDate}`;let filtered=patients.filter(p=>!search||(p.patientName||'').toLowerCase().includes(search)||(p.shriId||'').toLowerCase().includes(search));let yes=0;filtered.forEach(p=>{let s=p.shriId||p.patientName;if(load(y,m,s,selDate))yes++;});document.getElementById('totalP').textContent=patients.length;document.getElementById('cYes').textContent=yes;document.getElementById('cNo').textContent=filtered.length-yes;document.getElementById('tbl').innerHTML=filtered.map((p,i)=>{let s=p.shriId||p.patientName;let v=load(y,m,s,selDate);return `<tr><td>${i+1}</td><td>${p.patientName}</td><td>${p.shriId||''}</td><td>${p.contactNo||''}</td><td><button class="toggle ${v?'yes':'no'}" ${isLocked?'disabled':''} onclick="toggle('${s.replace(/'/g,"\\'")}')">${v?'✅ Submit':'❌ Not Submit'}</button></td></tr>`;}).join('');}
+function toggle(shri){if(isLocked){alert('Locked! Click EDIT');return;}let y=yearSel.value,m=document.getElementById('monthSel').value;let cur=load(y,m,shri,selDate);setVal(y,m,shri,selDate,!cur);render();}
+yearSel.addEventListener('change',()=>{checkLock();render();});document.getElementById('monthSel').addEventListener('change',()=>{checkLock();render();});checkLock();render();
 </script></body></html>
