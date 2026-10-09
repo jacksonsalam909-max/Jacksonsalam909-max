@@ -5,15 +5,15 @@
 body{background:#f1f5f9}
 .top{background:linear-gradient(90deg,#0f4c75,#1e7bb8);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
 .top a{color:#fff;text-decoration:none;background:#ffffff22;padding:6px 12px;border-radius:8px}
-.wrap{max-width:1100px;margin:14px auto;padding:0 12px}
-.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 4px 12px #0001;margin-bottom:12px}
+.wrap{max-width:1150px;margin:14px auto;padding:0 12px}
+.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 4px 12px #0001;margin-bottom:12px;position:relative}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 select,input{padding:11px 14px;border:1px solid #cbd5e1;border-radius:10px;outline:0;font-weight:600}
-.btn{padding:11px 18px;border:0;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
+.btn{padding:11px 18px;border:0;border-radius:10px;font-weight:800;cursor:pointer}
 .btn-green{background:#10b981;color:#fff}
 .btn-orange{background:#f59e0b;color:#111}
 .dateBox{display:flex;gap:10px}
-.dateOpt{padding:12px 20px;border:2px solid #cbd5e1;border-radius:12px;background:#fff;font-weight:800;cursor:pointer;min-width:130px;text-align:center}
+.dateOpt{padding:12px 20px;border:2px solid #cbd5e1;border-radius:12px;background:#fff;font-weight:800;cursor:pointer}
 .dateOpt.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
 table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
 th,td{padding:9px;border:1px solid #e2e8f0;text-align:left}
@@ -22,33 +22,102 @@ tr:nth-child(even){background:#f8fafc}
 .toggle{width:115px;padding:8px;border-radius:20px;border:0;font-weight:800;cursor:pointer}
 .yes{background:#10b981;color:#fff}
 .no{background:#ef4444;color:#fff}
-.toggle:disabled{opacity:0.5;cursor:not-allowed}
-.locked{background:#e0f2fe;border:1px solid #bae6fd;color:#0f4c75;padding:10px;border-radius:10px;margin:10px 0;font-weight:700;text-align:center}
-.statBox{flex:1;padding:10px;border-radius:12px;text-align:center;border:2px solid #e2e8f0;background:#fff;min-width:100px}
+.toggle:disabled{opacity:0.5}
+.searchWrap{position:relative;flex:1;min-width:260px}
+#suggestBox{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #cbd5e1;border-radius:10px;max-height:240px;overflow:auto;z-index:10;display:none;box-shadow:0 8px 20px #0002}
+.sItem{padding:10px 12px;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between}
+.sItem:hover{background:#f0f9ff}
+.pager{display:flex;gap:6px;align-items:center;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.pgBtn{padding:6px 12px;border:1px solid #cbd5e1;background:#fff;border-radius:8px;cursor:pointer;font-weight:700}
+.pgBtn.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
+.locked{background:#e0f2fe;padding:10px;border-radius:10px;text-align:center;font-weight:700;color:#0f4c75;margin:10px 0}
 </style></head><body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='index.html'}</script>
-<div class="top"><b>🧪 KFT Report - 1st & 15th</b><a href="index.html">Home</a></div>
+<div class="top"><b>KFT Report - 1st & 15th (510 Patients)</b><a href="index.html">Home</a></div>
 <div class="wrap">
 <div class="card">
 <div class="row"><div>Year: <select id="yearSel"></select></div><div>Month: <select id="monthSel"><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select></div></div>
-<div style="margin-top:14px;font-weight:800;color:#0f4c75">2. Select Date:</div>
-<div class="dateBox" style="margin-top:8px"><div id="d1" class="dateOpt active" onclick="setDate('1')">📅 1st of Every Month</div><div id="d15" class="dateOpt" onclick="setDate('15')">📅 15th of Every Month</div></div>
-<div class="row" style="margin-top:14px"><input id="search" placeholder="Search Name / SHRI ID (510 patients)" oninput="render()" style="flex:1;min-width:200px"><button class="btn btn-green" id="saveBtn" onclick="saveLock()">💾 SAVE</button><button class="btn btn-orange" id="editBtn" onclick="enableEdit()" style="display:none">✏️ EDIT</button></div>
-<div id="lockMsg" class="locked" style="display:none">🔒 Saved & Locked. Click EDIT to change</div>
-<div class="row" style="margin-top:10px"><div class="statBox"><div>Total</div><b style="font-size:22px;color:#0f4c75" id="totalP">0</b><div>Patients</div></div><div class="statBox" style="border-color:#10b981;background:#dcfce7"><div>Submit</div><b style="font-size:22px;color:#10b981" id="cYes">0</b><div>Completed</div></div><div class="statBox" style="border-color:#ef4444;background:#fee2e2"><div>Not Submit</div><b style="font-size:22px;color:#ef4444" id="cNo">0</b><div>Pending</div></div></div>
+<div style="margin-top:12px;font-weight:800;color:#0f4c75">Select Date:</div>
+<div class="dateBox" style="margin-top:6px"><div id="d1" class="dateOpt active" onclick="setDate('1')">📅 1st of Every Month</div><div id="d15" class="dateOpt" onclick="setDate('15')">📅 15th of Every Month</div></div>
+
+<div class="row" style="margin-top:14px">
+<div class="searchWrap">
+<input id="search" placeholder="🔍 Search Patient Name or SHRI ID... (type to see hint from 510)" oninput="onSearch(this.value)" autocomplete="off" style="width:100%">
+<div id="suggestBox"></div>
 </div>
-<div class="card"><h3 style="text-align:center;color:#0f4c75" id="titleH">KFT Report</h3><table><thead><tr><th>Sl No</th><th>Patient Name</th><th>SHRI ID</th><th>Contact</th><th id="statusHead">KFT Status</th></tr></thead><tbody id="tbl"></tbody></table></div>
+<button class="btn btn-green" id="saveBtn" onclick="saveLock()">💾 SAVE</button>
+<button class="btn btn-orange" id="editBtn" onclick="enableEdit()" style="display:none">✏️ EDIT</button>
+<select id="pageSize" onchange="changePageSize()"><option value="20">20 per page</option><option value="50" selected>50 per page</option><option value="100">100 per page</option><option value="510">All 510</option></select>
 </div>
+<div id="lockMsg" class="locked" style="display:none">🔒 Saved & Locked. Click EDIT to change Submit / Not Submit</div>
+</div>
+
+<div class="card">
+<h3 id="titleH" style="text-align:center;color:#0f4c75">KFT Report</h3>
+<table><thead><tr><th>Sl No</th><th>Patient Name</th><th>SHRI ID</th><th>Contact</th><th id="statusHead">KFT Status</th></tr></thead><tbody id="tbl"></tbody></table>
+<div class="pager" id="pager"></div>
+<div style="text-align:center;margin-top:6px;font-size:12px;color:#64748b" id="pageInfo"></div>
+</div>
+</div>
+
 <script>
-let raw=(typeof patientData!=='undefined')?patientData:[];let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');let patients=[...raw,...extra];if(!patients.length)patients=[{patientName:'Demo Patient 1',shriId:'1001',contactNo:'98765'},{patientName:'Demo Patient 2',shriId:'1002',contactNo:''}];
+let raw=(typeof patientData!=='undefined')?patientData:[];let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');let patients=[...raw,...extra];if(!patients.length)patients=[{patientName:'Demo Patient',shriId:'1001',contactNo:'98765'}];
 let yearSel=document.getElementById('yearSel'),now=new Date();for(let y=now.getFullYear()-2;y<=now.getFullYear()+1;y++){let o=document.createElement('option');o.value=y;o.textContent=y;if(y===now.getFullYear())o.selected=true;yearSel.appendChild(o);}document.getElementById('monthSel').value=now.getMonth();
-let selDate='1',isLocked=false;
+let selDate='1',isLocked=false,curPage=1,pageSize=50,filteredAll=[];
+
 function getKey(y,m,day){return `kft_lock_${y}_${m}_${day}`;}function getPKey(y,m,shri,day){return `kft_${y}_${m}_${shri}_${day}`;}function load(y,m,shri,day){return localStorage.getItem(getPKey(y,m,shri,day))==='1';}function setVal(y,m,shri,day,v){localStorage.setItem(getPKey(y,m,shri,day), v?'1':'0');}
 function setDate(d){selDate=d;document.getElementById('d1').classList.toggle('active',d==='1');document.getElementById('d15').classList.toggle('active',d==='15');checkLock();render();}
 function checkLock(){let y=yearSel.value,m=document.getElementById('monthSel').value;isLocked=localStorage.getItem(getKey(y,m,selDate))==='1';document.getElementById('saveBtn').style.display=isLocked?'none':'inline-block';document.getElementById('editBtn').style.display=isLocked?'inline-block':'none';document.getElementById('lockMsg').style.display=isLocked?'block':'none';}
-function saveLock(){let y=yearSel.value,m=document.getElementById('monthSel').value;if(!confirm(`Save KFT for ${selDate} ${document.getElementById('monthSel').options[m].text} ${y}?`))return;localStorage.setItem(getKey(y,m,selDate),'1');checkLock();render();alert('✅ Saved & Locked');}
-function enableEdit(){if(!confirm('Enable Edit?'))return;let y=yearSel.value,m=document.getElementById('monthSel').value;localStorage.setItem(getKey(y,m,selDate),'0');checkLock();render();}
-function render(){let y=yearSel.value,m=document.getElementById('monthSel').value;let months=["January","February","March","April","May","June","July","August","September","October","November","December"];let search=document.getElementById('search').value.toLowerCase();document.getElementById('titleH').textContent=`KFT Report - ${months[m]} ${selDate}, ${y} - All ${patients.length} Patients`;document.getElementById('statusHead').textContent=`KFT Status - ${months[m]} ${selDate}`;let filtered=patients.filter(p=>!search||(p.patientName||'').toLowerCase().includes(search)||(p.shriId||'').toLowerCase().includes(search));let yes=0;filtered.forEach(p=>{let s=p.shriId||p.patientName;if(load(y,m,s,selDate))yes++;});document.getElementById('totalP').textContent=patients.length;document.getElementById('cYes').textContent=yes;document.getElementById('cNo').textContent=filtered.length-yes;document.getElementById('tbl').innerHTML=filtered.map((p,i)=>{let s=p.shriId||p.patientName;let v=load(y,m,s,selDate);return `<tr><td>${i+1}</td><td>${p.patientName}</td><td>${p.shriId||''}</td><td>${p.contactNo||''}</td><td><button class="toggle ${v?'yes':'no'}" ${isLocked?'disabled':''} onclick="toggle('${s.replace(/'/g,"\\'")}')">${v?'✅ Submit':'❌ Not Submit'}</button></td></tr>`;}).join('');}
+function saveLock(){let y=yearSel.value,m=document.getElementById('monthSel').value;localStorage.setItem(getKey(y,m,selDate),'1');checkLock();render();alert('✅ Saved & Locked for '+selDate+' '+document.getElementById('monthSel').options[m].text);}
+function enableEdit(){let y=yearSel.value,m=document.getElementById('monthSel').value;localStorage.setItem(getKey(y,m,selDate),'0');checkLock();render();}
+
+function onSearch(val){
+ let box=document.getElementById('suggestBox');
+ if(!val.trim()){box.style.display='none';curPage=1;render();return;}
+ let q=val.toLowerCase();
+ let matches=patients.filter(p=>(p.patientName||'').toLowerCase().includes(q)||(p.shriId||'').toLowerCase().includes(q)).slice(0,8);
+ if(!matches.length){box.style.display='none';}
+ else{
+  box.innerHTML=matches.map(p=>`<div class="sItem" onclick="selectPatient('${p.shriId||''}','${p.patientName.replace(/'/g,"\\'")}')"><span><b>${p.patientName}</b> - ${p.shriId||''}</span><span style="color:#64748b;font-size:11px">${p.contactNo||''}</span></div>`).join('');
+  box.style.display='block';
+ }
+ curPage=1;render();
+}
+function selectPatient(shri,name){
+ document.getElementById('search').value=name+' - '+shri;
+ document.getElementById('suggestBox').style.display='none';
+ curPage=1;render();
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.searchWrap')) document.getElementById('suggestBox').style.display='none';});
+
+function changePageSize(){pageSize=parseInt(document.getElementById('pageSize').value);curPage=1;render();}
+
+function render(){
+ let y=yearSel.value,m=document.getElementById('monthSel').value,months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+ let search=document.getElementById('search').value.toLowerCase().split(' - ')[0];
+ document.getElementById('titleH').textContent=`KFT Report - ${months[m]} ${selDate}, ${y} - All 510 Patients`;
+ document.getElementById('statusHead').textContent=`KFT Status - ${months[m]} ${selDate}, ${y}`;
+
+ filteredAll=patients.filter(p=>!search.trim()|| (p.patientName||'').toLowerCase().includes(search.trim()) || (p.shriId||'').toLowerCase().includes(search.trim()));
+
+ let totalPages=Math.ceil(filteredAll.length/pageSize)||1;
+ if(curPage>totalPages)curPage=totalPages;
+ let start=(curPage-1)*pageSize, end=start+pageSize;
+ let pageData=filteredAll.slice(start,end);
+
+ document.getElementById('tbl').innerHTML=pageData.map((p,i)=>{let s=p.shriId||p.patientName;let v=load(y,m,s,selDate);let sl=start+i+1;return `<tr><td>${sl}</td><td>${p.patientName}</td><td>${p.shriId||''}</td><td>${p.contactNo||''}</td><td><button class="toggle ${v?'yes':'no'}" ${isLocked?'disabled':''} onclick="toggle('${s.replace(/'/g,"\\'")}')">${v?'✅ Submit':'❌ Not Submit'}</button></td></tr>`;}).join('')||`<tr><td colspan="5" style="text-align:center">No patients</td></tr>`;
+
+ let pager=document.getElementById('pager');
+ let html=`<button class="pgBtn" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>Previous</button>`;
+ let maxShow=5; let startP=Math.max(1,curPage-2), endP=Math.min(totalPages,startP+maxShow-1);
+ for(let i=startP;i<=endP;i++) html+=`<button class="pgBtn ${i===curPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+ if(endP<totalPages) html+=`<span>...</span><button class="pgBtn" onclick="goPage(${totalPages})">${totalPages}</button>`;
+ html+=`<button class="pgBtn" onclick="goPage(${curPage+1})" ${curPage===totalPages?'disabled':''}>Next</button>`;
+ pager.innerHTML=html;
+ document.getElementById('pageInfo').textContent=`Page ${curPage} of ${totalPages} · ${filteredAll.length} of ${patients.length} Patients (Total 510)`;
+}
+function goPage(n){let totalPages=Math.ceil(filteredAll.length/pageSize)||1;if(n<1||n>totalPages)return;curPage=n;render();window.scrollTo(0,0);}
 function toggle(shri){if(isLocked){alert('Locked! Click EDIT');return;}let y=yearSel.value,m=document.getElementById('monthSel').value;let cur=load(y,m,shri,selDate);setVal(y,m,shri,selDate,!cur);render();}
-yearSel.addEventListener('change',()=>{checkLock();render();});document.getElementById('monthSel').addEventListener('change',()=>{checkLock();render();});checkLock();render();
+yearSel.addEventListener('change',()=>{checkLock();curPage=1;render();});document.getElementById('monthSel').addEventListener('change',()=>{checkLock();curPage=1;render();});
+checkLock();render();
 </script></body></html>
