@@ -13,8 +13,8 @@ body{background:linear-gradient(135deg,#e0f2fe,#f0f9ff 40%,#fef3c7 100%);min-hei
 .card{padding:30px 20px;border-radius:20px;text-align:center;box-shadow:0 10px 25px #0001;color:#fff;cursor:pointer;text-decoration:none;display:block;transition:.3s}
 .card:hover{transform:translateY(-6px)}
 .card div{font-size:48px;margin-bottom:10px}
-.card b{font-size:32px;display:block;font-weight:900}
-.card span{font-size:14px;font-weight:600}
+.card b{font-size:22px;display:block;font-weight:900}
+.card span{font-size:13px;font-weight:600;opacity:.9}
 .card:nth-child(1){background:linear-gradient(135deg,#3b82f6,#1d4ed8)}
 .card:nth-child(2){background:linear-gradient(135deg,#10b981,#059669)}
 .card:nth-child(3){background:linear-gradient(135deg,#f59e0b,#d97706)}
@@ -22,7 +22,6 @@ body{background:linear-gradient(135deg,#e0f2fe,#f0f9ff 40%,#fef3c7 100%);min-hei
 .card:nth-child(5){background:linear-gradient(135deg,#ec4899,#be185d)}
 .card:nth-child(6){background:linear-gradient(135deg,#ef4444,#b91c1c)}
 @media(max-width:700px){.dash{grid-template-columns:repeat(2,1fr)}}
-.status{font-size:11px;color:#16a34a;background:#fff;padding:4px 8px;border-radius:20px}
 </style>
 </head>
 <body>
@@ -38,69 +37,23 @@ function doLogout(){
 </script>
 
 <div class="top">
-<h2>SHIJA Dialysis Dashboard - LIVE CLOUD</h2>
-<div><span id="fbStatus" class="status">Connecting to Firebase...</span> <button onclick="doLogout()" style="padding:8px 14px;border:0;border-radius:8px;background:#fff;color:#0f4c75;font-weight:700;cursor:pointer;margin-left:8px">Logout</button></div>
+<h2>SHIJA Dialysis Dashboard</h2>
+<button onclick="doLogout()" style="padding:8px 14px;border:0;border-radius:8px;background:#fff;color:#0f4c75;font-weight:700;cursor:pointer">Logout</button>
 </div>
 
 <div style="max-width:1100px;margin:20px auto;padding:0 16px">
 <h2 style="color:#0f4c75">Welcome</h2>
-<p style="color:#64748b">Live counts from Firebase Cloud - Same on all phones!</p>
+<p style="color:#64748b">Click any card to open</p>
 </div>
 
 <div class="dash">
-<a href="total.html" class="card"><div></div><b id="c_total">...</b><span>Total Patients (Cloud)</span></a>
+<a href="total.html" class="card"><div></div><b>Total Patients</b><span>View All</span></a>
 <a href="add.html" class="card"><div></div><b>Add New</b><span>Add Patient</span></a>
-<a href="daily.html" class="card"><div></div><b id="c_daily">...</b><span>Daily Dialysis (Cloud)</span></a>
-<a href="kft.html" class="card"><div></div><b id="c_kft">...</b><span>KFT Report (Cloud)</span></a>
-<a href="bill.html" class="card"><div></div><b id="c_bill">...</b><span>Bill Generator (Cloud)</span></a>
-<a href="discharge.html" class="card"><div></div><b id="c_dis">...</b><span>Discharge Patient (Cloud)</span></a>
+<a href="daily.html" class="card"><div></div><b>Daily Dialysis</b><span>Daily Entry</span></a>
+<a href="kft.html" class="card"><div></div><b>KFT Report</b><span>Lab Reports</span></a>
+<a href="bill.html" class="card"><div></div><b>Bill</b><span>Bill Generator</span></a>
+<a href="discharge.html" class="card"><div></div><b>Discharge</b><span>Discharge Patient</span></a>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const config = {
-  apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
-  authDomain: "discharge-b9528.firebaseapp.com",
-  projectId: "discharge-b9528",
-  storageBucket: "discharge-b9528.firebasestorage.app",
-  messagingSenderId: "1076050472607",
-  appId: "1:1076050472607:web:736e0688a41462460efcaa"
-};
-const app = initializeApp(config);
-const db = getFirestore(app);
-
-async function loadCounts(){
- try{
-  const [patients, daily, kft, bills, dis] = await Promise.all([
-    getDocs(collection(db, "patients")),
-    getDocs(collection(db, "daily_dialysis")),
-    getDocs(collection(db, "kft_reports")),
-    getDocs(collection(db, "bills")),
-    getDocs(collection(db, "discharges"))
-  ]);
-  document.getElementById('c_total').textContent = patients.size;
-  document.getElementById('c_daily').textContent = daily.size;
-  document.getElementById('c_kft').textContent = kft.size;
-  document.getElementById('c_bill').textContent = bills.size;
-  document.getElementById('c_dis').textContent = dis.size;
-  document.getElementById('fbStatus').innerText = `● Cloud: ${patients.size} patients | ${daily.size} dialysis | ${dis.size} discharge ✅`;
-  document.getElementById('fbStatus').style.color = "#16a34a";
- }catch(e){
-  document.getElementById('fbStatus').innerText = "● Error: "+e.message;
-  // Fallback to local
-  let excelRaw=(typeof patientData!=='undefined')?patientData:[]; 
-  let daily=JSON.parse(localStorage.getItem('shija_daily')||'[]'); 
-  let dis=JSON.parse(localStorage.getItem('shija_discharged')||'[]');
-  let total=excelRaw.length + JSON.parse(localStorage.getItem('shija_patients')||'[]').length;
-  document.getElementById('c_total').textContent=total||0; 
-  document.getElementById('c_daily').textContent=daily.length; 
-  document.getElementById('c_dis').textContent=dis.length;
-  document.getElementById('c_kft').textContent="--";
-  document.getElementById('c_bill').textContent="--";
- }
-}
-loadCounts();
-</script>
 </body>
 </html>
