@@ -27,12 +27,9 @@ body{background:#ffffff;min-height:100vh}
 .tabBar{display:flex;gap:8px;margin-top:18px}
 .tabBtn{padding:10px 16px;border-radius:10px;border:1.5px solid #fecaca;background:#ffffff;font-weight:800;cursor:pointer;font-size:13px;color:#b91c1c}
 .tabBtn.active{background:#b91c1c;color:#fff}
-
-/* SIMPLE CLAIM BUTTON - SMALL */
 .btn-claim-simple{padding:6px 14px;background:#b91c1c;color:#fff;border:0;border-radius:8px;font-weight:700;font-size:11px;cursor:pointer;transition:.2s}
 .btn-claim-simple:hover{background:#991b1b;transform:scale(1.05)}
 .btn-remove-simple{padding:5px 8px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:6px;font-weight:800;font-size:11px;cursor:pointer;margin-left:4px}
-
 .popup-bg{position:fixed;inset:0;background:#0006;z-index:99;display:none}
 .popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#ffffff;border-radius:20px;padding:20px;z-index:100;max-width:380px;width:92%;box-shadow:0 20px 50px #0004;display:none;border:2px solid #fee2e2}
 .time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -53,7 +50,7 @@ body{background:#ffffff;min-height:100vh}
 <div class="list-box" id="claimTab" style="display:none"><div class="list-head"><div><b> Claim List</b> | <span id="claimHeadDate">All</span> | <span id="claimHeadTime">All</span></div><div><button class="btn" style="background:#ffffff;color:#b91c1c;padding:6px 10px" onclick="exportClaimExcel()">📤 Export</button></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Sl No</th><th>Name</th><th>PMJAY ID</th><th>SHRI ID</th><th>Claim ID</th><th>Date</th><th>Time</th><th>Action</th></tr></thead><tbody id="claimBody"></tbody></table></div></div>
 </div>
 <div class="popup-bg" id="popupBg" onclick="closePopup()"></div>
-<div class="popup" id="popupTime"><h4 style="color:#b91c1c">Select Time</h4><p id="popInfo" style="font-size:12px;color:#b91c1c;margin:6px 0 14px"></p><div class="time-grid"><button class="time-btn" onclick="confirmTime('7AM')">7AM</button><button class="time-btn" onclick="confirmTime('12PM')">12PM</button><button class="time-btn" onclick="confirmTime('5PM')">5PM</button><button class="time-btn" onclick="confirmTime('9PM')">9PM</button><button class="time-btn" onclick="confirmTime('12AM')">12AM</button><button class="time-btn" onclick="confirmTime('2AM')">2AM</button></div><button style="width:100%;margin-top:12px;padding:10px;border:1px solid #fecaca;border-radius:10px;background:#fef2f2;font-weight:700;color:#b91c1c" onclick="closePopup()">Cancel</button></div>
+<div class="popup" id="popupTime"><h4 style="color:#b91c1c" id="popName">Select Time</h4><p id="popInfo" style="font-size:12px;color:#b91c1c;margin:6px 0 14px"></p><div class="time-grid"><button class="time-btn" onclick="confirmTime('7AM')">7AM</button><button class="time-btn" onclick="confirmTime('12PM')">12PM</button><button class="time-btn" onclick="confirmTime('5PM')">5PM</button><button class="time-btn" onclick="confirmTime('9PM')">9PM</button><button class="time-btn" onclick="confirmTime('12AM')">12AM</button><button class="time-btn" onclick="confirmTime('2AM')">2AM</button></div><button style="width:100%;margin-top:12px;padding:10px;border:1px solid #fecaca;border-radius:10px;background:#fef2f2;font-weight:700;color:#b91c1c" onclick="closePopup()">Cancel</button></div>
 <div class="popup" id="popupClaim"><h4 style="color:#b91c1c"> Enter Claim ID</h4><p id="claimPopInfo" style="font-size:12px;color:#b91c1c;margin:8px 0"></p><input id="claimIdInput" placeholder="Enter Claim ID" style="width:100%;padding:12px;border:2px solid #ef4444;border-radius:10px;outline:0;margin-top:8px"><div style="display:flex;gap:8px;margin-top:14px"><button class="btn" style="flex:1;background:#b91c1c;color:#fff" onclick="confirmClaimWithId()">Save ✅</button><button class="btn" style="flex:1;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca" onclick="closeClaimPopup()">Cancel</button></div></div>
 <div class="toast" id="toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -62,6 +59,8 @@ if(localStorage.getItem('shija_logged')!=='1') location.href='login.html';
 document.getElementById('disDate').valueAsDate=new Date();
 let selectedList=JSON.parse(localStorage.getItem('shija_selected_discharge')||'[]');
 let currentPage=1,pageSize=50,tempPatient=null,tempClaimIndex=null;
+let lastFiltered=[]; // FIX: store filtered list for safe selection
+
 function showToast(m){let t=document.getElementById('toast');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
 function getName(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().includes('patient')&&x.toLowerCase().includes('name'))||ks.find(x=>x.toLowerCase()==='name')||ks.find(x=>x.toLowerCase().includes('name'));return k? p[k] : 'Unknown';}
 function getShri(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z]/g,'')==='shriid')||ks.find(x=>x.toLowerCase().includes('shri'));return k? p[k] : (p.id||p.ID||'-');}
@@ -70,8 +69,50 @@ function getAll(){let excel=(typeof patientData!=='undefined')?patientData:[];le
 function onDateChange(){currentPage=1;renderList();renderClaimList();updateLabels();}
 function updateLabels(){let d=document.getElementById('disDate').value;let t=document.getElementById('timeFilter').value;document.getElementById('saveDateLabel').innerText=d;document.getElementById('headDate').innerText=d;document.getElementById('headTime').innerText=t;document.getElementById('claimHeadDate').innerText=d;document.getElementById('claimHeadTime').innerText=t;}
 function switchTab(t){document.getElementById('disTab').style.display=t==='dis'?'block':'none';document.getElementById('claimTab').style.display=t==='claim'?'block':'none';document.getElementById('tabDisBtn').classList.toggle('active',t==='dis');document.getElementById('tabClaimBtn').classList.toggle('active',t==='claim');if(t==='claim') renderClaimList(); else renderList();}
-function showHints(){let q=document.getElementById('search').value.trim().toLowerCase();let all=getAll();let box=document.getElementById('suggest');if(q.length<2){box.style.display='none';document.getElementById('cnt').innerText=`Total: ${all.length} | Type min 2 letters`;return;}let curDate=document.getElementById('disDate').value;let active=all.filter(p=>!selectedList.some(s=>String(s.shri).toLowerCase()===String(getShri(p)).toLowerCase() && s.date===curDate));let filtered=active.filter(p=>String(getName(p)).toLowerCase().includes(q));document.getElementById('cnt').innerText=`Matching: ${filtered.length}`;if(!filtered.length){box.style.display='none';return;}box.style.display='block';box.innerHTML=filtered.slice(0,50).map(p=>`<div onclick="openTimePopup('${String(getShri(p)).replace(/'/g,"")}')"><b style="color:#b91c1c">${getName(p)}</b><br><small>SHRI: ${getShri(p)} | PMJAY: ${getPmjay(p)}</small></div>`).join('');}
-function openTimePopup(shriId){let p=getAll().find(x=>String(getShri(x)).toLowerCase()===String(shriId).toLowerCase());if(!p) return;tempPatient={name:getName(p),shri:getShri(p),pmjay:getPmjay(p)};document.getElementById('popName').innerText=tempPatient.name;document.getElementById('popInfo').innerText=`SHRI: ${tempPatient.shri} | PMJAY: ${tempPatient.pmjay}`;document.getElementById('popupBg').style.display='block';document.getElementById('popupTime').style.display='block';}
+
+// FIXED: Now selectable + avoids repeat on any date + all lists
+function showHints(){
+ let q=document.getElementById('search').value.trim().toLowerCase();
+ let all=getAll();
+ let box=document.getElementById('suggest');
+ if(q.length<2){box.style.display='none';document.getElementById('cnt').innerText=`Total: ${all.length} | Type min 2 letters`;return;}
+
+ // Avoid repeat: check everywhere - selected + discharged + claim
+ let selectedIds = new Set(selectedList.map(s=>String(s.shri).toLowerCase()));
+ let dischargedIds = new Set(JSON.parse(localStorage.getItem('shija_discharged')||'[]').map(d=>String(d.id).toLowerCase()));
+ let claimedIds = new Set(JSON.parse(localStorage.getItem('shija_claim_list')||'[]').map(c=>String(c.shri).toLowerCase()));
+ let allUsed = new Set([...selectedIds,...dischargedIds,...claimedIds]);
+
+ let filtered = all.filter(p=>{
+   let nameOk = String(getName(p)).toLowerCase().includes(q);
+   let shri = String(getShri(p)).toLowerCase();
+   return nameOk &&!allUsed.has(shri);
+ });
+
+ document.getElementById('cnt').innerText=`Matching: ${filtered.length}`;
+ lastFiltered = filtered.slice(0,50);
+
+ if(!filtered.length){
+   box.innerHTML=`<div style="text-align:center;color:#b91c1c;padding:10px">No new patient - already added</div>`;
+   box.style.display='block';
+   return;
+ }
+ box.style.display='block';
+ box.innerHTML = lastFiltered.map((p,i)=>`<div onclick="selectPatient(${i})"><b style="color:#b91c1c">${getName(p)}</b><br><small>SHRI: ${getShri(p)} | PMJAY: ${getPmjay(p)}</small></div>`).join('');
+}
+
+// FIXED: Select by index - no quote issue
+function selectPatient(i){
+ let p = lastFiltered[i];
+ if(!p) return;
+ tempPatient={name:getName(p),shri:getShri(p),pmjay:getPmjay(p)};
+ document.getElementById('popName').innerText=tempPatient.name;
+ document.getElementById('popInfo').innerText=`SHRI: ${tempPatient.shri} | PMJAY: ${tempPatient.pmjay}`;
+ document.getElementById('popupBg').style.display='block';
+ document.getElementById('popupTime').style.display='block';
+ document.getElementById('suggest').style.display='none';
+}
+
 function closePopup(){document.getElementById('popupTime').style.display='none';document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';tempPatient=null;}
 function closeClaimPopup(){document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';tempClaimIndex=null;document.getElementById('claimIdInput').value='';}
 function confirmTime(t){if(!tempPatient) return;let curDate=document.getElementById('disDate').value;selectedList.push({name:tempPatient.name,shri:tempPatient.shri,pmjay:tempPatient.pmjay,date:curDate,time:t});saveToStorage();document.getElementById('search').value='';document.getElementById('suggest').style.display='none';closePopup();currentPage=1;renderList();showToast(`Added ${tempPatient.name} - ${t}`);}
