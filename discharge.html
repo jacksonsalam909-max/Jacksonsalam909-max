@@ -35,13 +35,14 @@ body{background:#ffffff;min-height:100vh}
 .time-btn{padding:12px 6px;border:2px solid #fecaca;border-radius:12px;background:#ffffff;font-weight:800;cursor:pointer;color:#b91c1c}
 .time-btn:hover{background:#fef2f2;border-color:#b91c1c}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#b91c1c;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;z-index:200;display:none}
+.firebase-status{font-size:11px;color:#16a34a;margin-top:6px;font-weight:700}
 </style></head><body>
 <div class="top"><h3> Discharge Patient </h3><div><a href="index.html">← Home</a></div></div>
 <div class="wrap">
 <div style="display:flex;gap:10px;flex-wrap:wrap">
 <div class="box"><label>Date</label><input type="date" id="disDate" onchange="onDateChange()"></div>
 <div class="box"><label>Time</label><select id="timeFilter" onchange="currentPage=1;renderList();renderClaimList();"><option value="All">All Time</option><option>7AM</option><option>12PM</option><option>5PM</option><option>9PM</option><option>12AM</option><option>2AM</option></select></div>
-<div class="box"><label>Save</label><button class="btn btn-save" onclick="saveAll()"> Save for <span id="saveDateLabel"></span></button></div>
+<div class="box"><label>Save</label><button class="btn btn-save" onclick="saveAll()"> Save for <span id="saveDateLabel"></span></button><div id="fbStatus" class="firebase-status">● Firebase Connected</div></div>
 </div>
 <div class="search-wrap"><input id="search" placeholder="🔍 Type min 2 letters of NAME..." autocomplete="off" oninput="showHints()" onfocus="showHints()"><div class="suggest" id="suggest"></div><div class="count" id="cnt"></div></div>
 <div class="tabBar"><button class="tabBtn active" id="tabDisBtn" onclick="switchTab('dis')"> Discharged - <span id="listCount">0</span></button><button class="tabBtn" id="tabClaimBtn" onclick="switchTab('claim')"> Claim - <span id="claimCount">0</span></button></div>
@@ -53,6 +54,26 @@ body{background:#ffffff;min-height:100vh}
 <div class="popup" id="popupClaim"><h4 style="color:#b91c1c"> Enter Claim ID</h4><p id="claimPopInfo" style="font-size:12px;color:#b91c1c;margin:8px 0"></p><input id="claimIdInput" placeholder="Enter Claim ID" style="width:100%;padding:12px;border:2px solid #ef4444;border-radius:10px;outline:0;margin-top:8px"><div style="display:flex;gap:8px;margin-top:14px"><button class="btn" style="flex:1;background:#b91c1c;color:#fff" onclick="confirmClaimWithId()">Save ✅</button><button class="btn" style="flex:1;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca" onclick="closeClaimPopup()">Cancel</button></div></div>
 <div class="toast" id="toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
+  authDomain: "discharge-b9528.firebaseapp.com",
+  projectId: "discharge-b9528",
+  storageBucket: "discharge-b9528.firebasestorage.app",
+  messagingSenderId: "1076050472607",
+  appId: "1:1076050472607:web:736e0688a41462460efcaa",
+  measurementId: "G-RXBJ1FD2E4"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+window.fb_db = db;
+window.fb_addDoc = addDoc;
+window.fb_collection = collection;
+window.fb_serverTimestamp = serverTimestamp;
+document.getElementById('fbStatus').innerText = "● Firebase Connected: discharge-b9528";
+</script>
 <script>
 if(localStorage.getItem('shija_logged')!=='1') location.href='login.html';
 document.getElementById('disDate').valueAsDate=new Date();
@@ -67,7 +88,6 @@ function getAll(){let excel=(typeof patientData!=='undefined')?patientData:[];le
 function onDateChange(){currentPage=1;renderList();renderClaimList();updateLabels();}
 function updateLabels(){let d=document.getElementById('disDate').value;let t=document.getElementById('timeFilter').value;document.getElementById('saveDateLabel').innerText=d;document.getElementById('headDate').innerText=d;document.getElementById('headTime').innerText=t;document.getElementById('claimHeadDate').innerText=d;document.getElementById('claimHeadTime').innerText=t;}
 function switchTab(t){document.getElementById('disTab').style.display=t==='dis'?'block':'none';document.getElementById('claimTab').style.display=t==='claim'?'block':'none';document.getElementById('tabDisBtn').classList.toggle('active',t==='dis');document.getElementById('tabClaimBtn').classList.toggle('active',t==='claim');if(t==='claim') renderClaimList(); else renderList();}
-
 function showHints(){
  let q=document.getElementById('search').value.trim().toLowerCase();
  let all=getAll();
@@ -90,10 +110,37 @@ function selectPatient(i){
  document.getElementById('popupTime').style.display='block';
  document.getElementById('suggest').style.display='none';
 }
-
 function closePopup(){document.getElementById('popupTime').style.display='none';document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';tempPatient=null;}
 function closeClaimPopup(){document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';tempClaimIndex=null;document.getElementById('claimIdInput').value='';}
-function confirmTime(t){if(!tempPatient) return;let curDate=document.getElementById('disDate').value;selectedList.push({name:tempPatient.name,shri:tempPatient.shri,pmjay:tempPatient.pmjay,date:curDate,time:t});saveToStorage();document.getElementById('search').value='';document.getElementById('suggest').style.display='none';closePopup();currentPage=1;renderList();showToast(`Added ${tempPatient.name} - ${t}`);}
+async function confirmTime(t){
+ if(!tempPatient) return;
+ let curDate=document.getElementById('disDate').value;
+ let newData = {name:tempPatient.name,shri:tempPatient.shri,pmjay:tempPatient.pmjay,date:curDate,time:t, createdAt: new Date().toLocaleString()};
+ selectedList.push(newData);
+ saveToStorage();
+ try{
+   if(window.fb_db){
+     await window.fb_addDoc(window.fb_collection(window.fb_db, "discharges"), {
+       name: newData.name,
+       shri: newData.shri,
+       pmjay: newData.pmjay,
+       date: newData.date,
+       time: newData.time,
+       createdAt: window.fb_serverTimestamp(),
+       localTime: newData.createdAt
+     });
+     document.getElementById('fbStatus').innerText = "● Saved to Firebase ✅";
+   }
+ }catch(e){
+   document.getElementById('fbStatus').innerText = "● Error: "+e.message;
+ }
+ document.getElementById('search').value='';
+ document.getElementById('suggest').style.display='none';
+ closePopup();
+ currentPage=1;
+ renderList();
+ showToast(`Added ${tempPatient.name} - ${t} ✅`);
+}
 function saveToStorage(){localStorage.setItem('shija_selected_discharge',JSON.stringify(selectedList));}
 function saveAll(){saveToStorage();let curDate=document.getElementById('disDate').value;let t=document.getElementById('timeFilter').value;let count=selectedList.filter(d=>{let ok=d.date===curDate;if(t!=='All') ok=ok&&d.time===t;return ok;}).length;showToast(`✅ Saved ${count} for ${curDate} - ${t}`);}
 function changePageSize(){pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderList();}
@@ -112,12 +159,37 @@ function renderList(){
  let start=(currentPage-1)*pageSize;let pageData=filteredList.slice(start,start+pageSize);
  body.innerHTML=pageData.map((d,i)=>{
   let realIdx=selectedList.indexOf(d);
-  return `<tr><td>${start+i+1}</td><td><b>${d.name}</b></td><td>${d.shri}</td><td><span class="pill">${d.pmjay}</span></td><td><b>${d.time}</b></td>
-   <td><button class="btn-claim-simple" onclick="askClaimId(${realIdx})">Claim</button><button class="btn-remove-simple" onclick="removeSel(${realIdx})">✕</button></td></tr>`;
+  return `<tr><td>${start+i+1}</td><td><b>${d.name}</b></td><td>${d.shri}</td><td><span class="pill">${d.pmjay}</span></td><td><b>${d.time}</b></td><td><button class="btn-claim-simple" onclick="askClaimId(${realIdx})">Claim</button><button class="btn-remove-simple" onclick="removeSel(${realIdx})">✕</button></td></tr>`;
  }).join('');
 }
 function askClaimId(idx){tempClaimIndex=idx;let d=selectedList[idx];document.getElementById('claimPopInfo').innerText=`Patient: ${d.name} | SHRI: ${d.shri} | PMJAY: ${d.pmjay} | ${d.date} - ${d.time}`;document.getElementById('claimIdInput').value='';document.getElementById('popupBg').style.display='block';document.getElementById('popupClaim').style.display='block';document.getElementById('claimIdInput').focus();}
-function confirmClaimWithId(){let claimId=document.getElementById('claimIdInput').value.trim();if(!claimId){alert('Please enter Claim ID');return;}let d=selectedList[tempClaimIndex];let claimList=JSON.parse(localStorage.getItem('shija_claim_list')||'[]');claimList.push({id:Date.now(),name:d.name,pmjay:d.pmjay,shri:d.shri,claimId:claimId,date:d.date,time:d.time,claimed_at:new Date().toLocaleString()});localStorage.setItem('shija_claim_list',JSON.stringify(claimList));let dis=JSON.parse(localStorage.getItem('shija_discharged')||'[]');dis.push({id:d.shri,name:d.name,pmjay:d.pmjay,claimId:claimId,date:d.date,time:d.time,discharged_at:new Date().toLocaleString(),type:'Claim'});localStorage.setItem('shija_discharged',JSON.stringify(dis));selectedList.splice(tempClaimIndex,1);saveToStorage();closeClaimPopup();renderList();renderClaimList();showToast(`Claim saved: ${d.name} - ${claimId}`);switchTab('claim');}
+async function confirmClaimWithId(){
+ let claimId=document.getElementById('claimIdInput').value.trim();
+ if(!claimId){alert('Please enter Claim ID');return;}
+ let d=selectedList[tempClaimIndex];
+ let claimList=JSON.parse(localStorage.getItem('shija_claim_list')||'[]');
+ let newClaim = {id:Date.now(),name:d.name,pmjay:d.pmjay,shri:d.shri,claimId:claimId,date:d.date,time:d.time,claimed_at:new Date().toLocaleString()};
+ claimList.push(newClaim);
+ localStorage.setItem('shija_claim_list',JSON.stringify(claimList));
+ let dis=JSON.parse(localStorage.getItem('shija_discharged')||'[]');
+ dis.push({id:d.shri,name:d.name,pmjay:d.pmjay,claimId:claimId,date:d.date,time:d.time,discharged_at:new Date().toLocaleString(),type:'Claim'});
+ localStorage.setItem('shija_discharged',JSON.stringify(dis));
+ try{
+   if(window.fb_db){
+     await window.fb_addDoc(window.fb_collection(window.fb_db, "claims"), {
+       name: d.name, pmjay: d.pmjay, shri: d.shri, claimId: claimId, date: d.date, time: d.time,
+       createdAt: window.fb_serverTimestamp(), localTime: newClaim.claimed_at
+     });
+   }
+ }catch(e){}
+ selectedList.splice(tempClaimIndex,1);
+ saveToStorage();
+ closeClaimPopup();
+ renderList();
+ renderClaimList();
+ showToast(`Claim saved: ${d.name} - ${claimId}`);
+ switchTab('claim');
+}
 function getFilteredClaim(){let curDate=document.getElementById('disDate').value;let timeF=document.getElementById('timeFilter').value;let list=JSON.parse(localStorage.getItem('shija_claim_list')||'[]');let filtered=list.filter(c=>c.date===curDate);if(timeF!=='All') filtered=filtered.filter(c=>c.time===timeF);return filtered;}
 function renderClaimList(){updateLabels();let filtered=getFilteredClaim();let allCount=JSON.parse(localStorage.getItem('shija_claim_list')||'[]').length;document.getElementById('claimCount').innerText=allCount;let body=document.getElementById('claimBody');if(!filtered.length){body.innerHTML=`<tr><td colspan="8" style="padding:30px;text-align:center;color:#b91c1c">No claims for ${document.getElementById('disDate').value} | ${document.getElementById('timeFilter').value}<br>Total: ${allCount}</td></tr>`;return;}body.innerHTML=filtered.map((c,i)=>`<tr><td>${i+1}</td><td><b>${c.name}</b></td><td><span class="pill">${c.pmjay}</span></td><td>${c.shri}</td><td><b style="color:#b91c1c">${c.claimId}</b></td><td>${c.date}</td><td>${c.time}</td><td><button class="btn-remove-simple" onclick="removeClaimById(${c.id})">✕</button></td></tr>`).join('');}
 function removeClaimById(id){if(!confirm('Remove this claim?'))return;let list=JSON.parse(localStorage.getItem('shija_claim_list')||'[]');list=list.filter(x=>x.id!==id);localStorage.setItem('shija_claim_list',JSON.stringify(list));renderClaimList();}
