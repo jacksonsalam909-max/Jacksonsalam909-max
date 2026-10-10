@@ -37,10 +37,11 @@ tr:nth-child(even){background:#f8fafc}
 .pagi button{padding:6px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-weight:700}
 .pagi button.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
 .pmjayBox{border:1.5px dashed #10b981;background:#ecfdf5}
+.status{font-size:11px;color:#16a34a;font-weight:700}
 @media print{body *{visibility:hidden}#printArea,#printArea *{visibility:visible}#printArea{position:absolute;left:0;top:0;width:100%}@page{size:A4 landscape;margin:8mm}.noPrint{display:none!important}}
 </style></head><body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
-<div class="top"><b>💉 Daily Dialysis Entry</b><div><a href="index.html">Home</a> <button class="btn btn-dark noPrint" onclick="exportExcel()" style="margin-left:6px">📤 Excel</button> <button class="btn btn-dark noPrint" onclick="window.print()" style="margin-left:6px">🖨️ Print</button></div></div>
+<div class="top"><b>💉 Daily Dialysis Entry - FIREBASE</b><div><span id="fbStatus" class="status" style="color:#fff">● Connecting...</span> <a href="index.html">Home</a> <button class="btn btn-dark noPrint" onclick="exportExcel()" style="margin-left:6px">📤 Excel</button> <button class="btn btn-dark noPrint" onclick="window.print()" style="margin-left:6px">🖨️ Print</button></div></div>
 
 <div class="wrap">
 <div class="card noPrint">
@@ -52,7 +53,7 @@ tr:nth-child(even){background:#f8fafc}
 <div>PMJAY: <input id="p_pmjay" placeholder="PMJAY ID" style="width:130px" class="pmjayBox"></div>
 <div><button class="btn btn-blue" onclick="startEntry()">➕ ADD</button></div>
 </div>
-<div style="margin-top:8px;color:#64748b;font-size:12px">Master: <b id="totalLoaded">0</b> | PMJAY auto-filled from master if available</div>
+<div style="margin-top:8px;color:#64748b;font-size:12px">Master: <b id="totalLoaded">0</b> | Cloud: <b id="cloudCount">0 saved</b></div>
 </div>
 
 <div class="card">
@@ -97,6 +98,26 @@ tr:nth-child(even){background:#f8fafc}
 
 <div id="popPrev" class="popup"><div class="popupBox"><h3>📅 Previous Dialysis Date</h3><p style="font-size:12px;color:#64748b;margin-bottom:8px">PMJAY ID: <b id="showPmjayPrev" style="color:#0f4c75">-</b></p><input type="date" id="prev_date" style="width:100%"><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-green" style="flex:1" onclick="confirmAdd()">Add to List ✅</button><button class="btn btn-dark" style="flex:1" onclick="closePop('popPrev')">Cancel</button></div></div></div>
 
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const config = {
+  apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
+  authDomain: "discharge-b9528.firebaseapp.com",
+  projectId: "discharge-b9528",
+  storageBucket: "discharge-b9528.firebasestorage.app",
+  messagingSenderId: "1076050472607",
+  appId: "1:1076050472607:web:736e0688a41462460efcaa"
+};
+const app = initializeApp(config);
+const db = getFirestore(app);
+window.db = db;
+window.fb_addDoc = addDoc;
+window.fb_collection = collection;
+window.fb_serverTimestamp = serverTimestamp;
+document.getElementById('fbStatus').innerText = "● Firebase Connected ✅";
+</script>
+
 <script>
 let excelRaw=(typeof patientData!=='undefined')?patientData:[]; 
 let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');
@@ -108,7 +129,6 @@ let temp={name:'',shri:'',pmjay:'',time:'',block:'',prev:''};
 let currentPage=1, searchPage=1;
 
 function getPmjayFromMaster(name,shri){
- // Try to find PMJAY from master - check multiple possible keys
  let found=allPatients.find(p=>{
    let n=(p.patientName||'').toLowerCase()===name.toLowerCase();
    let s=(p.shriId||'').toLowerCase()===shri.toLowerCase() && shri;
@@ -154,14 +174,31 @@ function startEntry(){
 }
 function selectTime(t,el){document.querySelectorAll('.timeBtn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');temp.time=t;setTimeout(()=>{closePop('popTime');document.getElementById('popBlock').style.display='flex';},200);}
 function selectBlock(b,el){document.querySelectorAll('.blockBtn').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');temp.block=b;setTimeout(()=>{closePop('popBlock');document.getElementById('showPmjayPrev').textContent=temp.pmjay||'N/A';document.getElementById('popPrev').style.display='flex';},200);}
-function confirmAdd(){
+async function confirmAdd(){
  let prev=document.getElementById('prev_date').value;
  if(!prev){alert('Select previous dialysis date');return;}
  temp.prev=prev;let dialDate=document.getElementById('d_date').value||today;
  temp.shri=document.getElementById('p_shri').value.trim();temp.name=document.getElementById('p_name').value.trim();temp.pmjay=document.getElementById('p_pmjay').value.trim()||getPmjayFromMaster(temp.name,temp.shri)||'N/A';
+ let newEntry = {id:Date.now(),date:dialDate,name:temp.name,shriId:temp.shri||'N/A',time:temp.time,pmjayId:temp.pmjay,block:temp.block,prevDate:temp.prev};
  let list=JSON.parse(localStorage.getItem('shija_daily')||'[]');
- list.push({id:Date.now(),date:dialDate,name:temp.name,shriId:temp.shri||'N/A',time:temp.time,pmjayId:temp.pmjay,block:temp.block,prevDate:temp.prev});
+ list.push(newEntry);
  localStorage.setItem('shija_daily',JSON.stringify(list));
+ // Firebase
+ try{
+  document.getElementById('fbStatus').innerText = "● Saving to cloud...";
+  await fb_addDoc(fb_collection(db, "daily_dialysis"), {
+    date: newEntry.date,
+    name: newEntry.name,
+    shriId: newEntry.shriId,
+    time: newEntry.time,
+    pmjayId: newEntry.pmjayId,
+    block: newEntry.block,
+    prevDate: newEntry.prevDate,
+    createdAt: fb_serverTimestamp(),
+    localTime: new Date().toLocaleString()
+  });
+  document.getElementById('fbStatus').innerText = "● Saved to cloud ✅";
+ }catch(e){ document.getElementById('fbStatus').innerText = "● Error: "+e.message; }
  closePop('popPrev');temp={name:'',shri:'',pmjay:'',time:'',block:'',prev:''};
  document.getElementById('p_search').value='';document.getElementById('p_name').value='';document.getElementById('p_shri').value='';document.getElementById('p_pmjay').value='';document.getElementById('prev_date').value='';
  currentPage=1;renderTable();updateSearchDates();
@@ -183,7 +220,6 @@ function renderTable(){
  let start=(currentPage-1)*pageSize;
  let pageData=list.slice(start,start+pageSize);
  document.getElementById('tblBody').innerHTML=pageData.map((r,i)=>{
-   // Auto backfill PMJAY if old entry has N/A but master has it
    let pm=r.pmjayId;
    if((!pm||pm==='N/A') && r.name){let auto=getPmjayFromMaster(r.name,r.shriId); if(auto) pm=auto;}
    return `<tr><td>${start+i+1}</td><td>${r.name}</td><td>${r.shriId}</td><td>${r.time}</td><td style="background:#ecfdf5;font-weight:700">${pm||'N/A'}</td><td>${r.block}</td><td>${r.prevDate}</td><td class="noPrint"><button onclick="delEntry(${r.id})" style="background:#ef4444;color:#fff;border:0;padding:4px 8px;border-radius:6px;cursor:pointer">✕</button></td></tr>`;
