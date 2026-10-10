@@ -28,15 +28,17 @@ body{background:#f1f5f9;min-height:100vh}
 .tabBtn{padding:10px 16px;border-radius:10px;border:1.5px solid #cbd5e1;background:#fff;font-weight:800;cursor:pointer;font-size:13px}
 .tabBtn.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
 
-/* SLIDE BUTTONS */
-.slide-group{display:flex;gap:6px;align-items:center}
-.slide-btn{position:relative;display:flex;align-items:center;gap:6px;padding:7px 14px 7px 10px;border-radius:20px;border:0;font-weight:800;font-size:11px;cursor:pointer;transition:.2s}
-.slide-dis{background:#fee2e2;color:#b91c1c;border:1.5px solid #fecaca}
-.slide-dis:hover{background:#fecaca;transform:translateX(3px)}
-.slide-claim{background:#e0f2fe;color:#0369a1;border:1.5px solid #bae6fd}
-.slide-claim:hover{background:#bae6fd;transform:translateX(3px)}
-.slide-btn i{width:22px;height:22px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-style:normal;box-shadow:0 1px 4px #0002}
-.slide-remove{background:#f1f5f9;color:#64748b;padding:6px 10px;border-radius:50%;border:0;cursor:pointer;font-weight:800}
+/* EXACT SLIDE TO CLAIM LIKE YOUR IMAGE */
+.slide-track{position:relative;width:165px;height:52px;background:#22c55e;border-radius:30px;display:flex;align-items:center;padding:4px;cursor:grab;user-select:none;touch-action:none;overflow:hidden;box-shadow:inset 0 2px 6px #0002}
+.slide-thumb{position:absolute;left:4px;top:4px;width:90px;height:44px;background:#fff;border-radius:50px;display:flex;align-items:center;justify-content:center;gap:4px;font-weight:900;font-size:13px;line-height:1;color:#000;z-index:2;box-shadow:0 2px 8px #0003;transition:left.15s}
+.slide-thumb span{text-align:center}
+.slide-arrow{font-size:22px;font-weight:900;margin-left:2px}
+.slide-track.sliding.slide-thumb{transition:none}
+.slide-track.claimed{background:#16a34a}
+.slide-track.claimed.slide-thumb{left:calc(100% - 94px)!important}
+.slide-text{position:absolute;right:20px;color:#fff;font-weight:800;font-size:11px;letter-spacing:.5px;opacity:.9}
+
+.slide-remove{background:#f1f5f9;color:#64748b;padding:6px 10px;border-radius:50%;border:0;cursor:pointer;font-weight:800;margin-left:6px}
 
 .popup-bg{position:fixed;inset:0;background:#0006;z-index:99;display:none}
 .popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:20px;padding:20px;z-index:100;max-width:420px;width:92%;box-shadow:0 20px 50px #0004;display:none}
@@ -46,7 +48,7 @@ body{background:#f1f5f9;min-height:100vh}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;z-index:200;display:none}
 .filterRow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 </style></head><body>
-<div class="top"><h3>🏥 Discharge Patient</h3><div><a href="index.html">← Home</a></div></div>
+<div class="top"><h3>🏥 Discharge (Already Discharged)</h3><div><a href="index.html">← Home</a></div></div>
 <div class="wrap">
 
 <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -61,13 +63,13 @@ body{background:#f1f5f9;min-height:100vh}
 </div>
 
 <div class="tabBar">
-<button class="tabBtn active" id="tabDisBtn" onclick="switchTab('dis')">📋 Discharge - <span id="listCount">0</span></button>
+<button class="tabBtn active" id="tabDisBtn" onclick="switchTab('dis')">📋 Discharged - <span id="listCount">0</span></button>
 <button class="tabBtn" id="tabClaimBtn" onclick="switchTab('claim')">💰 Claim - <span id="claimCount">0</span></button>
 </div>
 
 <div class="list-box" id="disTab">
-<div class="list-head"><div><b id="headDate">Discharge List</b> | Time: <span id="headTime">All</span></div><div class="filterRow"><select id="pageSize" onchange="changePageSize()"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50" selected>50</option></select><button onclick="prevPage()">‹</button><span id="pageInfo">Page 1</span><button onclick="nextPage()">›</button></div></div>
-<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>PMJAY ID</th><th>Time</th><th>Action (Slide)</th></tr></thead><tbody id="selectedBody"></tbody></table></div>
+<div class="list-head"><div><b id="headDate">Discharged List</b> | Time: <span id="headTime">All</span></div><div class="filterRow"><select id="pageSize" onchange="changePageSize()"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50" selected>50</option></select><button onclick="prevPage()">‹</button><span id="pageInfo">Page 1</span><button onclick="nextPage()">›</button></div></div>
+<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>PMJAY ID</th><th>Time</th><th>Slide to Claim</th></tr></thead><tbody id="selectedBody"></tbody></table></div>
 </div>
 
 <div class="list-box" id="claimTab" style="display:none">
@@ -87,7 +89,6 @@ body{background:#f1f5f9;min-height:100vh}
 if(localStorage.getItem('shija_logged')!=='1') location.href='login.html';
 document.getElementById('disDate').valueAsDate=new Date();
 let selectedList=JSON.parse(localStorage.getItem('shija_selected_discharge')||'[]');
-let claimList=JSON.parse(localStorage.getItem('shija_claim_list')||'[]');
 let currentPage=1,pageSize=50,tempPatient=null,tempClaimIndex=null;
 
 function showToast(m){let t=document.getElementById('toast');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
@@ -95,18 +96,15 @@ function getName(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().inclu
 function getShri(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z]/g,'')==='shriid')||ks.find(x=>x.toLowerCase().includes('shri'));return k? p[k] : (p.id||p.ID||'-');}
 function getPmjay(p){if(!p) return '-';let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z0-9]/g,'')==='pmjayid')||ks.find(x=>x.toLowerCase().includes('pmjay'));return k&&p[k]?p[k]:p.pmjay||p.PMJAY||'-';}
 function getAll(){let excel=(typeof patientData!=='undefined')?patientData:[];let local=JSON.parse(localStorage.getItem('shija_patients')||'[]');return [...excel,...local];}
-function getDischarged(){return JSON.parse(localStorage.getItem('shija_discharged')||'[]');}
 function onDateChange(){currentPage=1;renderList();renderClaimList();updateLabels();}
 function updateLabels(){let d=document.getElementById('disDate').value;let t=document.getElementById('timeFilter').value;document.getElementById('saveDateLabel').innerText=d;document.getElementById('headDate').innerText=d;document.getElementById('headTime').innerText=t;document.getElementById('claimHeadDate').innerText=d;document.getElementById('claimHeadTime').innerText=t;}
 function switchTab(t){document.getElementById('disTab').style.display=t==='dis'?'block':'none';document.getElementById('claimTab').style.display=t==='claim'?'block':'none';document.getElementById('tabDisBtn').classList.toggle('active',t==='dis');document.getElementById('tabClaimBtn').classList.toggle('active',t==='claim');if(t==='claim') renderClaimList(); else renderList();}
 function showHints(){
  let q=document.getElementById('search').value.trim().toLowerCase();let all=getAll();let box=document.getElementById('suggest');
  if(q.length<2){box.style.display='none';document.getElementById('cnt').innerText=`Total: ${all.length} | Type min 2 letters`;return;}
- let disIds=new Set(getDischarged().map(d=>String(d.id).toLowerCase()));
  let curDate=document.getElementById('disDate').value;
- let active=all.filter(p=>!disIds.has(String(getShri(p)).toLowerCase()));
+ let active=all.filter(p=>!selectedList.some(s=>String(s.shri).toLowerCase()===String(getShri(p)).toLowerCase() && s.date===curDate));
  let filtered=active.filter(p=>String(getName(p)).toLowerCase().includes(q));
- filtered=filtered.filter(p=>!selectedList.some(s=>String(s.shri).toLowerCase()===String(getShri(p)).toLowerCase() && s.date===curDate));
  document.getElementById('cnt').innerText=`Matching: ${filtered.length}`;
  if(!filtered.length){box.style.display='none';return;}
  box.style.display='block';
@@ -117,17 +115,12 @@ function closePopup(){document.getElementById('popupTime').style.display='none';
 function closeClaimPopup(){document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';tempClaimIndex=null;document.getElementById('claimIdInput').value='';}
 function confirmTime(t){if(!tempPatient) return;let curDate=document.getElementById('disDate').value;selectedList.push({name:tempPatient.name,shri:tempPatient.shri,pmjay:tempPatient.pmjay,date:curDate,time:t});saveToStorage();document.getElementById('search').value='';document.getElementById('suggest').style.display='none';closePopup();currentPage=1;renderList();showToast(`Added ${tempPatient.name} - ${t}`);}
 function saveToStorage(){localStorage.setItem('shija_selected_discharge',JSON.stringify(selectedList));}
-function saveAll(){saveToStorage();let curDate=document.getElementById('disDate').value;let t=document.getElementById('timeFilter').value;let count=selectedList.filter(d=>{let ok=d.date===curDate;if(t!=='All') ok=ok&&d.time===t;return ok;}).length;showToast(`✅ Saved ${count} patients for ${curDate} - ${t}`);}
+function saveAll(){saveToStorage();let curDate=document.getElementById('disDate').value;let t=document.getElementById('timeFilter').value;let count=selectedList.filter(d=>{let ok=d.date===curDate;if(t!=='All') ok=ok&&d.time===t;return ok;}).length;showToast(`✅ Saved ${count} for ${curDate} - ${t}`);}
 function changePageSize(){pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderList();}
 function prevPage(){if(currentPage>1){currentPage--;renderList();}}
 function nextPage(){let curDate=document.getElementById('disDate').value;let timeF=document.getElementById('timeFilter').value;let filtered=selectedList.filter(d=>d.date===curDate);if(timeF!=='All') filtered=filtered.filter(d=>d.time===timeF);let tp=Math.ceil(filtered.length/pageSize);if(currentPage<tp){currentPage++;renderList();}}
+function getFilteredDischarge(){let curDate=document.getElementById('disDate').value;let timeF=document.getElementById('timeFilter').value;let list=selectedList.filter(d=>d.date===curDate);if(timeF!=='All') list=list.filter(d=>d.time===timeF);return list;}
 
-function getFilteredDischarge(){
- let curDate=document.getElementById('disDate').value;let timeF=document.getElementById('timeFilter').value;
- let list=selectedList.filter(d=>d.date===curDate);
- if(timeF!=='All') list=list.filter(d=>d.time===timeF);
- return list;
-}
 function renderList(){
  updateLabels();
  let filteredList=getFilteredDischarge();
@@ -136,32 +129,81 @@ function renderList(){
  let tp=Math.ceil(filteredList.length/pageSize)||1; if(currentPage>tp) currentPage=tp;
  document.getElementById('pageInfo').innerText=`Page ${currentPage} of ${tp}`;
  let body=document.getElementById('selectedBody');
- if(!filteredList.length){body.innerHTML=`<tr><td colspan="6" style="padding:30px;text-align:center;color:#94a3b8">No patient for ${document.getElementById('disDate').value} | ${document.getElementById('timeFilter').value}</td></tr>`;return;}
+ if(!filteredList.length){body.innerHTML=`<tr><td colspan="6" style="padding:30px;text-align:center;color:#94a3b8">No discharged patient for ${document.getElementById('disDate').value} | ${document.getElementById('timeFilter').value}</td></tr>`;return;}
  let start=(currentPage-1)*pageSize;let pageData=filteredList.slice(start,start+pageSize);
  body.innerHTML=pageData.map((d,i)=>{
   let realIdx=selectedList.indexOf(d);
   return `<tr>
    <td>${start+i+1}</td><td><b>${d.name}</b></td><td>${d.shri}</td><td><span class="pill">${d.pmjay}</span></td><td><b>${d.time}</b></td>
-   <td><div class="slide-group">
-     <button class="slide-btn slide-dis" onclick="doDischarge(${realIdx})"><i>➜</i> Discharge</button>
-     <button class="slide-btn slide-claim" onclick="askClaimId(${realIdx})"><i>₹</i> Claim</button>
-     <button class="slide-remove" onclick="removeSel(${realIdx})">✕</button>
-   </div></td></tr>`;
+   <td>
+     <div style="display:flex;align-items:center">
+       <div class="slide-track" id="track_${realIdx}" onpointerdown="startSlide(event,${realIdx})">
+         <div class="slide-thumb" id="thumb_${realIdx}"><span>slide to<br>claim</span><div class="slide-arrow">❯</div></div>
+         <div class="slide-text">CLAIM</div>
+       </div>
+       <button class="slide-remove" onclick="removeSel(${realIdx})">✕</button>
+     </div>
+   </td></tr>`;
  }).join('');
 }
-function doDischarge(i){let d=selectedList[i];if(!confirm(`Discharge ${d.name}? Slide to discharge?`))return;let dis=getDischarged();dis.push({id:d.shri,name:d.name,pmjay:d.pmjay,date:d.date,time:d.time,discharged_at:new Date().toLocaleString(),type:'Discharge'});localStorage.setItem('shija_discharged',JSON.stringify(dis));selectedList.splice(i,1);saveToStorage();renderList();showToast(`✅ Discharged ${d.name}`);}
+
+let sliding=null, startX=0, startLeft=0;
+function startSlide(e, idx){
+ e.preventDefault();
+ let track=document.getElementById('track_'+idx);
+ let thumb=document.getElementById('thumb_'+idx);
+ sliding={idx,track,thumb};
+ track.classList.add('sliding');
+ startX = (e.touches?e.touches[0].clientX:e.clientX);
+ startLeft = thumb.offsetLeft;
+ document.addEventListener('pointermove', onSlideMove);
+ document.addEventListener('pointerup', onSlideEnd);
+ document.addEventListener('touchmove', onSlideMove, {passive:false});
+ document.addEventListener('touchend', onSlideEnd);
+}
+function onSlideMove(e){
+ if(!sliding) return;
+ e.preventDefault();
+ let clientX = (e.touches?e.touches[0].clientX:e.clientX);
+ let delta = clientX - startX;
+ let max = sliding.track.offsetWidth - sliding.thumb.offsetWidth - 8;
+ let newLeft = Math.min(Math.max(4, startLeft + delta), max+4);
+ sliding.thumb.style.left = newLeft+'px';
+ if(newLeft >= max*0.85){
+   onSlideEnd();
+   triggerClaim(sliding.idx);
+ }
+}
+function onSlideEnd(){
+ if(!sliding) return;
+ sliding.track.classList.remove('sliding');
+ if(!sliding.track.classList.contains('claimed')){
+   sliding.thumb.style.left='4px';
+ }
+ document.removeEventListener('pointermove', onSlideMove);
+ document.removeEventListener('pointerup', onSlideEnd);
+ document.removeEventListener('touchmove', onSlideMove);
+ document.removeEventListener('touchend', onSlideEnd);
+ sliding=null;
+}
+function triggerClaim(idx){
+ let track=document.getElementById('track_'+idx);
+ track.classList.add('claimed');
+ setTimeout(()=>{askClaimId(idx); track.classList.remove('claimed'); let th=document.getElementById('thumb_'+idx); if(th) th.style.left='4px';},200);
+}
 
 function askClaimId(idx){tempClaimIndex=idx;let d=selectedList[idx];document.getElementById('claimPopInfo').innerText=`Patient: ${d.name} | SHRI: ${d.shri} | PMJAY: ${d.pmjay} | ${d.date} - ${d.time}`;document.getElementById('claimIdInput').value='';document.getElementById('popupBg').style.display='block';document.getElementById('popupClaim').style.display='block';document.getElementById('claimIdInput').focus();}
 function confirmClaimWithId(){
  let claimId=document.getElementById('claimIdInput').value.trim();if(!claimId){alert('Please enter Claim ID');return;}
  let d=selectedList[tempClaimIndex];
- claimList=JSON.parse(localStorage.getItem('shija_claim_list')||'[]');
+ let claimList=JSON.parse(localStorage.getItem('shija_claim_list')||'[]');
  claimList.push({id:Date.now(),name:d.name,pmjay:d.pmjay,shri:d.shri,claimId:claimId,date:d.date,time:d.time,claimed_at:new Date().toLocaleString()});
  localStorage.setItem('shija_claim_list',JSON.stringify(claimList));
- let dis=getDischarged();dis.push({id:d.shri,name:d.name,pmjay:d.pmjay,claimId:claimId,date:d.date,time:d.time,discharged_at:new Date().toLocaleString(),type:'Claim'});localStorage.setItem('shija_discharged',JSON.stringify(dis));
+ let dis=JSON.parse(localStorage.getItem('shija_discharged')||'[]');
+ dis.push({id:d.shri,name:d.name,pmjay:d.pmjay,claimId:claimId,date:d.date,time:d.time,discharged_at:new Date().toLocaleString(),type:'Claim'});
+ localStorage.setItem('shija_discharged',JSON.stringify(dis));
  selectedList.splice(tempClaimIndex,1);saveToStorage();closeClaimPopup();renderList();renderClaimList();showToast(`💰 Claim saved: ${d.name} - ${claimId}`);switchTab('claim');
 }
-
 function getFilteredClaim(){
  let curDate=document.getElementById('disDate').value;let timeF=document.getElementById('timeFilter').value;
  let list=JSON.parse(localStorage.getItem('shija_claim_list')||'[]');
