@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name=viewport content="width=device-width,initial-scale=1"><title>Bill</title>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name=viewport content="width=device-width,initial-scale=1"><title>Bill - SHIJA</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial}
 body{background:linear-gradient(135deg,#e0f2fe,#f0f9ff 40%,#fef3c7 100%);min-height:100vh}
@@ -11,10 +11,89 @@ input{padding:11px;border:1.5px solid #cbd5e1;border-radius:10px;width:100%;back
 .bill-h{text-align:center;padding:8px;border-bottom:2px solid #0f4c75;background:#f8fafc}
 .bill-i{display:flex;justify-content:space-between;padding:8px 12px;font-size:11px;border-bottom:1px solid #0f4c75}
 .bill-t{width:100%;border-collapse:collapse}.bill-t th{background:#8b8b8b;font-size:10px;padding:4px;border:1px solid #000}.bill-t td{font-size:11px;padding:3px 6px;border:1px solid #000}
+.status{font-size:12px;color:#16a34a;font-weight:700;margin-top:10px;text-align:center}
+.list{max-width:900px;margin:20px auto;background:#fff;padding:14px;border-radius:12px}
+.tbl{width:100%;border-collapse:collapse}.tbl th{background:#f1f5f9;font-size:11px;padding:8px;text-align:left}.tbl td{padding:8px;font-size:12px;border-bottom:1px solid #eee}
 </style></head><body>
 <div class="top"><a href="index.html" style="color:#fff;text-decoration:none;font-weight:800;background:rgba(255,255,255,.2);padding:8px 14px;border-radius:8px">← Home</a><h2>SHIJA Bill Generator</h2><div style="width:70px"></div></div>
-<div class="box"><h3 style="color:#0f4c75;border-left:4px solid #ec4899;padding-left:10px">🧾 Bill Generator - Separate Page</h3><div class="grid"><input id="b_name" placeholder="Patient Name"><input id="b_shri" placeholder="SHRI ID"><input id="b_ip" placeholder="IP No"><input id="b_age" placeholder="Age/Sex" value="56Y/F"><input id="b_bed" placeholder="Bed No" value="D-3402"><input id="b_addr" placeholder="Address"><input type="date" id="b_date"><button class="btn" onclick="gen()">Generate Bill</button><button class="btn" style="background:#10b981" onclick="window.print()">Print</button></div>
+<div class="box"><h3 style="color:#0f4c75;border-left:4px solid #ec4899;padding-left:10px">🧾 Bill Generator - Firebase</h3><div class="grid"><input id="b_name" placeholder="Patient Name"><input id="b_shri" placeholder="SHRI ID"><input id="b_ip" placeholder="IP No"><input id="b_age" placeholder="Age/Sex" value="56Y/F"><input id="b_bed" placeholder="Bed No" value="D-3402"><input id="b_addr" placeholder="Address"><input type="date" id="b_date"><button class="btn" onclick="gen()">Generate & Save to Cloud</button><button class="btn" style="background:#10b981" onclick="window.print()">Print</button></div>
+<div id="fbStatus" class="status">● Firebase Connected: discharge-b9528 - Ready</div>
 <div class="bill" id="bill" style="margin-top:20px"><div class="bill-h"><h3>SHIJA HOSPITALS & RESEARCH INSTITUTE PVT LTD</h3><p style="font-size:10px">Langol, Imphal - Bill of Supply</p></div><div class="bill-i"><div>Name: <b id="o_name">-</b><br>Age/Sex: <b id="o_age">-</b><br>Bed: <b id="o_bed">-</b><br>SHRI: <b id="o_shri">-</b><br>IP: <b id="o_ip">-</b></div><div>Date: <b id="o_date">-</b><br>Bill No: <b id="o_bill">-</b></div></div><table class="bill-t"><tr><th>SL</th><th>ITEM</th><th>QTY</th><th>AMOUNT</th></tr><tr><td>1</td><td>Dialysis Session (4hrs)</td><td>1</td><td>Rs 2,660</td></tr></table></div></div>
+<div class="list"><h4 style="color:#0f4c75">Recent Bills Saved in Cloud (Last 20)</h4><table class="tbl"><thead><tr><th>Bill No</th><th>Name</th><th>SHRI</th><th>Date</th></tr></thead><tbody id="billList"><tr><td colspan="4" style="text-align:center;color:#999">Loading...</td></tr></tbody></table></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const config = {
+  apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
+  authDomain: "discharge-b9528.firebaseapp.com",
+  projectId: "discharge-b9528",
+  storageBucket: "discharge-b9528.firebasestorage.app",
+  messagingSenderId: "1076050472607",
+  appId: "1:1076050472607:web:736e0688a41462460efcaa"
+};
+const app = initializeApp(config);
+const db = getFirestore(app);
+window.db = db;
+window.fb = { collection, addDoc, serverTimestamp, getDocs, query, orderBy, limit };
+
+async function loadBills(){
+ try{
+  const q = query(collection(db, "bills"), orderBy("createdAt","desc"), limit(20));
+  const snap = await getDocs(q);
+  let html="";
+  snap.forEach(d=>{
+   const b = d.data();
+   html+=`<tr><td><b>${b.billNo}</b></td><td>${b.name}</td><td>${b.shri}</td><td>${b.date}</td></tr>`;
+  });
+  document.getElementById('billList').innerHTML = html || `<tr><td colspan="4" style="text-align:center">No bills yet</td></tr>`;
+ }catch(e){ document.getElementById('billList').innerHTML = `<tr><td colspan="4">${e.message}</td></tr>`; }
+}
+loadBills();
+window.loadBills = loadBills;
+</script>
+
 <script>
-function gen(){document.getElementById('o_name').textContent=document.getElementById('b_name').value;document.getElementById('o_shri').textContent=document.getElementById('b_shri').value;document.getElementById('o_ip').textContent=document.getElementById('b_ip').value;document.getElementById('o_age').textContent=document.getElementById('b_age').value;document.getElementById('o_bed').textContent=document.getElementById('b_bed').value;document.getElementById('o_date').textContent=document.getElementById('b_date').value;document.getElementById('o_bill').textContent='SHIJA-'+Math.floor(Math.random()*9000+1000);}
+document.getElementById('b_date').valueAsDate = new Date();
+async function gen(){
+ const name = document.getElementById('b_name').value.trim();
+ const shri = document.getElementById('b_shri').value.trim();
+ const ip = document.getElementById('b_ip').value.trim();
+ const age = document.getElementById('b_age').value;
+ const bed = document.getElementById('b_bed').value;
+ const addr = document.getElementById('b_addr').value;
+ const date = document.getElementById('b_date').value;
+ const billNo = 'SHIJA-'+Math.floor(Math.random()*90000+10000);
+
+ if(!name){ alert('Enter Name'); return; }
+
+ document.getElementById('o_name').textContent=name;
+ document.getElementById('o_shri').textContent=shri;
+ document.getElementById('o_ip').textContent=ip;
+ document.getElementById('o_age').textContent=age;
+ document.getElementById('o_bed').textContent=bed;
+ document.getElementById('o_date').textContent=date;
+ document.getElementById('o_bill').textContent=billNo;
+ document.getElementById('fbStatus').innerText = "Saving to Firebase...";
+
+ try{
+  await fb.addDoc(fb.collection(db, "bills"), {
+    billNo: billNo,
+    name: name,
+    shri: shri,
+    ip: ip,
+    age: age,
+    bed: bed,
+    address: addr,
+    date: date,
+    createdAt: fb.serverTimestamp(),
+    localTime: new Date().toLocaleString()
+  });
+  document.getElementById('fbStatus').innerText = "✅ Saved to Cloud: "+billNo;
+  loadBills();
+ }catch(e){
+  document.getElementById('fbStatus').innerText = "❌ Error: "+e.message;
+  alert(e.message);
+ }
+}
 </script></body></html>
