@@ -20,15 +20,14 @@ body{background:#ffffff;min-height:100vh}
 .list-head{padding:14px 16px;background:#b91c1c;color:#fff;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 .tbl{width:100%;border-collapse:collapse;background:#ffffff}
 .tbl th{background:#fef2f2;font-size:11px;color:#b91c1c;padding:10px 8px;text-align:left}
-.tbl td{padding:10px 8px;font-size:12px;border-bottom:1px solid #fee2e2;background:#ffffff}
+.tbl td{padding:10px 8px;font-size:12px;border-bottom:1px solid #fee2e2}
 .pill{display:inline-block;padding:4px 8px;border-radius:6px;background:#fef2f2;color:#b91c1c;font-weight:800;font-size:11px;border:1px solid #fecaca}
 .btn{padding:10px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer}
 .btn-save{background:#b91c1c;color:#fff;width:100%}
 .tabBar{display:flex;gap:8px;margin-top:18px}
 .tabBtn{padding:10px 16px;border-radius:10px;border:1.5px solid #fecaca;background:#ffffff;font-weight:800;cursor:pointer;font-size:13px;color:#b91c1c}
 .tabBtn.active{background:#b91c1c;color:#fff}
-.btn-claim-simple{padding:6px 14px;background:#b91c1c;color:#fff;border:0;border-radius:8px;font-weight:700;font-size:11px;cursor:pointer;transition:.2s}
-.btn-claim-simple:hover{background:#991b1b;transform:scale(1.05)}
+.btn-claim-simple{padding:6px 14px;background:#b91c1c;color:#fff;border:0;border-radius:8px;font-weight:700;font-size:11px;cursor:pointer}
 .btn-remove-simple{padding:5px 8px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:6px;font-weight:800;font-size:11px;cursor:pointer;margin-left:4px}
 .popup-bg{position:fixed;inset:0;background:#0006;z-index:99;display:none}
 .popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#ffffff;border-radius:20px;padding:20px;z-index:100;max-width:380px;width:92%;box-shadow:0 20px 50px #0004;display:none;border:2px solid #fee2e2}
@@ -59,8 +58,7 @@ if(localStorage.getItem('shija_logged')!=='1') location.href='login.html';
 document.getElementById('disDate').valueAsDate=new Date();
 let selectedList=JSON.parse(localStorage.getItem('shija_selected_discharge')||'[]');
 let currentPage=1,pageSize=50,tempPatient=null,tempClaimIndex=null;
-let lastFiltered=[]; // FIX: store filtered list for safe selection
-
+let lastFiltered=[];
 function showToast(m){let t=document.getElementById('toast');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
 function getName(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().includes('patient')&&x.toLowerCase().includes('name'))||ks.find(x=>x.toLowerCase()==='name')||ks.find(x=>x.toLowerCase().includes('name'));return k? p[k] : 'Unknown';}
 function getShri(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z]/g,'')==='shriid')||ks.find(x=>x.toLowerCase().includes('shri'));return k? p[k] : (p.id||p.ID||'-');}
@@ -70,38 +68,18 @@ function onDateChange(){currentPage=1;renderList();renderClaimList();updateLabel
 function updateLabels(){let d=document.getElementById('disDate').value;let t=document.getElementById('timeFilter').value;document.getElementById('saveDateLabel').innerText=d;document.getElementById('headDate').innerText=d;document.getElementById('headTime').innerText=t;document.getElementById('claimHeadDate').innerText=d;document.getElementById('claimHeadTime').innerText=t;}
 function switchTab(t){document.getElementById('disTab').style.display=t==='dis'?'block':'none';document.getElementById('claimTab').style.display=t==='claim'?'block':'none';document.getElementById('tabDisBtn').classList.toggle('active',t==='dis');document.getElementById('tabClaimBtn').classList.toggle('active',t==='claim');if(t==='claim') renderClaimList(); else renderList();}
 
-// FIXED: Now selectable + avoids repeat on any date + all lists
 function showHints(){
  let q=document.getElementById('search').value.trim().toLowerCase();
  let all=getAll();
  let box=document.getElementById('suggest');
  if(q.length<2){box.style.display='none';document.getElementById('cnt').innerText=`Total: ${all.length} | Type min 2 letters`;return;}
-
- // Avoid repeat: check everywhere - selected + discharged + claim
- let selectedIds = new Set(selectedList.map(s=>String(s.shri).toLowerCase()));
- let dischargedIds = new Set(JSON.parse(localStorage.getItem('shija_discharged')||'[]').map(d=>String(d.id).toLowerCase()));
- let claimedIds = new Set(JSON.parse(localStorage.getItem('shija_claim_list')||'[]').map(c=>String(c.shri).toLowerCase()));
- let allUsed = new Set([...selectedIds,...dischargedIds,...claimedIds]);
-
- let filtered = all.filter(p=>{
-   let nameOk = String(getName(p)).toLowerCase().includes(q);
-   let shri = String(getShri(p)).toLowerCase();
-   return nameOk &&!allUsed.has(shri);
- });
-
- document.getElementById('cnt').innerText=`Matching: ${filtered.length}`;
+ let filtered = all.filter(p=>String(getName(p)).toLowerCase().includes(q));
+ document.getElementById('cnt').innerText=`Matching: ${filtered.length} - Click any to add`;
  lastFiltered = filtered.slice(0,50);
-
- if(!filtered.length){
-   box.innerHTML=`<div style="text-align:center;color:#b91c1c;padding:10px">No new patient - already added</div>`;
-   box.style.display='block';
-   return;
- }
+ if(!filtered.length){box.innerHTML=`<div style="text-align:center;color:#b91c1c;padding:10px">No patient found</div>`;box.style.display='block';return;}
  box.style.display='block';
  box.innerHTML = lastFiltered.map((p,i)=>`<div onclick="selectPatient(${i})"><b style="color:#b91c1c">${getName(p)}</b><br><small>SHRI: ${getShri(p)} | PMJAY: ${getPmjay(p)}</small></div>`).join('');
 }
-
-// FIXED: Select by index - no quote issue
 function selectPatient(i){
  let p = lastFiltered[i];
  if(!p) return;
