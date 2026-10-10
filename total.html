@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name=viewport content="width=device-width,initial-scale=1"><title>Total Patients - Cloud</title>
+<!<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name=viewport content="width=device-width,initial-scale=1"><title>Total Patients</title>
 <script src="Patient.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial}
@@ -21,19 +21,17 @@ input{padding:11px 12px;border:1.5px solid #cbd5e1;border-radius:10px;width:100%
 .pgBtn.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
 .pgBtn:disabled{opacity:.4}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.status{font-size:12px;color:#16a34a;font-weight:700}
 </style></head><body>
-<div class="top"><a href="index.html" style="color:#fff;text-decoration:none;font-weight:800;background:rgba(255,255,255,.2);padding:8px 14px;border-radius:8px">← Home</a><h2>SHIJA Total Patients - CLOUD</h2><div style="width:70px"></div></div>
+<div class="top"><a href="index.html" style="color:#fff;text-decoration:none;font-weight:800;background:rgba(255,255,255,.2);padding:8px 14px;border-radius:8px">← Home</a><h2>SHIJA Total Patients</h2><div style="width:70px"></div></div>
 <div class="box">
 <div class="row" style="margin-bottom:14px">
 <div class="searchWrap">
-<input id="search" placeholder="🔍 Search Name, SHRI ID, Contact, PMJAY... (Cloud search)" oninput="onSearch(this.value)" autocomplete="off">
+<input id="search" placeholder="🔍 Search Name, SHRI ID, Contact..." oninput="onSearch(this.value)" autocomplete="off">
 <div id="suggestBox"></div>
 </div>
 <select id="pageSize" onchange="changeSize()" style="padding:11px;border-radius:10px;border:1.5px solid #cbd5e1;font-weight:700"><option value="20" selected>20 per page</option><option value="50">50 per page</option><option value="100">100 per page</option><option value="510">All</option></select>
 <button class="btn" onclick="clearSearch()">Clear</button>
 </div>
-<div style="display:flex;justify-content:space-between;align-items:center"><span id="fbStatus" class="status">● Loading from Firebase...</span><span id="countLabel" style="font-size:12px;color:#64748b"></span></div>
 <table id="tbl"></table>
 <div class="pager" id="pager"></div>
 <div style="text-align:center;margin-top:8px;font-size:12px;color:#64748b" id="pInfo"></div>
@@ -56,36 +54,23 @@ window.db=db; window.fb={collection, getDocs, deleteDoc, doc, updateDoc};
 
 async function loadFromCloud(){
  try{
-  document.getElementById('fbStatus').innerText = "● Loading from Firebase patients...";
   const snap = await getDocs(collection(db, "patients"));
   let cloudPatients = [];
   snap.forEach(d=>{
     let p = d.data();
-    cloudPatients.push({id:d.id, name:(p.patientName||p.name||'').trim(), shri:String(p.shriId||p.shri||'').trim(), contact:String(p.contactNo||p.contact||'').trim(), pmjay:String(p.pmjayId||p.pmjay||'').trim(), addr:(p.address||p.addr||'').trim(), _docId:d.id});
+    cloudPatients.push({name:(p.patientName||p.name||'').trim(), shri:String(p.shriId||p.shri||'').trim(), contact:String(p.contactNo||p.contact||'').trim(), pmjay:String(p.pmjayId||p.pmjay||'').trim(), addr:(p.address||p.addr||'').trim(), _docId:d.id});
   });
-  // Also include local Excel + local added for first time, but after upload cloud will have all
   let excelRaw=(typeof patientData!=='undefined')?patientData:[];
-  let mapped = excelRaw.map(function(p){return {name:(p.patientName||p.name||'').trim(), shri:String(p.shriId||p.shri||'').trim(), contact:String(p.contactNo||p.contact||'').trim(), pmjay:String(p.pmjayId||p.pmjay||'').trim(), addr:(p.address||p.addr||'').trim()}});
-
-  // If cloud is empty, use local mapped
-  let patientsToUse = cloudPatients.length>0? cloudPatients : mapped.map((p,i)=>({...p, _docId:null}));
-
-  window.patients = patientsToUse;
-  document.getElementById('fbStatus').innerText = `● Cloud Loaded: ${cloudPatients.length} patients ✅`;
-  document.getElementById('countLabel').innerText = `${cloudPatients.length} from cloud`;
-  if(cloudPatients.length===0){
-    document.getElementById('fbStatus').innerText = `● No cloud data yet - showing local ${mapped.length}. Upload via upload.html!`;
-  }
+  let mapped = excelRaw.map(p=>({name:(p.patientName||p.name||'').trim(), shri:String(p.shriId||p.shri||'').trim(), contact:String(p.contactNo||p.contact||'').trim(), pmjay:String(p.pmjayId||p.pmjay||'').trim(), addr:(p.address||p.addr||'').trim(), _docId:null}));
+  window.patients = cloudPatients.length>0? cloudPatients : mapped;
   init();
  }catch(e){
-  document.getElementById('fbStatus').innerText = "● Error: "+e.message+" - showing local";
   let excelRaw=(typeof patientData!=='undefined')?patientData:[];
-  window.patients = excelRaw.map(function(p){return {name:(p.patientName||p.name||'').trim(), shri:String(p.shriId||p.shri||'').trim(), contact:String(p.contactNo||p.contact||'').trim(), pmjay:String(p.pmjayId||p.pmjay||'').trim(), addr:(p.address||p.addr||'').trim(), _docId:null}});
+  window.patients = excelRaw.map(p=>({name:(p.patientName||p.name||'').trim(), shri:String(p.shriId||p.shri||'').trim(), contact:String(p.contactNo||p.contact||'').trim(), pmjay:String(p.pmjayId||p.pmjay||'').trim(), addr:(p.address||p.addr||'').trim(), _docId:null}));
   init();
  }
 }
 loadFromCloud();
-window.loadFromCloud = loadFromCloud;
 </script>
 
 <script>
@@ -96,7 +81,7 @@ function onSearch(v){
  if(!v.trim()){box.style.display='none';curPage=1;render();return;}
  let q=v.toLowerCase();
  let mat=(window.patients||[]).filter(p=>[p.name,p.shri,p.contact,p.pmjay].some(s=>(s||'').toLowerCase().includes(q))).slice(0,10);
- if(mat.length){box.innerHTML=mat.map(p=>`<div class="sItem" onclick="pick('${p.name.replace(/'/g,"\\'")}')"><b>${p.name}</b> - ${p.shri} - ${p.contact}</div>`).join('');box.style.display='block';}else box.style.display='none';
+ if(mat.length){box.innerHTML=mat.map(p=>`<div class="sItem" onclick="pick('${p.name.replace(/'/g,"\\'")}')"><b>${p.name}</b> - ${p.shri}</div>`).join('');box.style.display='block';}else box.style.display='none';
  curPage=1;render();
 }
 function pick(name){document.getElementById('search').value=name;document.getElementById('suggestBox').style.display='none';curPage=1;render();}
@@ -106,44 +91,35 @@ function changeSize(){pageSize=parseInt(document.getElementById('pageSize').valu
 function render(){
  let patients = window.patients||[];
  let q=(document.getElementById('search').value||'').toLowerCase().trim();
- filtered=q?patients.filter(function(p){return [p.name,p.shri,p.contact,p.pmjay].some(function(v){return (v||'').toLowerCase().includes(q)});}):patients;
+ filtered=q?patients.filter(p=>[p.name,p.shri,p.contact,p.pmjay].some(v=>(v||'').toLowerCase().includes(q))):patients;
  let totalPages=Math.ceil(filtered.length/pageSize)||1; if(curPage>totalPages)curPage=totalPages;
  let s=(curPage-1)*pageSize,e=s+pageSize; let pageData=filtered.slice(s,e);
  let html='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr>';
  pageData.forEach(function(p,i){
-  let realIndex=patients.indexOf(p);
   let sl=s+i+1;
-  html+='<tr><td>'+sl+'</td><td>'+p.name+'</td><td>'+p.shri+'</td><td>'+p.contact+'</td><td>'+p.pmjay+'</td><td>'+(p.addr||'').substring(0,60)+'</td><td><button class="tbl-action-btn" onclick="edit('+realIndex+')">Edit</button><button class="tbl-del-btn" onclick="del('+realIndex+')">Delete</button></td></tr>';
+  html+='<tr><td>'+sl+'</td><td>'+p.name+'</td><td>'+p.shri+'</td><td>'+p.contact+'</td><td>'+p.pmjay+'</td><td>'+(p.addr||'').substring(0,70)+'</td><td><button class="tbl-action-btn" onclick="edit('+patients.indexOf(p)+')">Edit</button><button class="tbl-del-btn" onclick="del('+patients.indexOf(p)+')">Delete</button></td></tr>';
  });
- document.getElementById('tbl').innerHTML=html||'<tr><td colspan="7" style="text-align:center">No patient found - Upload via upload.html first!</td></tr>';
+ document.getElementById('tbl').innerHTML=html;
  let pager=document.getElementById('pager'); let h=`<button class="pgBtn" onclick="go(${curPage-1})" ${curPage===1?'disabled':''}>Previous</button>`;
  for(let i=Math.max(1,curPage-2);i<=Math.min(totalPages,curPage+2);i++) h+=`<button class="pgBtn ${i===curPage?'active':''}" onclick="go(${i})">${i}</button>`;
  if(totalPages>5 && curPage+2<totalPages) h+=`...<button class="pgBtn" onclick="go(${totalPages})">${totalPages}</button>`;
  h+=`<button class="pgBtn" onclick="go(${curPage+1})" ${curPage===totalPages?'disabled':''}>Next</button>`;
  pager.innerHTML=h;
- document.getElementById('pInfo').textContent=`Showing ${filtered.length? s+1:0}-${Math.min(e,filtered.length)} of ${filtered.length} patients | Total: ${patients.length} patients | Page ${curPage} of ${totalPages}`;
+ document.getElementById('pInfo').textContent=`Showing ${filtered.length? s+1:0}-${Math.min(e,filtered.length)} of ${filtered.length} | Total: ${patients.length} | Page ${curPage} of ${totalPages}`;
 }
 function go(n){let tp=Math.ceil(filtered.length/pageSize)||1; if(n<1||n>tp)return; curPage=n; render(); window.scrollTo(0,0);}
 async function del(i){
  let p = window.patients[i];
- if(!confirm('Delete '+p.name+'? This will delete from cloud permanently!')) return;
- if(p._docId){
-  try{ await fb.deleteDoc(fb.doc(db, "patients", p._docId)); window.patients.splice(i,1); render(); document.getElementById('fbStatus').innerText="● Deleted from cloud ✅"; }
-  catch(e){ alert(e.message); }
- }else{
-  window.patients.splice(i,1); render();
- }
+ if(!confirm('Delete '+p.name+'?')) return;
+ if(p._docId){ try{ await fb.deleteDoc(fb.doc(db, "patients", p._docId)); window.patients.splice(i,1); render(); }catch(e){ alert(e.message); } }
+ else { window.patients.splice(i,1); render(); }
 }
 async function edit(i){
  let p = window.patients[i];
  let n=prompt('Edit Name', p.name);
  if(n!==null && n.trim()){
-  if(p._docId){
-   try{ await fb.updateDoc(fb.doc(db, "patients", p._docId), {patientName:n.trim(), name:n.trim()}); p.name=n.trim(); render(); }
-   catch(e){ alert(e.message); }
-  }else{
-   p.name=n.trim(); render();
-  }
+  if(p._docId){ try{ await fb.updateDoc(fb.doc(db, "patients", p._docId), {patientName:n.trim(), name:n.trim()}); p.name=n.trim(); render(); }catch(e){ alert(e.message); } }
+  else { p.name=n.trim(); render(); }
  }
 }
 </script></body></html>
