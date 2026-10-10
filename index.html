@@ -15,8 +15,17 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 .search{flex:1;max-width:380px;margin:0 16px;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:9px 14px;display:flex;align-items:center;gap:8px}
 .search input{background:transparent;border:0;color:#fff;outline:0;width:100%;font-size:13px}
 .search input::placeholder{color:#64748b}
-.right{display:flex;align-items:center;gap:12px}
+.right{display:flex;align-items:center;gap:12px;position:relative}
 .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:grid;place-items:center;font-weight:900;color:#fff}
+.adminWrap{position:relative;cursor:pointer}
+.adminBox{display:flex;align-items:center;gap:6px}
+.adminName{font-size:13px;font-weight:700}
+.dropArrow{font-size:10px;transition:.2s}
+.adminWrap.open .dropArrow{transform:rotate(180deg)}
+.dropdown{position:absolute;top:100%;right:0;margin-top:10px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;min-width:130px;box-shadow:0 10px 25px #0003;display:none;z-index:99;overflow:hidden}
+.dropdown.show{display:block}
+.dropItem{padding:10px 14px;font-size:13px;color:#0f172a;font-weight:600;cursor:pointer;background:#fff;border:0;width:100%;text-align:left}
+.dropItem:hover{background:#f1f5f9}
 .main{display:flex;flex:1;max-width:1400px;width:100%;margin:0 auto}
 .side{width:210px;background:#111c30;padding:16px 10px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid #1e293b}
 .side a{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;text-decoration:none;color:#94a3b8;font-weight:600;font-size:14px;margin-bottom:4px;cursor:pointer}
@@ -31,11 +40,11 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .card{border-radius:20px;padding:20px;min-height:190px;position:relative;overflow:hidden;text-decoration:none;color:#fff;display:flex;flex-direction:column;justify-content:space-between;transition:.3s}
 .card:hover{transform:translateY(-5px);box-shadow:0 15px 30px #0005}
-.card.icon{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.25);display:grid;place-items:center;font-size:14px;font-weight:900;backdrop-filter:blur(6px)}
+.card .icon{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.25);display:grid;place-items:center;font-size:14px;font-weight:900;backdrop-filter:blur(6px)}
 .card b{font-size:15px;margin-top:10px;display:block;opacity:.95}
 .card h2{font-size:40px;font-weight:900;margin:6px 0;line-height:1}
 .card small{font-size:12px;opacity:.85}
-.card.foot{font-size:11px;opacity:.7;margin-top:4px}
+.card .foot{font-size:11px;opacity:.7;margin-top:4px}
 .c1{background:linear-gradient(135deg,#3b82f6,#06b6d4)}.c2{background:linear-gradient(135deg,#10b981,#059669)}.c3{background:linear-gradient(135deg,#f97316,#f59e0b)}.c4{background:linear-gradient(135deg,#7c3aed,#6d28d9)}.c5{background:linear-gradient(135deg,#ec4899,#d946ef)}.c6{background:linear-gradient(135deg,#ef4444,#f43f5e)}
 .modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:100}
 .modalBox{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:22px;width:90%;max-width:360px}
@@ -56,7 +65,18 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 <div class="top">
 <div class="logo"><img src="logoc.png" onerror="this.src='shija.jpg';this.onerror=function(){this.src='logob.png'}"> SHIJA Dialysis</div>
 <div class="search"><input placeholder="Search patients, reports, bills..."></div>
-<div class="right"><div class="avatar">A</div><span style="font-size:13px;font-weight:700">Admin</span></div>
+<div class="right">
+<div class="avatar">A</div>
+<div class="adminWrap" id="adminWrap" onclick="toggleDrop(event)">
+<div class="adminBox">
+<span class="adminName">Admin</span>
+<span class="dropArrow">▼</span>
+</div>
+<div class="dropdown" id="adminDrop">
+<button class="dropItem" onclick="logout()">Logout</button>
+</div>
+</div>
+</div>
 </div>
 
 <div class="main">
@@ -73,7 +93,7 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 
 <div class="content">
 <div class="head">
-<div><h1>Dashboard Overview</h1><p id="welcomeText">Welcome back, Admin here is the current dialysis activity overview</p></div>
+<div><h1>Dashboard Overview</h1><p id="welcomeText">Welcome back Admin here is the current dialysis activity overview</p></div>
 <div class="dateBar">
 <input type="date" id="dashDate">
 <button class="btn btnP" onclick="openExport()">Export Report</button>
@@ -102,64 +122,24 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const config = {
-  apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
-  authDomain: "discharge-b9528.firebaseapp.com",
-  projectId: "discharge-b9528",
-  storageBucket: "discharge-b9528.firebasestorage.app",
-  messagingSenderId: "1076050472607",
-  appId: "1:1076050472607:web:736e0688a41462460efcaa"
-};
-const app = initializeApp(config);
-const db = getFirestore(app);
-window.db=db; window.fb={collection,getDocs,query,where};
-let today = new Date().toISOString().split('T')[0];
-document.getElementById('dashDate').value = today;
-document.getElementById('dashDate').addEventListener('change', loadDashboard);
-loadDashboard();
-
-async function loadDashboard(){
-  let sel = document.getElementById('dashDate').value || today;
-  document.getElementById('welcomeText').textContent = `Data for ${sel} Welcome back Admin`;
-  try{
-    let patSnap = await getDocs(collection(db,"patients"));
-    let allPatients = [];
-    patSnap.forEach(d=>allPatients.push(d.data()));
-    let todayAdded = allPatients.filter(p=> (p.createdAt||'').startsWith(sel) || (p.date||'').startsWith(sel)).length;
-    if(todayAdded===0 && sel===today) todayAdded = Math.floor(allPatients.length*0.1)+1;
-    let dailySnap = await getDocs(query(collection(db,"dailyDialysis"), where("date","==",sel))).catch(async()=>await getDocs(collection(db,"dailyDialysis")));
-    let dailyCount = dailySnap.size;
-    let kftSnap = await getDocs(query(collection(db,"kftReports"), where("date","==",sel))).catch(async()=>await getDocs(collection(db,"kftReports")));
-    let kftCount = kftSnap.size;
-    let billSnap = await getDocs(query(collection(db,"bills"), where("date","==",sel))).catch(async()=>await getDocs(collection(db,"bills")));
-    let billTotal = 0; billSnap.forEach(d=>{ billTotal+= Number(d.data().amount||d.data().total||0); });
-    let disSnap = await getDocs(query(collection(db,"discharges"), where("date","==",sel))).catch(async()=>await getDocs(collection(db,"discharges")));
-    document.getElementById('v1').textContent = allPatients.length || (typeof patientData!=='undefined'?patientData.length:0);
-    document.getElementById('v2').textContent = todayAdded;
-    document.getElementById('v3').textContent = dailyCount;
-    document.getElementById('v3f').textContent = `Completed ${Math.floor(dailyCount*0.6)} Remaining ${dailyCount-Math.floor(dailyCount*0.6)}`;
-    document.getElementById('v4').textContent = kftCount + ' Pending';
-    document.getElementById('v5').textContent = 'Rs '+billTotal;
-    document.getElementById('v6').textContent = disSnap.size;
-    window._exportCache = {allPatients, sel, dailySnap, kftSnap, billSnap, disSnap};
-  }catch(e){
-    let base = (typeof patientData!=='undefined'?patientData.length:128);
-    let dayNum = new Date(sel).getDate();
-    document.getElementById('v1').textContent = base;
-    document.getElementById('v2').textContent = (dayNum%5)+1;
-    document.getElementById('v3').textContent = (dayNum%10)+8;
-    document.getElementById('v4').textContent = (dayNum%8)+2+' Pending';
-    document.getElementById('v5').textContent = 'Rs '+((dayNum*320)+1200);
-    document.getElementById('v6').textContent = (dayNum%6);
-  }
-}
-window.loadDashboard=loadDashboard;
-</script>
-
 <script>
+function toggleDrop(e){
+ e.stopPropagation();
+ document.getElementById('adminWrap').classList.toggle('open');
+ document.getElementById('adminDrop').classList.toggle('show');
+}
+function logout(){
+ if(confirm('Logout now')){
+   localStorage.removeItem('shija_logged');
+   location.href='login.html';
+ }
+}
+document.addEventListener('click',()=>{
+ let w=document.getElementById('adminWrap');
+ let d=document.getElementById('adminDrop');
+ if(w) w.classList.remove('open');
+ if(d) d.classList.remove('show');
+});
 function openExport(){
  let sel = document.getElementById('dashDate').value;
  document.getElementById('expDateShow').textContent = sel;
@@ -201,6 +181,61 @@ async function exportExcel(type){
  }
  closeExport();
 }
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const config = {
+  apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
+  authDomain: "discharge-b9528.firebaseapp.com",
+  projectId: "discharge-b9528",
+  storageBucket: "discharge-b9528.firebasestorage.app",
+  messagingSenderId: "1076050472607",
+  appId: "1:1076050472607:web:736e0688a41462460efcaa"
+};
+const app = initializeApp(config);
+const db = getFirestore(app);
+window.db=db; window.fb={collection,getDocs,query,where};
+let today = new Date().toISOString().split('T')[0];
+document.getElementById('dashDate').value = today;
+document.getElementById('dashDate').addEventListener('change', loadDashboard);
+loadDashboard();
+async function loadDashboard(){
+  let sel = document.getElementById('dashDate').value || today;
+  document.getElementById('welcomeText').textContent = `Data for ${sel} Welcome back Admin`;
+  try{
+    let patSnap = await getDocs(collection(db,"patients"));
+    let allPatients = [];
+    patSnap.forEach(d=>allPatients.push(d.data()));
+    let todayAdded = allPatients.filter(p=> (p.createdAt||'').startsWith(sel) || (p.date||'').startsWith(sel)).length;
+    if(todayAdded===0 && sel===today) todayAdded = Math.floor(allPatients.length*0.1)+1;
+    let dailySnap = await getDocs(query(collection(db,"dailyDialysis"), where("date","==",sel))).catch(async()=>await getDocs(collection(db,"dailyDialysis")));
+    let dailyCount = dailySnap.size;
+    let kftSnap = await getDocs(query(collection(db,"kftReports"), where("date","==",sel))).catch(async()=>await getDocs(collection(db,"kftReports")));
+    let kftCount = kftSnap.size;
+    let billSnap = await getDocs(query(collection(db,"bills"), where("date","==",sel))).catch(async()=>await getDocs(collection(db,"bills")));
+    let billTotal = 0; billSnap.forEach(d=>{ billTotal+= Number(d.data().amount||d.data().total||0); });
+    let disSnap = await getDocs(query(collection(db,"discharges"), where("date","==",sel))).catch(async()=>await getDocs(collection(db,"discharges")));
+    document.getElementById('v1').textContent = allPatients.length || (typeof patientData!=='undefined'?patientData.length:0);
+    document.getElementById('v2').textContent = todayAdded;
+    document.getElementById('v3').textContent = dailyCount;
+    document.getElementById('v3f').textContent = `Completed ${Math.floor(dailyCount*0.6)} Remaining ${dailyCount-Math.floor(dailyCount*0.6)}`;
+    document.getElementById('v4').textContent = kftCount + ' Pending';
+    document.getElementById('v5').textContent = 'Rs '+billTotal;
+    document.getElementById('v6').textContent = disSnap.size;
+  }catch(e){
+    let base = (typeof patientData!=='undefined'?patientData.length:128);
+    let dayNum = new Date(sel).getDate();
+    document.getElementById('v1').textContent = base;
+    document.getElementById('v2').textContent = (dayNum%5)+1;
+    document.getElementById('v3').textContent = (dayNum%10)+8;
+    document.getElementById('v4').textContent = (dayNum%8)+2+' Pending';
+    document.getElementById('v5').textContent = 'Rs '+((dayNum*320)+1200);
+    document.getElementById('v6').textContent = (dayNum%6);
+  }
+}
+window.loadDashboard=loadDashboard;
 </script>
 
 <div style="text-align:center;padding:10px;font-size:10px;color:#475569">SHIJA Dialysis <span id="lastUp"></span></div>
