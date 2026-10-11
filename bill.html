@@ -15,8 +15,9 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .side{width:100%;background:#0a1931;position:fixed;left:0;top:64px;z-index:100;transition:transform.33s cubic-bezier(.4,0,.2,1);transform:translateY(-130%);padding:14px 18px;display:flex;flex-direction:column;opacity:0}
 .side.open{transform:translateY(0);opacity:1}
 .menu{display:flex;flex-direction:row;flex-wrap:wrap;gap:12px 16px;align-items:center}
-.menu a{color:#8ea0c0;text-decoration:none;font-size:14px;font-weight:600;padding:8px 14px;border-radius:20px;background:#0f1f3d;white-space:nowrap}
-.menu a.active{background:#4338ca;color:#fff;font-weight:800}
+.menu a{color:#8ea0c0;text-decoration:none;font-size:14px;font-weight:600;padding:8px 14px;border-radius:20px;background:#0f1f3d;white-space:nowrap;transition:.2s}
+.menu a:hover{color:#fff;background:#13264d}
+.menu a.active{background:#4338ca;color:#fff;font-weight:800;box-shadow:0 4px 12px #4338ca66}
 .sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,.5);z-index:90;display:none}
 .sideOverlay.show{display:block}
 .content{flex:1;padding:20px 18px;max-width:1300px;width:100%;margin:0 auto}
@@ -28,13 +29,14 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .searchWrap{position:relative;flex:1;min-width:320px}
 .suggest{position:absolute;top:105%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:14px;max-height:280px;overflow:auto;z-index:60;display:none;box-shadow:0 16px 32px #0002}
 .suggest div{padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer}
+.suggest div:hover{background:#eff6ff}
 .btnBlue{background:#1a56db;color:#fff;border:0;padding:10px 16px;border-radius:10px;font-weight:800;cursor:pointer}
 .billPaper{background:#fff;max-width:860px;margin:0 auto;padding:0 24px 44px;color:#000;font-family:Arial,Helvetica,sans-serif}
 .letterhead{width:calc(100% + 48px);margin:0 -24px}
 .letterhead img{width:100%;display:block}
 .billTopLine{font-size:9px;display:flex;justify-content:space-between;margin:8px 0 14px;font-family:monospace}
 .infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:3px 28px;font-size:12px;margin-bottom:22px}
-.exactTable{width:100%;border-collapse:collapse;font-size:11.5px;color:#111;table-layout:fixed}
+.exactTable{width:100%;border-collapse:collapse;font-size:11.5px;color:#111}
 .exactTable th{font-weight:700;padding:8px 2px 10px 0;text-align:left;white-space:nowrap;border-bottom:1.2px solid #000;font-size:11px;line-height:1.1}
 .exactTable th:nth-child(1){width:4%}
 .exactTable th:nth-child(2){width:20%;padding-right:2px}
@@ -49,20 +51,12 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .exactTable th:nth-child(11){width:12%;text-align:right}
 .exactTable td{padding:0 2px 0 0}
 .exactTable.neph{font-weight:800;text-transform:uppercase;padding:14px 0 8px;border-bottom:1px solid #e5e7eb;font-size:11.5px}
-.exactTable.data td{padding:14px 2px 14px 0;vertical-align:top}
-.exactTable.data td:nth-child(9){text-align:right}
-.exactTable.data td:nth-child(10){text-align:right}
-.exactTable.data td:nth-child(11){text-align:right}
-.exactTable.sub td,.exactTable.grand td{border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:10px 2px 10px 0;font-weight:700}
+.exactTable.data td{padding:14px 2px 14px 0}
+.exactTable.data td:nth-child(n+7){text-align:right}
+.exactTable.sub td,.exactTable.grand td{border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:10px 2px 10px 0;font-weight:700;text-align:right}
 .exactTable.sub td.labelCell,.exactTable.grand td.labelCell{text-align:right;padding-right:20px}
-.exactTable.sub td:nth-child(9),.exactTable.grand td:nth-child(9){text-align:right}
-.exactTable.sub td:nth-child(10),.exactTable.grand td:nth-child(10){text-align:right}
-.exactTable.sub td:nth-child(11),.exactTable.grand td:nth-child(11){text-align:right}
 .exactTable.gross td{border-top:1.5px solid #000;padding:10px 2px 10px 0;font-weight:700;font-size:11.5px;text-align:right}
-.exactTable.gross td.labelCell{text-align:right;padding-right:20px}
-.exactTable.gross td:nth-child(9){text-align:right}
-.exactTable.gross td:nth-child(10){text-align:right}
-.exactTable.gross td:nth-child(11){text-align:right}
+.exactTable.gross td.labelCell{text-align:right;padding-right:20px;font-weight:700}
 @media print{.noPrint{display:none!important}.content{margin:0!important;padding:0!important}.billPaper{max-width:100%;padding:0 10px 20px}@page{margin:5mm}}
 </style>
 </head>
@@ -90,16 +84,44 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 <div class="card noPrint">
 <div style="font-weight:900;margin-bottom:8px">Select Patient → Auto Bill</div>
 <div class="searchWrap"><input id="patientSearch" placeholder="🔍 Type Patient Name..." oninput="showPatientSuggest(this.value)" style="border:2px solid #1a56db;padding:14px;background:#fff"><div id="suggest" class="suggest"></div></div>
-<div class="row"><div class="col"><span class="label">Patient Name Auto</span><input id="pName" readonly></div><div class="col"><span class="label">Mobile Auto</span><input id="mobile"></div><div class="col"><span class="label">UHID Auto SHRI.</span><input id="uhid" readonly></div></div>
-<div class="row"><div class="col" style="flex:2"><span class="label">Address Auto</span><input id="address"></div><div class="col"><span class="label">IPNo</span><input id="ipNo" value="177214"></div><div class="col"><span class="label">Bill No</span><input id="billNo" value="SHIC182733"></div></div>
-<div class="row" style="background:#f0f9ff;padding:14px;border-radius:14px;border:1.5px dashed #60a5fa"><div class="col"><span class="label">Bed No. Manual</span><input id="bedNo" value="D-2208 (Dialysis)"></div><div class="col"><span class="label">Age/Sex Manual</span><input id="ageSex" value="70 Year(s) / Male"></div><div class="col"><span class="label">Admission Date Manual</span><input type="date" id="admDateOnly" onchange="updateBillTime()"></div><div class="col"><span class="label">Admission Time Manual</span><input type="time" id="admTimeOnly" onchange="updateBillTime()"></div></div>
-<div class="row" style="background:#fffbeb;padding:14px;border-radius:14px;border:1.5px dashed #f59e0b"><div class="col"><span class="label">Bill Date Auto</span><input id="billDateShow" readonly></div><div class="col"><span class="label">Bill Time +30 Auto</span><input id="billTimeShow" readonly></div><div class="col"><span class="label">Discharge</span><input type="datetime-local" id="disDateTime" oninput="renderBill()"></div><div class="col"><span class="label">Amount ₹</span><input id="amt" value="2660.00" style="border:2px solid #10b981;font-weight:900" oninput="renderBill()"></div></div>
+<div class="row">
+<div class="col"><span class="label">Patient Name Auto</span><input id="pName" readonly></div>
+<div class="col"><span class="label">Mobile Auto</span><input id="mobile"></div>
+<div class="col"><span class="label">UHID Auto SHRI.</span><input id="uhid" readonly></div>
+</div>
+<div class="row">
+<div class="col" style="flex:2"><span class="label">Address Auto</span><input id="address"></div>
+<div class="col"><span class="label">IPNo</span><input id="ipNo" value="177214"></div>
+<div class="col"><span class="label">Bill No</span><input id="billNo" value="SHIC182733"></div>
+</div>
+<div class="row" style="background:#f0f9ff;padding:14px;border-radius:14px;border:1.5px dashed #60a5fa">
+<div class="col"><span class="label">Bed No. Manual</span><input id="bedNo" value="D-2208 (Dialysis)"></div>
+<div class="col"><span class="label">Age/Sex Manual</span><input id="ageSex" value="70 Year(s) / Male"></div>
+<div class="col"><span class="label">Admission Date Manual - Date will show as 3/9</span><input type="date" id="admDateOnly" onchange="updateBillTime()"></div>
+<div class="col"><span class="label">Admission Time Manual</span><input type="time" id="admTimeOnly" onchange="updateBillTime()"></div>
+</div>
+<div class="row" style="background:#fffbeb;padding:14px;border-radius:14px;border:1.5px dashed #f59e0b">
+<div class="col"><span class="label">Bill Date Auto (same as admission)</span><input id="billDateShow" readonly></div>
+<div class="col"><span class="label">Bill Time Auto +30min</span><input id="billTimeShow" readonly></div>
+<div class="col"><span class="label">Discharge Date Time</span><input type="datetime-local" id="disDateTime" oninput="renderBill()"></div>
+<div class="col"><span class="label">Amount ₹ - Company Amt & Amount same</span><input id="amt" value="2660.00" style="border:2px solid #10b981;font-weight:900" oninput="renderBill()"></div>
+</div>
 </div>
 
 <div class="billPaper">
 <div class="letterhead"><img src="letterhead.png"></div>
 <div class="billTopLine"><span id="topDate"></span><span>Shija Bill Generator</span></div>
-<div class="infoGrid"><div><b>IPNo</b>: <span id="b_ip">177214</span></div><div><b>UHID</b>: <span id="b_uhid">SHRI.153704</span></div><div><b>Patient Name</b>: <span id="b_name">Mr. LAISHANGBAM ANGOUBAMBA SINGH</span></div><div><b>Admission Date & Time</b>: <span id="b_adm">03/09/2026 11:17 am</span></div><div><b>Age/Sex</b>: <span id="b_age">70 Year(s) / Male</span></div><div><b>Bill No.</b>: <span id="b_billNo">SHIC182733</span></div><div><b>Bed no.</b>: <span id="b_bed">D-2208 (Dialysis)</span></div><div><b>Bill Date</b>: <span id="b_billDate">03/09/2026</span></div><div><b>Doctor Name</b>: Guliver Potsangbam</div><div><b>Discharge Date & Time</b>: <span id="b_dis">03/09/2026 02:47 pm</span></div><div><b>PAN No./GSTIN</b>: AF / 14AAICS6068B2ZG</div><div><b>Doctor Speciality</b>: Nephrology</div><div><b>Mobile No</b>: <span id="b_mob">7005208464</span></div><div><b>Patient Type</b>: Credit</div><div><b>Patient Address</b>: <span id="b_addr">MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur</span></div><div><b>Payer</b>: PMJAY</div></div>
+
+<div class="infoGrid">
+<div><b>IPNo</b>: <span id="b_ip">177214</span></div><div><b>UHID</b>: <span id="b_uhid">SHRI.153704</span></div>
+<div><b>Patient Name</b>: <span id="b_name">Mr. LAISHANGBAM ANGOUBAMBA SINGH</span></div><div><b>Admission Date & Time</b>: <span id="b_adm">03/09/2026 11:17 am</span></div>
+<div><b>Age/Sex</b>: <span id="b_age">70 Year(s) / Male</span></div><div><b>Bill No.</b>: <span id="b_billNo">SHIC182733</span></div>
+<div><b>Bed no.</b>: <span id="b_bed">D-2208 (Dialysis)</span></div><div><b>Bill Date</b>: <span id="b_billDate">03/09/2026</span></div>
+<div><b>Doctor Name</b>: Guliver Potsangbam</div><div><b>Discharge Date & Time</b>: <span id="b_dis">03/09/2026 02:47 pm</span></div>
+<div><b>PAN No./GSTIN</b>: AF / 14AAICS6068B2ZG</div><div><b>Doctor Speciality</b>: Nephrology</div>
+<div><b>Mobile No</b>: <span id="b_mob">7005208464</span></div><div><b>Patient Type</b>: Credit</div>
+<div><b>Patient Address</b>: <span id="b_addr">MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur</span></div><div><b>Payer</b>: PMJAY</div>
+</div>
 
 <table class="exactTable">
 <thead>
@@ -119,7 +141,6 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 </thead>
 <tbody>
 <tr><td colspan="11" class="neph">NEPHROLOGY PROCEDURE</td></tr>
-<!-- DATA ROW - 1 UNDER SL NO, 3/9 UNDER DATE, 1.00 UNDER QTY, RATE=AMOUNT, 0.00 UNDER PATIENT AMT, AMOUNT UNDER COMPANY & AMOUNT -->
 <tr class="data">
 <td>1</td>
 <td>Haemodialysis Subsequent<br>Visit PMJAY</td>
@@ -133,37 +154,25 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 <td id="b_camt">2660.00</td>
 <td id="b_amt">2660.00</td>
 </tr>
-<!-- SUB TOTAL - VERTICAL ALIGNMENT -->
 <tr class="sub">
-<td></td>
-<td></td>
-<td></td>
-<td class="labelCell" style="text-align:right" colspan="1">Sub Total :</td>
-<td>0.00</td>
-<td id="b_subC">2660.00</td>
-<td id="b_sub">2660.00</td>
+<td colspan="5"></td>
+<td colspan="3" class="labelCell">Sub Total :</td>
+<td class="valCell">0.00</td>
+<td class="valCell" id="b_subC">2660.00</td>
+<td class="valCell" id="b_sub">2660.00</td>
 </tr>
-<!-- GRAND TOTAL - SAME VERTICAL AS SUB TOTAL -->
 <tr class="grand">
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td class="labelCell" style="text-align:right" colspan="1">Grand Total :</td>
-<td>0.00</td>
-<td id="b_grandC">2660.00</td>
-<td id="b_grand">2660.00</td>
+<td colspan="5"></td>
+<td colspan="3" class="labelCell">Grand Total :</td>
+<td class="valCell">0.00</td>
+<td class="valCell" id="b_grandC">2660.00</td>
+<td class="valCell" id="b_grand">2660.00</td>
 </tr>
-<!-- GROSS - SMALL LIKE SUB & GRAND, ALIGNED UNDER GRAND, VERTICAL UNDER AMOUNT -->
 <tr class="gross">
-<td></td>
-<td></td>
-<td></td>
-<td class="labelCell" style="text-align:right" colspan="1">Gross Bill Amount :</td>
-<td></td>
-<td></td>
-<td>₹ <span id="b_gross">2660.00</span></td>
+<td colspan="5"></td>
+<td colspan="3" class="labelCell">Gross Bill Amount :</td>
+<td class="valCell"></td>
+<td class="valCell" colspan="2">₹ <span id="b_gross">2660.00</span></td>
 </tr>
 </tbody>
 </table>
