@@ -7,20 +7,24 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
 body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;color:#0f172a}
-.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:40}
+.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:100}
 .top h2{color:#fff;font-size:16px;font-weight:800}
 .menuBtn{width:36px;height:36px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;color:#fff;display:grid;place-items:center;cursor:pointer}
+.menuBtn:hover{background:#1c3870}
 .adBadge{display:flex;align-items:center;gap:8px;color:#fff}
 .adCircle{width:30px;height:30px;border-radius:50%;background:#1a2a4f;color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px;border:1.5px solid #2a3a6a}
 .mainWrap{display:flex;flex:1;min-height:calc(100vh - 64px)}
-.side{width:230px;min-width:230px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:16px 10px;position:sticky;top:64px;height:calc(100vh - 64px);transition:transform.3s ease}
+.side{width:230px;min-width:230px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:16px 10px;position:fixed;left:0;top:64px;height:calc(100vh - 64px);transition:transform .3s ease;z-index:90;transform:translateX(0)}
+.side.closed{transform:translateX(-100%)}
 .menu{display:flex;flex-direction:column;gap:4px}
 .menu a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px}
+.menu a.active{background:#13264d;color:#fff;border-left:3px solid #1a56db}
 .menu a:hover{background:#13264d;color:#fff}
 .sideBottom{border-top:1px solid #1a2a4f;padding:12px 10px;color:#6b7aa2;font-size:11px}
-.sideOverlay{position:fixed;inset:0;background:#0005;z-index:55;display:none}
+.sideOverlay{position:fixed;inset:0;top:64px;background:#0005;z-index:80;display:none}
 .sideOverlay.show{display:block}
-.content{flex:1;padding:16px 14px;max-width:700px;width:100%}
+.content{flex:1;padding:16px 14px;max-width:700px;width:100%;margin-left:230px;transition:margin .3s ease}
+.content.full{margin-left:0;max-width:100%}
 .head h1{font-size:28px;font-weight:900;letter-spacing:-1px;color:#0f1a34}
 .bread{color:#6b7280;font-size:12px;margin-top:4px}
 .card{background:#fff;border-radius:16px;box-shadow:0 10px 30px #00000008;border:1px solid #e5e7eb;padding:20px;margin-top:14px}
@@ -33,7 +37,7 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 .btn-cancel{background:#f8fafc;color:#64748b;display:grid;place-items:center}
 .btn-add{background:#0a1931;color:#fff;border-color:#0a1931}
 .status{font-size:12px;font-weight:700;margin-top:12px;text-align:center}
-@media(max-width:900px){.side{position:fixed;left:0;top:64px;transform:translateX(-100%);z-index:60;height:calc(100vh - 64px)}.side.open{transform:translateX(0)}}
+@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}}
 </style>
 </head>
 <body>
@@ -59,12 +63,13 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 <a href="daily.html">Daily Dialysis</a>
 <a href="discharge.html">Discharge Patient</a>
 <a href="kft.html">KFT Report</a>
+<a href="add.html" class="active">Add Patient</a>
 <a href="bill.html">Bill</a>
 </div>
 <div class="sideBottom">Help and Support<br>v2.4.1 | <span id="fbStatus">Connected</span></div>
 </div>
 
-<div class="content">
+<div class="content" id="content">
 <div class="head"><h1>Add Patient</h1><div class="bread">Dashboard / Add Patient</div></div>
 
 <div class="card">
@@ -97,7 +102,18 @@ document.getElementById('fbStatus').innerText = "Connected";
 </script>
 
 <script>
-function toggleSide(){document.getElementById('side').classList.toggle('open');document.getElementById('overlay').classList.toggle('show');}
+function toggleSide(){
+ let s=document.getElementById('side');
+ let c=document.getElementById('content');
+ let o=document.getElementById('overlay');
+ if(window.innerWidth <= 900){
+   s.classList.toggle('open');
+   o.classList.toggle('show');
+ } else {
+   s.classList.toggle('closed');
+   c.classList.toggle('full');
+ }
+}
 async function add(){
  let p={
    patientName: document.getElementById('n_name').value.trim(),
