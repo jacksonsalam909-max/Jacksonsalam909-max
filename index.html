@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -9,9 +9,11 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui}
 body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:column}
-.top{height:64px;background:#1e293b;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #2d3a4f;position:sticky;top:0;z-index:10}
+.top{height:64px;background:#1e293b;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #2d3a4f;position:sticky;top:0;z-index:100}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px}
 .logo img{width:38px;height:38px;border-radius:10px;object-fit:contain;background:#fff;padding:3px}
+.menuBtnTop{width:42px;height:36px;border-radius:10px;background:#2563eb;border:0;color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;flex-shrink:0}
+.menuBtnTop:hover{background:#1d4ed8}
 .searchWrap{flex:1;max-width:420px;margin:0 16px;position:relative}
 .search{width:100%;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:10px 16px;display:flex;align-items:center;gap:8px}
 .search input{background:transparent;border:0;color:#fff;outline:0;width:100%;font-size:13px}
@@ -33,9 +35,7 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 .dropItem{padding:10px 14px;font-size:13px;color:#0f172a;font-weight:600;cursor:pointer;background:#fff;border:0;width:100%;text-align:left}
 .dropItem:hover{background:#f1f5f9}
 .main{display:flex;flex:1;max-width:1400px;width:100%;margin:0 auto;position:relative}
-.leftMenuArea{width:64px;min-width:64px;padding:16px 10px;display:flex;flex-direction:column;align-items:center}
-.menuBtnSide{width:46px;height:36px;border-radius:10px;background:#2563eb;border:0;color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center}
-.content{flex:1;padding:24px}
+.content{flex:1;padding:24px;transition:.3s}
 .head{margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
 .head h1{font-size:28px;font-weight:900}
 .head p{color:#94a3b8;font-size:13px;margin-top:4px}
@@ -58,21 +58,24 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 .btn{padding:10px 14px;border:0;border-radius:10px;font-weight:700;cursor:pointer}
 .btnP{background:#2563eb;color:#fff}
 .btnG{background:#334155;color:#fff}
-.whiteBar{position:fixed;left:0;top:64px;bottom:0;width:260px;background:#ffffff;transform:translateX(-100%);transition:.35s;z-index:60;padding:16px 10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:4px 0 24px #0003}
+.whiteBar{position:fixed;left:0;top:64px;bottom:0;width:260px;background:#ffffff;transform:translateX(-100%);transition:.35s;z-index:90;padding:16px 10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:4px 0 24px #0003}
 .whiteBar.open{transform:translateX(0)}
 .whiteBar a{display:flex;align-items:center;padding:13px 14px;border-radius:10px;text-decoration:none;color:#334155;font-weight:700;font-size:14px;margin-bottom:6px}
 .whiteBar a.active{background:#0f172a;color:#fff}
 .whiteBar a:hover{background:#f1f5f9;color:#0f172a}
-.whiteOverlay{position:fixed;inset:0;top:64px;background:#0005;z-index:55;display:none}
+.whiteOverlay{position:fixed;inset:0;top:64px;background:#0005;z-index:85;display:none}
 .whiteOverlay.show{display:block}
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.grid{grid-template-columns:1fr 1fr}.content{padding:14px}.head h1{font-size:22px}.leftMenuArea{width:50px;min-width:50px}}
+@media(max-width:600px){.grid{grid-template-columns:1fr 1fr}.content{padding:14px}.head h1{font-size:22px}}
 </style>
 </head>
 <body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
 <div class="top">
-<div class="logo"><img src="logoc.png" onerror="this.src='shija.jpg';this.onerror=function(){this.src='logob.png'}"> SHIJA Dialysis</div>
+<div class="logo">
+<button class="menuBtnTop" onclick="toggleWhiteBar()">☰</button>
+<img src="logoc.png" onerror="this.src='shija.jpg';this.onerror=function(){this.src='logob.png'}"> SHIJA Dialysis
+</div>
 <div class="searchWrap">
 <div class="search"><input id="globalSearch" placeholder="Search patients, reports, bills..." oninput="doGlobalSearch()" onfocus="doGlobalSearch()"></div>
 <div class="searchResult" id="searchResult"></div>
@@ -100,8 +103,7 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 </div>
 </div>
 <div class="main">
-<div class="leftMenuArea"><button class="menuBtnSide" onclick="toggleWhiteBar()">☰</button></div>
-<div class="content">
+<div class="content" id="content">
 <div class="head">
 <div><h1>Dashboard Overview</h1><p id="welcomeText">Welcome back Admin here is the current dialysis activity overview</p></div>
 <div class="dateBar"><input type="date" id="dashDate"><button class="btn btnP" onclick="openExport()">Export Report</button></div>
@@ -120,7 +122,10 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 <div class="modalBox"><h3>Export Report</h3><p style="color:#94a3b8;font-size:12px;margin-bottom:12px">Select date <b id="expDateShow"></b></p><div class="opt" onclick="exportExcel('total')"><div><b>Total Patient Record</b><br><small style="color:#94a3b8">All patients or for selected date</small></div></div><div class="opt" onclick="exportExcel('kft')"><div><b>KFT Report Record</b><br><small style="color:#94a3b8">KFT reports for selected date</small></div></div><div class="opt" onclick="exportExcel('daily')"><div><b>Daily Dialysis Record</b><br><small style="color:#94a3b8">Daily sessions for selected date</small></div></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn btnG" style="flex:1" onclick="closeExport()">Cancel</button></div></div>
 </div>
 <script>
-function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('open');document.getElementById('whiteOverlay').classList.toggle('show');}
+function toggleWhiteBar(){
+ document.getElementById('whiteBar').classList.toggle('open');
+ document.getElementById('whiteOverlay').classList.toggle('show');
+}
 function toggleDrop(e){e.stopPropagation();document.getElementById('adminWrap').classList.toggle('open');document.getElementById('adminDrop').classList.toggle('show');}
 function logout(){if(confirm('Logout now')){localStorage.removeItem('shija_logged');location.href='login.html';}}
 document.addEventListener('click',(e)=>{
