@@ -5,16 +5,57 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Bill - SHIJA</title>
 <script src="Patient.js"></script>
+<!-- FIREBASE SAME STORAGE - ADDED -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
+  authDomain: "discharge-b9528.firebaseapp.com",
+  projectId: "discharge-b9528",
+  storageBucket: "discharge-b9528.firebasestorage.app",
+  messagingSenderId: "1076050472607",
+  appId: "1:1076050472607:web:736e0688a41462460efcaa",
+  measurementId: "G-RXBJ1FD2E4"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+window.saveToSameStorage = async function(){
+  const billNo = document.getElementById('billNo').value || "SHIC"+Date.now();
+  const payload = {
+    block: document.getElementById('bedNo').value,
+    name: document.getElementById('pName').value,
+    shriId: document.getElementById('uhid').value,
+    uhid: document.getElementById('uhid').value,
+    pmjayId: "PMJAY",
+    date: document.getElementById('admDateOnly').value,
+    prevDate: document.getElementById('admDateOnly').value,
+    time: document.getElementById('admTimeOnly').value,
+    localTime: document.getElementById('billTimeShow').value,
+    billNo: billNo,
+    ipNo: document.getElementById('ipNo').value,
+    mobile: document.getElementById('mobile').value,
+    address: document.getElementById('address').value,
+    amount: document.getElementById('amt').value,
+    bedNo: document.getElementById('bedNo').value,
+    ageSex: document.getElementById('ageSex').value,
+    createdAt: serverTimestamp(),
+    type: "BILL"
+  };
+  try{
+    document.getElementById('fbStatus').innerText="Saving...";
+    await setDoc(doc(db, "bills", billNo), payload);
+    document.getElementById('fbStatus').innerText="✓ Saved in bills/"+billNo;
+  }catch(e){ document.getElementById('fbStatus').innerText="Error: "+e.message; alert(e.message); }
+}
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Inter,Segoe UI,system-ui}
 body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:110}
 .top h2{color:#fff;font-size:16px;font-weight:800}
-
-/* 3 LINE MENU BUTTON */
 .menuBtn{width:42px;height:42px;border-radius:10px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer}
 .menuBtn span{display:block;width:20px;height:2px;background:#fff;border-radius:2px}
-
 .side{width:260px;background:#0a1931;position:fixed;left:-260px;top:64px;bottom:0;z-index:100;transition:left.33s;padding:18px 14px;display:flex;flex-direction:column}
 .side.open{left:0}
 .menu{display:flex;flex-direction:column;gap:8px}
@@ -38,30 +79,17 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .letterhead{width:calc(100% + 44px);margin:0 -22px}
 .letterhead img{width:100%;display:block}
 .infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:3px 22px;font-size:11.5px;margin-bottom:12px;margin-top:10px}
-
-/* COMPACT TABLE - LITTLE CLOSER VERTICALLY */
 .exactTable{width:100%;border-collapse:separate;border-spacing:0;font-size:11px;color:#111;line-height:1.2}
 .exactTable th{font-weight:700;padding:4px 6px 4px 2px;text-align:left;border-bottom:1px solid #000;font-size:10px;white-space:nowrap}
 .exactTable td{padding:3px 6px 3px 2px;vertical-align:top;font-size:11px}
-
-/* NEPHROLOGY - SINGLE THIN LINE, LESS SPACE */
 .exactTable tr.nephRow td{font-weight:800;text-transform:uppercase;padding:5px 0 3px;border-bottom:1px solid #000;font-size:11px}
-
-/* DATA ROW - COMPACT */
 .exactTable.dataRow td{padding:4px 6px 4px 2px;line-height:1.25}
 .itemLine1{white-space:nowrap;font-weight:600;line-height:1.2}
 .itemLine2{white-space:nowrap;line-height:1.2}
-
-/* SUB TOTAL - SINGLE LINE ABOVE, LESS GAP */
 .exactTable tr.sub td{border-top:1px solid #000;padding:4px 6px;font-weight:700;text-align:right}
-
-/* GRAND TOTAL - SINGLE LINE ABOVE AND BELOW, LESS GAP */
 .exactTable tr.grand td{border-top:1px solid #000;border-bottom:1px solid #000;padding:4px 6px;font-weight:700;text-align:right}
-
-/* GROSS - NO LINE ABOVE, COMPACT */
 .exactTable.gross{border-top:none;margin-top:2px;width:100%;border-collapse:separate;border-spacing:0}
 .exactTable.gross td{border-top:none;border-bottom:none;padding:6px 6px;font-weight:800;font-size:11px;text-align:right;background:transparent}
-
 .word{display:inline-block;padding:1px 3px;border-radius:3px;touch-action:none;user-select:none;cursor:grab;line-height:1.2}
 .word:active{cursor:grabbing;background:#fef3c7}
 .alignBox{background:#0f172a;color:#fff;border-radius:16px;padding:14px;margin-bottom:14px;display:none;max-height:70vh;overflow:auto}
@@ -74,7 +102,7 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 </head>
 <body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='index.html'}</script>
-<div class="top noPrint"><div style="display:flex;align-items:center;gap:10px"><button class="menuBtn" onclick="toggleSide()"><span></span><span></span><span></span></button><h2>SHIJA Dialysis</h2></div><button class="btnBlue" onclick="window.print()">Print</button></div>
+<div class="top noPrint"><div style="display:flex;align-items:center;gap:10px"><button class="menuBtn" onclick="toggleSide()"><span></span><span></span><span></span></button><h2>SHIJA Dialysis</h2><span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div><div style="display:flex;gap:8px"><button class="btnBlue" onclick="saveToSameStorage()" style="background:#10b981">Save</button><button class="btnBlue" onclick="saveToSameStorage(); setTimeout(()=>window.print(),500)">Save & Print</button><button class="btnBlue" onclick="window.print()">Print</button></div></div>
 <div class="sideOverlay" id="overlay" onclick="toggleSide()"></div>
 <div class="side noPrint" id="side"><div class="menu"><a href="index.html">Home</a><a href="total.html">Total Patient</a><a href="daily.html">Daily Dialysis</a><a href="discharge.html">Discharge Patient</a><a href="add.html">Add Patient</a><a href="bill.html" class="active">Bill</a></div><div class="settingBtn"><button onclick="openSettings()">Alignment Settings</button></div></div>
 <div class="content">
