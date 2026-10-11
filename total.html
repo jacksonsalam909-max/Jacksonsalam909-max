@@ -13,9 +13,8 @@ body{background:linear-gradient(135deg,#081a26,#0c2a3a,#123d4f,#144e62);min-heig
 .logo{font-weight:900;font-size:20px;color:#fff}
 .side{position:fixed;left:0;top:64px;bottom:0;width:240px;background:linear-gradient(180deg,#061a28,#0a2c3e);border-right:1px solid #184a5e;padding:20px 12px;display:flex;flex-direction:column;gap:6px;transform:translateX(0);transition:.35s;z-index:25;overflow-y:auto}
 .side.closed{transform:translateX(-100%)}
-.side a{padding:13px 14px;border-radius:12px;text-decoration:none;color:#8ab4c8;font-weight:600;font-size:14px;transition:.2s}
+.side a{padding:13px 14px;border-radius:12px;text-decoration:none;color:#8ab4c8;font-weight:600;font-size:14px}
 .side a.active{background:#0e3a4e;color:#22d3ee;border-left:3px solid #22d3ee}
-.side a:hover{background:#10364a;color:#cde9f5}
 .content{flex:1;margin-left:240px;padding:16px;transition:.35s}
 .content.full{margin-left:0}
 .overlay{position:fixed;inset:0;top:64px;background:#0006;z-index:20;display:none}
@@ -23,9 +22,26 @@ body{background:linear-gradient(135deg,#081a26,#0c2a3a,#123d4f,#144e62);min-heig
 .box{background:linear-gradient(135deg,#0f2f42cc,#123f55cc);border:1px solid #1e5a73;border-radius:16px;padding:16px}
 .statCard{background:linear-gradient(135deg,#0d3a4e,#15546b);border:1px solid #1e6a84;border-radius:14px;padding:14px 18px;display:flex;gap:14px;align-items:center;min-width:260px}
 .tp{width:48px;height:48px;border-radius:12px;background:#0ea5e9;display:grid;place-items:center;font-weight:900;color:#fff}
+.searchRow{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+.searchRow input{flex:1;min-width:200px;padding:10px 14px;border-radius:10px;background:#0a2536;border:1px solid #1e5a73;color:#fff;outline:0}
+.sel{background:#0a2536;border:1px solid #1e5a73;color:#fff;padding:10px 12px;border-radius:10px;font-weight:700}
 table{width:100%;border-collapse:collapse;min-width:650px}
 th{padding:10px 8px;font-size:11px;color:#7dd3fc;border-bottom:1px solid #1e5a73;text-align:left;text-transform:uppercase;white-space:nowrap}
 td{padding:11px 8px;font-size:12px;border-bottom:1px solid #153a4a;color:#cfe8f3;white-space:nowrap}
+tr.dataRow{cursor:pointer;transition:.15s}
+tr.dataRow:hover{background:#123f55}
+tr.dataRow.selected{background:#0e3a4e;outline:1px solid #22d3ee}
+.pager{display:flex;gap:6px;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap}
+.pgBtns{display:flex;gap:6px;flex-wrap:wrap}
+.pg{padding:6px 12px;border-radius:8px;border:1px solid #1e5a73;background:#0a2536;color:#8ab4c8;cursor:pointer;font-weight:700;font-size:12px}
+.pg.active{background:#22d3ee;color:#082f3f;border-color:#22d3ee}
+.pg:disabled{opacity:.4;cursor:not-allowed}
+.detailBox{margin-top:16px;background:linear-gradient(135deg,#0d2f42,#123e55);border:1px solid #22d3ee80;border-radius:14px;padding:16px;display:none;box-shadow:0 0 25px #22d3ee30}
+.detailBox.show{display:block}
+.detailGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:10px}
+.dItem{background:#0a2536;border:1px solid #1e5a73;border-radius:10px;padding:10px 12px}
+.dItem b{color:#7dd3fc;font-size:11px;display:block;text-transform:uppercase}
+.dItem span{color:#fff;font-size:13px;font-weight:700}
 @media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0}}
 </style>
 </head>
@@ -35,7 +51,6 @@ td{padding:11px 8px;font-size:12px;border-bottom:1px solid #153a4a;color:#cfe8f3
 <div style="color:#fff;font-weight:700;font-size:13px">Admin</div>
 </div>
 
-<!-- SIDEBAR - ALL SLIDE TOGETHER -->
 <div class="side" id="side">
 <a href="index.html">Home</a>
 <a href="total.html" class="active">Total Patient</a>
@@ -50,19 +65,121 @@ td{padding:11px 8px;font-size:12px;border-bottom:1px solid #153a4a;color:#cfe8f3
 <div class="content" id="content">
 <div class="box">
 <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:center">
-<div><h1 style="color:#fff;font-size:26px;font-weight:900">Total Patients</h1><p style="color:#8ab4c8;font-size:12px">Manage and view all registered patients</p></div>
-<div class="statCard"><div class="tp">TP</div><div><div style="font-size:13px;font-weight:700;color:#fff">Total Patients</div><h2 id="countTop" style="font-size:34px;color:#fff;font-weight:900">510</h2><p style="font-size:12px;color:#7dd3fc">All time<br>Total registered</p></div></div>
+<div><h1 style="color:#fff;font-size:26px;font-weight:900">Total Patients</h1><p style="color:#8ab4c8;font-size:12px">Click on patient row to view details</p></div>
+<div class="statCard"><div class="tp">TP</div><div><div style="font-size:13px;font-weight:700;color:#fff">Total Patients</div><h2 id="countTop" style="font-size:34px;color:#fff;font-weight:900">0</h2><p style="font-size:12px;color:#7dd3fc">All time<br>Total registered</p></div></div>
 </div>
-<input id="search" placeholder="Search by name, SHRI ID, contact..." oninput="render()" style="width:100%;margin:14px 0;padding:10px;border-radius:8px;background:#0a2536;border:1px solid #1e5a73;color:#fff">
+
+<div class="searchRow">
+<input id="search" placeholder="Search patient name, SHRI ID, contact..." oninput="onSearch()">
+<select id="pageSize" class="sel" onchange="changeSize()">
+<option value="10" selected>Show: 10</option>
+<option value="20">Show: 20</option>
+<option value="30">Show: 30</option>
+<option value="40">Show: 40</option>
+<option value="50">Show: 50</option>
+<option value="9999">Show: All</option>
+</select>
+</div>
+
 <div style="overflow-x:auto"><table id="tbl"></table></div>
+
+<div class="pager">
+<div id="info" style="color:#8ab4c8;font-size:11px"></div>
+<div class="pgBtns" id="pager"></div>
+</div>
+
+<!-- SELECTED PATIENT DETAIL -->
+<div class="detailBox" id="detailBox">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<h3 style="color:#fff">Selected Patient</h3>
+<button onclick="closeDetail()" style="background:#0a2536;border:1px solid #1e5a73;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer">X Close</button>
+</div>
+<div class="detailGrid" id="detailGrid"></div>
+</div>
+
 </div>
 </div>
 
 <script>
 function toggleSide(){let s=document.getElementById('side'),c=document.getElementById('content'),o=document.getElementById('overlay');if(innerWidth<=900){s.classList.toggle('open');o.classList.toggle('show')}else{s.classList.toggle('closed');c.classList.toggle('full')}}
-let patients=(typeof patientData!=='undefined'?patientData:[]).map((p,i)=>({name:p.patientName||`Patient ${i+1}`,shri:p.shriId||`SHRI-${10245+i}`,contact:p.contactNo||'9876543210',pmjay:p.pmjayId||'PMJAY-123',addr:p.address||'Imphal'}));
-function render(){let q=(document.getElementById('search').value||'').toLowerCase();let f=patients.filter(p=>[p.name,p.shri].join(' ').toLowerCase().includes(q));document.getElementById('countTop').textContent=f.length||510;let h='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY</th><th>Address</th></tr>';f.forEach((p,i)=>{h+=`<tr><td>${String(i+1).padStart(2,'0')}</td><td style="color:#fff;font-weight:700">${p.name.toUpperCase()}</td><td style="color:#7dd3fc">${p.shri}</td><td>${p.contact}</td><td>${p.pmjay}</td><td>${p.addr}</td></tr>`});document.getElementById('tbl').innerHTML=h}
-render();
+
+let allPatients=(typeof patientData!=='undefined'?patientData:[]).map((p,i)=>({
+name:p.patientName||p.name||`Patient ${i+1}`,
+shri:p.shriId||p.shri||`SHRI-${10245+i}`,
+contact:p.contactNo||p.contact||`+91 98765 ${43210+i}`,
+pmjay:p.pmjayId||p.pmjay||`PMJAY-${78901123+i}`,
+addr:p.address||'Imphal, Manipur',
+age:p.age||'45',
+gender:p.gender||'Male',
+blood:p.bloodGroup||'O+'
+}));
+
+let filtered=[], curPage=1, pageSize=10, selectedIndex=-1;
+
+function onSearch(){curPage=1; applyFilter();}
+function changeSize(){pageSize=parseInt(document.getElementById('pageSize').value); curPage=1; renderTable();}
+
+function applyFilter(){
+ let q=(document.getElementById('search').value||'').toLowerCase();
+ filtered=allPatients.filter(p=>[p.name,p.shri,p.contact,p.pmjay,p.addr].join(' ').toLowerCase().includes(q));
+ document.getElementById('countTop').textContent=filtered.length;
+ renderTable();
+}
+
+function renderTable(){
+ let totalPages=pageSize>=9999?1:Math.ceil(filtered.length/pageSize)||1;
+ if(curPage>totalPages) curPage=totalPages;
+ let start=(curPage-1)*pageSize;
+ let end=pageSize>=9999?filtered.length:start+pageSize;
+ let data=filtered.slice(start,end);
+
+ let html='<tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr>';
+ data.forEach((p,i)=>{
+  let realIdx=filtered.indexOf(p);
+  let sl=String(start+i+1).padStart(2,'0');
+  let sel=realIdx===selectedIndex?'selected':'';
+  html+=`<tr class="dataRow ${sel}" onclick="selectPatient(${realIdx},${start+i})"><td>${sl}</td><td style="color:#fff;font-weight:700">${p.name.toUpperCase()}</td><td style="color:#7dd3fc;font-weight:700">${p.shri}</td><td>${p.contact}</td><td>${p.pmjay}</td><td>${p.addr}</td></tr>`;
+ });
+ if(data.length===0) html+='<tr><td colspan="6" style="text-align:center;padding:20px;color:#6a9ab0">No patients found</td></tr>';
+ document.getElementById('tbl').innerHTML=html;
+
+ document.getElementById('info').textContent=`Showing ${filtered.length?start+1:0} to ${Math.min(end,filtered.length)} of ${filtered.length} entries`;
+
+ let pgHtml='';
+ pgHtml+=`<button class="pg" ${curPage<=1?'disabled':''} onclick="goPage(${curPage-1})">Prev</button>`;
+ for(let i=1;i<=Math.min(totalPages,7);i++){
+  pgHtml+=`<button class="pg ${i===curPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+ }
+ if(totalPages>7) pgHtml+=`<span style="color:#6a9ab0">... ${totalPages}</span>`;
+ pgHtml+=`<button class="pg" ${curPage>=totalPages?'disabled':''} onclick="goPage(${curPage+1})">Next</button>`;
+ document.getElementById('pager').innerHTML=pgHtml;
+}
+
+function goPage(n){curPage=n; renderTable();}
+
+function selectPatient(realIdx, slIdx){
+ selectedIndex=realIdx;
+ let p=filtered[realIdx];
+ let box=document.getElementById('detailBox');
+ let grid=document.getElementById('detailGrid');
+ grid.innerHTML=`
+ <div class="dItem"><b>SL No</b><span>${String(slIdx+1).padStart(2,'0')}</span></div>
+ <div class="dItem"><b>Patient Name</b><span>${p.name}</span></div>
+ <div class="dItem"><b>SHRI ID</b><span>${p.shri}</span></div>
+ <div class="dItem"><b>Contact</b><span>${p.contact}</span></div>
+ <div class="dItem"><b>PMJAY ID</b><span>${p.pmjay}</span></div>
+ <div class="dItem"><b>Address</b><span>${p.addr}</span></div>
+ <div class="dItem"><b>Age / Gender</b><span>${p.age} / ${p.gender}</span></div>
+ <div class="dItem"><b>Blood Group</b><span>${p.blood}</span></div>
+ `;
+ box.classList.add('show');
+ box.scrollIntoView({behavior:'smooth'});
+ renderTable(); // to highlight selected row
+}
+
+function closeDetail(){document.getElementById('detailBox').classList.remove('show'); selectedIndex=-1; renderTable();}
+
+applyFilter();
 </script>
 </body>
 </html>
