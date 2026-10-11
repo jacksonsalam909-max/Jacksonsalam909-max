@@ -11,22 +11,26 @@ body{background:#f6f7fb;color:#1a2332;display:flex;flex-direction:column;min-hei
 .top{height:68px;background:#0b1b32;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #132845;position:sticky;top:0;z-index:40}
 .logoText{line-height:1}
 .shija{font-size:28px;font-weight:900;color:#ffffff!important}
-.dialysis{font-size:15px;font-weight:600;color:#ffffff!important;opacity:1;margin-top:1px;letter-spacing:0.5px}
-.ham{width:38px;height:38px;border-radius:10px;background:#132845;border:1px solid #1e3a5f;color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center}
+.dialysis{font-size:15px;font-weight:600;color:#ffffff!important}
+.hamSide{width:46px;height:36px;border-radius:10px;background:#1868db;border:0;color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center}
 .admin{display:flex;align-items:center;gap:10px;color:#fff}
 .ad{width:44px;height:44px;border-radius:50%;background:#1868db;color:#fff;display:grid;place-items:center;font-weight:800}
-.side{position:fixed;left:0;top:68px;bottom:0;width:240px;background:#0b1b32;padding:18px 10px;display:flex;flex-direction:column;gap:6px;transition:.35s;z-index:30}
+
+/* DARK NAVY SIDE BAR - SAME AS BEFORE */
+.side{position:fixed;left:0;top:68px;bottom:0;width:260px;background:#0b1b32;padding:18px 10px;display:flex;flex-direction:column;gap:6px;transition:.35s;z-index:60;transform:translateX(0)}
 .side.closed{transform:translateX(-100%)}
-.side a{padding:13px 14px;border-radius:10px;text-decoration:none;color:#8ea0bf;font-weight:600;font-size:14px}
+.side a{padding:13px 14px;border-radius:10px;text-decoration:none;color:#8ea0bf;font-weight:600;font-size:14px;display:flex;align-items:center}
 .side a.active{background:#132845;color:#fff;border-left:3px solid #1868db}
-.content{flex:1;margin-left:240px;padding:22px;transition:.35s}
-.content.full{margin-left:0}
-.overlay{position:fixed;inset:0;top:68px;background:#0003;z-index:20;display:none}
+.side a:hover{background:#132845;color:#fff}
+.overlay{position:fixed;inset:0;top:68px;background:#0005;z-index:55;display:none}
 .overlay.show{display:block}
+.main{display:flex;flex:1}
+.leftMenuArea{width:64px;min-width:64px;padding:16px 10px;display:flex;flex-direction:column;align-items:center}
+.content{flex:1;padding:22px;transition:.35s}
+.content.full{margin-left:0}
 .hrow{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px}
 .hrow h1{font-size:36px;font-weight:900;color:#1e293b}
 .hrow p{color:#64748b;font-size:15px;margin-top:4px}
-.export{padding:8px 16px;border-radius:8px;border:1.5px solid #1868db;color:#1868db;background:#fff;font-weight:700;cursor:pointer}
 .filterRow{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .searchBox{flex:1;min-width:260px}
 .searchBox input{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;background:#fff;color:#1e293b;outline:0;font-size:14px}
@@ -63,24 +67,29 @@ tr.dataRow.selected{background:#eef4ff}
 <body>
 <div class="top">
 <div style="display:flex;gap:12px;align-items:center">
-<button class="ham" onclick="toggleSide()">☰</button>
 <div class="logoText"><div class="shija">SHIJA</div><div class="dialysis">Dialysis</div></div>
 </div>
 <div class="admin"><div style="text-align:right"><div style="font-weight:800;font-size:15px;color:#fff">Admin</div><div style="font-size:12px;color:#8ea0bf">AD</div></div><div class="ad">AD</div></div>
 </div>
 
+<!-- DARK NAVY SIDE BAR -->
 <div class="side" id="side">
 <a href="index.html">Home</a>
 <a href="total.html" class="active">Total Patient</a>
-<a href="add.html">Add Patient</a>
-<a href="kft.html">KFT Report</a>
+<a href="daily.html">Daily Dialysis</a>
 <a href="discharge.html">Discharge Patient</a>
-<a href="daily-dialysis.html">Daily Dialysis</a>
+<a href="kft.html">KFT Report</a>
+<a href="add.html">Add Patient</a>
+<a href="bill.html">Bill</a>
 </div>
 <div class="overlay" id="overlay" onclick="toggleSide()"></div>
 
+<div class="main">
+<!-- MENU BUTTON WHERE YOU SHOWED ARROW -->
+<div class="leftMenuArea"><button class="hamSide" onclick="toggleSide()">☰</button></div>
+
 <div class="content" id="content">
-<div class="hrow"><div><h1>Total Patients</h1><p>Manage all patients</p></div><div style="display:flex;gap:10px;align-items:center"><span id="info" style="color:#64748b;font-size:13px"></span><button class="export">Export</button></div></div>
+<div class="hrow"><div><h1>Total Patients</h1><p>Manage all patients</p></div><div style="display:flex;gap:10px;align-items:center"><span id="info" style="color:#64748b;font-size:13px"></span></div></div>
 
 <div class="filterRow">
 <div class="searchBox"><input id="search" placeholder="Search by name, SHRI ID, contact, address" oninput="onSearch()"></div>
@@ -96,18 +105,30 @@ tr.dataRow.selected{background:#eef4ff}
 </div>
 
 </div>
+</div>
 
 <div class="modal" id="editModal">
 <div class="modalBox"><h3 style="color:#0f172a;margin-bottom:8px">Edit Patient</h3><input id="eName" placeholder="Patient Name"><input id="eShri" placeholder="SHRI ID"><input id="eContact" placeholder="Contact"><input id="ePmjay" placeholder="PMJAY ID"><input id="eAddr" placeholder="Address"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" onclick="saveEdit()">Save</button></div></div>
 </div>
 
 <script>
-function toggleSide(){let s=document.getElementById('side'),c=document.getElementById('content'),o=document.getElementById('overlay');if(innerWidth<=900){s.classList.toggle('open');o.classList.toggle('show')}else{s.classList.toggle('closed');c.classList.toggle('full')}}
+function toggleSide(){
+ let s=document.getElementById('side');
+ let o=document.getElementById('overlay');
+ s.classList.toggle('closed');
+ if(window.innerWidth<=900){
+   s.classList.toggle('open');
+   o.classList.toggle('show');
+ }
+}
+
 let allPatients=(typeof patientData!=='undefined'?patientData:[]).map((p,i)=>({name:p.patientName||p.name||['Ramesh Sharma','Priya Agarwal','Arjun Kumar','Sunita Kulkarni','Vikram Mehta','Neha Lal'][i%6],shri:p.shriId||`SHRI-${10042+i}`,contact:p.contactNo||`+91 98${765+i} 43210`,pmjay:p.pmjayId||`PMJAY-2210${9+i}`,addr:p.address||['Pune, Maharashtra','Nagpur, Maharashtra','Nashik, Maharashtra','Mumbai, Maharashtra','Aurangabad, Maharashtra','Kolhapur, Maharashtra'][i%6],age:p.age||[58,45,62,51,39,47][i%6],gender:p.gender||(i%2==0?'Male':'Female')}));
 let filtered=[],curPage=1,pageSize=10,editIndex=-1,selectedIndex=-1;
+
 function onSearch(){curPage=1;applyFilter();}
 function changeSize(){pageSize=parseInt(document.getElementById('pageSize').value);curPage=1;renderTable();}
 function applyFilter(){let q=(document.getElementById('search').value||'').toLowerCase();filtered=allPatients.filter(p=>[p.name,p.shri,p.contact,p.addr].join(' ').toLowerCase().includes(q));renderTable();}
+
 function renderTable(){
  let totalPages=pageSize>=9999?1:Math.ceil(filtered.length/pageSize)||1; if(curPage>totalPages) curPage=totalPages;
  let start=(curPage-1)*pageSize; let end=pageSize>=9999?filtered.length:start+pageSize; let data=filtered.slice(start,end);
@@ -142,6 +163,11 @@ function openEdit(idx){editIndex=idx; let p=filtered[idx]; document.getElementBy
 function closeEdit(){document.getElementById('editModal').classList.remove('show');}
 function saveEdit(){let p=filtered[editIndex]; p.name=document.getElementById('eName').value; p.shri=document.getElementById('eShri').value; p.contact=document.getElementById('eContact').value; p.pmjay=document.getElementById('ePmjay').value; p.addr=document.getElementById('eAddr').value; closeEdit(); renderTable(); if(selectedIndex===editIndex) selectPatient(editIndex, editIndex+1);}
 applyFilter();
+
+// AUTO SEARCH FROM DASHBOARD
+let urlParams=new URLSearchParams(location.search);
+let s=urlParams.get('search')||localStorage.getItem('shija_search')||'';
+if(s){document.getElementById('search').value=s; applyFilter(); if(filtered.length>0) selectPatient(0,1);}
 </script>
 </body>
 </html>
