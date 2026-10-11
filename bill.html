@@ -6,64 +6,59 @@
 <title>Bill - SHIJA</title>
 <script src="Patient.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',Segoe UI,system-ui}
-body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh;color:#0f172a}
-.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:100}
-.top h2{color:#fff;font-size:16px;font-weight:800}
-.menuBtn{width:40px;height:40px;border-radius:10px;border:1.5px solid #1e2d55;background:#13264d;color:#fff;font-size:22px;display:grid;place-items:center;cursor:pointer}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,Segoe UI,system-ui}
+body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
+.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:110}
+.top h2{color:#fff;font-size:17px;font-weight:800}
+.menuBtn{width:42px;height:42px;border-radius:10px;border:1.5px solid #1e2d55;background:#13264d;color:#fff;font-size:24px;display:grid;place-items:center;cursor:pointer}
+.menuBtn:active{transform:scale(0.95)}
+
+/* 3-COLLAPSE MENU - EXACT LIKE YOUR PHOTO */
 .mainWrap{display:flex;flex:1;min-height:calc(100vh - 64px)}
-.side{width:250px;min-width:250px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:18px 12px;position:fixed;left:0;top:64px;height:calc(100vh - 64px);transition:transform.32s ease;z-index:90;transform:translateX(0)}
-.side.closed{transform:translateX(-100%)}
-.menu a{padding:13px 14px;border-radius:12px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px}
-.menu a.active{background:#1a56db;color:#fff;font-weight:700}
-.sideBottom{border-top:1px solid #1a2a4f;padding:14px 10px;color:#6b7aa2;font-size:11px}
-.sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,.45);z-index:80;display:none}
+.side{width:280px;background:#0a1931;position:fixed;left:0;top:64px;height:calc(100vh - 64px);z-index:100;transition:transform.33s cubic-bezier(.4,0,.2,1);padding:18px 14px;display:flex;flex-direction:column;justify-content:space-between;transform:translateX(-100%)}
+.side.open{transform:translateX(0)}
+/* MENU ITEMS - HORIZONTAL WRAP LIKE YOUR SCREENSHOT */
+.menu{display:flex;flex-wrap:wrap;gap:10px 18px;align-content:flex-start}
+.menu a{color:#8ea0c0;text-decoration:none;font-size:14px;font-weight:600;padding:6px 12px;border-radius:20px;transition:.2s}
+.menu a:hover{color:#fff;background:#13264d}
+.menu a.active{background:#4338ca;color:#fff;font-weight:800;box-shadow:0 4px 12px #4338ca66}
+.sideBottom{color:#6b7aa2;font-size:11px;margin-top:20px}
+.sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,.5);z-index:90;display:none}
 .sideOverlay.show{display:block}
-.content{flex:1;padding:20px 18px;max-width:1300px;width:100%;margin-left:250px;transition:margin.32s ease}
-.content.full{margin-left:0;max-width:100%}
-.card{background:#fff;border-radius:20px;box-shadow:0 10px 30px #00000008;border:1px solid #e5e7eb;padding:18px;margin-bottom:18px}
-.card input{padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:12px;outline:0;font-weight:600;font-size:13px;background:#f8fafc;width:100%}
-.card input:focus{border-color:#1a56db;background:#fff}
+
+.content{flex:1;padding:20px 18px;max-width:1300px;width:100%;margin-left:0;transition:.32s}
+.content.shift{margin-left:280px}
+
+.card{background:#fff;border-radius:20px;border:1px solid #e5e7eb;padding:18px;margin-bottom:18px}
+.card input{padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:12px;font-weight:600;font-size:13px;background:#f8fafc;width:100%}
 .label{font-size:10px;font-weight:800;text-transform:uppercase;color:#475569;margin-bottom:5px;display:block}
 .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
 .col{flex:1;min-width:160px}
 .searchWrap{position:relative;flex:1;min-width:320px}
-.suggest{position:absolute;top:105%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:14px;max-height:280px;overflow:auto;z-index:60;display:none;box-shadow:0 16px 32px #00000014}
-.suggest div{padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:13px}
+.suggest{position:absolute;top:105%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:14px;max-height:280px;overflow:auto;z-index:60;display:none;box-shadow:0 16px 32px #0002}
+.suggest div{padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer}
 .suggest div:hover{background:#eff6ff}
-.btn{padding:10px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
+.btn{padding:10px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer}
 .btnBlue{background:#1a56db;color:#fff}
-.pillAuto{font-size:9px;background:#dbeafe;color:#1e40af;padding:2px 6px;border-radius:10px;font-weight:800;margin-left:6px}
-.pillManual{font-size:9px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:10px;font-weight:800;margin-left:6px}
 
-/* BILL - EXACT LIKE YOUR 2ND PHOTO - NO BORDER, ONLY LINES */
-.billPaper{background:#fff;width:100%;max-width:860px;margin:0 auto;padding:0 24px 44px;color:#000;font-family:Arial,Helvetica,sans-serif;position:relative}
-.letterhead{width:100%;margin:0 -24px;width:calc(100% + 48px)}
-.letterhead img{width:100%;height:auto;display:block}
-.billTopLine{font-size:9px;color:#333;display:flex;justify-content:space-between;margin:8px 0 12px;font-family:monospace}
-.infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:2px 28px;font-size:11.8px;margin-bottom:20px}
-.infoGrid.item{display:flex;gap:8px;padding:3px 0}
-.infoGrid.lbl{font-weight:700;min-width:132px;white-space:nowrap}
-
-/* THIS TABLE IS EXACT LIKE YOUR SCREENSHOT */
-.billTable{width:100%;border-collapse:collapse;margin-top:8px;font-size:11.5px;color:#000}
-.billTable th{font-size:11px;font-weight:700;padding:8px 6px 8px 0;text-align:left;border:none;border-bottom:1.2px solid #000;white-space:nowrap;background:#fff}
-.billTable th:last-child{text-align:right}
-.billTable td{padding:10px 6px 10px 0;border:none;vertical-align:top;background:#fff}
-.billTable td:last-child{text-align:right}
-/* NEPHROLOGY LINE */
-.billTable.secRow td{font-weight:800;padding:10px 6px 8px 0;border:none;border-bottom:1px solid #000;text-transform:uppercase;font-size:11px}
-/* Sub Total - single line top */
-.billTable.subRow td{border-top:1.2px solid #000;font-weight:700;padding:10px 6px 10px 0}
-.billTable.subRow td:last-child{font-weight:700}
-/* Grand Total - double line look with 2px */
-.billTable.grandRow td{border-top:2px solid #000;font-weight:800;padding:10px 6px 10px 0}
-.billTable.grossRow td{border-top:2px solid #000;font-weight:900;padding:12px 6px 6px 0;font-size:12px;text-align:right}
-.billTable.grossRow td:first-child{text-align:right}
-
-.footerSmall{position:absolute;bottom:10px;left:24px;right:24px;display:flex;justify-content:space-between;font-size:7px;color:#666;font-family:monospace}
-@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}}
-@media print{.noPrint{display:none!important}.content{margin:0!important;padding:0!important;max-width:100%!important}.billPaper{box-shadow:none;max-width:100%;padding:0 12px 24px}@page{margin:6mm 10mm}}
+/* BILL EXACT - NO BOX BORDER */
+.billPaper{background:#fff;max-width:860px;margin:0 auto;padding:0 24px 44px;color:#000;font-family:Arial,Helvetica,sans-serif;position:relative}
+.letterhead{width:calc(100% + 48px);margin:0 -24px}
+.letterhead img{width:100%;display:block}
+.billTopLine{font-size:9px;display:flex;justify-content:space-between;margin:8px 0 14px;font-family:monospace}
+.infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:3px 28px;font-size:12px;margin-bottom:22px}
+.t{width:100%;border-collapse:collapse;font-size:12px}
+.t th{font-weight:700;text-align:left;padding:0 8px 8px 0;border-bottom:1px solid #000;white-space:nowrap}
+.t th:nth-child(n+6){text-align:right}
+.t td{padding:10px 8px 10px 0;border:none}
+.t td:nth-child(n+6){text-align:right}
+.t.cat td{font-weight:800;border-bottom:1px solid #000;padding:10px 0 8px;text-transform:uppercase}
+.t.data td{padding:14px 8px 14px 0}
+.t.sub td{border-top:1.5px solid #000;border-bottom:1.5px solid #000;font-weight:700;padding:10px 8px 10px 0}
+.t.grand td{border-top:2px solid #000;border-bottom:2px solid #000;font-weight:800;padding:10px 8px}
+.t.gross td{font-weight:900;font-size:13px;padding:14px 8px 0 0;text-align:right;border:none}
+@media(max-width:900px){.content.shift{margin-left:0}.side{width:100%;max-width:320px}}
+@media print{.noPrint{display:none!important}.content{margin:0!important;padding:0!important}.billPaper{max-width:100%;padding:0 10px 20px}@page{margin:5mm}}
 </style>
 </head>
 <body>
@@ -71,122 +66,93 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh;colo
 
 <div class="top noPrint">
 <div style="display:flex;align-items:center;gap:12px"><button class="menuBtn" onclick="toggleSide()">☰</button><h2>SHIJA Dialysis Management</h2></div>
-<button class="btn btnBlue" onclick="window.print()">🖨️ Print Bill</button>
+<button class="btn btnBlue" onclick="window.print()">Print Bill</button>
 </div>
 
 <div class="sideOverlay" id="overlay" onclick="toggleSide()"></div>
 <div class="mainWrap">
 <div class="side noPrint" id="side">
-<div class="menu"><a href="index.html"> Home</a><a href="total.html"> Total Patient</a><a href="daily.html"> Daily Dialysis</a><a href="discharge.html"> Discharge</a><a href="kft.html"> KFT Report</a><a href="add.html"> Add Patient</a><a href="bill.html" class="active"> Bill</a></div>
+<div class="menu">
+<a href="index.html">Home</a>
+<a href="total.html">Total Patient</a>
+<a href="daily.html">Daily Dialysis</a>
+<a href="discharge.html">Discharge</a>
+<a href="kft.html">KFT Report</a>
+<a href="add.html">Add Patient</a>
+<a href="bill.html" class="active">Bill</a>
+</div>
 <div class="sideBottom"><b style="color:#cbd5e1">Professional Bill</b><br>v2.5 - Exact Design</div>
 </div>
 
 <div class="content" id="content">
 <div class="card noPrint">
-<div style="font-weight:900;margin-bottom:10px">Select Patient → Auto Fill</div>
-<div class="searchWrap"><input id="patientSearch" placeholder="🔍 Type Patient Name..." autocomplete="off" oninput="showPatientSuggest(this.value)" style="border:2px solid #1a56db;background:#fff;font-size:14px;padding:14px"><div id="suggest" class="suggest"></div></div>
-
-<div class="row">
-<div class="col"><span class="label">Patient Name <span class="pillAuto">auto</span></span><input id="pName" readonly></div>
-<div class="col"><span class="label">Mobile <span class="pillAuto">auto</span></span><input id="mobile"></div>
-<div class="col"><span class="label">UHID = SHRI.<span class="pillAuto">auto</span></span><input id="uhid" readonly></div>
+<div style="font-weight:900;margin-bottom:8px">Select Patient → Auto</div>
+<div class="searchWrap">
+<input id="patientSearch" placeholder="🔍 Type Patient Name..." oninput="showPatientSuggest(this.value)" style="border:2px solid #1a56db;padding:14px;background:#fff">
+<div id="suggest" class="suggest"></div>
 </div>
 <div class="row">
-<div class="col" style="flex:2"><span class="label">Address <span class="pillAuto">auto</span></span><input id="address"></div>
+<div class="col"><span class="label">Patient Name Auto</span><input id="pName" readonly></div>
+<div class="col"><span class="label">Mobile Auto</span><input id="mobile"></div>
+<div class="col"><span class="label">UHID Auto SHRI.</span><input id="uhid" readonly></div>
+</div>
+<div class="row">
+<div class="col"><span class="label">Address Auto</span><input id="address"></div>
 <div class="col"><span class="label">IPNo</span><input id="ipNo" value="177214"></div>
 <div class="col"><span class="label">Bill No</span><input id="billNo" value="SHIC182733"></div>
 </div>
-<div class="row" style="background:#f0f9ff;padding:14px;border-radius:14px;border:1.5px dashed #60a5fa">
-<div class="col"><span class="label">Bed No. <span class="pillManual">manual</span></span><input id="bedNo" value="D-2208 (Dialysis)"></div>
-<div class="col"><span class="label">Age / Sex <span class="pillManual">manual</span></span><input id="ageSex" value="70 Year(s) / Male"></div>
-<div class="col"><span class="label">Admission Date <span class="pillManual">manual</span></span><input type="date" id="admDateOnly" onchange="updateBillTime()"></div>
-<div class="col"><span class="label">Admission Time <span class="pillManual">manual</span></span><input type="time" id="admTimeOnly" onchange="updateBillTime()"></div>
+<div class="row">
+<div class="col"><span class="label">Bed No. Manual</span><input id="bedNo" value="D-2208 (Dialysis)"></div>
+<div class="col"><span class="label">Age/Sex Manual</span><input id="ageSex" value="70 Year(s) / Male"></div>
+<div class="col"><span class="label">Adm Date Manual</span><input type="date" id="admDateOnly" onchange="updateBillTime()"></div>
+<div class="col"><span class="label">Adm Time Manual</span><input type="time" id="admTimeOnly" onchange="updateBillTime()"></div>
 </div>
-<div class="row" style="background:#fffbeb;padding:14px;border-radius:14px;border:1.5px dashed #f59e0b">
-<div class="col"><span class="label">Bill Date (auto)</span><input id="billDateShow" readonly></div>
-<div class="col"><span class="label">Bill Time +30min (auto)</span><input id="billTimeShow" readonly></div>
-<div class="col"><span class="label">Discharge Date & Time</span><input type="datetime-local" id="disDateTime" oninput="renderBill()"></div>
-<div class="col"><span class="label">Amount ₹ Editable</span><input id="amt" value="2660.00" style="border:2px solid #10b981;font-weight:900" oninput="renderBill()"></div>
+<div class="row">
+<div class="col"><span class="label">Bill Date Auto</span><input id="billDateShow" readonly></div>
+<div class="col"><span class="label">Bill Time +30 Auto</span><input id="billTimeShow" readonly></div>
+<div class="col"><span class="label">Discharge</span><input type="datetime-local" id="disDateTime" oninput="renderBill()"></div>
+<div class="col"><span class="label">Amount Editable</span><input id="amt" value="2660.00" style="border:2px solid #10b981;font-weight:900" oninput="renderBill()"></div>
 </div>
 </div>
 
 <div class="billPaper">
-<div class="letterhead"><img src="letterhead.png" alt="Shija Letterhead"></div>
-<div class="billTopLine"><span id="topDate">9/9/26, 5:30 PM</span><span>Shija Bill Generator</span></div>
+<div class="letterhead"><img src="letterhead.png"></div>
+<div class="billTopLine"><span id="topDate"></span><span>Shija Bill Generator</span></div>
 
 <div class="infoGrid">
-<div class="item"><span class="lbl">IPNo</span><span class="val">: <span id="b_ip">177214</span></span></div>
-<div class="item"><span class="lbl">UHID</span><span class="val">: <span id="b_uhid">SHRI.153704</span></span></div>
-<div class="item"><span class="lbl">Patient Name</span><span class="val">: <span id="b_name">Mr. LAISHANGBAM ANGOUBAMBA SINGH</span></span></div>
-<div class="item"><span class="lbl">Admission Date & Time</span><span class="val">: <span id="b_adm">03/09/2026 11:17 am</span></span></div>
-<div class="item"><span class="lbl">Age/Sex</span><span class="val">: <span id="b_age">70 Year(s) / Male</span></span></div>
-<div class="item"><span class="lbl">Bill No.</span><span class="val">: <span id="b_billNo">SHIC182733</span></span></div>
-<div class="item"><span class="lbl">Bed no.</span><span class="val">: <span id="b_bed">D-2208 (Dialysis)</span></span></div>
-<div class="item"><span class="lbl">Bill Date</span><span class="val">: <span id="b_billDate">03/09/2026</span></span></div>
-<div class="item"><span class="lbl">Doctor Name</span><span class="val">: <span id="b_doc">Guliver Potsangbam</span></span></div>
-<div class="item"><span class="lbl">Discharge Date & Time</span><span class="val">: <span id="b_dis">03/09/2026 02:47 pm</span></span></div>
-<div class="item"><span class="lbl">PAN No./GSTIN</span><span class="val">: AF / 14AAICS6068B2ZG</span></div>
-<div class="item"><span class="lbl">Doctor Speciality</span><span class="val">: Nephrology</span></div>
-<div class="item"><span class="lbl">Mobile No</span><span class="val">: <span id="b_mob">7005208464</span></span></div>
-<div class="item"><span class="lbl">Patient Type</span><span class="val">: Credit</span></div>
-<div class="item"><span class="lbl">Patient Address</span><span class="val">: <span id="b_addr">MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur</span></span></div>
-<div class="item"><span class="lbl">Payer</span><span class="val">: PMJAY</span></div>
+<div><b>IPNo</b>: <span id="b_ip">177214</span></div><div><b>UHID</b>: <span id="b_uhid">SHRI.153704</span></div>
+<div><b>Patient Name</b>: <span id="b_name">Mr. LAISHANGBAM ANGOUBAMBA SINGH</span></div><div><b>Admission Date & Time</b>: <span id="b_adm">03/09/2026 11:17 am</span></div>
+<div><b>Age/Sex</b>: <span id="b_age">70 Year(s) / Male</span></div><div><b>Bill No.</b>: <span id="b_billNo">SHIC182733</span></div>
+<div><b>Bed no.</b>: <span id="b_bed">D-2208 (Dialysis)</span></div><div><b>Bill Date</b>: <span id="b_billDate">03/09/2026</span></div>
+<div><b>Doctor Name</b>: Guliver Potsangbam</div><div><b>Discharge Date & Time</b>: <span id="b_dis">11/10/2026 2:47 pm</span></div>
+<div><b>PAN No./GSTIN</b>: AF / 14AAICS6068B2ZG</div><div><b>Doctor Speciality</b>: Nephrology</div>
+<div><b>Mobile No</b>: <span id="b_mob">7005208464</span></div><div><b>Patient Type</b>: Credit</div>
+<div><b>Patient Address</b>: <span id="b_addr">MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur</span></div><div><b>Payer</b>: PMJAY</div>
 </div>
 
-<!-- EXACT TABLE LIKE YOUR 2ND IMAGE - NO BOX BORDER -->
-<table class="billTable">
-<thead>
-<tr>
-<th>SI<br>No.</th>
-<th>Item Name</th>
-<th>Batch<br>No./Expiry</th>
-<th>HSN/Code</th>
-<th>Date</th>
-<th>Qty</th>
-<th>Rate</th>
-<th>GST%</th>
-<th>Patient<br>Amt</th>
-<th>Company<br>Amt</th>
-<th>Amount<br>₹</th>
-</tr>
-</thead>
-<tbody>
-<tr class="secRow"><td colspan="11">NEPHROLOGY PROCEDURE</td></tr>
-<tr>
-<td>1</td>
-<td id="b_item">Haemodialysis Subsequent<br>Visit PMJAY</td>
-<td></td>
-<td></td>
-<td id="b_itemDate">3/9</td>
-<td>1.00</td>
-<td id="b_rate">2660.00</td>
-<td></td>
-<td>0.00</td>
-<td id="b_camt">2660.00</td>
-<td id="b_amt">2660.00</td>
-</tr>
-<tr class="subRow"><td></td><td colspan="6" style="text-align:right">Sub Total :</td><td>0.00</td><td>2660.00</td><td id="b_sub">2660.00</td></tr>
-<tr class="grandRow"><td></td><td colspan="6" style="text-align:right">Grand Total :</td><td>0.00</td><td>2660.00</td><td id="b_grand">2660.00</td></tr>
-<tr class="grossRow"><td colspan="9" style="text-align:right">Gross Bill Amount :</td><td colspan="2">₹ <span id="b_gross">2660.00</span></td></tr>
-</tbody>
+<table class="t">
+<tr><th>SI No.</th><th>Item Name</th><th>Batch No./Expiry</th><th>HSN/Code</th><th>Date</th><th>Qty</th><th>Rate</th><th>GST%</th><th>Patient Amt</th><th>Company Amt</th><th>Amount ₹</th></tr>
+<tr class="cat"><td colspan="11">NEPHROLOGY PROCEDURE</td></tr>
+<tr class="data"><td>1</td><td>Haemodialysis Subsequent<br>Visit PMJAY</td><td></td><td></td><td id="b_itemDate">11/10</td><td>1.00</td><td id="b_rate">2660.00</td><td></td><td>0.00</td><td>2660.00</td><td id="b_amt">2660.00</td></tr>
+<tr class="sub"><td></td><td colspan="6" style="text-align:right">Sub Total :</td><td>0.00</td><td>2660.00</td><td id="b_sub">2660.00</td></tr>
+<tr class="grand"><td></td><td colspan="6" style="text-align:right">Grand Total :</td><td>0.00</td><td>2660.00</td><td id="b_grand">2660.00</td></tr>
+<tr class="gross"><td colspan="9">Gross Bill Amount :</td><td colspan="2">₹ <span id="b_gross">2660.00</span></td></tr>
 </table>
-
-<div class="footerSmall"><span>103.72.216.194:9000/chis/bill_generator/generate</span><span>1/1</span></div>
 </div>
 </div>
 </div>
 
 <script>
-function toggleSide(){let s=document.getElementById('side'),c=document.getElementById('content'),o=document.getElementById('overlay');if(window.innerWidth<=900){s.classList.toggle('open');o.classList.toggle('show');}else{s.classList.toggle('closed');c.classList.toggle('full');}}
-let allPatients=[];function loadPatients(){let raw=(typeof patientData!=='undefined')?patientData:[];let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');let stored=JSON.parse(localStorage.getItem('patientData')||'[]');allPatients=[...raw,...extra,...stored];if(!allPatients.length)allPatients=[{patientName:'LAISHANGBAM ANGOUBAMBA SINGH',shriId:'153704',contactNo:'7005208464',address:'MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur'}];}
+function toggleSide(){
+ let s=document.getElementById('side'),c=document.getElementById('content'),o=document.getElementById('overlay');
+ s.classList.toggle('open');o.classList.toggle('show');
+ if(window.innerWidth>900){c.classList.toggle('shift');}
+}
+let allPatients=[];function loadPatients(){let raw=(typeof patientData!=='undefined')?patientData:[];let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');allPatients=[...raw,...extra];if(!allPatients.length)allPatients=[{patientName:'LAISHANGBAM ANGOUBAMBA SINGH',shriId:'153704',contactNo:'7005208464',address:'MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur'}];}
 loadPatients();
-function getName(p){return p.patientName||p.name||''}
-function getShri(p){return p.shriId||p.shri||''}
-function getContact(p){return p.contactNo||p.contact||''}
-function getAddr(p){return p.address||''}
-function showPatientSuggest(q){q=q.toLowerCase().trim();let box=document.getElementById('suggest');if(!q){box.style.display='none';return;}let f=allPatients.filter(p=>getName(p).toLowerCase().includes(q)||getShri(p).toLowerCase().includes(q)).slice(0,20);if(!f.length){box.style.display='none';return;}box.innerHTML=f.map(p=>`<div onclick="pickPatient(${allPatients.indexOf(p)})"><b>${getName(p)}</b> - ${getShri(p)}</div>`).join('');box.style.display='block';}
-function pickPatient(i){let p=allPatients[i];let shri=getShri(p).replace(/SHRI\.?/i,'').trim();document.getElementById('patientSearch').value=getName(p);document.getElementById('pName').value='Mr. '+getName(p).toUpperCase();document.getElementById('mobile').value=getContact(p);document.getElementById('address').value=getAddr(p).toUpperCase();document.getElementById('uhid').value='SHRI.'+shri;document.getElementById('suggest').style.display='none';renderBill();}
-function updateBillTime(){let d=document.getElementById('admDateOnly').value;let t=document.getElementById('admTimeOnly').value;if(!d||!t){renderBill();return;}document.getElementById('billDateShow').value=d.split('-').reverse().join('/');let [h,m]=t.split(':').map(Number);let dt=new Date();dt.setHours(h,m+30);document.getElementById('billTimeShow').value=String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');renderBill();}
+function showPatientSuggest(q){q=q.toLowerCase().trim();let box=document.getElementById('suggest');if(!q){box.style.display='none';return;}let f=allPatients.filter(p=>(p.patientName||'').toLowerCase().includes(q)).slice(0,20);box.innerHTML=f.map(p=>`<div onclick="pickPatient(${allPatients.indexOf(p)})"><b>${p.patientName}</b> - ${p.shriId}</div>`).join('');box.style.display=f.length?'block':'none';}
+function pickPatient(i){let p=allPatients[i];document.getElementById('pName').value='Mr. '+p.patientName.toUpperCase();document.getElementById('mobile').value=p.contactNo;document.getElementById('address').value=(p.address||'').toUpperCase();document.getElementById('uhid').value='SHRI.'+p.shriId.replace(/SHRI\.?/i,'');document.getElementById('suggest').style.display='none';renderBill();}
+function updateBillTime(){let d=document.getElementById('admDateOnly').value;let t=document.getElementById('admTimeOnly').value;if(!d||!t)return;document.getElementById('billDateShow').value=d.split('-').reverse().join('/');let [h,m]=t.split(':').map(Number);let dt=new Date();dt.setHours(h,m+30);document.getElementById('billTimeShow').value=String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');renderBill();}
 function formatDateTime(ds,ts){if(!ds)return '';let [y,m,d]=ds.split('-');let dp=d+'/'+m+'/'+y;if(!ts)return dp;let [h,mm]=ts.split(':').map(Number);let ap=h>=12?'pm':'am';let h12=h%12||12;return dp+' '+h12+':'+String(mm).padStart(2,'0')+' '+ap;}
 function renderBill(){
  document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;
@@ -199,13 +165,11 @@ function renderBill(){
  document.getElementById('b_billNo').innerText=document.getElementById('billNo').value;
  let admD=document.getElementById('admDateOnly').value;let admT=document.getElementById('admTimeOnly').value;
  if(admD){document.getElementById('b_adm').innerText=formatDateTime(admD,admT);document.getElementById('b_billDate').innerText=admD.split('-').reverse().join('/');document.getElementById('b_itemDate').innerText=admD.split('-')[2]+'/'+admD.split('-')[1];}
- let disDT=document.getElementById('disDateTime').value;
- if(disDT){let dt=new Date(disDT);let d=String(dt.getDate()).padStart(2,'0');let mo=String(dt.getMonth()+1).padStart(2,'0');let y=dt.getFullYear();let h=dt.getHours();let ap=h>=12?'pm':'am';let h12=h%12||12;let mi=String(dt.getMinutes()).padStart(2,'0');document.getElementById('b_dis').innerText=d+'/'+mo+'/'+y+' '+h12+':'+mi+' '+ap;}
+ let dis=document.getElementById('disDateTime').value;if(dis){let dt=new Date(dis);document.getElementById('b_dis').innerText=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+ (dt.getHours()%12||12)+':'+String(dt.getMinutes()).padStart(2,'0')+' '+(dt.getHours()>=12?'pm':'am');}
  let amt=parseFloat(document.getElementById('amt').value)||0;let s=amt.toFixed(2);
- document.getElementById('b_rate').innerText=s;document.getElementById('b_camt').innerText=s;document.getElementById('b_amt').innerText=s;document.getElementById('b_sub').innerText=s;document.getElementById('b_grand').innerText=s;document.getElementById('b_gross').innerText=s;
+ document.getElementById('b_rate').innerText=s;document.getElementById('b_amt').innerText=s;document.getElementById('b_sub').innerText=s;document.getElementById('b_grand').innerText=s;document.getElementById('b_gross').innerText=s;
  document.getElementById('topDate').innerText=new Date().toLocaleString();
 }
-document.addEventListener('click',e=>{if(!e.target.closest('.searchWrap'))document.getElementById('suggest').style.display='none';});
 let today=new Date().toISOString().split('T')[0];
 document.getElementById('admDateOnly').value=today;
 document.getElementById('admTimeOnly').value='11:17';
