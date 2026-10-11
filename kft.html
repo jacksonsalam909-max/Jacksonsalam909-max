@@ -1,84 +1,149 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KFT Report - SHIJA</title>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KFT Report - SHIJA</title>
 <script src="Patient.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial}
-body{background:#f1f5f9}
-.top{background:linear-gradient(90deg,#0f4c75,#1e7bb8);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
-.top a{color:#fff;text-decoration:none;background:#ffffff22;padding:6px 12px;border-radius:8px}
-.wrap{max-width:1150px;margin:14px auto;padding:0 12px}
-.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 4px 12px #0001;margin-bottom:12px;position:relative}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
+body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;color:#0f172a}
+.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:40}
+.top h2{color:#fff;font-size:16px;font-weight:800}
+.menuBtn{width:36px;height:36px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;color:#fff;font-size:20px;display:grid;place-items:center;cursor:pointer;line-height:1}
+.adBadge{display:flex;align-items:center;gap:8px;color:#fff}
+.adCircle{width:30px;height:30px;border-radius:50%;background:#1a2a4f;color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px;border:1.5px solid #2a3a6a}
+.mainWrap{display:flex;flex:1;min-height:calc(100vh - 64px)}
+.side{width:230px;min-width:230px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:16px 10px;position:sticky;top:64px;height:calc(100vh - 64px);transition:transform.3s ease}
+.menu{display:flex;flex-direction:column;gap:4px}
+.menu a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px}
+.menu a.active{background:#1a56db;color:#fff;font-weight:700}
+.menu a:hover{background:#13264d;color:#fff}
+.sideBottom{border-top:1px solid #1a2a4f;padding:12px 10px;color:#6b7aa2;font-size:11px}
+.sideOverlay{position:fixed;inset:0;background:#0005;z-index:55;display:none}
+.sideOverlay.show{display:block}
+.content{flex:1;padding:16px 14px;max-width:1200px;width:100%}
+.headRow{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.headRow h1{font-size:32px;font-weight:900;letter-spacing:-1px;color:#0f1a34}
+.bread{color:#6b7280;font-size:12px;margin-top:4px}
+.card{background:#fff;border-radius:16px;box-shadow:0 10px 30px #00000008;border:1px solid #e5e7eb;padding:14px;margin-bottom:14px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-select,input{padding:11px 14px;border:1px solid #cbd5e1;border-radius:10px;outline:0;font-weight:600}
-.btn{padding:11px 18px;border:0;border-radius:10px;font-weight:800;cursor:pointer}
+select,input{padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;outline:0;font-weight:600;font-size:13px;background:#fff}
+.btn{padding:10px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
 .btn-green{background:#10b981;color:#fff}
-.btn-orange{background:#f59e0b;color:#111}
-.dateBox{display:flex;gap:10px}
-.dateOpt{padding:12px 20px;border:2px solid #cbd5e1;border-radius:12px;background:#fff;font-weight:800;cursor:pointer}
-.dateOpt.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
-th,td{padding:9px;border:1px solid #e2e8f0;text-align:left}
-th{background:#0f4c75;color:#fff;position:sticky;top:0}
-tr:nth-child(even){background:#f8fafc}
-.toggle{width:115px;padding:8px;border-radius:20px;border:0;font-weight:800;cursor:pointer}
+.btn-orange{background:#0a1931;color:#fff}
+.dateBox{display:flex;gap:8px;margin-top:8px}
+.dateOpt{padding:10px 18px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;font-weight:700;cursor:pointer;font-size:13px}
+.dateOpt.active{background:#1a56db;color:#fff;border-color:#1a56db}
+.tableBox{border:1.5px solid #e5e7eb;border-radius:14px;overflow:auto;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:700px}
+th,td{padding:11px 10px;text-align:left}
+th{background:#f8fafc;color:#0f172a;font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+td{border-bottom:1px solid #f1f5f9}
+tr:hover{background:#f8fafc}
+.toggle{width:110px;padding:7px 10px;border-radius:20px;border:0;font-weight:800;cursor:pointer;font-size:11px;white-space:nowrap}
 .yes{background:#10b981;color:#fff}
 .no{background:#ef4444;color:#fff}
-.toggle:disabled{opacity:0.5}
-.searchWrap{position:relative;flex:1;min-width:260px}
-#suggestBox{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #cbd5e1;border-radius:10px;max-height:240px;overflow:auto;z-index:10;display:none;box-shadow:0 8px 20px #0002}
-.sItem{padding:10px 12px;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between}
-.sItem:hover{background:#f0f9ff}
-.pager{display:flex;gap:6px;align-items:center;justify-content:center;margin-top:12px;flex-wrap:wrap}
-.pgBtn{padding:6px 12px;border:1px solid #cbd5e1;background:#fff;border-radius:8px;cursor:pointer;font-weight:700}
-.pgBtn.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
-.status{font-size:12px;color:#16a34a;font-weight:700;margin-left:10px}
-</style></head><body>
+.toggle:disabled{opacity:.5}
+.searchWrap{position:relative;flex:1;min-width:240px}
+#suggestBox{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:12px;max-height:240px;overflow:auto;z-index:10;display:none;box-shadow:0 12px 24px #0002;margin-top:6px}
+.sItem{padding:10px 12px;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;font-size:12px}
+.sItem:hover{background:#eff6ff}
+.pager{display:flex;gap:6px;align-items:center;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.pgBtn{padding:7px 12px;border:1.5px solid #e5e7eb;background:#fff;border-radius:8px;cursor:pointer;font-weight:700;font-size:11px}
+.pgBtn.active{background:#1a56db;color:#fff;border-color:#1a56db}
+@media(max-width:900px){.side{position:fixed;left:0;top:64px;transform:translateX(-100%);z-index:60;height:calc(100vh - 64px)}.side.open{transform:translateX(0)}}
+</style>
+</head>
+<body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='index.html'}</script>
-<div class="top"><b>KFT Report - 1st & 15th (510 Patients) - FIREBASE</b><a href="index.html">Home</a></div>
-<div class="wrap">
+
+<div class="top">
+<div style="display:flex;align-items:center;gap:10px">
+<button class="menuBtn" onclick="toggleSide()">
+<div style="display:flex;flex-direction:column;gap:4px"><div style="width:18px;height:2px;background:#fff;border-radius:2px"></div><div style="width:18px;height:2px;background:#fff;border-radius:2px"></div><div style="width:18px;height:2px;background:#fff;border-radius:2px"></div></div>
+</button>
+<h2>SHIJA Dialysis Management</h2>
+</div>
+<div style="display:flex;align-items:center;gap:10px">
+<a href="index.html" style="color:#fff;text-decoration:none;background:#13264d;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid #1e2d55">Home</a>
+<div class="adBadge"><div class="adCircle">AD</div><span style="font-weight:700;font-size:13px">Admin</span></div>
+</div>
+</div>
+<div class="sideOverlay" id="overlay" onclick="toggleSide()"></div>
+
+<div class="mainWrap">
+<div class="side" id="side">
+<div class="menu">
+<a href="index.html">Home</a>
+<a href="total.html">Total Patient</a>
+<a href="daily.html">Daily Dialysis</a>
+<a href="discharge.html">Discharge Patient</a>
+<a href="kft.html" class="active">KFT Report</a>
+<a href="add.html">Add Patient</a>
+<a href="bill.html">Bill</a>
+</div>
+<div class="sideBottom">Help and Support<br>v2.4.1 | <span id="fbStatus">Connected</span></div>
+</div>
+
+<div class="content">
+<div class="headRow">
+<div><h1>KFT Report</h1><div class="bread">Dashboard / KFT Report - 1st and 15th - <span id="totalP">0</span> Patients</div></div>
+</div>
+
 <div class="card">
-<div class="row"><div>Year: <select id="yearSel"></select></div><div>Month: <select id="monthSel"><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select></div><span id="fbStatus" class="status">● Firebase Connected</span></div>
-<div style="margin-top:12px;font-weight:800;color:#0f4c75">Select Date:</div>
-<div class="dateBox" style="margin-top:6px"><div id="d1" class="dateOpt active" onclick="setDate('1')">📅 1st of Every Month</div><div id="d15" class="dateOpt" onclick="setDate('15')">📅 15th of Every Month</div></div>
+<div class="row">
+<div>Year: <select id="yearSel"></select></div>
+<div>Month: <select id="monthSel"><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select></div>
+</div>
+<div style="margin-top:12px;font-weight:800;font-size:12px;color:#0f172a">Select Reporting Date:</div>
+<div class="dateBox"><div id="d1" class="dateOpt active" onclick="setDate('1')">1st of Every Month</div><div id="d15" class="dateOpt" onclick="setDate('15')">15th of Every Month</div></div>
+
 <div class="row" style="margin-top:14px">
 <div class="searchWrap">
-<input id="search" placeholder="🔍 Search Patient Name or SHRI ID... (type to see hint)" oninput="onSearch(this.value)" autocomplete="off" style="width:100%">
+<input id="search" placeholder="Search Patient Name or SHRI ID..." oninput="onSearch(this.value)" autocomplete="off" style="width:100%">
 <div id="suggestBox"></div>
 </div>
-<button class="btn btn-green" id="saveBtn" onclick="saveLock()">💾 SAVE</button>
-<button class="btn btn-orange" id="editBtn" onclick="enableEdit()" style="display:none">✏️ EDIT</button>
-<select id="pageSize" onchange="changePageSize()"><option value="20" selected>20 per page</option><option value="50">50 per page</option><option value="100">100 per page</option><option value="510">All 510</option></select>
+<button class="btn btn-green" id="saveBtn" onclick="saveLock()">SAVE</button>
+<button class="btn btn-orange" id="editBtn" onclick="enableEdit()" style="display:none">EDIT</button>
+<select id="pageSize" onchange="changePageSize()">
+<option value="10" selected>10 per page</option>
+<option value="20">20 per page</option>
+<option value="30">30 per page</option>
+<option value="40">40 per page</option>
+<option value="50">50 per page</option>
+<option value="100000">All Patients</option>
+</select>
 </div>
 </div>
+
 <div class="card">
-<h3 id="titleH" style="text-align:center;color:#0f4c75">KFT Report</h3>
-<table><thead><tr><th>Sl No</th><th>Patient Name</th><th>SHRI ID</th><th>Contact</th><th id="statusHead">KFT Status</th></tr></thead><tbody id="tbl"></tbody></table>
+<h3 id="titleH" style="text-align:center;color:#0f172a;margin-bottom:10px;font-size:16px;font-weight:800">KFT Report</h3>
+<div class="tableBox"><table><thead><tr><th>Sl No</th><th>Patient Name</th><th>SHRI ID</th><th>Contact</th><th id="statusHead">KFT Status</th></tr></thead><tbody id="tbl"></tbody></table></div>
 <div class="pager" id="pager"></div>
-<div style="text-align:center;margin-top:6px;font-size:12px;color:#64748b" id="pageInfo"></div>
+<div style="text-align:center;margin-top:8px;font-size:11px;color:#64748b" id="pageInfo"></div>
+</div>
+
 </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const config = {
-  apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
-  authDomain: "discharge-b9528.firebaseapp.com",
-  projectId: "discharge-b9528",
-  storageBucket: "discharge-b9528.firebasestorage.app",
-  messagingSenderId: "1076050472607",
-  appId: "1:1076050472607:web:736e0688a41462460efcaa"
-};
+import { getFirestore, collection, serverTimestamp, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const config = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app = initializeApp(config);
 const db = getFirestore(app);
 window.db = db;
-window.fb = { collection, addDoc, serverTimestamp, setDoc, doc };
-document.getElementById('fbStatus').innerText = "● Firebase Connected - KFT";
+window.fb = { collection, serverTimestamp, setDoc, doc };
+document.getElementById('fbStatus').innerText = "Connected";
 </script>
 
 <script>
+function toggleSide(){document.getElementById('side').classList.toggle('open');document.getElementById('overlay').classList.toggle('show');}
 let raw=(typeof patientData!=='undefined')?patientData:[];let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');let patients=[...raw,...extra];if(!patients.length)patients=[{patientName:'Demo Patient',shriId:'1001',contactNo:'98765'}];
+document.getElementById('totalP').textContent=patients.length;
 let yearSel=document.getElementById('yearSel'),now=new Date();for(let y=now.getFullYear()-2;y<=now.getFullYear()+1;y++){let o=document.createElement('option');o.value=y;o.textContent=y;if(y===now.getFullYear())o.selected=true;yearSel.appendChild(o);}document.getElementById('monthSel').value=now.getMonth();
-let selDate='1',isLocked=false,curPage=1,pageSize=20,filteredAll=[];
+let selDate='1',isLocked=false,curPage=1,pageSize=10,filteredAll=[];
 function getKey(y,m,day){return `kft_lock_${y}_${m}_${day}`;}function getPKey(y,m,shri,day){return `kft_${y}_${m}_${shri}_${day}`;}function load(y,m,shri,day){return localStorage.getItem(getPKey(y,m,shri,day))==='1';}function setVal(y,m,shri,day,v){localStorage.setItem(getPKey(y,m,shri,day), v?'1':'0');}
 function setDate(d){selDate=d;document.getElementById('d1').classList.toggle('active',d==='1');document.getElementById('d15').classList.toggle('active',d==='15');checkLock();render();}
 function checkLock(){let y=yearSel.value,m=document.getElementById('monthSel').value;isLocked=localStorage.getItem(getKey(y,m,selDate))==='1';document.getElementById('saveBtn').style.display=isLocked?'none':'inline-block';document.getElementById('editBtn').style.display=isLocked?'inline-block':'none';}
@@ -88,7 +153,7 @@ function onSearch(val){let box=document.getElementById('suggestBox');if(!val.tri
 function selectPatient(shri,name){document.getElementById('search').value=name+' - '+shri;document.getElementById('suggestBox').style.display='none';curPage=1;render();}
 document.addEventListener('click',e=>{if(!e.target.closest('.searchWrap')) document.getElementById('suggestBox').style.display='none';});
 function changePageSize(){pageSize=parseInt(document.getElementById('pageSize').value);curPage=1;render();}
-function render(){let y=yearSel.value,m=document.getElementById('monthSel').value,months=["January","February","March","April","May","June","July","August","September","October","November","December"];let search=document.getElementById('search').value.toLowerCase().split(' - ')[0];document.getElementById('titleH').textContent=`KFT Report - ${months[m]} ${selDate}, ${y} - All 510 Patients`;document.getElementById('statusHead').textContent=`KFT Status - ${months[m]} ${selDate}, ${y}`;filteredAll=patients.filter(p=>!search.trim()||(p.patientName||'').toLowerCase().includes(search.trim())||(p.shriId||'').toLowerCase().includes(search.trim()));let totalPages=Math.ceil(filteredAll.length/pageSize)||1;if(curPage>totalPages)curPage=totalPages;let start=(curPage-1)*pageSize,end=start+pageSize;let pageData=filteredAll.slice(start,end);document.getElementById('tbl').innerHTML=pageData.map((p,i)=>{let s=p.shriId||p.patientName;let v=load(y,m,s,selDate);let sl=start+i+1;return `<tr><td>${sl}</td><td>${p.patientName}</td><td>${p.shriId||''}</td><td>${p.contactNo||''}</td><td><button class="toggle ${v?'yes':'no'}" ${isLocked?'disabled':''} onclick="toggle('${s.replace(/'/g,"\\'")}','${p.patientName.replace(/'/g,"\\'")}')">${v?'✅ Submit':'❌ Not Submit'}</button></td></tr>`;}).join('')||`<tr><td colspan="5" style="text-align:center">No patients</td></tr>`;let pager=document.getElementById('pager');let html=`<button class="pgBtn" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>Previous</button>`;let maxShow=5;let startP=Math.max(1,curPage-2),endP=Math.min(totalPages,startP+maxShow-1);for(let i=startP;i<=endP;i++)html+=`<button class="pgBtn ${i===curPage?'active':''}" onclick="goPage(${i})">${i}</button>`;if(endP<totalPages)html+=`<span>...</span><button class="pgBtn" onclick="goPage(${totalPages})">${totalPages}</button>`;html+=`<button class="pgBtn" onclick="goPage(${curPage+1})" ${curPage===totalPages?'disabled':''}>Next</button>`;pager.innerHTML=html;document.getElementById('pageInfo').textContent=`Page ${curPage} of ${totalPages} · ${filteredAll.length} of ${patients.length} Patients`;}
+function render(){let y=yearSel.value,m=document.getElementById('monthSel').value,months=["January","February","March","April","May","June","July","August","September","October","November","December"];let search=document.getElementById('search').value.toLowerCase().split(' - ')[0];document.getElementById('titleH').textContent=`KFT Report - ${months[m]} ${selDate}, ${y} - All ${patients.length} Patients`;document.getElementById('statusHead').textContent=`KFT Status - ${months[m]} ${selDate}, ${y}`;filteredAll=patients.filter(p=>!search.trim()||(p.patientName||'').toLowerCase().includes(search.trim())||(p.shriId||'').toLowerCase().includes(search.trim()));let totalPages=Math.ceil(filteredAll.length/pageSize)||1;if(curPage>totalPages)curPage=totalPages;let start=(curPage-1)*pageSize,end=start+pageSize;let pageData=filteredAll.slice(start,end);document.getElementById('tbl').innerHTML=pageData.map((p,i)=>{let s=p.shriId||p.patientName;let v=load(y,m,s,selDate);let sl=start+i+1;return `<tr><td>${sl}</td><td style="font-weight:700">${p.patientName}</td><td>${p.shriId||''}</td><td>${p.contactNo||''}</td><td><button class="toggle ${v?'yes':'no'}" ${isLocked?'disabled':''} onclick="toggle('${s.replace(/'/g,"\\'")}','${p.patientName.replace(/'/g,"\\'")}')">${v?'Submitted':'Not-yet'}</button></td></tr>`;}).join('')||`<tr><td colspan="5" style="text-align:center">No patients</td></tr>`;let pager=document.getElementById('pager');let html=`<button class="pgBtn" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>Previous</button>`;let maxShow=5;let startP=Math.max(1,curPage-2),endP=Math.min(totalPages,startP+maxShow-1);for(let i=startP;i<=endP;i++)html+=`<button class="pgBtn ${i===curPage?'active':''}" onclick="goPage(${i})">${i}</button>`;if(endP<totalPages)html+=`<span>...</span><button class="pgBtn" onclick="goPage(${totalPages})">${totalPages}</button>`;html+=`<button class="pgBtn" onclick="goPage(${curPage+1})" ${curPage===totalPages?'disabled':''}>Next</button>`;pager.innerHTML=html;document.getElementById('pageInfo').textContent=`Page ${curPage} of ${totalPages} - ${filteredAll.length} of ${patients.length} Patients - Showing ${pageData.length} on this page`;}
 function goPage(n){let totalPages=Math.ceil(filteredAll.length/pageSize)||1;if(n<1||n>totalPages)return;curPage=n;render();window.scrollTo(0,0);}
 async function toggle(shri, pname){
  if(isLocked){alert('Click EDIT first');return;}
@@ -97,24 +162,15 @@ async function toggle(shri, pname){
  let newVal=!cur;
  setVal(y,m,shri,selDate,newVal);
  render();
- // Firebase save
  try{
   const docId = `${y}_${m}_${selDate}_${shri}`.replace(/[^a-zA-Z0-9_]/g,'_');
   await fb.setDoc(fb.doc(db, "kft_reports", docId), {
-    year: y,
-    month: m,
-    day: selDate,
-    shriId: shri,
-    patientName: pname || shri,
-    status: newVal? "Submitted" : "Not Submitted",
-    statusBool: newVal,
-    createdAt: fb.serverTimestamp(),
-    localTime: new Date().toLocaleString()
+    year: y, month: m, day: selDate, shriId: shri, patientName: pname || shri,
+    status: newVal? "Submitted" : "Not-yet", statusBool: newVal,
+    createdAt: fb.serverTimestamp(), localTime: new Date().toLocaleString()
   });
-  document.getElementById('fbStatus').innerText = `● Saved ${shri} to Cloud ✅`;
- }catch(e){
-  document.getElementById('fbStatus').innerText = "● Error: "+e.message;
- }
+  document.getElementById('fbStatus').innerText = `Saved ${shri}`;
+ }catch(e){ document.getElementById('fbStatus').innerText = "Error"; }
 }
 yearSel.addEventListener('change',()=>{checkLock();curPage=1;render();});document.getElementById('monthSel').addEventListener('change',()=>{checkLock();curPage=1;render();});checkLock();render();
 </script></body></html>
