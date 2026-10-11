@@ -14,7 +14,7 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .side{width:260px;background:#0a1931;position:fixed;left:-260px;top:64px;bottom:0;z-index:100;transition:left.33s;padding:18px 14px;display:flex;flex-direction:column}
 .side.open{left:0}
 .menu{display:flex;flex-direction:column;gap:8px}
-.menu a{color:#8ea0c0;text-decoration:none;font-size:14px;font-weight:600;padding:12px 14px;border-radius:10px;background:#0f1f3d;display:flex;gap:10px}
+.menu a{color:#8ea0c0;text-decoration:none;font-size:14px;font-weight:600;padding:12px 14px;border-radius:10px;background:#0f1f3d}
 .menu a.active{background:#4338ca;color:#fff;font-weight:800}
 .settingBtn{margin-top:16px;border-top:1px solid #1e2d55;padding-top:16px}
 .settingBtn button{width:100%;background:#1e293b;color:#fff;border:1.5px dashed #475569;padding:12px;border-radius:10px;font-weight:800;cursor:pointer}
@@ -36,26 +36,26 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:3px 22px;font-size:11.5px;margin-bottom:20px;margin-top:14px}
 .exactTable{width:100%;border-collapse:separate;border-spacing:0;font-size:11.5px;color:#111}
 .exactTable th{font-weight:700;padding:8px 8px 10px 2px;text-align:left;border-bottom:1.2px solid #000;font-size:11px;line-height:1.15;vertical-align:bottom;white-space:nowrap}
-.exactTable th span.word{display:inline-block;padding:2px 4px;border-radius:4px;touch-action:none;user-select:none;cursor:grab}
-.exactTable th span.word:active{cursor:grabbing;background:#fef3c7}
 .exactTable td{padding:8px 6px 8px 2px;vertical-align:top}
 .exactTable tr.nephRow td{font-weight:800;text-transform:uppercase;padding:12px 0 8px;border-bottom:1px solid #000;font-size:11.5px}
-.exactTable.data td{padding:14px 6px 14px 2px}
-.exactTable.data td:nth-child(n+7){text-align:right}
+.exactTable.dataRow td{padding:14px 6px 14px 2px}
+.exactTable.dataRow td:nth-child(n+7){text-align:right}
 .itemLine1{white-space:nowrap;font-weight:600}
 .itemLine2{white-space:nowrap}
 .exactTable tr.sub td{border-top:1px solid #000;padding:10px 6px 10px 2px;font-weight:700;text-align:right}
 .exactTable tr.grand td{border-top:1px solid #000;border-bottom:1px solid #000;padding:10px 6px 10px 2px;font-weight:700;text-align:right}
 .exactTable tr.sub td.labelCell,.exactTable tr.grand td.labelCell{text-align:right;padding-right:18px}
-.exactTable.gross{border-top:1px solid #000;margin-top:0;width:100%;border-collapse:separate;border-spacing:0}
-.exactTable.gross td{border-top:1px solid #000;border-bottom:1px solid #000;padding:12px 6px 12px 2px;font-weight:800;font-size:12px;text-align:right;background:#f8fafc}
+.exactTable.gross{border-top:0.5px solid #888;margin-top:0;width:100%;border-collapse:separate;border-spacing:0}
+.exactTable.gross td{border-top:0.5px solid #888;border-bottom:0.5px solid #888;padding:12px 6px 12px 2px;font-weight:800;font-size:12px;text-align:right;background:#f8fafc}
 .exactTable.gross td.labelCell{text-align:right;padding-right:18px}
-.alignBox{background:#0f172a;color:#fff;border-radius:16px;padding:14px;margin-bottom:14px;display:none}
+.word{display:inline-block;padding:2px 4px;border-radius:4px;touch-action:none;user-select:none;cursor:grab}
+.word:active{cursor:grabbing;background:#fef3c7}
+.alignBox{background:#0f172a;color:#fff;border-radius:16px;padding:14px;margin-bottom:14px;display:none;max-height:70vh;overflow:auto}
 .alignBox.show{display:block}
-.alignRow{display:grid;grid-template-columns:115px 1fr 50px;gap:8px;align-items:center;margin-bottom:10px}
+.alignRow{display:grid;grid-template-columns:135px 1fr 50px;gap:8px;align-items:center;margin-bottom:8px}
 .alignRow span{font-size:11px}
 .alignRow input[type=range]{width:100%;accent-color:#4338ca}
-@media print{.noPrint{display:none!important}.billPaper{max-width:100%;padding:0 8px 20px}@page{margin:5mm}.exactTable.gross td{background:#fff!important}.exactTable th span.word{background:transparent!important}}
+@media print{.noPrint{display:none!important}.billPaper{max-width:100%;padding:0 8px 20px}@page{margin:5mm}.exactTable.gross td{background:#fff!important}.word{background:transparent!important}}
 </style>
 </head>
 <body>
@@ -65,7 +65,7 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 <div class="side noPrint" id="side"><div class="menu"><a href="index.html">Home</a><a href="total.html">Total Patient</a><a href="daily.html">Daily Dialysis</a><a href="discharge.html">Discharge Patient</a><a href="add.html">Add Patient</a><a href="bill.html" class="active">Bill</a></div><div class="settingBtn"><button onclick="openSettings()">Alignment Settings</button></div></div>
 <div class="content">
 <div class="card noPrint alignBox" id="alignPanel">
-<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:12px;font-weight:700;margin-bottom:12px;text-align:center">Each word separate - slider moves only that word</div>
+<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:12px;text-align:center">ALL movable - header + data row + totals</div>
 <div id="alignControls"></div>
 <div style="margin-top:12px;display:flex;gap:8px"><button class="btnBlue" style="background:#10b981" onclick="resetAll()">Reset All</button><button class="btnBlue" style="background:#334155" onclick="closeSettings()">Close</button></div>
 </div>
@@ -73,6 +73,7 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 <div class="billPaper">
 <div class="letterhead"><img src="letterhead.png"></div>
 <div class="infoGrid"><div><b>IPNo</b>: <span id="b_ip">177214</span></div><div><b>UHID</b>: <span id="b_uhid">SHRI.153704</span></div><div><b>Patient Name</b>: <span id="b_name">Mr. LAISHANGBAM ANGOUBAMBA SINGH</span></div><div><b>Admission Date & Time</b>: <span id="b_adm">03/09/2026 11:17 am</span></div><div><b>Age/Sex</b>: <span id="b_age">70 Year(s) / Male</span></div><div><b>Bill No.</b>: <span id="b_billNo">SHIC182733</span></div><div><b>Bed no.</b>: <span id="b_bed">D-2208 (Dialysis)</span></div><div><b>Bill Date</b>: <span id="b_billDate">03/09/2026</span></div><div><b>Doctor Name</b>: Guliver Potsangbam</div><div><b>Discharge Date & Time</b>: <span id="b_dis">03/09/2026 02:47 pm</span></div><div><b>PAN No./GSTIN</b>: AF / 14AAICS6068B2ZG</div><div><b>Doctor Speciality</b>: Nephrology</div><div><b>Mobile No</b>: <span id="b_mob">7005208464</span></div><div><b>Patient Type</b>: Credit</div><div><b>Patient Address</b>: <span id="b_addr">MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur</span></div><div><b>Payer</b>: PMJAY</div></div>
+
 <table class="exactTable" id="billTable">
 <thead><tr>
 <th><span class="word" id="w1">SI No.</span></th>
@@ -89,12 +90,49 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 </tr></thead>
 <tbody>
 <tr class="nephRow"><td colspan="11">NEPHROLOGY PROCEDURE</td></tr>
-<tr class="data"><td>1</td><td><div class="itemLine1">Haemodialysis Subsequent</div><div class="itemLine2">Visit PMJAY</div></td><td></td><td></td><td id="b_itemDate">3/9</td><td>1.00</td><td id="b_rate">2660.00</td><td></td><td>0.00</td><td id="b_camt">2660.00</td><td id="b_amt">2660.00</td></tr>
-<tr class="sub"><td colspan="5"></td><td colspan="3" class="labelCell">Sub Total :</td><td class="valCell">0.00</td><td class="valCell" id="b_subC">2660.00</td><td class="valCell" id="b_sub">2660.00</td></tr>
-<tr class="grand"><td colspan="5"></td><td colspan="3" class="labelCell">Grand Total :</td><td class="valCell">0.00</td><td class="valCell" id="b_grandC">2660.00</td><td class="valCell" id="b_grand">2660.00</td></tr>
+
+<tr class="dataRow">
+<td><span class="word" id="w22">1</span></td>
+<td>
+<span class="word" id="w23"><div class="itemLine1">Haemodialysis Subsequent</div><div class="itemLine2">Visit PMJAY</div></span>
+</td>
+<td><span class="word" id="w24"></span></td>
+<td><span class="word" id="w25"></span></td>
+<td><span class="word" id="w26">3/9</span></td>
+<td><span class="word" id="w27">1.00</span></td>
+<td><span class="word" id="w28">2660.00</span></td>
+<td><span class="word" id="w29"></span></td>
+<td><span class="word" id="w30">0.00</span></td>
+<td><span class="word" id="w31">2660.00</span></td>
+<td><span class="word" id="w32">2660.00</span></td>
+</tr>
+
+<tr class="sub">
+<td colspan="5"></td>
+<td colspan="3" class="labelCell"><span class="word" id="w12">Sub Total :</span></td>
+<td><span class="word" id="w13">0.00</span></td>
+<td><span class="word" id="w14">2660.00</span></td>
+<td><span class="word" id="w15">2660.00</span></td>
+</tr>
+<tr class="grand">
+<td colspan="5"></td>
+<td colspan="3" class="labelCell"><span class="word" id="w16">Grand Total :</span></td>
+<td><span class="word" id="w17">0.00</span></td>
+<td><span class="word" id="w18">2660.00</span></td>
+<td><span class="word" id="w19">2660.00</span></td>
+</tr>
 </tbody>
 </table>
-<table class="exactTable gross"><tbody><tr><td colspan="5" style="border:none;background:transparent"></td><td colspan="3" class="labelCell">Gross Bill Amount :</td><td class="valCell"></td><td class="valCell" colspan="2">Rs <span id="b_gross">2660.00</span></td></tr></tbody></table>
+
+<table class="exactTable gross"><tbody>
+<tr>
+<td colspan="5" style="border:none;background:transparent"></td>
+<td colspan="3" class="labelCell"><span class="word" id="w20">Gross Bill Amount :</span></td>
+<td></td>
+<td colspan="2"><span class="word" id="w21">Rs 2660.00</span></td>
+</tr>
+</tbody></table>
+
 </div>
 </div>
 </div>
@@ -102,15 +140,20 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 function toggleSide(){let s=document.getElementById('side'),o=document.getElementById('overlay');s.classList.toggle('open');o.classList.toggle('show');}
 function openSettings(){document.getElementById('alignPanel').classList.add('show');let s=document.getElementById('side');if(s.classList.contains('open'))toggleSide();}
 function closeSettings(){document.getElementById('alignPanel').classList.remove('show');}
-let cfg = JSON.parse(localStorage.getItem('shija_sep_final')||'null') || {off1:0,off2:0,off3:0,off4:0,off5:0,off6:0,off7:0,off8:0,off9:0,off10:0,off11:0};
-function applyDrag(){for(let i=1;i<=11;i++){let el=document.getElementById('w'+i);if(el) el.style.transform=`translateX(${cfg['off'+i]||0}px)`;}localStorage.setItem('shija_sep_final', JSON.stringify(cfg));}
-function buildControls(){let labels={1:'Sl.No',2:'Item Name',3:'Batch No./Expiry',4:'HSN/Code',5:'Date',6:'Qty',7:'Rate',8:'GST%',9:'Patient Amt',10:'Company Amt',11:'Amount Rs'};let html='';for(let i=1;i<=11;i++){html+=`<div class="alignRow"><span>${labels[i]}</span><input type="range" min="-80" max="80" value="${cfg['off'+i]}" oninput="cfg['off'+i]=parseInt(this.value);applyDrag();this.nextElementSibling.innerText=this.value+'px'"><span>${cfg['off'+i]}px</span></div>`;}document.getElementById('alignControls').innerHTML=html;}
-function resetAll(){for(let i=1;i<=11;i++)cfg['off'+i]=0;applyDrag();buildControls();}
+let cfg = JSON.parse(localStorage.getItem('shija_full_all')||'null') || {};
+for(let i=1;i<=32;i++){ if(cfg['off'+i]===undefined) cfg['off'+i]=0; }
+function applyDrag(){for(let i=1;i<=32;i++){let el=document.getElementById('w'+i);if(el) el.style.transform=`translateX(${cfg['off'+i]||0}px)`;}localStorage.setItem('shija_full_all', JSON.stringify(cfg));}
+function buildControls(){
+let labels={1:'SI No',2:'Item Name',3:'Batch No',4:'HSN/Code',5:'Date',6:'Qty',7:'Rate',8:'GST%',9:'Patient Amt',10:'Company Amt',11:'Amount Rs',12:'Sub Total:',13:'Sub 0.00',14:'Sub 2660 Co',15:'Sub 2660 Amt',16:'Grand Total:',17:'Grand 0.00',18:'Grand 2660 Co',19:'Grand 2660 Amt',20:'Gross Label',21:'Gross Rs',22:'Data: 1',23:'Data: Haemodialysis',24:'Data: Batch',25:'Data: HSN',26:'Data: 11/10',27:'Data: 1.00',28:'Data: 2660 Rate',29:'Data: GST blank',30:'Data: 0.00 Pat',31:'Data: 2660 Comp',32:'Data: 2660 Amt'};
+let html='';for(let i=1;i<=32;i++){html+=`<div class="alignRow"><span>${labels[i]}</span><input type="range" min="-80" max="80" value="${cfg['off'+i]}" oninput="cfg['off'+i]=parseInt(this.value);applyDrag();this.nextElementSibling.innerText=this.value+'px'"><span>${cfg['off'+i]}px</span></div>`;}
+document.getElementById('alignControls').innerHTML=html;
+}
+function resetAll(){for(let i=1;i<=32;i++)cfg['off'+i]=0;applyDrag();buildControls();}
 let dragCol=null, startX=0, startOff=0;
 document.querySelectorAll('.word').forEach(w=>{
  w.addEventListener('pointerdown', e=>{
-   let id = w.id.replace('w','');
-   dragCol = parseInt(id);
+   let id = parseInt(w.id.replace('w',''));
+   dragCol = id;
    startX = e.clientX;
    startOff = cfg['off'+dragCol]||0;
    w.setPointerCapture(e.pointerId);
@@ -124,7 +167,7 @@ document.querySelectorAll('.word').forEach(w=>{
    applyDrag();
    buildControls();
  });
- w.addEventListener('pointerup', ()=>{dragCol=null; localStorage.setItem('shija_sep_final', JSON.stringify(cfg));});
+ w.addEventListener('pointerup', ()=>{dragCol=null; localStorage.setItem('shija_full_all', JSON.stringify(cfg));});
 });
 applyDrag();buildControls();
 let allPatients=[];function loadPatients(){let raw=(typeof patientData!=='undefined')?patientData:[];let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');allPatients=[...raw,...extra];if(!allPatients.length)allPatients=[{patientName:'LAISHANGBAM ANGOUBAMBA SINGH',shriId:'153704',contactNo:'7005208464',address:'MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur'}];}
@@ -133,7 +176,7 @@ function showPatientSuggest(q){q=q.toLowerCase().trim();let box=document.getElem
 function pickPatient(i){let p=allPatients[i];document.getElementById('pName').value='Mr. '+p.patientName.toUpperCase();document.getElementById('mobile').value=p.contactNo;document.getElementById('address').value=(p.address||'').toUpperCase();document.getElementById('uhid').value='SHRI.'+p.shriId.replace(/SHRI\.?/i,'');document.getElementById('suggest').style.display='none';renderBill();}
 function updateBillTime(){let d=document.getElementById('admDateOnly').value;let t=document.getElementById('admTimeOnly').value;if(!d||!t)return;document.getElementById('billDateShow').value=d.split('-').reverse().join('/');let [h,m]=t.split(':').map(Number);let dt=new Date();dt.setHours(h,m+30);document.getElementById('billTimeShow').value=String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');renderBill();}
 function formatDateTime(ds,ts){if(!ds)return '';let [y,m,d]=ds.split('-');let dp=d+'/'+m+'/'+y;if(!ts)return dp;let [h,mm]=ts.split(':').map(Number);let ap=h>=12?'pm':'am';let h12=h%12||12;return dp+' '+h12+':'+String(mm).padStart(2,'0')+' '+ap;}
-function renderBill(){document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;document.getElementById('b_uhid').innerText=document.getElementById('uhid').value;document.getElementById('b_name').innerText=document.getElementById('pName').value;document.getElementById('b_age').innerText=document.getElementById('ageSex').value;document.getElementById('b_bed').innerText=document.getElementById('bedNo').value;document.getElementById('b_mob').innerText=document.getElementById('mobile').value;document.getElementById('b_addr').innerText=document.getElementById('address').value;document.getElementById('b_billNo').innerText=document.getElementById('billNo').value;let admD=document.getElementById('admDateOnly').value;let admT=document.getElementById('admTimeOnly').value;if(admD){document.getElementById('b_adm').innerText=formatDateTime(admD,admT);document.getElementById('b_billDate').innerText=admD.split('-').reverse().join('/');let d=parseInt(admD.split('-')[2]);let mo=parseInt(admD.split('-')[1]);document.getElementById('b_itemDate').innerText=d+'/'+mo;}let dis=document.getElementById('disDateTime').value;if(dis){let dt=new Date(dis);document.getElementById('b_dis').innerText=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+ (dt.getHours()%12||12)+':'+String(dt.getMinutes()).padStart(2,'0')+' '+(dt.getHours()>=12?'pm':'am');}let amt=parseFloat(document.getElementById('amt').value)||0;let s=amt.toFixed(2);document.getElementById('b_rate').innerText=s;document.getElementById('b_camt').innerText=s;document.getElementById('b_amt').innerText=s;document.getElementById('b_sub').innerText=s;document.getElementById('b_subC').innerText=s;document.getElementById('b_grand').innerText=s;document.getElementById('b_grandC').innerText=s;document.getElementById('b_gross').innerText=s;}
+function renderBill(){document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;document.getElementById('b_uhid').innerText=document.getElementById('uhid').value;document.getElementById('b_name').innerText=document.getElementById('pName').value;document.getElementById('b_age').innerText=document.getElementById('ageSex').value;document.getElementById('b_bed').innerText=document.getElementById('bedNo').value;document.getElementById('b_mob').innerText=document.getElementById('mobile').value;document.getElementById('b_addr').innerText=document.getElementById('address').value;document.getElementById('b_billNo').innerText=document.getElementById('billNo').value;let admD=document.getElementById('admDateOnly').value;let admT=document.getElementById('admTimeOnly').value;if(admD){document.getElementById('b_adm').innerText=formatDateTime(admD,admT);document.getElementById('b_billDate').innerText=admD.split('-').reverse().join('/');let d=parseInt(admD.split('-')[2]);let mo=parseInt(admD.split('-')[1]);document.getElementById('w26').innerText=d+'/'+mo;}let dis=document.getElementById('disDateTime').value;if(dis){let dt=new Date(dis);document.getElementById('b_dis').innerText=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+ (dt.getHours()%12||12)+':'+String(dt.getMinutes()).padStart(2,'0')+' '+(dt.getHours()>=12?'pm':'am');}let amt=parseFloat(document.getElementById('amt').value)||0;let s=amt.toFixed(2);document.getElementById('w28').innerText=s;document.getElementById('w31').innerText=s;document.getElementById('w32').innerText=s;document.getElementById('w14').innerText=s;document.getElementById('w15').innerText=s;document.getElementById('w18').innerText=s;document.getElementById('w19').innerText=s;document.getElementById('w21').innerText='Rs '+s;}
 let today=new Date().toISOString().split('T')[0];document.getElementById('admDateOnly').value=today;document.getElementById('admTimeOnly').value='11:17';document.getElementById('disDateTime').value=today+'T14:47';updateBillTime();renderBill();
 </script>
 </body>
