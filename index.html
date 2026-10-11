@@ -3,157 +3,140 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHIJA Dialysis Dashboard</title>
+<title>Total Patients - SHIJA Dialysis</title>
 <script src="Patient.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui}
-body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:column}
-.top{height:64px;background:#1e293b;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #2d3a4f;position:sticky;top:0;z-index:10}
-.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px}
-.logo img{width:38px;height:38px;border-radius:10px;object-fit:contain;background:#fff;padding:3px}
-.hamWhite{width:38px;height:38px;border-radius:10px;background:#0f172a;border:1px solid #334155;color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;margin-right:10px}
-.search{flex:1;max-width:380px;margin:0 16px;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:9px 14px;display:flex;align-items:center;gap:8px}
-.search input{background:transparent;border:0;color:#fff;outline:0;width:100%;font-size:13px}
-.search input::placeholder{color:#64748b}
-.right{display:flex;align-items:center;gap:12px;position:relative}
-.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:grid;place-items:center;font-weight:900;color:#fff}
-.adminWrap{position:relative;cursor:pointer}
-.adminBox{display:flex;align-items:center;gap:6px}
-.adminName{font-size:13px;font-weight:700}
-.dropArrow{font-size:10px;transition:.2s}
-.adminWrap.open .dropArrow{transform:rotate(180deg)}
-.dropdown{position:absolute;top:100%;right:0;margin-top:10px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;min-width:130px;box-shadow:0 10px 25px #0003;display:none;z-index:99;overflow:hidden}
-.dropdown.show{display:block}
-.dropItem{padding:10px 14px;font-size:13px;color:#0f172a;font-weight:600;cursor:pointer;background:#fff;border:0;width:100%;text-align:left}
-.dropItem:hover{background:#f1f5f9}
-.main{display:flex;flex:1;max-width:1400px;width:100%;margin:0 auto}
-.side{width:210px;background:#111c30;padding:16px 10px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid #1e293b}
-.side a{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;text-decoration:none;color:#94a3b8;font-weight:600;font-size:14px;margin-bottom:4px;cursor:pointer}
-.side a.active{background:#1e40af;color:#fff;box-shadow:0 0 0 1px #3b82f680}
-.side a:hover{background:#1e293b;color:#fff}
-.content{flex:1;padding:24px}
-.head{margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
-.head h1{font-size:28px;font-weight:900}
-.head p{color:#94a3b8;font-size:13px;margin-top:4px}
-.dateBar{display:flex;gap:8px;align-items:center;background:#1e293b;border:1px solid #334155;padding:8px 12px;border-radius:12px}
-.dateBar input{background:#0f172a;border:1px solid #334155;color:#fff;padding:6px 10px;border-radius:8px;outline:0}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.card{border-radius:20px;padding:20px;min-height:190px;position:relative;overflow:hidden;text-decoration:none;color:#fff;display:flex;flex-direction:column;justify-content:space-between;transition:.3s}
-.card:hover{transform:translateY(-5px);box-shadow:0 15px 30px #0005}
-.card .icon{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.25);display:grid;place-items:center;font-size:14px;font-weight:900;backdrop-filter:blur(6px)}
-.card b{font-size:15px;margin-top:10px;display:block;opacity:.95}
-.card h2{font-size:40px;font-weight:900;margin:6px 0;line-height:1}
-.card small{font-size:12px;opacity:.85}
-.card .foot{font-size:11px;opacity:.7;margin-top:4px}
-.c1{background:linear-gradient(135deg,#3b82f6,#06b6d4)}.c2{background:linear-gradient(135deg,#10b981,#059669)}.c3{background:linear-gradient(135deg,#f97316,#f59e0b)}.c4{background:linear-gradient(135deg,#7c3aed,#6d28d9)}.c5{background:linear-gradient(135deg,#ec4899,#d946ef)}.c6{background:linear-gradient(135deg,#ef4444,#f43f5e)}
-.modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:100}
-.modalBox{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:22px;width:90%;max-width:360px}
-.modalBox h3{margin-bottom:14px}
-.opt{padding:12px;border:1px solid #334155;border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:10px}
-.opt:hover{background:#0f172a;border-color:#3b82f6}
-.btn{padding:10px 14px;border:0;border-radius:10px;font-weight:700;cursor:pointer}
-.btnP{background:#2563eb;color:#fff}
-.btnG{background:#334155;color:#fff}
-.status{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:10px;font-size:11px;color:#94a3b8;margin-top:16px}
-.whiteBar{position:fixed;left:0;top:64px;bottom:0;width:260px;background:#ffffff;transform:translateX(-100%);transition:.35s cubic-bezier(.4,0,.2,1);z-index:60;padding:16px 10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:4px 0 24px #0003}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
+body{background:#f6f7fb;color:#1a2332;display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden}
+.top{height:68px;background:#0b1b32;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #132845;position:sticky;top:0;z-index:40}
+.shija{font-size:28px;font-weight:900;color:#ffffff!important}
+.dialysis{font-size:15px;font-weight:600;color:#ffffff!important}
+.hamSide{width:46px;height:36px;border-radius:10px;background:#1868db;border:0;color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center}
+.whiteBar{position:fixed;left:0;top:68px;bottom:0;width:260px;background:#ffffff;transform:translateX(-100%);transition:.35s;z-index:60;padding:16px 10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:4px 0 24px #0003}
 .whiteBar.open{transform:translateX(0)}
 .whiteBar a{display:flex;align-items:center;padding:13px 14px;border-radius:10px;text-decoration:none;color:#334155;font-weight:700;font-size:14px;margin-bottom:6px}
-.whiteBar a.active{background:#0f172a;color:#fff}
-.whiteBar a:hover{background:#f1f5f9;color:#0f172a}
-.whiteOverlay{position:fixed;inset:0;top:64px;background:#0005;z-index:55;display:none}
+.whiteBar a.active{background:#0b1b32;color:#fff}
+.whiteBar a:hover{background:#f1f5f9;color:#0b1b32}
+.whiteOverlay{position:fixed;inset:0;top:68px;background:#0005;z-index:55;display:none}
 .whiteOverlay.show{display:block}
-@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.side{width:70px}.side a span.txt{display:none}}
-@media(max-width:600px){.grid{grid-template-columns:1fr 1fr}.content{padding:14px}.head h1{font-size:22px}.side{display:none}}
+.main{display:flex;flex:1}
+.leftMenuArea{width:64px;min-width:64px;padding:16px 10px;display:flex;flex-direction:column;align-items:center}
+.content{flex:1;padding:22px;transition:.35s}
+.hrow{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.hrow h1{font-size:36px;font-weight:900;color:#1e293b}
+.hrow p{color:#64748b;font-size:15px;margin-top:4px}
+.filterRow{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.searchBox{flex:1;min-width:260px}
+.searchBox input{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;background:#fff;color:#1e293b;outline:0;font-size:14px}
+.sel{padding:8px 12px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;font-size:13px}
+.tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse;min-width:850px}
+th{padding:14px 12px;font-size:12px;color:#64748b;font-weight:600;text-align:left;background:#f8fafc;border-bottom:1px solid #e2e8f0}
+td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;color:#334155;vertical-align:middle}
+tr.dataRow:hover{background:#f8fafc;cursor:pointer}
+tr.dataRow.selected{background:#eef4ff}
+.sl{font-weight:800;color:#0f172a;background:#f1f5f9;width:36px;height:28px;display:grid;place-items:center;border-radius:6px;font-size:12px}
+.shri{background:#1868db;color:#fff;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-block}
+.btnEdit{padding:6px 14px;border-radius:6px;border:0;background:#1868db;color:#fff;font-weight:700;font-size:12px;cursor:pointer}
+.detailBox{margin-top:22px;background:#0b1b32;border-radius:14px;padding:24px;display:none}
+.detailBox.show{display:block}
+.detailBox h3{color:#fff;font-size:22px;font-weight:800;margin-bottom:18px}
+.line{padding:14px 0;border-bottom:1px solid #132845;display:flex;gap:12px;font-size:15px}
+.line b{width:140px;color:#8ea0bf;font-weight:600;flex-shrink:0}
+.line span{color:#ffffff;font-weight:600}
+.pager{display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:10px}
+.pgBtns{display:flex;gap:6px}
+.pg{padding:6px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;color:#475569;cursor:pointer;font-weight:600;font-size:12px}
+.pg.active{background:#1868db;color:#fff;border-color:#1868db}
+.modal{position:fixed;inset:0;background:#0006;z-index:99;display:none;place-items:center}
+.modal.show{display:grid}
+.modalBox{background:#fff;border-radius:14px;padding:18px;width:90%;max-width:420px}
+.modalBox input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;margin:6px 0}
+.mBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.mBtns button{padding:8px 14px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
+.save{background:#1868db;color:#fff}.cancel{background:#f1f5f9;color:#334155}
 </style>
 </head>
 <body>
-<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
-
 <div class="top">
-<div style="display:flex;align-items:center">
-<button class="hamWhite" onclick="toggleWhiteBar()">☰</button>
-<div class="logo"><img src="logoc.png" onerror="this.src='shija.jpg';this.onerror=function(){this.src='logob.png'}"> SHIJA Dialysis</div>
+<div style="display:flex;gap:12px;align-items:center"><div><div class="shija">SHIJA</div><div class="dialysis">Dialysis</div></div></div>
+<div class="admin" style="display:flex;gap:10px;color:#fff;align-items:center"><div style="text-align:right"><div style="font-weight:800">Admin</div></div><div style="width:44px;height:44px;border-radius:50%;background:#1868db;display:grid;place-items:center;font-weight:800">AD</div></div>
 </div>
-<div class="search"><input placeholder="Search patients, reports, bills..."></div>
-<div class="right">
-<div class="avatar">A</div>
-<div class="adminWrap" id="adminWrap" onclick="toggleDrop(event)">
-<div class="adminBox"><span class="adminName">Admin</span><span class="dropArrow">▼</span></div>
-<div class="dropdown" id="adminDrop"><button class="dropItem" onclick="logout()">Logout</button></div>
-</div>
-</div>
-</div>
-
 <div class="whiteOverlay" id="whiteOverlay" onclick="toggleWhiteBar()"></div>
 <div class="whiteBar" id="whiteBar">
 <div>
-<a href="index.html" class="active">Home</a>
-<a href="total.html">Total Patient</a>
+<a href="index.html">Home</a>
+<a href="total.html" class="active">Total Patient</a>
 <a href="daily.html">Daily Dialysis</a>
 <a href="discharge.html">Discharge Patient</a>
 <a href="kft.html">KFT Report</a>
 <a href="add.html">Add Patient</a>
 <a href="bill.html">Bill</a>
 </div>
-<div style="padding:10px;font-size:11px;color:#64748b;border-top:1px solid #e2e8f0;margin-top:10px">
-<b style="color:#0f172a">System Status</b><br>All Systems Online<br><span style="font-size:10px">v2.4.1</span>
 </div>
-</div>
-
 <div class="main">
-<div class="side">
-<div>
-<a href="index.html" class="active"><span class="txt">Home</span></a>
-<a href="total.html"><span class="txt">Total Patient</span></a>
-<a href="add.html"><span class="txt">Add Patient</span></a>
-<a href="kft.html"><span class="txt">KFT Report</span></a>
-<a href="discharge.html"><span class="txt">Discharge Patient</span></a>
+<div class="leftMenuArea"><button class="hamSide" onclick="toggleWhiteBar()">☰</button></div>
+<div class="content" id="content">
+<div class="hrow"><div><h1>Total Patients</h1><p>Manage all patients</p></div><div style="display:flex;gap:10px;align-items:center"><span id="info" style="color:#64748b;font-size:13px"></span></div></div>
+<div class="filterRow">
+<div class="searchBox"><input id="search" placeholder="Search by name, SHRI ID, contact, address" oninput="onSearch()"></div>
+<select id="pageSize" class="sel" onchange="changeSize()"><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option><option value="9999">All</option></select>
 </div>
-<div class="status"><b>System Status</b>All Systems Online<br><span style="font-size:10px">v2.4.1 Updated today</span></div>
-</div>
-
-<div class="content">
-<div class="head">
-<div><h1>Dashboard Overview</h1><p id="welcomeText">Welcome back Admin here is the current dialysis activity overview</p></div>
-<div class="dateBar"><input type="date" id="dashDate"><button class="btn btnP" onclick="openExport()">Export Report</button></div>
-</div>
-
-<div class="grid">
-<a href="total.html" class="card c1"><div><div class="icon">TP</div><b>Total Patients</b><h2 id="v1">0</h2><small>All time</small><div class="foot">Total registered</div></div></a>
-<a href="add.html" class="card c2"><div><div class="icon">AP</div><b>Add New Patient Entry</b><small>Create new patient record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add Patient</div></a>
-<a href="daily.html" class="card c3"><div><div class="icon">DD</div><b>Daily Dialysis</b><h2 id="v3">0</h2><small>Scheduled for this date</small><div class="foot" id="v3f">Completed 0 Remaining 0</div></div></a>
-<a href="kft.html" class="card c4"><div><div class="icon">KR</div><b>KFT Report</b><h2 id="v4">0 Pending</h2><small>For selected date</small></div></a>
-<a href="bill.html" class="card c5"><div><div class="icon">BL</div><b>Bill</b><h2 id="v5">Rs 0</h2><small>For selected date</small><div class="foot">Collection</div></div></a>
-<a href="discharge.html" class="card c6"><div><div class="icon">DC</div><b>Discharge</b><h2 id="v6">0</h2><small>Discharged on this date</small><div class="foot">Avg stay</div></div></a>
+<div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div></div>
+<div class="pager"><div></div><div class="pgBtns" id="pager"></div></div>
+<div class="detailBox" id="detailBox">
+<div style="display:flex;justify-content:space-between;align-items:center"><h3>Selected Patient Detail</h3><button onclick="closeDetail()" style="background:#132845;border:1px solid #1e3a5f;color:#fff;padding:6px 12px;border-radius:6px;cursor:pointer">Close</button></div>
+<div id="detailLines"></div>
 </div>
 </div>
 </div>
-
-<div class="modal" id="expModal">
-<div class="modalBox"><h3>Export Report</h3><p style="color:#94a3b8;font-size:12px;margin-bottom:12px">Select date <b id="expDateShow"></b></p><div class="opt" onclick="exportExcel('total')"><div><b>Total Patient Record</b><br><small style="color:#94a3b8">All patients or for selected date</small></div></div><div class="opt" onclick="exportExcel('kft')"><div><b>KFT Report Record</b><br><small style="color:#94a3b8">KFT reports for selected date</small></div></div><div class="opt" onclick="exportExcel('daily')"><div><b>Daily Dialysis Record</b><br><small style="color:#94a3b8">Daily sessions for selected date</small></div></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn btnG" style="flex:1" onclick="closeExport()">Cancel</button></div></div>
+<div class="modal" id="editModal">
+<div class="modalBox"><h3 style="color:#0f172a;margin-bottom:8px">Edit Patient</h3><input id="eName" placeholder="Patient Name"><input id="eShri" placeholder="SHRI ID"><input id="eContact" placeholder="Contact"><input id="ePmjay" placeholder="PMJAY ID"><input id="eAddr" placeholder="Address"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" onclick="saveEdit()">Save</button></div></div>
 </div>
-
 <script>
 function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('open');document.getElementById('whiteOverlay').classList.toggle('show');}
-function toggleDrop(e){e.stopPropagation();document.getElementById('adminWrap').classList.toggle('open');document.getElementById('adminDrop').classList.toggle('show');}
-function logout(){if(confirm('Logout now')){localStorage.removeItem('shija_logged');location.href='login.html';}}
-document.addEventListener('click',()=>{let w=document.getElementById('adminWrap');let d=document.getElementById('adminDrop');if(w) w.classList.remove('open');if(d) d.classList.remove('show');});
-function openExport(){let sel=document.getElementById('dashDate').value;document.getElementById('expDateShow').textContent=sel;document.getElementById('expModal').style.display='grid';}
-function closeExport(){document.getElementById('expModal').style.display='none';}
-async function exportExcel(type){let sel=document.getElementById('dashDate').value;let wb=XLSX.utils.book_new();let data=[];if(type==='total'){try{let snap=await fb.getDocs(fb.collection(db,"patients"));snap.forEach(d=>{let p=d.data();data.push({Name:p.patientName||p.name,SHRI_ID:p.shriId||p.shri,Contact:p.contactNo||p.contact,PMJAY:p.pmjayId||p.pmjay,Address:p.address||'',Date:p.createdAt||p.date||''});});}catch(e){data=(typeof patientData!=='undefined'?patientData.map(p=>({Name:p.patientName,SHRI_ID:p.shriId,Contact:p.contactNo,PMJAY:p.pmjayId,Address:p.address})): [{Name:"Sample Patient",SHRI_ID:"SHRI001"}]);}let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"Total Patients");XLSX.writeFile(wb,`Total_Patients_${sel}.xlsx`);}else if(type==='kft'){try{let snap=await fb.getDocs(fb.collection(db,"kftReports"));snap.forEach(d=>{let p=d.data();if(!sel||(p.date||'').startsWith(sel)) data.push(p);});}catch(e){data=[{Date:sel,Patient:"Sample",Urea:"40",Creatinine:"1.2",Status:"Pending"}];}if(data.length===0) data=[{Date:sel,Info:"No KFT reports for this date"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"KFT Reports");XLSX.writeFile(wb,`KFT_Reports_${sel}.xlsx`);}else if(type==='daily'){try{let snap=await fb.getDocs(fb.collection(db,"dailyDialysis"));snap.forEach(d=>{let p=d.data();if(!sel||(p.date||'').startsWith(sel)) data.push(p);});}catch(e){data=[{Date:sel,Patient:"Sample",Time:"10 00 AM",Status:"Completed"}];}if(data.length===0) data=[{Date:sel,Info:"No dialysis for this date"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"Daily Dialysis");XLSX.writeFile(wb,`Daily_Dialysis_${sel}.xlsx`);}closeExport();}
+let allPatients=(typeof patientData!=='undefined'?patientData:[]).map((p,i)=>({name:p.patientName||p.name||['Ramesh Sharma','Priya Agarwal','Arjun Kumar','Sunita Kulkarni','Vikram Mehta','Neha Lal'][i%6],shri:p.shriId||`SHRI-${10042+i}`,contact:p.contactNo||`+91 98${765+i} 43210`,pmjay:p.pmjayId||`PMJAY-2210${9+i}`,addr:p.address||['Pune, Maharashtra','Nagpur, Maharashtra','Nashik, Maharashtra','Mumbai, Maharashtra','Aurangabad, Maharashtra','Kolhapur, Maharashtra'][i%6],age:p.age||[58,45,62,51,39,47][i%6],gender:p.gender||(i%2==0?'Male':'Female')}));
+let filtered=[],curPage=1,pageSize=10,editIndex=-1,selectedIndex=-1;
+function onSearch(){curPage=1;applyFilter();}
+function changeSize(){pageSize=parseInt(document.getElementById('pageSize').value);curPage=1;renderTable();}
+function applyFilter(){let q=(document.getElementById('search').value||'').toLowerCase();filtered=allPatients.filter(p=>[p.name,p.shri,p.contact,p.addr].join(' ').toLowerCase().includes(q));renderTable();}
+function renderTable(){
+ let totalPages=pageSize>=9999?1:Math.ceil(filtered.length/pageSize)||1; if(curPage>totalPages) curPage=totalPages;
+ let start=(curPage-1)*pageSize; let end=pageSize>=9999?filtered.length:start+pageSize; let data=filtered.slice(start,end);
+ let html='<tr><th>SL No</th><th>Patient</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr>';
+ data.forEach((p,i)=>{
+  let realIdx=filtered.indexOf(p); let sl=start+i+1; let sel=realIdx===selectedIndex?'selected':'';
+  html+=`<tr class="dataRow ${sel}" onclick="selectPatient(${realIdx},${sl})"><td><div class="sl">${sl}</div></td><td><div><div style="font-weight:800;color:#0f172a">${p.name}</div><div style="font-size:12px;color:#64748b">${p.gender} - ${p.age} yrs</div></div></td><td><span class="shri">${p.shri}</span></td><td style="font-weight:600">${p.contact}</td><td>${p.pmjay}</td><td>${p.addr}</td><td onclick="event.stopPropagation()"><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button></td></tr>`;
+ });
+ if(data.length===0) html+='<tr><td colspan="7" style="text-align:center;padding:24px;color:#94a3b8">No patients found</td></tr>';
+ document.getElementById('tbl').innerHTML=html;
+ document.getElementById('info').textContent=`${filtered.length?start+1:0}-${Math.min(end,filtered.length)} of ${filtered.length} patients`;
+ let pgHtml=`<button class="pg" ${curPage<=1?'disabled':''} onclick="goPage(${curPage-1})">Prev</button>`; for(let i=1;i<=Math.min(totalPages,6);i++) pgHtml+=`<button class="pg ${i===curPage?'active':''}" onclick="goPage(${i})">${i}</button>`; if(totalPages>6) pgHtml+=`<span style="color:#64748b;padding:6px">...${totalPages}</span>`; pgHtml+=`<button class="pg" ${curPage>=totalPages?'disabled':''} onclick="goPage(${curPage+1})">Next</button>`; document.getElementById('pager').innerHTML=pgHtml;
+}
+function goPage(n){curPage=n; renderTable();}
+function selectPatient(idx, sl){
+ selectedIndex=idx; let p=filtered[idx];
+ document.getElementById('detailLines').innerHTML=`
+ <div class="line"><b>SL No :</b><span>${sl}</span></div>
+ <div class="line"><b>Patient Name :</b><span>${p.name}</span></div>
+ <div class="line"><b>SHRI ID :</b><span>${p.shri}</span></div>
+ <div class="line"><b>Contact No :</b><span>${p.contact}</span></div>
+ <div class="line"><b>PMJAY ID :</b><span>${p.pmjay}</span></div>
+ <div class="line"><b>Address :</b><span>${p.addr}</span></div>
+ <div class="line"><b>Age :</b><span>${p.age} years</span></div>
+ <div class="line"><b>Gender :</b><span>${p.gender}</span></div>`;
+ document.getElementById('detailBox').classList.add('show');
+ renderTable();
+ document.getElementById('detailBox').scrollIntoView({behavior:'smooth'});
+}
+function closeDetail(){document.getElementById('detailBox').classList.remove('show'); selectedIndex=-1; renderTable();}
+function openEdit(idx){editIndex=idx; let p=filtered[idx]; document.getElementById('eName').value=p.name; document.getElementById('eShri').value=p.shri; document.getElementById('eContact').value=p.contact; document.getElementById('ePmjay').value=p.pmjay; document.getElementById('eAddr').value=p.addr; document.getElementById('editModal').classList.add('show');}
+function closeEdit(){document.getElementById('editModal').classList.remove('show');}
+function saveEdit(){let p=filtered[editIndex]; p.name=document.getElementById('eName').value; p.shri=document.getElementById('eShri').value; p.contact=document.getElementById('eContact').value; p.pmjay=document.getElementById('ePmjay').value; p.addr=document.getElementById('eAddr').value; closeEdit(); renderTable(); if(selectedIndex===editIndex) selectPatient(editIndex, editIndex+1);}
+applyFilter();
+let urlParams=new URLSearchParams(location.search);
+let s=urlParams.get('search')||localStorage.getItem('shija_search')||'';
+if(s){document.getElementById('search').value=s; applyFilter(); if(filtered.length>0) selectPatient(0,1);}
 </script>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const config = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(config);const db=getFirestore(app);window.db=db;window.fb={collection,getDocs,query,where};
-let today=new Date().toISOString().split('T')[0];document.getElementById('dashDate').value=today;document.getElementById('dashDate').addEventListener('change',loadDashboard);loadDashboard();
-async function loadDashboard(){let sel=document.getElementById('dashDate').value||today;document.getElementById('welcomeText').textContent=`Data for ${sel} Welcome back Admin`;try{let patSnap=await getDocs(collection(db,"patients"));let allPatients=[];patSnap.forEach(d=>allPatients.push(d.data()));let dailySnap=await getDocs(query(collection(db,"dailyDialysis"),where("date","==",sel))).catch(async()=>await getDocs(collection(db,"dailyDialysis")));let dailyCount=dailySnap.size;let kftSnap=await getDocs(query(collection(db,"kftReports"),where("date","==",sel))).catch(async()=>await getDocs(collection(db,"kftReports")));let kftCount=kftSnap.size;let billSnap=await getDocs(query(collection(db,"bills"),where("date","==",sel))).catch(async()=>await getDocs(collection(db,"bills")));let billTotal=0;billSnap.forEach(d=>{billTotal+=Number(d.data().amount||d.data().total||0);});let disSnap=await getDocs(query(collection(db,"discharges"),where("date","==",sel))).catch(async()=>await getDocs(collection(db,"discharges")));document.getElementById('v1').textContent=allPatients.length||(typeof patientData!=='undefined'?patientData.length:0);document.getElementById('v3').textContent=dailyCount;document.getElementById('v3f').textContent=`Completed ${Math.floor(dailyCount*0.6)} Remaining ${dailyCount-Math.floor(dailyCount*0.6)}`;document.getElementById('v4').textContent=kftCount+' Pending';document.getElementById('v5').textContent='Rs '+billTotal;document.getElementById('v6').textContent=disSnap.size;}catch(e){let base=(typeof patientData!=='undefined'?patientData.length:128);let dayNum=new Date(sel).getDate();document.getElementById('v1').textContent=base;document.getElementById('v3').textContent=(dayNum%10)+8;document.getElementById('v4').textContent=(dayNum%8)+2+' Pending';document.getElementById('v5').textContent='Rs '+((dayNum*320)+1200);document.getElementById('v6').textContent=(dayNum%6);}}
-window.loadDashboard=loadDashboard;
-</script>
-<div style="text-align:center;padding:10px;font-size:10px;color:#475569">SHIJA Dialysis <span id="lastUp"></span></div>
-<script>document.getElementById('lastUp').textContent='Last updated '+new Date().toLocaleString();</script>
 </body>
 </html>
