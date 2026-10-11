@@ -35,7 +35,7 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .letterhead img{width:100%;display:block}
 .infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:3px 22px;font-size:11.5px;margin-bottom:20px;margin-top:14px}
 .exactTable{width:100%;border-collapse:collapse;font-size:11.5px;color:#111;table-layout:fixed}
-.exactTable th{font-weight:700;padding:8px 2px 10px 0;text-align:left;white-space:nowrap;border-bottom:1.2px solid #000;font-size:11px;line-height:1.1;touch-action:none;user-select:none;cursor:grab}
+.exactTable th{font-weight:700;padding:8px 2px 10px 0;text-align:left;white-space:nowrap;border-bottom:1.2px solid #000;font-size:11px;line-height:1.1;touch-action:none;user-select:none;cursor:grab;display:inline-block;position:relative}
 .exactTable th:nth-child(1){width:4%}
 .exactTable th:nth-child(2){width:20%}
 .exactTable th:nth-child(3){width:9%}
@@ -53,28 +53,15 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .exactTable.data td:nth-child(n+7){text-align:right}
 .exactTable.sub td,.exactTable.grand td{border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:10px 2px 10px 0;font-weight:700;text-align:right}
 .exactTable.sub td.labelCell,.exactTable.grand td.labelCell{text-align:right;padding-right:18px}
-
-/* GROSS BILL SEPARATION LINE */
-.exactTable.gross{
- border-top:2.5px double #000;
- margin-top:6px;
-}
-.exactTable.gross td{
- border-top:2px solid #000;
- border-bottom:2px solid #000;
- padding:12px 2px 12px 0;
- font-weight:800;
- font-size:12px;
- text-align:right;
- background:#f8fafc;
-}
-.exactTable.gross td.labelCell{text-align:right;padding-right:18px;font-weight:800}
-
+.exactTable.gross{border-top:2.5px double #000;margin-top:6px}
+.exactTable.gross td{border-top:2px solid #000;border-bottom:2px solid #000;padding:12px 2px 12px 0;font-weight:800;font-size:12px;text-align:right;background:#f8fafc}
+.exactTable.gross td.labelCell{text-align:right;padding-right:18px}
 .alignBox{background:#0f172a;color:#fff;border-radius:16px;padding:14px;margin-bottom:14px;display:none}
 .alignBox.show{display:block}
-.alignRow{display:grid;grid-template-columns:100px 1fr 50px;gap:8px;align-items:center;margin-bottom:10px}
+.alignRow{display:grid;grid-template-columns:110px 1fr 50px;gap:8px;align-items:center;margin-bottom:10px}
 .alignRow span{font-size:11px}
 .alignRow input[type=range]{width:100%;accent-color:#4338ca}
+.word{ display:inline-block; will-change:transform }
 @media print{.noPrint{display:none!important}.billPaper{max-width:100%;padding:0 8px 20px}@page{margin:5mm}.exactTable.gross td{background:#fff!important}}
 </style>
 </head>
@@ -85,7 +72,7 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 <div class="side noPrint" id="side"><div class="menu"><a href="index.html">🏠 Home</a><a href="total.html">👥 Total Patient</a><a href="daily.html">📅 Daily Dialysis</a><a href="discharge.html">🏥 Discharge Patient</a><a href="add.html">➕ Add Patient</a><a href="bill.html" class="active">🧾 Bill</a></div><div class="settingBtn"><button onclick="openSettings()">⚙️ Alignment Settings</button></div></div>
 <div class="content">
 <div class="card noPrint alignBox" id="alignPanel">
-<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:12px;font-weight:700;margin-bottom:12px;text-align:center">⬅️ Slider LEFT = LEFT | Slider RIGHT = RIGHT ➡️</div>
+<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:12px;font-weight:700;margin-bottom:12px;text-align:center">Independent: Moving one word will NOT move other words</div>
 <div id="alignControls"></div>
 <div style="margin-top:12px;display:flex;gap:8px"><button class="btnBlue" style="background:#10b981" onclick="resetAll()">Reset All</button><button class="btnBlue" style="background:#334155" onclick="closeSettings()">Close</button></div>
 </div>
@@ -95,7 +82,19 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 <div class="infoGrid"><div><b>IPNo</b>: <span id="b_ip">177214</span></div><div><b>UHID</b>: <span id="b_uhid">SHRI.153704</span></div><div><b>Patient Name</b>: <span id="b_name">Mr. LAISHANGBAM ANGOUBAMBA SINGH</span></div><div><b>Admission Date & Time</b>: <span id="b_adm">03/09/2026 11:17 am</span></div><div><b>Age/Sex</b>: <span id="b_age">70 Year(s) / Male</span></div><div><b>Bill No.</b>: <span id="b_billNo">SHIC182733</span></div><div><b>Bed no.</b>: <span id="b_bed">D-2208 (Dialysis)</span></div><div><b>Bill Date</b>: <span id="b_billDate">03/09/2026</span></div><div><b>Doctor Name</b>: Guliver Potsangbam</div><div><b>Discharge Date & Time</b>: <span id="b_dis">03/09/2026 02:47 pm</span></div><div><b>PAN No./GSTIN</b>: AF / 14AAICS6068B2ZG</div><div><b>Doctor Speciality</b>: Nephrology</div><div><b>Mobile No</b>: <span id="b_mob">7005208464</span></div><div><b>Patient Type</b>: Credit</div><div><b>Patient Address</b>: <span id="b_addr">MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur</span></div><div><b>Payer</b>: PMJAY</div></div>
 
 <table class="exactTable" id="billTable">
-<thead><tr><th data-col="1">SI<br>No.</th><th data-col="2">Item Name</th><th data-col="3">Batch<br>No./Expiry</th><th data-col="4">HSN/Code</th><th data-col="5">Date</th><th data-col="6">Qty</th><th data-col="7">Rate</th><th data-col="8">GST%</th><th data-col="9">Patient<br>Amt</th><th data-col="10">Company<br>Amt</th><th data-col="11">Amount<br>₹</th></tr></thead>
+<thead><tr>
+<th data-col="1"><span class="word" id="w1">SI<br>No.</span></th>
+<th data-col="2"><span class="word" id="w2">Item Name</span></th>
+<th data-col="3"><span class="word" id="w3">Batch<br>No./Expiry</span></th>
+<th data-col="4"><span class="word" id="w4">HSN/Code</span></th>
+<th data-col="5"><span class="word" id="w5">Date</span></th>
+<th data-col="6"><span class="word" id="w6">Qty</span></th>
+<th data-col="7"><span class="word" id="w7">Rate</span></th>
+<th data-col="8"><span class="word" id="w8">GST%</span></th>
+<th data-col="9"><span class="word" id="w9">Patient<br>Amt</span></th>
+<th data-col="10"><span class="word" id="w10">Company<br>Amt</span></th>
+<th data-col="11"><span class="word" id="w11">Amount<br>₹</span></th>
+</tr></thead>
 <tbody>
 <tr><td colspan="11" class="neph">NEPHROLOGY PROCEDURE</td></tr>
 <tr class="data"><td>1</td><td>Haemodialysis Subsequent<br>Visit PMJAY</td><td></td><td></td><td id="b_itemDate">3/9</td><td>1.00</td><td id="b_rate">2660.00</td><td></td><td>0.00</td><td id="b_camt">2660.00</td><td id="b_amt">2660.00</td></tr>
@@ -104,12 +103,7 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 </tbody>
 </table>
 
-<!-- SEPARATE TABLE FOR GROSS BILL WITH LINE -->
-<table class="exactTable gross" id="grossTable">
-<tbody>
-<tr><td colspan="5" style="border:none;background:transparent"></td><td colspan="3" class="labelCell">Gross Bill Amount :</td><td class="valCell"></td><td class="valCell" colspan="2">₹ <span id="b_gross">2660.00</span></td></tr>
-</tbody>
-</table>
+<table class="exactTable gross" id="grossTable"><tbody><tr><td colspan="5" style="border:none;background:transparent"></td><td colspan="3" class="labelCell">Gross Bill Amount :</td><td class="valCell"></td><td class="valCell" colspan="2">₹ <span id="b_gross">2660.00</span></td></tr></tbody></table>
 
 </div>
 </div>
@@ -118,44 +112,48 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 function toggleSide(){let s=document.getElementById('side'),o=document.getElementById('overlay');s.classList.toggle('open');o.classList.toggle('show');}
 function openSettings(){document.getElementById('alignPanel').classList.add('show');let s=document.getElementById('side');if(s.classList.contains('open'))toggleSide();}
 function closeSettings(){document.getElementById('alignPanel').classList.remove('show');}
-let cfg = JSON.parse(localStorage.getItem('shija_slider_drag')||'null') || {off1:0,off2:0,off3:0,off4:0,off5:0,off6:0,off7:0,off8:0,off9:0,off10:0,off11:0};
+let cfg = JSON.parse(localStorage.getItem('shija_independent')||'null') || {off1:0,off2:0,off3:0,off4:0,off5:0,off6:0,off7:0,off8:0,off9:0,off10:0,off11:0};
 function applyDrag(){
- document.querySelectorAll('#billTable th, #billTable td, #grossTable td').forEach(el=>{
-   let col = el.cellIndex+1;
-   if(!col || col>11) return;
-   if(col<=5 && el.closest('#grossTable')) return;
-   let off = cfg['off'+col]||0;
-   el.style.transform = `translateX(${off}px)`;
- });
- localStorage.setItem('shija_slider_drag', JSON.stringify(cfg));
- buildControls();
+ for(let i=1;i<=11;i++){
+   let el=document.getElementById('w'+i);
+   if(el) el.style.transform=`translateX(${cfg['off'+i]||0}px)`;
+ }
+ localStorage.setItem('shija_independent', JSON.stringify(cfg));
 }
 function buildControls(){
- let labels={1:'Sl.No',2:'Item Name',3:'Batch No./Expiry',4:'HSN/Code',5:'Date',6:'Qty',7:'Rate',8:'GST%',9:'Patient Amt',10:'Company Amt',11:'Amount₹'};
+ let labels={1:'Sl.No',2:'Item Name',3:'Batch No',4:'HSN/Code',5:'Date',6:'Qty',7:'Rate',8:'GST%',9:'Patient Amt',10:'Company Amt',11:'Amount₹'};
  let html='';
  for(let i=1;i<=11;i++){
-   html+=`<div class="alignRow"><span>${labels[i]}</span><input type="range" min="-80" max="80" value="${cfg['off'+i]}" oninput="cfg['off'+i]=parseInt(this.value);applyDrag()"><span>${cfg['off'+i]}px</span></div>`;
+   html+=`<div class="alignRow"><span>${labels[i]}</span><input type="range" min="-80" max="80" value="${cfg['off'+i]}" oninput="cfg['off'+i]=parseInt(this.value);applyDrag();this.nextElementSibling.innerText=this.value+'px'"><span>${cfg['off'+i]}px</span></div>`;
  }
  document.getElementById('alignControls').innerHTML=html;
 }
-function resetAll(){for(let i=1;i<=11;i++)cfg['off'+i]=0;applyDrag();}
+function resetAll(){for(let i=1;i<=11;i++)cfg['off'+i]=0;applyDrag();buildControls();}
 let dragCol=null, startX=0, startOff=0;
-document.querySelectorAll('#billTable th').forEach(th=>{
- th.addEventListener('pointerdown', e=>{
-   dragCol = parseInt(th.dataset.col);
+document.querySelectorAll('.word').forEach(w=>{
+ w.addEventListener('pointerdown', e=>{
+   let col = parseInt(w.parentElement.dataset.col);
+   dragCol = col;
    startX = e.clientX;
-   startOff = cfg['off'+dragCol]||0;
-   th.setPointerCapture(e.pointerId);
+   startOff = cfg['off'+col]||0;
+   w.setPointerCapture(e.pointerId);
+   w.style.background='#fef3c7';
  });
- th.addEventListener('pointermove', e=>{
+ w.addEventListener('pointermove', e=>{
    if(!dragCol) return;
    let dx = e.clientX - startX;
    cfg['off'+dragCol] = startOff + dx;
    applyDrag();
+   buildControls();
  });
- th.addEventListener('pointerup', ()=>{dragCol=null; localStorage.setItem('shija_slider_drag', JSON.stringify(cfg));});
+ w.addEventListener('pointerup', e=>{
+   e.target.style.background='';
+   dragCol=null;
+   localStorage.setItem('shija_independent', JSON.stringify(cfg));
+ });
 });
-applyDrag();
+applyDrag();buildControls();
+
 let allPatients=[];function loadPatients(){let raw=(typeof patientData!=='undefined')?patientData:[];let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');allPatients=[...raw,...extra];if(!allPatients.length)allPatients=[{patientName:'LAISHANGBAM ANGOUBAMBA SINGH',shriId:'153704',contactNo:'7005208464',address:'MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur'}];}
 loadPatients();
 function showPatientSuggest(q){q=q.toLowerCase().trim();let box=document.getElementById('suggest');if(!q){box.style.display='none';return;}let f=allPatients.filter(p=>(p.patientName||'').toLowerCase().includes(q)).slice(0,20);box.innerHTML=f.map(p=>`<div onclick="pickPatient(${allPatients.indexOf(p)})"><b>${p.patientName}</b> - ${p.shriId}</div>`).join('');box.style.display=f.length?'block':'none';}
