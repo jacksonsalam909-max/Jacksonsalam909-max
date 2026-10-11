@@ -1,93 +1,203 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Discharge Patient - SHIJA</title>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Discharge Patient - SHIJA</title>
 <script src="Patient.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial}
-body{background:#ffffff;min-height:100vh}
-.top{background:#ffffff;color:#b91c1c;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:2.5px solid #b91c1c}
-.top a{color:#b91c1c;text-decoration:none;background:#fef2f2;padding:6px 14px;border-radius:8px;font-size:13px;font-weight:800;border:1.5px solid #fecaca}
-.wrap{max-width:1150px;margin:18px auto;padding:0 12px 100px}
-.box{flex:1;min-width:150px;background:#ffffff;padding:12px 14px;border-radius:12px;box-shadow:0 2px 10px #0001;border:1.5px solid #fee2e2}
-.box label{font-size:11px;font-weight:700;color:#b91c1c;display:block;margin-bottom:5px}
-.box input,.box select{width:100%;padding:9px 10px;border:1.5px solid #fecaca;border-radius:8px;outline:0;font-size:13px}
-.search-wrap{position:relative;background:#ffffff;border-radius:12px;box-shadow:0 2px 10px #0001;padding:12px 14px;margin:14px 0;border:1.5px solid #fee2e2}
-.search-wrap input{width:100%;padding:11px 12px;border:1.5px solid #fecaca;border-radius:8px;outline:0;font-size:13px}
-.suggest{position:absolute;left:14px;right:14px;top:56px;background:#ffffff;border:1px solid #fecaca;border-radius:10px;max-height:320px;overflow-y:auto;z-index:20;box-shadow:0 10px 30px #0002;display:none}
-.suggest div{padding:12px;border-bottom:1px solid #fef2f2;cursor:pointer}
-.suggest div:hover{background:#fef2f2}
-.count{font-size:11px;color:#b91c1c;margin-top:6px}
-.list-box{background:#ffffff;border-radius:14px;box-shadow:0 4px 15px #0001;margin-top:18px;overflow:hidden;border:1.5px solid #fee2e2}
-.list-head{padding:14px 16px;background:#b91c1c;color:#fff;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-.tbl{width:100%;border-collapse:collapse;background:#ffffff}
-.tbl th{background:#fef2f2;font-size:11px;color:#b91c1c;padding:10px 8px;text-align:left}
-.tbl td{padding:10px 8px;font-size:12px;border-bottom:1px solid #fee2e2}
-.pill{display:inline-block;padding:4px 8px;border-radius:6px;background:#fef2f2;color:#b91c1c;font-weight:800;font-size:11px;border:1px solid #fecaca}
-.btn{padding:10px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer}
-.btn-save{background:#b91c1c;color:#fff;width:100%}
-.tabBar{display:flex;gap:8px;margin-top:18px}
-.tabBtn{padding:10px 16px;border-radius:10px;border:1.5px solid #fecaca;background:#ffffff;font-weight:800;cursor:pointer;font-size:13px;color:#b91c1c}
-.tabBtn.active{background:#b91c1c;color:#fff}
-.btn-claim-simple{padding:6px 14px;background:#b91c1c;color:#fff;border:0;border-radius:8px;font-weight:700;font-size:11px;cursor:pointer}
-.btn-remove-simple{padding:5px 8px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:6px;font-weight:800;font-size:11px;cursor:pointer;margin-left:4px}
-.popup-bg{position:fixed;inset:0;background:#0006;z-index:99;display:none}
-.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#ffffff;border-radius:20px;padding:20px;z-index:100;max-width:380px;width:92%;box-shadow:0 20px 50px #0004;display:none;border:2px solid #fee2e2}
-.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.time-btn{padding:12px 6px;border:2px solid #fecaca;border-radius:12px;background:#ffffff;font-weight:800;cursor:pointer;color:#b91c1c}
-.time-btn:hover{background:#fef2f2;border-color:#b91c1c}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#b91c1c;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;z-index:200;display:none}
-.firebase-status{font-size:11px;color:#16a34a;margin-top:6px;font-weight:700}
-</style></head><body>
-<div class="top"><h3> Discharge Patient </h3><div><a href="index.html">← Home</a></div></div>
-<div class="wrap">
-<div style="display:flex;gap:10px;flex-wrap:wrap">
-<div class="box"><label>Date</label><input type="date" id="disDate" onchange="onDateChange()"></div>
-<div class="box"><label>Time</label><select id="timeFilter" onchange="currentPage=1;renderList();renderClaimList();"><option value="All">All Time</option><option>7AM</option><option>12PM</option><option>5PM</option><option>9PM</option><option>12AM</option><option>2AM</option></select></div>
-<div class="box"><label>Save</label><button class="btn btn-save" onclick="saveAll()"> Save for <span id="saveDateLabel"></span></button><div id="fbStatus" class="firebase-status">● Firebase Connected</div></div>
-</div>
-<div class="search-wrap"><input id="search" placeholder="🔍 Type min 2 letters of NAME..." autocomplete="off" oninput="showHints()" onfocus="showHints()"><div class="suggest" id="suggest"></div><div class="count" id="cnt"></div></div>
-<div class="tabBar"><button class="tabBtn active" id="tabDisBtn" onclick="switchTab('dis')"> Discharged - <span id="listCount">0</span></button><button class="tabBtn" id="tabClaimBtn" onclick="switchTab('claim')"> Claim - <span id="claimCount">0</span></button></div>
-<div class="list-box" id="disTab"><div class="list-head"><div><b id="headDate">Discharged List</b> | Time: <span id="headTime">All</span></div><div><select id="pageSize" onchange="changePageSize()" style="padding:4px 6px;border-radius:6px;border:0"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50" selected>50</option></select> <button onclick="prevPage()" style="background:#fff;color:#b91c1c;border:0;padding:4px 8px;border-radius:6px;font-weight:800">‹</button><span id="pageInfo">Page 1</span><button onclick="nextPage()" style="background:#fff;color:#b91c1c;border:0;padding:4px 8px;border-radius:6px;font-weight:800">›</button></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>PMJAY ID</th><th>Time</th><th>Action</th></tr></thead><tbody id="selectedBody"></tbody></table></div></div>
-<div class="list-box" id="claimTab" style="display:none"><div class="list-head"><div><b> Claim List</b> | <span id="claimHeadDate">All</span> | <span id="claimHeadTime">All</span></div><div><button class="btn" style="background:#ffffff;color:#b91c1c;padding:6px 10px" onclick="exportClaimExcel()">📤 Export</button></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Sl No</th><th>Name</th><th>PMJAY ID</th><th>SHRI ID</th><th>Claim ID</th><th>Date</th><th>Time</th><th>Action</th></tr></thead><tbody id="claimBody"></tbody></table></div></div>
-</div>
-<div class="popup-bg" id="popupBg" onclick="closePopup()"></div>
-<div class="popup" id="popupTime"><h4 style="color:#b91c1c" id="popName">Select Time</h4><p id="popInfo" style="font-size:12px;color:#b91c1c;margin:6px 0 14px"></p><div class="time-grid"><button class="time-btn" onclick="confirmTime('7AM')">7AM</button><button class="time-btn" onclick="confirmTime('12PM')">12PM</button><button class="time-btn" onclick="confirmTime('5PM')">5PM</button><button class="time-btn" onclick="confirmTime('9PM')">9PM</button><button class="time-btn" onclick="confirmTime('12AM')">12AM</button><button class="time-btn" onclick="confirmTime('2AM')">2AM</button></div><button style="width:100%;margin-top:12px;padding:10px;border:1px solid #fecaca;border-radius:10px;background:#fef2f2;font-weight:700;color:#b91c1c" onclick="closePopup()">Cancel</button></div>
-<div class="popup" id="popupClaim"><h4 style="color:#b91c1c"> Enter Claim ID</h4><p id="claimPopInfo" style="font-size:12px;color:#b91c1c;margin:8px 0"></p><input id="claimIdInput" placeholder="Enter Claim ID" style="width:100%;padding:12px;border:2px solid #ef4444;border-radius:10px;outline:0;margin-top:8px"><div style="display:flex;gap:8px;margin-top:14px"><button class="btn" style="flex:1;background:#b91c1c;color:#fff" onclick="confirmClaimWithId()">Save ✅</button><button class="btn" style="flex:1;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca" onclick="closeClaimPopup()">Cancel</button></div></div>
-<div class="toast" id="toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
+body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;color:#0f172a}
+.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:40}
+.top h2{color:#fff;font-size:16px;font-weight:800}
+.menuBtn{width:36px;height:36px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;color:#fff;display:grid;place-items:center;cursor:pointer}
+.adBadge{display:flex;align-items:center;gap:8px;color:#fff}
+.adCircle{width:30px;height:30px;border-radius:50%;background:#1a2a4f;color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px;border:1.5px solid #2a3a6a}
+.mainWrap{display:flex;flex:1;min-height:calc(100vh - 64px)}
+.side{width:230px;min-width:230px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:16px 10px;position:sticky;top:64px;height:calc(100vh - 64px);transition:transform.3s ease}
+.menu{display:flex;flex-direction:column;gap:4px}
+.menu a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px}
+.menu a.active{background:#1a56db;color:#fff;font-weight:700}
+.menu a:hover{background:#13264d;color:#fff}
+.sideBottom{border-top:1px solid #1a2a4f;padding:12px 10px;color:#6b7aa2;font-size:11px}
+.sideOverlay{position:fixed;inset:0;background:#0005;z-index:55;display:none}
+.sideOverlay.show{display:block}
+.content{flex:1;padding:16px 14px;max-width:1200px;width:100%}
+.headRow h1{font-size:32px;font-weight:900;letter-spacing:-1px;color:#0f1a34}
+.bread{color:#6b7280;font-size:12px;margin-top:4px}
+.card{background:#fff;border-radius:16px;box-shadow:0 10px 30px #00000008;border:1px solid #e5e7eb;padding:14px;margin-bottom:14px}
+.boxRow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.box{flex:1;min-width:140px;background:#f8fafc;padding:10px 12px;border-radius:12px;border:1.5px solid #e5e7eb}
+.box label{font-size:10px;font-weight:800;color:#0f172a;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.box input,.box select{width:100%;padding:9px 10px;border:1.5px solid #e5e7eb;border-radius:8px;outline:0;font-size:13px;background:#fff;font-weight:600}
+.search-wrap{position:relative;background:#fff;border-radius:12px;border:1.5px solid #e5e7eb;padding:12px 14px;margin:14px 0}
+.search-wrap input{width:100%;padding:11px 12px;border:1.5px solid #e5e7eb;border-radius:10px;outline:0;font-size:13px;font-weight:600}
+.suggest{position:absolute;left:14px;right:14px;top:56px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;max-height:280px;overflow-y:auto;z-index:20;box-shadow:0 12px 24px #0002;display:none}
+.suggest div{padding:11px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:12px}
+.suggest div:hover{background:#eff6ff}
+.count{font-size:11px;color:#64748b;margin-top:6px}
+.list-box{background:#fff;border-radius:14px;box-shadow:0 4px 15px #00000008;margin-top:16px;overflow:hidden;border:1.5px solid #e5e7eb}
+.list-head{padding:12px 14px;background:#f8fafc;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.tbl{width:100%;border-collapse:collapse;background:#fff}
+.tbl th{background:#f8fafc;font-size:11px;color:#0f172a;padding:11px 8px;text-align:left;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+.tbl td{padding:11px 8px;font-size:12px;border-bottom:1px solid #f1f5f9}
+.pill{display:inline-block;padding:4px 8px;border-radius:20px;background:#dbeafe;color:#1e40af;font-weight:700;font-size:11px;border:1px solid #bfdbfe}
+.btn{padding:10px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
+.btn-save{background:#10b981;color:#fff}
+.btn-edit{background:#0a1931;color:#fff}
+.btn-claim-simple{padding:6px 14px;background:#1a56db;color:#fff;border:0;border-radius:8px;font-weight:700;font-size:11px;cursor:pointer}
+.btn-remove-simple{padding:5px 8px;background:#fef2f2;color:#ef4444;border:1px solid #fecaca;border-radius:6px;font-weight:800;font-size:11px;cursor:pointer;margin-left:4px}
+.popup-bg{position:fixed;inset:0;background:#0006;z-index:99;display:none}
+.popupSmall{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:14px;z-index:100;max-width:320px;width:90%;box-shadow:0 20px 50px #0004;display:none;overflow:hidden;animation:pop.18s}
+@keyframes pop{from{transform:translate(-50%,-50%) scale(.95);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.popHead{padding:12px 14px}
+.popHead h4{font-size:13px;font-weight:800}
+.popHead p{font-size:10px;margin-top:2px;opacity:.8}
+.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:10px}
+.time-btn{padding:10px 4px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;font-weight:800;cursor:pointer;font-size:12px}
+.time-btn:hover{background:#eff6ff;border-color:#93c5fd}
+.c-blue.popHead{background:linear-gradient(90deg,#93c5fd,#60a5fa);color:#1e3a8a}
+.c-orange.popHead{background:linear-gradient(90deg,#fdba74,#fcd34d);color:#7c2d12}
+.c-green.popHead{background:linear-gradient(90deg,#86efac,#6ee7b7);color:#064e3b}
+.c-red.popHead{background:linear-gradient(90deg,#fca5a5,#f87171);color:#7f1d1d}
+.popInfo{border-radius:8px;margin:0 10px 10px;padding:6px 8px;display:flex;gap:6px;align-items:flex-start;font-size:9px;line-height:1.3;background:#f8fafc;color:#334155}
+.pgBtn{padding:6px 10px;border:1.5px solid #e5e7eb;background:#fff;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px}
+.pgBtn.active{background:#1a56db;color:#fff;border-color:#1a56db}
+.tabBar{display:flex;gap:8px;margin-top:16px}
+.tabBtn{padding:9px 14px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;font-weight:800;cursor:pointer;font-size:12px;color:#64748b}
+.tabBtn.active{background:#1a56db;color:#fff;border-color:#1a56db}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0a1931;color:#fff;padding:10px 16px;border-radius:10px;font-size:12px;z-index:200;display:none;font-weight:700}
+@media(max-width:900px){.side{position:fixed;left:0;top:64px;transform:translateX(-100%);z-index:60;height:calc(100vh - 64px)}.side.open{transform:translateX(0)}}
+</style>
+</head>
+<body>
+<script>if(localStorage.getItem('shija_logged')!=='1') location.href='login.html';</script>
+
+<div class="top">
+<div style="display:flex;align-items:center;gap:10px">
+<button class="menuBtn" onclick="toggleSide()">
+<div style="display:flex;flex-direction:column;gap:4px"><div style="width:18px;height:2px;background:#fff;border-radius:2px"></div><div style="width:18px;height:2px;background:#fff;border-radius:2px"></div><div style="width:18px;height:2px;background:#fff;border-radius:2px"></div></div>
+</button>
+<h2>SHIJA Dialysis Management</h2>
+</div>
+<div class="adBadge"><div class="adCircle">AD</div><span style="font-weight:700;font-size:13px">Admin</span></div>
+</div>
+<div class="sideOverlay" id="overlay" onclick="toggleSide()"></div>
+
+<div class="mainWrap">
+<div class="side" id="side">
+<div class="menu">
+<a href="index.html">Home</a>
+<a href="total.html">Total Patient</a>
+<a href="daily.html">Daily Dialysis</a>
+<a href="discharge.html" class="active">Discharge Patient</a>
+<a href="kft.html">KFT Report</a>
+<a href="add.html">Add Patient</a>
+<a href="bill.html">Bill</a>
+</div>
+<div class="sideBottom">Help and Support<br>v2.4.1 | <span id="fbStatus">Connected</span></div>
+</div>
+
+<div class="content">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+<div><h1 style="font-size:32px;font-weight:900;letter-spacing:-1px">Discharge Patient</h1><div class="bread">Dashboard / Discharge Patient - Date wise list</div></div>
+<div style="display:flex;gap:8px"><button class="btn btn-save" id="saveMainBtn" onclick="saveLock()">SAVE</button><button class="btn btn-edit" id="editMainBtn" onclick="editLock()" style="display:none">EDIT</button></div>
+</div>
+
+<div class="card">
+<div class="boxRow">
+<div class="box"><label>Date</label><input type="date" id="disDate" onchange="onDateChange()"></div>
+<div class="box"><label>Time Filter</label><select id="timeFilter" onchange="currentPage=1;renderList();renderClaimList();"><option value="All">All Time</option><option value="7am">7am</option><option value="12pm">12pm</option><option value="5pm">5pm</option><option value="9pm">9pm</option><option value="12am">12am</option><option value="2am">2am</option></select></div>
+<div class="box"><label>Block Filter</label><select id="blockFilter" onchange="currentPage=1;renderList();renderClaimList();"><option value="All">All Block</option><option value="Main">Main</option><option value="Itocha">Itocha</option><option value="Eastern">Eastern</option></select></div>
+<div class="box" style="flex:0 0 120px"><label>Per Page</label><select id="pageSize" onchange="changePageSize()"><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option><option value="100000">All</option></select></div>
+</div>
+
+<div class="search-wrap"><input id="search" placeholder="Type min 2 letters of NAME..." autocomplete="off" oninput="showHints()" onfocus="showHints()"><div class="suggest" id="suggest"></div><div class="count" id="cnt"></div></div>
+
+<div class="tabBar"><button class="tabBtn active" id="tabDisBtn" onclick="switchTab('dis')"> Discharged - <span id="listCount">0</span></button><button class="tabBtn" id="tabClaimBtn" onclick="switchTab('claim')"> Claim - <span id="claimCount">0</span></button></div>
+
+<div class="list-box" id="disTab">
+<div class="list-head">
+<div style="font-weight:800;font-size:12px"><span id="headDate">Discharged List</span> | Time: <span id="headTime">All</span> | Block: <span id="headBlock">All</span></div>
+<div style="display:flex;gap:6px;align-items:center"><button class="pgBtn" onclick="prevPage()">Prev</button><span id="pageInfo" style="font-size:11px;font-weight:700">Page 1</span><button class="pgBtn" onclick="nextPage()">Next</button></div>
+</div>
+<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>PMJAY ID</th><th>Time</th><th>Block</th><th>Action</th></tr></thead><tbody id="selectedBody"></tbody></table></div>
+</div>
+
+<div class="list-box" id="claimTab" style="display:none">
+<div class="list-head"><div style="font-weight:800;font-size:12px"> Claim List | <span id="claimHeadDate">All</span> | <span id="claimHeadTime">All</span> | <span id="claimHeadBlock">All</span></div><div><button class="btn" style="background:#0a1931;color:#fff;padding:7px 12px;font-size:11px" onclick="exportClaimExcel()">Export Excel</button></div></div>
+<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Sl No</th><th>Name</th><th>PMJAY ID</th><th>SHRI ID</th><th>Claim ID</th><th>Date</th><th>Time</th><th>Block</th><th>Action</th></tr></thead><tbody id="claimBody"></tbody></table></div>
+</div>
+
+</div>
+</div>
+</div>
+
+<div class="popup-bg" id="popupBg" onclick="closeAll()"></div>
+
+<div class="popupSmall c-blue" id="popupTime">
+<div class="popHead"><h4>Select Time</h4><p>Choose dialysis time slot</p></div>
+<div class="time-grid">
+<button class="time-btn" onclick="selectTime('7am')">7am</button>
+<button class="time-btn" onclick="selectTime('12pm')">12pm</button>
+<button class="time-btn" onclick="selectTime('5pm')">5pm</button>
+<button class="time-btn" onclick="selectTime('9pm')">9pm</button>
+<button class="time-btn" onclick="selectTime('12am')">12am</button>
+<button class="time-btn" onclick="selectTime('2am')">2am</button>
+</div>
+<div class="popInfo">All slots are checked for availability</div>
+</div>
+
+<div class="popupSmall c-orange" id="popupBlock">
+<div class="popHead"><h4>Select Block</h4><p>Choose block for this discharge</p></div>
+<div class="time-grid">
+<button class="time-btn" onclick="selectBlock('Main')">Main</button>
+<button class="time-btn" onclick="selectBlock('Itocha')">Itocha</button>
+<button class="time-btn" onclick="selectBlock('Eastern')">Eastern</button>
+</div>
+<div class="popInfo">Blocks assigned based on location</div>
+</div>
+
+<div class="popupSmall c-red" id="popupClaim">
+<div class="popHead"><h4>Enter Claim ID</h4><p id="claimPopInfo">Enter claim details</p></div>
+<div style="padding:10px"><input id="claimIdInput" placeholder="Enter Claim ID" style="width:100%;padding:11px;border:1.5px solid #e5e7eb;border-radius:10px;outline:0;font-weight:600"><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" style="flex:1;background:#0a1931;color:#fff" onclick="confirmClaimWithId()">Save</button><button class="btn" style="flex:1;background:#f8fafc;color:#0f172a;border:1.5px solid #e5e7eb" onclick="closeClaimPopup()">Cancel</button></div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig = {
-  apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
-  authDomain: "discharge-b9528.firebaseapp.com",
-  projectId: "discharge-b9528",
-  storageBucket: "discharge-b9528.firebasestorage.app",
-  messagingSenderId: "1076050472607",
-  appId: "1:1076050472607:web:736e0688a41462460efcaa",
-  measurementId: "G-RXBJ1FD2E4"
-};
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-window.fb_db = db;
-window.fb_addDoc = addDoc;
-window.fb_collection = collection;
-window.fb_serverTimestamp = serverTimestamp;
-document.getElementById('fbStatus').innerText = "● Firebase Connected: discharge-b9528";
+window.fb_db = db;window.fb_addDoc = addDoc;window.fb_collection = collection;window.fb_serverTimestamp = serverTimestamp;
+document.getElementById('fbStatus').innerText = "Connected";
 </script>
+
 <script>
-if(localStorage.getItem('shija_logged')!=='1') location.href='login.html';
+function toggleSide(){document.getElementById('side').classList.toggle('open');document.getElementById('overlay').classList.toggle('show');}
 document.getElementById('disDate').valueAsDate=new Date();
 let selectedList=JSON.parse(localStorage.getItem('shija_selected_discharge')||'[]');
-let currentPage=1,pageSize=50,tempPatient=null,tempClaimIndex=null;
+let currentPage=1,pageSize=10,tempPatient=null,tempTime='',tempClaimIndex=null;
 let lastFiltered=[];
 function showToast(m){let t=document.getElementById('toast');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
 function getName(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().includes('patient')&&x.toLowerCase().includes('name'))||ks.find(x=>x.toLowerCase()==='name')||ks.find(x=>x.toLowerCase().includes('name'));return k? p[k] : 'Unknown';}
 function getShri(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z]/g,'')==='shriid')||ks.find(x=>x.toLowerCase().includes('shri'));return k? p[k] : (p.id||p.ID||'-');}
 function getPmjay(p){if(!p) return '-';let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z0-9]/g,'')==='pmjayid')||ks.find(x=>x.toLowerCase().includes('pmjay'));return k&&p[k]?p[k]:p.pmjay||p.PMJAY||'-';}
 function getAll(){let excel=(typeof patientData!=='undefined')?patientData:[];let local=JSON.parse(localStorage.getItem('shija_patients')||'[]');return [...excel,...local];}
-function onDateChange(){currentPage=1;renderList();renderClaimList();updateLabels();}
-function updateLabels(){let d=document.getElementById('disDate').value;let t=document.getElementById('timeFilter').value;document.getElementById('saveDateLabel').innerText=d;document.getElementById('headDate').innerText=d;document.getElementById('headTime').innerText=t;document.getElementById('claimHeadDate').innerText=d;document.getElementById('claimHeadTime').innerText=t;}
+
+function getLockKey(){return `dis_lock_${document.getElementById('disDate').value}`;}
+function isLocked(){return localStorage.getItem(getLockKey())==='1';}
+function checkLockUI(){let locked=isLocked();document.getElementById('saveMainBtn').style.display=locked?'none':'inline-block';document.getElementById('editMainBtn').style.display=locked?'inline-block':'none';}
+function saveLock(){localStorage.setItem(getLockKey(),'1');checkLockUI();renderList();showToast('Saved and Locked for '+document.getElementById('disDate').value);}
+function editLock(){localStorage.setItem(getLockKey(),'0');checkLockUI();renderList();showToast('Edit mode enabled');}
+
+function onDateChange(){currentPage=1;checkLockUI();renderList();renderClaimList();updateLabels();}
+function updateLabels(){let d=document.getElementById('disDate').value;let t=document.getElementById('timeFilter').value;let b=document.getElementById('blockFilter').value;document.getElementById('headDate').innerText=d;document.getElementById('headTime').innerText=t;document.getElementById('headBlock').innerText=b;document.getElementById('claimHeadDate').innerText=d;document.getElementById('claimHeadTime').innerText=t;document.getElementById('claimHeadBlock').innerText=b;}
 function switchTab(t){document.getElementById('disTab').style.display=t==='dis'?'block':'none';document.getElementById('claimTab').style.display=t==='claim'?'block':'none';document.getElementById('tabDisBtn').classList.toggle('active',t==='dis');document.getElementById('tabClaimBtn').classList.toggle('active',t==='claim');if(t==='claim') renderClaimList(); else renderList();}
+
 function showHints(){
  let q=document.getElementById('search').value.trim().toLowerCase();
  let all=getAll();
@@ -96,106 +206,87 @@ function showHints(){
  let filtered = all.filter(p=>String(getName(p)).toLowerCase().includes(q));
  document.getElementById('cnt').innerText=`Matching: ${filtered.length} - Click any to add`;
  lastFiltered = filtered.slice(0,50);
- if(!filtered.length){box.innerHTML=`<div style="text-align:center;color:#b91c1c;padding:10px">No patient found</div>`;box.style.display='block';return;}
+ if(!filtered.length){box.innerHTML=`<div style="text-align:center;color:#64748b;padding:10px">No patient found</div>`;box.style.display='block';return;}
  box.style.display='block';
- box.innerHTML = lastFiltered.map((p,i)=>`<div onclick="selectPatient(${i})"><b style="color:#b91c1c">${getName(p)}</b><br><small>SHRI: ${getShri(p)} | PMJAY: ${getPmjay(p)}</small></div>`).join('');
+ box.innerHTML = lastFiltered.map((p,i)=>`<div onclick="selectPatient(${i})"><b style="color:#0f172a">${getName(p)}</b><br><small>SHRI: ${getShri(p)} | PMJAY: ${getPmjay(p)}</small></div>`).join('');
 }
 function selectPatient(i){
+ if(isLocked()){showToast('Click EDIT first');return;}
  let p = lastFiltered[i];
  if(!p) return;
  tempPatient={name:getName(p),shri:getShri(p),pmjay:getPmjay(p)};
- document.getElementById('popName').innerText=tempPatient.name;
- document.getElementById('popInfo').innerText=`SHRI: ${tempPatient.shri} | PMJAY: ${tempPatient.pmjay}`;
  document.getElementById('popupBg').style.display='block';
  document.getElementById('popupTime').style.display='block';
  document.getElementById('suggest').style.display='none';
 }
-function closePopup(){document.getElementById('popupTime').style.display='none';document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';tempPatient=null;}
+function closeAll(){document.getElementById('popupTime').style.display='none';document.getElementById('popupBlock').style.display='none';document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';}
 function closeClaimPopup(){document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';tempClaimIndex=null;document.getElementById('claimIdInput').value='';}
-async function confirmTime(t){
- if(!tempPatient) return;
- let curDate=document.getElementById('disDate').value;
- let newData = {name:tempPatient.name,shri:tempPatient.shri,pmjay:tempPatient.pmjay,date:curDate,time:t, createdAt: new Date().toLocaleString()};
- selectedList.push(newData);
- saveToStorage();
- try{
-   if(window.fb_db){
-     await window.fb_addDoc(window.fb_collection(window.fb_db, "discharges"), {
-       name: newData.name,
-       shri: newData.shri,
-       pmjay: newData.pmjay,
-       date: newData.date,
-       time: newData.time,
-       createdAt: window.fb_serverTimestamp(),
-       localTime: newData.createdAt
-     });
-     document.getElementById('fbStatus').innerText = "● Saved to Firebase ✅";
-   }
- }catch(e){
-   document.getElementById('fbStatus').innerText = "● Error: "+e.message;
- }
- document.getElementById('search').value='';
- document.getElementById('suggest').style.display='none';
- closePopup();
- currentPage=1;
- renderList();
- showToast(`Added ${tempPatient.name} - ${t} ✅`);
+
+function selectTime(t){
+ tempTime=t;
+ document.getElementById('popupTime').style.display='none';
+ document.getElementById('popupBlock').style.display='block';
 }
-function saveToStorage(){localStorage.setItem('shija_selected_discharge',JSON.stringify(selectedList));}
-function saveAll(){saveToStorage();let curDate=document.getElementById('disDate').value;let t=document.getElementById('timeFilter').value;let count=selectedList.filter(d=>{let ok=d.date===curDate;if(t!=='All') ok=ok&&d.time===t;return ok;}).length;showToast(`✅ Saved ${count} for ${curDate} - ${t}`);}
+async function selectBlock(b){
+ if(!tempPatient ||!tempTime) return;
+ let curDate=document.getElementById('disDate').value;
+ let newData = {name:tempPatient.name,shri:tempPatient.shri,pmjay:tempPatient.pmjay,date:curDate,time:tempTime,block:b, createdAt: new Date().toLocaleString()};
+ selectedList.push(newData);
+ localStorage.setItem('shija_selected_discharge',JSON.stringify(selectedList));
+ try{ if(window.fb_db){ await window.fb_addDoc(window.fb_collection(window.fb_db, "discharges"), {name:newData.name,shri:newData.shri,pmjay:newData.pmjay,date:newData.date,time:newData.time,block:newData.block,createdAt:window.fb_serverTimestamp(),localTime:newData.createdAt}); document.getElementById('fbStatus').innerText="Saved"; } }catch(e){ document.getElementById('fbStatus').innerText="Error"; }
+ document.getElementById('search').value=''; document.getElementById('suggest').style.display='none';
+ closeAll(); currentPage=1; renderList(); showToast(`Added ${tempPatient.name} - ${tempTime} - ${b}`);
+ tempPatient=null;tempTime='';
+}
+
+function getFilteredDischarge(){let curDate=document.getElementById('disDate').value;let timeF=document.getElementById('timeFilter').value;let blockF=document.getElementById('blockFilter').value;let list=selectedList.filter(d=>d.date===curDate);if(timeF!=='All') list=list.filter(d=>d.time===timeF);if(blockF!=='All') list=list.filter(d=>(d.block||'')===blockF);return list;}
+
 function changePageSize(){pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderList();}
 function prevPage(){if(currentPage>1){currentPage--;renderList();}}
-function nextPage(){let curDate=document.getElementById('disDate').value;let timeF=document.getElementById('timeFilter').value;let filtered=selectedList.filter(d=>d.date===curDate);if(timeF!=='All') filtered=filtered.filter(d=>d.time===timeF);let tp=Math.ceil(filtered.length/pageSize);if(currentPage<tp){currentPage++;renderList();}}
-function getFilteredDischarge(){let curDate=document.getElementById('disDate').value;let timeF=document.getElementById('timeFilter').value;let list=selectedList.filter(d=>d.date===curDate);if(timeF!=='All') list=list.filter(d=>d.time===timeF);return list;}
+function nextPage(){let filtered=getFilteredDischarge();let tp=Math.ceil(filtered.length/pageSize);if(currentPage<tp){currentPage++;renderList();}}
+
 function renderList(){
- updateLabels();
+ updateLabels();checkLockUI();
  let filteredList=getFilteredDischarge();
  let totalForDate=selectedList.filter(d=>d.date===document.getElementById('disDate').value).length;
  document.getElementById('listCount').innerText=totalForDate;
  let tp=Math.ceil(filteredList.length/pageSize)||1; if(currentPage>tp) currentPage=tp;
  document.getElementById('pageInfo').innerText=`Page ${currentPage} of ${tp}`;
  let body=document.getElementById('selectedBody');
- if(!filteredList.length){body.innerHTML=`<tr><td colspan="6" style="padding:30px;text-align:center;color:#b91c1c">No patient for ${document.getElementById('disDate').value} | ${document.getElementById('timeFilter').value}</td></tr>`;return;}
+ if(!filteredList.length){body.innerHTML=`<tr><td colspan="7" style="padding:30px;text-align:center;color:#64748b">No patient for ${document.getElementById('disDate').value} | ${document.getElementById('timeFilter').value} | ${document.getElementById('blockFilter').value}</td></tr>`;return;}
  let start=(currentPage-1)*pageSize;let pageData=filteredList.slice(start,start+pageSize);
  body.innerHTML=pageData.map((d,i)=>{
   let realIdx=selectedList.indexOf(d);
-  return `<tr><td>${start+i+1}</td><td><b>${d.name}</b></td><td>${d.shri}</td><td><span class="pill">${d.pmjay}</span></td><td><b>${d.time}</b></td><td><button class="btn-claim-simple" onclick="askClaimId(${realIdx})">Claim</button><button class="btn-remove-simple" onclick="removeSel(${realIdx})">✕</button></td></tr>`;
+  return `<tr><td>${start+i+1}</td><td><b>${d.name}</b></td><td>${d.shri}</td><td><span class="pill">${d.pmjay}</span></td><td><b>${d.time}</b></td><td><b>${d.block||'-'}</b></td><td><button class="btn-claim-simple" onclick="askClaimId(${realIdx})">Claim</button><button class="btn-remove-simple" onclick="removeSel(${realIdx})" ${isLocked()?'disabled':''}>X</button></td></tr>`;
  }).join('');
 }
-function askClaimId(idx){tempClaimIndex=idx;let d=selectedList[idx];document.getElementById('claimPopInfo').innerText=`Patient: ${d.name} | SHRI: ${d.shri} | PMJAY: ${d.pmjay} | ${d.date} - ${d.time}`;document.getElementById('claimIdInput').value='';document.getElementById('popupBg').style.display='block';document.getElementById('popupClaim').style.display='block';document.getElementById('claimIdInput').focus();}
+function askClaimId(idx){if(isLocked()){showToast('Click EDIT first');return;}tempClaimIndex=idx;let d=selectedList[idx];document.getElementById('claimPopInfo').innerText=`Patient: ${d.name} | SHRI: ${d.shri} | Block: ${d.block||''} | ${d.date} - ${d.time}`;document.getElementById('claimIdInput').value='';document.getElementById('popupBg').style.display='block';document.getElementById('popupClaim').style.display='block';document.getElementById('claimIdInput').focus();}
 async function confirmClaimWithId(){
  let claimId=document.getElementById('claimIdInput').value.trim();
  if(!claimId){alert('Please enter Claim ID');return;}
  let d=selectedList[tempClaimIndex];
  let claimList=JSON.parse(localStorage.getItem('shija_claim_list')||'[]');
- let newClaim = {id:Date.now(),name:d.name,pmjay:d.pmjay,shri:d.shri,claimId:claimId,date:d.date,time:d.time,claimed_at:new Date().toLocaleString()};
+ let newClaim = {id:Date.now(),name:d.name,pmjay:d.pmjay,shri:d.shri,claimId:claimId,date:d.date,time:d.time,block:d.block,claimed_at:new Date().toLocaleString()};
  claimList.push(newClaim);
  localStorage.setItem('shija_claim_list',JSON.stringify(claimList));
  let dis=JSON.parse(localStorage.getItem('shija_discharged')||'[]');
- dis.push({id:d.shri,name:d.name,pmjay:d.pmjay,claimId:claimId,date:d.date,time:d.time,discharged_at:new Date().toLocaleString(),type:'Claim'});
+ dis.push({id:d.shri,name:d.name,pmjay:d.pmjay,claimId:claimId,date:d.date,time:d.time,block:d.block,discharged_at:new Date().toLocaleString(),type:'Claim'});
  localStorage.setItem('shija_discharged',JSON.stringify(dis));
- try{
-   if(window.fb_db){
-     await window.fb_addDoc(window.fb_collection(window.fb_db, "claims"), {
-       name: d.name, pmjay: d.pmjay, shri: d.shri, claimId: claimId, date: d.date, time: d.time,
-       createdAt: window.fb_serverTimestamp(), localTime: newClaim.claimed_at
-     });
-   }
- }catch(e){}
+ try{ if(window.fb_db){ await window.fb_addDoc(window.fb_collection(window.fb_db, "claims"), {name:d.name,pmjay:d.pmjay,shri:d.shri,claimId:claimId,date:d.date,time:d.time,block:d.block,createdAt:window.fb_serverTimestamp(),localTime:newClaim.claimed_at}); } }catch(e){}
  selectedList.splice(tempClaimIndex,1);
- saveToStorage();
+ localStorage.setItem('shija_selected_discharge',JSON.stringify(selectedList));
  closeClaimPopup();
  renderList();
  renderClaimList();
  showToast(`Claim saved: ${d.name} - ${claimId}`);
  switchTab('claim');
 }
-function getFilteredClaim(){let curDate=document.getElementById('disDate').value;let timeF=document.getElementById('timeFilter').value;let list=JSON.parse(localStorage.getItem('shija_claim_list')||'[]');let filtered=list.filter(c=>c.date===curDate);if(timeF!=='All') filtered=filtered.filter(c=>c.time===timeF);return filtered;}
-function renderClaimList(){updateLabels();let filtered=getFilteredClaim();let allCount=JSON.parse(localStorage.getItem('shija_claim_list')||'[]').length;document.getElementById('claimCount').innerText=allCount;let body=document.getElementById('claimBody');if(!filtered.length){body.innerHTML=`<tr><td colspan="8" style="padding:30px;text-align:center;color:#b91c1c">No claims for ${document.getElementById('disDate').value} | ${document.getElementById('timeFilter').value}<br>Total: ${allCount}</td></tr>`;return;}body.innerHTML=filtered.map((c,i)=>`<tr><td>${i+1}</td><td><b>${c.name}</b></td><td><span class="pill">${c.pmjay}</span></td><td>${c.shri}</td><td><b style="color:#b91c1c">${c.claimId}</b></td><td>${c.date}</td><td>${c.time}</td><td><button class="btn-remove-simple" onclick="removeClaimById(${c.id})">✕</button></td></tr>`).join('');}
-function removeClaimById(id){if(!confirm('Remove this claim?'))return;let list=JSON.parse(localStorage.getItem('shija_claim_list')||'[]');list=list.filter(x=>x.id!==id);localStorage.setItem('shija_claim_list',JSON.stringify(list));renderClaimList();}
-function removeSel(i){selectedList.splice(i,1);saveToStorage();renderList();}
-function exportClaimExcel(){let list=getFilteredClaim();if(!list.length){alert('No claims for current filter');return;}let exportData=list.map((c,i)=>({"Sl No":i+1,"Name":c.name,"PMJAY ID":c.pmjay,"SHRI ID":c.shri,"Claim ID":c.claimId,"Date":c.date,"Time":c.time}));let ws=XLSX.utils.json_to_sheet(exportData);ws['!cols']=[{wch:6},{wch:24},{wch:16},{wch:14},{wch:16},{wch:12},{wch:8}];let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'ClaimList');XLSX.writeFile(wb,`SHIJA_Claim_${document.getElementById('disDate').value}_${document.getElementById('timeFilter').value}.xlsx`);}
+function getFilteredClaim(){let curDate=document.getElementById('disDate').value;let timeF=document.getElementById('timeFilter').value;let blockF=document.getElementById('blockFilter').value;let list=JSON.parse(localStorage.getItem('shija_claim_list')||'[]');let filtered=list.filter(c=>c.date===curDate);if(timeF!=='All') filtered=filtered.filter(c=>c.time===timeF);if(blockF!=='All') filtered=filtered.filter(c=>(c.block||'')===blockF);return filtered;}
+function renderClaimList(){updateLabels();let filtered=getFilteredClaim();let allCount=JSON.parse(localStorage.getItem('shija_claim_list')||'[]').length;document.getElementById('claimCount').innerText=allCount;let body=document.getElementById('claimBody');if(!filtered.length){body.innerHTML=`<tr><td colspan="9" style="padding:30px;text-align:center;color:#64748b">No claims for ${document.getElementById('disDate').value} | ${document.getElementById('timeFilter').value} | ${document.getElementById('blockFilter').value}<br>Total: ${allCount}</td></tr>`;return;}body.innerHTML=filtered.map((c,i)=>`<tr><td>${i+1}</td><td><b>${c.name}</b></td><td><span class="pill">${c.pmjay}</span></td><td>${c.shri}</td><td><b style="color:#0a1931">${c.claimId}</b></td><td>${c.date}</td><td>${c.time}</td><td>${c.block||'-'}</td><td><button class="btn-remove-simple" onclick="removeClaimById(${c.id})">X</button></td></tr>`).join('');}
+function removeClaimById(id){if(isLocked()){showToast('Click EDIT first');return;}if(!confirm('Remove this claim?'))return;let list=JSON.parse(localStorage.getItem('shija_claim_list')||'[]');list=list.filter(x=>x.id!==id);localStorage.setItem('shija_claim_list',JSON.stringify(list));renderClaimList();}
+function removeSel(i){if(isLocked()){showToast('Click EDIT first');return;}selectedList.splice(i,1);localStorage.setItem('shija_selected_discharge',JSON.stringify(selectedList));renderList();}
+function exportClaimExcel(){let list=getFilteredClaim();if(!list.length){alert('No claims for current filter');return;}let exportData=list.map((c,i)=>({"Sl No":i+1,"Name":c.name,"PMJAY ID":c.pmjay,"SHRI ID":c.shri,"Claim ID":c.claimId,"Date":c.date,"Time":c.time,"Block":c.block}));let ws=XLSX.utils.json_to_sheet(exportData);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'ClaimList');XLSX.writeFile(wb,`SHIJA_Claim_${document.getElementById('disDate').value}_${document.getElementById('timeFilter').value}_${document.getElementById('blockFilter').value}.xlsx`);}
 document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap')) document.getElementById('suggest').style.display='none';});
-updateLabels();renderList();renderClaimList();
+updateLabels();checkLockUI();renderList();renderClaimList();
 </script>
 </body></html>
