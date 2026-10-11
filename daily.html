@@ -1,102 +1,153 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Daily Dialysis - SHIJA</title>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daily Dialysis - SHIJA</title>
 <script src="Patient.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial}
-body{background:#f1f5f9}
-.top{background:linear-gradient(90deg,#0f4c75,#1e7bb8);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-.top a{color:#fff;text-decoration:none;background:#ffffff22;padding:6px 12px;border-radius:8px}
-.wrap{max-width:1250px;margin:14px auto;padding:0 12px}
-.card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 4px 12px #0001;margin-bottom:12px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-input,select{padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;outline:0}
-.btn{padding:10px 16px;border:0;border-radius:10px;font-weight:700;cursor:pointer}
-.btn-blue{background:#0f4c75;color:#fff}
-.btn-green{background:#10b981;color:#fff}
-.btn-dark{background:#334155;color:#fff}
-.suggest{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #cbd5e1;border-radius:10px;max-height:260px;overflow:auto;z-index:50;display:none}
-.suggest div{padding:10px;border-bottom:1px solid #f1f5f9;cursor:pointer}
-.suggest div:hover{background:#e0f2fe}
-.searchBox{position:relative;flex:1;min-width:220px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:8px;border:1px solid #e2e8f0;text-align:left}
-th{background:#0f4c75;color:#fff;position:sticky;top:0;white-space:nowrap}
-tr:nth-child(even){background:#f8fafc}
-.popup{position:fixed;inset:0;background:#0008;z-index:999;display:none;align-items:center;justify-content:center}
-.popupBox{background:#fff;border-radius:16px;padding:18px;min-width:320px;max-width:90vw;box-shadow:0 20px 40px #0003}
-.grid2{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.timeBtn{padding:12px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-weight:700;cursor:pointer}
-.timeBtn.sel{background:#0f4c75;color:#fff;border-color:#0f4c75}
-.blockBtn{padding:14px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-weight:800;cursor:pointer;text-align:center}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
+body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;color:#0f172a}
+.top{height:76px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:40}
+.topLeft{display:flex;align-items:center;gap:10px;color:#fff;font-weight:900;font-size:26px;letter-spacing:.3px}
+.topLeft span{border:2px solid #fff3;width:38px;height:38px;display:grid;place-items:center;border-radius:10px;font-size:20px}
+.topRight{display:flex;align-items:center;gap:16px;color:#fff}
+.topRight.icon{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:#ffffff11;cursor:pointer}
+.dr{width:34px;height:34px;border-radius:50%;background:#1e2a4a;color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px;border:1.5px solid #2a3a6a}
+.mainWrap{display:flex;flex:1;min-height:calc(100vh - 76px)}
+.side{width:250px;min-width:250px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:18px 12px;position:sticky;top:76px;height:calc(100vh - 76px);overflow:auto}
+.mainMenu{color:#6b7aa2;font-size:11px;letter-spacing:2px;font-weight:700;margin:8px 10px 16px}
+.menu{display:flex;flex-direction:column;gap:4px}
+.menu a{padding:12px 14px;border-radius:12px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px;display:flex;align-items:center;gap:12px}
+.menu a.active{background:#1a56db;color:#fff;box-shadow:0 6px 16px #1a56db55}
+.menu a:hover{background:#13264d;color:#fff}
+.sideBottom{border-top:1px solid #1a2a4f;padding:14px 10px;margin-top:14px;color:#6b7aa2;font-size:12px}
+.sideBottom b{color:#8ea0c0}
+.content{flex:1;padding:22px 24px;max-width:1300px;width:100%}
+.pageTitle{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.pageTitle h1{font-size:48px;font-weight:900;letter-spacing:-1.5px;color:#0f1a34;line-height:1}
+.bread{color:#6b7280;font-size:14px;margin-top:6px}
+.today{color:#6b7280;font-size:14px;font-weight:500}
+.card{background:#fff;border-radius:18px;box-shadow:0 20px 40px #00000010;border:1px solid #e5e7eb;padding:14px}
+.searchBar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.searchBox{position:relative;flex:1;min-width:240px}
+.searchBox input{width:100%;padding:13px 14px 13px 42px;border:1.6px solid #e5e7eb;border-radius:12px;outline:0;font-size:14px;font-weight:600;background:#fff}
+.sIcon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#94a3b8}
+.btnAdd{background:#1a56db;color:#fff;border:0;padding:12px 22px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 6px 14px #1a56db33}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.filters select,.filters input{padding:10px 12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;font-weight:700;font-size:13px;outline:0}
+.pmjayBox{border:1.5px dashed #22c55e;background:#f0fdf4}
+.tableBox{border:1.5px solid #e5e7eb;border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse;min-width:900px;font-size:14px}
+th{padding:14px 12px;text-align:left;font-weight:800;background:#f8fafc;border-bottom:1px solid #e5e7eb;color:#0f172a;font-size:13px}
+td{padding:14px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tr:hover{background:#f8fafc}
+.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;flex-shrink:0}
+.shriPill{background:#dbeafe;color:#1e40af;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;margin-top:4px;border:1px solid #bfdbfe}
+.pmjayPill{background:#bbf7d0;color:#14532d;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:800;display:inline-block;border:1px solid #86efac}
+.suggest{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:12px;max-height:260px;overflow:auto;z-index:50;display:none;box-shadow:0 12px 24px #0002;margin-top:6px}
+.suggest div{padding:11px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer}
+.suggest div:hover{background:#eff6ff}
+.popup{position:fixed;inset:0;background:#0006;z-index:999;display:none;align-items:center;justify-content:center}
+.popupBox{background:#fff;border-radius:16px;padding:20px;min-width:340px;max-width:92vw;box-shadow:0 20px 40px #0003}
+.grid2{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.timeBtn{padding:12px;border:1.5px solid #e5e7eb;border-radius:12px;background:#fff;font-weight:800;cursor:pointer}
+.timeBtn.sel{background:#0a1931;color:#fff;border-color:#0a1931}
+.blockBtn{padding:14px;border:1.5px solid #e5e7eb;border-radius:12px;background:#fff;font-weight:800;cursor:pointer;text-align:center}
 .blockBtn.sel{background:#f59e0b;color:#111;border-color:#f59e0b}
-.filterRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
-.tabBar{display:flex;gap:8px;margin-bottom:12px}
-.tabBtn{padding:8px 14px;border-radius:20px;border:1.5px solid #cbd5e1;background:#fff;cursor:pointer;font-weight:700;font-size:13px}
-.tabBtn.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
-.pagi{display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:12px}
-.pagi button{padding:6px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-weight:700}
-.pagi button.active{background:#0f4c75;color:#fff;border-color:#0f4c75}
-.pmjayBox{border:1.5px dashed #10b981;background:#ecfdf5}
-.status{font-size:11px;color:#16a34a;font-weight:700}
-@media print{body *{visibility:hidden}#printArea,#printArea *{visibility:visible}#printArea{position:absolute;left:0;top:0;width:100%}@page{size:A4 landscape;margin:8mm}.noPrint{display:none!important}}
-</style></head><body>
+.btn{padding:10px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
+.btn-dark{background:#0a1931;color:#fff}
+.btn-green{background:#10b981;color:#fff}
+.pagi{display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:14px}
+.pagi button{width:40px;height:40px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;cursor:pointer;font-weight:800}
+.pagi button.active{background:#1a56db;color:#fff;border-color:#1a56db}
+.ham{display:none;width:42px;height:38px;border-radius:10px;background:#0a1931;border:0;color:#fff;font-size:18px;cursor:pointer}
+@media(max-width:900px){.side{position:fixed;left:0;top:76px;transform:translateX(-100%);z-index:60;transition:.3s}.side.open{transform:translateX(0)}.ham{display:grid}}
+</style>
+</head>
+<body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
-<div class="top"><b>💉 Daily Dialysis Entry - FIREBASE</b><div><span id="fbStatus" class="status" style="color:#fff">● Connecting...</span> <a href="index.html">Home</a> <button class="btn btn-dark noPrint" onclick="exportExcel()" style="margin-left:6px">📤 Excel</button> <button class="btn btn-dark noPrint" onclick="window.print()" style="margin-left:6px">🖨️ Print</button></div></div>
 
-<div class="wrap">
-<div class="card noPrint">
-<div class="row">
-<div>📅 Date: <input type="date" id="d_date"></div>
-<div class="searchBox"><input id="p_search" placeholder="Type Name or SHRI ID..." style="width:100%" oninput="showSuggest(this.value)" autocomplete="off"><div id="suggest" class="suggest"></div></div>
-<div>Name: <input id="p_name" placeholder="Name" style="width:140px"></div>
-<div>SHRI: <input id="p_shri" placeholder="SHRI" style="width:110px"></div>
-<div>PMJAY: <input id="p_pmjay" placeholder="PMJAY ID" style="width:130px" class="pmjayBox"></div>
-<div><button class="btn btn-blue" onclick="startEntry()">➕ ADD</button></div>
+<div class="top">
+<div class="topLeft"><span>✚</span> SHIJA Dialysis <button class="ham" onclick="toggleSide()" style="margin-left:12px">☰</button></div>
+<div class="topRight">
+<div class="icon">🔔</div><div class="icon">⚙️</div>
+<div style="display:flex;align-items:center;gap:8px"><div class="dr">DR</div><div style="font-weight:700;font-size:14px">Dr. Anika Rao <span style="margin-left:6px">▾</span></div></div>
 </div>
-<div style="margin-top:8px;color:#64748b;font-size:12px">Master: <b id="totalLoaded">0</b> | Cloud: <b id="cloudCount">0 saved</b></div>
+</div>
+
+<div class="mainWrap">
+<div class="side" id="side">
+<div>
+<div class="mainMenu">MAIN MENU</div>
+<div class="menu">
+<a href="index.html">⌂ Home</a>
+<a href="total.html">👥 Total Patient</a>
+<a href="daily.html" class="active">💧 Daily Dialysis</a>
+<a href="discharge.html">↗ Discharge Patient</a>
+<a href="kft.html">📄 KFT Report</a>
+<a href="add.html">👤 Add Patient</a>
+<a href="bill.html">📋 Bill</a>
+</div>
+</div>
+<div class="sideBottom">ⓘ Help & Support<br><span style="font-size:11px">v2.4.1 • Updated Oct 2025 • <span id="fbStatus">Connecting...</span></span></div>
+</div>
+
+<div class="content">
+<div class="pageTitle">
+<div><h1>Daily Dialysis</h1><div class="bread">Dashboard / Daily Dialysis</div></div>
+<div class="today">Today • <span id="todayTxt"></span> • Master: <b id="totalLoaded">0</b> • <b id="cloudCount">0</b></div>
 </div>
 
 <div class="card">
-<div class="tabBar noPrint">
-<button class="tabBtn active" onclick="switchTab('list')" id="tabListBtn">📋 List</button>
-<button class="tabBtn" onclick="switchTab('search')" id="tabSearchBtn">🔍 Search Added</button>
+<div class="searchBar">
+<div class="searchBox"><span class="sIcon">🔍</span><input id="p_search" placeholder="Search by Name / SHRI ID" oninput="showSuggest(this.value)" autocomplete="off"><div id="suggest" class="suggest"></div></div>
+<input id="p_name" placeholder="Name" style="display:none">
+<input id="p_shri" placeholder="SHRI" style="display:none">
+<input id="p_pmjay" placeholder="PMJAY" class="pmjayBox" style="display:none">
+<input type="date" id="d_date" style="display:none">
+<button class="btnAdd" onclick="openAdd()">+ ADD</button>
 </div>
 
-<div id="listTab">
-<div class="filterRow noPrint">
-<select id="timeFilter" onchange="currentPage=1;renderTable()"><option value="all">All TIME</option><option value="7am">7 AM</option><option value="12pm">12 PM</option><option value="5pm">5 PM</option><option value="9pm">9 PM</option><option value="12am">12 AM</option><option value="2am">2 AM</option></select>
+<div class="filters">
+<span style="font-weight:800;font-size:13px">Filter by Time:</span>
+<select id="timeFilter" onchange="currentPage=1;renderTable()"><option value="all">All Time</option><option value="7am">7 AM</option><option value="12pm">12 PM</option><option value="5pm">5 PM</option><option value="9pm">9 PM</option><option value="12am">12 AM</option><option value="2am">2 AM</option></select>
+<span style="font-weight:800;font-size:13px;margin-left:6px">Filter by Block:</span>
+<select id="blockFilter" onchange="currentPage=1;renderTable()"><option value="all">All Block</option><option value="A">A</option><option value="B">B</option><option value="Main">Main</option><option value="Itocha">Itocha</option></select>
 <input type="date" id="view_date" onchange="currentPage=1;renderTable()">
-<select id="pageSize" onchange="currentPage=1;renderTable()"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50" selected>50</option></select>
-<span style="margin-left:auto;font-size:12px;color:#64748b">Total: <b id="totalCount">0</b></span>
+<select id="pageSize" onchange="currentPage=1;renderTable()"><option value="6">6</option><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option></select>
+<div style="margin-left:auto;display:flex;gap:6px"><button class="btn btn-dark" onclick="exportExcel()" style="padding:8px 12px">Excel</button><button class="btn btn-dark" onclick="window.print()" style="padding:8px 12px">Print</button></div>
 </div>
+
 <div id="printArea">
-<h3 style="text-align:center;margin-bottom:6px">SHIJA HOSPITALS - Daily Dialysis List</h3>
-<p style="text-align:center;font-size:12px;margin-bottom:8px">Date: <b id="printDate"></b> | Filter: <span id="printFilter"></span></p>
-<table><thead><tr><th>Sl No</th><th>Name</th><th>SHRI ID</th><th>TIME</th><th>PMJAY ID</th><th>BLOCK</th><th>PREV DATE</th><th class="noPrint">ACTION</th></tr></thead><tbody id="tblBody"></tbody></table>
-<div class="pagi noPrint" id="pagination"></div>
+<div class="tableBox"><table><thead><tr><th>Sl No</th><th>Name</th><th>SHRI ID</th><th>Time</th><th>PMJAY ID</th><th>Block</th><th>Prev Date</th><th>Action</th></tr></thead><tbody id="tblBody"></tbody></table></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:10px">
+<div style="color:#6b7280;font-size:13px">Showing <b id="showingTxt">0</b> of <b id="totalCount">0</b> patients</div>
+<div class="pagi" id="pagination"></div>
 </div>
 </div>
-
-<div id="searchTab" style="display:none">
-<div class="filterRow noPrint">
-<input id="searchAdded" placeholder="🔍 Search Name, SHRI, PMJAY, BLOCK..." style="flex:1;min-width:260px" oninput="searchPage=1;searchAddedList()">
-<select id="searchDate" onchange="searchAddedList()"><option value="all">All Dates</option></select>
-<select id="searchPageSize" onchange="searchPage=1;searchAddedList()"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50" selected>50</option></select>
-<span style="font-size:12px;color:#64748b">Found: <b id="searchCount">0</b></span>
-</div>
-<table><thead><tr><th>Sl No</th><th>Date</th><th>Name</th><th>SHRI ID</th><th>TIME</th><th>PMJAY ID</th><th>BLOCK</th><th>PREV DATE</th></tr></thead><tbody id="searchBody"></tbody></table>
-<div class="pagi noPrint" id="searchPagination"></div>
 </div>
 </div>
 </div>
 
-<div id="popTime" class="popup"><div class="popupBox"><h3>⏰ Select TIME</h3><div class="grid2">
+<!-- ADD POPUP -->
+<div id="popAdd" class="popup"><div class="popupBox" style="min-width:380px"><h3 style="font-weight:900">Add Patient to Daily</h3>
+<div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+<input id="pop_name" placeholder="Name" style="padding:12px;border:1.5px solid #e5e7eb;border-radius:10px">
+<input id="pop_shri" placeholder="SHRI ID" style="padding:12px;border:1.5px solid #e5e7eb;border-radius:10px">
+<input id="pop_pmjay" placeholder="PMJAY ID" class="pmjayBox" style="padding:12px;border-radius:10px">
+</div>
+<div style="display:flex;gap:8px;margin-top:14px"><button class="btn" style="flex:1;background:#1a56db;color:#fff" onclick="startEntry()">Next → Time</button><button class="btn btn-dark" style="flex:1" onclick="closePop('popAdd')">Cancel</button></div>
+</div></div>
+
+<div id="popTime" class="popup"><div class="popupBox"><h3>Select TIME</h3><div class="grid2">
 <button class="timeBtn" onclick="selectTime('7am',this)">7 AM</button><button class="timeBtn" onclick="selectTime('12pm',this)">12 PM</button><button class="timeBtn" onclick="selectTime('5pm',this)">5 PM</button><button class="timeBtn" onclick="selectTime('9pm',this)">9 PM</button><button class="timeBtn" onclick="selectTime('12am',this)">12 AM</button><button class="timeBtn" onclick="selectTime('2am',this)">2 AM</button>
 </div><button class="btn btn-dark" style="margin-top:12px;width:100%" onclick="closePop('popTime')">Cancel</button></div></div>
 
-<div id="popBlock" class="popup"><div class="popupBox"><h3>🏢 Select BLOCK</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><button class="blockBtn" onclick="selectBlock('Itocha',this)">Itocha</button><button class="blockBtn" onclick="selectBlock('Main',this)">Main</button></div><button class="btn btn-dark" style="margin-top:12px;width:100%" onclick="closePop('popBlock')">Cancel</button></div></div>
+<div id="popBlock" class="popup"><div class="popupBox"><h3>Select BLOCK</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px"><button class="blockBtn" onclick="selectBlock('Itocha',this)">Itocha</button><button class="blockBtn" onclick="selectBlock('Main',this)">Main</button><button class="blockBtn" onclick="selectBlock('A',this)">A</button><button class="blockBtn" onclick="selectBlock('B',this)">B</button></div><button class="btn btn-dark" style="margin-top:12px;width:100%" onclick="closePop('popBlock')">Cancel</button></div></div>
 
-<div id="popPrev" class="popup"><div class="popupBox"><h3>📅 Previous Dialysis Date</h3><p style="font-size:12px;color:#64748b;margin-bottom:8px">PMJAY ID: <b id="showPmjayPrev" style="color:#0f4c75">-</b></p><input type="date" id="prev_date" style="width:100%"><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-green" style="flex:1" onclick="confirmAdd()">Add to List ✅</button><button class="btn btn-dark" style="flex:1" onclick="closePop('popPrev')">Cancel</button></div></div></div>
+<div id="popPrev" class="popup"><div class="popupBox"><h3>Previous Dialysis Date</h3><p style="font-size:12px;color:#64748b;margin:8px 0">PMJAY: <b id="showPmjayPrev" style="color:#1a56db">-</b></p><input type="date" id="prev_date" style="width:100%;padding:11px;border:1.5px solid #e5e7eb;border-radius:10px"><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-green" style="flex:1" onclick="confirmAdd()">Add to List</button><button class="btn btn-dark" style="flex:1" onclick="closePop('popPrev')">Cancel</button></div></div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -111,164 +162,114 @@ const config = {
 };
 const app = initializeApp(config);
 const db = getFirestore(app);
-window.db = db;
-window.fb_addDoc = addDoc;
-window.fb_collection = collection;
-window.fb_serverTimestamp = serverTimestamp;
-document.getElementById('fbStatus').innerText = "● Firebase Connected ✅";
+window.db = db;window.fb_addDoc = addDoc;window.fb_collection = collection;window.fb_serverTimestamp = serverTimestamp;
+document.getElementById('fbStatus').innerText = "Firebase Connected";
 </script>
 
 <script>
-let excelRaw=(typeof patientData!=='undefined')?patientData:[]; 
+function toggleSide(){document.getElementById('side').classList.toggle('open');}
+let excelRaw=(typeof patientData!=='undefined')?patientData:[];
 let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');
 let allPatients=[...excelRaw,...extra];
 document.getElementById('totalLoaded').textContent=allPatients.length;
 let today=new Date().toISOString().slice(0,10);
-document.getElementById('d_date').value=today;document.getElementById('view_date').value=today;document.getElementById('printDate').textContent=today;
+document.getElementById('d_date').value=today;document.getElementById('view_date').value=today;
+document.getElementById('todayTxt').textContent=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' • '+new Date().toLocaleDateString('en-GB',{weekday:'long'});
 let temp={name:'',shri:'',pmjay:'',time:'',block:'',prev:''};
-let currentPage=1, searchPage=1;
-
+let currentPage=1;
 function getPmjayFromMaster(name,shri){
- let found=allPatients.find(p=>{
-   let n=(p.patientName||'').toLowerCase()===name.toLowerCase();
-   let s=(p.shriId||'').toLowerCase()===shri.toLowerCase() && shri;
-   return n||s;
- });
- if(!found) return '';
- return found.pmjayId||found.PMJAY||found.pmjay||found.pmjay_id||found.PmjayId||found['PMJAY ID']||'';
-}
-
-function switchTab(t){
- document.getElementById('listTab').style.display=t==='list'?'block':'none';
- document.getElementById('searchTab').style.display=t==='search'?'block':'none';
- document.getElementById('tabListBtn').classList.toggle('active',t==='list');
- document.getElementById('tabSearchBtn').classList.toggle('active',t==='search');
- if(t==='search') searchAddedList();
+ let found=allPatients.find(p=>{let n=(p.patientName||'').toLowerCase()===name.toLowerCase();let s=(p.shriId||'').toLowerCase()===shri.toLowerCase()&&shri;return n||s;});
+ if(!found) return '';return found.pmjayId||found.PMJAY||found.pmjay||'';
 }
 function showSuggest(q){
  q=q.toLowerCase().trim();let box=document.getElementById('suggest');
  if(q.length<1){box.style.display='none';return;}
  let filtered=allPatients.filter(p=>{let n=(p.patientName||'').toLowerCase();let s=(p.shriId||'').toLowerCase();let pj=(p.pmjayId||p.PMJAY||p.pmjay||'').toLowerCase();return n.includes(q)||s.includes(q)||pj.includes(q);}).slice(0,25);
  if(!filtered.length){box.style.display='none';return;}
- box.innerHTML=filtered.map(p=>{
-   let pm=p.pmjayId||p.PMJAY||p.pmjay||'';
-   return `<div onclick="pickPatient('${(p.patientName||'').replace(/'/g,"&#39;")}','${(p.shriId||'').replace(/'/g,"&#39;")}','${(pm||'').replace(/'/g,"&#39;")}')"><b>${p.patientName}</b> - ${p.shriId||'No SHRI'} <span style="color:#10b981">| ${pm||'No PMJAY'}</span></div>`;
- }).join('');box.style.display='block';
+ box.innerHTML=filtered.map(p=>{let pm=p.pmjayId||p.PMJAY||p.pmjay||'';return `<div onclick="pickPatient('${(p.patientName||'').replace(/'/g,"&#39;")}','${(p.shriId||'').replace(/'/g,"&#39;")}','${(pm||'').replace(/'/g,"&#39;")}')"><b>${p.patientName}</b> - ${p.shriId||''} <span style="color:#1a56db">| ${pm||''}</span></div>`;}).join('');box.style.display='block';
 }
 function pickPatient(name,shri,pmjay){
  document.getElementById('p_name').value=name;document.getElementById('p_shri').value=shri;document.getElementById('p_pmjay').value=pmjay||getPmjayFromMaster(name,shri);
+ document.getElementById('pop_name').value=name;document.getElementById('pop_shri').value=shri;document.getElementById('pop_pmjay').value=pmjay||getPmjayFromMaster(name,shri);
  document.getElementById('p_search').value=name;document.getElementById('suggest').style.display='none';
- temp.name=name;temp.shri=shri;temp.pmjay=document.getElementById('p_pmjay').value;
+ temp.name=name;temp.shri=shri;temp.pmjay=document.getElementById('p_pmjay').value||pmjay;
 }
-document.getElementById('p_name').addEventListener('input',e=>{temp.name=e.target.value.trim();let auto=getPmjayFromMaster(temp.name,temp.shri);if(auto) document.getElementById('p_pmjay').value=auto;temp.pmjay=document.getElementById('p_pmjay').value;});
-document.getElementById('p_shri').addEventListener('input',e=>{temp.shri=e.target.value.trim();let auto=getPmjayFromMaster(temp.name,temp.shri);if(auto) document.getElementById('p_pmjay').value=auto;temp.pmjay=document.getElementById('p_pmjay').value;});
-document.getElementById('p_pmjay').addEventListener('input',e=>{temp.pmjay=e.target.value.trim();});
-
+function openAdd(){document.getElementById('popAdd').style.display='flex';}
 function startEntry(){
- temp.name=document.getElementById('p_name').value.trim()||temp.name;
- temp.shri=document.getElementById('p_shri').value.trim()||temp.shri;
- temp.pmjay=document.getElementById('p_pmjay').value.trim()||getPmjayFromMaster(temp.name,temp.shri);
- document.getElementById('p_pmjay').value=temp.pmjay;
- if(!temp.name){alert('Enter Patient Name');return;}
- document.getElementById('popTime').style.display='flex';
+ temp.name=document.getElementById('pop_name').value.trim()||document.getElementById('p_name').value.trim();
+ temp.shri=document.getElementById('pop_shri').value.trim()||document.getElementById('p_shri').value.trim();
+ temp.pmjay=document.getElementById('pop_pmjay').value.trim()||getPmjayFromMaster(temp.name,temp.shri);
+ if(!temp.name){alert('Enter Name');return;}
+ document.getElementById('p_name').value=temp.name;document.getElementById('p_shri').value=temp.shri;document.getElementById('p_pmjay').value=temp.pmjay;
+ closePop('popAdd');document.getElementById('popTime').style.display='flex';
 }
 function selectTime(t,el){document.querySelectorAll('.timeBtn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');temp.time=t;setTimeout(()=>{closePop('popTime');document.getElementById('popBlock').style.display='flex';},200);}
 function selectBlock(b,el){document.querySelectorAll('.blockBtn').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');temp.block=b;setTimeout(()=>{closePop('popBlock');document.getElementById('showPmjayPrev').textContent=temp.pmjay||'N/A';document.getElementById('popPrev').style.display='flex';},200);}
 async function confirmAdd(){
  let prev=document.getElementById('prev_date').value;
- if(!prev){alert('Select previous dialysis date');return;}
+ if(!prev){alert('Select previous date');return;}
  temp.prev=prev;let dialDate=document.getElementById('d_date').value||today;
- temp.shri=document.getElementById('p_shri').value.trim();temp.name=document.getElementById('p_name').value.trim();temp.pmjay=document.getElementById('p_pmjay').value.trim()||getPmjayFromMaster(temp.name,temp.shri)||'N/A';
- let newEntry = {id:Date.now(),date:dialDate,name:temp.name,shriId:temp.shri||'N/A',time:temp.time,pmjayId:temp.pmjay,block:temp.block,prevDate:temp.prev};
- let list=JSON.parse(localStorage.getItem('shija_daily')||'[]');
- list.push(newEntry);
- localStorage.setItem('shija_daily',JSON.stringify(list));
- // Firebase
- try{
-  document.getElementById('fbStatus').innerText = "● Saving to cloud...";
-  await fb_addDoc(fb_collection(db, "daily_dialysis"), {
-    date: newEntry.date,
-    name: newEntry.name,
-    shriId: newEntry.shriId,
-    time: newEntry.time,
-    pmjayId: newEntry.pmjayId,
-    block: newEntry.block,
-    prevDate: newEntry.prevDate,
-    createdAt: fb_serverTimestamp(),
-    localTime: new Date().toLocaleString()
-  });
-  document.getElementById('fbStatus').innerText = "● Saved to cloud ✅";
- }catch(e){ document.getElementById('fbStatus').innerText = "● Error: "+e.message; }
+ let newEntry={id:Date.now(),date:dialDate,name:temp.name,shriId:temp.shri||'N/A',time:temp.time,pmjayId:temp.pmjay||'N/A',block:temp.block,prevDate:temp.prev};
+ let list=JSON.parse(localStorage.getItem('shija_daily')||'[]');list.push(newEntry);localStorage.setItem('shija_daily',JSON.stringify(list));
+ try{await fb_addDoc(fb_collection(db,"daily_dialysis"),{date:newEntry.date,name:newEntry.name,shriId:newEntry.shriId,time:newEntry.time,pmjayId:newEntry.pmjayId,block:newEntry.block,prevDate:newEntry.prevDate,createdAt:fb_serverTimestamp(),localTime:new Date().toLocaleString()});document.getElementById('fbStatus').innerText="Saved";}catch(e){document.getElementById('fbStatus').innerText="Error: "+e.message;}
  closePop('popPrev');temp={name:'',shri:'',pmjay:'',time:'',block:'',prev:''};
- document.getElementById('p_search').value='';document.getElementById('p_name').value='';document.getElementById('p_shri').value='';document.getElementById('p_pmjay').value='';document.getElementById('prev_date').value='';
- currentPage=1;renderTable();updateSearchDates();
+ document.getElementById('p_search').value='';document.getElementById('pop_name').value='';document.getElementById('pop_shri').value='';document.getElementById('pop_pmjay').value='';document.getElementById('prev_date').value='';
+ currentPage=1;renderTable();
 }
 function closePop(id){document.getElementById(id).style.display='none';}
 function getFilteredList(){
  let viewDate=document.getElementById('view_date').value||today;
  let timeFilter=document.getElementById('timeFilter').value;
- document.getElementById('printDate').textContent=viewDate;document.getElementById('printFilter').textContent=timeFilter.toUpperCase();
+ let blockFilter=document.getElementById('blockFilter').value;
  let list=JSON.parse(localStorage.getItem('shija_daily')||'[]').filter(x=>x.date===viewDate);
  if(timeFilter!=='all') list=list.filter(x=>x.time===timeFilter);
+ if(blockFilter!=='all') list=list.filter(x=>x.block===blockFilter||x.block===blockFilter);
+ let q=document.getElementById('p_search').value.toLowerCase().trim();
+ if(q) list=list.filter(x=> (x.name||'').toLowerCase().includes(q)||(x.shriId||'').toLowerCase().includes(q));
  return list;
 }
 function renderTable(){
  let list=getFilteredList();
  let pageSize=parseInt(document.getElementById('pageSize').value);
- let totalPages=Math.ceil(list.length/pageSize)||1;
- if(currentPage>totalPages) currentPage=totalPages;
- let start=(currentPage-1)*pageSize;
- let pageData=list.slice(start,start+pageSize);
+ let totalPages=Math.ceil(list.length/pageSize)||1;if(currentPage>totalPages) currentPage=totalPages;
+ let start=(currentPage-1)*pageSize;let pageData=list.slice(start,start+pageSize);
+ let bgColors=['#dbeafe','#f3e8ff','#fed7aa','#a7f3d0','#e0e7ff','#fef3c7'];let txtColors=['#1e40af','#6b21a8','#9a3412','#065f46','#3730a3','#92400e'];
  document.getElementById('tblBody').innerHTML=pageData.map((r,i)=>{
-   let pm=r.pmjayId;
-   if((!pm||pm==='N/A') && r.name){let auto=getPmjayFromMaster(r.name,r.shriId); if(auto) pm=auto;}
-   return `<tr><td>${start+i+1}</td><td>${r.name}</td><td>${r.shriId}</td><td>${r.time}</td><td style="background:#ecfdf5;font-weight:700">${pm||'N/A'}</td><td>${r.block}</td><td>${r.prevDate}</td><td class="noPrint"><button onclick="delEntry(${r.id})" style="background:#ef4444;color:#fff;border:0;padding:4px 8px;border-radius:6px;cursor:pointer">✕</button></td></tr>`;
- }).join('')||`<tr><td colspan="8" style="text-align:center;color:#94a3b8">No patients</td></tr>`;
- document.getElementById('totalCount').textContent=list.length;
- renderPagination(totalPages,'pagination',currentPage);
-}
-function renderPagination(totalPages, elementId, curPage){
- let cont=document.getElementById(elementId);if(totalPages<=1){cont.innerHTML='';return;}
- let html=`<button onclick="changePage(-1,'${elementId}')">‹ Prev</button>`;
- for(let i=1;i<=totalPages;i++){if(i===1||i===totalPages||(i>=curPage-2&&i<=curPage+2)){html+=`<button class="${i===curPage?'active':''}" onclick="goPage(${i},'${elementId}')">${i}</button>`;}else if(i===curPage-3||i===curPage+3){html+=`<span>...</span>`;}}
- html+=`<button onclick="changePage(1,'${elementId}')">Next ›</button>`;cont.innerHTML=html;
-}
-function goPage(p,id){if(id==='pagination'){currentPage=p;renderTable();}else{searchPage=p;searchAddedList();}}
-function changePage(dir,id){if(id==='pagination'){currentPage=Math.max(1,currentPage+dir);let total=Math.ceil(getFilteredList().length/parseInt(document.getElementById('pageSize').value))||1;if(currentPage>total) currentPage=total;renderTable();}else{searchPage=Math.max(1,searchPage+dir);searchAddedList();}}
-function updateSearchDates(){
- let list=JSON.parse(localStorage.getItem('shija_daily')||'[]');
- let dates=[...new Set(list.map(x=>x.date))].sort().reverse();
- let sel=document.getElementById('searchDate');let cur=sel.value;
- sel.innerHTML='<option value="all">All Dates</option>'+dates.map(d=>`<option value="${d}">${d}</option>`).join('');
- if(dates.includes(cur)) sel.value=cur;
-}
-function searchAddedList(){
- let q=document.getElementById('searchAdded').value.toLowerCase().trim();
- let dateFilter=document.getElementById('searchDate').value;
- let list=JSON.parse(localStorage.getItem('shija_daily')||'[]');
- if(dateFilter!=='all') list=list.filter(x=>x.date===dateFilter);
- if(q){list=list.filter(x=> (x.name||'').toLowerCase().includes(q)||(x.shriId||'').toLowerCase().includes(q)||(x.pmjayId||'').toLowerCase().includes(q)||(x.block||'').toLowerCase().includes(q)||(x.time||'').toLowerCase().includes(q));}
- document.getElementById('searchCount').textContent=list.length;
- let pageSize=parseInt(document.getElementById('searchPageSize').value);
- let totalPages=Math.ceil(list.length/pageSize)||1;if(searchPage>totalPages) searchPage=totalPages;
- let start=(searchPage-1)*pageSize;let pageData=list.slice(start,start+pageSize);
- document.getElementById('searchBody').innerHTML=pageData.map((r,i)=>{
    let pm=r.pmjayId||getPmjayFromMaster(r.name,r.shriId)||'N/A';
-   return `<tr><td>${start+i+1}</td><td>${r.date}</td><td>${r.name}</td><td>${r.shriId}</td><td>${r.time}</td><td style="background:#ecfdf5;font-weight:700">${pm}</td><td>${r.block}</td><td>${r.prevDate}</td></tr>`;
- }).join('')||`<tr><td colspan="8" style="text-align:center;color:#94a3b8">No results</td></tr>`;
- renderPagination(totalPages,'searchPagination',searchPage);
+   let initials=r.name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+   let bg=bgColors[i%bgColors.length];let col=txtColors[i%txtColors.length];
+   let timeShow=r.time? (r.time.includes('am')||r.time.includes('pm')?r.time.toUpperCase():r.time+' AM') : '-';
+   return `<tr>
+   <td>${String(start+i+1).padStart(2,'0')}</td>
+   <td><div style="display:flex;gap:10px;align-items:center"><div class="avatar" style="background:${bg};color:${col}">${initials}</div><div><div style="font-weight:800;color:#0f172a">${r.name}</div><div class="shriPill">SHRI-${r.shriId.replace('SHRI-','').replace('SHRI','')}</div></div></div></td>
+   <td style="font-size:13px;color:#334155">${r.shriId}</td>
+   <td style="font-weight:600">${timeShow}</td>
+   <td><span class="pmjayPill">${pm}</span></td>
+   <td style="font-weight:800">${r.block}</td>
+   <td>${r.prevDate}</td>
+   <td><button onclick="delEntry(${r.id})" style="background:#fff;border:0;cursor:pointer;font-weight:900;letter-spacing:2px">...</button></td>
+   </tr>`;
+ }).join('')||`<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:24px">No patients - Add with + ADD button</td></tr>`;
+ document.getElementById('totalCount').textContent=list.length;
+ document.getElementById('showingTxt').textContent=`${list.length?start+1:0}-${Math.min(start+pageSize,list.length)} of ${list.length}`;
+ document.getElementById('cloudCount').textContent=list.length+' saved';
+ let cont=document.getElementById('pagination');if(totalPages<=1){cont.innerHTML='';return;}
+ let html=`<button onclick="changePage(-1)">←</button>`;for(let p=1;p<=Math.min(totalPages,3);p++){html+=`<button class="${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;}if(totalPages>3)html+=`<button onclick="goPage(${totalPages})">${totalPages}</button>`;html+=`<button onclick="changePage(1)">→</button>`;cont.innerHTML=html;
 }
-function delEntry(id){if(!confirm('Delete?'))return;let list=JSON.parse(localStorage.getItem('shija_daily')||'[]');list=list.filter(x=>x.id!==id);localStorage.setItem('shija_daily',JSON.stringify(list));renderTable();updateSearchDates();}
+function goPage(p){currentPage=p;renderTable();}
+function changePage(dir){currentPage=Math.max(1,currentPage+dir);let total=Math.ceil(getFilteredList().length/parseInt(document.getElementById('pageSize').value))||1;if(currentPage>total) currentPage=total;renderTable();}
+function delEntry(id){if(!confirm('Delete?'))return;let list=JSON.parse(localStorage.getItem('shija_daily')||'[]');list=list.filter(x=>x.id!==id);localStorage.setItem('shija_daily',JSON.stringify(list));renderTable();}
 function exportExcel(){
- let viewDate=document.getElementById('view_date').value||today;let timeFilter=document.getElementById('timeFilter').value;
+ let viewDate=document.getElementById('view_date').value||today;let timeFilter=document.getElementById('timeFilter').value;let blockFilter=document.getElementById('blockFilter').value;
  let list=JSON.parse(localStorage.getItem('shija_daily')||'[]').filter(x=>x.date===viewDate);
  if(timeFilter!=='all') list=list.filter(x=>x.time===timeFilter);
- if(!list.length){alert('No data for '+viewDate);return;}
- let exportData=list.map((r,i)=>({"Sl No":i+1,"Name":r.name,"SHRI ID":r.shriId,"TIME":r.time,"PMJAY ID":r.pmjayId||getPmjayFromMaster(r.name,r.shriId)||'N/A',"BLOCK":r.block,"PREVIOUS DATE":r.prevDate,"DIALYSIS DATE":r.date}));
- let ws=XLSX.utils.json_to_sheet(exportData);
- ws['!cols']=[{wch:6},{wch:28},{wch:14},{wch:10},{wch:18},{wch:12},{wch:18},{wch:14}];
- let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Daily_'+viewDate);XLSX.writeFile(wb,`SHIJA_Daily_${viewDate}_${timeFilter}.xlsx`);
+ if(blockFilter!=='all') list=list.filter(x=>x.block===blockFilter);
+ if(!list.length){alert('No data');return;}
+ let exportData=list.map((r,i)=>({"Sl No":i+1,"Name":r.name,"SHRI ID":r.shriId,"TIME":r.time,"PMJAY ID":r.pmjayId,"BLOCK":r.block,"PREV DATE":r.prevDate,"DATE":r.date}));
+ let ws=XLSX.utils.json_to_sheet(exportData);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Daily');XLSX.writeFile(wb,`SHIJA_Daily_${viewDate}.xlsx`);
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.searchBox'))document.getElementById('suggest').style.display='none';});
-updateSearchDates();renderTable();
-</script></body></html>
+renderTable();
+</script>
+</body>
+</html>
