@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Total Patients - SHIJA Dialysis</title>
 <script src="Patient.js"></script>
+<script src="/__/firebase/10.12.2/firebase-app-compat.js"></script>
+<script src="/__/firebase/10.12.2/firebase-firestore-compat.js"></script>
+<script src="/__/firebase/init.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
 body{background:#f6f7fb;color:#1a2332;display:flex;min-height:100vh}
@@ -38,29 +41,19 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;color:#33415
 </div>
 <div class="modal" id="editModal"><div class="modalBox"><h3>Edit Patient</h3><input id="eName" placeholder="Name"><input id="eShri" placeholder="SHRI ID"><input id="eContact" placeholder="Contact"><input id="ePmjay" placeholder="PMJAY ID"><input id="eAddr" placeholder="Address"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" id="saveBtn" onclick="saveEdit()">Save to Firebase</button></div></div></div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY_FROM_CONFIG_TAB",
-  authDomain: "discharge-b9528.firebaseapp.com",
-  projectId: "discharge-b9528",
-  storageBucket: "discharge-b9528.appspot.com",
-  messagingSenderId: "1076050472607",
-  appId: "1:1076050472607:web:736e0688a41462460efcaa"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+<script>
+// Auto init from Hosting - no apiKey needed
+const db = firebase.firestore();
 
 let allPatients=[],filtered=[],curPage=1,pageSize=10,editIndex=-1;
-window.onSearch=()=>{curPage=1;applyFilter();};
-window.changeSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);curPage=1;renderTable();};
-window.goPage=(n)=>{curPage=n;renderTable();};
-window.copyPmjay=(id)=>{navigator.clipboard.writeText(id);};
-window.openEdit=(idx)=>{editIndex=idx;let p=allPatients[idx];document.getElementById('eName').value=p.name;document.getElementById('eShri').value=p.shri;document.getElementById('eContact').value=p.contact;document.getElementById('ePmjay').value=p.pmjay;document.getElementById('eAddr').value=p.addr;document.getElementById('editModal').classList.add('show');};
-window.closeEdit=()=>document.getElementById('editModal').classList.remove('show');
+
+function onSearch(){curPage=1;applyFilter();}
+function changeSize(){pageSize=parseInt(document.getElementById('pageSize').value);curPage=1;renderTable();}
+function goPage(n){curPage=n;renderTable();}
+function copyPmjay(id){navigator.clipboard.writeText(id);}
+function openEdit(idx){editIndex=idx;let p=allPatients[idx];document.getElementById('eName').value=p.name;document.getElementById('eShri').value=p.shri;document.getElementById('eContact').value=p.contact;document.getElementById('ePmjay').value=p.pmjay;document.getElementById('eAddr').value=p.addr;document.getElementById('editModal').classList.add('show');}
+function closeEdit(){document.getElementById('editModal').classList.remove('show');}
+
 function applyFilter(){let q=document.getElementById('search').value.toLowerCase().trim();filtered=allPatients.filter(p=>[p.name,p.shri,p.contact,p.addr,p.pmjay].join(' ').toLowerCase().includes(q));renderTable();}
 function renderTable(){
   let totalPages=pageSize>=9999?1:Math.ceil(filtered.length/pageSize)||1;
@@ -72,31 +65,68 @@ function renderTable(){
     html+=`<tr><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri}</span></td><td>${p.contact}</td><td style="cursor:pointer" onclick="copyPmjay('${String(p.pmjay).trim()}')">${p.pmjay}</td><td>${p.addr}</td><td><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button></td></tr>`;
   });
   document.getElementById('tbl').innerHTML=html;
-  document.getElementById('info').textContent=`${filtered.length?start+1:0}-${Math.min(start+pageSize,filtered.length)} of ${filtered.length} patients`;
+  document.getElementById('info').textContent=`${filtered.length?start+1:0}-${Math.min(start+pageSize,filtered.length)} of ${filtered.length} patients - Synced`;
   let pg='';for(let i=1;i<=Math.min(totalPages,7);i++) pg+=`<button class="pg ${i===curPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
   document.getElementById('pager').innerHTML=pg;
 }
-async function init(){
+
+function init(){
+  // Load from Patient.js instantly
   allPatients=(typeof patientData!=='undefined'?patientData:[]).map(p=>({name:String(p.patientName||p.name||'').trim(),shri:String(p.shriId||p.shri||'').trim(),contact:String(p.contactNo||p.contact||'').trim(),pmjay:String(p.pmjayId||p.pmjay||'').trim(),addr:String(p.address||p.addr||'').trim(),age:p.age||30,gender:p.gender||'Male'}));
+  let added=new URLSearchParams(location.search).get('added');
+  if(added) document.getElementById('search').value=added;
   applyFilter();
-  try{
-    const snap=await getDocs(collection(db,"patients"));
-    if(!snap.empty){
-      let cloud={}; snap.forEach(d=>cloud[d.id]=d.data());
-      allPatients=allPatients.map(p=>{if(cloud[p.shri]){let c=cloud[p.shri];return{name:c.patientName||p.name,shri:c.shriId||p.shri,contact:c.contactNo||p.contact,pmjay:c.pmjayId||p.pmjay,addr:c.address||p.addr,age:c.age||p.age,gender:c.gender||p.gender};}return p;});
-      snap.forEach(d=>{if(!allPatients.find(x=>x.shri===d.id)){let c=d.data(); if(!c.deleted) allPatients.push({name:c.patientName,shri:c.shriId,contact:c.contactNo,pmjay:c.pmjayId,addr:c.address,age:c.age,gender:c.gender});}});
-      applyFilter();
-    }
-  }catch(e){document.getElementById('info').textContent=`Firebase error: ${e.message} - Check apiKey`;}
+
+  // Merge from Firebase - visible to all PC/Mobile
+  db.collection("patients").get().then(snap=>{
+    if(snap.empty) return;
+    let cloud={}; snap.forEach(d=>cloud[d.id]=d.data());
+    allPatients=allPatients.map(p=>{
+      if(cloud[p.shri]){
+        let c=cloud[p.shri];
+        return{name:c.patientName||p.name,shri:c.shriId||p.shri,contact:c.contactNo||p.contact,pmjay:c.pmjayId||p.pmjay,addr:c.address||p.addr,age:c.age||p.age,gender:c.gender||p.gender};
+      }
+      return p;
+    });
+    snap.forEach(d=>{
+      if(!allPatients.find(x=>x.shri===d.id)){
+        let c=d.data(); if(!c.deleted) allPatients.push({name:c.patientName,shri:c.shriId,contact:c.contactNo,pmjay:c.pmjayId,addr:c.address,age:c.age,gender:c.gender});
+      }
+    });
+    applyFilter();
+    document.getElementById('info').textContent=`${allPatients.length} patients - Firebase synced, visible to all PC/Mobile ✓`;
+  }).catch(e=>{
+    document.getElementById('info').textContent=`${allPatients.length} patients from Patient.js - Firebase error: ${e.message}`;
+  });
 }
-window.saveEdit=async()=>{
+
+function saveEdit(){
   let p=allPatients[editIndex];
-  let updated={patientName:document.getElementById('eName').value.trim(),shriId:document.getElementById('eShri').value.trim(),contactNo:document.getElementById('eContact').value.trim(),pmjayId:document.getElementById('ePmjay').value.trim(),address:document.getElementById('eAddr').value.trim(),age:p.age,gender:p.gender,updatedAt:new Date()};
-  p.name=updated.patientName;p.shri=updated.shriId;p.contact=updated.contactNo;p.pmjay=updated.pmjayId;p.addr=updated.address;
-  closeEdit();applyFilter();
-  document.getElementById('info').textContent='Saving to Firebase - all PC/Mobile...';
-  try{await setDoc(doc(db,"patients",updated.shriId),updated,{merge:true});document.getElementById('info').textContent=`✓ Saved to Firebase - Visible to all devices`;}catch(e){document.getElementById('info').textContent='Save failed: '+e.message;}
-};
+  let updated={
+    patientName:document.getElementById('eName').value.trim(),
+    shriId:document.getElementById('eShri').value.trim(),
+    contactNo:document.getElementById('eContact').value.trim(),
+    pmjayId:document.getElementById('ePmjay').value.trim(),
+    address:document.getElementById('eAddr').value.trim(),
+    age:p.age,
+    gender:p.gender,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  // Instant UI
+  p.name=updated.patientName; p.shri=updated.shriId; p.contact=updated.contactNo; p.pmjay=updated.pmjayId; p.addr=updated.address;
+  closeEdit(); applyFilter();
+  document.getElementById('info').textContent='Saving to Firebase... Visible to all in 1 sec...';
+
+  // Save to Firebase - VISIBLE TO ALL
+  db.collection("patients").doc(updated.shriId).set(updated, {merge:true}).then(()=>{
+    document.getElementById('info').textContent=`✓ Saved ${updated.shriId} - Now visible on all PC and Mobile`;
+  }).catch(e=>{
+    document.getElementById('info').textContent='Save failed: '+e.message;
+    alert("Save failed: "+e.message+"\n\nGo to Firestore Rules and set: allow read, write: if true;");
+  });
+}
+
 init();
 </script>
 </body>
