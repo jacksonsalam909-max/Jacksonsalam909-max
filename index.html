@@ -81,17 +81,16 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 <div class="grid">
 <a href="total.html" class="card c1"><div><div class="icon">PT</div><b>PMJAY Total Patient</b><h2 id="v1">0</h2><small>All time PMJAY</small></div></a>
 <a href="cmht.html" class="card c7"><div><div class="icon">CM</div><b>CMHT Total Patient</b><h2 id="vCMHT">0</h2><small>CMHT Scheme</small></div></a>
-<a href="cmhtkft.html" class="card c9"><div><div class="icon">CK</div><b>CMHT KFT Report</b><h2 id="vCKFT">0</h2><small id="ckftSmall">KFT Status</small></div></a>
+<a href="cmhtkft.html" class="card c9"><div><div class="icon">CK</div><b>CMHT KFT Report</b><h2 id="vCKFT">0 Received</h2><small id="ckftSmall">1-15 / 15-30</small></div></a>
 <a href="cmhtdaily.html" class="card c10"><div><div class="icon">CD</div><b>CMHT Daily Dialysis</b><h2 id="vCDaily">0</h2><small id="cdailySmall">Today list</small></div></a>
 <a href="add.html" class="card c2"><div><div class="icon">AP</div><b>ADD PMJAY Patient</b><small>Create PMJAY record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add PMJAY</div></a>
 <a href="addcmht.html" class="card c8"><div><div class="icon">AC</div><b>Add CMHT Patient</b><small>Add CMHT record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add CMHT</div></a>
-<a href="daily.html" class="card c3"><div><div class="icon">DD</div><b>PMJAY DAILY DIALYSIS LIST</b><h2 id="v3">0</h2><small id="v3small">Scheduled</small><div id="v3f" style="font-size:11px;opacity:.7"></div></div></a>
-<a href="kft.html" class="card c4"><div><div class="icon">KR</div><b>PMJAY KFT REPORT</b><h2 id="v4">0 Pending</h2><small>For selected date</small></div></a>
-<a href="bill.html" class="card c5"><div><div class="icon">BL</div><b>Bill</b><h2 id="v5">Rs 0</h2><small>Collection</small></div></a>
-<a href="discharge.html" class="card c6"><div><div class="icon">DC</div><b>Discharge</b><h2 id="v6">0</h2><small>Discharged</small></div></a>
+<a href="daily.html" class="card c3"><div><div class="icon">DD</div><b>PMJAY DAILY DIALYSIS LIST</b><h2 id="v3">0</h2><small id="v3small">Scheduled for today</small><div id="v3f" style="font-size:11px;opacity:.7"></div></div></a>
+<a href="kft.html" class="card c4"><div><div class="icon">KR</div><b>PMJAY KFT REPORT</b><h2 id="v4">0 Submitted</h2><small id="v4small">1-15 / 15-30</small></div></a>
+<a href="bill.html" class="card c5"><div><div class="icon">BL</div><b>Bill</b><h2 id="v5">0 Print</h2><small id="v5small">Prints for selected date</small></div></a>
+<a href="discharge.html" class="card c6"><div><div class="icon">DC</div><b>Discharge</b><h2 id="v6">0</h2><small id="v6small">For selected date</small></div></a>
 </div>
 </div></div>
-
 <div class="modal" id="expModal"><div class="modalBox"><h3>Export Report - <span id="expDateShow"></span></h3>
 <div class="opt" onclick="exportExcel('total')"><b>PMJAY Total Patient Record</b></div>
 <div class="opt" onclick="exportExcel('cmht_total')"><b>CMHT Total Patient Record</b></div>
@@ -100,7 +99,6 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 <div class="opt" onclick="exportExcel('daily')"><b>PMJAY DAILY DIALYSIS LIST Record</b></div>
 <div class="opt" onclick="exportExcel('cmhtdaily')"><b>CMHT Daily Dialysis Record</b></div>
 <button class="btn btnG" style="width:100%;margin-top:10px" onclick="closeExport()">Cancel</button></div></div>
-
 <script>
 function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('open');document.getElementById('whiteOverlay').classList.toggle('show');}
 function toggleDrop(e){e.stopPropagation();document.getElementById('adminDrop').classList.toggle('show');}
@@ -126,35 +124,158 @@ import { getFirestore, collection, getDocs, query, where } from "https://www.gst
 const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(config);const db=getFirestore(app);window.db=db;window.fb={collection,getDocs,query,where};
 function getDeletedKeys(){try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]').concat(JSON.parse(localStorage.getItem('deletedShri')||'[]'));}catch{return[];}}
-document.getElementById('dashDate').value='2026-10-13';document.getElementById('dashDate').addEventListener('change',loadDashboard);loadDashboard();
+function getAddedKeys(){try{return JSON.parse(localStorage.getItem('addedKeys')||'[]');}catch{return[];}}
+let todayStr = new Date().toISOString().slice(0,10);
+document.getElementById('dashDate').value = todayStr;
+document.getElementById('dashDate').addEventListener('change',loadDashboard);
+loadDashboard();
 async function loadDashboard(){
- let sel=document.getElementById('dashDate').value;document.getElementById('welcomeText').textContent=`Data for ${sel}`;
+ let sel=document.getElementById('dashDate').value;
+ if(!sel) sel = todayStr;
+ document.getElementById('welcomeText').textContent=`Data for ${sel}`;
+ let selDateObj = new Date(sel);
+ let selDay = selDateObj.getDate();
+ let selMonth = selDateObj.getMonth();
+ let selYear = selDateObj.getFullYear();
+ let kftDay = selDay <= 15 ? '1' : '15';
  try{
-  let base=(typeof patientData!=='undefined'?patientData.length:510);let del=new Set(getDeletedKeys());
-  let alive=typeof patientData!=='undefined'?patientData.filter((p,i)=>{let s=String(p.shriId||'').trim();let id=String(p.id||i+1);return !del.has(s)&&!del.has(id);}).length:base;
-  let fbP=[];try{let snap=await getDocs(collection(db,"patients"));snap.forEach(d=>{if(!d.data().deleted)fbP.push(d.data());});}catch(e){}
-  let baseSet=new Set((typeof patientData!=='undefined'?patientData.map(p=>String(p.shriId||'').trim()):[]));
-  let newAdd=fbP.filter(p=>!baseSet.has(String(p.shriId||p.shri||''))).length;
-  document.getElementById('v1').textContent=alive+newAdd;
-  let cmhtPatientsForSearch=[];try{let csnap=await getDocs(collection(db,"cmht_patients"));document.getElementById('vCMHT').textContent=csnap.size;csnap.forEach(d=>{let c=d.data();cmhtPatientsForSearch.push({name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||'',type:'CMHT'});});}catch(e){}
-  window.allForSearch=[...(window.allForSearch||[]),...cmhtPatientsForSearch];
-  try{let kftSnap=await getDocs(collection(db,"cmht_kft_reports"));let countForDate=0;kftSnap.forEach(d=>{if(d.data().date===sel) countForDate++;});document.getElementById('vCKFT').textContent=countForDate||kftSnap.size;document.getElementById('ckftSmall').textContent=`For ${sel} - ${countForDate} received`;}catch(e){document.getElementById('vCKFT').textContent=0;}
-  try{let q1=query(collection(db,"cmht_daily_dialysis"),where("listDate","==",sel));let s1=await getDocs(q1);document.getElementById('vCDaily').textContent=s1.size;document.getElementById('cdailySmall').textContent=`Scheduled for ${sel}`;if(s1.size===0){let all=await getDocs(collection(db,"cmht_daily_dialysis"));document.getElementById('vCDaily').textContent=all.size;}}catch(e){}
-  let dailyCount=0;try{let q1=query(collection(db,"dailyDialysis"),where("date","==",sel));let s1=await getDocs(q1);dailyCount=s1.size;if(!dailyCount){let all=await getDocs(collection(db,"dailyDialysis"));let c2=0;all.forEach(d=>{let dd=String(d.data().date||'');if(dd.startsWith(sel))c2++;});dailyCount=c2||all.size;}}catch(e){}
-  document.getElementById('v3').textContent=dailyCount;document.getElementById('v3small').textContent=`Scheduled for ${sel}`;document.getElementById('v3f').textContent=`Completed ${Math.floor(dailyCount*0.6)} Remaining ${dailyCount-Math.floor(dailyCount*0.6)}`;
-  let k=0,b=0,dc=0;try{let s=await getDocs(query(collection(db,"kftReports"),where("date","==",sel)));k=s.size;if(!k){let a=await getDocs(collection(db,"kftReports"));k=a.size;}}catch(e){}try{let s=await getDocs(collection(db,"bills"));s.forEach(d=>{b+=Number(d.data().amount||0);});}catch(e){}try{let s=await getDocs(collection(db,"discharges"));dc=s.size;}catch(e){}
-  document.getElementById('v4').textContent=k+' Pending';document.getElementById('v5').textContent='Rs '+b;document.getElementById('v6').textContent=dc;
- }catch(e){document.getElementById('v1').textContent=510;}
+  let delSet = new Set(getDeletedKeys());
+  let added = getAddedKeys();
+  let alive = 0;
+  if(typeof patientData!=='undefined'){
+    alive = patientData.filter((p,i)=>{
+      let s = String(p.shriId||p.shri||'').trim();
+      let id = String(p.id||i+1);
+      let key = s||id;
+      if(delSet.has(s) || delSet.has(id) || delSet.has(key)) return false;
+      return true;
+    }).length;
+  } else { alive = 510; }
+  let addedCount = added.filter(k=>!delSet.has(k)).length;
+  document.getElementById('v1').textContent = alive + addedCount;
+ }catch(e){ document.getElementById('v1').textContent = (typeof patientData!=='undefined'?patientData.length:0); }
+ try{
+  let csnap = await getDocs(collection(db,"cmht_patients"));
+  let cmhtCount = 0;
+  let cmhtSearch = [];
+  csnap.forEach(d=>{
+    let c = d.data();
+    if(c.deleted) return;
+    cmhtCount++;
+    cmhtSearch.push({name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||'',type:'CMHT'});
+  });
+  document.getElementById('vCMHT').textContent = cmhtCount;
+  window.allForSearch = window.allForSearch.filter(p=>p.type!=='CMHT').concat(cmhtSearch);
+ }catch(e){ document.getElementById('vCMHT').textContent = 0; }
+ try{
+  let kftSubmitted = 0;
+  try{
+    let kSnap = await getDocs(collection(db,"kft_reports"));
+    kSnap.forEach(d=>{
+      let data = d.data();
+      let m = String(data.month);
+      let y = String(data.year);
+      let day = String(data.day);
+      if(y==selYear && Number(m)==selMonth && day==kftDay && data.statusBool===true){
+        kftSubmitted++;
+      }
+    });
+  }catch(e){kftSubmitted=0;}
+  document.getElementById('v4').textContent = kftSubmitted + ' Submitted';
+  document.getElementById('v4small').textContent = (kftDay=='1'?'1st to 15th':'16th to 30th') + ` - ${selYear}-${selMonth+1}`;
+  let cmhtKftReceived = 0;
+  try{
+    let ckSnap = await getDocs(collection(db,"cmht_kft_reports"));
+    ckSnap.forEach(d=>{
+      let data = d.data();
+      let dDay = data.day ? String(data.day) : (data.date ? (new Date(data.date).getDate()<=15?'1':'15') : '');
+      let dMonth = data.month!==undefined ? Number(data.month) : (data.date ? new Date(data.date).getMonth() : -1);
+      let dYear = data.year ? Number(data.year) : (data.date ? new Date(data.date).getFullYear() : -1);
+      if(dYear==selYear && dMonth==selMonth && dDay==kftDay){
+        if(data.statusBool===true || data.status==='Received' || data.status==='Submitted' || data.received===true) cmhtKftReceived++;
+        else if(data.status!==undefined) cmhtKftReceived++;
+      }
+    });
+  }catch(e){cmhtKftReceived=0;}
+  document.getElementById('vCKFT').textContent = cmhtKftReceived + ' Received';
+  document.getElementById('ckftSmall').textContent = (kftDay=='1'?'1st to 15th':'16th to 30th') + ` - ${selYear}-${selMonth+1}`;
+ }catch(e){
+   document.getElementById('v4').textContent='0 Submitted';
+   document.getElementById('vCKFT').textContent='0 Received';
+ }
+ try{
+  let qDaily = query(collection(db,"daily_dialysis"), where("date","==",sel));
+  let sDaily = await getDocs(qDaily);
+  let dailyCount = sDaily.size;
+  if(dailyCount===0){
+    try{
+      let q2 = query(collection(db,"dailyDialysis"), where("date","==",sel));
+      let s2 = await getDocs(q2);
+      dailyCount = s2.size;
+    }catch(e){}
+  }
+  document.getElementById('v3').textContent = dailyCount;
+  document.getElementById('v3small').textContent = `Scheduled for ${sel}`;
+  document.getElementById('v3f').textContent = dailyCount>0 ? `${dailyCount} patients entered` : `No entry - 0`;
+ }catch(e){ document.getElementById('v3').textContent=0; }
+ try{
+  let qCDaily = query(collection(db,"cmht_daily_dialysis"), where("listDate","==",sel));
+  let sCDaily = await getDocs(qCDaily);
+  if(sCDaily.size===0){
+    try{
+      let qAlt = query(collection(db,"cmht_daily_dialysis"), where("date","==",sel));
+      let sAlt = await getDocs(qAlt);
+      document.getElementById('vCDaily').textContent = sAlt.size;
+      document.getElementById('cdailySmall').textContent = sAlt.size>0 ? `${sAlt.size} patients for ${sel}` : `No entry for ${sel} - 0`;
+      if(sAlt.size>0) throw 'done';
+    }catch(e2){
+      if(e2==='done'){} else {
+        document.getElementById('vCDaily').textContent = sCDaily.size;
+        document.getElementById('cdailySmall').textContent = sCDaily.size>0 ? `${sCDaily.size} patients for ${sel}` : `No entry for ${sel} - 0`;
+      }
+    }
+  } else {
+    document.getElementById('vCDaily').textContent = sCDaily.size;
+    document.getElementById('cdailySmall').textContent = sCDaily.size>0 ? `${sCDaily.size} patients for ${sel}` : `No entry for ${sel} - 0`;
+  }
+ }catch(e){ document.getElementById('vCDaily').textContent=0; }
+ try{
+  let qDis = query(collection(db,"discharges"), where("date","==",sel));
+  let sDis = await getDocs(qDis);
+  document.getElementById('v6').textContent = sDis.size;
+  document.getElementById('v6small').textContent = sDis.size>0 ? `${sDis.size} discharged on ${sel}` : `No discharge for ${sel} - 0`;
+ }catch(e){ document.getElementById('v6').textContent=0; }
+ try{
+  let qBill = query(collection(db,"bills"), where("date","==",sel));
+  let sBill = await getDocs(qBill);
+  let billCount = sBill.size;
+  document.getElementById('v5').textContent = billCount + ' Print';
+  document.getElementById('v5small').textContent = billCount>0 ? `${billCount} bills printed on ${sel}` : `No prints for ${sel} - 0`;
+  if(billCount===0){
+    try{
+      let allBills = await getDocs(collection(db,"bills"));
+      let countToday = 0;
+      allBills.forEach(d=>{
+        let data = d.data();
+        if((data.date||'')===sel) countToday++;
+      });
+      if(countToday>0){
+        document.getElementById('v5').textContent = countToday + ' Print';
+        document.getElementById('v5small').textContent = `${countToday} bills printed on ${sel}`;
+      }
+    }catch(e){}
+  }
+ }catch(e){ document.getElementById('v5').textContent='0 Print'; }
 }
 window.loadDashboard=loadDashboard;
 window.exportExcel=async(type)=>{
  let sel=document.getElementById('dashDate').value;let wb=XLSX.utils.book_new();let data=[];
- if(type==='total'){try{let snap=await getDocs(collection(db,"patients"));snap.forEach(d=>{let p=d.data();data.push({Name:p.patientName||p.name,SHRI_ID:p.shriId||p.shri,PMJAY:p.pmjayId||p.pmjay,Contact:p.contactNo||p.contact,Address:p.address||'',Scheme:'PMJAY'});});}catch(e){data=(typeof patientData!=='undefined'?patientData.map(p=>({Name:p.patientName,SHRI_ID:p.shriId,Scheme:'PMJAY'})):[]);}let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY Total");XLSX.writeFile(wb,`PMJAY_Total_${sel}.xlsx`);}
- else if(type==='cmht_total'){try{let snap=await getDocs(collection(db,"cmht_patients"));snap.forEach(d=>{let p=d.data();data.push({Name:p.patientName||p.name,SHRI_ID:p.shriId||p.shri,CMHT_ID:p.cmhtId||p.cmht||p.pmjay,Contact:p.contactNo||p.contact,Aadhaar:p.aadhaarNo||p.aadhaar,Address:p.address||'',Remark:p.remark||'CMHT'});});}catch(e){}if(!data.length) data=[{Info:"No CMHT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT Total");XLSX.writeFile(wb,`CMHT_Total_${sel}.xlsx`);}
- else if(type==='kft'){try{let snap=await getDocs(collection(db,"kftReports"));snap.forEach(d=>{let p=d.data();if(!sel||(p.date||'').startsWith(sel)) data.push(p);});}catch(e){data=[{Date:sel}];}if(!data.length) data=[{Date:sel,Info:"No KFT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY KFT");XLSX.writeFile(wb,`PMJAY_KFT_${sel}.xlsx`);}
- else if(type==='cmhtkft'){try{let snap=await getDocs(collection(db,"cmht_kft_reports"));snap.forEach(d=>{let p=d.data();if(!sel||p.date===sel) data.push({SHRI_ID:p.shriId,Date:p.date,Status:p.status,Remark:'CMHT'});});}catch(e){}if(!data.length) data=[{Date:sel,Info:"No CMHT KFT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT KFT");XLSX.writeFile(wb,`CMHT_KFT_${sel}.xlsx`);}
- else if(type==='daily'){try{let snap=await getDocs(collection(db,"dailyDialysis"));snap.forEach(d=>{let p=d.data();if(!sel||(p.date||'').startsWith(sel)) data.push(p);});}catch(e){data=[{Date:sel}];}if(!data.length) data=[{Date:sel}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY DAILY DIALYSIS");XLSX.writeFile(wb,`PMJAY_DAILY_DIALYSIS_${sel}.xlsx`);}
- else if(type==='cmhtdaily'){try{let snap=await getDocs(collection(db,"cmht_daily_dialysis"));snap.forEach(d=>{let p=d.data();if(!sel||p.listDate===sel) data.push({Name:p.name,SHRI_ID:p.shri,Time:p.time,Block:p.block,Previous_Date:p.prevDate,List_Date:p.listDate,Remark:'CMHT'});});}catch(e){}if(!data.length) data=[{Date:sel}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT Daily");XLSX.writeFile(wb,`CMHT_Daily_${sel}.xlsx`);}
+ if(type==='total'){try{let snap=await getDocs(collection(db,"patients"));snap.forEach(d=>{let p=d.data();if(!p.deleted) data.push({Name:p.patientName||p.name,SHRI_ID:p.shriId||p.shri,PMJAY:p.pmjayId||p.pmjay,Contact:p.contactNo||p.contact,Address:p.address||'',Scheme:'PMJAY'});});}catch(e){data=(typeof patientData!=='undefined'?patientData.map(p=>({Name:p.patientName,SHRI_ID:p.shriId,Scheme:'PMJAY'})):[]);}let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY Total");XLSX.writeFile(wb,`PMJAY_Total_${sel}.xlsx`);}
+ else if(type==='cmht_total'){try{let snap=await getDocs(collection(db,"cmht_patients"));snap.forEach(d=>{let p=d.data();if(!p.deleted) data.push({Name:p.patientName||p.name,SHRI_ID:p.shriId||p.shri,CMHT_ID:p.cmhtId||p.cmht||p.pmjay,Contact:p.contactNo||p.contact,Aadhaar:p.aadhaarNo||p.aadhaar,Address:p.address||'',Remark:p.remark||'CMHT'});});}catch(e){}if(!data.length) data=[{Info:"No CMHT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT Total");XLSX.writeFile(wb,`CMHT_Total_${sel}.xlsx`);}
+ else if(type==='kft'){try{let snap=await getDocs(collection(db,"kft_reports"));snap.forEach(d=>{let p=d.data();if(!sel||(p.year==new Date(sel).getFullYear() && Number(p.month)==new Date(sel).getMonth())) data.push({Year:p.year,Month:p.month,Day:p.day,SHRI_ID:p.shriId,Patient:p.patientName,Status:p.status});});}catch(e){data=[{Date:sel}];}if(!data.length) data=[{Date:sel,Info:"No KFT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY KFT");XLSX.writeFile(wb,`PMJAY_KFT_${sel}.xlsx`);}
+ else if(type==='cmhtkft'){try{let snap=await getDocs(collection(db,"cmht_kft_reports"));snap.forEach(d=>{let p=d.data();if(!sel||p.date===sel || (p.year==new Date(sel).getFullYear() && Number(p.month)==new Date(sel).getMonth())) data.push({SHRI_ID:p.shriId,Date:p.date||p.year+'-'+p.month+'-'+p.day,Status:p.status,Remark:'CMHT'});});}catch(e){}if(!data.length) data=[{Date:sel,Info:"No CMHT KFT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT KFT");XLSX.writeFile(wb,`CMHT_KFT_${sel}.xlsx`);}
+ else if(type==='daily'){try{let snap=await getDocs(query(collection(db,"daily_dialysis"),where("date","==",sel)));snap.forEach(d=>{data.push(d.data());});if(!data.length){let snap2=await getDocs(query(collection(db,"dailyDialysis"),where("date","==",sel)));snap2.forEach(d=>{data.push(d.data());});}}catch(e){data=[{Date:sel}];}if(!data.length) data=[{Date:sel}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY DAILY DIALYSIS");XLSX.writeFile(wb,`PMJAY_DAILY_DIALYSIS_${sel}.xlsx`);}
+ else if(type==='cmhtdaily'){try{let snap=await getDocs(query(collection(db,"cmht_daily_dialysis"),where("listDate","==",sel)));snap.forEach(d=>{let p=d.data();data.push({Name:p.name,SHRI_ID:p.shri,Time:p.time,Block:p.block,Previous_Date:p.prevDate,List_Date:p.listDate,Remark:'CMHT'});});}catch(e){}if(!data.length) data=[{Date:sel}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT Daily");XLSX.writeFile(wb,`CMHT_Daily_${sel}.xlsx`);}
  closeExport();
 };
 </script>
