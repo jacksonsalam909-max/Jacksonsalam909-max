@@ -19,9 +19,15 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .content.full{margin-left:0}
 .filterBox{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px;margin:14px 0}
 .row1{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.row2{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row2{display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:relative}
 .filterBox select,.filterBox input{padding:10px 12px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700}
 .searchInputMain{flex:1;min-width:200px;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1}
+.mainHintWrap{position:relative;flex:1;min-width:200px}
+.mainHintList{position:absolute;top:100%;left:0;right:0;margin-top:6px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;max-height:280px;overflow-y:auto;z-index:50;display:none;box-shadow:0 12px 24px #0002}
+.mainHintList.show{display:block}
+.sItem{padding:10px 12px;border-bottom:1px solid #f1f5f9;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.sItem:hover{background:#f3e8ff}
+.sItem.selected{background:#ede9fe;border-left:3px solid #8b5cf6}
 .tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden}
 table{width:100%;border-collapse:collapse;min-width:1100px}
 th{padding:12px;font-size:12px;color:#64748b;background:#f8fafc;text-align:left}
@@ -32,6 +38,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .blockBadge{background:#fef3c7;color:#92400e;padding:4px 10px;border-radius:20px;font-weight:700;font-size:11px}
 .btn{padding:10px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}
 .btnAdd{background:#8b5cf6;color:#fff;padding:11px 18px}
+.btnAdd:disabled{opacity:.4}
 .btnExp{background:#0a1931;color:#fff}
 .btnDel{background:#ef4444;color:#fff;padding:5px 10px;font-size:12px}
 .pager{display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px}
@@ -40,15 +47,15 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .modalBox{background:#fff;border-radius:16px;padding:20px;width:92%;max-width:440px;box-shadow:0 20px 40px #0004}
 .searchInput{width:100%;padding:12px;border:1.5px solid #cbd5e1;border-radius:10px;margin:10px 0}
 .sList{max-height:300px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:10px}
-.sItem{padding:10px 12px;border-bottom:1px solid #f1f5f9;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.sItem:hover{background:#f8fafc}
 .timeGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
 .timeBtn{padding:14px;border-radius:10px;border:1.5px solid #cbd5e1;background:#fff;font-weight:800;cursor:pointer;text-align:center}
 .timeBtn:hover{background:#0a1931;color:#fff}
 .blockGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
 .blockBtn{padding:14px;border-radius:10px;border:1.5px solid #cbd5e1;background:#fff;font-weight:800;cursor:pointer;text-align:center}
 .blockBtn:hover{background:#8b5cf6;color:#fff}
-.hintBox{font-size:11px;color:#64748b;margin-top:4px}
+.hintBox{font-size:11px;color:#64748b;margin-top:6px}
+.selectedInfo{background:#ede9fe;border:1px solid #ddd6fe;padding:8px 12px;border-radius:8px;font-size:13px;color:#5b21b6;font-weight:600;display:none;margin-top:8px}
+.selectedInfo.show{display:block}
 @media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}}
 </style>
 </head>
@@ -69,10 +76,9 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <a href="bill.html">Bill</a>
 </div>
 <div class="content" id="content">
-<h1>CMHT Daily Dialysis List</h1><p style="color:#64748b;font-size:13px">Hint from CMHT Total Patient page (cmht.html)</p>
+<h1>CMHT Daily Dialysis List</h1><p style="color:#64748b;font-size:13px">Type patient name to see details from CMHT Total Patient</p>
 
 <div class="filterBox">
-<!-- ROW 1: ABOVE - Pagewise + Export -->
 <div class="row1">
 <input type="date" id="listDate" onchange="loadList()">
 <select id="timeFilter" onchange="applyFilters()"><option value="">All Time</option><option>7AM</option><option>12PM</option><option>5PM</option><option>9PM</option><option>12AM</option><option>2AM</option></select>
@@ -82,20 +88,22 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <span id="totalInfo" style="font-weight:700;color:#475569;margin-left:8px"></span>
 </div>
 
-<!-- ROW 2: BELOW - Search + Add Patient next to each other -->
 <div class="row2">
-<input id="searchList" class="searchInputMain" placeholder="Search list by name / SHRI ID..." oninput="applyFilters()">
-<button class="btn btnAdd" onclick="openPatientSearch()">+ Add Patient</button>
+<div class="mainHintWrap">
+<input id="searchList" class="searchInputMain" placeholder="Type patient name / SHRI ID... (hint from CMHT Total)" oninput="onMainSearchInput()" onfocus="onMainSearchInput()" autocomplete="off">
+<div class="mainHintList" id="mainHintList"></div>
 </div>
-<div class="hintBox">Search hint: Type to filter daily list • Add Patient: Search from CMHT Total Patient (cmht.html)</div>
+<button class="btn btnAdd" id="addBtnMain" onclick="onAddFromMain()" disabled>+ Add Patient</button>
+</div>
+<div class="selectedInfo" id="selectedInfo"></div>
+<div class="hintBox">Live hint from <b>cmht.html / cmht_patients</b> - Type name, it shows patient detail (Name, SHRI, Contact, Address) - Then click + Add Patient</div>
 </div>
 
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div id="pageInfo" style="font-weight:600;color:#475569"></div><div id="pageNums" style="display:flex;gap:4px"></div></div></div>
 </div>
 </div>
 
-<!-- Step1: Search Patient - HINT FROM cmht.html -->
-<div class="modal" id="modalSearch"><div class="modalBox"><h3>Search CMHT Patient <small style="color:#8b5cf6">(from cmht.html)</small></h3><input class="searchInput" id="patientSearch" placeholder="Type name / SHRI ID / Contact - Hint from CMHT Total Patient" oninput="doPatientSearch()"><div class="sList" id="sList"></div><div style="margin-top:12px;text-align:right"><button class="btn" onclick="closeAll()">Cancel</button></div><div class="hintBox">Showing hint from Firebase collection <b>cmht_patients</b> - Same as cmht.html page</div></div></div>
+<div class="modal" id="modalSearch"><div class="modalBox"><h3>Search CMHT Patient <small style="color:#8b5cf6">(from cmht.html)</small></h3><input class="searchInput" id="patientSearch" placeholder="Type name / SHRI ID / Contact" oninput="doPatientSearch()"><div class="sList" id="sList"></div><div style="margin-top:12px;text-align:right"><button class="btn" onclick="closeAll()">Cancel</button></div></div></div>
 <div class="modal" id="modalTime"><div class="modalBox"><h3>Select Time Slot</h3><p id="selPatientInfo" style="font-size:13px;color:#64748b"></p><div class="timeGrid">
 <button class="timeBtn" onclick="selectTime('7AM')">7AM</button>
 <button class="timeBtn" onclick="selectTime('12PM')">12PM</button>
@@ -110,7 +118,9 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 </div><button class="btn" onclick="closeAll()">Cancel</button></div></div>
 <div class="modal" id="modalPrev"><div class="modalBox"><h3>Previous Dialysis Date</h3><input type="date" id="prevDate" style="width:100%;padding:12px;border-radius:8px;border:1.5px solid #cbd5e1"><div style="display:flex;gap:8px;margin-top:14px"><button class="btn" onclick="closeAll()" style="flex:1">Cancel</button><button class="btn btnAdd" onclick="finalAdd()" style="flex:1">Add to List</button></div></div></div>
 
-<script>function toggleSide(){let s=document.getElementById('side');let c=document.getElementById('content');if(innerWidth<=900){s.classList.toggle('open');}else{s.classList.toggle('closed');c.classList.toggle('full');}}</script>
+<script>function toggleSide(){let s=document.getElementById('side');let c=document.getElementById('content');if(innerWidth<=900){s.classList.toggle('open');}else{s.classList.toggle('closed');c.classList.toggle('full');}}
+document.addEventListener('click',(e)=>{if(!e.target.closest('.mainHintWrap')){document.getElementById('mainHintList').classList.remove('show');}});
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -126,9 +136,8 @@ async function loadCMHT(){
  allCMHT=[];
  snap.forEach(d=>{
   let c=d.data();
-  allCMHT.push({key:d.id,name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||'',aadhaar:c.aadhaarNo||c.aadhaar||'',addr:c.address||c.addr||''});
+  allCMHT.push({key:d.id,name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||'',aadhaar:c.aadhaarNo||c.aadhaar||'',addr:c.address||c.addr||'',cmht:c.cmhtId||c.cmht||''});
  });
- console.log('CMHT loaded for hint:',allCMHT.length,'from cmht.html collection');
 }
 async function loadList(){
  let dateVal=document.getElementById('listDate').value;if(!dateVal)return;
@@ -136,8 +145,8 @@ async function loadList(){
  applyFilters();
 }
 window.applyFilters=()=>{
- let timeF=document.getElementById('timeFilter').value;let blockF=document.getElementById('blockFilter').value;let search=document.getElementById('searchList').value.toLowerCase();
- filteredList=allList.filter(p=>{if(timeF && p.time!==timeF) return false;if(blockF && p.block!==blockF) return false;if(search &&![p.name,p.shri].join(' ').toLowerCase().includes(search)) return false;return true;});
+ let timeF=document.getElementById('timeFilter').value;let blockF=document.getElementById('blockFilter').value;
+ filteredList=allList.filter(p=>{if(timeF && p.time!==timeF) return false;if(blockF && p.block!==blockF) return false;return true;});
  currentPage=1;renderTable();
 };
 window.renderTable=()=>{
@@ -145,7 +154,7 @@ window.renderTable=()=>{
  let start=(currentPage-1)*pageSize;let data=filteredList.slice(start,start+pageSize);
  let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Time</th><th>Block</th><th>Previous Dialysis Date</th><th>List Date</th><th>Action</th></tr>';
  data.forEach((p,i)=>{html+=`<tr><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri}</span></td><td><span class="timeBadge">${p.time}</span></td><td><span class="blockBadge">${p.block}</span></td><td>${p.prevDate||'-'}</td><td>${p.listDate||'-'}</td><td><button class="btn btnDel" onclick="deleteEntry('${p.id}')">Delete</button></td></tr>`;});
- if(data.length===0) html+='<tr><td colspan="8" style="text-align:center;padding:20px">No dialysis for this date - Click + Add Patient (hint from CMHT Total Patient)</td></tr>';
+ if(data.length===0) html+='<tr><td colspan="8" style="text-align:center;padding:20px">No dialysis for this date - Type name above to see patient details</td></tr>';
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('pageInfo').textContent=`Showing ${filteredList.length?start+1:0}-${Math.min(start+pageSize,filteredList.length)} of ${filteredList.length} | Date: ${document.getElementById('listDate').value}`;
  document.getElementById('totalInfo').textContent=filteredList.length+' entries';
@@ -158,18 +167,47 @@ window.nextPage=()=>{let ps=parseInt(document.getElementById('pageSize').value);
 window.goPage=(n)=>{currentPage=n;renderTable();};
 window.deleteEntry=async(id)=>{if(!confirm('Delete this entry?'))return;try{await deleteDoc(doc(db,"cmht_daily_dialysis",id));loadList();}catch(e){alert(e.message);}};
 
-window.openPatientSearch=()=>{document.getElementById('modalSearch').classList.add('show');document.getElementById('patientSearch').value='';doPatientSearch();document.getElementById('patientSearch').focus();};
+// MAIN SEARCH - LIVE HINT FROM CMHT TOTAL PATIENT
+window.onMainSearchInput=()=>{
+ let q=document.getElementById('searchList').value.toLowerCase().trim();
+ let box=document.getElementById('mainHintList');
+ if(!q){box.classList.remove('show');return;}
+ let filtered=allCMHT.filter(p=>[p.name,p.shri,p.contact,p.addr].join(' ').toLowerCase().includes(q)).slice(0,20);
+ if(!filtered.length){box.innerHTML='<div style="padding:10px;text-align:center;color:#64748b">No patient in CMHT Total (cmht.html)</div>';box.classList.add('show');return;}
+ let html='';filtered.forEach(p=>{
+  html+=`<div class="sItem" onclick="selectMainHint('${p.key}')"><div><b>${p.name}</b> <span class="shri">${p.shri}</span><br><small>${p.contact||'-'} | ${p.cmht||''} | ${p.addr? p.addr.substring(0,30):'-'}</small><br><small style="color:#8b5cf6">Aadhaar: ${p.aadhaar? 'XXXX-XXXX-'+p.aadhaar.slice(-4):'-'} • Remark: CMHT</small></div><small style="color:#8b5cf6;font-weight:700">Select</small></div>`;
+ });
+ box.innerHTML=html;box.classList.add('show');
+};
+window.selectMainHint=(key)=>{
+ let p=allCMHT.find(x=>x.key===key);if(!p) return;
+ selectedPatient=p;
+ document.getElementById('mainHintList').classList.remove('show');
+ document.getElementById('searchList').value=p.name+' - '+p.shri;
+ document.getElementById('selectedInfo').innerHTML=`✅ Selected: <b>${p.name}</b> | SHRI: ${p.shri} | Contact: ${p.contact||'-'} | CMHT: ${p.cmht||'-'} | Addr: ${p.addr||'-'} <br><small>Now click + Add Patient button to add to list (Time → Block → Prev Date)</small>`;
+ document.getElementById('selectedInfo').classList.add('show');
+ document.getElementById('addBtnMain').disabled=false;
+ document.getElementById('addBtnMain').style.opacity='1';
+};
+window.onAddFromMain=()=>{
+ if(!selectedPatient){alert('First type patient name above and select from hint list (from CMHT Total)');return;}
+ // Open time popup
+ document.getElementById('selPatientInfo').textContent=`Patient: ${selectedPatient.name} (${selectedPatient.shri}) - ${selectedPatient.contact||''}`;
+ document.getElementById('modalTime').classList.add('show');
+};
+
+// Old modal search still works as backup
+window.openPatientSearch=()=>{document.getElementById('modalSearch').classList.add('show');document.getElementById('patientSearch').value='';doPatientSearch();};
 window.closeAll=()=>{document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show'));};
 window.doPatientSearch=()=>{
  let q=document.getElementById('patientSearch').value.toLowerCase().trim();
  let list=document.getElementById('sList');
- // HINT FROM cmht.html - same collection cmht_patients
  let filtered=q?allCMHT.filter(p=>[p.name,p.shri,p.contact].join(' ').toLowerCase().includes(q)).slice(0,30):allCMHT.slice(0,30);
- let html='';filtered.forEach(p=>{html+=`<div class="sItem" onclick="pickPatient('${p.key}')"><div><b>${p.name}</b><br><small>${p.shri} ${p.contact?'| '+p.contact:''} • From CMHT Total</small></div><small style="color:#8b5cf6;font-weight:700">Select</small></div>`;});
- if(!filtered.length) html='<div style="padding:12px;text-align:center;color:#64748b">No CMHT patient found - Check cmht.html page<br><small>Data from cmht_patients collection</small></div>';
+ let html='';filtered.forEach(p=>{html+=`<div class="sItem" onclick="pickPatient('${p.key}')"><div><b>${p.name}</b><br><small>${p.shri} | ${p.contact||'-'} • From CMHT Total</small></div><small style="color:#8b5cf6;font-weight:700">Select</small></div>`;});
+ if(!filtered.length) html='<div style="padding:12px;text-align:center;color:#64748b">No patient found</div>';
  list.innerHTML=html;
 };
-window.pickPatient=(key)=>{selectedPatient=allCMHT.find(p=>p.key===key);if(!selectedPatient) return;document.getElementById('modalSearch').classList.remove('show');document.getElementById('selPatientInfo').textContent=`Patient: ${selectedPatient.name} (${selectedPatient.shri})`;document.getElementById('modalTime').classList.add('show');};
+window.pickPatient=(key)=>{let p=allCMHT.find(x=>x.key===key);if(!p) return;selectedPatient=p;document.getElementById('modalSearch').classList.remove('show');document.getElementById('selPatientInfo').textContent=`Patient: ${p.name} (${p.shri})`;document.getElementById('modalTime').classList.add('show');};
 window.selectTime=(t)=>{selectedTime=t;document.getElementById('modalTime').classList.remove('show');document.getElementById('modalBlock').classList.add('show');};
 window.selectBlock=(b)=>{selectedBlock=b;document.getElementById('modalBlock').classList.remove('show');document.getElementById('modalPrev').classList.add('show');};
 window.finalAdd=async()=>{
@@ -177,7 +215,7 @@ window.finalAdd=async()=>{
  if(!selectedPatient||!selectedTime||!selectedBlock||!prevDate){alert('Fill all');return;}
  let docId=`${selectedPatient.shri}_${listDate}_${selectedTime}_${Date.now()}`;
  let data={name:selectedPatient.name,shri:selectedPatient.shri,shriId:selectedPatient.shri,contact:selectedPatient.contact||'',time:selectedTime,block:selectedBlock,prevDate:prevDate,listDate:listDate,remark:'CMHT',createdAt:new Date().toISOString()};
- try{await setDoc(doc(db,"cmht_daily_dialysis",docId),data);closeAll();selectedPatient=null;selectedTime='';selectedBlock='';loadList();}catch(e){alert(e.message);}
+ try{await setDoc(doc(db,"cmht_daily_dialysis",docId),data);closeAll();document.getElementById('searchList').value='';document.getElementById('selectedInfo').classList.remove('show');document.getElementById('addBtnMain').disabled=true;selectedPatient=null;selectedTime='';selectedBlock='';loadList();}catch(e){alert(e.message);}
 };
 window.exportExcel=()=>{
  let rows=filteredList.map((p,i)=>({SL:i+1,Name:p.name,SHRI_ID:p.shri,Time:p.time,Block:p.block,Previous_Dialysis_Date:p.prevDate,List_Date:p.listDate,Remark:'CMHT'}));
