@@ -27,6 +27,7 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .mainHintList.show{display:block}
 .sItem{padding:10px 12px;border-bottom:1px solid #f1f5f9;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
 .sItem:hover{background:#f3e8ff}
+.sItem.selected{background:#ede9fe;border-left:3px solid #8b5cf6}
 .tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden}
 table{width:100%;border-collapse:collapse;min-width:1100px}
 th{padding:12px;font-size:12px;color:#64748b;background:#f8fafc;text-align:left}
@@ -75,7 +76,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <a href="bill.html">Bill</a>
 </div>
 <div class="content" id="content">
-<h1>CMHT Daily Dialysis List</h1><p style="color:#64748b;font-size:13px" id="subInfo">Type patient name to see details from CMHT Total Patient - Firebase Auto Save ON</p>
+<h1>CMHT Daily Dialysis List</h1><p style="color:#64748b;font-size:13px" id="subInfo">Type patient name to see details from CMHT Total Patient - Firebase Auto Save ON - Use Arrow Keys + Enter</p>
 
 <div class="filterBox">
 <div class="row1">
@@ -86,15 +87,16 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <button class="btn btnExp" onclick="exportExcel()">Export Excel</button>
 <span id="totalInfo" style="font-weight:700;color:#475569;margin-left:8px"></span>
 </div>
+
 <div class="row2">
 <div class="mainHintWrap">
-<input id="searchList" class="searchInputMain" placeholder="Type patient name / SHRI ID... (live hint from CMHT Total Patient)" oninput="onMainSearchInput()" onfocus="onMainSearchInput()" autocomplete="off">
+<input id="searchList" class="searchInputMain" placeholder="Type name / SHRI ID... (use ↑ ↓ arrow keys + Enter to select)" oninput="onMainSearchInput()" onfocus="onMainSearchInput()" autocomplete="off">
 <div class="mainHintList" id="mainHintList"></div>
 </div>
 <button class="btn btnAdd" id="addBtnMain" onclick="onAddFromMain()" disabled>+ Add Patient</button>
 </div>
 <div class="selectedInfo" id="selectedInfo"></div>
-<div class="hintBox">List auto-changes when Entry Date changes • Firebase saved • Visible on all computers</div>
+<div class="hintBox">Live hint from <b>cmht.html / cmht_patients</b> - Type name → Use Arrow Up/Down + Enter to select → Then click + Add Patient | Auto save Firebase - Visible all computers</div>
 </div>
 
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div id="pageInfo" style="font-weight:600;color:#475569"></div><div id="pageNums" style="display:flex;gap:4px"></div></div></div>
@@ -127,6 +129,7 @@ window.db=db;window.fb={collection,getDocs,doc,setDoc,addDoc,deleteDoc,query,whe
 
 let allCMHT=[], allList=[], filteredList=[], currentPage=1;
 let selectedPatient=null, selectedTime='', selectedBlock='';
+let hintIndex=-1;
 document.getElementById('listDate').valueAsDate=new Date();
 document.getElementById('prevDate').valueAsDate=new Date();
 document.getElementById('fbStatus').textContent='Firebase Connected - Auto Save ON';
@@ -139,8 +142,6 @@ async function loadCMHT(){
   allCMHT.push({key:d.id,name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||'',aadhaar:c.aadhaarNo||c.aadhaar||'',addr:c.address||c.addr||'',cmht:c.cmhtId||c.cmht||''});
  });
 }
-
-// AUTO SAVE TO FIREBASE AND VISIBLE TO ALL COMPUTERS
 async function loadList(){
  let dateVal=document.getElementById('listDate').value;if(!dateVal)return;
  document.getElementById('subInfo').textContent=`Loading list for ${dateVal} from Firebase... Visible to all computers`;
@@ -149,7 +150,7 @@ async function loadList(){
   const snap=await getDocs(q);
   allList=[];snap.forEach(d=>allList.push({id:d.id,...d.data()}));
   document.getElementById('fbStatus').textContent=`Firebase: ${allList.length} patients for ${dateVal} - Synced`;
-  document.getElementById('subInfo').textContent=`Showing ${allList.length} patients for ${dateVal} - Auto saved to Firebase - Visible on all computers`;
+  document.getElementById('subInfo').textContent=`Showing ${allList.length} patients for ${dateVal} - Auto saved to Firebase - Use Arrow Keys + Enter to select patient`;
  }catch(e){allList=[];document.getElementById('fbStatus').textContent='Error: '+e.message;}
  applyFilters();
 }
@@ -163,7 +164,7 @@ window.renderTable=()=>{
  let start=(currentPage-1)*pageSize;let data=filteredList.slice(start,start+pageSize);
  let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Time</th><th>Block</th><th>Previous Dialysis Date</th><th>List Date</th><th>Action</th></tr>';
  data.forEach((p,i)=>{html+=`<tr><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri}</span></td><td><span class="timeBadge">${p.time}</span></td><td><span class="blockBadge">${p.block}</span></td><td>${p.prevDate||'-'}</td><td>${p.listDate||'-'}</td><td><button class="btn btnDel" onclick="deleteEntry('${p.id}')">Delete</button></td></tr>`;});
- if(data.length===0) html+=`<tr><td colspan="8" style="text-align:center;padding:20px">No dialysis for ${document.getElementById('listDate').value} - Type name above to see patient details from CMHT Total Patient</td></tr>`;
+ if(data.length===0) html+=`<tr><td colspan="8" style="text-align:center;padding:20px">No dialysis for ${document.getElementById('listDate').value} - Type name above to see patient details</td></tr>`;
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('pageInfo').textContent=`Showing ${filteredList.length?start+1:0}-${Math.min(start+pageSize,filteredList.length)} of ${filteredList.length} | Date: ${document.getElementById('listDate').value}`;
  document.getElementById('totalInfo').textContent=filteredList.length+' entries (Firebase)';
@@ -176,17 +177,25 @@ window.nextPage=()=>{let ps=parseInt(document.getElementById('pageSize').value);
 window.goPage=(n)=>{currentPage=n;renderTable();};
 window.deleteEntry=async(id)=>{if(!confirm('Delete from Firebase? Will delete for all computers'))return;try{await deleteDoc(doc(db,"cmht_daily_dialysis",id));document.getElementById('fbStatus').textContent='Deleted from Firebase';loadList();}catch(e){alert(e.message);}};
 
+function updateHintSelection(){
+ let items=document.querySelectorAll('#mainHintList .sItem');
+ items.forEach((el,i)=>{if(i===hintIndex) el.classList.add('selected'); else el.classList.remove('selected');});
+ if(hintIndex>=0 && items[hintIndex]) items[hintIndex].scrollIntoView({block:'nearest'});
+}
+
 window.onMainSearchInput=()=>{
  let q=document.getElementById('searchList').value.toLowerCase().trim();
  let box=document.getElementById('mainHintList');
+ hintIndex=-1;
  if(!q){box.classList.remove('show');return;}
  let filtered=allCMHT.filter(p=>[p.name,p.shri,p.contact,p.addr,p.cmht].join(' ').toLowerCase().includes(q)).slice(0,20);
  if(!filtered.length){box.innerHTML='<div style="padding:10px;text-align:center;color:#64748b">No patient in CMHT Total (cmht.html)</div>';box.classList.add('show');return;}
  let html='';filtered.forEach(p=>{
-  html+=`<div class="sItem" onclick="selectMainHint('${p.key}')"><div><b>${p.name}</b> <span class="shri">${p.shri}</span><br><small>${p.contact||'-'} | ${p.cmht||''} | ${p.addr? p.addr.substring(0,30):'-'}</small><br><small style="color:#8b5cf6">Remark: CMHT</small></div><small style="color:#8b5cf6;font-weight:700">Select</small></div>`;
+  html+=`<div class="sItem" data-key="${p.key}" onclick="selectMainHint('${p.key}')"><div><b>${p.name}</b> <span class="shri">${p.shri}</span><br><small>${p.contact||'-'} | ${p.cmht||''} | ${p.addr? p.addr.substring(0,30):'-'}</small><br><small style="color:#8b5cf6">Remark: CMHT</small></div><small style="color:#8b5cf6;font-weight:700">Select</small></div>`;
  });
  box.innerHTML=html;box.classList.add('show');
 };
+
 window.selectMainHint=(key)=>{
  let p=allCMHT.find(x=>x.key===key);if(!p) return;
  selectedPatient=p;
@@ -195,9 +204,38 @@ window.selectMainHint=(key)=>{
  document.getElementById('selectedInfo').innerHTML=`✅ Selected: <b>${p.name}</b> | SHRI: ${p.shri} | Contact: ${p.contact||'-'} | CMHT: ${p.cmht||'-'} | Addr: ${p.addr||'-'} <br><small>Now click + Add Patient to add (Time → Block → Prev Date) - Will auto save to Firebase</small>`;
  document.getElementById('selectedInfo').classList.add('show');
  document.getElementById('addBtnMain').disabled=false;
+ hintIndex=-1;
 };
+
+document.getElementById('searchList').addEventListener('keydown',(e)=>{
+ let box=document.getElementById('mainHintList');
+ let items=document.querySelectorAll('#mainHintList .sItem');
+ if(!box.classList.contains('show')) return;
+ if(e.key==='ArrowDown'){
+  e.preventDefault();
+  hintIndex=Math.min(hintIndex+1, items.length-1);
+  updateHintSelection();
+ }else if(e.key==='ArrowUp'){
+  e.preventDefault();
+  hintIndex=Math.max(hintIndex-1, 0);
+  updateHintSelection();
+ }else if(e.key==='Enter'){
+  e.preventDefault();
+  if(hintIndex>=0 && items[hintIndex]){
+   let key=items[hintIndex].getAttribute('data-key');
+   selectMainHint(key);
+  }else if(items.length>0){
+   let key=items[0].getAttribute('data-key');
+   selectMainHint(key);
+  }
+ }else if(e.key==='Escape'){
+  box.classList.remove('show');
+  hintIndex=-1;
+ }
+});
+
 window.onAddFromMain=()=>{
- if(!selectedPatient){alert('First type patient name above and select from hint list');return;}
+ if(!selectedPatient){alert('First type patient name above and select from hint list using Enter or click');return;}
  document.getElementById('selPatientInfo').textContent=`Patient: ${selectedPatient.name} (${selectedPatient.shri}) - ${selectedPatient.contact||''}`;
  document.getElementById('modalTime').classList.add('show');
 };
