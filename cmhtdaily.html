@@ -27,7 +27,6 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .mainHintList.show{display:block}
 .sItem{padding:10px 12px;border-bottom:1px solid #f1f5f9;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
 .sItem:hover{background:#f3e8ff}
-.sItem.selected{background:#ede9fe;border-left:3px solid #8b5cf6}
 .tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden}
 table{width:100%;border-collapse:collapse;min-width:1100px}
 th{padding:12px;font-size:12px;color:#64748b;background:#f8fafc;text-align:left}
@@ -60,7 +59,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 </style>
 </head>
 <body>
-<div class="top"><div style="display:flex;align-items:center;gap:10px"><button class="menuBtn" onclick="toggleSide()">☰</button><h2>SHIJA - CMHT Daily Dialysis</h2></div><span style="color:#fff">Admin</span></div>
+<div class="top"><div style="display:flex;align-items:center;gap:10px"><button class="menuBtn" onclick="toggleSide()">☰</button><h2>SHIJA - CMHT Daily Dialysis</h2></div><span style="color:#fff" id="fbStatus">Connecting...</span></div>
 <div class="mainWrap">
 <div class="side" id="side">
 <a href="index.html">Home</a>
@@ -76,7 +75,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <a href="bill.html">Bill</a>
 </div>
 <div class="content" id="content">
-<h1>CMHT Daily Dialysis List</h1><p style="color:#64748b;font-size:13px">Type patient name to see details from CMHT Total Patient</p>
+<h1>CMHT Daily Dialysis List</h1><p style="color:#64748b;font-size:13px" id="subInfo">Type patient name to see details from CMHT Total Patient - Firebase Auto Save ON</p>
 
 <div class="filterBox">
 <div class="row1">
@@ -87,23 +86,21 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <button class="btn btnExp" onclick="exportExcel()">Export Excel</button>
 <span id="totalInfo" style="font-weight:700;color:#475569;margin-left:8px"></span>
 </div>
-
 <div class="row2">
 <div class="mainHintWrap">
-<input id="searchList" class="searchInputMain" placeholder="Type patient name / SHRI ID... (hint from CMHT Total)" oninput="onMainSearchInput()" onfocus="onMainSearchInput()" autocomplete="off">
+<input id="searchList" class="searchInputMain" placeholder="Type patient name / SHRI ID... (live hint from CMHT Total Patient)" oninput="onMainSearchInput()" onfocus="onMainSearchInput()" autocomplete="off">
 <div class="mainHintList" id="mainHintList"></div>
 </div>
 <button class="btn btnAdd" id="addBtnMain" onclick="onAddFromMain()" disabled>+ Add Patient</button>
 </div>
 <div class="selectedInfo" id="selectedInfo"></div>
-<div class="hintBox">Live hint from <b>cmht.html / cmht_patients</b> - Type name, it shows patient detail (Name, SHRI, Contact, Address) - Then click + Add Patient</div>
+<div class="hintBox">List auto-changes when Entry Date changes • Firebase saved • Visible on all computers</div>
 </div>
 
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div id="pageInfo" style="font-weight:600;color:#475569"></div><div id="pageNums" style="display:flex;gap:4px"></div></div></div>
 </div>
 </div>
 
-<div class="modal" id="modalSearch"><div class="modalBox"><h3>Search CMHT Patient <small style="color:#8b5cf6">(from cmht.html)</small></h3><input class="searchInput" id="patientSearch" placeholder="Type name / SHRI ID / Contact" oninput="doPatientSearch()"><div class="sList" id="sList"></div><div style="margin-top:12px;text-align:right"><button class="btn" onclick="closeAll()">Cancel</button></div></div></div>
 <div class="modal" id="modalTime"><div class="modalBox"><h3>Select Time Slot</h3><p id="selPatientInfo" style="font-size:13px;color:#64748b"></p><div class="timeGrid">
 <button class="timeBtn" onclick="selectTime('7AM')">7AM</button>
 <button class="timeBtn" onclick="selectTime('12PM')">12PM</button>
@@ -116,20 +113,23 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <button class="blockBtn" onclick="selectBlock('Itocha')">Itocha</button>
 <button class="blockBtn" onclick="selectBlock('Main')">Main</button>
 </div><button class="btn" onclick="closeAll()">Cancel</button></div></div>
-<div class="modal" id="modalPrev"><div class="modalBox"><h3>Previous Dialysis Date</h3><input type="date" id="prevDate" style="width:100%;padding:12px;border-radius:8px;border:1.5px solid #cbd5e1"><div style="display:flex;gap:8px;margin-top:14px"><button class="btn" onclick="closeAll()" style="flex:1">Cancel</button><button class="btn btnAdd" onclick="finalAdd()" style="flex:1">Add to List</button></div></div></div>
+<div class="modal" id="modalPrev"><div class="modalBox"><h3>Previous Dialysis Date</h3><input type="date" id="prevDate" style="width:100%;padding:12px;border-radius:8px;border:1.5px solid #cbd5e1"><div style="display:flex;gap:8px;margin-top:14px"><button class="btn" onclick="closeAll()" style="flex:1">Cancel</button><button class="btn btnAdd" onclick="finalAdd()" style="flex:1">Add to List (Auto Save Firebase)</button></div></div></div>
 
 <script>function toggleSide(){let s=document.getElementById('side');let c=document.getElementById('content');if(innerWidth<=900){s.classList.toggle('open');}else{s.classList.toggle('closed');c.classList.toggle('full');}}
 document.addEventListener('click',(e)=>{if(!e.target.closest('.mainHintWrap')){document.getElementById('mainHintList').classList.remove('show');}});
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(firebaseConfig);const db=getFirestore(app);
+window.db=db;window.fb={collection,getDocs,doc,setDoc,addDoc,deleteDoc,query,where,serverTimestamp};
+
 let allCMHT=[], allList=[], filteredList=[], currentPage=1;
 let selectedPatient=null, selectedTime='', selectedBlock='';
 document.getElementById('listDate').valueAsDate=new Date();
 document.getElementById('prevDate').valueAsDate=new Date();
+document.getElementById('fbStatus').textContent='Firebase Connected - Auto Save ON';
 
 async function loadCMHT(){
  const snap=await getDocs(collection(db,"cmht_patients"));
@@ -139,9 +139,18 @@ async function loadCMHT(){
   allCMHT.push({key:d.id,name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||'',aadhaar:c.aadhaarNo||c.aadhaar||'',addr:c.address||c.addr||'',cmht:c.cmhtId||c.cmht||''});
  });
 }
+
+// AUTO SAVE TO FIREBASE AND VISIBLE TO ALL COMPUTERS
 async function loadList(){
  let dateVal=document.getElementById('listDate').value;if(!dateVal)return;
- try{const q=query(collection(db,"cmht_daily_dialysis"), where("listDate","==",dateVal));const snap=await getDocs(q);allList=[];snap.forEach(d=>allList.push({id:d.id,...d.data()}));}catch(e){allList=[];}
+ document.getElementById('subInfo').textContent=`Loading list for ${dateVal} from Firebase... Visible to all computers`;
+ try{
+  const q=query(collection(db,"cmht_daily_dialysis"), where("listDate","==",dateVal));
+  const snap=await getDocs(q);
+  allList=[];snap.forEach(d=>allList.push({id:d.id,...d.data()}));
+  document.getElementById('fbStatus').textContent=`Firebase: ${allList.length} patients for ${dateVal} - Synced`;
+  document.getElementById('subInfo').textContent=`Showing ${allList.length} patients for ${dateVal} - Auto saved to Firebase - Visible on all computers`;
+ }catch(e){allList=[];document.getElementById('fbStatus').textContent='Error: '+e.message;}
  applyFilters();
 }
 window.applyFilters=()=>{
@@ -154,10 +163,10 @@ window.renderTable=()=>{
  let start=(currentPage-1)*pageSize;let data=filteredList.slice(start,start+pageSize);
  let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Time</th><th>Block</th><th>Previous Dialysis Date</th><th>List Date</th><th>Action</th></tr>';
  data.forEach((p,i)=>{html+=`<tr><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri}</span></td><td><span class="timeBadge">${p.time}</span></td><td><span class="blockBadge">${p.block}</span></td><td>${p.prevDate||'-'}</td><td>${p.listDate||'-'}</td><td><button class="btn btnDel" onclick="deleteEntry('${p.id}')">Delete</button></td></tr>`;});
- if(data.length===0) html+='<tr><td colspan="8" style="text-align:center;padding:20px">No dialysis for this date - Type name above to see patient details</td></tr>';
+ if(data.length===0) html+=`<tr><td colspan="8" style="text-align:center;padding:20px">No dialysis for ${document.getElementById('listDate').value} - Type name above to see patient details from CMHT Total Patient</td></tr>`;
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('pageInfo').textContent=`Showing ${filteredList.length?start+1:0}-${Math.min(start+pageSize,filteredList.length)} of ${filteredList.length} | Date: ${document.getElementById('listDate').value}`;
- document.getElementById('totalInfo').textContent=filteredList.length+' entries';
+ document.getElementById('totalInfo').textContent=filteredList.length+' entries (Firebase)';
  document.getElementById('prevBtn').disabled=currentPage<=1;document.getElementById('nextBtn').disabled=currentPage>=totalPages;
  let nums='';for(let i=1;i<=Math.min(totalPages,8);i++){nums+=`<button class="pBtn" style="${i===currentPage?'background:#0a1931;color:#fff':''}" onclick="goPage(${i})">${i}</button>`;}
  document.getElementById('pageNums').innerHTML=nums;
@@ -165,17 +174,16 @@ window.renderTable=()=>{
 window.prevPage=()=>{if(currentPage>1){currentPage--;renderTable();}};
 window.nextPage=()=>{let ps=parseInt(document.getElementById('pageSize').value);if(currentPage<Math.ceil(filteredList.length/ps)){currentPage++;renderTable();}};
 window.goPage=(n)=>{currentPage=n;renderTable();};
-window.deleteEntry=async(id)=>{if(!confirm('Delete this entry?'))return;try{await deleteDoc(doc(db,"cmht_daily_dialysis",id));loadList();}catch(e){alert(e.message);}};
+window.deleteEntry=async(id)=>{if(!confirm('Delete from Firebase? Will delete for all computers'))return;try{await deleteDoc(doc(db,"cmht_daily_dialysis",id));document.getElementById('fbStatus').textContent='Deleted from Firebase';loadList();}catch(e){alert(e.message);}};
 
-// MAIN SEARCH - LIVE HINT FROM CMHT TOTAL PATIENT
 window.onMainSearchInput=()=>{
  let q=document.getElementById('searchList').value.toLowerCase().trim();
  let box=document.getElementById('mainHintList');
  if(!q){box.classList.remove('show');return;}
- let filtered=allCMHT.filter(p=>[p.name,p.shri,p.contact,p.addr].join(' ').toLowerCase().includes(q)).slice(0,20);
+ let filtered=allCMHT.filter(p=>[p.name,p.shri,p.contact,p.addr,p.cmht].join(' ').toLowerCase().includes(q)).slice(0,20);
  if(!filtered.length){box.innerHTML='<div style="padding:10px;text-align:center;color:#64748b">No patient in CMHT Total (cmht.html)</div>';box.classList.add('show');return;}
  let html='';filtered.forEach(p=>{
-  html+=`<div class="sItem" onclick="selectMainHint('${p.key}')"><div><b>${p.name}</b> <span class="shri">${p.shri}</span><br><small>${p.contact||'-'} | ${p.cmht||''} | ${p.addr? p.addr.substring(0,30):'-'}</small><br><small style="color:#8b5cf6">Aadhaar: ${p.aadhaar? 'XXXX-XXXX-'+p.aadhaar.slice(-4):'-'} • Remark: CMHT</small></div><small style="color:#8b5cf6;font-weight:700">Select</small></div>`;
+  html+=`<div class="sItem" onclick="selectMainHint('${p.key}')"><div><b>${p.name}</b> <span class="shri">${p.shri}</span><br><small>${p.contact||'-'} | ${p.cmht||''} | ${p.addr? p.addr.substring(0,30):'-'}</small><br><small style="color:#8b5cf6">Remark: CMHT</small></div><small style="color:#8b5cf6;font-weight:700">Select</small></div>`;
  });
  box.innerHTML=html;box.classList.add('show');
 };
@@ -184,38 +192,33 @@ window.selectMainHint=(key)=>{
  selectedPatient=p;
  document.getElementById('mainHintList').classList.remove('show');
  document.getElementById('searchList').value=p.name+' - '+p.shri;
- document.getElementById('selectedInfo').innerHTML=`✅ Selected: <b>${p.name}</b> | SHRI: ${p.shri} | Contact: ${p.contact||'-'} | CMHT: ${p.cmht||'-'} | Addr: ${p.addr||'-'} <br><small>Now click + Add Patient button to add to list (Time → Block → Prev Date)</small>`;
+ document.getElementById('selectedInfo').innerHTML=`✅ Selected: <b>${p.name}</b> | SHRI: ${p.shri} | Contact: ${p.contact||'-'} | CMHT: ${p.cmht||'-'} | Addr: ${p.addr||'-'} <br><small>Now click + Add Patient to add (Time → Block → Prev Date) - Will auto save to Firebase</small>`;
  document.getElementById('selectedInfo').classList.add('show');
  document.getElementById('addBtnMain').disabled=false;
- document.getElementById('addBtnMain').style.opacity='1';
 };
 window.onAddFromMain=()=>{
- if(!selectedPatient){alert('First type patient name above and select from hint list (from CMHT Total)');return;}
- // Open time popup
+ if(!selectedPatient){alert('First type patient name above and select from hint list');return;}
  document.getElementById('selPatientInfo').textContent=`Patient: ${selectedPatient.name} (${selectedPatient.shri}) - ${selectedPatient.contact||''}`;
  document.getElementById('modalTime').classList.add('show');
 };
-
-// Old modal search still works as backup
-window.openPatientSearch=()=>{document.getElementById('modalSearch').classList.add('show');document.getElementById('patientSearch').value='';doPatientSearch();};
 window.closeAll=()=>{document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show'));};
-window.doPatientSearch=()=>{
- let q=document.getElementById('patientSearch').value.toLowerCase().trim();
- let list=document.getElementById('sList');
- let filtered=q?allCMHT.filter(p=>[p.name,p.shri,p.contact].join(' ').toLowerCase().includes(q)).slice(0,30):allCMHT.slice(0,30);
- let html='';filtered.forEach(p=>{html+=`<div class="sItem" onclick="pickPatient('${p.key}')"><div><b>${p.name}</b><br><small>${p.shri} | ${p.contact||'-'} • From CMHT Total</small></div><small style="color:#8b5cf6;font-weight:700">Select</small></div>`;});
- if(!filtered.length) html='<div style="padding:12px;text-align:center;color:#64748b">No patient found</div>';
- list.innerHTML=html;
-};
-window.pickPatient=(key)=>{let p=allCMHT.find(x=>x.key===key);if(!p) return;selectedPatient=p;document.getElementById('modalSearch').classList.remove('show');document.getElementById('selPatientInfo').textContent=`Patient: ${p.name} (${p.shri})`;document.getElementById('modalTime').classList.add('show');};
 window.selectTime=(t)=>{selectedTime=t;document.getElementById('modalTime').classList.remove('show');document.getElementById('modalBlock').classList.add('show');};
 window.selectBlock=(b)=>{selectedBlock=b;document.getElementById('modalBlock').classList.remove('show');document.getElementById('modalPrev').classList.add('show');};
 window.finalAdd=async()=>{
  let prevDate=document.getElementById('prevDate').value;let listDate=document.getElementById('listDate').value;
  if(!selectedPatient||!selectedTime||!selectedBlock||!prevDate){alert('Fill all');return;}
- let docId=`${selectedPatient.shri}_${listDate}_${selectedTime}_${Date.now()}`;
- let data={name:selectedPatient.name,shri:selectedPatient.shri,shriId:selectedPatient.shri,contact:selectedPatient.contact||'',time:selectedTime,block:selectedBlock,prevDate:prevDate,listDate:listDate,remark:'CMHT',createdAt:new Date().toISOString()};
- try{await setDoc(doc(db,"cmht_daily_dialysis",docId),data);closeAll();document.getElementById('searchList').value='';document.getElementById('selectedInfo').classList.remove('show');document.getElementById('addBtnMain').disabled=true;selectedPatient=null;selectedTime='';selectedBlock='';loadList();}catch(e){alert(e.message);}
+ document.getElementById('fbStatus').textContent='Saving to Firebase...';
+ let data={name:selectedPatient.name,shri:selectedPatient.shri,shriId:selectedPatient.shri,contact:selectedPatient.contact||'',time:selectedTime,block:selectedBlock,prevDate:prevDate,listDate:listDate,remark:'CMHT',createdAt:new Date().toISOString(),serverTime:serverTimestamp()};
+ try{
+  await addDoc(collection(db,"cmht_daily_dialysis"),data);
+  document.getElementById('fbStatus').textContent='Saved to Firebase - Visible on all computers';
+  closeAll();
+  document.getElementById('searchList').value='';
+  document.getElementById('selectedInfo').classList.remove('show');
+  document.getElementById('addBtnMain').disabled=true;
+  selectedPatient=null;selectedTime='';selectedBlock='';
+  await loadList();
+ }catch(e){alert('Firebase Error: '+e.message);document.getElementById('fbStatus').textContent='Error: '+e.message;}
 };
 window.exportExcel=()=>{
  let rows=filteredList.map((p,i)=>({SL:i+1,Name:p.name,SHRI_ID:p.shri,Time:p.time,Block:p.block,Previous_Dialysis_Date:p.prevDate,List_Date:p.listDate,Remark:'CMHT'}));
