@@ -19,15 +19,21 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .content{flex:1;padding:16px;margin-left:230px;transition:margin.3s}
 .content.full{margin-left:0}
 .tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden;margin-top:14px}
-table{width:100%;border-collapse:collapse;min-width:800px}
+table{width:100%;border-collapse:collapse;min-width:1000px}
 th{padding:14px 12px;font-size:12px;color:#64748b;background:#f8fafc;text-align:left}
 td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .sl{background:#f1f5f9;width:36px;height:28px;display:grid;place-items:center;border-radius:6px;font-weight:800}
 .shri{background:#1868db;color:#fff;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px}
+.btnEdit{padding:6px 14px;border-radius:6px;border:0;background:#facc15;font-weight:700;font-size:12px;cursor:pointer;margin-right:4px}
+.btnDel{padding:6px 14px;border-radius:6px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer}
 .pager{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px}
 .pBtn{padding:8px 14px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer;font-size:13px}
 .pBtn:disabled{opacity:0.5}
 .pInfo{font-size:13px;font-weight:600;color:#475569}
+.modal{position:fixed;inset:0;background:#0006;display:none;place-items:center;z-index:99}.modal.show{display:grid}
+.modalBox{background:#fff;border-radius:14px;padding:18px;width:90%;max-width:420px}.modalBox input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;margin:6px 0}
+.modalBox input:disabled{background:#f1f5f9}
+.mBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}.save{background:#1868db;color:#fff;padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}.cancel{background:#f1f5f9;padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}
 @media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}}
 </style>
 </head>
@@ -49,14 +55,26 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div class="pInfo" id="pageInfo"></div><div style="display:flex;gap:6px" id="pageNums"></div></div></div>
 </div>
 </div>
+<div class="modal" id="editModal"><div class="modalBox"><h3>Edit - Permanent</h3><input id="eName" placeholder="Name"><input id="eShri" placeholder="SHRI ID (can be empty)"><input id="eContact" placeholder="Contact"><input id="ePmjay" placeholder="PMJAY"><input id="eAddr" placeholder="Address"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" onclick="saveEdit()">Save Permanent</button></div></div></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-let allPatients=[],filtered=[],currentPage=1,pageSize=50;
+let allPatients=[],filtered=[],currentPage=1,pageSize=50,editIndex=-1;
+
+// Uses id even if shriId is null - This is the key fix
+function getKey(p){ return String(p.key||p.shri||p.id||p.name).trim(); }
+function getDeleted(){ try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]');}catch{return [];} }
+function getEdited(){ try{return JSON.parse(localStorage.getItem('editedKeys')||'{}');}catch{return {};} }
+function addDeleted(key){ let l=getDeleted(); if(!l.includes(key)){l.push(key); localStorage.setItem('deletedKeys',JSON.stringify(l));} }
+function saveEditedLocal(key,data){ let m=getEdited(); m[key]=data; localStorage.setItem('editedKeys',JSON.stringify(m)); }
+
 window.toggleSide=()=>{let s=document.getElementById('side');let c=document.getElementById('content');if(innerWidth<=900){s.classList.toggle('open');}else{s.classList.toggle('closed');c.classList.toggle('full');}};
+window.closeEdit=()=>document.getElementById('editModal').classList.remove('show');
+window.openEdit=(idx)=>{editIndex=idx;let p=allPatients[idx];document.getElementById('eName').value=p.name;document.getElementById('eShri').value=p.shri;document.getElementById('eContact').value=p.contact;document.getElementById('ePmjay').value=p.pmjay;document.getElementById('eAddr').value=p.addr;document.getElementById('editModal').classList.add('show');};
 window.onSearch=()=>{currentPage=1;applyFilter();};
 window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderTable();};
 window.applyFilter=()=>{let q=document.getElementById('search').value.toLowerCase();filtered=allPatients.filter(p=>!p.deleted && [p.name,p.shri,p.pmjay].join(' ').toLowerCase().includes(q));renderTable();};
@@ -65,25 +83,77 @@ window.renderTable=()=>{
  if(currentPage>totalPages) currentPage=totalPages;
  let start=(currentPage-1)*pageSize;
  let data=filtered.slice(start,start+pageSize);
- let html='<tr><th>SL No</th><th>Patient</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr>';
- data.forEach((p,i)=>{html+=`<tr><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri}</span></td><td>${p.contact||'-'}</td><td>${p.pmjay||'-'}</td><td>${p.addr||'-'}</td></tr>`;});
- if(data.length===0) html+='<tr><td colspan="6" style="text-align:center;padding:20px;color:#64748b">No patients found</td></tr>';
+ let html='<tr><th>SL No</th><th>Patient</th><th>SHRI ID</th><th>Contact</th><th>PMJAY</th><th>Address</th><th>Action</th></tr>';
+ data.forEach((p)=>{let realIdx=allPatients.indexOf(p);html+=`<tr><td><div class="sl">${start+filtered.indexOf(p)+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri||'No ID'}</span></td><td>${p.contact||'-'}</td><td>${p.pmjay||'-'}</td><td>${(p.addr||'-').substring(0,30)}</td><td><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button><button class="btnDel" onclick="deletePatient(${realIdx})">Delete</button></td></tr>`;});
+ if(data.length===0) html+='<tr><td colspan="7" style="text-align:center;padding:20px">No patients</td></tr>';
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('info').textContent=filtered.length+' patients - Page '+currentPage+' of '+totalPages;
  document.getElementById('pageInfo').textContent='Showing '+(filtered.length?start+1:0)+'-'+Math.min(start+pageSize,filtered.length)+' of '+filtered.length;
  document.getElementById('prevBtn').disabled=currentPage<=1;
  document.getElementById('nextBtn').disabled=currentPage>=totalPages;
- let nums='';
- for(let i=1;i<=totalPages && i<=10;i++){ nums+=`<button class="pBtn" style="${i===currentPage?'background:#0a1931;color:#fff':''}" onclick="goPage(${i})">${i}</button>`; }
- if(totalPages>10) nums+=`<span style="padding:8px">... ${totalPages}</span>`;
- document.getElementById('pageNums').innerHTML=nums;
+ let nums=''; for(let i=1;i<=totalPages && i<=10;i++){ nums+=`<button class="pBtn" style="${i===currentPage?'background:#0a1931;color:#fff':''}" onclick="goPage(${i})">${i}</button>`; } document.getElementById('pageNums').innerHTML=nums;
 };
 window.prevPage=()=>{if(currentPage>1){currentPage--;renderTable();}};
 window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(currentPage<totalPages){currentPage++;renderTable();}};
 window.goPage=(n)=>{currentPage=n;renderTable();};
+
+window.deletePatient=async(idx)=>{
+ let p=allPatients[idx];
+ if(!confirm('DELETE '+p.name+'?')) return;
+ let key=getKey(p);
+ addDeleted(key);
+ try{ await setDoc(doc(db,"patients",key),{deleted:true,deletedAt:new Date().toISOString(),key:key,shriId:p.shri},{merge:true}); }catch(e){}
+ p.deleted=true; applyFilter();
+ document.getElementById('info').textContent='DELETED '+key+' - Permanent even with null SHRI - All devices';
+};
+
+window.saveEdit=async()=>{
+ let p=allPatients[editIndex];
+ let oldKey=getKey(p);
+ let newShri=document.getElementById('eShri').value.trim();
+ let updated={patientName:document.getElementById('eName').value.trim(),name:document.getElementById('eName').value.trim(),shriId:newShri,shri:newShri,contactNo:document.getElementById('eContact').value.trim(),contact:document.getElementById('eContact').value.trim(),pmjayId:document.getElementById('ePmjay').value.trim(),pmjay:document.getElementById('ePmjay').value.trim(),address:document.getElementById('eAddr').value.trim(),addr:document.getElementById('eAddr').value.trim(),deleted:false,updatedAt:new Date().toISOString(),key:oldKey,originalId:p.id};
+ saveEditedLocal(oldKey, updated);
+ p.name=updated.name; p.shri=updated.shri; p.contact=updated.contact; p.pmjay=updated.pmjay; p.addr=updated.addr;
+ closeEdit(); applyFilter();
+ document.getElementById('info').textContent='Saving '+oldKey+'...';
+ try{ await setDoc(doc(db,"patients",oldKey),updated,{merge:true}); document.getElementById('info').textContent='Saved '+oldKey+' - Permanent - All devices - Even if SHRI null'; }catch(e){ document.getElementById('info').textContent='Saved locally - '+e.message; }
+};
+
 async function init(){
- allPatients=(typeof patientData!=='undefined'?patientData:[]).map(p=>({name:String(p.patientName||p.name||'').trim(),shri:String(p.shriId||p.shri||'').trim(),contact:String(p.contactNo||p.contact||'').trim(),pmjay:String(p.pmjayId||p.pmjay||'').trim(),addr:String(p.address||p.addr||'').trim(),deleted:false}));
- try{const snap=await getDocs(collection(db,"patients"));snap.forEach(d=>{let c=d.data();let shriId=(c.shriId||c.shri||d.id).trim();let ex=allPatients.find(x=>x.shri===shriId);if(c.deleted){if(ex) ex.deleted=true;return;}if(ex){ex.name=c.patientName||c.name||ex.name;ex.contact=c.contactNo||c.contact||ex.contact;ex.pmjay=c.pmjayId||c.pmjay||ex.pmjay;ex.addr=c.address||c.addr||ex.addr;}else{allPatients.push({name:c.patientName||c.name||'',shri:shriId,contact:c.contactNo||c.contact||'',pmjay:c.pmjayId||c.pmjay||'',addr:c.address||c.addr||'',deleted:false});}});}catch(e){}
+ let deletedLocal=getDeleted();
+ let editedLocal=getEdited();
+ // Build from Patient.js - use id as fallback if shriId null
+ allPatients=(typeof patientData!=='undefined'?patientData:[]).map((pd,idx)=>{
+   let rawShri=String(pd.shriId||pd.shri||'').trim();
+   let rawId=String(pd.id||idx+1).trim();
+   let key=rawShri && rawShri!=='null' && rawShri!==''? rawShri : 'ID_'+rawId;
+   let isDel=deletedLocal.includes(key) || deletedLocal.includes(rawId) || deletedLocal.includes(rawShri);
+   let edited=editedLocal[key] || editedLocal[rawId] || editedLocal[rawShri];
+   if(edited){
+     return {key:key,id:rawId,name:edited.name||edited.patientName||pd.patientName||'',shri:edited.shri||edited.shriId||rawShri,contact:edited.contact||edited.contactNo||pd.contactNo||'',pmjay:edited.pmjay||edited.pmjayId||pd.pmjayId||'',addr:edited.addr||edited.address||pd.address||'',deleted:isDel};
+   }
+   return {key:key,id:rawId,name:String(pd.patientName||pd.name||'').trim(),shri:rawShri,contact:String(pd.contactNo||pd.contact||'').trim(),pmjay:String(pd.pmjayId||pd.pmjay||'').trim(),addr:String(pd.address||pd.addr||'').trim(),deleted:isDel};
+ });
+ try{
+   const snap=await getDocs(collection(db,"patients"));
+   snap.forEach(d=>{
+     let c=d.data(); let key=String(c.key||c.shriId||c.shri||d.id).trim();
+     if(c.deleted){ addDeleted(key); let ex=allPatients.find(x=>x.key===key || x.id===key || x.shri===key); if(ex) ex.deleted=true; return; }
+     // Save to local for permanence
+     saveEditedLocal(key,c);
+     let ex=allPatients.find(x=>x.key===key || x.id===key || x.shri===key);
+     if(ex &&!ex.deleted){ ex.name=c.patientName||c.name||ex.name; ex.shri=c.shriId||c.shri||ex.shri; ex.contact=c.contactNo||c.contact||ex.contact; ex.pmjay=c.pmjayId||c.pmjay||ex.pmjay; ex.addr=c.address||c.addr||ex.addr; }
+     else if(!deletedLocal.includes(key)){
+       allPatients.push({key:key,id:key,name:c.patientName||c.name||'',shri:c.shriId||c.shri||'',contact:c.contactNo||c.contact||'',pmjay:c.pmjayId||c.pmjay||'',addr:c.address||c.addr||'',deleted:false});
+     }
+   });
+ }catch(e){ console.log(e); }
+ deletedLocal=getDeleted(); editedLocal=getEdited();
+ allPatients.forEach(p=>{
+   if(deletedLocal.includes(p.key) || deletedLocal.includes(p.id) || deletedLocal.includes(p.shri)) p.deleted=true;
+   let ed=editedLocal[p.key] || editedLocal[p.id] || editedLocal[p.shri];
+   if(ed &&!p.deleted){ p.name=ed.name||ed.patientName||p.name; p.shri=ed.shri||ed.shriId||p.shri; p.contact=ed.contact||ed.contactNo||p.contact; p.pmjay=ed.pmjay||ed.pmjayId||p.pmjay; p.addr=ed.addr||ed.address||p.addr; }
+ });
  applyFilter();
 }
 init();
