@@ -51,7 +51,7 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 </div>
 <div class="content" id="content">
 <h1>Total Patients</h1><p id="info" style="color:#64748b;font-size:13px">Loading...</p>
-<div style="display:flex;gap:10px;margin:14px 0"><input id="search" style="flex:1;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1" placeholder="Search..." oninput="onSearch()"><select id="pageSize" onchange="changePageSize()" style="padding:10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700"><option value="10">10 / page</option><option value="20">20 / page</option><option value="30">30 / page</option><option value="40">40 / page</option><option value="50" selected>50 / page</option></select></div>
+<div style="display:flex;gap:10px;margin:14px 0"><input id="search" style="flex:1;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1" placeholder="Search..." oninput="onSearch()"><select id="pageSize" onchange="changePageSize()" style="padding:10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700"><option value="10" selected>10 / page</option><option value="20">20 / page</option><option value="30">30 / page</option><option value="40">40 / page</option><option value="50">50 / page</option></select></div>
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div class="pInfo" id="pageInfo"></div><div style="display:flex;gap:6px" id="pageNums"></div></div></div>
 </div>
 </div>
@@ -63,9 +63,8 @@ import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gsta
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-let allPatients=[],filtered=[],currentPage=1,pageSize=50,editIndex=-1;
+let allPatients=[],filtered=[],currentPage=1,pageSize=10,editIndex=-1;
 
-// Uses id even if shriId is null - This is the key fix
 function getKey(p){ return String(p.key||p.shri||p.id||p.name).trim(); }
 function getDeleted(){ try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]');}catch{return [];} }
 function getEdited(){ try{return JSON.parse(localStorage.getItem('editedKeys')||'{}');}catch{return {};} }
@@ -91,7 +90,7 @@ window.renderTable=()=>{
  document.getElementById('pageInfo').textContent='Showing '+(filtered.length?start+1:0)+'-'+Math.min(start+pageSize,filtered.length)+' of '+filtered.length;
  document.getElementById('prevBtn').disabled=currentPage<=1;
  document.getElementById('nextBtn').disabled=currentPage>=totalPages;
- let nums=''; for(let i=1;i<=totalPages && i<=10;i++){ nums+=`<button class="pBtn" style="${i===currentPage?'background:#0a1931;color:#fff':''}" onclick="goPage(${i})">${i}</button>`; } document.getElementById('pageNums').innerHTML=nums;
+ let nums=''; let showPages=Math.min(totalPages,10); for(let i=1;i<=showPages;i++){ nums+=`<button class="pBtn" style="${i===currentPage?'background:#0a1931;color:#fff':''}" onclick="goPage(${i})">${i}</button>`; } document.getElementById('pageNums').innerHTML=nums;
 };
 window.prevPage=()=>{if(currentPage>1){currentPage--;renderTable();}};
 window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(currentPage<totalPages){currentPage++;renderTable();}};
@@ -104,7 +103,7 @@ window.deletePatient=async(idx)=>{
  addDeleted(key);
  try{ await setDoc(doc(db,"patients",key),{deleted:true,deletedAt:new Date().toISOString(),key:key,shriId:p.shri},{merge:true}); }catch(e){}
  p.deleted=true; applyFilter();
- document.getElementById('info').textContent='DELETED '+key+' - Permanent even with null SHRI - All devices';
+ document.getElementById('info').textContent='DELETED '+key+' - Permanent';
 };
 
 window.saveEdit=async()=>{
@@ -116,13 +115,12 @@ window.saveEdit=async()=>{
  p.name=updated.name; p.shri=updated.shri; p.contact=updated.contact; p.pmjay=updated.pmjay; p.addr=updated.addr;
  closeEdit(); applyFilter();
  document.getElementById('info').textContent='Saving '+oldKey+'...';
- try{ await setDoc(doc(db,"patients",oldKey),updated,{merge:true}); document.getElementById('info').textContent='Saved '+oldKey+' - Permanent - All devices - Even if SHRI null'; }catch(e){ document.getElementById('info').textContent='Saved locally - '+e.message; }
+ try{ await setDoc(doc(db,"patients",oldKey),updated,{merge:true}); document.getElementById('info').textContent='Saved '+oldKey+' - Permanent'; }catch(e){ document.getElementById('info').textContent='Saved locally - '+e.message; }
 };
 
 async function init(){
  let deletedLocal=getDeleted();
  let editedLocal=getEdited();
- // Build from Patient.js - use id as fallback if shriId null
  allPatients=(typeof patientData!=='undefined'?patientData:[]).map((pd,idx)=>{
    let rawShri=String(pd.shriId||pd.shri||'').trim();
    let rawId=String(pd.id||idx+1).trim();
@@ -139,7 +137,6 @@ async function init(){
    snap.forEach(d=>{
      let c=d.data(); let key=String(c.key||c.shriId||c.shri||d.id).trim();
      if(c.deleted){ addDeleted(key); let ex=allPatients.find(x=>x.key===key || x.id===key || x.shri===key); if(ex) ex.deleted=true; return; }
-     // Save to local for permanence
      saveEditedLocal(key,c);
      let ex=allPatients.find(x=>x.key===key || x.id===key || x.shri===key);
      if(ex &&!ex.deleted){ ex.name=c.patientName||c.name||ex.name; ex.shri=c.shriId||c.shri||ex.shri; ex.contact=c.contactNo||c.contact||ex.contact; ex.pmjay=c.pmjayId||c.pmjay||ex.pmjay; ex.addr=c.address||c.addr||ex.addr; }
