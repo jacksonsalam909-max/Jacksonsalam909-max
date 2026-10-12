@@ -17,11 +17,12 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .content{flex:1;padding:16px;margin-left:230px;transition:margin.3s}
 .content.full{margin-left:0}
 .tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden;margin-top:14px}
-table{width:100%;border-collapse:collapse;min-width:1100px}
+table{width:100%;border-collapse:collapse;min-width:1200px}
 th{padding:14px 12px;font-size:12px;color:#64748b;background:#f8fafc;text-align:left}
 td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .sl{background:#f3e8ff;width:36px;height:28px;display:grid;place-items:center;border-radius:6px;font-weight:800;color:#6b21a8}
 .shri{background:#8b5cf6;color:#fff;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px}
+.remarkBadge{background:#ede9fe;color:#5b21b6;padding:5px 10px;border-radius:20px;font-weight:800;font-size:11px;border:1px solid #ddd6fe}
 .btnEdit{padding:6px 14px;border-radius:6px;border:0;background:#facc15;font-weight:700;font-size:12px;cursor:pointer;margin-right:4px}
 .btnDel{padding:6px 14px;border-radius:6px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer}
 .pager{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px}
@@ -39,22 +40,22 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <div class="mainWrap">
 <div class="side" id="side">
 <a href="index.html">Home</a>
-<a href="total.html">Total Patient</a>
+<a href="total.html">PMJAY Total Patient</a>
 <a href="cmht.html" class="active">CMHT Total Patient</a>
 <a href="daily.html">Daily Dialysis</a>
 <a href="discharge.html">Discharge Patient</a>
-<a href="kft.html">KFT Report</a>
-<a href="add.html">Add Patient</a>
+<a href="kft.html">PMJAY KFT REPORT</a>
+<a href="add.html">ADD PMJAY Patient</a>
 <a href="addcmht.html">Add CMHT Patient</a>
 <a href="bill.html">Bill</a>
 </div>
 <div class="content" id="content">
 <h1>CMHT Total Patient</h1><p id="info" style="color:#64748b;font-size:13px">Loading from Firebase...</p>
-<div style="display:flex;gap:10px;margin:14px 0;flex-wrap:wrap"><input id="search" style="flex:1;min-width:200px;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1" placeholder="Search name, SHRI, CMHT, Aadhaar..." oninput="onSearch()"><select id="pageSize" onchange="changePageSize()" style="padding:10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700"><option value="10" selected>10 / page</option><option value="20">20 / page</option><option value="50">50 / page</option></select><a href="addcmht.html" style="padding:10px 16px;background:#8b5cf6;color:#fff;border-radius:8px;text-decoration:none;font-weight:700">+ Add CMHT</a></div>
+<div style="display:flex;gap:10px;margin:14px 0;flex-wrap:wrap"><input id="search" style="flex:1;min-width:200px;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1" placeholder="Search..." oninput="onSearch()"><select id="pageSize" onchange="changePageSize()" style="padding:10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700"><option value="10" selected>10 / page</option><option value="20">20 / page</option><option value="50">50 / page</option></select><a href="addcmht.html" style="padding:10px 16px;background:#8b5cf6;color:#fff;border-radius:8px;text-decoration:none;font-weight:700">+ Add CMHT</a></div>
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div class="pInfo" id="pageInfo"></div><div style="display:flex;gap:6px" id="pageNums"></div></div></div>
 </div>
 </div>
-<div class="modal" id="editModal"><div class="modalBox"><h3>Edit CMHT Patient</h3><input id="eName" placeholder="Patient Name"><input id="eShri" placeholder="SHRI ID"><input id="eCmht" placeholder="CMHT ID"><input id="eContact" placeholder="Contact Number"><input id="eAadhaar" placeholder="Aadhaar Number"><input id="eAddr" placeholder="Address"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" onclick="saveEdit()">Save</button></div></div></div>
+<div class="modal" id="editModal"><div class="modalBox"><h3>Edit CMHT Patient</h3><input id="eName" placeholder="Patient Name"><input id="eShri" placeholder="SHRI ID"><input id="eCmht" placeholder="CMHT ID"><input id="eContact" placeholder="Contact Number"><input id="eAadhaar" placeholder="Aadhaar Number"><input id="eAddr" placeholder="Address"><input id="eRemark" value="CMHT" placeholder="Remark"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" onclick="saveEdit()">Save</button></div></div></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -63,22 +64,22 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);
 let allPatients=[],filtered=[],currentPage=1,pageSize=10,editIndex=-1;
 window.toggleSide=()=>{let s=document.getElementById('side');let c=document.getElementById('content');if(innerWidth<=900){s.classList.toggle('open');}else{s.classList.toggle('closed');c.classList.toggle('full');}};
 window.closeEdit=()=>document.getElementById('editModal').classList.remove('show');
-window.openEdit=(idx)=>{let p=allPatients[idx];editIndex=idx;document.getElementById('eName').value=p.name;document.getElementById('eShri').value=p.shri;document.getElementById('eCmht').value=p.cmht;document.getElementById('eContact').value=p.contact;document.getElementById('eAadhaar').value=p.aadhaar;document.getElementById('eAddr').value=p.addr;document.getElementById('editModal').classList.add('show');};
+window.openEdit=(idx)=>{let p=allPatients[idx];editIndex=idx;document.getElementById('eName').value=p.name;document.getElementById('eShri').value=p.shri;document.getElementById('eCmht').value=p.cmht;document.getElementById('eContact').value=p.contact;document.getElementById('eAadhaar').value=p.aadhaar;document.getElementById('eAddr').value=p.addr;document.getElementById('eRemark').value=p.remark||'CMHT';document.getElementById('editModal').classList.add('show');};
 window.onSearch=()=>{currentPage=1;applyFilter();};window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderTable();};
-window.applyFilter=()=>{let q=document.getElementById('search').value.toLowerCase();filtered=allPatients.filter(p=>[p.name,p.shri,p.cmht,p.contact,p.aadhaar,p.addr].join(' ').toLowerCase().includes(q));renderTable();};
+window.applyFilter=()=>{let q=document.getElementById('search').value.toLowerCase();filtered=allPatients.filter(p=>[p.name,p.shri,p.cmht,p.contact,p.aadhaar,p.addr,p.remark].join(' ').toLowerCase().includes(q));renderTable();};
 window.renderTable=()=>{
  let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;
  let start=(currentPage-1)*pageSize;let data=filtered.slice(start,start+pageSize);
- let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>CMHT ID</th><th>Contact</th><th>Aadhaar</th><th>Address</th><th>Action</th></tr>';
- data.forEach((p,i)=>{let real=allPatients.indexOf(p);let aadhaarShow=p.aadhaar?'XXXX-XXXX-'+p.aadhaar.slice(-4):'-';html+=`<tr><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri||'-'}</span></td><td>${p.cmht||'-'}</td><td>${p.contact||'-'}</td><td title="${p.aadhaar}">${aadhaarShow}</td><td>${(p.addr||'-').substring(0,30)}</td><td><button class="btnEdit" onclick="openEdit(${real})">Edit</button><button class="btnDel" onclick="deletePatient(${real})">Delete</button></td></tr>`;});
- if(data.length===0) html+='<tr><td colspan="8" style="text-align:center;padding:20px">No CMHT patients - Add from Add CMHT Patient page</td></tr>';
- document.getElementById('tbl').innerHTML=html;document.getElementById('info').textContent=filtered.length+' CMHT patients from Firebase - Page '+currentPage+'/'+totalPages;document.getElementById('pageInfo').textContent='Showing '+(filtered.length?start+1:0)+'-'+Math.min(start+pageSize,filtered.length)+' of '+filtered.length;document.getElementById('prevBtn').disabled=currentPage<=1;document.getElementById('nextBtn').disabled=currentPage>=totalPages;
+ let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>CMHT ID</th><th>Contact</th><th>Aadhaar</th><th>Address</th><th>Remark</th><th>Action</th></tr>';
+ data.forEach((p,i)=>{let real=allPatients.indexOf(p);let aadhaarShow=p.aadhaar?'XXXX-XXXX-'+p.aadhaar.slice(-4):'-';html+=`<tr><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri||'-'}</span></td><td>${p.cmht||'-'}</td><td>${p.contact||'-'}</td><td title="${p.aadhaar}">${aadhaarShow}</td><td>${(p.addr||'-').substring(0,30)}</td><td><span class="remarkBadge">${p.remark||'CMHT'}</span></td><td><button class="btnEdit" onclick="openEdit(${real})">Edit</button><button class="btnDel" onclick="deletePatient(${real})">Delete</button></td></tr>`;});
+ if(data.length===0) html+='<tr><td colspan="9" style="text-align:center;padding:20px">No CMHT patients - Add from Add CMHT Patient page</td></tr>';
+ document.getElementById('tbl').innerHTML=html;document.getElementById('info').textContent=filtered.length+' CMHT patients (Remark: CMHT) from Firebase - Page '+currentPage+'/'+totalPages;document.getElementById('pageInfo').textContent='Showing '+(filtered.length?start+1:0)+'-'+Math.min(start+pageSize,filtered.length)+' of '+filtered.length;document.getElementById('prevBtn').disabled=currentPage<=1;document.getElementById('nextBtn').disabled=currentPage>=totalPages;
  let nums='';for(let i=1;i<=Math.min(totalPages,10);i++){nums+=`<button class="pBtn" style="${i===currentPage?'background:#0a1931;color:#fff':''}" onclick="goPage(${i})">${i}</button>`;}document.getElementById('pageNums').innerHTML=nums;
 };
 window.prevPage=()=>{if(currentPage>1){currentPage--;renderTable();}};window.nextPage=()=>{if(currentPage<Math.ceil(filtered.length/pageSize)){currentPage++;renderTable();}};window.goPage=(n)=>{currentPage=n;renderTable();};
 window.deletePatient=async(idx)=>{let p=allPatients[idx];if(!confirm('Delete '+p.name+'?'))return;try{await deleteDoc(doc(db,"cmht_patients",p.key));allPatients.splice(idx,1);applyFilter();}catch(e){alert(e.message);}};
-window.saveEdit=async()=>{let p=allPatients[editIndex];let key=p.key;let updated={name:document.getElementById('eName').value.trim(),patientName:document.getElementById('eName').value.trim(),shri:document.getElementById('eShri').value.trim(),shriId:document.getElementById('eShri').value.trim(),cmht:document.getElementById('eCmht').value.trim(),cmhtId:document.getElementById('eCmht').value.trim(),pmjay:document.getElementById('eCmht').value.trim(),contact:document.getElementById('eContact').value.trim(),contactNo:document.getElementById('eContact').value.trim(),aadhaar:document.getElementById('eAadhaar').value.trim(),aadhaarNo:document.getElementById('eAadhaar').value.trim(),addr:document.getElementById('eAddr').value.trim(),address:document.getElementById('eAddr').value.trim(),scheme:'CMHT',key:key,updatedAt:new Date().toISOString()};try{await setDoc(doc(db,"cmht_patients",key),updated,{merge:true});allPatients[editIndex]=updated;closeEdit();applyFilter();}catch(e){alert(e.message);}};
-async function init(){try{const snap=await getDocs(collection(db,"cmht_patients"));allPatients=[];snap.forEach(d=>{let c=d.data();allPatients.push({key:d.id,name:c.patientName||c.name||'',shri:c.shriId||c.shri||'',cmht:c.cmhtId||c.cmht||c.pmjay||'',contact:c.contactNo||c.contact||'',aadhaar:c.aadhaarNo||c.aadhaar||'',addr:c.address||c.addr||''});});applyFilter();}catch(e){document.getElementById('info').textContent='Error: '+e.message;}}init();
+window.saveEdit=async()=>{let p=allPatients[editIndex];let key=p.key;let updated={name:document.getElementById('eName').value.trim(),patientName:document.getElementById('eName').value.trim(),shri:document.getElementById('eShri').value.trim(),shriId:document.getElementById('eShri').value.trim(),cmht:document.getElementById('eCmht').value.trim(),cmhtId:document.getElementById('eCmht').value.trim(),pmjay:document.getElementById('eCmht').value.trim(),contact:document.getElementById('eContact').value.trim(),contactNo:document.getElementById('eContact').value.trim(),aadhaar:document.getElementById('eAadhaar').value.trim(),aadhaarNo:document.getElementById('eAadhaar').value.trim(),addr:document.getElementById('eAddr').value.trim(),address:document.getElementById('eAddr').value.trim(),remark:document.getElementById('eRemark').value.trim()||'CMHT',remarks:document.getElementById('eRemark').value.trim()||'CMHT',scheme:'CMHT',key:key,updatedAt:new Date().toISOString()};try{await setDoc(doc(db,"cmht_patients",key),updated,{merge:true});allPatients[editIndex]=updated;closeEdit();applyFilter();}catch(e){alert(e.message);}};
+async function init(){try{const snap=await getDocs(collection(db,"cmht_patients"));allPatients=[];snap.forEach(d=>{let c=d.data();allPatients.push({key:d.id,name:c.patientName||c.name||'',shri:c.shriId||c.shri||'',cmht:c.cmhtId||c.cmht||c.pmjay||'',contact:c.contactNo||c.contact||'',aadhaar:c.aadhaarNo||c.aadhaar||'',addr:c.address||c.addr||'',remark:c.remark||c.remarks||'CMHT'});});applyFilter();}catch(e){document.getElementById('info').textContent='Error: '+e.message;}}init();
 </script>
 </body>
 </html>
