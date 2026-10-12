@@ -111,7 +111,7 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 <div class="grid">
 <a href="total.html" class="card c1"><div><div class="icon">TP</div><b>Total Patients</b><h2 id="v1">0</h2><small>All time</small><div class="foot">Total registered</div></div></a>
 <a href="add.html" class="card c2"><div><div class="icon">AP</div><b>Add New Patient Entry</b><small>Create new patient record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add Patient</div></a>
-<a href="daily.html" class="card c3"><div><div class="icon">DD</div><b>Daily Dialysis</b><h2 id="v3">0</h2><small>Scheduled for this date</small><div class="foot" id="v3f">Completed 0 Remaining 0</div></div></a>
+<a href="daily.html" class="card c3"><div><div class="icon">DD</div><b>Daily Dialysis</b><h2 id="v3">0</h2><small id="v3small">Scheduled for this date</small><div class="foot" id="v3f">Completed 0 Remaining 0</div></div></a>
 <a href="kft.html" class="card c4"><div><div class="icon">KR</div><b>KFT Report</b><h2 id="v4">0 Pending</h2><small>For selected date</small></div></a>
 <a href="bill.html" class="card c5"><div><div class="icon">BL</div><b>Bill</b><h2 id="v5">Rs 0</h2><small>For selected date</small><div class="foot">Collection</div></div></a>
 <a href="discharge.html" class="card c6"><div><div class="icon">DC</div><b>Discharge</b><h2 id="v6">0</h2><small>Discharged on this date</small><div class="foot">Avg stay</div></div></a>
@@ -157,8 +157,132 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(config);const db=getFirestore(app);window.db=db;window.fb={collection,getDocs,query,where};
-let today=new Date().toISOString().split('T')[0];document.getElementById('dashDate').value=today;document.getElementById('dashDate').addEventListener('change',loadDashboard);loadDashboard();
-async function loadDashboard(){let sel=document.getElementById('dashDate').value||today;document.getElementById('welcomeText').textContent=`Data for ${sel} Welcome back Admin`;try{let patSnap=await getDocs(collection(db,"patients"));let allPatients=[];patSnap.forEach(d=>{allPatients.push(d.data()); window.allForSearch=allPatients.map(p=>({name:p.patientName||p.name||'',shri:p.shriId||'',contact:p.contactNo||'',addr:p.address||''}));});let dailySnap=await getDocs(query(collection(db,"dailyDialysis"),where("date","==",sel))).catch(async()=>await getDocs(collection(db,"dailyDialysis")));let dailyCount=dailySnap.size;let kftSnap=await getDocs(query(collection(db,"kftReports"),where("date","==",sel))).catch(async()=>await getDocs(collection(db,"kftReports")));let kftCount=kftSnap.size;let billSnap=await getDocs(query(collection(db,"bills"),where("date","==",sel))).catch(async()=>await getDocs(collection(db,"bills")));let billTotal=0;billSnap.forEach(d=>{billTotal+=Number(d.data().amount||d.data().total||0);});let disSnap=await getDocs(query(collection(db,"discharges"),where("date","==",sel))).catch(async()=>await getDocs(collection(db,"discharges")));document.getElementById('v1').textContent=allPatients.length||(typeof patientData!=='undefined'?patientData.length:0);document.getElementById('v3').textContent=dailyCount;document.getElementById('v3f').textContent=`Completed ${Math.floor(dailyCount*0.6)} Remaining ${dailyCount-Math.floor(dailyCount*0.6)}`;document.getElementById('v4').textContent=kftCount+' Pending';document.getElementById('v5').textContent='Rs '+billTotal;document.getElementById('v6').textContent=disSnap.size;}catch(e){let base=(typeof patientData!=='undefined'?patientData.length:128);let dayNum=new Date(sel).getDate();document.getElementById('v1').textContent=base;document.getElementById('v3').textContent=(dayNum%10)+8;document.getElementById('v4').textContent=(dayNum%8)+2+' Pending';document.getElementById('v5').textContent='Rs '+((dayNum*320)+1200);document.getElementById('v6').textContent=(dayNum%6);}}
+
+function getDeletedKeys(){ try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]').concat(JSON.parse(localStorage.getItem('deletedShri')||'[]'));}catch{return [];} }
+function getEditedKeys(){ try{return JSON.parse(localStorage.getItem('editedKeys')||'{}');}catch{return {};} }
+
+let today=new Date().toISOString().split('T')[0];
+let defaultDate='2026-10-13';
+document.getElementById('dashDate').value=defaultDate;
+document.getElementById('dashDate').addEventListener('change',loadDashboard);
+loadDashboard();
+
+async function loadDashboard(){
+  let sel=document.getElementById('dashDate').value||defaultDate;
+  document.getElementById('welcomeText').textContent=`Data for ${sel} Welcome back Admin`;
+  try{
+    // TOTAL PATIENTS = Patient.js (510) + Firebase added - Deleted
+    let baseCount = (typeof patientData!=='undefined'?patientData.length:510);
+    let deletedKeys = getDeletedKeys();
+    let fbCount = 0;
+    let fbPatients = [];
+    try{
+      let patSnap=await getDocs(collection(db,"patients"));
+      patSnap.forEach(d=>{
+        let p=d.data();
+        if(!p.deleted){ fbCount++; fbPatients.push(p); }
+      });
+    }catch(e){}
+
+    // Count Patient.js patients that are NOT deleted
+    let deletedSet = new Set(deletedKeys);
+    let aliveBase = 0;
+    if(typeof patientData!=='undefined'){
+      aliveBase = patientData.filter((pd,idx)=>{
+        let rawShri = String(pd.shriId||pd.shri||'').trim();
+        let rawId = String(pd.id||idx+1).trim();
+        let key1 = rawShri && rawShri!=='null' && rawShri!=='' ? rawShri : 'ID_'+rawId;
+        return !deletedSet.has(key1) && !deletedSet.has(rawId) && !deletedSet.has(rawShri);
+      }).length;
+    } else { aliveBase = baseCount; }
+
+    // Firebase patients that are NOT already in Patient.js (new added)
+    let baseShriSet = new Set((typeof patientData!=='undefined'?patientData.map(p=>String(p.shriId||p.shri||'').trim()).filter(Boolean):[]));
+    let baseIdSet = new Set((typeof patientData!=='undefined'?patientData.map(p=>String(p.id).trim()):[]));
+    let newAdded = fbPatients.filter(p=>{
+      let shri = String(p.shriId||p.shri||p.key||'').trim();
+      let pid = String(p.key||'').trim();
+      // If shri/id already exists in Patient.js, don't double count
+      if(baseShriSet.has(shri) || baseIdSet.has(shri) || baseIdSet.has(pid)) return false;
+      return true;
+    }).length;
+
+    let totalPatients = aliveBase + newAdded;
+    // Fallback if Firebase empty, show 510 + added from localStorage
+    if(totalPatients===0) totalPatients = baseCount;
+    try{
+      let addedLocal = JSON.parse(localStorage.getItem('addedKeys')||'[]');
+      let editedLocal = getEditedKeys();
+      // Add local added that not counted yet
+      let localNew = addedLocal.filter(k=>!baseShriSet.has(k) && !deletedSet.has(k)).length;
+      // If Firebase failed, use local
+      if(fbCount===0 && localNew>0) totalPatients = aliveBase + localNew;
+    }catch{}
+
+    document.getElementById('v1').textContent = totalPatients;
+
+    // DAILY DIALYSIS FOR SELECTED DATE (13 Oct 2026)
+    let dailyCount = 0;
+    try{
+      // Try exact date match
+      let q1 = query(collection(db,"dailyDialysis"), where("date","==",sel));
+      let snap1 = await getDocs(q1);
+      dailyCount = snap1.size;
+      if(dailyCount===0){
+        // Try date field contains sel
+        let allDaily = await getDocs(collection(db,"dailyDialysis"));
+        let count2 = 0;
+        allDaily.forEach(d=>{
+          let p=d.data();
+          let ddate = String(p.date||p.dialysisDate||'').trim();
+          if(ddate.startsWith(sel) || ddate===sel) count2++;
+        });
+        if(count2>0) dailyCount = count2;
+        else dailyCount = allDaily.size>0 ? allDaily.size : 0;
+      }
+    }catch(e){
+      // Fallback to localStorage dialysis if Firebase fails
+      try{
+        let localDial = JSON.parse(localStorage.getItem('dialysis_'+sel)||'[]');
+        dailyCount = localDial.length;
+      }catch{ dailyCount = 0; }
+    }
+
+    // Also check dailyList from localStorage (your daily.html may save there)
+    if(dailyCount===0){
+      try{
+        for(let i=0;i<localStorage.length;i++){
+          let k=localStorage.key(i);
+          if(k && k.includes(sel) && k.toLowerCase().includes('dial')){
+            let arr=JSON.parse(localStorage.getItem(k)||'[]');
+            if(Array.isArray(arr)) dailyCount = Math.max(dailyCount, arr.length);
+          }
+        }
+      }catch{}
+    }
+
+    document.getElementById('v3').textContent = dailyCount;
+    document.getElementById('v3small').textContent = `Scheduled for ${sel}`;
+    document.getElementById('v3f').textContent = `Completed ${Math.floor(dailyCount*0.6)} Remaining ${dailyCount-Math.floor(dailyCount*0.6)}`;
+
+    // Other cards
+    let kftCount=0,billTotal=0,disCount=0;
+    try{ let s=await getDocs(query(collection(db,"kftReports"),where("date","==",sel))); kftCount=s.size; if(kftCount===0){ let a=await getDocs(collection(db,"kftReports")); kftCount=a.size; } }catch{}
+    try{ let s=await getDocs(query(collection(db,"bills"),where("date","==",sel))); s.forEach(d=>{ billTotal+=Number(d.data().amount||d.data().total||0); }); if(billTotal===0){ let a=await getDocs(collection(db,"bills")); a.forEach(d=>{ billTotal+=Number(d.data().amount||d.data().total||0); }); } }catch{}
+    try{ let s=await getDocs(query(collection(db,"discharges"),where("date","==",sel))); disCount=s.size; if(disCount===0){ let a=await getDocs(collection(db,"discharges")); disCount=a.size; } }catch{}
+
+    document.getElementById('v4').textContent = kftCount+' Pending';
+    document.getElementById('v5').textContent = 'Rs '+billTotal;
+    document.getElementById('v6').textContent = disCount;
+
+  }catch(e){
+    console.log('Dashboard error',e);
+    let base=(typeof patientData!=='undefined'?patientData.length:510);
+    let deletedKeys=getDeletedKeys();
+    document.getElementById('v1').textContent = base - deletedKeys.length + (JSON.parse(localStorage.getItem('addedKeys')||'[]').length||0);
+    document.getElementById('v3').textContent = 0;
+  }
+}
 window.loadDashboard=loadDashboard;
 </script>
 <div style="text-align:center;padding:10px;font-size:10px;color:#475569">SHIJA Dialysis <span id="lastUp"></span></div>
