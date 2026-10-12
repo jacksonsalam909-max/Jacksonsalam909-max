@@ -6,256 +6,144 @@
 <title>Total Patients - SHIJA Dialysis</title>
 <script src="Patient.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#f6f7fb;color:#1a2332;display:flex;flex-direction:column;min-height:100vh}
 .top{height:68px;background:#0b1b32;display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:100}
-.logoText{line-height:1}.shija{font-size:28px;font-weight:900;color:#fff}.dialysis{font-size:15px;font-weight:600;color:#fff}
-.hamSide{width:46px;height:36px;border-radius:10px;background:#1868db;border:0;color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center}
-.ad{width:44px;height:44px;border-radius:50%;background:#1868db;color:#fff;display:grid;place-items:center;font-weight:800}
-.side{position:fixed;left:0;top:68px;bottom:0;width:260px;background:#0b1b32;padding:18px 10px;display:flex;flex-direction:column;gap:6px;transition:.35s;z-index:90}
-.side.closed{transform:translateX(-100%)}
+.shija{font-size:28px;font-weight:900;color:#fff}.dialysis{font-size:15px;font-weight:600;color:#fff}
+.side{position:fixed;left:0;top:68px;bottom:0;width:260px;background:#0b1b32;padding:18px 10px;display:flex;flex-direction:column;gap:6px}
 .side a{padding:13px 14px;border-radius:10px;text-decoration:none;color:#8ea0bf;font-weight:600;font-size:14px}
 .side a.active{background:#132845;color:#fff;border-left:3px solid #1868db}
-.main{display:flex;flex:1}.content{flex:1;padding:22px;margin-left:260px;transition:.35s}.content.full{margin-left:0}
-.hrow{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px}
-.hrow h1{font-size:36px;font-weight:900;color:#1e293b}.hrow p{color:#64748b;font-size:15px}
-.filterRow{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.searchBox{flex:1;min-width:260px}.searchBox input{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;background:#fff;outline:0;font-size:14px}
-.sel{padding:8px 12px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;font-size:13px}
+.content{flex:1;padding:22px;margin-left:260px}
 .tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden}
 table{width:100%;border-collapse:collapse;min-width:900px}
-th{padding:14px 12px;font-size:12px;color:#64748b;font-weight:600;text-align:left;background:#f8fafc;border-bottom:1px solid #e2e8f0}
-td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;color:#334155;vertical-align:middle}
-tr.dataRow:hover{background:#f8fafc}
-.sl{font-weight:800;color:#0f172a;background:#f1f5f9;width:36px;height:28px;display:grid;place-items:center;border-radius:6px;font-size:12px}
-.shri{background:#1868db;color:#fff;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-block}
+th{padding:14px 12px;font-size:12px;color:#64748b;background:#f8fafc;border-bottom:1px solid #e2e8f0;text-align:left}
+td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;color:#334155}
+.sl{background:#f1f5f9;width:36px;height:28px;display:grid;place-items:center;border-radius:6px;font-weight:800;font-size:12px}
+.shri{background:#1868db;color:#fff;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px}
 .pmjayText{font-weight:600;color:#334155;cursor:pointer}
-.pmjayCell{cursor:pointer}
 .btnEdit{padding:6px 14px;border-radius:6px;border:0;background:#1868db;color:#fff;font-weight:700;font-size:12px;cursor:pointer}
-.pager{display:flex;justify-content:space-between;margin-top:14px}.pgBtns{display:flex;gap:6px}
-.pg{padding:6px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-weight:600;font-size:12px}.pg.active{background:#1868db;color:#fff;border-color:#1868db}
+.pg{padding:6px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-weight:600;font-size:12px}.pg.active{background:#1868db;color:#fff}
 .modal{position:fixed;inset:0;background:#0006;z-index:99;display:none;place-items:center}.modal.show{display:grid}
 .modalBox{background:#fff;border-radius:14px;padding:18px;width:90%;max-width:420px}.modalBox input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;margin:6px 0}
-.mBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}.mBtns button{padding:8px 14px;border-radius:8px;border:0;cursor:pointer;font-weight:700}.save{background:#1868db;color:#fff}.cancel{background:#f1f5f9;color:#334155}
+.mBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}.mBtns button{padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}.save{background:#1868db;color:#fff}.cancel{background:#f1f5f9}
 </style>
 </head>
 <body>
-<div class="top">
-<div style="display:flex;gap:12px;align-items:center">
-<button class="hamSide" onclick="toggleSide()">☰</button>
-<div class="logoText"><div class="shija">SHIJA</div><div class="dialysis">Dialysis</div></div>
-</div>
-<div style="display:flex;align-items:center;gap:10px;color:#fff"><div style="text-align:right"><div style="font-weight:800">Admin</div><div style="font-size:12px;color:#8ea0bf">AD</div></div><div class="ad">AD</div></div>
-</div>
-<div class="side" id="side">
-<a href="index.html">Home</a>
-<a href="total.html" class="active">Total Patient</a>
-<a href="daily.html">Daily Dialysis</a>
-<a href="discharge.html">Discharge Patient</a>
-<a href="kft.html">KFT Report</a>
-<a href="add.html">Add Patient</a>
-<a href="bill.html">Bill</a>
-</div>
-
-<div class="main">
-<div class="content" id="content">
-<div class="hrow"><div><h1>Total Patients</h1><p>Auto-save to Firebase - <span id="info"></span><br><span style="font-size:11px;color:#10b981">✓ Edits auto-save to cloud - no download needed</span></p></div></div>
-
-<div class="filterRow">
-<div class="searchBox"><input id="search" placeholder="Search by name, SHRI ID, contact, address, PMJAY ID" oninput="onSearch()"></div>
-<select id="pageSize" class="sel" onchange="changeSize()"><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option><option value="50">50</option><option value="9999">All</option></select>
-</div>
-
+<div class="top"><div style="display:flex;gap:12px;align-items:center"><div><div class="shija">SHIJA</div><div class="dialysis">Dialysis</div></div></div><div style="color:#fff;font-weight:800">Admin</div></div>
+<div class="side"><a href="index.html">Home</a><a href="total.html" class="active">Total Patient</a><a href="daily.html">Daily Dialysis</a><a href="discharge.html">Discharge Patient</a><a href="kft.html">KFT Report</a><a href="add.html">Add Patient</a><a href="bill.html">Bill</a></div>
+<div class="content">
+<h1>Total Patients</h1><p><span id="info">Loading from Patient.js...</span> <span style="color:#10b981;font-size:12px">✓ Edits visible to all PC/Mobile</span></p>
+<div style="display:flex;gap:10px;margin:14px 0"><input id="search" style="flex:1;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1" placeholder="Search PMJAY, SHRI, name..." oninput="onSearch()"><select id="pageSize" onchange="changeSize()" style="padding:8px 12px;border-radius:8px;border:1.5px solid #cbd5e1"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="9999">All</option></select></div>
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div></div>
-<div class="pager"><div></div><div class="pgBtns" id="pager"></div></div>
+<div id="pager" style="margin-top:10px"></div>
 </div>
-</div>
-
-<div class="modal" id="editModal">
-<div class="modalBox">
-<h3 style="color:#0f172a;margin-bottom:4px">Edit Patient</h3>
-<input id="eName" placeholder="Patient Name">
-<input id="eShri" placeholder="SHRI ID">
-<input id="eContact" placeholder="Contact">
-<input id="ePmjay" placeholder="PMJAY ID">
-<input id="eAddr" placeholder="Address">
-<div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" id="saveBtn" onclick="saveEdit()">Save to Cloud</button></div>
-</div>
-</div>
+<div class="modal" id="editModal"><div class="modalBox"><h3>Edit Patient</h3><input id="eName" placeholder="Name"><input id="eShri" placeholder="SHRI ID"><input id="eContact" placeholder="Contact"><input id="ePmjay" placeholder="PMJAY ID"><input id="eAddr" placeholder="Address"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" id="saveBtn" onclick="saveEdit()">Save</button></div></div></div>
 
 <script type="module">
-// FIREBASE SETUP - REPLACE WITH YOUR CONFIG
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// TODO: Paste your firebaseConfig from Firebase Console > Project Settings
+// --- REPLACE WITH YOUR FIREBASE CONFIG ---
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
+  apiKey: "AIzaSyXXXXXXXXXXXXXXXXXXXX",
+  authDomain: "shija-dialysis.firebaseapp.com",
+  projectId: "shija-dialysis",
+  storageBucket: "shija-dialysis.appspot.com",
   messagingSenderId: "123456789",
-  appId: "1:123:web:abc"
+  appId: "1:123:web:abcd"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-window.db = db;
-window.firestoreFns = { collection, getDocs, doc, setDoc, updateDoc, query, orderBy };
+let allPatients = [];
+let filtered = [];
+let curPage = 1, pageSize = 10, editIndex = -1;
 
-// Global data
-window.allPatients = [];
-window.filtered = [];
-window.curPage = 1;
-window.pageSize = 10;
-window.editIndex = -1;
-
-window.toggleSide = function(){
- let s=document.getElementById('side'); let c=document.getElementById('content');
- s.classList.toggle('closed'); c.classList.toggle('full');
+function loadFromPatientJs(){
+  allPatients = (typeof patientData!=='undefined'?patientData:[]).map(p=>({
+    name:String(p.patientName||p.name||'').trim(),
+    shri:String(p.shriId||p.shri||'').trim(),
+    contact:String(p.contactNo||p.contact||'').trim(),
+    pmjay:String(p.pmjayId||p.pmjay||'').trim(),
+    addr:String(p.address||p.addr||'').trim(),
+    age:p.age||30, gender:p.gender||'Male'
+  }));
+  applyFilter();
+  // After showing Patient.js instantly, merge cloud edits
+  mergeFromCloud();
 }
 
-window.onSearch = function(){ window.curPage=1; applyFilter(); }
-window.changeSize = function(){ window.pageSize=parseInt(document.getElementById('pageSize').value); window.curPage=1; renderTable(); }
-window.applyFilter = function(){
- let q=document.getElementById('search').value.toLowerCase().trim();
- window.filtered = window.allPatients.filter(p=>[p.name,p.shri,p.contact,p.addr,p.pmjay].join(' ').toLowerCase().includes(q));
- renderTable();
-}
-window.copyPmjay = function(id){
- navigator.clipboard.writeText(String(id).trim());
-}
-window.goPage = function(n){ window.curPage=n; renderTable(); }
-window.openEdit = function(idx){
- window.editIndex=idx;
- let p=window.allPatients[idx];
- document.getElementById('eName').value=String(p.name).trim();
- document.getElementById('eShri').value=String(p.shri).trim();
- document.getElementById('eContact').value=String(p.contact).trim();
- document.getElementById('ePmjay').value=String(p.pmjay).trim();
- document.getElementById('eAddr').value=String(p.addr).trim();
- document.getElementById('editModal').classList.add('show');
-}
-window.closeEdit = function(){ document.getElementById('editModal').classList.remove('show'); }
-
-window.renderTable = function(){
- let totalPages=window.pageSize>=9999?1:Math.ceil(window.filtered.length/window.pageSize)||1;
- if(window.curPage>totalPages) window.curPage=totalPages;
- let start=(window.curPage-1)*window.pageSize;
- let end=window.pageSize>=9999?window.filtered.length:start+window.pageSize;
- let data=window.filtered.slice(start,end);
- let html='<tr><th>SL No</th><th>Patient</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr>';
- data.forEach((p,i)=>{
-  let realIdx = window.allPatients.indexOf(window.filtered[start+i]);
-  let sl=start+i+1;
-  let pmjayClean = String(p.pmjay).trim();
-  html+=`<tr class="dataRow">
-  <td><div class="sl">${sl}</div></td>
-  <td><div><div style="font-weight:800;color:#0f172a">${String(p.name).trim()}</div><div style="font-size:11px;color:#64748b">${p.gender} ${p.age}</div></div></td>
-  <td><span class="shri">${String(p.shri).trim()}</span></td>
-  <td style="font-weight:600">${String(p.contact).trim()}</td>
-  <td class="pmjayCell" onclick="copyPmjay('${pmjayClean}')" title="Click to copy"><span class="pmjayText">${pmjayClean}</span></td>
-  <td>${String(p.addr).trim()}</td>
-  <td><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button></td>
-  </tr>`;
- });
- if(data.length===0) html+='<tr><td colspan="7" style="text-align:center;padding:24px;color:#94a3b8">No patients found - importing from Patient.js...</td></tr>';
- document.getElementById('tbl').innerHTML=html;
- document.getElementById('info').textContent=`${window.filtered.length?start+1:0}-${Math.min(end,window.filtered.length)} of ${window.filtered.length}`;
- let pgHtml=`<button class="pg" ${window.curPage<=1?'disabled':''} onclick="goPage(${window.curPage-1})">Prev</button>`;
- for(let i=1;i<=Math.min(totalPages,6);i++) pgHtml+=`<button class="pg ${i===window.curPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
- if(totalPages>6) pgHtml+=`<span style="padding:6px;color:#64748b">...${totalPages}</span>`;
- pgHtml+=`<button class="pg" ${window.curPage>=totalPages?'disabled':''} onclick="goPage(${window.curPage+1})">Next</button>`;
- document.getElementById('pager').innerHTML=pgHtml;
+async function mergeFromCloud(){
+  try{
+    const snap = await getDocs(collection(db,"patients"));
+    if(snap.empty) return;
+    let cloudMap = {};
+    snap.forEach(d=>{ cloudMap[d.id] = d.data(); });
+    allPatients = allPatients.map(p=>{
+      if(cloudMap[p.shri]){
+        let c = cloudMap[p.shri];
+        return { name:c.patientName||p.name, shri:c.shriId||p.shri, contact:c.contactNo||p.contact, pmjay:c.pmjayId||p.pmjay, addr:c.address||p.addr, age:c.age||p.age, gender:c.gender||p.gender };
+      }
+      return p;
+    });
+    // Add any new patients added from other PC
+    snap.forEach(d=>{
+      if(!allPatients.find(x=>x.shri===d.id)){
+        let c=d.data();
+        allPatients.push({ name:c.patientName, shri:c.shriId, contact:c.contactNo, pmjay:c.pmjayId, addr:c.address, age:c.age, gender:c.gender });
+      }
+    });
+    applyFilter();
+  }catch(e){ console.log("Cloud merge error",e); }
 }
 
-// AUTO SAVE TO FIRESTORE - NO DOWNLOAD
-window.saveEdit = async function(){
- let p = window.allPatients[window.editIndex];
- p.name=document.getElementById('eName').value.trim();
- p.shri=document.getElementById('eShri').value.trim();
- p.contact=document.getElementById('eContact').value.trim();
- p.pmjay=document.getElementById('ePmjay').value.trim();
- p.addr=document.getElementById('eAddr').value.trim();
+window.onSearch=()=>{curPage=1;applyFilter();}
+window.changeSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);curPage=1;renderTable();}
+function applyFilter(){let q=document.getElementById('search').value.toLowerCase().trim();filtered=allPatients.filter(p=>[p.name,p.shri,p.contact,p.addr,p.pmjay].join(' ').toLowerCase().includes(q));renderTable();}
+window.goPage=(n)=>{curPage=n;renderTable();}
+window.openEdit=(idx)=>{editIndex=idx;let p=allPatients[idx];document.getElementById('eName').value=p.name;document.getElementById('eShri').value=p.shri;document.getElementById('eContact').value=p.contact;document.getElementById('ePmjay').value=p.pmjay;document.getElementById('eAddr').value=p.addr;document.getElementById('editModal').classList.add('show');}
+window.closeEdit=()=>document.getElementById('editModal').classList.remove('show');
+window.copyPmjay=(id)=>navigator.clipboard.writeText(id);
 
- document.getElementById('saveBtn').textContent='Saving...';
- document.getElementById('saveBtn').disabled=true;
-
- try{
-   // Save to Firestore - document ID = SHRI ID (unique)
-   await setDoc(doc(db, "patients", p.shri), {
-     patientName: p.name,
-     shriId: p.shri,
-     contactNo: p.contact,
-     pmjayId: p.pmjay,
-     address: p.addr,
-     age: p.age,
-     gender: p.gender,
-     updatedAt: new Date()
-   }, { merge: true });
-
-   closeEdit();
-   applyFilter();
-   alert('✓ Saved to Cloud permanently! All devices will see it.');
- } catch(err){
-   console.error(err);
-   alert('Error saving: '+err.message+'\nCheck firebaseConfig and Firestore rules');
- } finally{
-   document.getElementById('saveBtn').textContent='Save to Cloud';
-   document.getElementById('saveBtn').disabled=false;
- }
+function renderTable(){
+  let totalPages=pageSize>=9999?1:Math.ceil(filtered.length/pageSize)||1;
+  let start=(curPage-1)*pageSize;
+  let data=filtered.slice(start,start+pageSize);
+  let html='<tr><th>SL No</th><th>Patient</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr>';
+  data.forEach((p,i)=>{
+    let realIdx=allPatients.indexOf(filtered[start+i]);
+    let clean=String(p.pmjay).trim();
+    html+=`<tr><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri}</span></td><td>${p.contact}</td><td onclick="copyPmjay('${clean}')"><span class="pmjayText">${clean}</span></td><td>${p.addr}</td><td><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button></td></tr>`;
+  });
+  document.getElementById('tbl').innerHTML=html;
+  document.getElementById('info').textContent=`${filtered.length?start+1:0}-${Math.min(start+pageSize,filtered.length)} of ${filtered.length} patients`;
+  let pgHtml='';for(let i=1;i<=Math.min(totalPages,6);i++)pgHtml+=`<button class="pg ${i===curPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  document.getElementById('pager').innerHTML=pgHtml;
 }
 
-// LOAD FROM FIRESTORE
-async function loadFromFirestore(){
- try{
-   const q = query(collection(db, "patients"), orderBy("shriId"));
-   const snap = await getDocs(q);
-   if(snap.empty){
-     // First time - import from Patient.js to Firestore
-     console.log('No data in Firestore, importing from Patient.js');
-     let base = (typeof patientData!=='undefined'?patientData:[]).map(p=>({
-       name:String(p.patientName||p.name||'').trim(),
-       shri:String(p.shriId||p.shri||'').trim(),
-       contact:String(p.contactNo||p.contact||'').trim(),
-       pmjay:String(p.pmjayId||p.pmjay||'').trim(),
-       addr:String(p.address||p.addr||'').trim(),
-       age:p.age||30, gender:p.gender||'Male'
-     }));
-     for(let p of base){
-       await setDoc(doc(db, "patients", p.shri), {
-         patientName: p.name, shriId: p.shri, contactNo: p.contact, pmjayId: p.pmjay, address: p.addr, age: p.age, gender: p.gender
-       });
-     }
-     window.allPatients = base;
-   } else {
-     window.allPatients = [];
-     snap.forEach(d=>{
-       let data = d.data();
-       window.allPatients.push({
-         name: data.patientName||'', shri: data.shriId||d.id, contact: data.contactNo||'', pmjay: data.pmjayId||'', addr: data.address||'', age: data.age||'', gender: data.gender||''
-       });
-     });
-   }
-   applyFilter();
- } catch(err){
-   console.error(err);
-   // Fallback to Patient.js if firestore fails
-   window.allPatients = (typeof patientData!=='undefined'?patientData:[]).map(p=>({
-     name:String(p.patientName||p.name||'').trim(),
-     shri:String(p.shriId||p.shri||'').trim(),
-     contact:String(p.contactNo||p.contact||'').trim(),
-     pmjay:String(p.pmjayId||p.pmjay||'').trim(),
-     addr:String(p.address||p.addr||'').trim(),
-     age:p.age||'', gender:p.gender||''
-   }));
-   applyFilter();
-   alert('Firestore not configured yet. Using Patient.js. Please add your firebaseConfig.');
- }
+window.saveEdit=async()=>{
+  let p=allPatients[editIndex];
+  let updated={
+    patientName: document.getElementById('eName').value.trim(),
+    shriId: document.getElementById('eShri').value.trim(),
+    contactNo: document.getElementById('eContact').value.trim(),
+    pmjayId: document.getElementById('ePmjay').value.trim(),
+    address: document.getElementById('eAddr').value.trim(),
+    age: p.age, gender: p.gender, updatedAt: new Date()
+  };
+  document.getElementById('saveBtn').textContent='Saving...';
+  try{
+    // SAVE TO FIRESTORE - VISIBLE TO ALL PC/MOBILE, NO FILE CREATION
+    await setDoc(doc(db,"patients",updated.shriId), updated, {merge:true});
+    // Update local list
+    p.name=updated.patientName; p.shri=updated.shriId; p.contact=updated.contactNo; p.pmjay=updated.pmjayId; p.addr=updated.address;
+    closeEdit(); applyFilter();
+    alert('✓ Saved! Visible to all PC and mobile now.');
+  }catch(e){ alert('Error: '+e.message); }
+  document.getElementById('saveBtn').textContent='Save';
 }
 
-loadFromFirestore();
+loadFromPatientJs();
 </script>
 </body>
 </html>
