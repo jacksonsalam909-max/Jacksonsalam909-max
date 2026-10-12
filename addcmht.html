@@ -21,6 +21,7 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .box label{font-size:12px;font-weight:700;color:#475569;margin-top:4px;display:block}
 .btn{width:100%;padding:13px;background:#8b5cf6;color:#fff;border:0;border-radius:10px;font-weight:800;cursor:pointer;margin-top:14px}
 .msg{margin:10px 0;padding:10px;border-radius:8px;font-size:13px;display:none}.msg.ok{display:block;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}.msg.err{display:block;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.remarkTag{background:#ede9fe;color:#6d28d9;padding:6px 10px;border-radius:6px;font-weight:800;font-size:12px;display:inline-block;border:1px solid #ddd6fe}
 @media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}}
 </style>
 </head>
@@ -29,17 +30,17 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 <div class="mainWrap">
 <div class="side" id="side">
 <a href="index.html">Home</a>
-<a href="total.html">Total Patient</a>
+<a href="total.html">PMJAY Total Patient</a>
 <a href="cmht.html">CMHT Total Patient</a>
 <a href="daily.html">Daily Dialysis</a>
 <a href="discharge.html">Discharge Patient</a>
-<a href="kft.html">KFT Report</a>
-<a href="add.html">Add Patient</a>
+<a href="kft.html">PMJAY KFT REPORT</a>
+<a href="add.html">ADD PMJAY Patient</a>
 <a href="addcmht.html" class="active">Add CMHT Patient</a>
 <a href="bill.html">Bill</a>
 </div>
 <div class="content" id="content">
-<h1>Add CMHT Patient</h1><p style="color:#64748b;font-size:13px">After adding, data will show in CMHT Total Patient page (cmht.html) on all devices</p>
+<h1>Add CMHT Patient</h1><p style="color:#64748b;font-size:13px">Remark CMHT will be auto-added for every patient</p>
 <div id="msgBox" class="msg"></div>
 <div class="box">
 <label>Patient Name *</label><input id="name" placeholder="Patient Name">
@@ -48,6 +49,8 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 <label>Contact Number</label><input id="contact" placeholder="Contact Number">
 <label>Aadhaar Number</label><input id="aadhaar" placeholder="12 digit Aadhaar" maxlength="12">
 <label>Address</label><input id="addr" placeholder="Address">
+<label>Remark</label><div style="margin:9px 0"><span class="remarkTag">CMHT</span> <small style="color:#64748b">Auto-added</small></div>
+<input id="remark" type="hidden" value="CMHT">
 <button class="btn" id="addBtn" onclick="addCMHT()">Add CMHT Patient</button>
 </div>
 </div>
@@ -66,12 +69,13 @@ window.addCMHT=async()=>{
  let contact=document.getElementById('contact').value.trim();
  let aadhaar=document.getElementById('aadhaar').value.trim();
  let addr=document.getElementById('addr').value.trim();
+ let remark="CMHT";
  if(!name){showMsg('Enter Patient Name',false);return;}
  if(!cmht){showMsg('Enter CMHT ID',false);return;}
  if(!shri) shri='CMHT_'+Date.now().toString().slice(-6);
  let btn=document.getElementById('addBtn');btn.disabled=true;btn.textContent='Saving to Firebase...';
- let data={patientName:name,name:name,shriId:shri,shri:shri,cmhtId:cmht,cmht:cmht,pmjay:cmht,contactNo:contact,contact:contact,aadhaarNo:aadhaar,aadhaar:aadhaar,address:addr,addr:addr,scheme:'CMHT',key:shri,createdAt:new Date().toISOString()};
- try{await setDoc(doc(db,"cmht_patients",shri),data);showMsg('✅ Added '+name+' ('+shri+') - Now open CMHT Total Patient page (cmht.html) - it will show there',true);document.getElementById('name').value='';document.getElementById('shri').value='';document.getElementById('cmht').value='';document.getElementById('contact').value='';document.getElementById('aadhaar').value='';document.getElementById('addr').value='';btn.disabled=false;btn.textContent='Add CMHT Patient';}catch(e){btn.disabled=false;btn.textContent='Add CMHT Patient';showMsg('Error: '+e.message,false);}
+ let data={patientName:name,name:name,shriId:shri,shri:shri,cmhtId:cmht,cmht:cmht,pmjay:cmht,contactNo:contact,contact:contact,aadhaarNo:aadhaar,aadhaar:aadhaar,address:addr,addr:addr,remark:remark,remarks:remark,scheme:'CMHT',key:shri,createdAt:new Date().toISOString()};
+ try{await setDoc(doc(db,"cmht_patients",shri),data);showMsg('✅ Added '+name+' ('+shri+') with Remark: CMHT - Now open CMHT Total Patient page',true);document.getElementById('name').value='';document.getElementById('shri').value='';document.getElementById('cmht').value='';document.getElementById('contact').value='';document.getElementById('aadhaar').value='';document.getElementById('addr').value='';btn.disabled=false;btn.textContent='Add CMHT Patient';}catch(e){btn.disabled=false;btn.textContent='Add CMHT Patient';showMsg('Error: '+e.message,false);}
 };
 </script>
 </body>
