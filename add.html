@@ -10,27 +10,68 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 .top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:100}
 .top h2{color:#fff;font-size:16px;font-weight:800}
 .menuBtn{width:36px;height:36px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;color:#fff;display:grid;place-items:center;cursor:pointer}
-.side{width:230px;min-width:230px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:16px 10px;position:fixed;left:0;top:64px;height:calc(100vh - 64px);z-index:90}
-.side a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px}
-.side a.active{background:#13264d;color:#fff;border-left:3px solid #1a56db}
-.content{flex:1;padding:16px 14px;max-width:700px;width:100%;margin-left:230px}
+.menuBtn:hover{background:#1c3870}
+.adBadge{display:flex;align-items:center;gap:8px;color:#fff}
+.adCircle{width:30px;height:30px;border-radius:50%;background:#1a2a4f;color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px;border:1.5px solid #2a3a6a}
+.mainWrap{display:flex;flex:1;min-height:calc(100vh - 64px)}
+.side{width:230px;min-width:230px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:16px 10px;position:fixed;left:0;top:64px;height:calc(100vh - 64px);transition:transform .3s ease;z-index:90;transform:translateX(0)}
+.side.closed{transform:translateX(-100%)}
+.menu{display:flex;flex-direction:column;gap:4px}
+.menu a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px}
+.menu a.active{background:#13264d;color:#fff;border-left:3px solid #1a56db}
+.menu a:hover{background:#13264d;color:#fff}
+.sideBottom{border-top:1px solid #1a2a4f;padding:12px 10px;color:#6b7aa2;font-size:11px}
+.sideOverlay{position:fixed;inset:0;top:64px;background:#0005;z-index:80;display:none}
+.sideOverlay.show{display:block}
+.content{flex:1;padding:16px 14px;max-width:700px;width:100%;margin-left:230px;transition:margin .3s ease}
+.content.full{margin-left:0;max-width:100%}
+.head h1{font-size:28px;font-weight:900;letter-spacing:-1px;color:#0f1a34}
+.bread{color:#6b7280;font-size:12px;margin-top:4px}
 .card{background:#fff;border-radius:16px;box-shadow:0 10px 30px #00000008;border:1px solid #e5e7eb;padding:20px;margin-top:14px}
 .field{margin-bottom:14px}
-.field label{font-size:12px;font-weight:700;display:block;margin-bottom:6px}
-.field input{padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;width:100%;background:#f8fafc;font-size:13px;font-weight:600;outline:0}
+.field label{font-size:12px;font-weight:700;display:block;margin-bottom:6px;color:#0f172a}
+.field input{padding:12px 12px;border:1.5px solid #e5e7eb;border-radius:10px;width:100%;background:#f8fafc;font-size:13px;font-weight:600;outline:0}
+.field input:focus{border-color:#1a56db;background:#fff}
 .btnRow{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
 .btn{padding:11px 22px;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px;border:1.5px solid #e5e7eb;text-decoration:none}
 .btn-cancel{background:#f8fafc;color:#64748b;display:grid;place-items:center}
 .btn-add{background:#0a1931;color:#fff;border-color:#0a1931}
 .status{font-size:12px;font-weight:700;margin-top:12px;text-align:center}
+@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}}
 </style>
 </head>
 <body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='index.html'}</script>
-<div class="top"><h2>SHIJA Dialysis Management</h2><span style="color:#fff">Admin</span></div>
-<div style="display:flex"><div class="side"><div><a href="index.html">Home</a><br><a href="total.html">Total Patient</a><br><a href="daily.html">Daily Dialysis</a><br><a href="add.html" class="active">Add Patient</a><br><a href="bill.html">Bill</a></div><div style="color:#6b7aa2;font-size:11px">v2.4.1 | <span id="fbStatus">Connecting...</span></div></div>
-<div class="content">
-<h1>Add Patient</h1>
+
+<div class="top">
+<div style="display:flex;align-items:center;gap:10px">
+<button class="menuBtn" onclick="toggleSide()">
+<div style="display:flex;flex-direction:column;gap:4px"><div style="width:18px;height:2px;background:#fff;border-radius:2px"></div><div style="width:18px;height:2px;background:#fff;border-radius:2px"></div><div style="width:18px;height:2px;background:#fff;border-radius:2px"></div></div>
+</button>
+<h2>SHIJA Dialysis Management</h2>
+</div>
+<div class="adBadge"><div class="adCircle">AD</div><span style="font-weight:700;font-size:13px">Admin</span></div>
+</div>
+
+<div class="sideOverlay" id="overlay" onclick="toggleSide()"></div>
+
+<div class="mainWrap">
+<div class="side" id="side">
+<div class="menu">
+<a href="index.html">Home</a>
+<a href="total.html">Total Patient</a>
+<a href="daily.html">Daily Dialysis</a>
+<a href="discharge.html">Discharge Patient</a>
+<a href="kft.html">KFT Report</a>
+<a href="add.html" class="active">Add Patient</a>
+<a href="bill.html">Bill</a>
+</div>
+<div class="sideBottom">Help and Support<br>v2.4.1 | <span id="fbStatus">Connected</span></div>
+</div>
+
+<div class="content" id="content">
+<div class="head"><h1>Add Patient</h1><div class="bread">Dashboard / Add Patient</div></div>
+
 <div class="card">
 <div class="field"><label>Patient Name *</label><input id="n_name" placeholder="Enter patient name"></div>
 <div class="field"><label>Aadhar Number</label><input id="n_aadhar" placeholder="Enter Aadhar number"></div>
@@ -38,45 +79,64 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 <div class="field"><label>Contact Number</label><input id="n_contact" placeholder="Enter contact number"></div>
 <div class="field"><label>PMJAY ID</label><input id="n_pmjay" placeholder="Enter PMJAY ID"></div>
 <div class="field"><label>Address</label><input id="n_addr" placeholder="Enter address"></div>
+
 <div class="btnRow">
 <a href="index.html" class="btn btn-cancel">Cancel</a>
 <button class="btn btn-add" id="addBtn" onclick="add()">Add Patient</button>
 </div>
 <p id="msg" class="status"></p>
 </div>
-</div></div>
+
+</div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(config);
-const db=getFirestore(app);
-window.db=db; window.fb={doc, setDoc, serverTimestamp};
-document.getElementById('fbStatus').innerText="Connected - Ready";
+const config = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app = initializeApp(config);
+const db = getFirestore(app);
+window.db = db;
+window.fb = { doc, setDoc, serverTimestamp };
+document.getElementById('fbStatus').innerText = "Connected";
 </script>
+
 <script>
+function toggleSide(){
+ let s=document.getElementById('side');
+ let c=document.getElementById('content');
+ let o=document.getElementById('overlay');
+ if(window.innerWidth <= 900){
+   s.classList.toggle('open');
+   o.classList.toggle('show');
+ } else {
+   s.classList.toggle('closed');
+   c.classList.toggle('full');
+ }
+}
 async function add(){
- let name=document.getElementById('n_name').value.trim();
- let aadhar=document.getElementById('n_aadhar').value.trim();
- let shri=document.getElementById('n_shri').value.trim();
- let contact=document.getElementById('n_contact').value.trim();
- let pmjay=document.getElementById('n_pmjay').value.trim();
- let addr=document.getElementById('n_addr').value.trim();
- if(!name){alert('Enter patient name');return;}
- if(!shri){alert('Enter SHRI ID - required for Total page');return;}
+ let p={
+   patientName: document.getElementById('n_name').value.trim(),
+   aadharNo: document.getElementById('n_aadhar').value.trim(),
+   shriId: document.getElementById('n_shri').value.trim(),
+   contactNo: document.getElementById('n_contact').value.trim(),
+   pmjayId: document.getElementById('n_pmjay').value.trim(),
+   address: document.getElementById('n_addr').value.trim()
+ };
+ if(!p.patientName){alert('Enter patient name');return;}
+ if(!p.shriId){alert('Enter SHRI ID - required for Total page');return;}
  let btn=document.getElementById('addBtn'); btn.disabled=true; btn.textContent='Saving...';
  try{
-   await fb.setDoc(fb.doc(db,"patients",shri),{
-     patientName:name, aadharNo:aadhar, aadhar:aadhar, shriId:shri, shri:shri,
-     contactNo:contact, contact:contact, pmjayId:pmjay, pmjay:pmjay,
-     address:addr, addr:addr, name:name,
-     age:30, gender:'Male',
-     createdAt:fb.serverTimestamp(), localTime:new Date().toLocaleString()
+   await fb.setDoc(fb.doc(db, "patients", p.shriId), {
+     patientName: p.patientName, aadharNo: p.aadharNo, aadhar: p.aadharNo,
+     shriId: p.shriId, shri: p.shriId, contactNo: p.contactNo, contact: p.contactNo,
+     pmjayId: p.pmjayId, pmjay: p.pmjayId, address: p.address, addr: p.address,
+     name: p.patientName, age:30, gender:'Male',
+     createdAt: fb.serverTimestamp(), localTime: new Date().toLocaleString()
    });
-   document.getElementById('msg').textContent='✓ Added: '+name+' - Opening Total Patients...';
+   document.getElementById('msg').textContent='✓ Added: '+p.patientName+' - Opening Total...';
    document.getElementById('msg').style.color='#10b981';
-   setTimeout(()=>{location.href='total.html?added='+encodeURIComponent(shri)},800);
+   setTimeout(()=>{location.href='total.html?added='+encodeURIComponent(p.shriId)},800);
  }catch(e){
    document.getElementById('msg').textContent='Error: '+e.message;
    document.getElementById('msg').style.color='red';
