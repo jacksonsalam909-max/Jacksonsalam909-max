@@ -1,4 +1,4 @@
-<!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -49,7 +49,7 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 .card h2{font-size:40px;font-weight:900;margin:6px 0;line-height:1}
 .card small{font-size:12px;opacity:.85}
 .card .foot{font-size:11px;opacity:.7;margin-top:4px}
-.c1{background:linear-gradient(135deg,#3b82f6,#06b6d4)}.c2{background:linear-gradient(135deg,#10b981,#059669)}.c3{background:linear-gradient(135deg,#f97316,#f59e0b)}.c4{background:linear-gradient(135deg,#7c3aed,#6d28d9)}.c5{background:linear-gradient(135deg,#ec4899,#d946ef)}.c6{background:linear-gradient(135deg,#ef4444,#f43f5e)}
+.c1{background:linear-gradient(135deg,#3b82f6,#06b6d4)}.c2{background:linear-gradient(135deg,#10b981,#059669)}.c3{background:linear-gradient(135deg,#f97316,#f59e0b)}.c4{background:linear-gradient(135deg,#7c3aed,#6d28d9)}.c5{background:linear-gradient(135deg,#ec4899,#d946ef)}.c6{background:linear-gradient(135deg,#ef4444,#f43f5e)}.c7{background:linear-gradient(135deg,#8b5cf6,#6366f1)}.c8{background:linear-gradient(135deg,#14b8a6,#0e7490)}
 .modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:100}
 .modalBox{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:22px;width:90%;max-width:360px}
 .modalBox h3{margin-bottom:14px}
@@ -92,10 +92,12 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 <div class="whiteBar" id="whiteBar">
 <div>
 <a href="total.html">Total Patient</a>
+<a href="cmht.html">CMHT Total Patient</a>
 <a href="daily.html">Daily Dialysis</a>
 <a href="discharge.html">Discharge Patient</a>
 <a href="kft.html">KFT Report</a>
 <a href="add.html">Add Patient</a>
+<a href="addcmht.html">Add CMHT Patient</a>
 <a href="bill.html">Bill</a>
 </div>
 <div style="padding:10px;font-size:11px;color:#64748b;border-top:1px solid #e2e8f0;margin-top:10px">
@@ -110,7 +112,9 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 </div>
 <div class="grid">
 <a href="total.html" class="card c1"><div><div class="icon">TP</div><b>Total Patients</b><h2 id="v1">0</h2><small>All time</small><div class="foot">Total registered</div></div></a>
+<a href="cmht.html" class="card c7"><div><div class="icon">CM</div><b>CMHT Total Patient</b><h2 id="vCMHT">0</h2><small>CMHT Scheme</small><div class="foot">Click to view all CMHT</div></div></a>
 <a href="add.html" class="card c2"><div><div class="icon">AP</div><b>Add New Patient Entry</b><small>Create new patient record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add Patient</div></a>
+<a href="addcmht.html" class="card c8"><div><div class="icon">AC</div><b>Add CMHT Patient</b><small>Add new CMHT record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add CMHT</div></a>
 <a href="daily.html" class="card c3"><div><div class="icon">DD</div><b>Daily Dialysis</b><h2 id="v3">0</h2><small id="v3small">Scheduled for this date</small><div class="foot" id="v3f">Completed 0 Remaining 0</div></div></a>
 <a href="kft.html" class="card c4"><div><div class="icon">KR</div><b>KFT Report</b><h2 id="v4">0 Pending</h2><small>For selected date</small></div></a>
 <a href="bill.html" class="card c5"><div><div class="icon">BL</div><b>Bill</b><h2 id="v5">Rs 0</h2><small>For selected date</small><div class="foot">Collection</div></div></a>
@@ -171,11 +175,11 @@ async function loadDashboard(){
   let sel=document.getElementById('dashDate').value||defaultDate;
   document.getElementById('welcomeText').textContent=`Data for ${sel} Welcome back Admin`;
   try{
-    // TOTAL PATIENTS = Patient.js (510) + Firebase added - Deleted
     let baseCount = (typeof patientData!=='undefined'?patientData.length:510);
     let deletedKeys = getDeletedKeys();
     let fbCount = 0;
     let fbPatients = [];
+    let cmhtCount = 0;
     try{
       let patSnap=await getDocs(collection(db,"patients"));
       patSnap.forEach(d=>{
@@ -183,8 +187,12 @@ async function loadDashboard(){
         if(!p.deleted){ fbCount++; fbPatients.push(p); }
       });
     }catch(e){}
+    try{
+      let cmhtSnap=await getDocs(collection(db,"cmht_patients"));
+      cmhtCount = cmhtSnap.size;
+      document.getElementById('vCMHT').textContent = cmhtCount;
+    }catch(e){ document.getElementById('vCMHT').textContent = 0; }
 
-    // Count Patient.js patients that are NOT deleted
     let deletedSet = new Set(deletedKeys);
     let aliveBase = 0;
     if(typeof patientData!=='undefined'){
@@ -196,40 +204,31 @@ async function loadDashboard(){
       }).length;
     } else { aliveBase = baseCount; }
 
-    // Firebase patients that are NOT already in Patient.js (new added)
     let baseShriSet = new Set((typeof patientData!=='undefined'?patientData.map(p=>String(p.shriId||p.shri||'').trim()).filter(Boolean):[]));
     let baseIdSet = new Set((typeof patientData!=='undefined'?patientData.map(p=>String(p.id).trim()):[]));
     let newAdded = fbPatients.filter(p=>{
       let shri = String(p.shriId||p.shri||p.key||'').trim();
       let pid = String(p.key||'').trim();
-      // If shri/id already exists in Patient.js, don't double count
-      if(baseShriSet.has(shri) || baseIdSet.has(shri) || baseIdSet.has(pid)) return false;
+      if(baseShriSet.has(shri) || baseIdSet.has(pid)) return false;
       return true;
     }).length;
 
     let totalPatients = aliveBase + newAdded;
-    // Fallback if Firebase empty, show 510 + added from localStorage
     if(totalPatients===0) totalPatients = baseCount;
     try{
       let addedLocal = JSON.parse(localStorage.getItem('addedKeys')||'[]');
-      let editedLocal = getEditedKeys();
-      // Add local added that not counted yet
       let localNew = addedLocal.filter(k=>!baseShriSet.has(k) && !deletedSet.has(k)).length;
-      // If Firebase failed, use local
       if(fbCount===0 && localNew>0) totalPatients = aliveBase + localNew;
     }catch{}
 
     document.getElementById('v1').textContent = totalPatients;
 
-    // DAILY DIALYSIS FOR SELECTED DATE (13 Oct 2026)
     let dailyCount = 0;
     try{
-      // Try exact date match
       let q1 = query(collection(db,"dailyDialysis"), where("date","==",sel));
       let snap1 = await getDocs(q1);
       dailyCount = snap1.size;
       if(dailyCount===0){
-        // Try date field contains sel
         let allDaily = await getDocs(collection(db,"dailyDialysis"));
         let count2 = 0;
         allDaily.forEach(d=>{
@@ -241,14 +240,12 @@ async function loadDashboard(){
         else dailyCount = allDaily.size>0 ? allDaily.size : 0;
       }
     }catch(e){
-      // Fallback to localStorage dialysis if Firebase fails
       try{
         let localDial = JSON.parse(localStorage.getItem('dialysis_'+sel)||'[]');
         dailyCount = localDial.length;
       }catch{ dailyCount = 0; }
     }
 
-    // Also check dailyList from localStorage (your daily.html may save there)
     if(dailyCount===0){
       try{
         for(let i=0;i<localStorage.length;i++){
@@ -265,7 +262,6 @@ async function loadDashboard(){
     document.getElementById('v3small').textContent = `Scheduled for ${sel}`;
     document.getElementById('v3f').textContent = `Completed ${Math.floor(dailyCount*0.6)} Remaining ${dailyCount-Math.floor(dailyCount*0.6)}`;
 
-    // Other cards
     let kftCount=0,billTotal=0,disCount=0;
     try{ let s=await getDocs(query(collection(db,"kftReports"),where("date","==",sel))); kftCount=s.size; if(kftCount===0){ let a=await getDocs(collection(db,"kftReports")); kftCount=a.size; } }catch{}
     try{ let s=await getDocs(query(collection(db,"bills"),where("date","==",sel))); s.forEach(d=>{ billTotal+=Number(d.data().amount||d.data().total||0); }); if(billTotal===0){ let a=await getDocs(collection(db,"bills")); a.forEach(d=>{ billTotal+=Number(d.data().amount||d.data().total||0); }); } }catch{}
