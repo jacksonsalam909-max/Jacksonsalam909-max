@@ -3,87 +3,209 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Total Patient - SHIJA</title>
+<title>Total Patients - SHIJA Dialysis</title>
 <script src="Patient.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui}
-body{background:#f6f7fb;display:flex;min-height:100vh}
-.top{height:64px;background:#0a1931;color:#fff;display:flex;align-items:center;padding:0 16px;position:fixed;top:0;left:0;right:0;z-index:100;font-weight:900}
-.side{position:fixed;left:0;top:64px;bottom:0;width:230px;background:#0a1931;padding:16px 10px;display:flex;flex-direction:column;gap:4px;z-index:90}
-.side a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px}
-.side a.active{background:#13264d;color:#fff;border-left:3px solid #1a56db}
-.content{flex:1;padding:20px;margin-left:230px;margin-top:64px}
-.tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden}
-table{width:100%;border-collapse:collapse;min-width:800px}
-th{padding:12px;font-size:11px;color:#64748b;background:#f8fafc;text-align:left}
-td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
-.sl{background:#f1f5f9;width:32px;height:26px;display:grid;place-items:center;border-radius:6px;font-weight:800;font-size:12px}
-.shri{background:#1868db;color:#fff;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
+body{background:#f6f7fb;color:#1a2332;display:flex;min-height:100vh}
+.top{height:68px;background:#0b1b32;display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:fixed;top:0;left:0;right:0;z-index:100}
+.side{position:fixed;left:0;top:68px;bottom:0;width:260px;background:#0b1b32;padding:18px 10px;display:flex;flex-direction:column;gap:6px;z-index:90;overflow-y:auto}
+.side a{padding:13px 14px;border-radius:10px;text-decoration:none;color:#8ea0bf;font-weight:600;font-size:14px;display:block}
+.side a.active{background:#132845;color:#fff;border-left:3px solid #1868db}
+.content{flex:1;padding:22px;margin-left:260px;margin-top:68px}
+.searchBox{background:#fff;border-radius:12px;padding:16px;border:1px solid #e2e8f0;margin-bottom:16px}
+.searchBox input{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #cbd5e1;font-size:14px;outline:0}
+.searchBox input:focus{border-color:#1868db}
+.tableHead{background:#1e5aa7;color:#fff;padding:10px 14px;border-radius:10px 10px 0 0;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:13px}
+.tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:0 0 14px 14px;overflow:hidden}
+table{width:100%;border-collapse:collapse;min-width:1150px}
+th{padding:12px 10px;font-size:11px;color:#fff;background:#1e5aa7;text-align:left;white-space:nowrap}
+td{padding:12px 10px;font-size:12px;border-bottom:1px solid #eef2f7;color:#334155;vertical-align:top}
+.sl{background:#f1f5f9;width:28px;height:22px;display:grid;place-items:center;border-radius:4px;font-weight:800;font-size:11px}
+.shri{color:#1868db;font-weight:700}
+.aadhar{font-family:monospace;font-size:11px}
+.pmjay{color:#1868db;font-size:11px}
+.btnEdit{background:#fef9c3;color:#854d0e;border:1px solid #fde047;padding:5px 10px;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;margin-bottom:4px;display:block;width:55px}
+.btnDel{background:#fee2e2;color:#991b1b;border:1px solid #fecaca;padding:5px 10px;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;width:55px}
+.btnEdit:hover{background:#fde047}.btnDel:hover{background:#fecaca}
+.modal{position:fixed;inset:0;background:#0006;z-index:99;display:none;place-items:center}.modal.show{display:grid}
+.modalBox{background:#fff;border-radius:14px;padding:18px;width:95%;max-width:450px;max-height:90vh;overflow-y:auto}
+.modalBox h3{margin-bottom:10px}
+.modalBox input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;margin:5px 0;font-size:13px}
+.mBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.mBtns button{padding:9px 16px;border-radius:8px;border:0;font-weight:700;cursor:pointer;font-size:13px}
+.save{background:#1868db;color:#fff}.cancel{background:#f1f5f9}
+.highlight{background:#e0f2fe!important}
+#info{margin:8px 0;color:#64748b;font-size:13px}
+.pg{padding:6px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-weight:600;font-size:12px;margin:2px}.pg.active{background:#1868db;color:#fff}
+@media(max-width:900px){.side{display:none}.content{margin-left:0}}
 </style>
 </head>
 <body>
-<div class="top">SHIJA Dialysis Management</div>
-<div class="side">
-<a href="index.html">Home</a>
-<a href="total.html" class="active">Total Patient</a>
-<a href="daily.html">Daily Dialysis</a>
-<a href="discharge.html">Discharge Patient</a>
-<a href="add.html">Add Patient</a>
-<a href="bill.html">Bill</a>
-</div>
+<div class="top"><div style="color:#fff;font-weight:900;font-size:22px">SHIJA Dialysis Management</div><div style="color:#fff;font-weight:700">Admin</div></div>
+<div class="side"><a href="index.html">Home</a><a href="total.html" class="active">Total Patient</a><a href="daily.html">Daily Dialysis</a><a href="discharge.html">Discharge Patient</a><a href="add.html">Add Patient</a><a href="bill.html">Bill</a></div>
 <div class="content">
-<h1 id="h1">Total Patients</h1>
-<p id="info" style="margin:8px 0;color:#64748b;font-size:13px">Loading...</p>
-<input id="search" oninput="onSearch()" placeholder="Search name, SHRI, PMJAY..." style="width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;margin:12px 0">
-<div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div></div>
+<h2 style="margin-bottom:6px">Patient Search Portal</h2>
+<div class="searchBox">
+<div style="font-weight:700;margin-bottom:8px;font-size:13px">🔍 Search Patients</div>
+<input id="search" placeholder="Type to search patients by name or Aadhaar No..." oninput="onSearch()">
 </div>
+<p id="info">Loading patients...</p>
+<div class="tableHead"><span>📋 Patient Records</span><span id="countHead">0 patients</span></div>
+<div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div></div>
+<div id="pager" style="margin-top:12px;display:flex;justify-content:flex-end;flex-wrap:wrap"></div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal" id="editModal"><div class="modalBox">
+<h3>Edit Patient - Visible to ALL devices</h3>
+<input id="eName" placeholder="Patient Name">
+<input id="eAadhar" placeholder="Aadhaar No.">
+<input id="eShri" placeholder="SHRI ID *">
+<input id="eContact" placeholder="Contact No.">
+<input id="ePmjay" placeholder="PMJAY ID">
+<input id="eAddr" placeholder="Address">
+<div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" onclick="saveEdit()">Save to Firebase - All PC/Mobile</button></div>
+</div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(config);
-const db=getFirestore(app);
-let all=[];
-window.onSearch=()=>{
- let q=document.getElementById('search').value.toLowerCase();
- render(all.filter(p=>[p.name,p.shri,p.pmjay,p.addr,p.contact].join(' ').toLowerCase().includes(q)));
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let allPatients=[],filtered=[],curPage=1,pageSize=50,editIndex=-1;
+
+window.onSearch=()=>{curPage=1;applyFilter();};
+window.changeSize=(s)=>{pageSize=parseInt(s);curPage=1;renderTable();};
+window.goPage=(n)=>{curPage=n;renderTable();};
+
+window.openEdit=(idx)=>{
+  editIndex=idx;
+  let p=allPatients[idx];
+  document.getElementById('eName').value=p.name;
+  document.getElementById('eAadhar').value=p.aadhar;
+  document.getElementById('eShri').value=p.shri;
+  document.getElementById('eContact').value=p.contact;
+  document.getElementById('ePmjay').value=p.pmjay;
+  document.getElementById('eAddr').value=p.addr;
+  document.getElementById('editModal').classList.add('show');
 };
-function render(list){
- let html='<tr><th>SL</th><th>Patient</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th></tr>';
- list.forEach((p,i)=>{html+=`<tr><td><div class="sl">${i+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri}</span></td><td>${p.contact}</td><td>${p.pmjay}</td><td>${p.addr}</td></tr>`;});
- document.getElementById('tbl').innerHTML=html;
- document.getElementById('h1').textContent=`Total Patients (${list.length})`;
+window.closeEdit=()=>document.getElementById('editModal').classList.remove('show');
+
+window.deletePatient=async(idx)=>{
+  let p=allPatients[idx];
+  if(!confirm(`Delete ${p.name} - SHRI: ${p.shri}?\nThis will delete from ALL computers and mobiles permanently!`)) return;
+  if(!confirm(`Are you sure? This cannot be undone!`)) return;
+  document.getElementById('info').textContent=`Deleting ${p.shri} from Firebase...`;
+  try{
+    await setDoc(doc(db,"patients",p.shri),{deleted:true,deletedAt:new Date(),name:p.name},{merge:true});
+    // also try real delete
+    try{ await deleteDoc(doc(db,"patients",p.shri)); }catch(e){}
+    allPatients.splice(idx,1);
+    applyFilter();
+    document.getElementById('info').textContent=`✓ Deleted ${p.name} - Removed from all devices ✓`;
+  }catch(e){
+    document.getElementById('info').textContent=`Delete failed: ${e.message}`;
+    alert(e.message);
+  }
+};
+
+function applyFilter(){
+  let q=document.getElementById('search').value.toLowerCase().trim();
+  filtered=allPatients.filter(p=>[p.name,p.shri,p.contact,p.addr,p.pmjay,p.aadhar].join(' ').toLowerCase().includes(q));
+  renderTable();
 }
+
+function renderTable(){
+  let addedParam=new URLSearchParams(location.search).get('added');
+  let totalPages=Math.ceil(filtered.length/pageSize)||1;
+  let start=(curPage-1)*pageSize;
+  let data=filtered.slice(start,start+pageSize);
+  let html='<tr><th>#</th><th>PATIENT NAME</th><th>ADDRESS</th><th>PMJAY ID</th><th>AADHAAR NO.</th><th>CONTACT NO.</th><th>SHRI ID</th><th>ACTIONS</th></tr>';
+  data.forEach((p,i)=>{
+    let realIdx=allPatients.indexOf(filtered[start+i]);
+    let isNew=addedParam&&p.shri===addedParam;
+    html+=`<tr class="${isNew?'highlight':''}"><td><div class="sl">${start+i+1}</div></td>
+    <td><b>${p.name}</b> ${isNew?'<span style="color:#1868db;font-size:9px">NEW</span>':''}</td>
+    <td style="max-width:220px;white-space:normal;font-size:11px">${p.addr||'-'}</td>
+    <td><span class="pmjay">${p.pmjay||'-'}</span></td>
+    <td><span class="aadhar">${p.aadhar||'-'}</span></td>
+    <td>${p.contact||'-'}</td>
+    <td><span class="shri">${p.shri}</span></td>
+    <td><button class="btnEdit" onclick="openEdit(${realIdx})">✎ Edit</button><button class="btnDel" onclick="deletePatient(${realIdx})">🗑 Delete</button></td></tr>`;
+  });
+  document.getElementById('tbl').innerHTML=html;
+  document.getElementById('countHead').textContent=`${filtered.length} patients`;
+  document.getElementById('info').textContent=`${filtered.length?start+1:0}-${Math.min(start+pageSize,filtered.length)} of ${filtered.length} patients - Showing Aadhaar, PMJAY, SHRI - Permanent on all devices ✓`;
+  let pg='';for(let i=1;i<=Math.min(totalPages,15);i++) pg+=`<button class="pg ${i===curPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  document.getElementById('pager').innerHTML=pg+` <select onchange="changeSize(this.value)" style="padding:6px;border-radius:6px;border:1px solid #cbd5e1;margin-left:8px"><option value="10">10</option><option value="20">20</option><option value="50" selected>50</option><option value="100">100</option><option value="9999">All</option></select>`;
+}
+
 async function init(){
- let fromJs=0;
- if(typeof patientData!=='undefined'){
-   all=patientData.map(p=>({name:(p.patientName||p.name||'').toString(),shri:(p.shriId||p.shri||'').toString(),contact:(p.contactNo||p.contact||'').toString(),pmjay:(p.pmjayId||p.pmjay||'').toString(),addr:(p.address||p.addr||'').toString()}));
-   fromJs=all.length;
-   render(all);
-   document.getElementById('info').textContent=`Loaded ${fromJs} from Patient.js, syncing Firebase...`;
- }
- try{
-   const snap=await getDocs(collection(db,"patients"));
-   let fbCount=0;
-   snap.forEach(d=>{
-     let c=d.data(); if(c.deleted) return;
-     let id=(c.shriId||c.shri||d.id).toString().trim();
-     if(!id) return;
-     if(!all.find(x=>x.shri===id)){
-       all.push({name:(c.patientName||c.name||'').toString(),shri:id,contact:(c.contactNo||c.contact||'').toString(),pmjay:(c.pmjayId||c.pmjay||'').toString(),addr:(c.address||c.addr||'').toString()});
-       fbCount++;
-     }
-   });
-   render(all);
-   document.getElementById('info').textContent=`✓ TOTAL ${all.length} PATIENTS (${fromJs} from Patient.js + ${fbCount} from Firebase added on any device) - Permanent ✓`;
- }catch(e){
-   document.getElementById('info').textContent=`Showing ${all.length} from Patient.js | Firebase error: ${e.message} (Fix Firestore Rules to allow read)`;
- }
- // Highlight if coming from add.html
- let added=new URLSearchParams(location.search).get('added');
- if(added){document.getElementById('search').value=added; window.onSearch();}
+  allPatients=(typeof patientData!=='undefined'?patientData:[]).map(p=>({
+    name:String(p.patientName||p.name||'').trim(),
+    aadhar:String(p.aadharNo||p.aadhar||'').trim(),
+    shri:String(p.shriId||p.shri||'').trim(),
+    contact:String(p.contactNo||p.contact||'').trim(),
+    pmjay:String(p.pmjayId||p.pmjay||'').trim(),
+    addr:String(p.address||p.addr||'').trim(),
+    age:p.age||30, gender:p.gender||'Male'
+  }));
+  let added=new URLSearchParams(location.search).get('added');
+  if(added) document.getElementById('search').value=added;
+  applyFilter();
+  try{
+    const snap=await getDocs(collection(db,"patients"));
+    snap.forEach(d=>{
+      let c=d.data(); if(c.deleted) return;
+      let shriId=(c.shriId||c.shri||d.id).toString().trim(); if(!shriId) return;
+      let ex=allPatients.find(x=>x.shri===shriId);
+      if(ex){
+        ex.name=c.patientName||c.name||ex.name;
+        ex.aadhar=c.aadharNo||c.aadhar||ex.aadhar;
+        ex.contact=c.contactNo||c.contact||ex.contact;
+        ex.pmjay=c.pmjayId||c.pmjay||ex.pmjay;
+        ex.addr=c.address||c.addr||ex.addr;
+      }else{
+        allPatients.push({name:String(c.patientName||c.name||'').trim(),aadhar:String(c.aadharNo||c.aadhar||'').trim(),shri:shriId,contact:String(c.contactNo||c.contact||'').trim(),pmjay:String(c.pmjayId||c.pmjay||'').trim(),addr:String(c.address||c.addr||'').trim(),age:c.age||30,gender:c.gender||'Male'});
+      }
+    });
+    applyFilter();
+  }catch(e){ document.getElementById('info').textContent=`Firebase error: ${e.message} - Check Rules`; }
 }
+
+window.saveEdit=async()=>{
+  let p=allPatients[editIndex];
+  let oldShri=p.shri;
+  let updated={
+    patientName:document.getElementById('eName').value.trim(),
+    aadharNo:document.getElementById('eAadhar').value.trim(),
+    aadhar:document.getElementById('eAadhar').value.trim(),
+    shriId:document.getElementById('eShri').value.trim(),
+    shri:document.getElementById('eShri').value.trim(),
+    contactNo:document.getElementById('eContact').value.trim(),
+    contact:document.getElementById('eContact').value.trim(),
+    pmjayId:document.getElementById('ePmjay').value.trim(),
+    pmjay:document.getElementById('ePmjay').value.trim(),
+    address:document.getElementById('eAddr').value.trim(),
+    addr:document.getElementById('eAddr').value.trim(),
+    name:document.getElementById('eName').value.trim(),
+    age:p.age, gender:p.gender,
+    updatedAt:new Date()
+  };
+  if(!updated.shriId){alert('SHRI ID required');return;}
+  p.name=updated.name; p.aadhar=updated.aadhar; p.shri=updated.shri; p.contact=updated.contact; p.pmjay=updated.pmjay; p.addr=updated.addr;
+  closeEdit(); applyFilter();
+  document.getElementById('info').textContent=`Saving ${updated.shriId} to all devices...`;
+  try{
+    await setDoc(doc(db,"patients",updated.shriId),updated,{merge:true});
+    if(oldShri!==updated.shriId){ await setDoc(doc(db,"patients",oldShri),{deleted:true,deletedAt:new Date()},{merge:true}); }
+    document.getElementById('info').textContent=`✓ Saved ${updated.shriId} - Updated on ALL PC/Mobile with Aadhaar ✓`;
+  }catch(e){ document.getElementById('info').textContent='Save failed: '+e.message; alert(e.message); }
+};
 init();
 </script>
 </body>
