@@ -19,107 +19,67 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .content{flex:1;padding:16px;margin-left:230px;transition:margin.3s ease}
 .content.full{margin-left:0}
 .tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden;margin-top:14px}
-table{width:100%;border-collapse:collapse;min-width:1100px}
+table{width:100%;border-collapse:collapse;min-width:900px}
 th{padding:14px 12px;font-size:12px;color:#64748b;background:#f8fafc;text-align:left}
 td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .sl{background:#f1f5f9;width:36px;height:28px;display:grid;place-items:center;border-radius:6px;font-weight:800}
 .shri{background:#1868db;color:#fff;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px}
-.aadhar{background:#eef2ff;color:#1e40af;padding:5px 10px;border-radius:6px;font-family:monospace;font-weight:700;font-size:12px}
 .btnEdit{padding:6px 14px;border-radius:6px;border:0;background:#facc15;font-weight:700;font-size:12px;cursor:pointer;margin-right:4px}
 .btnDel{padding:6px 14px;border-radius:6px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer}
 .modal{position:fixed;inset:0;background:#0006;display:none;place-items:center;z-index:99}.modal.show{display:grid}
 .modalBox{background:#fff;border-radius:14px;padding:18px;width:90%;max-width:420px}.modalBox input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;margin:6px 0}
+.modalBox input:disabled{background:#f1f5f9}
 .mBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}.save{background:#1868db;color:#fff;padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}.cancel{background:#f1f5f9;padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}
 @media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}}
 </style>
 </head>
 <body>
 <div class="top"><div style="display:flex;align-items:center;gap:10px"><button class="menuBtn" onclick="toggleSide()"><div style="display:flex;flex-direction:column;gap:4px"><div style="width:18px;height:2px;background:#fff"></div><div style="width:18px;height:2px;background:#fff"></div><div style="width:18px;height:2px;background:#fff"></div></div></button><h2>SHIJA Dialysis Management</h2></div><span style="color:#fff;font-weight:700">Admin</span></div>
-<div class="mainWrap">
-<div class="side" id="side"><a href="index.html">Home</a><a href="total.html" class="active">Total Patient</a><a href="daily.html">Daily Dialysis</a><a href="add.html">Add Patient</a><a href="bill.html">Bill</a></div>
-<div class="content" id="content">
-<h1>Total Patients</h1><p id="info" style="color:#64748b;font-size:13px">Loading from Patient.js...</p>
-<div style="display:flex;gap:10px;margin:14px 0"><input id="search" style="flex:1;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1" placeholder="Search name, Aadhaar, SHRI..." oninput="onSearch()"><select id="pageSize" onchange="changeSize()"><option value="10">10</option><option value="50" selected>50</option><option value="9999">All</option></select></div>
-<div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div></div>
-</div>
-</div>
-<div class="modal" id="editModal"><div class="modalBox"><h3>Edit Patient - Saves to Firebase All Devices</h3><input id="eName" placeholder="Patient Name"><input id="eAadhar" placeholder="Aadhaar Number from Patient.js"><input id="eShri" placeholder="SHRI ID"><input id="eContact" placeholder="Contact"><input id="ePmjay" placeholder="PMJAY ID"><input id="eAddr" placeholder="Address"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" onclick="saveEdit()">Save to Firebase</button></div></div></div>
-
+<div class="mainWrap"><div class="side" id="side"><a href="index.html">Home</a><a href="total.html" class="active">Total Patient</a><a href="daily.html">Daily Dialysis</a><a href="add.html">Add Patient</a><a href="bill.html">Bill</a></div><div class="content" id="content"><h1>Total Patients</h1><p id="info" style="color:#64748b;font-size:13px">Loading...</p><div style="display:flex;gap:10px;margin:14px 0"><input id="search" style="flex:1;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1" placeholder="Search..." oninput="applyFilter()"><select id="pageSize" onchange="renderTable()"><option value="10">10</option><option value="50" selected>50</option><option value="9999">All</option></select></div><div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div></div></div></div>
+<div class="modal" id="editModal"><div class="modalBox"><h3>Edit - Updates Same Patient</h3><input id="eName" placeholder="Name"><input id="eShri" disabled><input id="eContact" placeholder="Contact"><input id="ePmjay" placeholder="PMJAY"><input id="eAddr" placeholder="Address"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" onclick="saveEdit()">Update</button></div></div></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
-let allPatients=[],filtered=[],curPage=1,pageSize=50,editIndex=-1;
-window.toggleSide=()=>{let s=document.getElementById('side');let c=document.getElementById('content');if(window.innerWidth<=900){s.classList.toggle('open');}else{s.classList.toggle('closed');c.classList.toggle('full');}};
-window.onSearch=()=>applyFilter();
-window.changeSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);renderTable();};
-window.openEdit=(idx)=>{editIndex=idx;let p=allPatients[idx];document.getElementById('eName').value=p.name;document.getElementById('eAadhar').value=p.aadhar;document.getElementById('eShri').value=p.shri;document.getElementById('eContact').value=p.contact;document.getElementById('ePmjay').value=p.pmjay;document.getElementById('eAddr').value=p.addr;document.getElementById('editModal').classList.add('show');};
+let allPatients=[],filtered=[],editIndex=-1;
+window.toggleSide=()=>{let s=document.getElementById('side');let c=document.getElementById('content');if(innerWidth<=900){s.classList.toggle('open');}else{s.classList.toggle('closed');c.classList.toggle('full');}};
 window.closeEdit=()=>document.getElementById('editModal').classList.remove('show');
+window.openEdit=(idx)=>{editIndex=idx;let p=allPatients[idx];document.getElementById('eName').value=p.name;document.getElementById('eShri').value=p.shri;document.getElementById('eContact').value=p.contact;document.getElementById('ePmjay').value=p.pmjay;document.getElementById('eAddr').value=p.addr;document.getElementById('editModal').classList.add('show');};
+window.applyFilter=()=>{let q=document.getElementById('search').value.toLowerCase();filtered=allPatients.filter(p=>[p.name,p.shri].join(' ').toLowerCase().includes(q));renderTable();};
+window.renderTable=()=>{let size=parseInt(document.getElementById('pageSize').value);let data=filtered.slice(0,size>=9999?filtered.length:size);let html='<tr><th>SL No</th><th>Patient</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr>';data.forEach((p)=>{let realIdx=allPatients.indexOf(p);html+=`<tr><td><div class="sl">${filtered.indexOf(p)+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri}</span></td><td>${p.contact||'-'}</td><td>${p.pmjay||'-'}</td><td>${p.addr||'-'}</td><td><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button><button class="btnDel" onclick="deletePatient(${realIdx})">Delete</button></td></tr>`;});document.getElementById('tbl').innerHTML=html;document.getElementById('info').textContent=filtered.length+' patients';};
 window.deletePatient=async(idx)=>{
  let p=allPatients[idx];
- if(!confirm('Delete '+p.name+' SHRI:'+p.shri+' from all devices?')) return;
- try{ await setDoc(doc(db,"patients",p.shri),{deleted:true},{merge:true}); try{await deleteDoc(doc(db,"patients",p.shri));}catch(e){} allPatients.splice(idx,1); applyFilter(); document.getElementById('info').textContent='Deleted - Removed from all devices'; }catch(e){alert(e.message);}
-};
-
-function applyFilter(){
- let q=document.getElementById('search').value.toLowerCase();
- filtered=allPatients.filter(p=>[p.name,p.shri,p.aadhar,p.pmjay].join(' ').toLowerCase().includes(q));
- renderTable();
-}
-function renderTable(){
- let html='<tr><th>SL No</th><th>Patient</th><th>Aadhaar No (from Patient.js)</th><th>SHRI ID</th><th>Contact</th><th>PMJAY ID</th><th>Address</th><th>Action</th></tr>';
- filtered.forEach((p,i)=>{
-   let realIdx=allPatients.indexOf(p);
-   html+=`<tr><td><div class="sl">${i+1}</div></td><td><b>${p.name}</b></td><td><span class="aadhar">${p.aadhar||'-'}</span></td><td><span class="shri">${p.shri}</span></td><td>${p.contact||'-'}</td><td>${p.pmjay||'-'}</td><td>${p.addr||'-'}</td><td><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button><button class="btnDel" onclick="deletePatient(${realIdx})">Delete</button></td></tr>`;
- });
- document.getElementById('tbl').innerHTML=html;
- document.getElementById('info').textContent=filtered.length+' patients loaded - Aadhaar taken from Patient.js - Firebase connected - All edits saved to all devices';
-}
-async function init(){
- // TAKE AADHAAR FROM Patient.js - aadharNo field first
- allPatients=(typeof patientData!=='undefined'?patientData:[]).map(p=>{
-   return {
-     name: String(p.patientName||p.name||'').trim(),
-     aadhar: String(p.aadharNo||p.aadhar||'').trim(), // <-- AADHAAR FROM Patient.js
-     shri: String(p.shriId||p.shri||'').trim(),
-     contact: String(p.contactNo||p.contact||'').trim(),
-     pmjay: String(p.pmjayId||p.pmjay||'').trim(),
-     addr: String(p.address||p.addr||'').trim(),
-     age: p.age||30, gender: p.gender||'Male'
-   };
- });
- console.log('Patient.js Aadhaar loaded:', allPatients.map(x=>x.aadhar));
- applyFilter();
+ if(!confirm('Delete '+p.name+' ('+p.shri+')?\nThis will delete from ALL devices')) return;
+ // DELETE BUTTON - DELETE ACTION
  try{
-   const snap=await getDocs(collection(db,"patients"));
-   snap.forEach(d=>{
-     let c=d.data(); if(c.deleted) return;
-     let shriId=(c.shriId||c.shri||d.id).trim();
-     let ex=allPatients.find(x=>x.shri===shriId);
-     if(ex){ ex.name=c.patientName||c.name||ex.name; ex.aadhar=c.aadharNo||c.aadhar||ex.aadhar; ex.contact=c.contactNo||c.contact||ex.contact; ex.pmjay=c.pmjayId||c.pmjay||ex.pmjay; ex.addr=c.address||c.addr||ex.addr; }
-     else { allPatients.push({name:c.patientName||c.name||'', aadhar:c.aadharNo||c.aadhar||'', shri:shriId, contact:c.contactNo||c.contact||'', pmjay:c.pmjayId||c.pmjay||'', addr:c.address||c.addr||''}); }
-   });
+   document.getElementById('info').textContent='Deleting '+p.shri+'...';
+   // Delete from Firebase - ALL devices
+   await deleteDoc(doc(db,"patients",p.shri));
+   // Also mark deleted for safety
+   try{ await setDoc(doc(db,"patients",p.shri),{deleted:true, deletedAt:new Date()}, {merge:true}); await deleteDoc(doc(db,"patients",p.shri)); }catch(e){}
+   // Remove from local list
+   allPatients.splice(idx,1);
    applyFilter();
- }catch(e){ document.getElementById('info').textContent='Firebase error: '+e.message; }
+   document.getElementById('info').textContent='Deleted '+p.shri+' - Removed from Firebase - All devices';
+ }catch(e){
+   // If direct delete fails, try mark deleted
+   try{ await setDoc(doc(db,"patients",p.shri),{deleted:true}, {merge:true}); allPatients.splice(idx,1); applyFilter(); document.getElementById('info').textContent='Deleted '+p.shri; }catch(err){ alert('Delete failed: '+e.message); }
+ }
+};
+async function init(){
+ allPatients=(typeof patientData!=='undefined'?patientData:[]).map(p=>({name:String(p.patientName||p.name||'').trim(),shri:String(p.shriId||p.shri||'').trim(),contact:String(p.contactNo||p.contact||'').trim(),pmjay:String(p.pmjayId||p.pmjay||'').trim(),addr:String(p.address||p.addr||'').trim()}));
+ applyFilter();
+ try{const snap=await getDocs(collection(db,"patients"));snap.forEach(d=>{let c=d.data();if(c.deleted) return;let shriId=(c.shriId||c.shri||d.id).trim();if(allPatients.find(x=>x.shri===shriId)) return;allPatients.push({name:c.patientName||c.name||'',shri:shriId,contact:c.contactNo||c.contact||'',pmjay:c.pmjayId||c.pmjay||'',addr:c.address||c.addr||''});});applyFilter();}catch(e){}
 }
 window.saveEdit=async()=>{
- let p=allPatients[editIndex]; let oldShri=p.shri;
- let updated={
-   patientName:document.getElementById('eName').value.trim(), name:document.getElementById('eName').value.trim(),
-   aadharNo:document.getElementById('eAadhar').value.trim(), aadhar:document.getElementById('eAadhar').value.trim(),
-   shriId:document.getElementById('eShri').value.trim(), shri:document.getElementById('eShri').value.trim(),
-   contactNo:document.getElementById('eContact').value.trim(), contact:document.getElementById('eContact').value.trim(),
-   pmjayId:document.getElementById('ePmjay').value.trim(), pmjay:document.getElementById('ePmjay').value.trim(),
-   address:document.getElementById('eAddr').value.trim(), addr:document.getElementById('eAddr').value.trim(),
-   updatedAt:new Date()
- };
- if(!updated.shriId){alert('SHRI ID required');return;}
- p.name=updated.name; p.aadhar=updated.aadhar; p.shri=updated.shri; p.contact=updated.contact; p.pmjay=updated.pmjay; p.addr=updated.addr;
- closeEdit(); applyFilter();
- try{ await setDoc(doc(db,"patients",updated.shriId),updated,{merge:true}); if(oldShri!==updated.shriId){ await setDoc(doc(db,"patients",oldShri),{deleted:true},{merge:true}); } document.getElementById('info').textContent='Saved to Firebase - Visible on all devices'; }catch(e){alert(e.message);}
+ let p=allPatients[editIndex];
+ let shriId=document.getElementById('eShri').value.trim();
+ let updated={patientName:document.getElementById('eName').value.trim(),name:document.getElementById('eName').value.trim(),shriId:shriId,shri:shriId,contactNo:document.getElementById('eContact').value.trim(),contact:document.getElementById('eContact').value.trim(),pmjayId:document.getElementById('ePmjay').value.trim(),pmjay:document.getElementById('ePmjay').value.trim(),address:document.getElementById('eAddr').value.trim(),addr:document.getElementById('eAddr').value.trim(),updatedAt:new Date()};
+ p.name=updated.name;p.contact=updated.contact;p.pmjay=updated.pmjay;p.addr=updated.addr;
+ closeEdit();renderTable();
+ try{await setDoc(doc(db,"patients",shriId),updated,{merge:true});document.getElementById('info').textContent='Updated '+shriId+' - Same patient updated on all devices';}catch(e){alert(e.message);}
 };
 init();
 </script>
