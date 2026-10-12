@@ -5,20 +5,23 @@
 <title>CMHT Daily Dialysis - SHIJA</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Inter}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui}
 body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:100}
 .top h2{color:#fff;font-size:16px;font-weight:800}
 .menuBtn{width:36px;height:36px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;color:#fff;display:grid;place-items:center;cursor:pointer}
 .mainWrap{display:flex;flex:1}
-.side{width:230px;background:#0a1931;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;transition:.3s;z-index:90}
+.side{width:230px;background:#0a1931;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;transition:.3s;z-index:90;overflow-y:auto}
 .side.closed{transform:translateX(-100%)}
 .side a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px;display:block;margin-bottom:4px}
 .side a.active{background:#13264d;color:#fff;border-left:3px solid #1a56db}
 .content{flex:1;padding:16px;margin-left:230px;transition:.3s}
 .content.full{margin-left:0}
-.filterBox{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.filterBox{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px;margin:14px 0}
+.row1{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.row2{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .filterBox select,.filterBox input{padding:10px 12px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700}
+.searchInputMain{flex:1;min-width:200px;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1}
 .tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden}
 table{width:100%;border-collapse:collapse;min-width:1100px}
 th{padding:12px;font-size:12px;color:#64748b;background:#f8fafc;text-align:left}
@@ -27,15 +30,17 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .shri{background:#8b5cf6;color:#fff;padding:3px 8px;border-radius:6px;font-weight:700;font-size:12px}
 .timeBadge{background:#dbeafe;color:#1e40af;padding:4px 10px;border-radius:20px;font-weight:700;font-size:11px}
 .blockBadge{background:#fef3c7;color:#92400e;padding:4px 10px;border-radius:20px;font-weight:700;font-size:11px}
-.btn{padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}
-.btnAdd{background:#8b5cf6;color:#fff}.btnExp{background:#0a1931;color:#fff}.btnDel{background:#ef4444;color:#fff;padding:5px 10px;font-size:12px}
+.btn{padding:10px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}
+.btnAdd{background:#8b5cf6;color:#fff;padding:11px 18px}
+.btnExp{background:#0a1931;color:#fff}
+.btnDel{background:#ef4444;color:#fff;padding:5px 10px;font-size:12px}
 .pager{display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px}
 .pBtn{padding:6px 12px;border-radius:6px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer}
 .modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:200}.modal.show{display:grid}
-.modalBox{background:#fff;border-radius:16px;padding:20px;width:92%;max-width:420px;box-shadow:0 20px 40px #0004}
+.modalBox{background:#fff;border-radius:16px;padding:20px;width:92%;max-width:440px;box-shadow:0 20px 40px #0004}
 .searchInput{width:100%;padding:12px;border:1.5px solid #cbd5e1;border-radius:10px;margin:10px 0}
-.sList{max-height:280px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:10px}
-.sItem{padding:10px 12px;border-bottom:1px solid #f1f5f9;cursor:pointer;display:flex;justify-content:space-between}
+.sList{max-height:300px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:10px}
+.sItem{padding:10px 12px;border-bottom:1px solid #f1f5f9;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
 .sItem:hover{background:#f8fafc}
 .timeGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
 .timeBtn{padding:14px;border-radius:10px;border:1.5px solid #cbd5e1;background:#fff;font-weight:800;cursor:pointer;text-align:center}
@@ -43,6 +48,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .blockGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
 .blockBtn{padding:14px;border-radius:10px;border:1.5px solid #cbd5e1;background:#fff;font-weight:800;cursor:pointer;text-align:center}
 .blockBtn:hover{background:#8b5cf6;color:#fff}
+.hintBox{font-size:11px;color:#64748b;margin-top:4px}
 @media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}}
 </style>
 </head>
@@ -55,7 +61,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <a href="cmht.html">CMHT Total Patient</a>
 <a href="cmhtkft.html">CMHT KFT Report</a>
 <a href="cmhtdaily.html" class="active">CMHT Daily Dialysis</a>
-<a href="daily.html">Daily Dialysis</a>
+<a href="daily.html">PMJAY DAILY DIALYSIS LIST</a>
 <a href="discharge.html">Discharge Patient</a>
 <a href="kft.html">PMJAY KFT REPORT</a>
 <a href="add.html">ADD PMJAY Patient</a>
@@ -63,20 +69,33 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <a href="bill.html">Bill</a>
 </div>
 <div class="content" id="content">
-<h1>CMHT Daily Dialysis List</h1><p style="color:#64748b;font-size:13px">Search from CMHT Total Patient → Time → Block → Previous Date</p>
+<h1>CMHT Daily Dialysis List</h1><p style="color:#64748b;font-size:13px">Hint from CMHT Total Patient page (cmht.html)</p>
+
 <div class="filterBox">
+<!-- ROW 1: ABOVE - Pagewise + Export -->
+<div class="row1">
 <input type="date" id="listDate" onchange="loadList()">
 <select id="timeFilter" onchange="applyFilters()"><option value="">All Time</option><option>7AM</option><option>12PM</option><option>5PM</option><option>9PM</option><option>12AM</option><option>2AM</option></select>
 <select id="blockFilter" onchange="applyFilters()"><option value="">All Block</option><option>Itocha</option><option>Main</option></select>
-<input id="searchList" placeholder="Search name/SHRI" oninput="applyFilters()" style="flex:1;min-width:140px">
 <select id="pageSize" onchange="renderTable()"><option value="10">10 / page</option><option value="20">20 / page</option><option value="30">30 / page</option><option value="40">40 / page</option><option value="50">50 / page</option></select>
-<button class="btn btnAdd" onclick="openPatientSearch()">+ Add Patient</button>
 <button class="btn btnExp" onclick="exportExcel()">Export Excel</button>
+<span id="totalInfo" style="font-weight:700;color:#475569;margin-left:8px"></span>
 </div>
+
+<!-- ROW 2: BELOW - Search + Add Patient next to each other -->
+<div class="row2">
+<input id="searchList" class="searchInputMain" placeholder="Search list by name / SHRI ID..." oninput="applyFilters()">
+<button class="btn btnAdd" onclick="openPatientSearch()">+ Add Patient</button>
+</div>
+<div class="hintBox">Search hint: Type to filter daily list • Add Patient: Search from CMHT Total Patient (cmht.html)</div>
+</div>
+
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div id="pageInfo" style="font-weight:600;color:#475569"></div><div id="pageNums" style="display:flex;gap:4px"></div></div></div>
 </div>
 </div>
-<div class="modal" id="modalSearch"><div class="modalBox"><h3>Search CMHT Patient</h3><input class="searchInput" id="patientSearch" placeholder="Type name / SHRI ID / Contact" oninput="doPatientSearch()"><div class="sList" id="sList"></div><div style="margin-top:12px;text-align:right"><button class="btn" onclick="closeAll()">Cancel</button></div></div></div>
+
+<!-- Step1: Search Patient - HINT FROM cmht.html -->
+<div class="modal" id="modalSearch"><div class="modalBox"><h3>Search CMHT Patient <small style="color:#8b5cf6">(from cmht.html)</small></h3><input class="searchInput" id="patientSearch" placeholder="Type name / SHRI ID / Contact - Hint from CMHT Total Patient" oninput="doPatientSearch()"><div class="sList" id="sList"></div><div style="margin-top:12px;text-align:right"><button class="btn" onclick="closeAll()">Cancel</button></div><div class="hintBox">Showing hint from Firebase collection <b>cmht_patients</b> - Same as cmht.html page</div></div></div>
 <div class="modal" id="modalTime"><div class="modalBox"><h3>Select Time Slot</h3><p id="selPatientInfo" style="font-size:13px;color:#64748b"></p><div class="timeGrid">
 <button class="timeBtn" onclick="selectTime('7AM')">7AM</button>
 <button class="timeBtn" onclick="selectTime('12PM')">12PM</button>
@@ -90,6 +109,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <button class="blockBtn" onclick="selectBlock('Main')">Main</button>
 </div><button class="btn" onclick="closeAll()">Cancel</button></div></div>
 <div class="modal" id="modalPrev"><div class="modalBox"><h3>Previous Dialysis Date</h3><input type="date" id="prevDate" style="width:100%;padding:12px;border-radius:8px;border:1.5px solid #cbd5e1"><div style="display:flex;gap:8px;margin-top:14px"><button class="btn" onclick="closeAll()" style="flex:1">Cancel</button><button class="btn btnAdd" onclick="finalAdd()" style="flex:1">Add to List</button></div></div></div>
+
 <script>function toggleSide(){let s=document.getElementById('side');let c=document.getElementById('content');if(innerWidth<=900){s.classList.toggle('open');}else{s.classList.toggle('closed');c.classList.toggle('full');}}</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -100,7 +120,16 @@ let allCMHT=[], allList=[], filteredList=[], currentPage=1;
 let selectedPatient=null, selectedTime='', selectedBlock='';
 document.getElementById('listDate').valueAsDate=new Date();
 document.getElementById('prevDate').valueAsDate=new Date();
-async function loadCMHT(){const snap=await getDocs(collection(db,"cmht_patients"));allCMHT=[];snap.forEach(d=>{let c=d.data();allCMHT.push({key:d.id,name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||''});});}
+
+async function loadCMHT(){
+ const snap=await getDocs(collection(db,"cmht_patients"));
+ allCMHT=[];
+ snap.forEach(d=>{
+  let c=d.data();
+  allCMHT.push({key:d.id,name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||'',aadhaar:c.aadhaarNo||c.aadhaar||'',addr:c.address||c.addr||''});
+ });
+ console.log('CMHT loaded for hint:',allCMHT.length,'from cmht.html collection');
+}
 async function loadList(){
  let dateVal=document.getElementById('listDate').value;if(!dateVal)return;
  try{const q=query(collection(db,"cmht_daily_dialysis"), where("listDate","==",dateVal));const snap=await getDocs(q);allList=[];snap.forEach(d=>allList.push({id:d.id,...d.data()}));}catch(e){allList=[];}
@@ -116,9 +145,10 @@ window.renderTable=()=>{
  let start=(currentPage-1)*pageSize;let data=filteredList.slice(start,start+pageSize);
  let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Time</th><th>Block</th><th>Previous Dialysis Date</th><th>List Date</th><th>Action</th></tr>';
  data.forEach((p,i)=>{html+=`<tr><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri}</span></td><td><span class="timeBadge">${p.time}</span></td><td><span class="blockBadge">${p.block}</span></td><td>${p.prevDate||'-'}</td><td>${p.listDate||'-'}</td><td><button class="btn btnDel" onclick="deleteEntry('${p.id}')">Delete</button></td></tr>`;});
- if(data.length===0) html+='<tr><td colspan="8" style="text-align:center;padding:20px">No dialysis for this date - Add patient</td></tr>';
+ if(data.length===0) html+='<tr><td colspan="8" style="text-align:center;padding:20px">No dialysis for this date - Click + Add Patient (hint from CMHT Total Patient)</td></tr>';
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('pageInfo').textContent=`Showing ${filteredList.length?start+1:0}-${Math.min(start+pageSize,filteredList.length)} of ${filteredList.length} | Date: ${document.getElementById('listDate').value}`;
+ document.getElementById('totalInfo').textContent=filteredList.length+' entries';
  document.getElementById('prevBtn').disabled=currentPage<=1;document.getElementById('nextBtn').disabled=currentPage>=totalPages;
  let nums='';for(let i=1;i<=Math.min(totalPages,8);i++){nums+=`<button class="pBtn" style="${i===currentPage?'background:#0a1931;color:#fff':''}" onclick="goPage(${i})">${i}</button>`;}
  document.getElementById('pageNums').innerHTML=nums;
@@ -127,14 +157,16 @@ window.prevPage=()=>{if(currentPage>1){currentPage--;renderTable();}};
 window.nextPage=()=>{let ps=parseInt(document.getElementById('pageSize').value);if(currentPage<Math.ceil(filteredList.length/ps)){currentPage++;renderTable();}};
 window.goPage=(n)=>{currentPage=n;renderTable();};
 window.deleteEntry=async(id)=>{if(!confirm('Delete this entry?'))return;try{await deleteDoc(doc(db,"cmht_daily_dialysis",id));loadList();}catch(e){alert(e.message);}};
-window.openPatientSearch=()=>{document.getElementById('modalSearch').classList.add('show');document.getElementById('patientSearch').value='';doPatientSearch();};
+
+window.openPatientSearch=()=>{document.getElementById('modalSearch').classList.add('show');document.getElementById('patientSearch').value='';doPatientSearch();document.getElementById('patientSearch').focus();};
 window.closeAll=()=>{document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show'));};
 window.doPatientSearch=()=>{
  let q=document.getElementById('patientSearch').value.toLowerCase().trim();
  let list=document.getElementById('sList');
- let filtered=q?allCMHT.filter(p=>[p.name,p.shri,p.contact].join(' ').toLowerCase().includes(q)).slice(0,20):allCMHT.slice(0,20);
- let html='';filtered.forEach(p=>{html+=`<div class="sItem" onclick="pickPatient('${p.key}')"><div><b>${p.name}</b><br><small>${p.shri} ${p.contact?'| '+p.contact:''}</small></div><small style="color:#8b5cf6;font-weight:700">Select</small></div>`;});
- if(!filtered.length) html='<div style="padding:12px;text-align:center;color:#64748b">No patient found</div>';
+ // HINT FROM cmht.html - same collection cmht_patients
+ let filtered=q?allCMHT.filter(p=>[p.name,p.shri,p.contact].join(' ').toLowerCase().includes(q)).slice(0,30):allCMHT.slice(0,30);
+ let html='';filtered.forEach(p=>{html+=`<div class="sItem" onclick="pickPatient('${p.key}')"><div><b>${p.name}</b><br><small>${p.shri} ${p.contact?'| '+p.contact:''} • From CMHT Total</small></div><small style="color:#8b5cf6;font-weight:700">Select</small></div>`;});
+ if(!filtered.length) html='<div style="padding:12px;text-align:center;color:#64748b">No CMHT patient found - Check cmht.html page<br><small>Data from cmht_patients collection</small></div>';
  list.innerHTML=html;
 };
 window.pickPatient=(key)=>{selectedPatient=allCMHT.find(p=>p.key===key);if(!selectedPatient) return;document.getElementById('modalSearch').classList.remove('show');document.getElementById('selPatientInfo').textContent=`Patient: ${selectedPatient.name} (${selectedPatient.shri})`;document.getElementById('modalTime').classList.add('show');};
