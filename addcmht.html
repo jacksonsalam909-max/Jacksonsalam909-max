@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Add CMHT Patient - SHIJA</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter}
+body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
+.top{height:64px;background:#0a1931;display:flex;align-items:center;padding:0 14px;justify-content:space-between;position:sticky;top:0;z-index:10}
+.top h2{color:#fff;font-size:16px;font-weight:800}
+.menuBtn{width:36px;height:36px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;color:#fff;display:grid;place-items:center;cursor:pointer}
+.mainWrap{display:flex;flex:1}
+.side{width:230px;background:#0a1931;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;transition:transform.3s;z-index:90}
+.side.closed{transform:translateX(-100%)}
+.side a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px;display:block;margin-bottom:4px}
+.side a.active{background:#13264d;color:#fff;border-left:3px solid #1a56db}
+.content{flex:1;margin-left:230px;padding:20px;transition:margin.3s}
+.content.full{margin-left:0}
+.box{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:24px;max-width:700px;width:100%}
+.box input{width:100%;padding:13px;border:1.5px solid #cbd5e1;border-radius:10px;margin:9px 0}
+.box label{font-size:12px;font-weight:700;color:#475569;margin-top:4px;display:block}
+.btn{width:100%;padding:13px;background:#8b5cf6;color:#fff;border:0;border-radius:10px;font-weight:800;cursor:pointer;margin-top:14px}
+.msg{margin:10px 0;padding:10px;border-radius:8px;font-size:13px;display:none}.msg.ok{display:block;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}.msg.err{display:block;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}}
+</style>
+</head>
+<body>
+<div class="top"><div style="display:flex;align-items:center;gap:10px"><button class="menuBtn" onclick="toggleSide()"><div style="display:flex;flex-direction:column;gap:4px"><div style="width:18px;height:2px;background:#fff"></div><div style="width:18px;height:2px;background:#fff"></div><div style="width:18px;height:2px;background:#fff"></div></div></button><h2>SHIJA Dialysis Management</h2></div><span style="color:#fff">Admin</span></div>
+<div class="mainWrap">
+<div class="side" id="side">
+<a href="index.html">Home</a>
+<a href="total.html">Total Patient</a>
+<a href="cmht.html">CMHT Total Patient</a>
+<a href="daily.html">Daily Dialysis</a>
+<a href="discharge.html">Discharge Patient</a>
+<a href="kft.html">KFT Report</a>
+<a href="add.html">Add Patient</a>
+<a href="addcmht.html" class="active">Add CMHT Patient</a>
+<a href="bill.html">Bill</a>
+</div>
+<div class="content" id="content">
+<h1>Add CMHT Patient</h1><p style="color:#64748b;font-size:13px">After adding, data will show in CMHT Total Patient page (cmht.html) on all devices</p>
+<div id="msgBox" class="msg"></div>
+<div class="box">
+<label>Patient Name *</label><input id="name" placeholder="Patient Name">
+<label>SHRI ID</label><input id="shri" placeholder="e.g. SHRI123 - auto if empty">
+<label>CMHT ID *</label><input id="cmht" placeholder="CMHT Card Number">
+<label>Contact Number</label><input id="contact" placeholder="Contact Number">
+<label>Aadhaar Number</label><input id="aadhaar" placeholder="12 digit Aadhaar" maxlength="12">
+<label>Address</label><input id="addr" placeholder="Address">
+<button class="btn" id="addBtn" onclick="addCMHT()">Add CMHT Patient</button>
+</div>
+</div>
+</div>
+<script>function toggleSide(){let s=document.getElementById('side');let c=document.getElementById('content');if(innerWidth<=900){s.classList.toggle('open');}else{s.classList.toggle('closed');c.classList.toggle('full');}}</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(firebaseConfig);const db=getFirestore(app);
+function showMsg(t,ok){let b=document.getElementById('msgBox');b.textContent=t;b.className='msg '+(ok?'ok':'err');}
+window.addCMHT=async()=>{
+ let name=document.getElementById('name').value.trim();
+ let shri=document.getElementById('shri').value.trim();
+ let cmht=document.getElementById('cmht').value.trim();
+ let contact=document.getElementById('contact').value.trim();
+ let aadhaar=document.getElementById('aadhaar').value.trim();
+ let addr=document.getElementById('addr').value.trim();
+ if(!name){showMsg('Enter Patient Name',false);return;}
+ if(!cmht){showMsg('Enter CMHT ID',false);return;}
+ if(!shri) shri='CMHT_'+Date.now().toString().slice(-6);
+ let btn=document.getElementById('addBtn');btn.disabled=true;btn.textContent='Saving to Firebase...';
+ let data={patientName:name,name:name,shriId:shri,shri:shri,cmhtId:cmht,cmht:cmht,pmjay:cmht,contactNo:contact,contact:contact,aadhaarNo:aadhaar,aadhaar:aadhaar,address:addr,addr:addr,scheme:'CMHT',key:shri,createdAt:new Date().toISOString()};
+ try{await setDoc(doc(db,"cmht_patients",shri),data);showMsg('✅ Added '+name+' ('+shri+') - Now open CMHT Total Patient page (cmht.html) - it will show there',true);document.getElementById('name').value='';document.getElementById('shri').value='';document.getElementById('cmht').value='';document.getElementById('contact').value='';document.getElementById('aadhaar').value='';document.getElementById('addr').value='';btn.disabled=false;btn.textContent='Add CMHT Patient';}catch(e){btn.disabled=false;btn.textContent='Add CMHT Patient';showMsg('Error: '+e.message,false);}
+};
+</script>
+</body>
+</html>
