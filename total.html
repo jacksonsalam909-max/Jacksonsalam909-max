@@ -1,25 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Total Patients - SHIJA</title>
 <script src="Patient.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui}
 body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
-.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:1000}
+.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:9999}
 .top h2{color:#fff;font-size:16px;font-weight:800}
-.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.menuBtn span{display:block;width:20px;height:2.5px;background:#fff;border-radius:2px}
+.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer}
+.menuBtn span{display:block;width:20px;height:2px;background:#fff}
 .mainWrap{display:flex;flex:1;margin-top:64px}
-.side{width:260px;background:#0a1931;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;transition:transform 0.3s ease;z-index:900;overflow-y:auto;transform:translateX(0)}
-.side.closed{transform:translateX(-100%)}
-.sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,0.5);z-index:800;display:none}
-.sideOverlay.show{display:block}
+.side{width:260px;background:#0a1931;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;z-index:9998;overflow-y:auto;transition:0.3s;transform:translateX(-100%)}
+.side.show{transform:translateX(0)}
 .side a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px;display:block;margin-bottom:4px}
-.side a.active{background:#13264d;color:#fff;border-left:3px solid #1a56db}
-.content{flex:1;padding:16px;margin-left:260px;transition:margin 0.3s}
-.content.full{margin-left:0}
+.side a.active{background:#13264d;color:#fff}
+.content{flex:1;padding:16px;margin-left:0}
+.sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,0.5);z-index:9997;display:none}
+.sideOverlay.show{display:block}
 .tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden;margin-top:14px}
 table{width:100%;border-collapse:collapse;min-width:1000px}
 th{padding:14px 12px;font-size:12px;color:#64748b;background:#f8fafc;text-align:left}
@@ -30,25 +29,22 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .btnDel{padding:6px 14px;border-radius:6px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer}
 .pager{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px}
 .pBtn{padding:8px 14px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer;font-size:13px}
-.pBtn:disabled{opacity:0.5}
-.pInfo{font-size:13px;font-weight:600;color:#475569}
-.modal{position:fixed;inset:0;background:#0006;display:none;place-items:center;z-index:9999}.modal.show{display:grid}
+.modal{position:fixed;inset:0;background:#0006;display:none;place-items:center;z-index:10000}.modal.show{display:grid}
 .modalBox{background:#fff;border-radius:14px;padding:18px;width:90%;max-width:420px}.modalBox input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;margin:6px 0}
 .mBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}.save{background:#1868db;color:#fff;padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}.cancel{background:#f1f5f9;padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}
-@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)!important}.content{margin-left:0!important}}
 </style>
 </head>
 <body>
 <div class="top">
 <div style="display:flex;align-items:center;gap:10px">
-<button type="button" class="menuBtn" id="menuBtn" onclick="toggleSide()"><span></span><span></span><span></span></button>
+<div class="menuBtn" onclick="toggleMenu()"><span></span><span></span><span></span></div>
 <h2>SHIJA Dialysis Management</h2>
 </div>
 <span style="color:#fff;font-weight:700">Admin</span>
 </div>
-<div class="sideOverlay" id="overlay" onclick="toggleSide()"></div>
+<div class="sideOverlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="mainWrap">
-<div class="side closed" id="side">
+<div class="side" id="side">
 <a href="index.html">Home</a>
 <a href="total.html" class="active">Total Patient</a>
 <a href="cmht.html">CMHT Total Patient</a>
@@ -61,40 +57,27 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <a href="add.html">Add Patient</a>
 <a href="bill.html">Bill</a>
 </div>
-<div class="content full" id="content">
+<div class="content" id="content">
 <h1>Total Patients</h1><p id="info" style="color:#64748b;font-size:13px">Loading...</p>
 <div style="display:flex;gap:10px;margin:14px 0"><input id="search" style="flex:1;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1" placeholder="Search..." oninput="onSearch()"><select id="pageSize" onchange="changePageSize()" style="padding:10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700"><option value="10" selected>10 / page</option><option value="20">20 / page</option><option value="30">30 / page</option><option value="40">40 / page</option><option value="50">50 / page</option></select></div>
-<div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div class="pInfo" id="pageInfo"></div><div style="display:flex;gap:6px" id="pageNums"></div></div></div>
+<div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div id="pageInfo"></div><div style="display:flex;gap:6px" id="pageNums"></div></div></div>
 </div>
 </div>
-<div class="modal" id="editModal"><div class="modalBox"><h3>Edit - Permanent</h3><input id="eName" placeholder="Name"><input id="eShri" placeholder="SHRI ID (can be empty)"><input id="eContact" placeholder="Contact"><input id="ePmjay" placeholder="PMJAY"><input id="eAddr" placeholder="Address"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" onclick="saveEdit()">Save Permanent</button></div></div></div>
+<div class="modal" id="editModal"><div class="modalBox"><h3>Edit - Permanent</h3><input id="eName" placeholder="Name"><input id="eShri" placeholder="SHRI ID"><input id="eContact" placeholder="Contact"><input id="ePmjay" placeholder="PMJAY"><input id="eAddr" placeholder="Address"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" onclick="saveEdit()">Save Permanent</button></div></div></div>
 
 <script>
-// REDMI FIX - TESTED
-function toggleSide(){
- var side = document.getElementById('side');
- var content = document.getElementById('content');
- var overlay = document.getElementById('overlay');
- var isOpen = side.classList.contains('open');
- if(window.innerWidth <= 900){
-   if(isOpen){
-     side.classList.remove('open');
-     side.classList.add('closed');
-     overlay.classList.remove('show');
-   }else{
-     side.classList.remove('closed');
-     side.classList.add('open');
-     overlay.classList.add('show');
-   }
+// THIS WORKS ON REALME / REDMI - SIMPLEST CODE
+function toggleMenu(){
+ var s = document.getElementById('side');
+ var o = document.getElementById('overlay');
+ if(s.className.indexOf('show') === -1){
+   s.className = 'side show';
+   o.className = 'sideOverlay show';
  }else{
-   side.classList.toggle('closed');
-   content.classList.toggle('full');
+   s.className = 'side';
+   o.className = 'sideOverlay';
  }
- return false;
 }
-// Redmi touch fix
-document.getElementById('menuBtn').addEventListener('touchstart',function(e){e.preventDefault();toggleSide();},{passive:false});
-document.getElementById('menuBtn').addEventListener('touchend',function(e){e.preventDefault();},{passive:false});
 </script>
 
 <script type="module">
@@ -124,59 +107,24 @@ window.renderTable=()=>{
  if(data.length===0) html+='<tr><td colspan="7" style="text-align:center;padding:20px">No patients</td></tr>';
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('info').textContent=filtered.length+' patients - Page '+currentPage+' of '+totalPages;
- document.getElementById('pageInfo').textContent='Showing '+(filtered.length?start+1:0)+'-'+Math.min(start+pageSize,filtered.length)+' of '+filtered.length;
  document.getElementById('prevBtn').disabled=currentPage<=1;
  document.getElementById('nextBtn').disabled=currentPage>=totalPages;
- let nums=''; let showPages=Math.min(totalPages,10); for(let i=1;i<=showPages;i++){ nums+=`<button class="pBtn" style="${i===currentPage?'background:#0a1931;color:#fff':''}" onclick="goPage(${i})">${i}</button>`; } document.getElementById('pageNums').innerHTML=nums;
+ let nums=''; for(let i=1;i<=Math.min(totalPages,10);i++){ nums+=`<button class="pBtn" style="${i===currentPage?'background:#0a1931;color:#fff':''}" onclick="goPage(${i})">${i}</button>`; } document.getElementById('pageNums').innerHTML=nums;
 };
 window.prevPage=()=>{if(currentPage>1){currentPage--;renderTable();}};
 window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(currentPage<totalPages){currentPage++;renderTable();}};
 window.goPage=(n)=>{currentPage=n;renderTable();};
-window.deletePatient=async(idx)=>{
- let p=allPatients[idx];
- if(!confirm('DELETE '+p.name+'?')) return;
- let key=getKey(p);
- addDeleted(key);
- try{ await setDoc(doc(db,"patients",key),{deleted:true,deletedAt:new Date().toISOString(),key:key,shriId:p.shri},{merge:true}); }catch(e){}
- p.deleted=true; applyFilter();
-};
-window.saveEdit=async()=>{
- let p=allPatients[editIndex];
- let oldKey=getKey(p);
- let newShri=document.getElementById('eShri').value.trim();
- let updated={patientName:document.getElementById('eName').value.trim(),name:document.getElementById('eName').value.trim(),shriId:newShri,shri:newShri,contactNo:document.getElementById('eContact').value.trim(),contact:document.getElementById('eContact').value.trim(),pmjayId:document.getElementById('ePmjay').value.trim(),pmjay:document.getElementById('ePmjay').value.trim(),address:document.getElementById('eAddr').value.trim(),addr:document.getElementById('eAddr').value.trim(),deleted:false,updatedAt:new Date().toISOString(),key:oldKey,originalId:p.id};
- saveEditedLocal(oldKey, updated);
- p.name=updated.name; p.shri=updated.shri; p.contact=updated.contact; p.pmjay=updated.pmjay; p.addr=updated.addr;
- closeEdit(); applyFilter();
- try{ await setDoc(doc(db,"patients",oldKey),updated,{merge:true}); }catch(e){}
-};
+window.deletePatient=async(idx)=>{let p=allPatients[idx];if(!confirm('DELETE '+p.name+'?')) return;let key=getKey(p);addDeleted(key);try{await setDoc(doc(db,"patients",key),{deleted:true},{merge:true});}catch(e){}p.deleted=true;applyFilter();};
+window.saveEdit=async()=>{let p=allPatients[editIndex];let oldKey=getKey(p);let newShri=document.getElementById('eShri').value.trim();let updated={patientName:document.getElementById('eName').value.trim(),name:document.getElementById('eName').value.trim(),shriId:newShri,shri:newShri,contactNo:document.getElementById('eContact').value.trim(),contact:document.getElementById('eContact').value.trim(),pmjayId:document.getElementById('ePmjay').value.trim(),pmjay:document.getElementById('ePmjay').value.trim(),address:document.getElementById('eAddr').value.trim(),addr:document.getElementById('eAddr').value.trim(),deleted:false};saveEditedLocal(oldKey,updated);p.name=updated.name;p.shri=updated.shri;p.contact=updated.contact;p.pmjay=updated.pmjay;p.addr=updated.addr;closeEdit();applyFilter();try{await setDoc(doc(db,"patients",oldKey),updated,{merge:true});}catch(e){}};
 async function init(){
- let deletedLocal=getDeleted();
- let editedLocal=getEdited();
+ let deletedLocal=getDeleted();let editedLocal=getEdited();
  allPatients=(typeof patientData!=='undefined'?patientData:[]).map((pd,idx)=>{
-   let rawShri=String(pd.shriId||pd.shri||'').trim();
-   let rawId=String(pd.id||idx+1).trim();
-   let key=rawShri && rawShri!=='null' && rawShri!==''? rawShri : 'ID_'+rawId;
-   let isDel=deletedLocal.includes(key) || deletedLocal.includes(rawId) || deletedLocal.includes(rawShri);
-   let edited=editedLocal[key] || editedLocal[rawId] || editedLocal[rawShri];
-   if(edited){
-     return {key:key,id:rawId,name:edited.name||edited.patientName||pd.patientName||'',shri:edited.shri||edited.shriId||rawShri,contact:edited.contact||edited.contactNo||pd.contactNo||'',pmjay:edited.pmjay||edited.pmjayId||pd.pmjayId||'',addr:edited.addr||edited.address||pd.address||'',deleted:isDel};
-   }
-   return {key:key,id:rawId,name:String(pd.patientName||pd.name||'').trim(),shri:rawShri,contact:String(pd.contactNo||pd.contact||'').trim(),pmjay:String(pd.pmjayId||pd.pmjay||'').trim(),addr:String(pd.address||pd.addr||'').trim(),deleted:isDel};
+   let rawShri=String(pd.shriId||pd.shri||'').trim();let rawId=String(pd.id||idx+1).trim();let key=rawShri||'ID_'+rawId;
+   let isDel=deletedLocal.includes(key)||deletedLocal.includes(rawId)||deletedLocal.includes(rawShri);
+   let edited=editedLocal[key]||editedLocal[rawId]||editedLocal[rawShri];
+   if(edited){return {key:key,id:rawId,name:edited.name||pd.patientName||'',shri:edited.shri||rawShri,contact:edited.contact||pd.contactNo||'',pmjay:edited.pmjay||pd.pmjayId||'',addr:edited.addr||pd.address||'',deleted:isDel};}
+   return {key:key,id:rawId,name:String(pd.patientName||'').trim(),shri:rawShri,contact:String(pd.contactNo||'').trim(),pmjay:String(pd.pmjayId||'').trim(),addr:String(pd.address||'').trim(),deleted:isDel};
  });
- try{
-   const snap=await getDocs(collection(db,"patients"));
-   snap.forEach(d=>{
-     let c=d.data(); let key=String(c.key||c.shriId||c.shri||d.id).trim();
-     if(c.deleted){ addDeleted(key); let ex=allPatients.find(x=>x.key===key || x.id===key || x.shri===key); if(ex) ex.deleted=true; return; }
-     saveEditedLocal(key,c);
-     let ex=allPatients.find(x=>x.key===key || x.id===key || x.shri===key);
-     if(ex &&!ex.deleted){ ex.name=c.patientName||c.name||ex.name; ex.shri=c.shriId||c.shri||ex.shri; ex.contact=c.contactNo||c.contact||ex.contact; ex.pmjay=c.pmjayId||c.pmjay||ex.pmjay; ex.addr=c.address||c.addr||ex.addr; }
-     else if(!deletedLocal.includes(key)){
-       allPatients.push({key:key,id:key,name:c.patientName||c.name||'',shri:c.shriId||c.shri||'',contact:c.contactNo||c.contact||'',pmjay:c.pmjayId||c.pmjay||'',addr:c.address||c.addr||'',deleted:false});
-     }
-   });
- }catch(e){}
  applyFilter();
 }
 init();
