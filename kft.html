@@ -35,6 +35,8 @@ select,input{padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;out
 .btn{padding:10px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
 .btn-green{background:#10b981;color:#fff}
 .btn-orange{background:#0a1931;color:#fff}
+.btnBlue{background:#1a56db;color:#fff;border:0;padding:10px 16px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer}
+.btnDark{background:#0a1931;color:#fff;border:0;padding:10px 14px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer}
 .dateBox{display:flex;gap:8px;margin-top:8px}
 .dateOpt{padding:10px 18px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;font-weight:700;cursor:pointer;font-size:13px}
 .dateOpt.active{background:#1a56db;color:#fff;border-color:#1a56db}
@@ -48,7 +50,8 @@ tr:hover{background:#f8fafc}
 .yes{background:#10b981;color:#fff}
 .no{background:#ef4444;color:#fff}
 .toggle:disabled{opacity:.5}
-.searchWrap{position:relative;flex:1;min-width:240px}
+.searchWrap{position:relative;flex:1;min-width:240px;display:flex;gap:6px;align-items:center}
+.searchWrap input{flex:1}
 #suggestBox{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:12px;max-height:240px;overflow:auto;z-index:10;display:none;box-shadow:0 12px 24px #0002;margin-top:6px}
 .sItem{padding:10px 12px;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;font-size:12px}
 .sItem:hover{background:#eff6ff}
@@ -60,7 +63,6 @@ tr:hover{background:#f8fafc}
 </head>
 <body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='index.html'}</script>
-
 <div class="top">
 <div style="display:flex;align-items:center;gap:10px">
 <button class="menuBtn" onclick="toggleSide()">☰</button>
@@ -68,9 +70,7 @@ tr:hover{background:#f8fafc}
 </div>
 <div class="adBadge"><div class="adCircle">AD</div><span style="font-weight:700;font-size:13px">Admin</span></div>
 </div>
-
 <div class="sideOverlay" id="overlay" onclick="toggleSide()"></div>
-
 <div class="mainWrap">
 <div class="side" id="side">
 <div class="menu">
@@ -88,12 +88,10 @@ tr:hover{background:#f8fafc}
 </div>
 <div class="sideBottom">Help and Support<br>v2.4.1 | <span id="fbStatus">Connected</span></div>
 </div>
-
 <div class="content" id="content">
 <div class="headRow">
-<div><h1>KFT Report</h1><div class="bread">Dashboard / KFT Report - 1st and 15th - <span id="totalP">0</span> Patients</div></div>
+<div><h1>KFT Report</h1><div class="bread">Dashboard / KFT Report - 1st and 15th - <span id="totalP">0</span> Patients | Search Added List</div></div>
 </div>
-
 <div class="card">
 <div class="row">
 <div>Year: <select id="yearSel"></select></div>
@@ -101,10 +99,11 @@ tr:hover{background:#f8fafc}
 </div>
 <div style="margin-top:12px;font-weight:800;font-size:12px;color:#0f172a">Select Reporting Date:</div>
 <div class="dateBox"><div id="d1" class="dateOpt active" onclick="setDate('1')">1st of Every Month</div><div id="d15" class="dateOpt" onclick="setDate('15')">15th of Every Month</div></div>
-
 <div class="row" style="margin-top:14px">
 <div class="searchWrap">
-<input id="search" placeholder="Search Patient Name or SHRI ID..." oninput="onSearch(this.value)" autocomplete="off" style="width:100%">
+<input id="search" placeholder="Search Added List - Patient Name or SHRI ID..." oninput="onSearch(this.value)" autocomplete="off" style="width:100%">
+<button class="btnBlue" onclick="curPage=1;render()">Search</button>
+<button class="btnDark" onclick="document.getElementById('search').value='';curPage=1;render()">Clear</button>
 <div id="suggestBox"></div>
 </div>
 <button class="btn btn-green" id="saveBtn" onclick="saveLock()">SAVE</button>
@@ -119,17 +118,14 @@ tr:hover{background:#f8fafc}
 </select>
 </div>
 </div>
-
 <div class="card">
 <h3 id="titleH" style="text-align:center;color:#0f172a;margin-bottom:10px;font-size:16px;font-weight:800">KFT Report</h3>
 <div class="tableBox"><table><thead><tr><th>Sl No</th><th>Patient Name</th><th>SHRI ID</th><th>Contact</th><th id="statusHead">KFT Status</th></tr></thead><tbody id="tbl"></tbody></table></div>
 <div class="pager" id="pager"></div>
 <div style="text-align:center;margin-top:8px;font-size:11px;color:#64748b" id="pageInfo"></div>
 </div>
-
 </div>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, serverTimestamp, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -140,7 +136,6 @@ window.db = db;
 window.fb = { collection, serverTimestamp, setDoc, doc };
 document.getElementById('fbStatus').innerText = "Connected";
 </script>
-
 <script>
 function toggleSide(){
  let s=document.getElementById('side');
@@ -163,11 +158,31 @@ function setDate(d){selDate=d;document.getElementById('d1').classList.toggle('ac
 function checkLock(){let y=yearSel.value,m=document.getElementById('monthSel').value;isLocked=localStorage.getItem(getKey(y,m,selDate))==='1';document.getElementById('saveBtn').style.display=isLocked?'none':'inline-block';document.getElementById('editBtn').style.display=isLocked?'inline-block':'none';}
 function saveLock(){let y=yearSel.value,m=document.getElementById('monthSel').value;localStorage.setItem(getKey(y,m,selDate),'1');checkLock();render();}
 function enableEdit(){let y=yearSel.value,m=document.getElementById('monthSel').value;localStorage.setItem(getKey(y,m,selDate),'0');checkLock();render();}
-function onSearch(val){let box=document.getElementById('suggestBox');if(!val.trim()){box.style.display='none';curPage=1;render();return;}let q=val.toLowerCase();let matches=patients.filter(p=>(p.patientName||'').toLowerCase().includes(q)||(p.shriId||'').toLowerCase().includes(q)).slice(0,8);if(!matches.length){box.style.display='none';}else{box.innerHTML=matches.map(p=>`<div class="sItem" onclick="selectPatient('${p.shriId||''}','${p.patientName.replace(/'/g,"\\'")}')"><span><b>${p.patientName}</b> - ${p.shriId||''}</span><span style="color:#64748b;font-size:11px">${p.contactNo||''}</span></div>`).join('');box.style.display='block';}curPage=1;render();}
+function onSearch(val){
+ let box=document.getElementById('suggestBox');
+ if(!val.trim()){box.style.display='none';curPage=1;render();return;}
+ let q=val.toLowerCase();
+ let matches=patients.filter(p=>(p.patientName||'').toLowerCase().includes(q)||(p.shriId||'').toLowerCase().includes(q)).slice(0,8);
+ if(!matches.length){box.style.display='none';}
+ else{box.innerHTML=matches.map(p=>`<div class="sItem" onclick="selectPatient('${p.shriId||''}','${p.patientName.replace(/'/g,"\\'")}')"><span><b>${p.patientName}</b> - ${p.shriId||''}</span><span style="color:#64748b;font-size:11px">${p.contactNo||''}</span></div>`).join('');box.style.display='block';}
+ curPage=1;render();
+}
 function selectPatient(shri,name){document.getElementById('search').value=name+' - '+shri;document.getElementById('suggestBox').style.display='none';curPage=1;render();}
 document.addEventListener('click',e=>{if(!e.target.closest('.searchWrap')) document.getElementById('suggestBox').style.display='none';});
 function changePageSize(){pageSize=parseInt(document.getElementById('pageSize').value);curPage=1;render();}
-function render(){let y=yearSel.value,m=document.getElementById('monthSel').value,months=["January","February","March","April","May","June","July","August","September","October","November","December"];let search=document.getElementById('search').value.toLowerCase().split(' - ')[0];document.getElementById('titleH').textContent=`KFT Report - ${months[m]} ${selDate}, ${y} - All ${patients.length} Patients`;document.getElementById('statusHead').textContent=`KFT Status - ${months[m]} ${selDate}, ${y}`;filteredAll=patients.filter(p=>!search.trim()||(p.patientName||'').toLowerCase().includes(search.trim())||(p.shriId||'').toLowerCase().includes(search.trim()));let totalPages=Math.ceil(filteredAll.length/pageSize)||1;if(curPage>totalPages)curPage=totalPages;let start=(curPage-1)*pageSize,end=start+pageSize;let pageData=filteredAll.slice(start,end);document.getElementById('tbl').innerHTML=pageData.map((p,i)=>{let s=p.shriId||p.patientName;let v=load(y,m,s,selDate);let sl=start+i+1;return `<tr><td>${sl}</td><td style="font-weight:700">${p.patientName}</td><td>${p.shriId||''}</td><td>${p.contactNo||''}</td><td><button class="toggle ${v?'yes':'no'}" ${isLocked?'disabled':''} onclick="toggle('${s.replace(/'/g,"\\'")}','${p.patientName.replace(/'/g,"\\'")}')">${v?'Submitted':'Not-yet'}</button></td></tr>`;}).join('')||`<tr><td colspan="5" style="text-align:center">No patients</td></tr>`;let pager=document.getElementById('pager');let html=`<button class="pgBtn" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>Previous</button>`;let maxShow=5;let startP=Math.max(1,curPage-2),endP=Math.min(totalPages,startP+maxShow-1);for(let i=startP;i<=endP;i++)html+=`<button class="pgBtn ${i===curPage?'active':''}" onclick="goPage(${i})">${i}</button>`;if(endP<totalPages)html+=`<span>...</span><button class="pgBtn" onclick="goPage(${totalPages})">${totalPages}</button>`;html+=`<button class="pgBtn" onclick="goPage(${curPage+1})" ${curPage===totalPages?'disabled':''}>Next</button>`;pager.innerHTML=html;document.getElementById('pageInfo').textContent=`Page ${curPage} of ${totalPages} - ${filteredAll.length} of ${patients.length} Patients`;}
+function render(){
+ let y=yearSel.value,m=document.getElementById('monthSel').value,months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+ let rawSearch=document.getElementById('search').value.toLowerCase().trim();
+ let search=rawSearch.split(' - ')[0];
+ document.getElementById('titleH').textContent=`KFT Report - ${months[m]} ${selDate}, ${y} - All ${patients.length} Patients${rawSearch?' | Search: "'+rawSearch+'"':''}`;
+ document.getElementById('statusHead').textContent=`KFT Status - ${months[m]} ${selDate}, ${y}`;
+ filteredAll=patients.filter(p=>!search.trim()||(p.patientName||'').toLowerCase().includes(search.trim())||(p.shriId||'').toLowerCase().includes(search.trim()));
+ let totalPages=Math.ceil(filteredAll.length/pageSize)||1;if(curPage>totalPages)curPage=totalPages;
+ let start=(curPage-1)*pageSize,end=start+pageSize;let pageData=filteredAll.slice(start,end);
+ document.getElementById('tbl').innerHTML=pageData.map((p,i)=>{let s=p.shriId||p.patientName;let v=load(y,m,s,selDate);let sl=start+i+1;return `<tr><td>${sl}</td><td style="font-weight:700">${p.patientName}</td><td>${p.shriId||''}</td><td>${p.contactNo||''}</td><td><button class="toggle ${v?'yes':'no'}" ${isLocked?'disabled':''} onclick="toggle('${s.replace(/'/g,"\\'")}','${p.patientName.replace(/'/g,"\\'")}')">${v?'Submitted':'Not-yet'}</button></td></tr>`;}).join('')||`<tr><td colspan="5" style="text-align:center">No patients found${rawSearch?' for search "'+rawSearch+'"':''} - Clear search to see all</td></tr>`;
+ let pager=document.getElementById('pager');let html=`<button class="pgBtn" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>Previous</button>`;let maxShow=5;let startP=Math.max(1,curPage-2),endP=Math.min(totalPages,startP+maxShow-1);for(let i=startP;i<=endP;i++)html+=`<button class="pgBtn ${i===curPage?'active':''}" onclick="goPage(${i})">${i}</button>`;if(endP<totalPages)html+=`<span>...</span><button class="pgBtn" onclick="goPage(${totalPages})">${totalPages}</button>`;html+=`<button class="pgBtn" onclick="goPage(${curPage+1})" ${curPage===totalPages?'disabled':''}>Next</button>`;pager.innerHTML=html;
+ document.getElementById('pageInfo').textContent=`Page ${curPage} of ${totalPages} - ${filteredAll.length} of ${patients.length} Patients${rawSearch?' | Search: "'+rawSearch+'" - '+filteredAll.length+' found':''}`;
+}
 function goPage(n){let totalPages=Math.ceil(filteredAll.length/pageSize)||1;if(n<1||n>totalPages)return;curPage=n;render();window.scrollTo(0,0);}
 async function toggle(shri, pname){
  if(isLocked){alert('Click EDIT first');return;}
