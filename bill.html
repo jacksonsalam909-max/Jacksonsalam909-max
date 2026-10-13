@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Bill - SHIJA</title>
 <script src="Patient.js"></script>
-<!-- FIREBASE SAME STORAGE - ADDED -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -54,8 +52,8 @@ window.saveToSameStorage = async function(){
 body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:110}
 .top h2{color:#fff;font-size:16px;font-weight:800}
-.menuBtn{width:42px;height:42px;border-radius:10px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer}
-.menuBtn span{display:block;width:20px;height:2px;background:#fff;border-radius:2px}
+.menuBtn{width:42px;height:42px;border-radius:10px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+.menuBtn span{display:block;width:20px;height:2px;background:#fff;border-radius:2px;pointer-events:none}
 .side{width:260px;background:#0a1931;position:fixed;left:-260px;top:64px;bottom:0;z-index:100;transition:left.33s;padding:18px 14px;display:flex;flex-direction:column}
 .side.open{left:0}
 .menu{display:flex;flex-direction:column;gap:8px}
@@ -102,7 +100,7 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 </head>
 <body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='index.html'}</script>
-<div class="top noPrint"><div style="display:flex;align-items:center;gap:10px"><button class="menuBtn" onclick="toggleSide()"><span></span><span></span><span></span></button><h2>SHIJA Dialysis</h2><span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div><div style="display:flex;gap:8px"><button class="btnBlue" onclick="saveToSameStorage()" style="background:#10b981">Save</button><button class="btnBlue" onclick="saveToSameStorage(); setTimeout(()=>window.print(),500)">Save & Print</button><button class="btnBlue" onclick="window.print()">Print</button></div></div>
+<div class="top noPrint"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" onclick="toggleSide()"><span></span><span></span><span></span></button><h2>SHIJA Dialysis</h2><span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div><div style="display:flex;gap:8px"><button class="btnBlue" onclick="saveToSameStorage()" style="background:#10b981">Save</button><button class="btnBlue" onclick="saveToSameStorage(); setTimeout(()=>window.print(),500)">Save & Print</button><button class="btnBlue" onclick="window.print()">Print</button></div></div>
 <div class="sideOverlay" id="overlay" onclick="toggleSide()"></div>
 <div class="side noPrint" id="side"><div class="menu"><a href="index.html">Home</a><a href="total.html">Total Patient</a><a href="daily.html">Daily Dialysis</a><a href="discharge.html">Discharge Patient</a><a href="add.html">Add Patient</a><a href="bill.html" class="active">Bill</a></div><div class="settingBtn"><button onclick="openSettings()">Alignment Settings</button></div></div>
 <div class="content">
@@ -156,6 +154,12 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 </div>
 <script>
 function toggleSide(){let s=document.getElementById('side'),o=document.getElementById('overlay');s.classList.toggle('open');o.classList.toggle('show');}
+document.addEventListener('DOMContentLoaded',()=>{
+ let btn=document.querySelector('.menuBtn');
+ if(btn){
+   btn.addEventListener('touchstart',(e)=>{e.preventDefault(); toggleSide();},{passive:false});
+ }
+});
 function openSettings(){document.getElementById('alignPanel').classList.add('show');let s=document.getElementById('side');if(s.classList.contains('open'))toggleSide();}
 function closeSettings(){document.getElementById('alignPanel').classList.remove('show');}
 let cfg = JSON.parse(localStorage.getItem('shija_full_all')||'null') || {};
