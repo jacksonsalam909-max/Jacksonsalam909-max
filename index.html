@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SHIJA Dialysis Dashboard</title>
 <script src="Patient.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -12,7 +11,8 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 .top{height:64px;background:#1e293b;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #2d3a4f;position:sticky;top:0;z-index:100}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px}
 .logo img{width:38px;height:38px;border-radius:10px;object-fit:contain;background:#fff;padding:3px}
-.menuBtnTop{width:42px;height:36px;border-radius:10px;background:#2563eb;border:0;color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center}
+.menuBtnTop{width:42px;height:36px;border-radius:10px;background:#2563eb;border:0;color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+.menuBtnTop *{pointer-events:none}
 .whiteBar{position:fixed;left:0;top:64px;bottom:0;width:270px;background:#ffffff;transform:translateX(-100%);transition:.35s;z-index:90;padding:16px 10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:4px 0 24px #0003;overflow-y:auto}
 .whiteBar.open{transform:translateX(0)}
 .whiteBar a{display:flex;align-items:center;padding:12px 14px;border-radius:10px;text-decoration:none;color:#334155;font-weight:700;font-size:13px;margin-bottom:5px}
@@ -56,7 +56,7 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 <body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
 <div class="top">
-<div class="logo"><button class="menuBtnTop" onclick="toggleWhiteBar()">☰</button><img src="logoc.png" onerror="this.src='shija.jpg'"> SHIJA Dialysis</div>
+<div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()">☰</button><img src="logoc.png" onerror="this.src='shija.jpg'"> SHIJA Dialysis</div>
 <div class="searchWrap"><div class="search"><input id="globalSearch" placeholder="Search PMJAY & CMHT patients..." oninput="doGlobalSearch()" onfocus="doGlobalSearch()"></div><div class="searchResult" id="searchResult"></div></div>
 <div class="right"><div class="avatar">A</div><div class="adminWrap" id="adminWrap" onclick="toggleDrop(event)"><div>Admin ▼</div><div class="dropdown" id="adminDrop"><button class="dropItem" onclick="logout()">Logout</button></div></div></div>
 </div>
@@ -101,6 +101,10 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 <button class="btn btnG" style="width:100%;margin-top:10px" onclick="closeExport()">Cancel</button></div></div>
 <script>
 function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('open');document.getElementById('whiteOverlay').classList.toggle('show');}
+document.addEventListener('DOMContentLoaded',()=>{
+ let btn=document.querySelector('.menuBtnTop');
+ if(btn){btn.addEventListener('touchstart',(e)=>{e.preventDefault(); toggleWhiteBar();},{passive:false});}
+});
 function toggleDrop(e){e.stopPropagation();document.getElementById('adminDrop').classList.toggle('show');}
 function logout(){if(confirm('Logout now')){localStorage.removeItem('shija_logged');location.href='login.html';}}
 document.addEventListener('click',(e)=>{if(!e.target.closest('.searchWrap'))document.getElementById('searchResult').classList.remove('show');if(!e.target.closest('#adminWrap'))document.getElementById('adminDrop').classList.remove('show');});
