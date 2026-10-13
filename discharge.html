@@ -51,6 +51,10 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 .btn-edit{background:#0a1931;color:#fff}
 .btn-claim-simple{padding:6px 14px;background:#1a56db;color:#fff;border:0;border-radius:8px;font-weight:700;font-size:11px;cursor:pointer}
 .btn-remove-simple{padding:5px 8px;background:#fef2f2;color:#ef4444;border:1px solid #fecaca;border-radius:6px;font-weight:800;font-size:11px;cursor:pointer;margin-left:4px}
+.searchAddedWrap{display:flex;gap:6px;align-items:center}
+.searchAddedWrap input{padding:8px 12px;border-radius:20px;border:1.5px solid #1a56db;min-width:180px;background:#fff;font-weight:600;font-size:12px}
+.btnBlue{background:#1a56db;color:#fff;border:0;padding:8px 14px;border-radius:8px;font-weight:700;font-size:11px;cursor:pointer}
+.btnDark{background:#0a1931;color:#fff;border:0;padding:8px 12px;border-radius:8px;font-weight:700;font-size:11px;cursor:pointer}
 .popup-bg{position:fixed;inset:0;background:#0006;z-index:99;display:none}
 .popupSmall{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:14px;z-index:100;max-width:320px;width:90%;box-shadow:0 20px 50px #0004;display:none;overflow:hidden;animation:pop.18s}
 @keyframes pop{from{transform:translate(-50%,-50%) scale(.95);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
@@ -71,12 +75,11 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 .tabBtn{padding:9px 14px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;font-weight:800;cursor:pointer;font-size:12px;color:#64748b}
 .tabBtn.active{background:#1a56db;color:#fff;border-color:#1a56db}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0a1931;color:#fff;padding:10px 16px;border-radius:10px;font-size:12px;z-index:200;display:none;font-weight:700}
-@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}}
+@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}.searchAddedWrap{width:100%}.searchAddedWrap input{flex:1;min-width:0}}
 </style>
 </head>
 <body>
 <script>if(localStorage.getItem('shija_logged')!=='1') location.href='login.html';</script>
-
 <div class="top">
 <div style="display:flex;align-items:center;gap:10px">
 <button class="menuBtn" onclick="toggleSide()">
@@ -87,7 +90,6 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 <div class="adBadge"><div class="adCircle">AD</div><span style="font-weight:700;font-size:13px">Admin</span></div>
 </div>
 <div class="sideOverlay" id="overlay" onclick="toggleSide()"></div>
-
 <div class="mainWrap">
 <div class="side" id="side">
 <div class="menu">
@@ -105,13 +107,11 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 </div>
 <div class="sideBottom">Help and Support<br>v2.4.1 | <span id="fbStatus">Connected</span></div>
 </div>
-
 <div class="content" id="content">
 <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:14px">
 <div><h1 style="font-size:32px;font-weight:900;letter-spacing:-1px">Discharge Patient</h1><div class="bread">Dashboard / Discharge Patient - Date wise list</div></div>
 <div style="display:flex;gap:8px"><button class="btn btn-save" id="saveMainBtn" onclick="saveLock()">SAVE</button><button class="btn btn-edit" id="editMainBtn" onclick="editLock()" style="display:none">EDIT</button></div>
 </div>
-
 <div class="card">
 <div class="boxRow">
 <div class="box"><label>Date</label><input type="date" id="disDate" onchange="onDateChange()"></div>
@@ -119,30 +119,30 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 <div class="box"><label>Block Filter</label><select id="blockFilter" onchange="currentPage=1;renderList();renderClaimList();"><option value="All">All Block</option><option value="Main">Main</option><option value="Itocha">Itocha</option><option value="Eastern">Eastern</option></select></div>
 <div class="box" style="flex:0 0 120px"><label>Per Page</label><select id="pageSize" onchange="changePageSize()"><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option><option value="100000">All</option></select></div>
 </div>
-
 <div class="search-wrap"><input id="search" placeholder="Type min 2 letters of NAME..." autocomplete="off" oninput="showHints()" onfocus="showHints()"><div class="suggest" id="suggest"></div><div class="count" id="cnt"></div></div>
-
 <div class="tabBar"><button class="tabBtn active" id="tabDisBtn" onclick="switchTab('dis')"> Discharged - <span id="listCount">0</span></button><button class="tabBtn" id="tabClaimBtn" onclick="switchTab('claim')"> Claim - <span id="claimCount">0</span></button></div>
-
 <div class="list-box" id="disTab">
 <div class="list-head">
 <div style="font-weight:800;font-size:12px"><span id="headDate">Discharged List</span> | Time: <span id="headTime">All</span> | Block: <span id="headBlock">All</span></div>
-<div style="display:flex;gap:6px;align-items:center"><button class="pgBtn" onclick="prevPage()">Prev</button><span id="pageInfo" style="font-size:11px;font-weight:700">Page 1</span><button class="pgBtn" onclick="nextPage()">Next</button></div>
+<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+<div class="searchAddedWrap">
+<input id="searchAdded" placeholder="Search Added List (Name / SHRI)" oninput="currentPage=1;renderList()" autocomplete="off">
+<button class="btnBlue" onclick="currentPage=1;renderList()">Search</button>
+<button class="btnDark" onclick="document.getElementById('searchAdded').value='';renderList()">Clear</button>
+</div>
+<button class="pgBtn" onclick="prevPage()">Prev</button><span id="pageInfo" style="font-size:11px;font-weight:700">Page 1</span><button class="pgBtn" onclick="nextPage()">Next</button>
+</div>
 </div>
 <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>PMJAY ID</th><th>Time</th><th>Block</th><th>Action</th></tr></thead><tbody id="selectedBody"></tbody></table></div>
 </div>
-
 <div class="list-box" id="claimTab" style="display:none">
 <div class="list-head"><div style="font-weight:800;font-size:12px"> Claim List | <span id="claimHeadDate">All</span> | <span id="claimHeadTime">All</span> | <span id="claimHeadBlock">All</span></div><div><button class="btn" style="background:#0a1931;color:#fff;padding:7px 12px;font-size:11px" onclick="exportClaimExcel()">Export Excel</button></div></div>
 <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Sl No</th><th>Name</th><th>PMJAY ID</th><th>SHRI ID</th><th>Claim ID</th><th>Date</th><th>Time</th><th>Block</th><th>Action</th></tr></thead><tbody id="claimBody"></tbody></table></div>
 </div>
-
 </div>
 </div>
 </div>
-
 <div class="popup-bg" id="popupBg" onclick="closeAll()"></div>
-
 <div class="popupSmall c-blue" id="popupTime">
 <div class="popHead"><h4>Select Time</h4><p>Choose dialysis time slot</p></div>
 <div class="time-grid">
@@ -155,7 +155,6 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 </div>
 <div class="popInfo">All slots are checked for availability</div>
 </div>
-
 <div class="popupSmall c-orange" id="popupBlock">
 <div class="popHead"><h4>Select Block</h4><p>Choose block for this discharge</p></div>
 <div class="time-grid">
@@ -165,14 +164,11 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 </div>
 <div class="popInfo">Blocks assigned based on location</div>
 </div>
-
 <div class="popupSmall c-red" id="popupClaim">
 <div class="popHead"><h4>Enter Claim ID</h4><p id="claimPopInfo">Enter claim details</p></div>
 <div style="padding:10px"><input id="claimIdInput" placeholder="Enter Claim ID" style="width:100%;padding:11px;border:1.5px solid #e5e7eb;border-radius:10px;outline:0;font-weight:600"><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" style="flex:1;background:#0a1931;color:#fff" onclick="confirmClaimWithId()">Save</button><button class="btn" style="flex:1;background:#f8fafc;color:#0f172a;border:1.5px solid #e5e7eb" onclick="closeClaimPopup()">Cancel</button></div></div>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -182,7 +178,6 @@ const db = getFirestore(app);
 window.fb_db = db;window.fb_addDoc = addDoc;window.fb_collection = collection;window.fb_serverTimestamp = serverTimestamp;
 document.getElementById('fbStatus').innerText = "Connected";
 </script>
-
 <script>
 function toggleSide(){
  let s=document.getElementById('side');
@@ -205,17 +200,14 @@ function getName(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().inclu
 function getShri(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z]/g,'')==='shriid')||ks.find(x=>x.toLowerCase().includes('shri'));return k? p[k] : (p.id||p.ID||'-');}
 function getPmjay(p){if(!p) return '-';let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z0-9]/g,'')==='pmjayid')||ks.find(x=>x.toLowerCase().includes('pmjay'));return k&&p[k]?p[k]:p.pmjay||p.PMJAY||'-';}
 function getAll(){let excel=(typeof patientData!=='undefined')?patientData:[];let local=JSON.parse(localStorage.getItem('shija_patients')||'[]');return [...excel,...local];}
-
 function getLockKey(){return `dis_lock_${document.getElementById('disDate').value}`;}
 function isLocked(){return localStorage.getItem(getLockKey())==='1';}
 function checkLockUI(){let locked=isLocked();document.getElementById('saveMainBtn').style.display=locked?'none':'inline-block';document.getElementById('editMainBtn').style.display=locked?'inline-block':'none';}
 function saveLock(){localStorage.setItem(getLockKey(),'1');checkLockUI();renderList();showToast('Saved and Locked for '+document.getElementById('disDate').value);}
 function editLock(){localStorage.setItem(getLockKey(),'0');checkLockUI();renderList();showToast('Edit mode enabled');}
-
 function onDateChange(){currentPage=1;checkLockUI();renderList();renderClaimList();updateLabels();}
 function updateLabels(){let d=document.getElementById('disDate').value;let t=document.getElementById('timeFilter').value;let b=document.getElementById('blockFilter').value;document.getElementById('headDate').innerText=d;document.getElementById('headTime').innerText=t;document.getElementById('headBlock').innerText=b;document.getElementById('claimHeadDate').innerText=d;document.getElementById('claimHeadTime').innerText=t;document.getElementById('claimHeadBlock').innerText=b;}
 function switchTab(t){document.getElementById('disTab').style.display=t==='dis'?'block':'none';document.getElementById('claimTab').style.display=t==='claim'?'block':'none';document.getElementById('tabDisBtn').classList.toggle('active',t==='dis');document.getElementById('tabClaimBtn').classList.toggle('active',t==='claim');if(t==='claim') renderClaimList(); else renderList();}
-
 function showHints(){
  let q=document.getElementById('search').value.trim().toLowerCase();
  let all=getAll();
@@ -239,7 +231,6 @@ function selectPatient(i){
 }
 function closeAll(){document.getElementById('popupTime').style.display='none';document.getElementById('popupBlock').style.display='none';document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';}
 function closeClaimPopup(){document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';tempClaimIndex=null;document.getElementById('claimIdInput').value='';}
-
 function selectTime(t){
  tempTime=t;
  document.getElementById('popupTime').style.display='none';
@@ -256,22 +247,36 @@ async function selectBlock(b){
  closeAll(); currentPage=1; renderList(); showToast(`Added ${tempPatient.name} - ${tempTime} - ${b}`);
  tempPatient=null;tempTime='';
 }
-
-function getFilteredDischarge(){let curDate=document.getElementById('disDate').value;let timeF=document.getElementById('timeFilter').value;let blockF=document.getElementById('blockFilter').value;let list=selectedList.filter(d=>d.date===curDate);if(timeF!=='All') list=list.filter(d=>d.time===timeF);if(blockF!=='All') list=list.filter(d=>(d.block||'')===blockF);return list;}
-
+function getFilteredDischarge(){
+ let curDate=document.getElementById('disDate').value;
+ let timeF=document.getElementById('timeFilter').value;
+ let blockF=document.getElementById('blockFilter').value;
+ let searchAdded=document.getElementById('searchAdded').value.toLowerCase().trim();
+ let list=selectedList.filter(d=>d.date===curDate);
+ if(timeF!=='All') list=list.filter(d=>d.time===timeF);
+ if(blockF!=='All') list=list.filter(d=>(d.block||'')===blockF);
+ if(searchAdded){
+   list=list.filter(d=>{
+     let n=(d.name||'').toLowerCase();
+     let s=(d.shri||'').toLowerCase();
+     let p=(d.pmjay||'').toLowerCase();
+     return n.includes(searchAdded)||s.includes(searchAdded)||p.includes(searchAdded);
+   });
+ }
+ return list;
+}
 function changePageSize(){pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderList();}
 function prevPage(){if(currentPage>1){currentPage--;renderList();}}
 function nextPage(){let filtered=getFilteredDischarge();let tp=Math.ceil(filtered.length/pageSize);if(currentPage<tp){currentPage++;renderList();}}
-
 function renderList(){
  updateLabels();checkLockUI();
  let filteredList=getFilteredDischarge();
  let totalForDate=selectedList.filter(d=>d.date===document.getElementById('disDate').value).length;
  document.getElementById('listCount').innerText=totalForDate;
  let tp=Math.ceil(filteredList.length/pageSize)||1; if(currentPage>tp) currentPage=tp;
- document.getElementById('pageInfo').innerText=`Page ${currentPage} of ${tp}`;
+ document.getElementById('pageInfo').innerText=`Page ${currentPage} of ${tp}${document.getElementById('searchAdded').value?' | Search: "'+document.getElementById('searchAdded').value+'" - '+filteredList.length+' found':''}`;
  let body=document.getElementById('selectedBody');
- if(!filteredList.length){body.innerHTML=`<tr><td colspan="7" style="padding:30px;text-align:center;color:#64748b">No patient for ${document.getElementById('disDate').value} | ${document.getElementById('timeFilter').value} | ${document.getElementById('blockFilter').value}</td></tr>`;return;}
+ if(!filteredList.length){body.innerHTML=`<tr><td colspan="7" style="padding:30px;text-align:center;color:#64748b">No patient for ${document.getElementById('disDate').value} | ${document.getElementById('timeFilter').value} | ${document.getElementById('blockFilter').value}${document.getElementById('searchAdded').value?' | Search "'+document.getElementById('searchAdded').value+'" not found in added list':''}</td></tr>`;return;}
  let start=(currentPage-1)*pageSize;let pageData=filteredList.slice(start,start+pageSize);
  body.innerHTML=pageData.map((d,i)=>{
   let realIdx=selectedList.indexOf(d);
