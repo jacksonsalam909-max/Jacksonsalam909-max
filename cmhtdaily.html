@@ -60,7 +60,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .hintBox{font-size:11px;color:#64748b;margin-top:6px}
 .selectedInfo{background:#ede9fe;border:1px solid #ddd6fe;padding:8px 12px;border-radius:8px;font-size:13px;color:#5b21b6;font-weight:600;display:none;margin-top:8px}
 .selectedInfo.show{display:block}
-@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}.row2{flex-wrap:nowrap}.mainHintWrap{min-width:0;flex:1}.searchAddedWrap{width:100%;margin-left:0;border-left:0;padding-left:0;margin-top:6px}.searchAddedWrap input{flex:1;min-width:0}}
+@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}.row2{flex-wrap:wrap}.mainHintWrap{min-width:0;flex:1 1 100%;max-width:100%}.searchAddedWrap{width:100%;margin-left:0;border-left:0;padding-left:0;margin-top:6px}.searchAddedWrap input{flex:1;min-width:0}}
 </style>
 </head>
 <body>
@@ -83,8 +83,20 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <h1>CMHT Daily Dialysis List</h1><p style="color:#64748b;font-size:13px" id="subInfo">Type patient name to see details from CMHT Total Patient - Firebase Auto Save ON - Use Arrow Keys + Enter</p>
 
 <div class="filterBox">
-<div class="row1">
-<input type="date" id="listDate" onchange="loadList()">
+<!-- TOP: Date + Add Patient Search + Add Button -->
+<div class="row1" style="background:#f8fafc;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;margin-bottom:14px">
+<input type="date" id="listDate" onchange="loadList()" style="min-width:160px">
+<div class="mainHintWrap">
+<input id="searchList" class="searchInputMain" placeholder="Type name / SHRI ID... (use ↑ ↓ arrow keys + Enter to select)" oninput="onMainSearchInput()" onfocus="onMainSearchInput()" autocomplete="off">
+<div class="mainHintList" id="mainHintList"></div>
+</div>
+<button class="btn btnAdd" id="addBtnMain" onclick="onAddFromMain()" disabled>+ Add Patient</button>
+</div>
+<div class="selectedInfo" id="selectedInfo"></div>
+<div class="hintBox" style="margin-bottom:12px">Live hint from <b>cmht.html / cmht_patients</b> - Type name → Use Arrow Up/Down + Enter to select → Then click + Add Patient | Auto save Firebase - Visible all computers</div>
+
+<!-- BOTTOM: Filter Time, Block, Page, Search Already Added List -->
+<div class="row2" style="flex-wrap:wrap">
 <select id="timeFilter" onchange="applyFilters()"><option value="">All Time</option><option>7AM</option><option>12PM</option><option>5PM</option><option>9PM</option><option>12AM</option><option>2AM</option></select>
 <select id="blockFilter" onchange="applyFilters()"><option value="">All Block</option><option>Itocha</option><option>Main</option></select>
 <select id="pageSize" onchange="renderTable()"><option value="10">10 / page</option><option value="20">20 / page</option><option value="30">30 / page</option><option value="40">40 / page</option><option value="50">50 / page</option></select>
@@ -96,16 +108,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 </div>
 <span id="totalInfo" style="font-weight:700;color:#475569;margin-left:8px"></span>
 </div>
-
-<div class="row2">
-<div class="mainHintWrap">
-<input id="searchList" class="searchInputMain" placeholder="Type name / SHRI ID... (use ↑ ↓ arrow keys + Enter to select)" oninput="onMainSearchInput()" onfocus="onMainSearchInput()" autocomplete="off">
-<div class="mainHintList" id="mainHintList"></div>
-</div>
-<button class="btn btnAdd" id="addBtnMain" onclick="onAddFromMain()" disabled>+ Add Patient</button>
-</div>
-<div class="selectedInfo" id="selectedInfo"></div>
-<div class="hintBox">Live hint from <b>cmht.html / cmht_patients</b> - Type name → Use Arrow Up/Down + Enter to select → Then click + Add Patient | Auto save Firebase - Visible all computers | Added List Search: filters table below</div>
+<div class="hintBox">Filter by Time / Block / Search patient already in list below</div>
 </div>
 
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div id="pageInfo" style="font-weight:600;color:#475569"></div><div id="pageNums" style="display:flex;gap:4px"></div></div></div>
