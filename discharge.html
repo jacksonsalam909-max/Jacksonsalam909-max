@@ -8,22 +8,20 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
 body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;color:#0f172a}
-.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:100}
+.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:9999}
 .top h2{color:#fff;font-size:16px;font-weight:800}
-.menuBtn{width:36px;height:36px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;color:#fff;display:grid;place-items:center;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
-.menuBtn *{pointer-events:none}
-.mainWrap{display:flex;flex:1;min-height:calc(100vh - 64px)}
-.side{width:230px;min-width:230px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:16px 10px;position:fixed;left:0;top:64px;height:calc(100vh - 64px);transition:transform.3s ease;z-index:90}
-.side.closed{transform:translateX(-100%)}
+.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.menuBtn span{display:block;width:20px;height:2px;background:#fff;pointer-events:none}
+.mainWrap{display:flex;flex:1;margin-top:64px}
+.side{width:260px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;z-index:9998;transition:.3s;transform:translateX(-100%);overflow-y:auto}
+.side.show{transform:translateX(0)!important}
 .menu{display:flex;flex-direction:column;gap:4px}
 .menu a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px}
 .menu a.active{background:#1a56db;color:#fff;font-weight:700}
-.menu a:hover{background:#13264d;color:#fff}
 .sideBottom{border-top:1px solid #1a2a4f;padding:12px 10px;color:#6b7aa2;font-size:11px}
-.sideOverlay{position:fixed;inset:0;top:64px;background:#0005;z-index:80;display:none}
+.sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,0.5);z-index:9997;display:none}
 .sideOverlay.show{display:block}
-.content{flex:1;padding:16px 14px;max-width:1200px;width:100%;margin-left:230px;transition:margin.3s ease}
-.content.full{margin-left:0;max-width:100%}
+.content{flex:1;padding:16px 14px;max-width:1200px;width:100%}
 .card{background:#fff;border-radius:16px;box-shadow:0 10px 30px #00000008;border:1px solid #e5e7eb;padding:14px;margin-bottom:14px}
 .boxRow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:12px}
 .box{flex:1;min-width:140px;background:#f8fafc;padding:10px 12px;border-radius:12px;border:1.5px solid #e5e7eb}
@@ -49,8 +47,8 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 .searchAddedWrap input{padding:8px 12px;border-radius:20px;border:1.5px solid #1a56db;min-width:180px;background:#fff;font-weight:600;font-size:12px}
 .btnBlue{background:#1a56db;color:#fff;border:0;padding:8px 14px;border-radius:8px;font-weight:700;font-size:11px;cursor:pointer}
 .btnDark{background:#0a1931;color:#fff;border:0;padding:8px 12px;border-radius:8px;font-weight:700;font-size:11px;cursor:pointer}
-.popup-bg{position:fixed;inset:0;background:#0006;z-index:99;display:none}
-.popupSmall{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:14px;z-index:100;max-width:320px;width:90%;box-shadow:0 20px 50px #0004;display:none;overflow:hidden}
+.popup-bg{position:fixed;inset:0;background:#0006;z-index:10000;display:none}
+.popupSmall{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:14px;z-index:10001;max-width:320px;width:90%;box-shadow:0 20px 50px #0004;display:none;overflow:hidden}
 .popHead{padding:12px 14px}
 .time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:10px}
 .time-btn{padding:10px 4px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;font-weight:800;cursor:pointer;font-size:12px}
@@ -63,13 +61,13 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 .tabBar{display:flex;gap:8px;margin-top:16px}
 .tabBtn{padding:9px 14px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;font-weight:800;cursor:pointer;font-size:12px;color:#64748b}
 .tabBtn.active{background:#1a56db;color:#fff;border-color:#1a56db}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0a1931;color:#fff;padding:10px 16px;border-radius:10px;font-size:12px;z-index:200;display:none;font-weight:700}
-@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}.searchAddedWrap{width:100%}.searchAddedWrap input{flex:1;min-width:0}.topRow{flex-direction:column;align-items:stretch}}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0a1931;color:#fff;padding:10px 16px;border-radius:10px;font-size:12px;z-index:10002;display:none;font-weight:700}
+@media(max-width:900px){.searchAddedWrap{width:100%}.searchAddedWrap input{flex:1;min-width:0}.topRow{flex-direction:column;align-items:stretch}}
 </style>
 </head>
 <body>
-<div class="top"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" onclick="toggleSide()">☰</button><h2>SHIJA - Discharge (Auto Sync All PCs)</h2></div><span style="color:#fff;font-size:12px" id="fbStatus">Connecting...</span></div>
-<div class="sideOverlay" id="overlay" onclick="toggleSide()"></div>
+<div class="top"><div style="display:flex;align-items:center;gap:10px"><div class="menuBtn" id="menuBtn" onclick="toggleMenu()"><span></span><span></span><span></span></div><h2>SHIJA - Discharge (Auto Sync All PCs)</h2></div><span style="color:#fff;font-size:12px" id="fbStatus">Connecting...</span></div>
+<div class="sideOverlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="mainWrap">
 <div class="side" id="side">
 <div class="menu">
@@ -151,21 +149,22 @@ document.getElementById('fbStatus').innerText="Firebase Connected - Auto Sync ON
 document.getElementById('fbStatus2').innerText="Auto Save ON";
 </script>
 <script>
-function toggleSide(){
- let s=document.getElementById('side');
- let c=document.getElementById('content');
- let o=document.getElementById('overlay');
- if(window.innerWidth<=900){
-   s.classList.toggle('open');
-   if(o) o.classList.toggle('show');
+function toggleMenu(){
+ var s=document.getElementById('side');
+ var o=document.getElementById('overlay');
+ if(s.className.indexOf('show')===-1){
+   s.className='side show';
+   o.className='sideOverlay show';
  }else{
-   s.classList.toggle('closed');
-   c.classList.toggle('full');
+   s.className='side';
+   o.className='sideOverlay';
  }
 }
-document.addEventListener('DOMContentLoaded',()=>{
- let btn=document.querySelector('.menuBtn');
- if(btn){btn.addEventListener('touchstart',(e)=>{e.preventDefault(); toggleSide();},{passive:false});}
+document.addEventListener('DOMContentLoaded',function(){
+ var b=document.getElementById('menuBtn');
+ if(b){
+   b.addEventListener('touchstart',function(e){e.preventDefault();toggleMenu();},{passive:false});
+ }
 });
 document.getElementById('disDate').valueAsDate=new Date();
 let selectedList=[]; let claimListFB=[];
