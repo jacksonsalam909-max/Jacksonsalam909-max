@@ -6,25 +6,26 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Inter}
 body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
-.top{height:64px;background:#0a1931;display:flex;align-items:center;padding:0 14px;justify-content:space-between;position:sticky;top:0;z-index:10}
+.top{height:64px;background:#0a1931;display:flex;align-items:center;padding:0 14px;justify-content:space-between;position:fixed;top:0;left:0;right:0;z-index:9999}
 .top h2{color:#fff;font-size:16px;font-weight:800}
-.menuBtn{width:36px;height:36px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;color:#fff;display:grid;place-items:center;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
-.menuBtn *{pointer-events:none}
-.mainWrap{display:flex;flex:1}
-.side{width:230px;background:#0a1931;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;transition:transform.3s;z-index:90}
-.side.closed{transform:translateX(-100%)}
+.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.menuBtn span{display:block;width:20px;height:2px;background:#fff;pointer-events:none}
+.mainWrap{display:flex;flex:1;margin-top:64px}
+.side{width:260px;background:#0a1931;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;z-index:9998;overflow-y:auto;transition:0.3s;transform:translateX(-100%)}
+.side.show{transform:translateX(0)!important}
 .side a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px;display:block;margin-bottom:4px}
-.side a.active{background:#13264d;color:#fff;border-left:3px solid #1a56db}
-.content{flex:1;margin-left:230px;padding:20px;transition:margin.3s}
-.content.full{margin-left:0}
+.side a.active{background:#13264d;color:#fff}
+.content{flex:1;padding:20px}
+.sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,0.5);z-index:9997;display:none}
+.sideOverlay.show{display:block}
 .box{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:24px;max-width:700px;width:100%}
 .box input{width:100%;padding:13px;border:1.5px solid #cbd5e1;border-radius:10px;margin:9px 0;font-size:14px}
 .btn{width:100%;padding:13px;background:#1868db;color:#fff;border:0;border-radius:10px;font-weight:800;cursor:pointer;margin-top:12px;font-size:15px}
-@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.content{margin-left:0!important}}
 </style>
 </head>
 <body>
-<div class="top"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" onclick="toggleSide()"><div style="display:flex;flex-direction:column;gap:4px"><div style="width:18px;height:2px;background:#fff"></div><div style="width:18px;height:2px;background:#fff"></div><div style="width:18px;height:2px;background:#fff"></div></div></button><h2>SHIJA Dialysis Management</h2></div><span style="color:#fff">Admin</span></div>
+<div class="top"><div style="display:flex;align-items:center;gap:10px"><div class="menuBtn" id="menuBtn" onclick="toggleMenu()"><span></span><span></span><span></span></div><h2>SHIJA Dialysis Management</h2></div><span style="color:#fff">Admin</span></div>
+<div class="sideOverlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="mainWrap">
 <div class="side" id="side">
 <a href="index.html">Home</a>
@@ -53,20 +54,21 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 </div>
 
 <script>
-function toggleSide(){
- let s=document.getElementById('side');
- let c=document.getElementById('content');
- if(window.innerWidth<=900){
-  s.classList.toggle('open');
+function toggleMenu(){
+ var s=document.getElementById('side');
+ var o=document.getElementById('overlay');
+ if(s.className.indexOf('show')===-1){
+   s.className='side show';
+   o.className='sideOverlay show';
  }else{
-  s.classList.toggle('closed');
-  c.classList.toggle('full');
+   s.className='side';
+   o.className='sideOverlay';
  }
 }
-document.addEventListener('DOMContentLoaded',()=>{
- let btn=document.querySelector('.menuBtn');
- if(btn){
-   btn.addEventListener('touchstart',(e)=>{e.preventDefault(); toggleSide();},{passive:false});
+document.addEventListener('DOMContentLoaded',function(){
+ var b=document.getElementById('menuBtn');
+ if(b){
+   b.addEventListener('touchstart',function(e){e.preventDefault();toggleMenu();},{passive:false});
  }
 });
 </script>
