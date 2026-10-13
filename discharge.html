@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Discharge Patient - SHIJA</title>
 <script src="Patient.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -11,7 +10,8 @@
 body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;color:#0f172a}
 .top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:100}
 .top h2{color:#fff;font-size:16px;font-weight:800}
-.menuBtn{width:36px;height:36px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;color:#fff;display:grid;place-items:center;cursor:pointer}
+.menuBtn{width:36px;height:36px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;color:#fff;display:grid;place-items:center;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+.menuBtn *{pointer-events:none}
 .mainWrap{display:flex;flex:1;min-height:calc(100vh - 64px)}
 .side{width:230px;min-width:230px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:16px 10px;position:fixed;left:0;top:64px;height:calc(100vh - 64px);transition:transform.3s ease;z-index:90}
 .side.closed{transform:translateX(-100%)}
@@ -68,7 +68,7 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 </style>
 </head>
 <body>
-<div class="top"><div style="display:flex;align-items:center;gap:10px"><button class="menuBtn" onclick="toggleSide()">☰</button><h2>SHIJA - Discharge (Auto Sync All PCs)</h2></div><span style="color:#fff;font-size:12px" id="fbStatus">Connecting...</span></div>
+<div class="top"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" onclick="toggleSide()">☰</button><h2>SHIJA - Discharge (Auto Sync All PCs)</h2></div><span style="color:#fff;font-size:12px" id="fbStatus">Connecting...</span></div>
 <div class="sideOverlay" id="overlay" onclick="toggleSide()"></div>
 <div class="mainWrap">
 <div class="side" id="side">
@@ -103,7 +103,6 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 <div class="box" style="flex:0 0 120px"><label>Per Page</label><select id="pageSize" onchange="changePageSize()"><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option><option value="100000">All</option></select></div>
 </div>
 <div class="tabBar"><button class="tabBtn active" id="tabDisBtn" onclick="switchTab('dis')"> Discharged - <span id="listCount">0</span> Firebase</button><button class="tabBtn" id="tabClaimBtn" onclick="switchTab('claim')"> Claim - <span id="claimCount">0</span> Firebase</button></div>
-
 <div class="list-box" id="disTab">
 <div class="list-head">
 <div style="font-weight:800;font-size:12px"><span id="headDate">Discharged List</span> | <span id="headTime">All</span> | <span id="headBlock">All</span></div>
@@ -118,7 +117,6 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 </div>
 <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>PMJAY ID</th><th>Time</th><th>Block</th><th>Action</th></tr></thead><tbody id="selectedBody"></tbody></table></div>
 </div>
-
 <div class="list-box" id="claimTab" style="display:none">
 <div class="list-head">
 <div style="font-weight:800;font-size:12px"> Claim List | <span id="claimHeadDate">All</span> | <span id="claimHeadTime">All</span> | <span id="claimHeadBlock">All</span></div>
@@ -133,17 +131,14 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 </div>
 <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Sl No</th><th>Name</th><th>PMJAY ID</th><th>SHRI ID</th><th>Claim ID</th><th>Date</th><th>Time</th><th>Block</th><th>Action</th></tr></thead><tbody id="claimBody"></tbody></table></div>
 </div>
-
 </div>
 </div>
 </div>
-
 <div class="popup-bg" id="popupBg" onclick="closeAll()"></div>
 <div class="popupSmall c-blue" id="popupTime" style="display:none"><div class="popHead"><h4>Select Time</h4><p>Choose dialysis time slot</p></div><div class="time-grid"><button class="time-btn" onclick="selectTime('7am')">7am</button><button class="time-btn" onclick="selectTime('12pm')">12pm</button><button class="time-btn" onclick="selectTime('5pm')">5pm</button><button class="time-btn" onclick="selectTime('9pm')">9pm</button><button class="time-btn" onclick="selectTime('12am')">12am</button><button class="time-btn" onclick="selectTime('2am')">2am</button></div><div class="popInfo">All slots checked</div></div>
 <div class="popupSmall c-orange" id="popupBlock" style="display:none"><div class="popHead"><h4>Select Block</h4><p>Choose block</p></div><div class="time-grid"><button class="time-btn" onclick="selectBlock('Main')">Main</button><button class="time-btn" onclick="selectBlock('Itocha')">Itocha</button><button class="time-btn" onclick="selectBlock('Eastern')">Eastern</button></div><div class="popInfo">Blocks assigned</div></div>
 <div class="popupSmall c-red" id="popupClaim" style="display:none"><div class="popHead"><h4>Enter Claim ID</h4><p id="claimPopInfo">Enter claim details</p></div><div style="padding:10px"><input id="claimIdInput" placeholder="Enter Claim ID" style="width:100%;padding:11px;border:1.5px solid #e5e7eb;border-radius:10px;outline:0;font-weight:600"><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" style="flex:1;background:#0a1931;color:#fff" onclick="confirmClaimWithId()">Save to Firebase</button><button class="btn" style="flex:1;background:#f8fafc;border:1.5px solid #e5e7eb" onclick="closeClaimPopup()">Cancel</button></div></div></div>
 <div class="toast" id="toast"></div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -155,9 +150,23 @@ window.fb={collection,addDoc,getDocs,query,where,deleteDoc,doc,serverTimestamp};
 document.getElementById('fbStatus').innerText="Firebase Connected - Auto Sync ON";
 document.getElementById('fbStatus2').innerText="Auto Save ON";
 </script>
-
 <script>
-function toggleSide(){let s=document.getElementById('side');let c=document.getElementById('content');let o=document.getElementById('overlay');if(innerWidth<=900){s.classList.toggle('open');o.classList.toggle('show');}else{s.classList.toggle('closed');c.classList.toggle('full');}}
+function toggleSide(){
+ let s=document.getElementById('side');
+ let c=document.getElementById('content');
+ let o=document.getElementById('overlay');
+ if(window.innerWidth<=900){
+   s.classList.toggle('open');
+   if(o) o.classList.toggle('show');
+ }else{
+   s.classList.toggle('closed');
+   c.classList.toggle('full');
+ }
+}
+document.addEventListener('DOMContentLoaded',()=>{
+ let btn=document.querySelector('.menuBtn');
+ if(btn){btn.addEventListener('touchstart',(e)=>{e.preventDefault(); toggleSide();},{passive:false});}
+});
 document.getElementById('disDate').valueAsDate=new Date();
 let selectedList=[]; let claimListFB=[];
 let currentPage=1,pageSize=10,tempPatient=null,tempTime='',tempClaimIndex=null, tempClaimFbId=null;
@@ -167,7 +176,6 @@ function getName(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().inclu
 function getShri(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z]/g,'')==='shriid')||ks.find(x=>x.toLowerCase().includes('shri'));return k? p[k] : (p.id||p.ID||'-');}
 function getPmjay(p){if(!p) return '-';let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z0-9]/g,'')==='pmjayid')||ks.find(x=>x.toLowerCase().includes('pmjay'));return k&&p[k]?p[k]:p.pmjay||p.PMJAY||'-';}
 function getAll(){let excel=(typeof patientData!=='undefined')?patientData:[];let local=JSON.parse(localStorage.getItem('shija_patients')||'[]');return [...excel,...local];}
-
 async function loadFromFirebase(){
  let dateVal=document.getElementById('disDate').value;
  if(!dateVal) return;
@@ -187,10 +195,8 @@ async function loadFromFirebase(){
   currentPage=1; renderList(); renderClaimList(); updateLabels();
  }catch(e){document.getElementById('fbStatus').textContent='Error: '+e.message;}
 }
-
 function updateLabels(){let d=document.getElementById('disDate').value;let t=document.getElementById('timeFilter').value;let b=document.getElementById('blockFilter').value;document.getElementById('headDate').innerText=d;document.getElementById('headTime').innerText=t;document.getElementById('headBlock').innerText=b;document.getElementById('claimHeadDate').innerText=d;document.getElementById('claimHeadTime').innerText=t;document.getElementById('claimHeadBlock').innerText=b;}
 function switchTab(t){document.getElementById('disTab').style.display=t==='dis'?'block':'none';document.getElementById('claimTab').style.display=t==='claim'?'block':'none';document.getElementById('tabDisBtn').classList.toggle('active',t==='dis');document.getElementById('tabClaimBtn').classList.toggle('active',t==='claim');if(t==='claim') renderClaimList(); else renderList();}
-
 function showHints(){
  let q=document.getElementById('search').value.trim().toLowerCase();
  let all=getAll();
@@ -213,7 +219,6 @@ function selectPatient(i){
 function closeAll(){document.getElementById('popupTime').style.display='none';document.getElementById('popupBlock').style.display='none';document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';}
 function closeClaimPopup(){document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';tempClaimIndex=null;tempClaimFbId=null;document.getElementById('claimIdInput').value='';}
 function selectTime(t){tempTime=t;document.getElementById('popupTime').style.display='none';document.getElementById('popupBlock').style.display='block';}
-
 async function selectBlock(b){
  if(!tempPatient ||!tempTime) return;
  let curDate=document.getElementById('disDate').value;
@@ -228,7 +233,6 @@ async function selectBlock(b){
   await loadFromFirebase();
  }catch(e){document.getElementById('fbStatus').textContent='Save Error: '+e.message; alert(e.message);}
 }
-
 function getFilteredDischarge(){
  let curDate=document.getElementById('disDate').value;
  let timeF=document.getElementById('timeFilter').value;
@@ -250,7 +254,6 @@ function getFilteredDischarge(){
 function changePageSize(){pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderList();}
 function prevPage(){if(currentPage>1){currentPage--;renderList();}}
 function nextPage(){let filtered=getFilteredDischarge();let tp=Math.ceil(filtered.length/pageSize);if(currentPage<tp){currentPage++;renderList();}}
-
 function renderList(){
  updateLabels();
  let filteredList=getFilteredDischarge();
