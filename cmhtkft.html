@@ -36,11 +36,18 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .btn{padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}
 .btnExp{background:#0a1931;color:#fff}
 @media(max-width:900px){.searchAddedWrap{width:100%;margin-left:0;border-left:0;padding-left:0}}
+/* --- ONLY ADDED: Pagination Styles --- */
+.pageBar{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px 14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:12px}
+.pageBar select{padding:8px 10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700}
+.pageBtns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pageBtns button{padding:8px 12px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:800;cursor:pointer}
+.pageBtns button:disabled{opacity:.4;cursor:not-allowed}
+.pageBtns button.active{background:#0a1931;color:#fff;border-color:#0a1931}
 </style>
 </head>
 <body>
-<div class="top"><div style="display:flex;align-items:center;gap:10px"><div class="menuBtn" id="menuBtn" onclick="toggleMenu()"><span></span><span></span><span></span></div><h2>SHIJA - CMHT KFT REPORT</h2></div><span style="color:#fff">Admin</span></div>
-<div class="sideOverlay" id="overlay" onclick="toggleMenu()"></div>
+<div class="top"><div style="display:flex;align-items:center;gap:10px"><div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div><h2>SHIJA - CMHT KFT REPORT</h2></div><span style="color:#fff">Admin</span></div>
+<div class="sideOverlay" id="overlay"></div>
 <div class="mainWrap">
 <div class="side" id="side">
 <a href="index.html">Home</a>
@@ -65,32 +72,55 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <label style="font-size:12px;font-weight:800">Date:</label><select id="daySel" onchange="loadKFT()"><option value="01">1st</option><option value="15">15th</option></select>
 <button class="btn btnExp" onclick="exportExcel()">Export Excel</button>
 <div class="searchAddedWrap">
-<input id="searchAdded" placeholder="Search Patient (Name / SHRI / Contact)" oninput="loadKFT()" autocomplete="off">
-<button class="btnBlue" onclick="loadKFT()">Search</button>
-<button class="btnDark" onclick="document.getElementById('searchAdded').value='';loadKFT()">Clear</button>
+<input id="searchAdded" placeholder="Search Patient (Name / SHRI / Contact)" oninput="resetPageAndLoad()" autocomplete="off">
+<button class="btnBlue" onclick="resetPageAndLoad()">Search</button>
+<button class="btnDark" onclick="document.getElementById('searchAdded').value='';resetPageAndLoad()">Clear</button>
 </div>
 <span id="countInfo" style="font-weight:700;color:#475569"></span>
 </div>
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div></div>
+<!-- ONLY ADDED: Pagination Bar -->
+<div class="pageBar">
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <label style="font-size:12px;font-weight:800">Show:</label>
+    <select id="pageSizeSel" onchange="changePageSize()">
+      <option value="10" selected>10</option>
+      <option value="20">20</option>
+      <option value="30">30</option>
+      <option value="40">40</option>
+      <option value="50">50</option>
+      <option value="all">All</option>
+    </select>
+    <span style="font-size:12px;font-weight:700;color:#475569">patients per page</span>
+  </div>
+  <div class="pageBtns" id="pageBtns"></div>
+  <span id="pageInfo" style="font-size:12px;font-weight:700;color:#475569"></span>
+</div>
 </div>
 </div>
 <script>
+/* --- FIXED: 3-line button now works universally --- */
 function toggleMenu(){
  var s=document.getElementById('side');
  var o=document.getElementById('overlay');
- if(s.className.indexOf('show')===-1){
-   s.className='side show';
-   o.className='sideOverlay show';
- }else{
-   s.className='side';
-   o.className='sideOverlay';
- }
+ var isOpen = s.classList.contains('show');
+ if(isOpen){ s.classList.remove('show'); o.classList.remove('show'); }
+ else { s.classList.add('show'); o.classList.add('show'); }
 }
 document.addEventListener('DOMContentLoaded',function(){
- var b=document.getElementById('menuBtn');
- if(b){
-   b.addEventListener('touchstart',function(e){e.preventDefault();toggleMenu();},{passive:false});
- }
+  var b=document.getElementById('menuBtn');
+  var o=document.getElementById('overlay');
+  // ONE handler for ALL devices - click works on mobile + desktop + tablet
+  // Old code had onclick + touchstart both, which caused double-toggle on mobile
+  if(b) b.addEventListener('click', toggleMenu);
+  if(o) o.addEventListener('click', toggleMenu);
+  // Auto-close menu when clicking a link (mobile friendly)
+  document.querySelectorAll('#side a').forEach(function(a){
+    a.addEventListener('click', function(){
+      document.getElementById('side').classList.remove('show');
+      document.getElementById('overlay').classList.remove('show');
+    });
+  });
 });
 </script>
 <script type="module">
@@ -99,32 +129,84 @@ import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from "https://
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(firebaseConfig);const db=getFirestore(app);
 let allCMHT=[];
+let currentPage=1;
+let pageSize=10; // Default 10
 let yearSel=document.getElementById('yearSel');
 for(let y=2024;y<=2030;y++){let o=document.createElement('option');o.value=y;o.textContent=y;if(y==2026)o.selected=true;yearSel.appendChild(o);}
 let monthSel=document.getElementById('monthSel');monthSel.value=new Date().toISOString().slice(5,7);
 function getDateKey(){return `${yearSel.value}-${monthSel.value}-${document.getElementById('daySel').value}`;}
 async function init(){const snap=await getDocs(collection(db,"cmht_patients"));allCMHT=[];snap.forEach(d=>{let c=d.data();allCMHT.push({key:d.id,name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||''});});loadKFT();}
-window.loadKFT=async()=>{
+
+function getFiltered(){
+  let searchQ=document.getElementById('searchAdded').value.toLowerCase().trim();
+  return allCMHT.filter(p=>{
+    if(!searchQ) return true;
+    return (p.name||'').toLowerCase().includes(searchQ) || (p.shri||'').toLowerCase().includes(searchQ) || (p.contact||'').toLowerCase().includes(searchQ);
+  });
+}
+function renderPageBtns(total, totalPages){
+  let wrap=document.getElementById('pageBtns');
+  let info=document.getElementById('pageInfo');
+  if(pageSize==='all' || totalPages<=1){
+    wrap.innerHTML='';
+    info.textContent = total>0 ? `Showing 1 - ${total} of ${total} patients` : '';
+    return;
+  }
+  let start=(currentPage-1)*pageSize+1;
+  let end=Math.min(currentPage*pageSize, total);
+  info.textContent=`Showing ${start} - ${end} of ${total} patients | Page ${currentPage} of ${totalPages}`;
+  let html=`<button onclick="goToPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹ Prev</button>`;
+  // Show max 5 page numbers around current page
+  let s=Math.max(1, currentPage-2);
+  let e=Math.min(totalPages, s+4);
+  if(e-s<4) s=Math.max(1, e-4);
+  for(let i=s;i<=e;i++){
+    html+=`<button onclick="goToPage(${i})" class="${i===currentPage?'active':''}">${i}</button>`;
+  }
+  html+=`<button onclick="goToPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next ›</button>`;
+  wrap.innerHTML=html;
+}
+window.goToPage=(p)=>{
+  let filtered=getFiltered();
+  let totalPages = pageSize==='all' ? 1 : Math.max(1, Math.ceil(filtered.length/pageSize));
+  if(p<1) p=1; if(p>totalPages) p=totalPages;
+  currentPage=p;
+  loadKFT(true);
+};
+window.changePageSize=()=>{
+  let v=document.getElementById('pageSizeSel').value;
+  pageSize = v==='all' ? 'all' : parseInt(v);
+  currentPage=1;
+  loadKFT(true);
+};
+window.resetPageAndLoad=()=>{ currentPage=1; loadKFT(); };
+
+window.loadKFT=async(keepPage)=>{
  let dateKey=getDateKey();
+ if(!keepPage) { /* keep currentPage when paging, else caller resets */ }
  let searchQ=document.getElementById('searchAdded').value.toLowerCase().trim();
  document.getElementById('info').textContent=`KFT Status for ${dateKey} - Loading...${searchQ?' - Search: "'+searchQ+'"':''}`;
- let filtered=allCMHT.filter(p=>{
-  if(!searchQ) return true;
-  return (p.name||'').toLowerCase().includes(searchQ) || (p.shri||'').toLowerCase().includes(searchQ) || (p.contact||'').toLowerCase().includes(searchQ);
- });
+ let filtered=getFiltered();
+ // --- PAGINATION: Only load patients for current page, so it FITS and loads FAST ---
+ let totalPages = pageSize==='all' ? 1 : Math.max(1, Math.ceil(filtered.length/pageSize));
+ if(currentPage>totalPages) currentPage=totalPages;
+ let pageItems = pageSize==='all' ? filtered : filtered.slice((currentPage-1)*pageSize, currentPage*pageSize);
+ let startIndex = pageSize==='all' ? 0 : (currentPage-1)*pageSize;
+
  let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Contact</th><th>KFT Status</th><th>Date</th></tr>';
- for(let i=0;i<filtered.length;i++){
-  let p=filtered[i];let docId=`${p.shri}_${dateKey}`;let status='Not-Received';
+ for(let i=0;i<pageItems.length;i++){
+  let p=pageItems[i];let docId=`${p.shri}_${dateKey}`;let status='Not-Received';
   try{let d=await getDoc(doc(db,"cmht_kft_reports",docId));if(d.exists()) status=d.data().status||'Not-Received';}catch(e){}
   let badge=status==='Received'?`<span class="badgeRecv" onclick="toggleStatus('${p.shri}','${dateKey}','${status}')">RECEIVED ✓</span>`:`<span class="badgeNot" onclick="toggleStatus('${p.shri}','${dateKey}','${status}')">NOT-RECEIVED ✗</span>`;
-  html+=`<tr><td><div class="sl">${i+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri}</span></td><td>${p.contact||'-'}</td><td>${badge}</td><td>${dateKey}</td></tr>`;
+  html+=`<tr><td><div class="sl">${startIndex+i+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri}</span></td><td>${p.contact||'-'}</td><td>${badge}</td><td>${dateKey}</td></tr>`;
  }
  if(filtered.length===0) html+=`<tr><td colspan="6" style="text-align:center;padding:20px">No patient found${searchQ?' for search "'+searchQ+'"':''} - ${searchQ?'Clear search to see all':'Add from Add CMHT page'}</td></tr>`;
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('info').textContent=`CMHT KFT Report for ${dateKey} - Click status to toggle Received / Not-Received${searchQ?' | Search: "'+searchQ+'" - '+filtered.length+' found':''}`;
  document.getElementById('countInfo').textContent=filtered.length+' / '+allCMHT.length+' patients';
+ renderPageBtns(filtered.length, totalPages);
 };
-window.toggleStatus=async(shri,dateKey,cur)=>{let newStatus=cur==='Received'?'Not-Received':'Received';let docId=`${shri}_${dateKey}`;try{await setDoc(doc(db,"cmht_kft_reports",docId),{shriId:shri,date:dateKey,status:newStatus,updatedAt:new Date().toISOString()});loadKFT();}catch(e){alert(e.message);}};
+window.toggleStatus=async(shri,dateKey,cur)=>{let newStatus=cur==='Received'?'Not-Received':'Received';let docId=`${shri}_${dateKey}`;try{await setDoc(doc(db,"cmht_kft_reports",docId),{shriId:shri,date:dateKey,status:newStatus,updatedAt:new Date().toISOString()});loadKFT(true);}catch(e){alert(e.message);}};
 window.exportExcel=()=>{let dateKey=getDateKey();let rows=[];let trs=document.querySelectorAll('#tbl tr');trs.forEach((tr,idx)=>{if(idx===0)return;let tds=tr.querySelectorAll('td');if(tds.length<5)return;rows.push({SL:tds[0].innerText,Name:tds[1].innerText,SHRI_ID:tds[2].innerText,Contact:tds[3].innerText,KFT_Status:tds[4].innerText,Date:dateKey,Remark:'CMHT'});});let ws=XLSX.utils.json_to_sheet(rows);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"CMHT KFT "+dateKey);XLSX.writeFile(wb,`CMHT_KFT_${dateKey}.xlsx`);};
 init();
 </script>
