@@ -28,6 +28,11 @@ label{font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;display:blo
 .btn:hover{background:#b91c1c}
 .foot{margin-top:20px;text-align:center;font-size:11px;color:#94a3b8;line-height:1.6}
 .foot b{color:#dc2626}
+.roleBox{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.roleBtn{padding:11px;border:1.5px solid #e2e8f0;border-radius:11px;background:#f8fafc;cursor:pointer;font-weight:800;font-size:13px}
+.roleBtn.active{background:#0f172a;color:#fff;border-color:#0f172a}
+.roleBtn.active.user{background:#dc2626;border-color:#dc2626}
+.auto{font-size:11px;color:#64748b;text-align:center;margin-top:10px}
 @media(max-width:850px){body{flex-direction:column}.left{min-height:420px}.left img.bg{object-position:center}}
 </style>
 </head><body>
@@ -45,6 +50,11 @@ label{font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;display:blo
 <b>SHIJA Hospitals</b></div>
 <h2>Welcome Back</h2><div class="sub">Sign in to your hospital portal to continue</div>
 
+<div class="roleBox">
+<button class="roleBtn active" id="btnAdmin" onclick="setRole('ADMIN')">👑 ADMIN</button>
+<button class="roleBtn user" id="btnUser" onclick="setRole('USER')">👁️ USER</button>
+</div>
+
 <label>Username</label>
 <div class="input"><i class="fa-regular fa-user"></i><input id="user" placeholder="Enter your username"></div>
 
@@ -54,19 +64,38 @@ label{font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;display:blo
 <div class="row"><label style="margin:0;display:flex;align-items:center;gap:6px;font-weight:600"><input type="checkbox" style="width:auto"> Remember me</label><a href="#" style="color:#dc2626;text-decoration:none;font-weight:700">Forgot password?</a></div>
 
 <button class="btn" onclick="doLogin()">Login</button>
+<div class="auto">🔒 Auto Logout after 30 minutes of login</div>
 
-<div class="foot">Don't have an account? <b>Contact Admin</b><br><br>© 2024 SHIJA Hospitals • Secure & Protected<br>admin / admin123</div>
+<div class="foot">Don't have an account? <b>Contact Admin</b><br><br>© 2024 SHIJA Hospitals • Secure & Protected<br><span id="hint">Admin: shija / shija321</span></div>
 </div>
 </div>
 
 <script>
+let role='ADMIN';
+function setRole(r){
+  role=r;
+  document.getElementById('btnAdmin').classList.toggle('active', r==='ADMIN');
+  document.getElementById('btnUser').classList.toggle('active', r==='USER');
+  document.getElementById('hint').textContent = r==='ADMIN' ? 'Admin: shija / shija321' : 'User: admin / admin123';
+}
+
 function doLogin(){
  let u=document.getElementById('user').value.trim();
  let p=document.getElementById('pass').value.trim();
- if(u==='Admin' && p==='jack123'){
+
+ // YOUR LOGINS
+ let isAdmin = (role==='ADMIN' && u==='shija' && p==='shija321');
+ let isUser = (role==='USER' && u==='admin' && p==='admin123');
+
+ if(isAdmin || isUser){
    localStorage.setItem('shija_logged','1');
-   location.href='index.html';
- }else alert('Invalid! Use Admin / jack123');
+   localStorage.setItem('shija_role', role);
+   localStorage.setItem('shija_login_time', Date.now().toString()); // for 30 min auto logout
+   if(role==='ADMIN') location.href='index.html';
+   else location.href='user-index.html';
+ }else{
+   alert('Invalid '+role+' login!');
+ }
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter') doLogin();});
 </script>
