@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CMHT Daily Dialysis - View Only</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui}body{background:#f6f7fb}.top{height:64px;background:#1e293b;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:10}.top b{color:#fff;font-size:16px}.top button{padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}.wrap{max-width:1200px;margin:auto;padding:16px}.card{background:#fff;border-radius:14px;padding:16px}.head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}.badge{background:#06b6d4;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800}.controls{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.controls input,.controls select{padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;flex:1;min-width:140px}.btn{padding:10px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer;color:#fff;background:#06b6d4}.btnG{background:#16a34a}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px;border-bottom:1px solid #f1f5f9;text-align:left}th{background:#f8fafc}.wrap2{overflow-x:auto;max-height:70vh}tr.repeat td{background:#fef9c3!important}.count{font-size:13px;color:#64748b;margin:8px 0}</style></head>
+<body>
+<script>(function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();</script>
+<div class="top"><b>SHIJA • CMHT Daily Dialysis <span style="color:#67e8f9;font-size:12px">VIEW ONLY</span></b><div><button onclick="location.href='user-index.html'">🏠 Home</button> <button onclick="localStorage.clear();location.href='login.html'">Logout</button></div></div>
+<div class="wrap"><div class="card"><div class="head"><h1>CMHT Daily Dialysis List</h1><span class="badge">READ ONLY</span></div>
+<div class="controls"><input type="date" id="date"><select id="time"><option value="">All Time</option><option>Morning</option><option>Afternoon</option><option>Evening</option></select><select id="block"><option value="">All Block</option><option>Block A</option><option>Block B</option><option>Block C</option><option>Block D</option></select><input id="search" placeholder="Search Name / SHRI..." oninput="render()"><button class="btn" onclick="render()">Filter</button><button class="btn btnG" onclick="exportExcel()">Export Excel</button></div>
+<div class="count" id="count">Loading...</div>
+<div class="wrap2"><table><thead><tr><th>#</th><th>Name</th><th>SHRI</th><th>Time</th><th>Block</th><th>Date</th><th>Prev Date</th></tr></thead><tbody id="tbody"></tbody></table></div>
+<p style="font-size:11px;color:#94a3b8;margin-top:10px">Yellow = Repeated patient • 🔒 View Only - Admin data only</p></div></div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";import {getFirestore,collection,getDocs,query,where} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};const app=initializeApp(config);const db=getFirestore(app);
+let all=[];
+document.getElementById('date').value=new Date().toISOString().slice(0,10);
+document.getElementById('date').addEventListener('change',load);
+async function load(){
+  let sel=document.getElementById('date').value; all=[];
+  try{let snap=await getDocs(query(collection(db,"cmht_daily_dialysis"),where("listDate","==",sel))); snap.forEach(d=>{let p=d.data(); all.push({name:p.name||p.patientName||'',shri:p.shri||p.shriId||'',time:p.time||'',block:p.block||'',date:p.listDate||p.date||sel,prev:p.prevDate||p.previousDate||''});});}catch(e){}
+  if(!all.length){try{let snap=await getDocs(query(collection(db,"cmht_daily_dialysis"),where("date","==",sel))); snap.forEach(d=>{let p=d.data(); all.push({name:p.name||'',shri:p.shri||'',time:p.time||'',block:p.block||'',date:p.date||sel,prev:p.prevDate||''});});}catch(e){}}
+  all.sort((a,b)=>a.name.localeCompare(b.name)); render();
+}
+window.render=function(){
+  let q=document.getElementById('search').value.toLowerCase().trim();
+  let t=document.getElementById('time').value.toLowerCase();
+  let b=document.getElementById('block').value.toLowerCase();
+  let f=all.filter(p=>{ if(q && ![p.name,p.shri].join(' ').toLowerCase().includes(q)) return false; if(t && !p.time.toLowerCase().includes(t)) return false; if(b && !p.block.toLowerCase().includes(b)) return false; return true; });
+  let counts={}; f.forEach(p=>{counts[p.shri]=(counts[p.shri]||0)+1;});
+  document.getElementById('count').textContent=`Showing ${f.length} patients for ${document.getElementById('date').value}`;
+  document.getElementById('tbody').innerHTML=f.map((p,i)=>`<tr class="${counts[p.shri]>1?'repeat':''}"><td>${i+1}</td><td><b>${p.name}</b></td><td>${p.shri}</td><td>${p.time}</td><td>${p.block}</td><td>${p.date}</td><td>${p.prev}</td></tr>`).join('')||'<tr><td colspan=7 style="text-align:center;padding:20px">No dialysis entry for this date</td></tr>';
+  window._filtered=f;
+};
+window.exportExcel=function(){let data=(window._filtered||all).map((p,i)=>({Sl:i+1,Name:p.name,SHRI:p.shri,Time:p.time,Block:p.block,Date:p.date,PrevDate:p.prev})); let ws=XLSX.utils.json_to_sheet(data); let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"CMHT Daily"); XLSX.writeFile(wb,`CMHT_Daily_${document.getElementById('date').value}_User.xlsx`);};
+load();
+</script></body></html>
