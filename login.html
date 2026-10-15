@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SHIJA Hospitals - Login</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial}
 body{min-height:100vh;display:flex;background:#f8fafc}
@@ -20,18 +19,16 @@ body{min-height:100vh;display:flex;background:#f8fafc}
 .card .sub{font-size:13px;color:#64748b;margin-bottom:20px}
 label{font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;display:block}
 .input{position:relative}
-.input input{width:100%;padding:12px 12px 12px 40px;border:1.5px solid #e2e8f0;border-radius:11px;outline:0;font-size:13px}
+.input input{width:100%;padding:12px 12px;border:1.5px solid #e2e8f0;border-radius:11px;outline:0;font-size:13px}
 .input input:focus{border-color:#dc2626;box-shadow:0 0 0 3px #fecaca}
-.input i{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.6;font-size:14px}
 .row{display:flex;justify-content:space-between;align-items:center;margin:14px 0;font-size:12px;color:#475569}
 .btn{width:100%;padding:13px;border:0;border-radius:11px;background:#dc2626;color:#fff;font-weight:800;font-size:14px;cursor:pointer;margin-top:10px}
 .btn:hover{background:#b91c1c}
 .foot{margin-top:20px;text-align:center;font-size:11px;color:#94a3b8;line-height:1.6}
 .foot b{color:#dc2626}
-.roleBox{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
-.roleBtn{padding:11px;border:1.5px solid #e2e8f0;border-radius:11px;background:#f8fafc;cursor:pointer;font-weight:800;font-size:13px}
-.roleBtn.active{background:#0f172a;color:#fff;border-color:#0f172a}
-.roleBtn.active.user{background:#dc2626;border-color:#dc2626}
+.roleRow{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.roleRow label{margin:0;font-size:11px;font-weight:700;color:#334155;white-space:nowrap}
+.roleSelect{padding:6px 8px;border:1.5px solid #e2e8f0;border-radius:8px;background:#f8fafc;font-weight:700;font-size:12px;outline:0;cursor:pointer;color:#0f172a}
 .auto{font-size:11px;color:#64748b;text-align:center;margin-top:10px}
 @media(max-width:850px){body{flex-direction:column}.left{min-height:420px}.left img.bg{object-position:center}}
 </style>
@@ -50,36 +47,37 @@ label{font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;display:blo
 <b>SHIJA Hospitals</b></div>
 <h2>Welcome Back</h2><div class="sub">Sign in to your hospital portal to continue</div>
 
-<div class="roleBox">
-<button class="roleBtn active" id="btnAdmin" onclick="setRole('ADMIN')">👑 ADMIN</button>
-<button class="roleBtn user" id="btnUser" onclick="setRole('USER')">👁️ USER</button>
+<div class="roleRow">
+<label>Login As</label>
+<select id="roleSelect" class="roleSelect" onchange="onRoleChange()">
+<option value="USER" selected>USER</option>
+<option value="ADMIN">ADMIN</option>
+</select>
 </div>
 
 <label>Username</label>
-<div class="input"><i class="fa-regular fa-user"></i><input id="user" placeholder="Enter your username"></div>
+<div class="input"><input id="user" placeholder="Enter your username"></div>
 
 <label>Password</label>
-<div class="input"><i class="fa-solid fa-lock"></i><input id="pass" type="password" placeholder="Enter your password"><i class="fa-regular fa-eye" style="left:auto;right:12px;cursor:pointer" onclick="let p=document.getElementById('pass');p.type=p.type==='password'?'text':'password'"></i></div>
+<div class="input"><input id="pass" type="password" placeholder="Enter your password"></div>
 
 <div class="row"><label style="margin:0;display:flex;align-items:center;gap:6px;font-weight:600"><input type="checkbox" style="width:auto"> Remember me</label><a href="#" style="color:#dc2626;text-decoration:none;font-weight:700">Forgot password?</a></div>
 
 <button class="btn" onclick="doLogin()">Login</button>
 <div class="auto">🔒 Auto Logout after 30 minutes of login</div>
 
-<div class="foot">Don't have an account? <b>Contact Admin</b><br><br>© 2024 SHIJA Hospitals • Secure & Protected<br><span id="hint">Admin: shija / shija321</span></div>
+<div class="foot">Don't have an account? <b>Contact Admin</b><br><br>© 2024 SHIJA Hospitals • Secure & Protected<br><span id="hint">User: admin / admin123</span></div>
 </div>
 </div>
 
 <script>
-let role='ADMIN';
-function setRole(r){
-  role=r;
-  document.getElementById('btnAdmin').classList.toggle('active', r==='ADMIN');
-  document.getElementById('btnUser').classList.toggle('active', r==='USER');
+function onRoleChange(){
+  let r=document.getElementById('roleSelect').value;
   document.getElementById('hint').textContent = r==='ADMIN' ? 'Admin: shija / shija321' : 'User: admin / admin123';
 }
 
 function doLogin(){
+ let role=document.getElementById('roleSelect').value;
  let u=document.getElementById('user').value.trim();
  let p=document.getElementById('pass').value.trim();
 
