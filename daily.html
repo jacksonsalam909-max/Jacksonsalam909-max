@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PMJAY DAILY DIALYSIS LIST - SHIJA</title>
-<script src="Patient.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
@@ -157,7 +156,6 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 </div>
 </div>
 
-<!-- SINGLE: Time -->
 <div id="popTime" class="popup"><div class="popupBoxSmall"><div class="slotPop">
 <h3>Select Time Slot</h3>
 <div class="slotPatient">Patient: <span id="timePatientLabel">-</span></div>
@@ -172,7 +170,6 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <button class="slotCancel" onclick="closePop('popTime')">Cancel</button>
 </div></div></div>
 
-<!-- SINGLE: Block -->
 <div id="popBlock" class="popup"><div class="popupBoxSmall"><div class="slotPop">
 <h3>Select Block</h3>
 <div class="slotPatient">Patient: <span id="blockPatientLabel">-</span></div>
@@ -183,7 +180,6 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <button class="slotCancel" onclick="closePop('popBlock')">Cancel</button>
 </div></div></div>
 
-<!-- SINGLE: Prev Date -->
 <div id="popPrev" class="popup"><div class="popupBoxSmall"><div class="slotPop">
 <h3>Previous Dialysis Date</h3>
 <div class="slotPatient">PMJAY: <b id="showPmjayPrev">-</b> - Enter previous session<br>Patient: <span id="prevPatientLabel">-</span></div>
@@ -191,7 +187,6 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <div class="slotFoot"><button class="slotCancel" onclick="closePop('popPrev')">Cancel</button><button class="slotSave" onclick="confirmAdd()">Add to List (Auto Save Firebase)</button></div>
 </div></div></div>
 
-<!-- MULTIPLE ADD - CLEAN, NO DUPLICATE TOP ROW, NO SPARKLE, NO SENTENCE -->
 <div id="popMulti" class="popup"><div class="popupBoxLarge">
 <div class="popHead">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
@@ -206,7 +201,6 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <button class="btnGreen" id="m_saveBtn" onclick="saveMultiple()" style="padding:12px;border-radius:12px;position:sticky;bottom:0">Save All to Firebase (0)</button>
 </div></div></div>
 
-<!-- MULTIPLE: Time -->
 <div id="popMTime" class="popup"><div class="popupBoxSmall"><div class="slotPop">
 <h3>Select Time Slot</h3>
 <div class="slotPatient">Patient: <span id="mTimePatient">-</span></div>
@@ -221,7 +215,6 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <button class="slotCancel" onclick="closePop('popMTime')">Cancel</button>
 </div></div></div>
 
-<!-- MULTIPLE: Block -->
 <div id="popMBlock" class="popup"><div class="popupBoxSmall"><div class="slotPop">
 <h3>Select Block</h3>
 <div class="slotPatient">Patient: <span id="mBlockPatient">-</span></div>
@@ -232,7 +225,6 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <button class="slotCancel" onclick="closePop('popMBlock')">Cancel</button>
 </div></div></div>
 
-<!-- MULTIPLE: Prev Date -->
 <div id="popMPrev" class="popup"><div class="popupBoxSmall"><div class="slotPop">
 <h3>Previous Dialysis Date</h3>
 <div class="slotPatient">Patient: <span id="mPrevPatient">-</span></div>
@@ -247,6 +239,44 @@ const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"disch
 const app=initializeApp(config);const db=getFirestore(app);
 window.db=db;window.fb={collection,addDoc,getDocs,query,where,deleteDoc,doc,serverTimestamp,onSnapshot};
 document.getElementById('fbStatus').innerText="Firebase Connected - Auto Save ON";
+// --- MASTER PATIENTS FROM FIREBASE (replaces Patient.js) ---
+window.allPatients = [];
+window.__fbMaster = [];
+async function loadMasterPatients(){
+  try{
+    const snap = await getDocs(collection(db,"patients"));
+    let fbPatients=[];
+    snap.forEach(d=>{
+      let p=d.data();
+      if(p.deleted) return;
+      fbPatients.push({
+        patientName: p.patientName || p.name || '',
+        shriId: p.shriId || p.shri || '',
+        pmjayId: p.pmjayId || p.PMJAY || p.pmjay || '',
+        PMJAY: p.pmjayId || p.PMJAY || p.pmjay || '',
+        pmjay: p.pmjayId || p.PMJAY || p.pmjay || '',
+        contactNo: p.contactNo || p.contact || '',
+        address: p.address || p.addr || ''
+      });
+    });
+    let extra=[];
+    try{ extra=JSON.parse(localStorage.getItem('shija_patients')||'[]'); }catch(e){}
+    let seen=new Set();
+    let merged=[...fbPatients,...extra].filter(p=>{
+      let key=((p.shriId||'').toLowerCase()+'|'+(p.patientName||'').toLowerCase()).trim();
+      if(seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    window.allPatients=merged;
+    window.__fbMaster=merged;
+    let el=document.getElementById('totalLoaded');
+    if(el) el.textContent=merged.length;
+    console.log('Master loaded from Firebase:', merged.length);
+  }catch(e){ console.error('Master load error', e); }
+}
+loadMasterPatients();
+window.loadMasterPatients=loadMasterPatients;
 </script>
 <script>
 function toggleMenu(){ var s=document.getElementById('side'); var o=document.getElementById('overlay'); var isOpen=s.classList.contains('show'); s.classList.toggle('show',!isOpen); o.classList.toggle('show',!isOpen); }
@@ -256,23 +286,27 @@ document.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('.side.menu a').forEach(function(a){ a.addEventListener('click',function(){ document.getElementById('side').classList.remove('show'); document.getElementById('overlay').classList.remove('show'); }); });
 });
 function onSchemeChange(val){ var d=document.getElementById('d_date').value||''; if(val==='CMHT'){ location.href='cmhtdaily.html'+(d?'?date='+d:''); } }
-let excelRaw=(typeof patientData!=='undefined')?patientData:[];
+function getAllPatients(){
+  if(window.__fbMaster && window.__fbMaster.length) return window.__fbMaster;
+  if(window.allPatients && window.allPatients.length) return window.allPatients;
+  try{ return JSON.parse(localStorage.getItem('shija_patients')||'[]'); }catch(e){ return []; }
+}
 let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');
-let allPatients=[...excelRaw,...extra];
+let allPatients=getAllPatients();
 let today=new Date().toISOString().slice(0,10);
 try{ var urlDate=new URLSearchParams(location.search).get('date'); if(urlDate) today=urlDate; }catch(e){}
 document.getElementById('d_date').value=today;
 document.getElementById('totalLoaded').textContent=allPatients.length;
 let temp={name:'',shri:'',pmjay:'',time:'',block:'',prev:''};
 let currentPage=1; let firebaseList=[]; let multiList=[]; let unsubscribe=null; let multiEditIndex=-1;
-function getPmjayFromMaster(name,shri){ let f=allPatients.find(p=>{let n=(p.patientName||'').toLowerCase()===name.toLowerCase();let s=(p.shriId||'').toLowerCase()===shri.toLowerCase()&&shri;return n||s;}); if(!f) return '';return f.pmjayId||f.PMJAY||f.pmjay||''; }
-function showSuggest(q){ q=q.toLowerCase().trim();let box=document.getElementById('suggest'); if(q.length<1){box.style.display='none';return;} let filtered=allPatients.filter(p=>{let n=(p.patientName||'').toLowerCase();let s=(p.shriId||'').toLowerCase();let pj=(p.pmjayId||p.PMJAY||p.pmjay||'').toLowerCase();return n.includes(q)||s.includes(q)||pj.includes(q);}).slice(0,20); if(!filtered.length){box.style.display='none';return;} box.innerHTML=filtered.map(p=>{let pm=p.pmjayId||p.PMJAY||p.pmjay||'';return `<div onclick="pickPatient('${(p.patientName||'').replace(/'/g,"&#39;")}','${(p.shriId||'').replace(/'/g,"&#39;")}','${(pm||'').replace(/'/g,"&#39;")}')"><b>${p.patientName}</b> - ${p.shriId||''} | ${pm||''}</div>`;}).join('');box.style.display='block'; }
+function getPmjayFromMaster(name,shri){ let list=getAllPatients(); let f=list.find(p=>{let n=(p.patientName||'').toLowerCase()===name.toLowerCase();let s=(p.shriId||'').toLowerCase()===shri.toLowerCase()&&shri;return n||s;}); if(!f) return '';return f.pmjayId||f.PMJAY||f.pmjay||''; }
+function showSuggest(q){ allPatients=getAllPatients(); q=q.toLowerCase().trim();let box=document.getElementById('suggest'); if(q.length<1){box.style.display='none';return;} let filtered=allPatients.filter(p=>{let n=(p.patientName||'').toLowerCase();let s=(p.shriId||'').toLowerCase();let pj=(p.pmjayId||p.PMJAY||p.pmjay||'').toLowerCase();return n.includes(q)||s.includes(q)||pj.includes(q);}).slice(0,20); if(!filtered.length){box.style.display='none';return;} box.innerHTML=filtered.map(p=>{let pm=p.pmjayId||p.PMJAY||p.pmjay||'';return `<div onclick="pickPatient('${(p.patientName||'').replace(/'/g,"&#39;")}','${(p.shriId||'').replace(/'/g,"&#39;")}','${(pm||'').replace(/'/g,"&#39;")}')"><b>${p.patientName}</b> - ${p.shriId||''} | ${pm||''}</div>`;}).join('');box.style.display='block'; }
 function pickPatient(name,shri,pmjay){ document.getElementById('p_name').value=name;document.getElementById('p_shri').value=shri;document.getElementById('p_pmjay').value=pmjay||getPmjayFromMaster(name,shri); document.getElementById('p_search').value=name;document.getElementById('suggest').style.display='none'; temp.name=name;temp.shri=shri;temp.pmjay=document.getElementById('p_pmjay').value||pmjay; }
 function startEntry(){ temp.name=document.getElementById('p_name').value.trim(); temp.shri=document.getElementById('p_shri').value.trim(); temp.pmjay=document.getElementById('p_pmjay').value.trim()||getPmjayFromMaster(temp.name,temp.shri); if(!temp.name){alert('Enter Patient Name');return;} document.getElementById('timePatientLabel').textContent=temp.name+' ('+(temp.shri||'')+') - '+(temp.pmjay||''); document.getElementById('popTime').style.display='flex'; }
 function selectTime(t,el){ temp.time=t; closePop('popTime'); document.getElementById('blockPatientLabel').textContent=temp.name+' ('+(temp.shri||'')+') - '+(temp.pmjay||''); document.getElementById('popBlock').style.display='flex'; }
 function selectBlock(b,el){ temp.block=b; closePop('popBlock'); document.getElementById('showPmjayPrev').textContent=temp.pmjay||'N/A'; document.getElementById('prevPatientLabel').textContent=temp.name+' ('+(temp.shri||'')+')'; document.getElementById('popPrev').style.display='flex'; }
 function openMulti(){ multiList=[]; renderMultiList(); document.getElementById('m_search').value=''; document.getElementById('m_suggest').style.display='none'; document.getElementById('popMulti').style.display='flex'; }
-function showMultiSuggest(q){ q=(q||'').toLowerCase().trim(); let box=document.getElementById('m_suggest'); if(q.length<1){box.style.display='none';return;} let filtered=allPatients.filter(p=>{let n=(p.patientName||'').toLowerCase();let s=(p.shriId||'').toLowerCase();let pj=(p.pmjayId||p.PMJAY||p.pmjay||'').toLowerCase();return n.includes(q)||s.includes(q)||pj.includes(q);}).slice(0,20); if(!filtered.length){box.style.display='none';return;} box.innerHTML=filtered.map(p=>{let pm=p.pmjayId||p.PMJAY||p.pmjay||'';return `<div onclick="pickMulti('${(p.patientName||'').replace(/'/g,"&#39;")}','${(p.shriId||'').replace(/'/g,"&#39;")}','${(pm||'').replace(/'/g,"&#39;")}')"><b>${p.patientName}</b> - ${p.shriId||''} | ${pm||''}</div>`;}).join(''); box.style.display='block'; }
+function showMultiSuggest(q){ allPatients=getAllPatients(); q=(q||'').toLowerCase().trim(); let box=document.getElementById('m_suggest'); if(q.length<1){box.style.display='none';return;} let filtered=allPatients.filter(p=>{let n=(p.patientName||'').toLowerCase();let s=(p.shriId||'').toLowerCase();let pj=(p.pmjayId||p.PMJAY||p.pmjay||'').toLowerCase();return n.includes(q)||s.includes(q)||pj.includes(q);}).slice(0,20); if(!filtered.length){box.style.display='none';return;} box.innerHTML=filtered.map(p=>{let pm=p.pmjayId||p.PMJAY||p.pmjay||'';return `<div onclick="pickMulti('${(p.patientName||'').replace(/'/g,"&#39;")}','${(p.shriId||'').replace(/'/g,"&#39;")}','${(pm||'').replace(/'/g,"&#39;")}')"><b>${p.patientName}</b> - ${p.shriId||''} | ${pm||''}</div>`;}).join(''); box.style.display='block'; }
 function pickMulti(name,shri,pmjay){ if(multiList.some(x=>x.shri===shri && x.name===name)){ alert('Already added in this list'); document.getElementById('m_suggest').style.display='none'; return; } multiList.push({name:name,shri:shri,pmjay:pmjay||getPmjayFromMaster(name,shri),time:'',block:'',prev:''}); document.getElementById('m_search').value=''; document.getElementById('m_suggest').style.display='none'; renderMultiList(); }
 function removeMulti(i){ multiList.splice(i,1); renderMultiList(); }
 function renderMultiList(){
