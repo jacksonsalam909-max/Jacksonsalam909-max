@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Bill - SHIJA</title>
-<script src="Patient.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, serverTimestamp, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {
   apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
   authDomain: "discharge-b9528.firebaseapp.com",
@@ -18,6 +17,7 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+window.db = db;
 window.saveToSameStorage = async function(){
   const billNo = document.getElementById('billNo').value || "SHIC"+Date.now();
   const payload = {
@@ -46,6 +46,38 @@ window.saveToSameStorage = async function(){
     document.getElementById('fbStatus').innerText="✓ Saved in bills/"+billNo;
   }catch(e){ document.getElementById('fbStatus').innerText="Error: "+e.message; alert(e.message); }
 }
+// --- MASTER PATIENTS FROM FIREBASE (replaces Patient.js) ---
+window.allPatients = [];
+async function loadMasterPatients(){
+  try{
+    const snap = await getDocs(collection(db,"patients"));
+    let fbPatients=[];
+    snap.forEach(d=>{
+      let p=d.data();
+      if(p.deleted) return;
+      fbPatients.push({
+        patientName: p.patientName || p.name || '',
+        shriId: p.shriId || p.shri || '',
+        pmjayId: p.pmjayId || p.PMJAY || p.pmjay || '',
+        contactNo: p.contactNo || p.contact || '',
+        address: p.address || p.addr || ''
+      });
+    });
+    let extra=[];
+    try{ extra=JSON.parse(localStorage.getItem('shija_patients')||'[]'); }catch(e){}
+    let seen=new Set();
+    let merged=[...fbPatients,...extra].filter(p=>{
+      let key=((p.shriId||'').toLowerCase()+'|'+(p.patientName||'').toLowerCase()).trim();
+      if(seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    window.allPatients=merged;
+    console.log('Bill master loaded from Firebase:', merged.length);
+  }catch(e){ console.error('Master load error', e); }
+}
+loadMasterPatients();
+window.loadMasterPatients=loadMasterPatients;
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Inter,Segoe UI,system-ui}
@@ -198,9 +230,20 @@ document.querySelectorAll('.word').forEach(w=>{
  w.addEventListener('pointerup', ()=>{dragCol=null; localStorage.setItem('shija_full_all', JSON.stringify(cfg));});
 });
 applyDrag();buildControls();
-let allPatients=[];function loadPatients(){let raw=(typeof patientData!=='undefined')?patientData:[];let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');allPatients=[...raw,...extra];if(!allPatients.length)allPatients=[{patientName:'LAISHANGBAM ANGOUBAMBA SINGH',shriId:'153704',contactNo:'7005208464',address:'MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur'}];}
+let allPatients=[];
+function loadPatients(){
+  // Now uses Firebase-loaded window.allPatients, NOT Patient.js
+  if(window.allPatients && window.allPatients.length){ allPatients=[...window.allPatients]; return; }
+  let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');
+  allPatients=[...extra];
+  if(!allPatients.length)allPatients=[{patientName:'LAISHANGBAM ANGOUBAMBA SINGH',shriId:'153704',contactNo:'7005208464',address:'MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur'}];
+}
 loadPatients();
-function showPatientSuggest(q){q=q.toLowerCase().trim();let box=document.getElementById('suggest');if(!q){box.style.display='none';return;}let f=allPatients.filter(p=>(p.patientName||'').toLowerCase().includes(q)).slice(0,20);box.innerHTML=f.map(p=>`<div onclick="pickPatient(${allPatients.indexOf(p)})"><b>${p.patientName}</b> - ${p.shriId}</div>`).join('');box.style.display=f.length?'block':'none';}
+function showPatientSuggest(q){
+  // Refresh from Firebase if it has loaded
+  if(window.allPatients && window.allPatients.length) allPatients=[...window.allPatients];
+  q=q.toLowerCase().trim();let box=document.getElementById('suggest');if(!q){box.style.display='none';return;}let f=allPatients.filter(p=>(p.patientName||'').toLowerCase().includes(q)).slice(0,20);box.innerHTML=f.map(p=>`<div onclick="pickPatient(${allPatients.indexOf(p)})"><b>${p.patientName}</b> - ${p.shriId}</div>`).join('');box.style.display=f.length?'block':'none';
+}
 function pickPatient(i){let p=allPatients[i];document.getElementById('pName').value='Mr. '+p.patientName.toUpperCase();document.getElementById('mobile').value=p.contactNo;document.getElementById('address').value=(p.address||'').toUpperCase();document.getElementById('uhid').value='SHRI.'+p.shriId.replace(/SHRI\.?/i,'');document.getElementById('suggest').style.display='none';renderBill();}
 function updateBillTime(){let d=document.getElementById('admDateOnly').value;let t=document.getElementById('admTimeOnly').value;if(!d||!t)return;document.getElementById('billDateShow').value=d.split('-').reverse().join('/');let [h,m]=t.split(':').map(Number);let dt=new Date();dt.setHours(h,m+30);document.getElementById('billTimeShow').value=String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');renderBill();}
 function formatDateTime(ds,ts){if(!ds)return '';let [y,m,d]=ds.split('-');let dp=d+'/'+m+'/'+y;if(!ts)return dp;let [h,mm]=ts.split(':').map(Number);let ap=h>=12?'pm':'am';let h12=h%12||12;return dp+' '+h12+':'+String(mm).padStart(2,'0')+' '+ap;}
