@@ -40,7 +40,6 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .pager{display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px}
 .pBtn{padding:6px 12px;border-radius:6px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer}
 .hintBox{font-size:11px;color:#64748b;margin-top:6px}
-.viewBadge{background:#22c55e;color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:800;margin-left:8px}
 tr.repeatRow{background:#fef08a!important}
 tr.repeatRow:hover{background:#fde047!important}
 tr.repeatRow td:first-child{border-left:4px solid #eab308}
@@ -52,7 +51,7 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <script>
 // USER ONLY + 30 MIN AUTO LOGOUT
 (function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired - Auto logout after 30 minutes');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();</script>
-<div class="top"><div style="display:flex;align-items:center;gap:10px"><div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div><h2>SHIJA - CMHT Daily Dialysis <span class="viewBadge">VIEW ONLY</span></h2></div><span style="color:#fff" id="fbStatus">Connecting...</span></div>
+<div class="top"><div style="display:flex;align-items:center;gap:10px"><div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div><h2>SHIJA - CMHT Daily Dialysis</h2></div><span style="color:#fff" id="fbStatus">Connecting...</span></div>
 <div class="sideOverlay" id="overlay"></div>
 <div class="mainWrap">
 <div class="side" id="side">
@@ -63,11 +62,10 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <a href="cmhtuserdaily.html" class="active">CMHT DAILY DIALYSIS</a>
 </div>
 <div class="content" id="content">
-<h1>CMHT Daily Dialysis List</h1><p style="color:#64748b;font-size:13px" id="subInfo">View Only - Firebase Auto Sync - Use filters below</p>
+<h1>CMHT Daily Dialysis List</h1><p style="color:#64748b;font-size:13px" id="subInfo">Firebase Auto Sync - Use filters below</p>
 <div class="filterBox">
-<div class="row1" style="background:#f0fdf4;padding:10px;border-radius:10px;border:1.5px solid #bbf7d0;margin-bottom:14px">
-<span style="font-weight:800;font-size:13px;color:#14532d">🔒 VIEW ONLY — You cannot Add / Edit / Delete</span>
-<span style="font-weight:800;font-size:12px;margin-left:auto">View Date:</span>
+<div class="row1" style="background:#f8fafc;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;margin-bottom:14px">
+<span style="font-weight:800;font-size:13px;color:#0f172a">View Dialysis List of :</span>
 <input type="date" id="listDate" onchange="loadList()" style="min-width:160px">
 </div>
 <div class="row2" style="flex-wrap:wrap">
@@ -85,7 +83,7 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <div class="hintBox">Filter by Date / Time / Block / Search patient already in list below</div>
 </div>
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div id="pageInfo" style="font-weight:600;color:#475569"></div><div id="pageNums" style="display:flex;gap:4px"></div></div></div>
-<p style="font-size:11px;color:#94a3b8;margin-top:10px;text-align:center">🔒 View Only — Same data as Admin. Yellow = Repeated patient.</p>
+<p style="font-size:11px;color:#94a3b8;margin-top:10px;text-align:center">Same data as Admin. Yellow = Repeated patient.</p>
 </div>
 </div>
 
@@ -121,7 +119,7 @@ const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDom
 const app=initializeApp(firebaseConfig);const db=getFirestore(app);
 let allList=[], filteredList=[], currentPage=1;
 document.getElementById('listDate').valueAsDate=new Date();
-document.getElementById('fbStatus').textContent='Firebase Connected - View Only';
+document.getElementById('fbStatus').textContent='Firebase Connected';
 async function loadList(){
  let dateVal=document.getElementById('listDate').value;if(!dateVal)return;
  document.getElementById('subInfo').textContent=`Loading list for ${dateVal} from Firebase... Visible to all computers`;
@@ -134,7 +132,7 @@ async function loadList(){
     try{ const q2=query(collection(db,"cmht_daily_dialysis"), where("date","==",dateVal)); const snap2=await getDocs(q2); snap2.forEach(d=>allList.push({id:d.id,...d.data()})); }catch(e){}
   }
   document.getElementById('fbStatus').textContent=`Firebase: ${allList.length} patients for ${dateVal} - Synced`;
-  document.getElementById('subInfo').textContent=`Showing ${allList.length} patients for ${dateVal} - View Only - Same as Admin`;
+  document.getElementById('subInfo').textContent=`Showing ${allList.length} patients for ${dateVal} - Same as Admin`;
  }catch(e){allList=[];document.getElementById('fbStatus').textContent='Error: '+e.message;}
  applyFilters();
 }
