@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Total Patients - SHIJA - User View</title>
-<script src="Patient.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui}
 body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
@@ -51,7 +50,7 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <a href="cmhtuserdaily.html">CMHT DAILY DIALYSIS</a>
 </div>
 <div class="content" id="content">
-<h1>Total Patients</h1><p id="info" style="color:#64748b;font-size:13px">Loading...</p>
+<h1>Total Patients</h1><p id="info" style="color:#64748b;font-size:13px">Loading from Firebase...</p>
 <div style="display:flex;gap:10px;margin:14px 0"><input id="search" style="flex:1;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1" placeholder="Search..." oninput="onSearch()"><select id="pageSize" onchange="changePageSize()" style="padding:10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700"><option value="10" selected>10 / page</option><option value="20">20 / page</option><option value="30">30 / page</option><option value="40">40 / page</option><option value="50">50 / page</option></select></div>
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div id="pageInfo"></div><div style="display:flex;gap:6px" id="pageNums"></div></div></div>
 <p style="font-size:11px;color:#94a3b8;margin-top:10px;text-align:center">🔒 View Only — Same data as Admin. You cannot Edit or Delete.</p>
@@ -110,13 +109,43 @@ window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(curre
 window.goPage=(n)=>{currentPage=n;renderTable();};
 async function init(){
  let deletedLocal=getDeleted();let editedLocal=getEdited();
- allPatients=(typeof patientData!=='undefined'?patientData:[]).map((pd,idx)=>{
-   let rawShri=String(pd.shriId||pd.shri||'').trim();let rawId=String(pd.id||idx+1).trim();let key=rawShri||'ID_'+rawId;
-   let isDel=deletedLocal.includes(key)||deletedLocal.includes(rawId)||deletedLocal.includes(rawShri);
-   let edited=editedLocal[key]||editedLocal[rawId]||editedLocal[rawShri];
-   if(edited){return {key:key,id:rawId,name:edited.name||pd.patientName||'',shri:edited.shri||rawShri,contact:edited.contact||pd.contactNo||'',pmjay:edited.pmjay||pd.pmjayId||'',addr:edited.addr||pd.address||'',deleted:isDel};}
-   return {key:key,id:rawId,name:String(pd.patientName||'').trim(),shri:rawShri,contact:String(pd.contactNo||'').trim(),pmjay:String(pd.pmjayId||'').trim(),addr:String(pd.address||'').trim(),deleted:isDel};
- });
+ try{
+   const snap = await getDocs(collection(db,"patients"));
+   let fbList=[];
+   snap.forEach(d=>{
+     let p=d.data();
+     if(p.deleted) return;
+     fbList.push({
+       patientName: p.patientName || p.name || '',
+       shriId: p.shriId || p.shri || '',
+       contactNo: p.contactNo || p.contact || '',
+       pmjayId: p.pmjayId || p.PMJAY || p.pmjay || '',
+       address: p.address || p.addr || '',
+       id: d.id
+     });
+   });
+   // Fallback: if Firebase empty, use localStorage
+   let extra=[];
+   try{ extra=JSON.parse(localStorage.getItem('shija_patients')||'[]'); }catch(e){}
+   let seen=new Set();
+   let merged=[...fbList,...extra].filter(p=>{
+     let key=((p.shriId||'').toLowerCase()+'|'+(p.patientName||'').toLowerCase()).trim();
+     if(seen.has(key)) return false;
+     seen.add(key);
+     return true;
+   });
+   allPatients=merged.map((pd,idx)=>{
+     let rawShri=String(pd.shriId||pd.shri||'').trim();let rawId=String(pd.id||idx+1).trim();let key=rawShri||'ID_'+rawId;
+     let isDel=deletedLocal.includes(key)||deletedLocal.includes(rawId)||deletedLocal.includes(rawShri);
+     let edited=editedLocal[key]||editedLocal[rawId]||editedLocal[rawShri];
+     if(edited){return {key:key,id:rawId,name:edited.name||pd.patientName||'',shri:edited.shri||rawShri,contact:edited.contact||pd.contactNo||'',pmjay:edited.pmjay||pd.pmjayId||'',addr:edited.addr||pd.address||'',deleted:isDel};}
+     return {key:key,id:rawId,name:String(pd.patientName||'').trim(),shri:rawShri,contact:String(pd.contactNo||'').trim(),pmjay:String(pd.pmjayId||'').trim(),addr:String(pd.address||'').trim(),deleted:isDel};
+   });
+ }catch(e){
+   console.error(e);
+   document.getElementById('info').textContent='Firebase load error: '+e.message;
+   allPatients=[];
+ }
  applyFilter();
 }
 init();
