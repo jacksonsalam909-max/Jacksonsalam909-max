@@ -47,10 +47,13 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .btnDel{background:#ef4444;color:#fff;padding:5px 10px;font-size:12px}
 .btnBlue{background:#1a56db;color:#fff;border:0;padding:9px 14px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px}
 .btnDark{background:#0a1931;color:#fff;border:0;padding:9px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer}
+.btnOutline{background:#fff;color:#0a1931;border:1.5px solid #dbe0ea;padding:8px 11px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;min-width:96px}
+.btnOutline.filled{background:#0a1931;color:#fff;border-color:#0a1931}
 .pager{display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px}
 .pBtn{padding:6px 12px;border-radius:6px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer}
-.modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:10000}.modal.show{display:grid}
+.modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:10000;padding:16px}.modal.show{display:grid}
 .modalBox{background:#fff;border-radius:16px;padding:20px;width:92%;max-width:440px;box-shadow:0 20px 40px #0004}
+.modalBoxLarge{background:#fff;border-radius:18px;overflow:hidden;width:94%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 40px #0004}
 .searchInput{width:100%;padding:12px;border:1.5px solid #cbd5e1;border-radius:10px;margin:10px 0}
 .sList{max-height:300px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:10px}
 .timeGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
@@ -62,6 +65,19 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .hintBox{font-size:11px;color:#64748b;margin-top:6px}
 .selectedInfo{background:#ede9fe;border:1px solid #ddd6fe;padding:8px 12px;border-radius:8px;font-size:13px;color:#5b21b6;font-weight:600;display:none;margin-top:8px}
 .selectedInfo.show{display:block}
+.suggest{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;max-height:240px;overflow:auto;z-index:50;display:none;box-shadow:0 12px 24px #0002;margin-top:6px}
+.suggest div{padding:10px 12px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:13px}
+.suggest div:hover{background:#ede9fe}
+.multiRow{padding:12px;border:1.5px solid #eef0f4;border-radius:14px;background:#fcfdff;box-shadow:0 2px 8px #00000006;display:flex;flex-direction:column;gap:10px}
+.multiRowTop{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.multiBtns{display:flex;gap:6px;flex-wrap:wrap}
+.popHead{padding:16px;background:#0a1931;color:#fff}
+.popHead h3{font-size:17px;font-weight:800;margin:0;line-height:1.1;color:#fff}
+.closeX{width:28px;height:28px;min-width:28px;border-radius:50%;background:#ffffff22;color:#fff;border:0;cursor:pointer;font-size:16px;line-height:1}
+tr.repeatRow{background:#fef08a!important}
+tr.repeatRow:hover{background:#fde047!important}
+tr.repeatRow td:first-child{border-left:4px solid #eab308}
+.repeatBadge{background:#eab308;color:#000;font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px;margin-left:6px;vertical-align:middle}
 @media(max-width:900px){.mainHintWrap{min-width:0;flex:1 1 100%;max-width:100%}.searchAddedWrap{width:100%;margin-left:0;border-left:0;padding-left:0;margin-top:6px}.searchAddedWrap input{flex:1;min-width:0}}
 </style>
 </head>
@@ -87,11 +103,14 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <div class="filterBox">
 <div class="row1" style="background:#f8fafc;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;margin-bottom:14px">
 <input type="date" id="listDate" onchange="loadList()" style="min-width:160px">
+<span style="font-weight:800;font-size:12px">Filter by Scheme:</span>
+<select id="schemeFilter" onchange="onSchemeChange(this.value)"><option value="CMHT" selected>CMHT</option><option value="PMJAY">PMJAY</option></select>
 <div class="mainHintWrap">
 <input id="searchList" class="searchInputMain" placeholder="Type name / SHRI ID... (use ↑ ↓ arrow keys + Enter to select)" oninput="onMainSearchInput()" onfocus="onMainSearchInput()" autocomplete="off">
 <div class="mainHintList" id="mainHintList"></div>
 </div>
 <button class="btn btnAdd" id="addBtnMain" onclick="onAddFromMain()" disabled>+ Add Patient</button>
+<button class="btn" style="background:#0a1931;color:#fff;padding:12px 16px" onclick="openMulti()">+ Add Multiple Patients</button>
 </div>
 <div class="selectedInfo" id="selectedInfo"></div>
 <div class="hintBox" style="margin-bottom:12px">Live hint from <b>cmht.html / cmht_patients</b> - Type name → Use Arrow Up/Down + Enter to select → Then click + Add Patient | Auto save Firebase - Visible all computers</div>
@@ -112,6 +131,8 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div id="pageInfo" style="font-weight:600;color:#475569"></div><div id="pageNums" style="display:flex;gap:4px"></div></div></div>
 </div>
 </div>
+
+<!-- SINGLE -->
 <div class="modal" id="modalTime"><div class="modalBox"><h3>Select Time Slot</h3><p id="selPatientInfo" style="font-size:13px;color:#64748b"></p><div class="timeGrid">
 <button class="timeBtn" onclick="selectTime('7AM')">7AM</button>
 <button class="timeBtn" onclick="selectTime('12PM')">12PM</button>
@@ -125,6 +146,26 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <button class="blockBtn" onclick="selectBlock('Main')">Main</button>
 </div><button class="btn" onclick="closeAll()">Cancel</button></div></div>
 <div class="modal" id="modalPrev"><div class="modalBox"><h3>Previous Dialysis Date</h3><input type="date" id="prevDate" style="width:100%;padding:12px;border-radius:8px;border:1.5px solid #cbd5e1"><div style="display:flex;gap:8px;margin-top:14px"><button class="btn" onclick="closeAll()" style="flex:1">Cancel</button><button class="btn btnAdd" onclick="finalAdd()" style="flex:1">Add to List (Auto Save Firebase)</button></div></div></div>
+
+<!-- MULTIPLE ADD -->
+<div class="modal" id="popMulti"><div class="modalBoxLarge">
+<div class="popHead"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Add Multiple Patients</h3><button class="closeX" onclick="closeMulti()">×</button></div></div>
+<div style="padding:12px;display:flex;flex-direction:column;gap:10px;overflow:auto">
+<div style="position:relative"><input id="m_search" class="searchInputMain" placeholder="Search by Name / SHRI ID - Tap to add" oninput="showMultiSuggest(this.value)" autocomplete="off"><div id="m_suggest" class="suggest"></div></div>
+<div id="m_list" style="display:flex;flex-direction:column;gap:10px;max-height:48vh;overflow:auto;padding-bottom:4px"></div>
+<div id="m_empty" style="text-align:center;color:#94a3b8;font-size:12px;padding:10px">No patients added yet. Search above and tap a patient.</div>
+<button class="btn" id="m_saveBtn" onclick="saveMultiple()" style="background:#0a1931;color:#fff;padding:12px;border-radius:12px;position:sticky;bottom:0">Save All to Firebase (0)</button>
+</div></div></div>
+
+<!-- MULTIPLE: Time / Block / Prev -->
+<div class="modal" id="popMTime"><div class="modalBox"><h3>Select Time Slot</h3><p id="mTimePatient" style="font-size:13px;color:#64748b"></p><div class="timeGrid">
+<button class="timeBtn" onclick="selectMultiTime('7AM')">7AM</button><button class="timeBtn" onclick="selectMultiTime('12PM')">12PM</button><button class="timeBtn" onclick="selectMultiTime('5PM')">5PM</button><button class="timeBtn" onclick="selectMultiTime('9PM')">9PM</button><button class="timeBtn" onclick="selectMultiTime('12AM')">12AM</button><button class="timeBtn" onclick="selectMultiTime('2AM')">2AM</button>
+</div><button class="btn" onclick="closeMultiPop('popMTime')">Cancel</button></div></div>
+<div class="modal" id="popMBlock"><div class="modalBox"><h3>Select Block</h3><p id="mBlockPatient" style="font-size:13px;color:#64748b"></p><div class="blockGrid">
+<button class="blockBtn" onclick="selectMultiBlock('Itocha')">Itocha</button><button class="blockBtn" onclick="selectMultiBlock('Main')">Main</button>
+</div><button class="btn" onclick="closeMultiPop('popMBlock')">Cancel</button></div></div>
+<div class="modal" id="popMPrev"><div class="modalBox"><h3>Previous Dialysis Date</h3><p id="mPrevPatient" style="font-size:13px;color:#64748b"></p><input type="date" id="m_prev_date" style="width:100%;padding:12px;border-radius:8px;border:1.5px solid #cbd5e1"><div style="display:flex;gap:8px;margin-top:14px"><button class="btn" onclick="closeMultiPop('popMPrev')" style="flex:1">Cancel</button><button class="btn btnAdd" onclick="confirmMultiPrev()" style="flex:1">Set Previous Date</button></div></div></div>
+
 <script>
 function toggleMenu(){
  var s=document.getElementById('side');
@@ -143,7 +184,8 @@ document.addEventListener('DOMContentLoaded',function(){
    b.addEventListener('touchstart',function(e){e.preventDefault();toggleMenu();},{passive:false});
  }
 });
-document.addEventListener('click',(e)=>{if(!e.target.closest('.mainHintWrap')){document.getElementById('mainHintList').classList.remove('show');}});
+document.addEventListener('click',(e)=>{if(!e.target.closest('.mainHintWrap')){document.getElementById('mainHintList').classList.remove('show');} if(!e.target.closest('#m_search') &&!e.target.closest('#m_suggest')){ var ms=document.getElementById('m_suggest'); if(ms) ms.style.display='none'; }});
+function onSchemeChange(val){ var d=document.getElementById('listDate').value||''; if(val==='PMJAY'){ location.href='daily.html'+(d?'?date='+d:''); } }
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -154,6 +196,7 @@ window.db=db;window.fb={collection,getDocs,doc,setDoc,addDoc,deleteDoc,query,whe
 let allCMHT=[], allList=[], filteredList=[], currentPage=1;
 let selectedPatient=null, selectedTime='', selectedBlock='';
 let hintIndex=-1;
+let multiList=[], multiEditIndex=-1;
 document.getElementById('listDate').valueAsDate=new Date();
 document.getElementById('prevDate').valueAsDate=new Date();
 document.getElementById('fbStatus').textContent='Firebase Connected - Auto Save ON';
@@ -186,20 +229,37 @@ window.applyFilters=()=>{
   if(blockF && p.block!==blockF) return false;
   if(searchAdded){
     let n=(p.name||'').toLowerCase();
-    let s=(p.shri||'').toLowerCase();
+    let s=(p.shri||p.shriId||'').toLowerCase();
     let t=(p.time||'').toLowerCase();
     let b=(p.block||'').toLowerCase();
-    if(!n.includes(searchAdded) && !s.includes(searchAdded) && !t.includes(searchAdded) && !b.includes(searchAdded)) return false;
+    if(!n.includes(searchAdded) &&!s.includes(searchAdded) &&!t.includes(searchAdded) &&!b.includes(searchAdded)) return false;
   }
   return true;
  });
+ // ALPHABETICAL SORT A-Z
+ filteredList.sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase()));
  currentPage=1;renderTable();
 };
 window.renderTable=()=>{
  let pageSize=parseInt(document.getElementById('pageSize').value);let totalPages=Math.max(1,Math.ceil(filteredList.length/pageSize));if(currentPage>totalPages) currentPage=totalPages;
  let start=(currentPage-1)*pageSize;let data=filteredList.slice(start,start+pageSize);
+ // REPEATED COUNT - recomputed every render, so after delete highlight auto-gone
+ let countMap={};
+ filteredList.forEach(r=>{
+   let key=(r.shri||r.shriId||'').toString().toLowerCase().trim();
+   if(!key || key==='n/a') key='name:'+(r.name||'').toLowerCase().trim();
+   countMap[key]=(countMap[key]||0)+1;
+ });
+ function isRepeat(r){
+   let key=(r.shri||r.shriId||'').toString().toLowerCase().trim();
+   if(!key || key==='n/a') key='name:'+(r.name||'').toLowerCase().trim();
+   return countMap[key] > 1;
+ }
  let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Time</th><th>Block</th><th>Previous Dialysis Date</th><th>List Date</th><th>Action</th></tr>';
- data.forEach((p,i)=>{html+=`<tr><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri}</span></td><td><span class="timeBadge">${p.time}</span></td><td><span class="blockBadge">${p.block}</span></td><td>${p.prevDate||'-'}</td><td>${p.listDate||'-'}</td><td><button class="btn btnDel" onclick="deleteEntry('${p.id}')">Delete</button></td></tr>`;});
+ data.forEach((p,i)=>{
+   let rep=isRepeat(p);
+   html+=`<tr class="${rep?'repeatRow':''}"><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b>${rep?'<span class="repeatBadge">REPEATED</span>':''}</td><td><span class="shri">${p.shri||p.shriId}</span></td><td><span class="timeBadge">${p.time}</span></td><td><span class="blockBadge">${p.block}</span></td><td>${p.prevDate||'-'}</td><td>${p.listDate||'-'}</td><td><button class="btn btnDel" onclick="deleteEntry('${p.id}')">Delete</button></td></tr>`;
+ });
  if(data.length===0) html+=`<tr><td colspan="8" style="text-align:center;padding:20px">No dialysis for ${document.getElementById('listDate').value}${document.getElementById('searchAdded').value?' - Search "'+document.getElementById('searchAdded').value+'" not found in added list':''}</td></tr>`;
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('pageInfo').textContent=`Showing ${filteredList.length?start+1:0}-${Math.min(start+pageSize,filteredList.length)} of ${filteredList.length} | Date: ${document.getElementById('listDate').value} | Search: ${document.getElementById('searchAdded').value?'"'+document.getElementById('searchAdded').value+'" - '+filteredList.length+' found':'All'}`;
@@ -213,7 +273,7 @@ window.nextPage=()=>{let ps=parseInt(document.getElementById('pageSize').value);
 window.goPage=(n)=>{currentPage=n;renderTable();};
 window.deleteEntry=async(id)=>{if(!confirm('Delete from Firebase? Will delete for all computers'))return;try{await deleteDoc(doc(db,"cmht_daily_dialysis",id));document.getElementById('fbStatus').textContent='Deleted from Firebase';loadList();}catch(e){alert(e.message);}};
 function updateHintSelection(){
- let items=document.querySelectorAll('#mainHintList .sItem');
+ let items=document.querySelectorAll('#mainHintList.sItem');
  items.forEach((el,i)=>{if(i===hintIndex) el.classList.add('selected'); else el.classList.remove('selected');});
  if(hintIndex>=0 && items[hintIndex]) items[hintIndex].scrollIntoView({block:'nearest'});
 }
@@ -241,7 +301,7 @@ window.selectMainHint=(key)=>{
 };
 document.getElementById('searchList').addEventListener('keydown',(e)=>{
  let box=document.getElementById('mainHintList');
- let items=document.querySelectorAll('#mainHintList .sItem');
+ let items=document.querySelectorAll('#mainHintList.sItem');
  if(!box.classList.contains('show')) return;
  if(e.key==='ArrowDown'){
   e.preventDefault();
@@ -289,9 +349,57 @@ window.finalAdd=async()=>{
   await loadList();
  }catch(e){alert('Firebase Error: '+e.message);document.getElementById('fbStatus').textContent='Error: '+e.message;}
 };
+// MULTIPLE
+window.openMulti=()=>{ multiList=[]; renderMultiList(); document.getElementById('m_search').value=''; document.getElementById('m_suggest').style.display='none'; document.getElementById('popMulti').classList.add('show'); };
+window.closeMulti=()=>{ document.getElementById('popMulti').classList.remove('show'); };
+window.closeMultiPop=(id)=>{ document.getElementById(id).classList.remove('show'); };
+window.showMultiSuggest=(q)=>{
+  q=(q||'').toLowerCase().trim(); let box=document.getElementById('m_suggest'); if(q.length<1){box.style.display='none';return;}
+  let filtered=allCMHT.filter(p=>[p.name,p.shri,p.contact,p.cmht].join(' ').toLowerCase().includes(q)).slice(0,20);
+  if(!filtered.length){box.style.display='none';return;}
+  box.innerHTML=filtered.map(p=>`<div onclick="pickMulti('${p.key}')"><b>${p.name}</b> - ${p.shri} | ${p.cmht||''}</div>`).join(''); box.style.display='block';
+};
+window.pickMulti=(key)=>{
+  let p=allCMHT.find(x=>x.key===key); if(!p) return;
+  if(multiList.some(x=>x.shri===p.shri && x.name===p.name)){ alert('Already added in this list'); document.getElementById('m_suggest').style.display='none'; return; }
+  multiList.push({name:p.name,shri:p.shri,contact:p.contact||'',cmht:p.cmht||'',time:'',block:'',prev:''});
+  document.getElementById('m_search').value=''; document.getElementById('m_suggest').style.display='none'; renderMultiList();
+};
+window.removeMulti=(i)=>{ multiList.splice(i,1); renderMultiList(); };
+function renderMultiList(){
+  document.getElementById('m_list').innerHTML=multiList.map((p,i)=>{
+    let tLabel=p.time? p.time+' ▼' : 'Select Time ▼';
+    let bLabel=p.block? p.block+' ▼' : 'Select Block ▼';
+    let prLabel=p.prev? p.prev+' ▼' : 'Select Prev Date ▼';
+    return `<div class="multiRow"><div class="multiRowTop"><span style="font-weight:800;font-size:13px;line-height:1.35">${i+1}. ${p.name} - ${p.shri} | ${p.cmht||'CMHT'}</span><button class="btn btnDel" onclick="removeMulti(${i})">Remove</button></div><div class="multiBtns"><button class="btnOutline ${p.time?'filled':''}" onclick="openMultiTime(${i})">Time: ${tLabel}</button><button class="btnOutline ${p.block?'filled':''}" onclick="openMultiBlock(${i})">Block: ${bLabel}</button><button class="btnOutline ${p.prev?'filled':''}" onclick="openMultiPrev(${i})">Prev: ${prLabel}</button></div></div>`;
+  }).join('');
+  document.getElementById('m_empty').style.display=multiList.length?'none':'block';
+  document.getElementById('m_saveBtn').textContent='Save All to Firebase ('+multiList.length+')';
+}
+window.openMultiTime=(i)=>{ multiEditIndex=i; document.getElementById('mTimePatient').textContent=multiList[i].name+' ('+multiList[i].shri+')'; document.getElementById('popMTime').classList.add('show'); };
+window.openMultiBlock=(i)=>{ multiEditIndex=i; document.getElementById('mBlockPatient').textContent=multiList[i].name+' ('+multiList[i].shri+')'; document.getElementById('popMBlock').classList.add('show'); };
+window.openMultiPrev=(i)=>{ multiEditIndex=i; document.getElementById('mPrevPatient').textContent=multiList[i].name+' ('+multiList[i].shri+')'; document.getElementById('m_prev_date').value=multiList[i].prev||''; document.getElementById('popMPrev').classList.add('show'); };
+window.selectMultiTime=(t)=>{ if(multiEditIndex>=0) multiList[multiEditIndex].time=t; closeMultiPop('popMTime'); renderMultiList(); };
+window.selectMultiBlock=(b)=>{ if(multiEditIndex>=0) multiList[multiEditIndex].block=b; closeMultiPop('popMBlock'); renderMultiList(); };
+window.confirmMultiPrev=()=>{ let v=document.getElementById('m_prev_date').value; if(!v){alert('Select previous date');return;} if(multiEditIndex>=0) multiList[multiEditIndex].prev=v; closeMultiPop('popMPrev'); renderMultiList(); };
+window.saveMultiple=async()=>{
+  if(!multiList.length){alert('Add at least 1 patient');return;}
+  for(let p of multiList){ if(!p.time){alert(p.name+' - Select Time');return;} if(!p.block){alert(p.name+' - Select Block');return;} if(!p.prev){alert(p.name+' - Select Prev Date');return;} }
+  let listDate=document.getElementById('listDate').value;
+  document.getElementById('fbStatus').textContent='Saving '+multiList.length+' patients to Firebase...';
+  try{ for(let p of multiList){ await addDoc(collection(db,"cmht_daily_dialysis"),{name:p.name,shri:p.shri,shriId:p.shri,contact:p.contact||'',time:p.time,block:p.block,prevDate:p.prev,listDate:listDate,remark:'CMHT',createdAt:new Date().toISOString(),serverTime:serverTimestamp()}); } document.getElementById('fbStatus').textContent='Saved '+multiList.length+' patients - Visible on all computers'; }catch(e){ document.getElementById('fbStatus').textContent='Save Error: '+e.message; alert(e.message); return; }
+  closeMulti(); multiList=[]; renderMultiList(); await loadList();
+};
+// EXPORT - ONLY FILTERED (Time + Block + Search + Sorted A-Z)
 window.exportExcel=()=>{
- let rows=filteredList.map((p,i)=>({SL:i+1,Name:p.name,SHRI_ID:p.shri,Time:p.time,Block:p.block,Previous_Dialysis_Date:p.prevDate,List_Date:p.listDate,Remark:'CMHT'}));
- let ws=XLSX.utils.json_to_sheet(rows);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"CMHT Daily "+document.getElementById('listDate').value);XLSX.writeFile(wb,`CMHT_Daily_${document.getElementById('listDate').value}.xlsx`);
+ let timeF=document.getElementById('timeFilter').value;
+ let blockF=document.getElementById('blockFilter').value;
+ let dateVal=document.getElementById('listDate').value;
+ if(!filteredList.length){ alert('No data for '+dateVal+' with selected filters'); return; }
+ let timeLabel=timeF||'All-Time';
+ let blockLabel=blockF||'All-Block';
+ let rows=filteredList.map((p,i)=>({SL:i+1,Name:p.name,SHRI_ID:p.shri||p.shriId,Time:p.time,Block:p.block,Previous_Dialysis_Date:p.prevDate,List_Date:p.listDate,Remark:'CMHT'}));
+ let ws=XLSX.utils.json_to_sheet(rows);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"CMHT Daily "+dateVal);XLSX.writeFile(wb,`CMHT_Daily_${dateVal}_${blockLabel}_${timeLabel}.xlsx`);
 };
 await loadCMHT();await loadList();window.loadList=loadList;
 </script>
