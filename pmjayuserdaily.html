@@ -1,37 +1,170 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PMJAY Daily Dialysis - View Only</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui}body{background:#f6f7fb}.top{height:64px;background:#1e293b;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:10}.top b{color:#fff;font-size:16px}.top button{padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}.wrap{max-width:1200px;margin:auto;padding:16px}.card{background:#fff;border-radius:14px;padding:16px}.head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}.badge{background:#f97316;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800}.controls{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.controls input,.controls select{padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;flex:1;min-width:140px}.btn{padding:10px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer;color:#fff;background:#f97316}.btnG{background:#16a34a}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px;border-bottom:1px solid #f1f5f9;text-align:left}th{background:#f8fafc}.wrap2{overflow-x:auto;max-height:70vh}tr.repeat td{background:#fef9c3!important}.count{font-size:13px;color:#64748b;margin:8px 0}</style></head>
+<html>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PMJAY DAILY DIALYSIS LIST - SHIJA - User View</title>
+<script src="Patient.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
+body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;color:#0f172a}
+.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:9999}
+.top h2{color:#fff;font-size:16px;font-weight:800}
+.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+.menuBtn span{display:block;width:20px;height:2px;background:#fff;pointer-events:none}
+.adBadge{display:flex;align-items:center;gap:8px;color:#fff}
+.adCircle{width:30px;height:30px;border-radius:50%;background:#22c55e;color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px;border:1.5px solid #16a34a}
+.mainWrap{display:flex;flex:1;margin-top:64px}
+.side{width:260px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;z-index:9998;transition:.3s;transform:translateX(-100%);overflow-y:auto}
+.side.show{transform:translateX(0)!important}
+.menu{display:flex;flex-direction:column;gap:4px}
+.menu a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px}
+.menu a.active{background:#1a56db;color:#fff;font-weight:700}
+.sideBottom{border-top:1px solid #1a2a4f;padding:12px 10px;color:#6b7aa2;font-size:11px}
+.sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,0.5);z-index:9997;display:none}
+.sideOverlay.show{display:block}
+.content{flex:1;padding:16px 14px;max-width:1350px;width:100%}
+.headRow{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.headRow h1{font-size:28px;font-weight:900;letter-spacing:-.5px;color:#0f1a34}
+.bread{color:#6b7280;font-size:13px;margin-top:4px}
+.card{background:#fff;border-radius:16px;box-shadow:0 10px 30px #00000008;border:1px solid #e5e7eb;padding:12px}
+.viewBar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#f0fdf4;border:1.5px solid #bbf7d0;padding:10px;border-radius:12px;margin-bottom:12px;font-size:13px;font-weight:700;color:#14532d}
+.viewBar input{padding:10px 10px;border:1.5px solid #bbf7d0;border-radius:10px;outline:0;font-weight:600;font-size:13px;background:#fff}
+.btnBlue{background:#1a56db;color:#fff;border:0;padding:10px 16px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer}
+.btnDark{background:#0a1931;color:#fff;border:0;padding:10px 14px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.filters select,.filters input{padding:9px 10px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;font-weight:700;font-size:12px;outline:0}
+.searchAddedWrap{display:flex;gap:6px;align-items:center;margin-left:8px;border-left:1.5px solid #e5e7eb;padding-left:10px}
+.searchAddedWrap input{padding:9px 12px;border-radius:20px;border:1.5px solid #3b82f6;min-width:190px;background:#f8fafc}
+.tableBox{border:1.5px solid #e5e7eb;border-radius:14px;overflow:auto;background:#fff}
+table{width:100%;border-collapse:collapse;min-width:900px;font-size:13px}
+th{padding:12px 10px;text-align:left;font-weight:800;background:#f8fafc;border-bottom:1px solid #e5e7eb;color:#0f172a;font-size:11px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+td{padding:12px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tr:hover{background:#f8fafc}
+.shriPill{background:#dbeafe;color:#1e40af;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;border:1px solid #bfdbfe}
+.pmjayPill{background:#bbf7d0;color:#14532d;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:800;display:inline-block;border:1px solid #86efac}
+.pagi{display:flex;gap:5px;justify-content:flex-end;align-items:center;margin-top:10px;flex-wrap:wrap}
+.pagi button{padding:7px 12px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;cursor:pointer;font-weight:800;font-size:11px}
+.pagi button.active{background:#1a56db;color:#fff;border-color:#1a56db}
+tr.repeatRow{background:#fef08a!important}
+tr.repeatRow:hover{background:#fde047!important}
+tr.repeatRow td:first-child{border-left:4px solid #eab308}
+.repeatBadge{background:#eab308;color:#000;font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px;margin-left:6px;vertical-align:middle}
+.viewBadge{background:#22c55e;color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:800}
+@media(max-width:900px){.searchAddedWrap{margin-left:0;border-left:0;padding-left:0;width:100%}.searchAddedWrap input{flex:1;min-width:0}}
+</style>
+</head>
 <body>
-<script>(function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();</script>
-<div class="top"><b>SHIJA • PMJAY Daily Dialysis <span style="color:#fdba74;font-size:12px">VIEW ONLY</span></b><div><button onclick="location.href='user-index.html'">🏠 Home</button> <button onclick="localStorage.clear();location.href='login.html'">Logout</button></div></div>
-<div class="wrap"><div class="card"><div class="head"><h1>PMJAY Daily Dialysis List</h1><span class="badge">READ ONLY</span></div>
-<div class="controls"><input type="date" id="date"><select id="time"><option value="">All Time</option><option>Morning</option><option>Afternoon</option><option>Evening</option></select><select id="block"><option value="">All Block</option><option>Block A</option><option>Block B</option><option>Block C</option><option>Block D</option></select><input id="search" placeholder="Search Name / SHRI..." oninput="render()"><button class="btn" onclick="render()">Filter</button><button class="btn btnG" onclick="exportExcel()">Export Excel</button></div>
-<div class="count" id="count">Loading...</div>
-<div class="wrap2"><table><thead><tr><th>#</th><th>Name</th><th>SHRI</th><th>Time</th><th>Block</th><th>Date</th><th>Prev Date</th></tr></thead><tbody id="tbody"></tbody></table></div>
-<p style="font-size:11px;color:#94a3b8;margin-top:10px">Yellow = Repeated patient • 🔒 View Only - Admin data only</p></div></div>
+<script>
+// USER ONLY + 30 MIN AUTO LOGOUT
+(function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired - Auto logout after 30 minutes');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();</script>
+<div class="top">
+<div style="display:flex;align-items:center;gap:10px">
+<div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div>
+<h2>SHIJA Dialysis - PMJAY DAILY DIALYSIS LIST <span class="viewBadge">VIEW ONLY</span></h2>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<button class="btnBlue" onclick="exportExcel()">Excel</button>
+<div class="adBadge"><div class="adCircle">U</div><span style="font-weight:700;font-size:13px">User</span></div>
+</div>
+</div>
+<div class="sideOverlay" id="overlay"></div>
+<div class="mainWrap">
+<div class="side" id="side">
+<div class="menu">
+<a href="user-index.html">Home</a>
+<a href="pmjayusertotal.html">PMJAY TOTAL PATIENT</a>
+<a href="cmhtusertotal.html">CMHT TOTAL PATIENT</a>
+<a href="pmjayuserdaily.html" class="active">PMJAY DAILY DIALYSIS</a>
+<a href="cmhtuserdaily.html">CMHT DAILY DIALYSIS</a>
+</div>
+<div class="sideBottom">Help & Support<br>v2.4.1 • <span id="fbStatus">Connecting...</span><br><span style="color:#22c55e;font-weight:700">● View Only Mode</span></div>
+</div>
+<div class="content" id="content">
+<div class="headRow">
+<div><h1>PMJAY DAILY DIALYSIS LIST</h1><div class="bread">Dashboard / PMJAY Daily Dialysis - Master: <b id="totalLoaded">0</b> | Date: <b id="dateShow"></b> | Firebase Sync</div></div>
+</div>
+<div class="viewBar">
+<span>🔒 VIEW ONLY — You cannot Add / Edit / Delete</span>
+<span style="margin-left:auto">View Date:</span>
+<input type="date" id="d_date" onchange="loadFromFirebase()">
+</div>
+<div class="card">
+<div class="filters">
+<span style="font-weight:800;font-size:12px">Time:</span>
+<select id="timeFilter" onchange="currentPage=1;renderTable()"><option value="all">All Time</option><option value="7am">7 AM</option><option value="12pm">12 PM</option><option value="5pm">5 PM</option><option value="9pm">9 PM</option><option value="12am">12 AM</option><option value="2am">2 AM</option></select>
+<span style="font-weight:800;font-size:12px;margin-left:4px">Block:</span>
+<select id="blockFilter" onchange="currentPage=1;renderTable()"><option value="all">All Block</option><option value="Main">Main</option><option value="Itocha">Itocha</option></select>
+<span style="font-weight:800;font-size:12px;margin-left:4px">Show:</span>
+<select id="pageSize" onchange="currentPage=1;renderTable()"><option value="10">10</option><option value="20" selected>20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option></select>
+<div class="searchAddedWrap">
+<input id="searchAdded" placeholder="Search Added List (Name / SHRI)" oninput="currentPage=1;renderTable()" autocomplete="off">
+<button class="btnBlue" onclick="currentPage=1;renderTable()">Search</button>
+<button class="btnDark" onclick="document.getElementById('searchAdded').value='';renderTable()">Clear</button>
+</div>
+<span style="margin-left:auto;font-size:11px;color:#64748b">Total for <b id="dateLabel">today</b>: <b id="totalCount">0</b> | <b id="cloudCount">Firebase: 0</b></span>
+</div>
+<div id="printArea">
+<div class="tableBox"><table><thead><tr><th>Sl No</th><th>Name</th><th>SHRI ID</th><th>Time</th><th>PMJAY ID</th><th>Block</th><th>Prev Date</th></tr></thead><tbody id="tblBody"></tbody></table></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:10px">
+<div style="color:#6b7280;font-size:11px">Showing <b id="showingTxt">0</b> of <b id="totalShow">0</b> patients for <b id="showDateTxt"></b> | Search: <b id="searchResultTxt">All</b></div>
+<div class="pagi" id="pagination"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";import {getFirestore,collection,getDocs,query,where} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};const app=initializeApp(config);const db=getFirestore(app);
-let all=[];
-document.getElementById('date').value=new Date().toISOString().slice(0,10);
-document.getElementById('date').addEventListener('change',load);
-async function load(){
-  let sel=document.getElementById('date').value; all=[];
-  try{let snap=await getDocs(query(collection(db,"daily_dialysis"),where("date","==",sel))); snap.forEach(d=>{let p=d.data(); all.push({name:p.name||p.patientName||'',shri:p.shri||p.shriId||'',time:p.time||'',block:p.block||'',date:p.date||sel,prev:p.prevDate||p.previousDate||''});});}catch(e){}
-  if(!all.length){try{let snap=await getDocs(query(collection(db,"dailyDialysis"),where("date","==",sel))); snap.forEach(d=>{let p=d.data(); all.push({name:p.name||p.patientName||'',shri:p.shri||'',time:p.time||'',block:p.block||'',date:p.date||sel,prev:p.prevDate||''});});}catch(e){}}
-  all.sort((a,b)=>a.name.localeCompare(b.name)); render();
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, query, where, doc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(config);const db=getFirestore(app);
+window.db=db;window.fb={collection,getDocs,query,where,doc,serverTimestamp,onSnapshot};
+document.getElementById('fbStatus').innerText="Firebase Connected - View Only";
+</script>
+<script>
+// UNIVERSAL 3-LINE BUTTON - Works on Mobile + Desktop + Tablet
+function toggleMenu(){ document.getElementById('side').classList.toggle('show'); document.getElementById('overlay').classList.toggle('show'); }
+document.addEventListener('DOMContentLoaded',function(){
+  var b=document.getElementById('menuBtn'); if(b){ b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();toggleMenu();}); b.addEventListener('touchstart',function(e){e.preventDefault();toggleMenu();},{passive:false}); }
+  var o=document.getElementById('overlay'); if(o){ o.addEventListener('click',toggleMenu); o.addEventListener('touchstart',function(e){e.preventDefault();toggleMenu();},{passive:false}); }
+  document.querySelectorAll('#side.menu a').forEach(function(a){ a.addEventListener('click',function(){ document.getElementById('side').classList.remove('show'); document.getElementById('overlay').classList.remove('show'); }); });
+});
+let excelRaw=(typeof patientData!=='undefined')?patientData:[];
+let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');
+let allPatients=[...excelRaw,...extra];
+let today=new Date().toISOString().slice(0,10);
+try{ var urlDate=new URLSearchParams(location.search).get('date'); if(urlDate) today=urlDate; }catch(e){}
+document.getElementById('d_date').value=today;
+document.getElementById('totalLoaded').textContent=allPatients.length;
+let currentPage=1; let firebaseList=[]; let unsubscribe=null;
+function getPmjayFromMaster(name,shri){ let f=allPatients.find(p=>{let n=(p.patientName||'').toLowerCase()===name.toLowerCase();let s=(p.shriId||'').toLowerCase()===shri.toLowerCase()&&shri;return n||s;}); if(!f) return '';return f.pmjayId||f.PMJAY||f.pmjay||''; }
+async function loadFromFirebase(){
+ let entryDate=document.getElementById('d_date').value||today; document.getElementById('dateShow').textContent=entryDate; document.getElementById('dateLabel').textContent=entryDate; document.getElementById('showDateTxt').textContent=entryDate; document.getElementById('fbStatus').textContent='Loading '+entryDate+'...';
+ try{ if(window.fb && window.fb.onSnapshot){ if(unsubscribe) unsubscribe(); let q=window.fb.query(window.fb.collection(window.db,"daily_dialysis"), window.fb.where("date","==",entryDate)); unsubscribe=window.fb.onSnapshot(q,(snap)=>{ firebaseList=[]; snap.forEach(d=>{firebaseList.push({fbId:d.id,...d.data()});}); document.getElementById('fbStatus').textContent=`Firebase: ${firebaseList.length} for ${entryDate} - Live Sync ON`; currentPage=1; renderTable(); },(err)=>{ document.getElementById('fbStatus').textContent='Live Sync Error: '+err.message; }); return; } }catch(e){}
+ try{ if(!window.fb){setTimeout(loadFromFirebase,500);return;} let q=window.fb.query(window.fb.collection(window.db,"daily_dialysis"), window.fb.where("date","==",entryDate)); let snap=await window.fb.getDocs(q); firebaseList=[]; snap.forEach(d=>{firebaseList.push({fbId:d.id,...d.data()});}); if(firebaseList.length===0){ try{ let q2=window.fb.query(window.fb.collection(window.db,"dailyDialysis"), window.fb.where("date","==",entryDate)); let snap2=await window.fb.getDocs(q2); snap2.forEach(d=>{firebaseList.push({fbId:d.id,...d.data(), id:d.id});}); }catch(e){} } document.getElementById('fbStatus').textContent=`Firebase: ${firebaseList.length} for ${entryDate} - Synced`; currentPage=1;renderTable(); }catch(e){ document.getElementById('fbStatus').textContent='Error: '+e.message; firebaseList=[];renderTable(); }
 }
-window.render=function(){
-  let q=document.getElementById('search').value.toLowerCase().trim();
-  let t=document.getElementById('time').value.toLowerCase();
-  let b=document.getElementById('block').value.toLowerCase();
-  let f=all.filter(p=>{ if(q && ![p.name,p.shri].join(' ').toLowerCase().includes(q)) return false; if(t && !p.time.toLowerCase().includes(t)) return false; if(b && !p.block.toLowerCase().includes(b)) return false; return true; });
-  let counts={}; f.forEach(p=>{counts[p.shri]=(counts[p.shri]||0)+1;});
-  document.getElementById('count').textContent=`Showing ${f.length} patients for ${document.getElementById('date').value}`;
-  document.getElementById('tbody').innerHTML=f.map((p,i)=>`<tr class="${counts[p.shri]>1?'repeat':''}"><td>${i+1}</td><td><b>${p.name}</b></td><td>${p.shri}</td><td>${p.time}</td><td>${p.block}</td><td>${p.date}</td><td>${p.prev}</td></tr>`).join('')||'<tr><td colspan=7 style="text-align:center;padding:20px">No dialysis entry for this date</td></tr>';
-  window._filtered=f;
-};
-window.exportExcel=function(){let data=(window._filtered||all).map((p,i)=>({Sl:i+1,Name:p.name,SHRI:p.shri,Time:p.time,Block:p.block,Date:p.date,PrevDate:p.prev})); let ws=XLSX.utils.json_to_sheet(data); let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"PMJAY Daily"); XLSX.writeFile(wb,`PMJAY_Daily_${document.getElementById('date').value}_User.xlsx`);};
-load();
-</script></body></html>
+function getFilteredList(){ let timeFilter=document.getElementById('timeFilter').value; let blockFilter=document.getElementById('blockFilter').value; let searchAdded=document.getElementById('searchAdded').value.toLowerCase().trim(); let list=[...firebaseList]; if(timeFilter!=='all') list=list.filter(x=>x.time===timeFilter); if(blockFilter!=='all') list=list.filter(x=>x.block===blockFilter); if(searchAdded){ list=list.filter(x=>{ let n=(x.name||'').toLowerCase(); let s=(x.shriId||'').toLowerCase(); let p=(x.pmjayId||'').toLowerCase(); let b=(x.block||'').toLowerCase(); let t=(x.time||'').toLowerCase(); return n.includes(searchAdded)||s.includes(searchAdded)||p.includes(searchAdded)||b.includes(searchAdded)||t.includes(searchAdded); }); } list.sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase())); return list; }
+function renderTable(){ let list=getFilteredList(); let pageSize=parseInt(document.getElementById('pageSize').value); let totalPages=Math.ceil(list.length/pageSize)||1;if(currentPage>totalPages) currentPage=totalPages; let start=(currentPage-1)*pageSize;let pageData=list.slice(start,start+pageSize); let countMap={}; list.forEach(r=>{ let key=(r.shriId||'').toString().toLowerCase().trim(); if(!key || key==='n/a') key='name:'+(r.name||'').toLowerCase().trim()+'|'+(r.pmjayId||'').toLowerCase().trim(); countMap[key]=(countMap[key]||0)+1; }); function isRepeat(r){ let key=(r.shriId||'').toString().toLowerCase().trim(); if(!key || key==='n/a') key='name:'+(r.name||'').toLowerCase().trim()+'|'+(r.pmjayId||'').toLowerCase().trim(); return countMap[key] > 1; } document.getElementById('tblBody').innerHTML=pageData.map((r,i)=>{ let pm=r.pmjayId||getPmjayFromMaster(r.name,r.shriId)||'N/A'; let repeat=isRepeat(r); return `<tr class="${repeat?'repeatRow':''}"><td>${start+i+1}</td><td style="font-weight:700">${r.name}${repeat?'<span class="repeatBadge">REPEATED</span>':''}</td><td><span class="shriPill">${r.shriId}</span></td><td style="font-weight:700">${r.time}</td><td><span class="pmjayPill">${pm}</span></td><td style="font-weight:700">${r.block}</td><td>${r.prevDate}</td></tr>`; }).join('')||`<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:20px">No patients for ${document.getElementById('d_date').value}${document.getElementById('searchAdded').value?' - Search "'+document.getElementById('searchAdded').value+'" not found in added list':''}</td></tr>`; document.getElementById('totalCount').textContent=list.length; document.getElementById('totalShow').textContent=list.length; document.getElementById('cloudCount').textContent='Firebase: '+firebaseList.length; document.getElementById('showingTxt').textContent=list.length?`${start+1}-${Math.min(start+pageSize,list.length)}`:`0`; document.getElementById('searchResultTxt').textContent=document.getElementById('searchAdded').value?`"${document.getElementById('searchAdded').value}" - ${list.length} found`:'All'; let cont=document.getElementById('pagination');if(totalPages<=1){cont.innerHTML='';return;} let html=`<button onclick="changePage(-1)">Prev</button>`;for(let p=1;p<=totalPages;p++){html+=`<button class="${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`}html+=`<button onclick="changePage(1)">Next</button>`;cont.innerHTML=html; }
+function goPage(p){currentPage=p;renderTable();}
+function changePage(dir){currentPage=Math.max(1,currentPage+dir);let total=Math.ceil(getFilteredList().length/parseInt(document.getElementById('pageSize').value))||1;if(currentPage>total) currentPage=total;renderTable();}
+function exportExcel(){
+  let entryDate=document.getElementById('d_date').value||today;
+  let timeF=document.getElementById('timeFilter').value;
+  let blockF=document.getElementById('blockFilter').value;
+  let list=getFilteredList();
+  if(!list.length){ alert('No data for '+entryDate+' with selected filters'); return; }
+  let timeLabel=timeF==='all'?'All-Time':timeF.toUpperCase();
+  let blockLabel=blockF==='all'?'All-Block':blockF;
+  let exportData=list.map((r,i)=>({"Sl No":i+1,"Name":r.name,"SHRI ID":r.shriId,"TIME":r.time,"PMJAY ID":r.pmjayId,"BLOCK":r.block,"PREV DATE":r.prevDate,"DATE":r.date}));
+  let ws=XLSX.utils.json_to_sheet(exportData);
+  let wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'PMJAY Daily');
+  XLSX.writeFile(wb,`PMJAY_DAILY_${entryDate}_${blockLabel}_${timeLabel}.xlsx`);
+}
+setTimeout(loadFromFirebase,800);
+window.loadFromFirebase=loadFromFirebase;
+</script>
+</body>
+</html>
