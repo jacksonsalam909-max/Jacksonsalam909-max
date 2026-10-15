@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Upload All Patients to Firebase</title>
+<script src="Patient.js"></script>
+<style>
+body{font-family:Inter,system-ui;background:#f6f7fb;padding:20px}
+.box{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:24px;max-width:600px;margin:auto}
+button{width:100%;padding:14px;background:#1868db;color:#fff;border:0;border-radius:10px;font-weight:800;font-size:16px;cursor:pointer;margin-top:12px}
+#log{margin-top:14px;font-size:13px;color:#334155;white-space:pre-wrap;max-height:400px;overflow:auto}
+</style>
+</head>
+<body>
+<div class="box">
+<h2>Upload All Patients to Firebase</h2>
+<p id="count" style="color:#64748b;margin:8px 0">Checking...</p>
+<button onclick="uploadAll()">Upload All to Firebase</button>
+<div id="log"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+document.getElementById('count').textContent = (typeof patientData!=='undefined'?patientData.length:0) + ' patients found in Patient.js';
+
+window.uploadAll = async () => {
+  let list = (typeof patientData!=='undefined'?patientData:[]);
+  if(!list.length){ alert('No patientData found. Check Patient.js'); return; }
+  let log = document.getElementById('log');
+  log.textContent = 'Starting upload...\n';
+  let done = 0, failed = 0;
+
+  for(let i=0; i<list.length; i+=400){
+    let chunk = list.slice(i, i+400);
+    let batch = writeBatch(db);
+    chunk.forEach((pd, idx) => {
+      let shri = String(pd.shriId || pd.shri || '').trim();
+      let id = String(pd.id || '').trim();
+      let key = shri || ('ID_' + id) || ('P' + (i+idx));
+      let data = {
+        patientName: String(pd.patientName || pd.name || '').trim(),
+        name: String(pd.patientName || pd.name || '').trim(),
+        shriId: shri,
+        shri: shri,
+        contactNo: String(pd.contactNo || pd.contact || '').trim(),
+        contact: String(pd.contactNo || pd.contact || '').trim(),
+        pmjayId: String(pd.pmjayId || pd.pmjay || '').trim(),
+        pmjay: String(pd.pmjayId || pd.pmjay || '').trim(),
+        address: String(pd.address || pd.addr || '').trim(),
+        addr: String(pd.address || pd.addr || '').trim(),
+        key: key,
+        deleted: false,
+        createdAt: new Date().toISOString()
+      };
+      batch.set(doc(db, "patients", key), data, {merge:true});
+    });
+    try{
+      await batch.commit();
+      done += chunk.length;
+      log.textContent = `Uploaded ${done} / ${list.length}...\n` + log.textContent;
+    }catch(e){
+      failed += chunk.length;
+      log.textContent = 'ERROR: ' + e.message + '\n' + log.textContent;
+      alert('Firebase Error: ' + e.message);
+      break;
+    }
+  }
+  log.textContent = `DONE. Success: ${done}, Failed: ${failed}\n` + log.textContent;
+};
+</script>
+</body>
+</html>
