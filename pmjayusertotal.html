@@ -1,34 +1,125 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PMJAY Total Patient - View Only</title>
+<html>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Total Patients - SHIJA - User View</title>
 <script src="Patient.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<style>*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui}body{background:#f6f7fb} .top{height:64px;background:#1e293b;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:10}.top b{color:#fff;font-size:16px}.top button{padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}.wrap{max-width:1200px;margin:auto;padding:16px}.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 4px 14px #0001}.head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;align-items:center}.head h1{font-size:22px}.badge{background:#22c55e;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800}.controls{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.controls input,.controls select{padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;flex:1;min-width:160px;outline:0}.btn{padding:10px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer;color:#fff;background:#2563eb}.btnG{background:#16a34a}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px;border-bottom:1px solid #f1f5f9;text-align:left}th{background:#f8fafc;position:sticky;top:0}.wrap2{overflow-x:auto;max-height:70vh}.count{font-size:13px;color:#64748b;margin:8px 0}</style></head>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui}
+body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
+.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:9999}
+.top h2{color:#fff;font-size:16px;font-weight:800}
+.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.menuBtn span{display:block;width:20px;height:2px;background:#fff;pointer-events:none}
+.mainWrap{display:flex;flex:1;margin-top:64px}
+.side{width:260px;background:#0a1931;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;z-index:9998;overflow-y:auto;transition:0.3s;transform:translateX(-100%)}
+.side.show{transform:translateX(0)!important}
+.side a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px;display:block;margin-bottom:4px}
+.side a.active{background:#13264d;color:#fff}
+.content{flex:1;padding:16px;margin-left:0}
+.sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,0.5);z-index:9997;display:none}
+.sideOverlay.show{display:block}
+.tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden;margin-top:14px}
+table{width:100%;border-collapse:collapse;min-width:1000px}
+th{padding:14px 12px;font-size:12px;color:#64748b;background:#f8fafc;text-align:left}
+td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
+.sl{background:#f1f5f9;width:36px;height:28px;display:grid;place-items:center;border-radius:6px;font-weight:800}
+.shri{background:#1868db;color:#fff;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px}
+.pager{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px}
+.pBtn{padding:8px 14px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer;font-size:13px}
+.viewBadge{background:#22c55e;color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:800;margin-left:8px}
+</style>
+</head>
 <body>
-<script>(function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();</script>
-<div class="top"><b>SHIJA • PMJAY Total Patient <span style="color:#22c55e;font-size:12px">VIEW ONLY</span></b><div><button onclick="location.href='user-index.html'">🏠 Home</button> <button onclick="localStorage.clear();location.href='login.html'">Logout</button></div></div>
-<div class="wrap"><div class="card"><div class="head"><h1>PMJAY Total Patient</h1><span class="badge">READ ONLY • No Edit / Delete</span></div>
-<div class="controls"><input id="search" placeholder="Search Name / SHRI / PMJAY ID / Contact..." oninput="render()"><button class="btn" onclick="render()">Search</button><button class="btn btnG" onclick="exportExcel()">Export Excel</button></div>
-<div class="count" id="count">Loading...</div>
-<div class="wrap2"><table><thead><tr><th>#</th><th>Name</th><th>SHRI ID</th><th>PMJAY ID</th><th>Contact</th><th>Address</th></tr></thead><tbody id="tbody"></tbody></table></div>
-<p style="font-size:11px;color:#94a3b8;margin-top:10px">🔒 View Only - Data comes from Admin. You cannot add, edit or delete.</p></div></div>
-<script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";import {getFirestore,collection,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};const app=initializeApp(config);const db=getFirestore(app);
-let all=[];
-async function load(){
-  try{ let snap=await getDocs(collection(db,"patients")); snap.forEach(d=>{let p=d.data(); if(!p.deleted) all.push({name:p.patientName||p.name||'',shri:p.shriId||p.shri||'',pmjay:p.pmjayId||p.pmjay||'',contact:p.contactNo||p.contact||'',address:p.address||''});}); }catch(e){}
-  if(!all.length && typeof patientData!=='undefined'){ all=patientData.map(p=>({name:p.patientName||p.name||'',shri:p.shriId||p.shri||'',pmjay:p.pmjayId||p.pmjay||'',contact:p.contactNo||p.contact||'',address:p.address||''})); }
-  try{let del=JSON.parse(localStorage.getItem('deletedKeys')||'[]').concat(JSON.parse(localStorage.getItem('deletedShri')||'[]')); all=all.filter(p=>!del.includes(p.shri));}catch(e){}
-  all.sort((a,b)=>a.name.localeCompare(b.name)); render();
-  let q=new URLSearchParams(location.search).get('search'); if(q){document.getElementById('search').value=q; render();}
+<script>
+// USER ONLY + 30 MIN AUTO LOGOUT
+(function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired - Auto logout after 30 minutes');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();</script>
+<div class="top">
+<div style="display:flex;align-items:center;gap:10px">
+<div class="menuBtn" id="menuBtn" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+<h2>SHIJA Dialysis Management <span class="viewBadge">USER • VIEW ONLY</span></h2>
+</div>
+<span style="color:#fff;font-weight:700">User</span>
+</div>
+<div class="sideOverlay" id="overlay" onclick="toggleMenu()"></div>
+<div class="mainWrap">
+<div class="side" id="side">
+<a href="user-index.html">Home</a>
+<a href="pmjayusertotal.html" class="active">PMJAY TOTAL PATIENT</a>
+<a href="cmhtusertotal.html">CMHT TOTAL PATIENT</a>
+<a href="pmjayuserdaily.html">PMJAY DAILY DIALYSIS</a>
+<a href="cmhtuserdaily.html">CMHT DAILY DIALYSIS</a>
+</div>
+<div class="content" id="content">
+<h1>Total Patients</h1><p id="info" style="color:#64748b;font-size:13px">Loading...</p>
+<div style="display:flex;gap:10px;margin:14px 0"><input id="search" style="flex:1;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1" placeholder="Search..." oninput="onSearch()"><select id="pageSize" onchange="changePageSize()" style="padding:10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700"><option value="10" selected>10 / page</option><option value="20">20 / page</option><option value="30">30 / page</option><option value="40">40 / page</option><option value="50">50 / page</option></select></div>
+<div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div id="pageInfo"></div><div style="display:flex;gap:6px" id="pageNums"></div></div></div>
+<p style="font-size:11px;color:#94a3b8;margin-top:10px;text-align:center">🔒 View Only — Same data as Admin. You cannot Edit or Delete.</p>
+</div>
+</div>
+
+<script>
+function toggleMenu(){
+ var s=document.getElementById('side');
+ var o=document.getElementById('overlay');
+ if(s.className.indexOf('show')===-1){
+   s.className='side show';
+   o.className='sideOverlay show';
+ }else{
+   s.className='side';
+   o.className='sideOverlay';
+ }
 }
-window.render=function(){
-  let q=document.getElementById('search').value.toLowerCase().trim();
-  let f=all.filter(p=>[p.name,p.shri,p.pmjay,p.contact,p.address].join(' ').toLowerCase().includes(q));
-  document.getElementById('count').textContent=`Showing ${f.length} of ${all.length} patients`;
-  document.getElementById('tbody').innerHTML=f.map((p,i)=>`<tr><td>${i+1}</td><td><b>${p.name}</b></td><td>${p.shri}</td><td>${p.pmjay}</td><td>${p.contact}</td><td>${p.address}</td></tr>`).join('')||'<tr><td colspan=6 style="text-align:center;padding:20px">No patient found</td></tr>';
-  window._filtered=f;
+document.addEventListener('DOMContentLoaded',function(){
+ var b=document.getElementById('menuBtn');
+ if(b){
+   b.addEventListener('touchstart',function(e){e.preventDefault();toggleMenu();},{passive:false});
+ }
+});
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+let allPatients=[],filtered=[],currentPage=1,pageSize=10;
+function getKey(p){ return String(p.key||p.shri||p.id||p.name).trim(); }
+function getDeleted(){ try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]');}catch{return [];} }
+function getEdited(){ try{return JSON.parse(localStorage.getItem('editedKeys')||'{}');}catch{return {};} }
+window.onSearch=()=>{currentPage=1;applyFilter();};
+window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderTable();};
+window.applyFilter=()=>{let q=document.getElementById('search').value.toLowerCase();filtered=allPatients.filter(p=>!p.deleted && [p.name,p.shri,p.pmjay].join(' ').toLowerCase().includes(q));renderTable();};
+window.renderTable=()=>{
+ let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));
+ if(currentPage>totalPages) currentPage=totalPages;
+ let start=(currentPage-1)*pageSize;
+ let data=filtered.slice(start,start+pageSize);
+ let html='<tr><th>SL No</th><th>Patient</th><th>SHRI ID</th><th>Contact</th><th>PMJAY</th><th>Address</th></tr>';
+ data.forEach((p)=>{html+=`<tr><td><div class="sl">${start+filtered.indexOf(p)+1}</div></td><td><b>${p.name}</b></td><td><span class="shri">${p.shri||'No ID'}</span></td><td>${p.contact||'-'}</td><td>${p.pmjay||'-'}</td><td>${(p.addr||'-').substring(0,30)}</td></tr>`;});
+ if(data.length===0) html+='<tr><td colspan="6" style="text-align:center;padding:20px">No patients</td></tr>';
+ document.getElementById('tbl').innerHTML=html;
+ document.getElementById('info').textContent=filtered.length+' patients - Page '+currentPage+' of '+totalPages;
+ document.getElementById('prevBtn').disabled=currentPage<=1;
+ document.getElementById('nextBtn').disabled=currentPage>=totalPages;
+ let nums=''; for(let i=1;i<=Math.min(totalPages,10);i++){ nums+=`<button class="pBtn" style="${i===currentPage?'background:#0a1931;color:#fff':''}" onclick="goPage(${i})">${i}</button>`; } document.getElementById('pageNums').innerHTML=nums;
 };
-window.exportExcel=function(){ let data=(window._filtered||all).map((p,i)=>({Sl:i+1,Name:p.name,SHRI_ID:p.shri,PMJAY_ID:p.pmjay,Contact:p.contact,Address:p.address})); let ws=XLSX.utils.json_to_sheet(data); let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"PMJAY Total"); XLSX.writeFile(wb,"PMJAY_Total_User.xlsx"); };
-load();
-</script></body></html>
+window.prevPage=()=>{if(currentPage>1){currentPage--;renderTable();}};
+window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(currentPage<totalPages){currentPage++;renderTable();}};
+window.goPage=(n)=>{currentPage=n;renderTable();};
+async function init(){
+ let deletedLocal=getDeleted();let editedLocal=getEdited();
+ allPatients=(typeof patientData!=='undefined'?patientData:[]).map((pd,idx)=>{
+   let rawShri=String(pd.shriId||pd.shri||'').trim();let rawId=String(pd.id||idx+1).trim();let key=rawShri||'ID_'+rawId;
+   let isDel=deletedLocal.includes(key)||deletedLocal.includes(rawId)||deletedLocal.includes(rawShri);
+   let edited=editedLocal[key]||editedLocal[rawId]||editedLocal[rawShri];
+   if(edited){return {key:key,id:rawId,name:edited.name||pd.patientName||'',shri:edited.shri||rawShri,contact:edited.contact||pd.contactNo||'',pmjay:edited.pmjay||pd.pmjayId||'',addr:edited.addr||pd.address||'',deleted:isDel};}
+   return {key:key,id:rawId,name:String(pd.patientName||'').trim(),shri:rawShri,contact:String(pd.contactNo||'').trim(),pmjay:String(pd.pmjayId||'').trim(),addr:String(pd.address||'').trim(),deleted:isDel};
+ });
+ applyFilter();
+}
+init();
+</script>
+</body>
+</html>
