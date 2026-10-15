@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Discharge Patient - SHIJA</title>
-<script src="Patient.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
@@ -147,6 +147,44 @@ window.db=db;
 window.fb={collection,addDoc,getDocs,query,where,deleteDoc,doc,serverTimestamp};
 document.getElementById('fbStatus').innerText="Firebase Connected - Auto Sync ON";
 document.getElementById('fbStatus2').innerText="Auto Save ON";
+// --- MASTER PATIENTS FROM FIREBASE (replaces Patient.js) ---
+window.allPatients=[];
+async function loadMasterPatients(){
+  try{
+    const snap = await getDocs(collection(db,"patients"));
+    let fbPatients=[];
+    snap.forEach(d=>{
+      let p=d.data();
+      if(p.deleted) return;
+      fbPatients.push({
+        patientName: p.patientName || p.name || '',
+        name: p.patientName || p.name || '',
+        shriId: p.shriId || p.shri || '',
+        shri: p.shriId || p.shri || '',
+        pmjayId: p.pmjayId || p.PMJAY || p.pmjay || '',
+        pmjay: p.pmjayId || p.PMJAY || p.pmjay || '',
+        PMJAY: p.pmjayId || p.PMJAY || p.pmjay || '',
+        contactNo: p.contactNo || p.contact || '',
+        address: p.address || p.addr || ''
+      });
+    });
+    let extra=[];
+    try{ extra=JSON.parse(localStorage.getItem('shija_patients')||'[]'); }catch(e){}
+    let seen=new Set();
+    let merged=[...fbPatients,...extra].filter(p=>{
+      let key=((p.shriId||p.shri||'').toLowerCase()+'|'+(p.patientName||p.name||'').toLowerCase()).trim();
+      if(seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    window.allPatients=merged;
+    console.log('Master loaded from Firebase:', merged.length);
+    let cntEl=document.getElementById('cnt');
+    if(cntEl) cntEl.innerText=`Total Master: ${merged.length} | Type min 2 letters to add - Auto save Firebase`;
+  }catch(e){ console.error('Master load error', e); }
+}
+loadMasterPatients();
+window.loadMasterPatients=loadMasterPatients;
 </script>
 <script>
 function toggleMenu(){
@@ -174,7 +212,11 @@ function showToast(m){let t=document.getElementById('toast');t.innerText=m;t.sty
 function getName(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().includes('patient')&&x.toLowerCase().includes('name'))||ks.find(x=>x.toLowerCase()==='name')||ks.find(x=>x.toLowerCase().includes('name'));return k? p[k] : 'Unknown';}
 function getShri(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z]/g,'')==='shriid')||ks.find(x=>x.toLowerCase().includes('shri'));return k? p[k] : (p.id||p.ID||'-');}
 function getPmjay(p){if(!p) return '-';let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z0-9]/g,'')==='pmjayid')||ks.find(x=>x.toLowerCase().includes('pmjay'));return k&&p[k]?p[k]:p.pmjay||p.PMJAY||'-';}
-function getAll(){let excel=(typeof patientData!=='undefined')?patientData:[];let local=JSON.parse(localStorage.getItem('shija_patients')||'[]');return [...excel,...local];}
+function getAll(){
+  if(window.allPatients && window.allPatients.length) return window.allPatients;
+  let local=JSON.parse(localStorage.getItem('shija_patients')||'[]');
+  return [...local];
+}
 async function loadFromFirebase(){
  let dateVal=document.getElementById('disDate').value;
  if(!dateVal) return;
