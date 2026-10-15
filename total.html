@@ -121,15 +121,52 @@ window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(curre
 window.goPage=(n)=>{currentPage=n;renderTable();};
 window.deletePatient=async(idx)=>{let p=allPatients[idx];if(!confirm('DELETE '+p.name+'?')) return;let key=getKey(p);addDeleted(key);try{await setDoc(doc(db,"patients",key),{deleted:true},{merge:true});}catch(e){}p.deleted=true;applyFilter();};
 window.saveEdit=async()=>{let p=allPatients[editIndex];let oldKey=getKey(p);let newShri=document.getElementById('eShri').value.trim();let updated={patientName:document.getElementById('eName').value.trim(),name:document.getElementById('eName').value.trim(),shriId:newShri,shri:newShri,contactNo:document.getElementById('eContact').value.trim(),contact:document.getElementById('eContact').value.trim(),pmjayId:document.getElementById('ePmjay').value.trim(),pmjay:document.getElementById('ePmjay').value.trim(),address:document.getElementById('eAddr').value.trim(),addr:document.getElementById('eAddr').value.trim(),deleted:false};saveEditedLocal(oldKey,updated);p.name=updated.name;p.shri=updated.shri;p.contact=updated.contact;p.pmjay=updated.pmjay;p.addr=updated.addr;closeEdit();applyFilter();try{await setDoc(doc(db,"patients",oldKey),updated,{merge:true});}catch(e){}};
+
+// ✅ FIXED INIT - Load Firebase + Patient.js + localStorage, merge without duplicates
 async function init(){
- let deletedLocal=getDeleted();let editedLocal=getEdited();
- allPatients=(typeof patientData!=='undefined'?patientData:[]).map((pd,idx)=>{
-   let rawShri=String(pd.shriId||pd.shri||'').trim();let rawId=String(pd.id||idx+1).trim();let key=rawShri||'ID_'+rawId;
-   let isDel=deletedLocal.includes(key)||deletedLocal.includes(rawId)||deletedLocal.includes(rawShri);
-   let edited=editedLocal[key]||editedLocal[rawId]||editedLocal[rawShri];
-   if(edited){return {key:key,id:rawId,name:edited.name||pd.patientName||'',shri:edited.shri||rawShri,contact:edited.contact||pd.contactNo||'',pmjay:edited.pmjay||pd.pmjayId||'',addr:edited.addr||pd.address||'',deleted:isDel};}
-   return {key:key,id:rawId,name:String(pd.patientName||'').trim(),shri:rawShri,contact:String(pd.contactNo||'').trim(),pmjay:String(pd.pmjayId||'').trim(),addr:String(pd.address||'').trim(),deleted:isDel};
- });
+ let deletedLocal=getDeleted();
+ let editedLocal=getEdited();
+ let mergedMap={};
+
+ function addToMap(raw){
+   let rawShri=String(raw.shri||raw.shriId||'').trim();
+   let rawId=String(raw.id||raw.key||'').trim();
+   let key=rawShri||rawId||String(raw.name||'').trim();
+   if(!key) return;
+   let isDel = deletedLocal.includes(key) || deletedLocal.includes(rawId) || deletedLocal.includes(rawShri) || raw.deleted===true;
+   let edited = editedLocal[key]||editedLocal[rawId]||editedLocal[rawShri];
+   let obj={
+     key:key, id:rawId,
+     name:String((edited&&edited.name)||raw.patientName||raw.name||'').trim(),
+     shri:String((edited&&edited.shri)||rawShri||'').trim(),
+     contact:String((edited&&edited.contact)||raw.contact||raw.contactNo||'').trim(),
+     pmjay:String((edited&&edited.pmjay)||raw.pmjay||raw.pmjayId||raw.PMJAY||'').trim(),
+     addr:String((edited&&edited.addr)||raw.addr||raw.address||'').trim(),
+     deleted:isDel
+   };
+   // Firebase / newer data overwrites older static data for same SHRI
+   mergedMap[key]=obj;
+ }
+
+ // 1. Old static list first
+ (typeof patientData!=='undefined'?patientData:[]).forEach(pd=>addToMap(pd));
+
+ // 2. localStorage (if add.html saved there)
+ try{ JSON.parse(localStorage.getItem('shija_patients')||'[]').forEach(pd=>addToMap(pd)); }catch(e){}
+
+ // 3. Firebase - NEW patients from add.html (most important)
+ try{
+   const snap=await getDocs(collection(db,"patients"));
+   snap.forEach(d=>{
+     let data=d.data();
+     if(data.deleted===true &&!mergedMap[d.id]) return; // skip deleted-only docs
+     addToMap({key:d.id, id:d.id,...data});
+   });
+ }catch(e){ console.log('Firebase load error', e); }
+
+ allPatients=Object.values(mergedMap);
+ // Sort A-Z
+ allPatients.sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase()));
  applyFilter();
 }
 init();
