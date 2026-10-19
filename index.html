@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SHIJA Dialysis Dashboard</title>
-<script src="Patient.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui}
@@ -111,8 +110,6 @@ document.addEventListener('click',(e)=>{if(!e.target.closest('.searchWrap'))docu
 function openExport(){document.getElementById('expDateShow').textContent=document.getElementById('dashDate').value;document.getElementById('expModal').style.display='grid';}
 function closeExport(){document.getElementById('expModal').style.display='none';}
 window.allForSearch=[];
-function buildLocalSearch(){if(typeof patientData!=='undefined'){window.allForSearch=patientData.map(p=>({name:p.patientName||p.name||'',shri:p.shriId||p.shri||'',contact:p.contactNo||p.contact||'',type:'PMJAY'}));}}
-buildLocalSearch();
 function doGlobalSearch(){
  let q=document.getElementById('globalSearch').value.toLowerCase().trim();let box=document.getElementById('searchResult');
  if(!q){box.classList.remove('show');return;}
@@ -128,7 +125,6 @@ import { getFirestore, collection, getDocs, query, where } from "https://www.gst
 const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(config);const db=getFirestore(app);window.db=db;window.fb={collection,getDocs,query,where};
 function getDeletedKeys(){try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]').concat(JSON.parse(localStorage.getItem('deletedShri')||'[]'));}catch{return[];}}
-function getAddedKeys(){try{return JSON.parse(localStorage.getItem('addedKeys')||'[]');}catch{return[];}}
 let todayStr = new Date().toISOString().slice(0,10);
 document.getElementById('dashDate').value = todayStr;
 document.getElementById('dashDate').addEventListener('change',loadDashboard);
@@ -142,22 +138,29 @@ async function loadDashboard(){
  let selMonth = selDateObj.getMonth();
  let selYear = selDateObj.getFullYear();
  let kftDay = selDay <= 15 ? '1' : '15';
+ // PMJAY TOTAL + SEARCH - FROM FIREBASE collection "patients" (was Patient.js)
  try{
-  let delSet = new Set(getDeletedKeys());
-  let added = getAddedKeys();
-  let alive = 0;
-  if(typeof patientData!=='undefined'){
-    alive = patientData.filter((p,i)=>{
-      let s = String(p.shriId||p.shri||'').trim();
-      let id = String(p.id||i+1);
-      let key = s||id;
-      if(delSet.has(s) || delSet.has(id) || delSet.has(key)) return false;
-      return true;
-    }).length;
-  } else { alive = 510; }
-  let addedCount = added.filter(k=>!delSet.has(k)).length;
-  document.getElementById('v1').textContent = alive + addedCount;
- }catch(e){ document.getElementById('v1').textContent = (typeof patientData!=='undefined'?patientData.length:0); }
+   let snap = await getDocs(collection(db,"patients"));
+   let delSet = new Set(getDeletedKeys());
+   let pmjaySearch=[];
+   snap.forEach(d=>{
+     let p=d.data();
+     if(p.deleted) return;
+     let shri = String(p.shriId||p.shri||d.id||'').trim();
+     if(delSet.has(shri)) return;
+     pmjaySearch.push({name:p.patientName||p.name||'',shri:shri,contact:p.contactNo||p.contact||'',type:'PMJAY'});
+   });
+   try{
+     let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');
+     extra.forEach(p=>{
+       let shri=String(p.shriId||p.shri||'').trim();
+       if(shri && !pmjaySearch.some(x=>x.shri===shri)) pmjaySearch.push({name:p.patientName||p.name||'',shri:shri,contact:p.contactNo||p.contact||'',type:'PMJAY'});
+     });
+   }catch(e){}
+   document.getElementById('v1').textContent = pmjaySearch.length;
+   window.allForSearch = pmjaySearch;
+ }catch(e){ document.getElementById('v1').textContent = 0; }
+ // CMHT TOTAL + SEARCH - FROM FIREBASE collection "cmht_patients"
  try{
   let csnap = await getDocs(collection(db,"cmht_patients"));
   let cmhtCount = 0;
@@ -169,7 +172,7 @@ async function loadDashboard(){
     cmhtSearch.push({name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||'',type:'CMHT'});
   });
   document.getElementById('vCMHT').textContent = cmhtCount;
-  window.allForSearch = window.allForSearch.filter(p=>p.type!=='CMHT').concat(cmhtSearch);
+  window.allForSearch = (window.allForSearch||[]).filter(p=>p.type!=='CMHT').concat(cmhtSearch);
  }catch(e){ document.getElementById('vCMHT').textContent = 0; }
  try{
   let kftSubmitted = 0;
@@ -274,7 +277,7 @@ async function loadDashboard(){
 window.loadDashboard=loadDashboard;
 window.exportExcel=async(type)=>{
  let sel=document.getElementById('dashDate').value;let wb=XLSX.utils.book_new();let data=[];
- if(type==='total'){try{let snap=await getDocs(collection(db,"patients"));snap.forEach(d=>{let p=d.data();if(!p.deleted) data.push({Name:p.patientName||p.name,SHRI_ID:p.shriId||p.shri,PMJAY:p.pmjayId||p.pmjay,Contact:p.contactNo||p.contact,Address:p.address||'',Scheme:'PMJAY'});});}catch(e){data=(typeof patientData!=='undefined'?patientData.map(p=>({Name:p.patientName,SHRI_ID:p.shriId,Scheme:'PMJAY'})):[]);}let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY Total");XLSX.writeFile(wb,`PMJAY_Total_${sel}.xlsx`);}
+ if(type==='total'){try{let snap=await getDocs(collection(db,"patients"));snap.forEach(d=>{let p=d.data();if(!p.deleted) data.push({Name:p.patientName||p.name,SHRI_ID:p.shriId||p.shri,PMJAY:p.pmjayId||p.pmjay,Contact:p.contactNo||p.contact,Address:p.address||'',Scheme:'PMJAY'});});}catch(e){data=[];}let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY Total");XLSX.writeFile(wb,`PMJAY_Total_${sel}.xlsx`);}
  else if(type==='cmht_total'){try{let snap=await getDocs(collection(db,"cmht_patients"));snap.forEach(d=>{let p=d.data();if(!p.deleted) data.push({Name:p.patientName||p.name,SHRI_ID:p.shriId||p.shri,CMHT_ID:p.cmhtId||p.cmht||p.pmjay,Contact:p.contactNo||p.contact,Aadhaar:p.aadhaarNo||p.aadhaar,Address:p.address||'',Remark:p.remark||'CMHT'});});}catch(e){}if(!data.length) data=[{Info:"No CMHT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT Total");XLSX.writeFile(wb,`CMHT_Total_${sel}.xlsx`);}
  else if(type==='kft'){try{let snap=await getDocs(collection(db,"kft_reports"));snap.forEach(d=>{let p=d.data();if(!sel||(p.year==new Date(sel).getFullYear() && Number(p.month)==new Date(sel).getMonth())) data.push({Year:p.year,Month:p.month,Day:p.day,SHRI_ID:p.shriId,Patient:p.patientName,Status:p.status});});}catch(e){data=[{Date:sel}];}if(!data.length) data=[{Date:sel,Info:"No KFT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY KFT");XLSX.writeFile(wb,`PMJAY_KFT_${sel}.xlsx`);}
  else if(type==='cmhtkft'){try{let snap=await getDocs(collection(db,"cmht_kft_reports"));snap.forEach(d=>{let p=d.data();if(!sel||p.date===sel || (p.year==new Date(sel).getFullYear() && Number(p.month)==new Date(sel).getMonth())) data.push({SHRI_ID:p.shriId,Date:p.date||p.year+'-'+p.month+'-'+p.day,Status:p.status,Remark:'CMHT'});});}catch(e){}if(!data.length) data=[{Date:sel,Info:"No CMHT KFT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT KFT");XLSX.writeFile(wb,`CMHT_KFT_${sel}.xlsx`);}
