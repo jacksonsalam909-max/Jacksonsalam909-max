@@ -46,13 +46,15 @@ body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;colo
 .searchAddedWrap input{padding:9px 12px;border-radius:20px;border:1.5px solid #3b82f6;min-width:190px;background:#f8fafc}
 .pmjayBox{border:1.5px dashed #22c55e;background:#f0fdf4}
 .tableBox{border:1.5px solid #e5e7eb;border-radius:14px;overflow:auto;background:#fff}
-table{width:100%;border-collapse:collapse;min-width:900px;font-size:13px}
+table{width:100%;border-collapse:collapse;min-width:1000px;font-size:13px}
 th{padding:12px 10px;text-align:left;font-weight:800;background:#f8fafc;border-bottom:1px solid #e5e7eb;color:#0f172a;font-size:11px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
 td{padding:12px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
 tr:hover{background:#f8fafc}
 .shriPill{background:#dbeafe;color:#1e40af;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;border:1px solid #bfdbfe}
 .pmjayPill{background:#bbf7d0;color:#14532d;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:800;display:inline-block;border:1px solid #86efac}
 .delBtn{background:#ef4444;color:#fff;border:0;padding:6px 12px;border-radius:7px;cursor:pointer;font-weight:800;font-size:11px;white-space:nowrap}
+.editBtn{background:#1a56db;color:#fff;border:0;padding:6px 12px;border-radius:7px;cursor:pointer;font-weight:800;font-size:11px;white-space:nowrap;margin-right:5px}
+.actionCell{display:flex;gap:5px;align-items:center}
 .popup{position:fixed;inset:0;background:#0006;z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
 .popupBoxSmall{width:380px;max-width:92vw;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 20px 50px #0004;animation:pop.18s}
 .popupBoxLarge{width:560px;max-width:94vw;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 20px 50px #0004;animation:pop.18s;max-height:90vh;display:flex;flex-direction:column}
@@ -81,6 +83,8 @@ tr.repeatRow{background:#fef08a!important}
 tr.repeatRow:hover{background:#fde047!important}
 tr.repeatRow td:first-child{border-left:4px solid #eab308}
 .repeatBadge{background:#eab308;color:#000;font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px;margin-left:6px;vertical-align:middle}
+.editInput{width:100%;padding:10px;border:1.5px solid #e5e7eb;border-radius:10px;font-weight:700;font-size:13px;margin-bottom:10px}
+.editLabel{font-size:11px;font-weight:800;color:#475569;text-transform:uppercase;margin-bottom:4px;display:block}
 @media(max-width:900px){.searchAddedWrap{margin-left:0;border-left:0;padding-left:0;width:100%}.searchAddedWrap input{flex:1;min-width:0}}
 </style>
 </head>
@@ -187,6 +191,25 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <div class="slotFoot"><button class="slotCancel" onclick="closePop('popPrev')">Cancel</button><button class="slotSave" onclick="confirmAdd()">Add to List (Auto Save Firebase)</button></div>
 </div></div></div>
 
+<!-- EDIT POPUP NEW -->
+<div id="popEdit" class="popup"><div class="popupBoxSmall"><div class="slotPop">
+<h3>Edit Patient</h3>
+<div class="slotPatient">Editing: <b id="editPatientLabel">-</b></div>
+<span class="editLabel">Name</span>
+<input id="edit_name" class="editInput" readonly style="background:#f8fafc">
+<span class="editLabel">SHRI ID</span>
+<input id="edit_shri" class="editInput" readonly style="background:#f8fafc">
+<span class="editLabel">PMJAY ID</span>
+<input id="edit_pmjay" class="editInput" placeholder="PMJAY ID">
+<span class="editLabel">Time</span>
+<select id="edit_time" class="editInput"><option value="7am">7 AM</option><option value="12pm">12 PM</option><option value="5pm">5 PM</option><option value="9pm">9 PM</option><option value="12am">12 AM</option><option value="2am">2 AM</option></select>
+<span class="editLabel">Block</span>
+<select id="edit_block" class="editInput"><option value="Main">Main</option><option value="Itocha">Itocha</option></select>
+<span class="editLabel">Previous Dialysis Date</span>
+<input type="date" id="edit_prev" class="editInput">
+<div class="slotFoot"><button class="slotCancel" onclick="closePop('popEdit')" style="flex:1">Cancel</button><button class="slotSave" onclick="saveEdit()" style="flex:2">Save Changes to Firebase</button></div>
+</div></div></div>
+
 <div id="popMulti" class="popup"><div class="popupBoxLarge">
 <div class="popHead">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
@@ -234,12 +257,11 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, serverTimestamp, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(config);const db=getFirestore(app);
-window.db=db;window.fb={collection,addDoc,getDocs,query,where,deleteDoc,doc,serverTimestamp,onSnapshot};
+window.db=db;window.fb={collection,addDoc,getDocs,query,where,deleteDoc,doc,serverTimestamp,onSnapshot,updateDoc};
 document.getElementById('fbStatus').innerText="Firebase Connected - Auto Save ON";
-// --- MASTER PATIENTS FROM FIREBASE (replaces Patient.js) ---
 window.allPatients = [];
 window.__fbMaster = [];
 async function loadMasterPatients(){
@@ -272,7 +294,6 @@ async function loadMasterPatients(){
     window.__fbMaster=merged;
     let el=document.getElementById('totalLoaded');
     if(el) el.textContent=merged.length;
-    console.log('Master loaded from Firebase:', merged.length);
   }catch(e){ console.error('Master load error', e); }
 }
 loadMasterPatients();
@@ -298,7 +319,7 @@ try{ var urlDate=new URLSearchParams(location.search).get('date'); if(urlDate) t
 document.getElementById('d_date').value=today;
 document.getElementById('totalLoaded').textContent=allPatients.length;
 let temp={name:'',shri:'',pmjay:'',time:'',block:'',prev:''};
-let currentPage=1; let firebaseList=[]; let multiList=[]; let unsubscribe=null; let multiEditIndex=-1;
+let currentPage=1; let firebaseList=[]; let multiList=[]; let unsubscribe=null; let multiEditIndex=-1; let editFbId=null;
 function getPmjayFromMaster(name,shri){ let list=getAllPatients(); let f=list.find(p=>{let n=(p.patientName||'').toLowerCase()===name.toLowerCase();let s=(p.shriId||'').toLowerCase()===shri.toLowerCase()&&shri;return n||s;}); if(!f) return '';return f.pmjayId||f.PMJAY||f.pmjay||''; }
 function showSuggest(q){ allPatients=getAllPatients(); q=q.toLowerCase().trim();let box=document.getElementById('suggest'); if(q.length<1){box.style.display='none';return;} let filtered=allPatients.filter(p=>{let n=(p.patientName||'').toLowerCase();let s=(p.shriId||'').toLowerCase();let pj=(p.pmjayId||p.PMJAY||p.pmjay||'').toLowerCase();return n.includes(q)||s.includes(q)||pj.includes(q);}).slice(0,20); if(!filtered.length){box.style.display='none';return;} box.innerHTML=filtered.map(p=>{let pm=p.pmjayId||p.PMJAY||p.pmjay||'';return `<div onclick="pickPatient('${(p.patientName||'').replace(/'/g,"&#39;")}','${(p.shriId||'').replace(/'/g,"&#39;")}','${(pm||'').replace(/'/g,"&#39;")}')"><b>${p.patientName}</b> - ${p.shriId||''} | ${pm||''}</div>`;}).join('');box.style.display='block'; }
 function pickPatient(name,shri,pmjay){ document.getElementById('p_name').value=name;document.getElementById('p_shri').value=shri;document.getElementById('p_pmjay').value=pmjay||getPmjayFromMaster(name,shri); document.getElementById('p_search').value=name;document.getElementById('suggest').style.display='none'; temp.name=name;temp.shri=shri;temp.pmjay=document.getElementById('p_pmjay').value||pmjay; }
@@ -339,9 +360,48 @@ async function loadFromFirebase(){
  try{ if(!window.fb){setTimeout(loadFromFirebase,500);return;} let q=window.fb.query(window.fb.collection(window.db,"daily_dialysis"), window.fb.where("date","==",entryDate)); let snap=await window.fb.getDocs(q); firebaseList=[]; snap.forEach(d=>{firebaseList.push({fbId:d.id,...d.data()});}); if(firebaseList.length===0){ try{ let q2=window.fb.query(window.fb.collection(window.db,"dailyDialysis"), window.fb.where("date","==",entryDate)); let snap2=await window.fb.getDocs(q2); snap2.forEach(d=>{firebaseList.push({fbId:d.id,...d.data(), id:d.id});}); }catch(e){} } document.getElementById('fbStatus').textContent=`Firebase: ${firebaseList.length} for ${entryDate} - Synced to all PCs`; currentPage=1;renderTable(); }catch(e){ document.getElementById('fbStatus').textContent='Error: '+e.message; firebaseList=[];renderTable(); }
 }
 async function confirmAdd(){ let prev=document.getElementById('prev_date').value;if(!prev){alert('Select previous date');return;} temp.prev=prev;let dialDate=document.getElementById('d_date').value||today; let newEntry={date:dialDate,name:temp.name,shriId:temp.shri||'N/A',time:temp.time,pmjayId:temp.pmjay||'N/A',block:temp.block,prevDate:temp.prev,createdAt:new Date().toISOString()}; document.getElementById('fbStatus').textContent='Saving to Firebase...'; try{ await window.fb.addDoc(window.fb.collection(window.db,"daily_dialysis"), {...newEntry, serverTime:window.fb.serverTimestamp()}); document.getElementById('fbStatus').textContent='Saved to Firebase - Visible on all computers'; }catch(e){document.getElementById('fbStatus').textContent='Save Error: '+e.message;alert(e.message);return;} closePop('popPrev'); temp={name:'',shri:'',pmjay:'',time:'',block:'',prev:''}; document.getElementById('p_search').value='';document.getElementById('p_name').value='';document.getElementById('p_shri').value='';document.getElementById('p_pmjay').value='';document.getElementById('prev_date').value=''; await loadFromFirebase(); }
-function closePop(id){document.getElementById(id).style.display='none';}
+function closePop(id){document.getElementById(id).style.display='none'; if(id==='popEdit') editFbId=null;}
 function getFilteredList(){ let timeFilter=document.getElementById('timeFilter').value; let blockFilter=document.getElementById('blockFilter').value; let searchAdded=document.getElementById('searchAdded').value.toLowerCase().trim(); let list=[...firebaseList]; if(timeFilter!=='all') list=list.filter(x=>x.time===timeFilter); if(blockFilter!=='all') list=list.filter(x=>x.block===blockFilter); if(searchAdded){ list=list.filter(x=>{ let n=(x.name||'').toLowerCase(); let s=(x.shriId||'').toLowerCase(); let p=(x.pmjayId||'').toLowerCase(); let b=(x.block||'').toLowerCase(); let t=(x.time||'').toLowerCase(); return n.includes(searchAdded)||s.includes(searchAdded)||p.includes(searchAdded)||b.includes(searchAdded)||t.includes(searchAdded); }); } list.sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase())); return list; }
-function renderTable(){ let list=getFilteredList(); let pageSize=parseInt(document.getElementById('pageSize').value); let totalPages=Math.ceil(list.length/pageSize)||1;if(currentPage>totalPages) currentPage=totalPages; let start=(currentPage-1)*pageSize;let pageData=list.slice(start,start+pageSize); let countMap={}; list.forEach(r=>{ let key=(r.shriId||'').toString().toLowerCase().trim(); if(!key || key==='n/a') key='name:'+(r.name||'').toLowerCase().trim()+'|'+(r.pmjayId||'').toLowerCase().trim(); countMap[key]=(countMap[key]||0)+1; }); function isRepeat(r){ let key=(r.shriId||'').toString().toLowerCase().trim(); if(!key || key==='n/a') key='name:'+(r.name||'').toLowerCase().trim()+'|'+(r.pmjayId||'').toLowerCase().trim(); return countMap[key] > 1; } document.getElementById('tblBody').innerHTML=pageData.map((r,i)=>{ let pm=r.pmjayId||getPmjayFromMaster(r.name,r.shriId)||'N/A'; let repeat=isRepeat(r); return `<tr class="${repeat?'repeatRow':''}"><td>${start+i+1}</td><td style="font-weight:700">${r.name}${repeat?'<span class="repeatBadge">REPEATED</span>':''}</td><td><span class="shriPill">${r.shriId}</span></td><td style="font-weight:700">${r.time}</td><td><span class="pmjayPill">${pm}</span></td><td style="font-weight:700">${r.block}</td><td>${r.prevDate}</td><td><button class="delBtn" onclick="delEntry('${r.fbId}')">Delete</button></td></tr>`; }).join('')||`<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:20px">No patients for ${document.getElementById('d_date').value}${document.getElementById('searchAdded').value?' - Search "'+document.getElementById('searchAdded').value+'" not found in added list':''}</td></tr>`; document.getElementById('totalCount').textContent=list.length; document.getElementById('totalShow').textContent=list.length; document.getElementById('cloudCount').textContent='Firebase: '+firebaseList.length; document.getElementById('showingTxt').textContent=list.length?`${start+1}-${Math.min(start+pageSize,list.length)}`:`0`; document.getElementById('searchResultTxt').textContent=document.getElementById('searchAdded').value?`"${document.getElementById('searchAdded').value}" - ${list.length} found`:'All'; let cont=document.getElementById('pagination');if(totalPages<=1){cont.innerHTML='';return;} let html=`<button onclick="changePage(-1)">Prev</button>`;for(let p=1;p<=totalPages;p++){html+=`<button class="${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`}html+=`<button onclick="changePage(1)">Next</button>`;cont.innerHTML=html; }
+
+// EDIT FUNCTION NEW
+function editEntry(fbId){
+  let rec = firebaseList.find(x=>x.fbId===fbId);
+  if(!rec){ alert('Record not found'); return; }
+  editFbId = fbId;
+  document.getElementById('editPatientLabel').textContent = rec.name + ' (' + rec.shriId + ')';
+  document.getElementById('edit_name').value = rec.name||'';
+  document.getElementById('edit_shri').value = rec.shriId||'';
+  document.getElementById('edit_pmjay').value = rec.pmjayId||'';
+  document.getElementById('edit_time').value = rec.time||'7am';
+  document.getElementById('edit_block').value = rec.block||'Main';
+  document.getElementById('edit_prev').value = rec.prevDate||'';
+  document.getElementById('popEdit').style.display='flex';
+}
+async function saveEdit(){
+  if(!editFbId){ alert('No record selected'); return; }
+  let pmjay = document.getElementById('edit_pmjay').value.trim();
+  let time = document.getElementById('edit_time').value;
+  let block = document.getElementById('edit_block').value;
+  let prev = document.getElementById('edit_prev').value;
+  if(!prev){ alert('Select Previous Date'); return; }
+  document.getElementById('fbStatus').textContent='Updating...';
+  try{
+    await window.fb.updateDoc(window.fb.doc(window.db,"daily_dialysis",editFbId),{
+      pmjayId: pmjay || 'N/A',
+      time: time,
+      block: block,
+      prevDate: prev,
+      updatedAt: new Date().toISOString()
+    });
+    document.getElementById('fbStatus').textContent='Updated in Firebase - Visible on all PCs';
+    closePop('popEdit');
+  }catch(e){
+    document.getElementById('fbStatus').textContent='Update Error: '+e.message;
+    alert(e.message);
+  }
+}
+
+function renderTable(){ let list=getFilteredList(); let pageSize=parseInt(document.getElementById('pageSize').value); let totalPages=Math.ceil(list.length/pageSize)||1;if(currentPage>totalPages) currentPage=totalPages; let start=(currentPage-1)*pageSize;let pageData=list.slice(start,start+pageSize); let countMap={}; list.forEach(r=>{ let key=(r.shriId||'').toString().toLowerCase().trim(); if(!key || key==='n/a') key='name:'+(r.name||'').toLowerCase().trim()+'|'+(r.pmjayId||'').toLowerCase().trim(); countMap[key]=(countMap[key]||0)+1; }); function isRepeat(r){ let key=(r.shriId||'').toString().toLowerCase().trim(); if(!key || key==='n/a') key='name:'+(r.name||'').toLowerCase().trim()+'|'+(r.pmjayId||'').toLowerCase().trim(); return countMap[key] > 1; } document.getElementById('tblBody').innerHTML=pageData.map((r,i)=>{ let pm=r.pmjayId||getPmjayFromMaster(r.name,r.shriId)||'N/A'; let repeat=isRepeat(r); return `<tr class="${repeat?'repeatRow':''}"><td>${start+i+1}</td><td style="font-weight:700">${r.name}${repeat?'<span class="repeatBadge">REPEATED</span>':''}</td><td><span class="shriPill">${r.shriId}</span></td><td style="font-weight:700">${r.time}</td><td><span class="pmjayPill">${pm}</span></td><td style="font-weight:700">${r.block}</td><td>${r.prevDate}</td><td><div class="actionCell"><button class="editBtn" onclick="editEntry('${r.fbId}')">Edit</button><button class="delBtn" onclick="delEntry('${r.fbId}')">Delete</button></div></td></tr>`; }).join('')||`<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:20px">No patients for ${document.getElementById('d_date').value}${document.getElementById('searchAdded').value?' - Search "'+document.getElementById('searchAdded').value+'" not found in added list':''}</td></tr>`; document.getElementById('totalCount').textContent=list.length; document.getElementById('totalShow').textContent=list.length; document.getElementById('cloudCount').textContent='Firebase: '+firebaseList.length; document.getElementById('showingTxt').textContent=list.length?`${start+1}-${Math.min(start+pageSize,list.length)}`:`0`; document.getElementById('searchResultTxt').textContent=document.getElementById('searchAdded').value?`"${document.getElementById('searchAdded').value}" - ${list.length} found`:'All'; let cont=document.getElementById('pagination');if(totalPages<=1){cont.innerHTML='';return;} let html=`<button onclick="changePage(-1)">Prev</button>`;for(let p=1;p<=totalPages;p++){html+=`<button class="${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`}html+=`<button onclick="changePage(1)">Next</button>`;cont.innerHTML=html; }
 function goPage(p){currentPage=p;renderTable();}
 function changePage(dir){currentPage=Math.max(1,currentPage+dir);let total=Math.ceil(getFilteredList().length/parseInt(document.getElementById('pageSize').value))||1;if(currentPage>total) currentPage=total;renderTable();}
 async function delEntry(fbId){ if(!confirm('Delete this entry from Firebase? Will delete for all computers'))return; try{ await window.fb.deleteDoc(window.fb.doc(window.db,"daily_dialysis",fbId)); try{await window.fb.deleteDoc(window.fb.doc(window.db,"dailyDialysis",fbId));}catch(e){} await loadFromFirebase(); }catch(e){alert('Delete error: '+e.message);} }
