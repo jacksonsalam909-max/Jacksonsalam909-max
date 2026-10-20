@@ -45,6 +45,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .btnAdd:disabled{opacity:.4}
 .btnExp{background:#0a1931;color:#fff}
 .btnDel{background:#ef4444;color:#fff;padding:5px 10px;font-size:12px}
+.btnEdit{background:#1a56db;color:#fff;padding:5px 10px;font-size:12px;border:0;border-radius:6px;font-weight:700;cursor:pointer;margin-right:5px}
 .btnBlue{background:#1a56db;color:#fff;border:0;padding:9px 14px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px}
 .btnDark{background:#0a1931;color:#fff;border:0;padding:9px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer}
 .btnOutline{background:#fff;color:#0a1931;border:1.5px solid #dbe0ea;padding:8px 11px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;min-width:96px}
@@ -78,6 +79,9 @@ tr.repeatRow{background:#fef08a!important}
 tr.repeatRow:hover{background:#fde047!important}
 tr.repeatRow td:first-child{border-left:4px solid #eab308}
 .repeatBadge{background:#eab308;color:#000;font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px;margin-left:6px;vertical-align:middle}
+.editInput{width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;font-weight:700;font-size:13px;margin-bottom:10px}
+.editLabel{font-size:11px;font-weight:800;color:#475569;text-transform:uppercase;margin-bottom:4px;display:block}
+.actionCell{display:flex;gap:5px;align-items:center}
 @media(max-width:900px){.mainHintWrap{min-width:0;flex:1 1 100%;max-width:100%}.searchAddedWrap{width:100%;margin-left:0;border-left:0;padding-left:0;margin-top:6px}.searchAddedWrap input{flex:1;min-width:0}}
 </style>
 </head>
@@ -147,6 +151,15 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 </div><button class="btn" onclick="closeAll()">Cancel</button></div></div>
 <div class="modal" id="modalPrev"><div class="modalBox"><h3>Previous Dialysis Date</h3><input type="date" id="prevDate" style="width:100%;padding:12px;border-radius:8px;border:1.5px solid #cbd5e1"><div style="display:flex;gap:8px;margin-top:14px"><button class="btn" onclick="closeAll()" style="flex:1">Cancel</button><button class="btn btnAdd" onclick="finalAdd()" style="flex:1">Add to List (Auto Save Firebase)</button></div></div></div>
 
+<!-- EDIT MODAL NEW -->
+<div class="modal" id="modalEdit"><div class="modalBox"><h3>Edit Patient</h3><p id="editPatientLabel" style="font-size:13px;color:#64748b;margin-bottom:10px"></p>
+<span class="editLabel">Name</span><input id="edit_name" class="editInput" readonly style="background:#f8fafc">
+<span class="editLabel">SHRI ID</span><input id="edit_shri" class="editInput" readonly style="background:#f8fafc">
+<span class="editLabel">Time</span><select id="edit_time" class="editInput"><option>7AM</option><option>12PM</option><option>5PM</option><option>9PM</option><option>12AM</option><option>2AM</option></select>
+<span class="editLabel">Block</span><select id="edit_block" class="editInput"><option>Main</option><option>Itocha</option></select>
+<span class="editLabel">Previous Dialysis Date</span><input type="date" id="edit_prev" class="editInput">
+<div style="display:flex;gap:8px;margin-top:14px"><button class="btn" onclick="closeAll()" style="flex:1">Cancel</button><button class="btn btnAdd" onclick="saveEdit()" style="flex:1">Save Changes to Firebase</button></div></div></div>
+
 <!-- MULTIPLE ADD -->
 <div class="modal" id="popMulti"><div class="modalBoxLarge">
 <div class="popHead"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Add Multiple Patients</h3><button class="closeX" onclick="closeMulti()">×</button></div></div>
@@ -189,14 +202,15 @@ function onSchemeChange(val){ var d=document.getElementById('listDate').value||'
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(firebaseConfig);const db=getFirestore(app);
-window.db=db;window.fb={collection,getDocs,doc,setDoc,addDoc,deleteDoc,query,where,serverTimestamp};
+window.db=db;window.fb={collection,getDocs,doc,setDoc,addDoc,deleteDoc,query,where,serverTimestamp,updateDoc};
 let allCMHT=[], allList=[], filteredList=[], currentPage=1;
 let selectedPatient=null, selectedTime='', selectedBlock='';
 let hintIndex=-1;
 let multiList=[], multiEditIndex=-1;
+let editId=null;
 document.getElementById('listDate').valueAsDate=new Date();
 document.getElementById('prevDate').valueAsDate=new Date();
 document.getElementById('fbStatus').textContent='Firebase Connected - Auto Save ON';
@@ -236,14 +250,12 @@ window.applyFilters=()=>{
   }
   return true;
  });
- // ALPHABETICAL SORT A-Z
  filteredList.sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase()));
  currentPage=1;renderTable();
 };
 window.renderTable=()=>{
  let pageSize=parseInt(document.getElementById('pageSize').value);let totalPages=Math.max(1,Math.ceil(filteredList.length/pageSize));if(currentPage>totalPages) currentPage=totalPages;
  let start=(currentPage-1)*pageSize;let data=filteredList.slice(start,start+pageSize);
- // REPEATED COUNT - recomputed every render, so after delete highlight auto-gone
  let countMap={};
  filteredList.forEach(r=>{
    let key=(r.shri||r.shriId||'').toString().toLowerCase().trim();
@@ -258,7 +270,7 @@ window.renderTable=()=>{
  let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Time</th><th>Block</th><th>Previous Dialysis Date</th><th>List Date</th><th>Action</th></tr>';
  data.forEach((p,i)=>{
    let rep=isRepeat(p);
-   html+=`<tr class="${rep?'repeatRow':''}"><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b>${rep?'<span class="repeatBadge">REPEATED</span>':''}</td><td><span class="shri">${p.shri||p.shriId}</span></td><td><span class="timeBadge">${p.time}</span></td><td><span class="blockBadge">${p.block}</span></td><td>${p.prevDate||'-'}</td><td>${p.listDate||'-'}</td><td><button class="btn btnDel" onclick="deleteEntry('${p.id}')">Delete</button></td></tr>`;
+   html+=`<tr class="${rep?'repeatRow':''}"><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b>${rep?'<span class="repeatBadge">REPEATED</span>':''}</td><td><span class="shri">${p.shri||p.shriId}</span></td><td><span class="timeBadge">${p.time}</span></td><td><span class="blockBadge">${p.block}</span></td><td>${p.prevDate||'-'}</td><td>${p.listDate||'-'}</td><td><div class="actionCell"><button class="btnEdit" onclick="editEntry('${p.id}')">Edit</button><button class="btn btnDel" onclick="deleteEntry('${p.id}')">Delete</button></div></td></tr>`;
  });
  if(data.length===0) html+=`<tr><td colspan="8" style="text-align:center;padding:20px">No dialysis for ${document.getElementById('listDate').value}${document.getElementById('searchAdded').value?' - Search "'+document.getElementById('searchAdded').value+'" not found in added list':''}</td></tr>`;
  document.getElementById('tbl').innerHTML=html;
@@ -272,6 +284,34 @@ window.prevPage=()=>{if(currentPage>1){currentPage--;renderTable();}};
 window.nextPage=()=>{let ps=parseInt(document.getElementById('pageSize').value);if(currentPage<Math.ceil(filteredList.length/ps)){currentPage++;renderTable();}};
 window.goPage=(n)=>{currentPage=n;renderTable();};
 window.deleteEntry=async(id)=>{if(!confirm('Delete from Firebase? Will delete for all computers'))return;try{await deleteDoc(doc(db,"cmht_daily_dialysis",id));document.getElementById('fbStatus').textContent='Deleted from Firebase';loadList();}catch(e){alert(e.message);}};
+
+window.editEntry=(id)=>{
+ let rec = allList.find(x=>x.id===id);
+ if(!rec){ alert('Record not found'); return; }
+ editId=id;
+ document.getElementById('editPatientLabel').textContent = rec.name + ' (' + (rec.shri||rec.shriId) + ')';
+ document.getElementById('edit_name').value = rec.name||'';
+ document.getElementById('edit_shri').value = rec.shri||rec.shriId||'';
+ document.getElementById('edit_time').value = rec.time||'7AM';
+ document.getElementById('edit_block').value = rec.block||'Main';
+ document.getElementById('edit_prev').value = rec.prevDate||'';
+ document.getElementById('modalEdit').classList.add('show');
+};
+window.saveEdit=async()=>{
+ if(!editId){ alert('No record selected'); return; }
+ let time=document.getElementById('edit_time').value;
+ let block=document.getElementById('edit_block').value;
+ let prev=document.getElementById('edit_prev').value;
+ if(!prev){ alert('Select Previous Date'); return; }
+ document.getElementById('fbStatus').textContent='Updating...';
+ try{
+   await updateDoc(doc(db,"cmht_daily_dialysis",editId),{time:time,block:block,prevDate:prev,updatedAt:new Date().toISOString()});
+   document.getElementById('fbStatus').textContent='Updated in Firebase - Visible on all computers';
+   closeAll();
+   await loadList();
+ }catch(e){ document.getElementById('fbStatus').textContent='Update Error: '+e.message; alert(e.message); }
+};
+
 function updateHintSelection(){
  let items=document.querySelectorAll('#mainHintList.sItem');
  items.forEach((el,i)=>{if(i===hintIndex) el.classList.add('selected'); else el.classList.remove('selected');});
@@ -330,7 +370,7 @@ window.onAddFromMain=()=>{
  document.getElementById('selPatientInfo').textContent=`Patient: ${selectedPatient.name} (${selectedPatient.shri}) - ${selectedPatient.contact||''}`;
  document.getElementById('modalTime').classList.add('show');
 };
-window.closeAll=()=>{document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show'));};
+window.closeAll=()=>{document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show')); editId=null;};
 window.selectTime=(t)=>{selectedTime=t;document.getElementById('modalTime').classList.remove('show');document.getElementById('modalBlock').classList.add('show');};
 window.selectBlock=(b)=>{selectedBlock=b;document.getElementById('modalBlock').classList.remove('show');document.getElementById('modalPrev').classList.add('show');};
 window.finalAdd=async()=>{
@@ -390,7 +430,6 @@ window.saveMultiple=async()=>{
   try{ for(let p of multiList){ await addDoc(collection(db,"cmht_daily_dialysis"),{name:p.name,shri:p.shri,shriId:p.shri,contact:p.contact||'',time:p.time,block:p.block,prevDate:p.prev,listDate:listDate,remark:'CMHT',createdAt:new Date().toISOString(),serverTime:serverTimestamp()}); } document.getElementById('fbStatus').textContent='Saved '+multiList.length+' patients - Visible on all computers'; }catch(e){ document.getElementById('fbStatus').textContent='Save Error: '+e.message; alert(e.message); return; }
   closeMulti(); multiList=[]; renderMultiList(); await loadList();
 };
-// EXPORT - ONLY FILTERED (Time + Block + Search + Sorted A-Z)
 window.exportExcel=()=>{
  let timeF=document.getElementById('timeFilter').value;
  let blockF=document.getElementById('blockFilter').value;
