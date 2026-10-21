@@ -45,7 +45,7 @@ h1{color:#0B2E6B; font-size:30px;}
 
 <div id="sideMenu">
   <span onclick="toggleMenu()" style="position:absolute; top:15px; right:20px; font-size:24px; cursor:pointer;">✕</span>
-  <a href="dashboard.html" class="menuLink">📊 Dashboard</a>
+  <a href="index.html">📊 Dashboard</a>
   <a href="total.html" class="menuLink">📋 Total Patients</a>
   <a href="cmht.html" class="menuLink">🏥 CMHT Patients</a>
   <a href="searchpatient.html" class="menuLink active">🔍 Search Patient</a>
@@ -55,7 +55,7 @@ h1{color:#0B2E6B; font-size:30px;}
 
 <div class="container">
   <h1>Search Patient</h1>
-  <p class="subtitle">Pulls data from total.html + cmht.html</p>
+  <p class="subtitle" id="subtitle">Pulls data from total.html + cmht.html</p>
 
   <div class="searchBox">
     <input id="searchInput" placeholder="Enter IPD / SHRI ID / Name" onkeypress="if(event.key==='Enter') searchAll()">
@@ -63,8 +63,10 @@ h1{color:#0B2E6B; font-size:30px;}
     <button class="btn-clear" onclick="clearAll()">Clear</button>
   </div>
 
+  <div id="loading" style="display:none;text-align:center;margin-top:20px;color:#0B4DA2;font-weight:700">Loading from Firebase...</div>
+
   <div id="card" class="card">
-    <div class="cardTop"></div>
+    <div class="cardTop" id="cardTop"></div>
     <div class="cardBody">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
         <h2 style="color:#0B2E6B;">Patient Details</h2>
@@ -74,20 +76,23 @@ h1{color:#0B2E6B; font-size:30px;}
         <div>
           <div class="label">Patient Name</div><div class="value" id="pName">-</div>
           <div style="margin-top:12px" class="label">SHRI ID / IPD No</div><div class="value small" id="pId">-</div>
-          <div style="margin-top:12px" class="label">Age / Gender</div><div class="value small" id="pAge">-</div>
+          <div style="margin-top:12px" class="label">PMJAY / CMHT ID</div><div class="value small" id="pSchemeId">-</div>
           <div style="margin-top:12px" class="label">Contact</div><div class="value small" id="pPhone">-</div>
         </div>
         <div>
           <div class="label">Scheme / Type</div><div class="value" id="pScheme">-</div>
-          <div style="margin-top:12px" class="label">Department / Doctor</div><div class="value small" id="pDoc">-</div>
-          <div style="margin-top:12px" class="label">Admission / Bed</div><div class="value small" id="pBed">-</div>
-          <div style="margin-top:12px" class="label">Insurance / Card No</div><div class="value small" id="pCard">-</div>
+          <div style="margin-top:12px" class="label">Aadhaar</div><div class="value small" id="pAadhaar">-</div>
+          <div style="margin-top:12px" class="label">Address</div><div class="value small" id="pAddress">-</div>
+          <div style="margin-top:12px" class="label">Source</div><div class="value small" id="pCard">-</div>
         </div>
       </div>
     </div>
     <div class="footer">
       <span id="pExtra" style="font-size:13px; color:#4B5B76;">Source: -</span>
-      <button class="btn-search" onclick="editPatient()">Update</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn-clear" onclick="history.back()">← Back</button>
+        <button class="btn-search" id="openBtn" onclick="openOriginal()">Open in Total/CMHT</button>
+      </div>
     </div>
   </div>
 
@@ -95,13 +100,14 @@ h1{color:#0B2E6B; font-size:30px;}
 </div>
 
 <script>
+// === CORRECT FIREBASE CONFIG FROM YOUR INDEX.HTML ===
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
   authDomain: "discharge-b9528.firebaseapp.com",
   projectId: "discharge-b9528",
-  storageBucket: "discharge-b9528.appspot.com",
-  messagingSenderId: "YOUR_ID",
-  appId: "YOUR_APP_ID"
+  storageBucket: "discharge-b9528.firebasestorage.app",
+  messagingSenderId: "1076050472607",
+  appId: "1:1076050472607:web:736e0688a41462460efcaa"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -112,26 +118,51 @@ function toggleMenu(){
   menuOpen=!menuOpen;
 }
 
+let allPatientsCache = [];
+let currentFound = null;
+
+async function loadCache(){
+  document.getElementById('loading').style.display='block';
+  allPatientsCache = [];
+  try{
+    let snap = await db.collection("patients").get();
+    snap.forEach(d=>{
+      let p=d.data(); if(p.deleted) return;
+      allPatientsCache.push({...p, _docId:d.id, _type:'PMJAY', _source:'total.html', _collection:'patients'});
+    });
+  }catch(e){ console.log("patients error", e); }
+  try{
+    let snap = await db.collection("cmht_patients").get();
+    snap.forEach(d=>{
+      let p=d.data(); if(p.deleted) return;
+      allPatientsCache.push({...p, _docId:d.id, _type:'CMHT', _source:'cmht.html', _collection:'cmht_patients'});
+    });
+  }catch(e){ console.log("cmht error", e); }
+  document.getElementById('loading').style.display='none';
+  console.log("Loaded", allPatientsCache.length);
+}
+
 async function searchAll(){
-  const q = document.getElementById('searchInput').value.trim();
-  if(!q) return alert('Enter ID or Name');
+  const qRaw = document.getElementById('searchInput').value.trim();
+  if(!qRaw) return alert('Enter ID or Name');
+  const q = qRaw.toLowerCase();
+
+  if(allPatientsCache.length===0) await loadCache();
+
   document.getElementById('card').style.display='none';
   document.getElementById('notFound').style.display='none';
 
-  let found = null;
-  let source = '';
-
-  // Collections used by total.html and cmht.html - common names
-  const collections = ['patients','totalPatients','cmhtPatients','total','cmht'];
-  
-  for(let col of collections){
-    try{
-      let snap = await db.collection(col).where('shriId','==',q).get();
-      if(snap.empty) snap = await db.collection(col).where('ipdNo','==',q).get();
-      if(snap.empty) snap = await db.collection(col).where('IPD','==',q).get();
-      if(snap.empty) snap = await db.collection(col).where('name','==',q).get();
-      if(!snap.empty){ found=snap.docs[0].data(); source=col; break; }
-    }catch(e){}
+  // Same logic as index - includes() search
+  let found = allPatientsCache.find(p => 
+    String(p.shriId||p.shri||'').toLowerCase() === q ||
+    String(p.patientName||p.name||'').toLowerCase() === q
+  );
+  if(!found){
+    found = allPatientsCache.find(p => 
+      String(p.shriId||p.shri||'').toLowerCase().includes(q) ||
+      String(p.patientName||p.name||'').toLowerCase().includes(q) ||
+      String(p.contactNo||p.contact||'').includes(q)
+    );
   }
 
   if(!found){
@@ -139,22 +170,29 @@ async function searchAll(){
     return;
   }
 
-  // Show details from total.html / cmht.html structure
-  document.getElementById('pName').innerText = found.name || found.patientName || '-';
-  document.getElementById('pId').innerText = (found.shriId||found.SHRIID||'') + ' / ' + (found.ipdNo||found.IPD||'');
-  document.getElementById('pAge').innerText = (found.age||'-') + ' / ' + (found.gender||found.sex||'-');
-  document.getElementById('pPhone').innerText = found.phone || found.mobile || found.contact || '-';
-  document.getElementById('pScheme').innerText = found.scheme || found.type || (source.includes('cmht')?'CMHT':'TOTAL') || '-';
-  document.getElementById('pDoc').innerText = (found.department||'-') + ' / ' + (found.doctor||found.doctorName||'-');
-  document.getElementById('pBed').innerText = (found.admissionDate||'-') + ' | Bed: ' + (found.bedNo||found.bedNumber||'-');
-  document.getElementById('pCard').innerText = found.cardNo || found.ayushmanNo || found.cmhtCard || found.insurance || '-';
-  document.getElementById('pExtra').innerText = 'Source: ' + source + ' collection';
+  showDetails(found);
+}
+
+function showDetails(found){
+  currentFound = found;
+  document.getElementById('pName').innerText = found.patientName || found.name || '-';
+  document.getElementById('pId').innerText = (found.shriId||found.shri||found._docId||'') + '';
+  document.getElementById('pSchemeId').innerText = found.pmjayId || found.pmjay || found.cmhtId || found.cmht || '-';
+  document.getElementById('pPhone').innerText = found.contactNo || found.contact || found.phone || '-';
+  document.getElementById('pScheme').innerText = found._type;
+  document.getElementById('pAadhaar').innerText = found.aadhaarNo || found.aadhaar || '-';
+  document.getElementById('pAddress').innerText = found.address || '-';
+  document.getElementById('pCard').innerText = found._source + ' / ' + found._collection;
+  document.getElementById('pExtra').innerText = 'From: ' + found._source + ' | ID: ' + (found.shriId||found.shri||'');
 
   const badge = document.getElementById('sourceBadge');
-  if(source.toLowerCase().includes('cmht')){
+  const top = document.getElementById('cardTop');
+  if(found._type==='CMHT'){
     badge.innerText='CMHT'; badge.className='badge badge-cmht';
+    top.style.background='#10B981';
   } else {
-    badge.innerText='TOTAL'; badge.className='badge badge-total';
+    badge.innerText='TOTAL / PMJAY'; badge.className='badge badge-total';
+    top.style.background='#3B82F6';
   }
 
   document.getElementById('card').style.display='block';
@@ -165,11 +203,27 @@ function clearAll(){
   document.getElementById('card').style.display='none';
   document.getElementById('notFound').style.display='none';
 }
-function editPatient(){ alert('Open edit page'); }
+function openOriginal(){
+  if(!currentFound) return;
+  let target = currentFound._type==='CMHT' ? `cmht.html?search=${encodeURIComponent(currentFound.patientName||currentFound.name||'')}` : `total.html?search=${encodeURIComponent(currentFound.patientName||currentFound.name||'')}`;
+  location.href = target;
+}
+
+// === AUTO LOAD WHEN COMING FROM INDEX SEARCH ===
+window.addEventListener('load', async ()=>{
+  await loadCache();
+  const params = new URLSearchParams(location.search);
+  const shri = params.get('shri') || params.get('search');
+  if(shri){
+    document.getElementById('searchInput').value = shri;
+    document.getElementById('subtitle').innerText = `Showing details for: ${shri} - From ${params.get('type')||'total/cmht'}`;
+    searchAll();
+  }
+});
 
 document.addEventListener('click',function(e){
   if(!e.target.closest('#sideMenu') && !e.target.closest('#topNav')){ if(menuOpen) toggleMenu(); }
 });
 </script>
-</body>
+</body> 
 </html>
