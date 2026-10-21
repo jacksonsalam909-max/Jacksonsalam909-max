@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Add Patient - SHIJA</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Inter}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui}
 body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .top{height:64px;background:#0a1931;display:flex;align-items:center;padding:0 14px;justify-content:space-between;position:fixed;top:0;left:0;right:0;z-index:9999}
 .top h2{color:#fff;font-size:16px;font-weight:800}
@@ -14,13 +14,17 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .side{width:260px;background:#0a1931;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;z-index:9998;overflow-y:auto;transition:0.3s;transform:translateX(-100%)}
 .side.show{transform:translateX(0)!important}
 .side a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px;display:block;margin-bottom:4px}
-.side a.active{background:#13264d;color:#fff}
-.content{flex:1;padding:20px}
+.side a.active{background:#1a56db;color:#fff;font-weight:700}
+.content{flex:1;padding:12px;width:100%;max-width:100%}
 .sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,0.5);z-index:9997;display:none}
 .sideOverlay.show{display:block}
-.box{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:24px;max-width:700px;width:100%}
-.box input{width:100%;padding:13px;border:1.5px solid #cbd5e1;border-radius:10px;margin:9px 0;font-size:14px}
-.btn{width:100%;padding:13px;background:#1868db;color:#fff;border:0;border-radius:10px;font-weight:800;cursor:pointer;margin-top:12px;font-size:15px}
+.box{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:16px;width:100%;max-width:100%}
+.box label{font-size:12px;font-weight:700;color:#334155;display:block;margin:14px 0 6px}
+.box input,.box select{width:100%;padding:13px 14px;border:1.5px solid #cbd5e1;border-radius:10px;margin:0;font-size:15px;font-weight:600;background:#fff;outline:0}
+.box input:focus,.box select:focus{border-color:#1868db}
+.row{display:flex;gap:10px}
+.row>div{flex:1}
+.btn{width:100%;padding:14px;background:#1868db;color:#fff;border:0;border-radius:10px;font-weight:800;cursor:pointer;margin-top:18px;font-size:15px}
 </style>
 </head>
 <body>
@@ -40,22 +44,52 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 <a href="add.html" class="active">ADD PATIENT</a>
 <a href="bill.html">BILL</a>
 <a href="dischargesummary.html">DISCHARGE SUMMARY</a>
+<a href="upload.html" style="background:#1868db;color:#fff;font-weight:800;margin-top:10px;border-radius:10px;padding:12px 14px;text-align:center">UPLOAD PATIENTS</a>
 </div>
 <div class="content" id="content">
-<h1>Add Patient</h1><p id="msg" style="margin:8px 0;color:#64748b;font-size:13px">Will show in Total Patients on all devices</p>
+<h1 style="font-size:18px;margin-bottom:4px">ADD PATIENT</h1><p id="msg" style="margin:0 0 10px;color:#64748b;font-size:13px;font-weight:600">Will show in Total Patients on all devices</p>
 <div class="box">
-<input id="name" placeholder="Patient Name *">
-<input id="shri" placeholder="SHRI ID (e.g. SHRI123) - Leave empty to auto generate">
-<input id="contact" placeholder="Contact No">
-<input id="pmjay" placeholder="PMJAY ID">
-<input id="addr" placeholder="Address">
-<button class="btn" onclick="addPatient()">Add Patient</button>
+
+<label>PATIENT NAME *</label>
+<input id="name">
+
+<label>SHRI ID (Leave empty to auto generate)</label>
+<input id="shri">
+
+<label>CONTACT NO</label>
+<input id="contact">
+
+<label>PMJAY ID</label>
+<input id="pmjay">
+
+<label>AADHAAR NUMBER</label>
+<input id="aadhaar" maxlength="12">
+
+<div class="row">
+<div>
+<label>AGE</label>
+<input id="age" type="number">
+</div>
+<div>
+<label>SEX</label>
+<select id="sex">
+<option value=""></option>
+<option value="MALE">MALE</option>
+<option value="FEMALE">FEMALE</option>
+<option value="OTHER">OTHER</option>
+</select>
+</div>
+</div>
+
+<label>ADDRESS</label>
+<input id="addr">
+
+<button class="btn" onclick="addPatient()">ADD PATIENT</button>
 </div>
 </div>
 </div>
 
 <script>
-// 100% UNIVERSAL - iPhone, Android, PC, WhatsApp, Instagram
 function toggleMenu(){
  var s=document.getElementById('side');
  var o=document.getElementById('overlay');
@@ -68,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function(){
  var lastTap = 0;
  function handleMenu(e){
    var now = Date.now();
-   if(now - lastTap < 400) return; // block double ghost click
+   if(now - lastTap < 400) return;
    lastTap = now;
    if(e){ e.preventDefault(); e.stopPropagation(); }
    toggleMenu();
@@ -97,15 +131,18 @@ window.addPatient=async()=>{
  let contact=document.getElementById('contact').value.trim();
  let pmjay=document.getElementById('pmjay').value.trim();
  let addr=document.getElementById('addr').value.trim();
+ let aadhaar=document.getElementById('aadhaar').value.trim();
+ let age=document.getElementById('age').value.trim();
+ let sex=document.getElementById('sex').value.trim();
  if(!name){ alert('Enter Name'); return; }
  if(!shri){ shri='SHRI'+Date.now().toString().slice(-6); }
- let data={ patientName:name,name:name, shriId:shri,shri:shri, contactNo:contact,contact:contact, pmjayId:pmjay,pmjay:pmjay, address:addr,addr:addr, key:shri,deleted:false, createdAt:new Date().toISOString() };
+ let data={ patientName:name,name:name, shriId:shri,shri:shri, contactNo:contact,contact:contact, pmjayId:pmjay,pmjay:pmjay, address:addr,addr:addr, aadhaarNo:aadhaar,aadhaar:aadhaar, age:age, sex:sex, key:shri,deleted:false, createdAt:new Date().toISOString() };
  document.getElementById('msg').textContent='Saving '+shri+'...';
  try{
    await setDoc(doc(db,"patients",shri),data,{merge:true});
    saveEditedLocal(shri,data);
    document.getElementById('msg').textContent='✅ Added '+name+' ('+shri+') - Now go to Total Patients page';
-   document.getElementById('name').value=''; document.getElementById('shri').value=''; document.getElementById('contact').value=''; document.getElementById('pmjay').value=''; document.getElementById('addr').value='';
+   document.getElementById('name').value=''; document.getElementById('shri').value=''; document.getElementById('contact').value=''; document.getElementById('pmjay').value=''; document.getElementById('addr').value=''; document.getElementById('aadhaar').value=''; document.getElementById('age').value=''; document.getElementById('sex').value='';
  }catch(e){
    saveEditedLocal(shri,data);
    document.getElementById('msg').textContent='Saved locally (Firebase error: '+e.message+')';
