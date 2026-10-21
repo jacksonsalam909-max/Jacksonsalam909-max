@@ -8,7 +8,7 @@
 body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .top{height:64px;background:#0a1931;display:flex;align-items:center;padding:0 14px;justify-content:space-between;position:fixed;top:0;left:0;right:0;z-index:9999}
 .top h2{color:#fff;font-size:16px;font-weight:800}
-.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 .menuBtn span{display:block;width:20px;height:2px;background:#fff;pointer-events:none}
 .mainWrap{display:flex;flex:1;margin-top:64px}
 .side{width:260px;background:#0a1931;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;z-index:9998;overflow-y:auto;transition:0.3s;transform:translateX(-100%)}
@@ -24,8 +24,8 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 </style>
 </head>
 <body>
-<div class="top"><div style="display:flex;align-items:center;gap:10px"><div class="menuBtn" id="menuBtn" onclick="toggleMenu()"><span></span><span></span><span></span></div><h2>SHIJA Dialysis Management</h2></div><span style="color:#fff">Admin</span></div>
-<div class="sideOverlay" id="overlay" onclick="toggleMenu()"></div>
+<div class="top"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn"><span></span><span></span><span></span></button><h2>SHIJA Dialysis Management</h2></div><span style="color:#fff">Admin</span></div>
+<div class="sideOverlay" id="overlay"></div>
 <div class="mainWrap">
 <div class="side" id="side">
 <a href="index.html">HOME</a>
@@ -55,22 +55,41 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 </div>
 
 <script>
+// UNIVERSAL MENU - Works on iPhone, Android, PC
 function toggleMenu(){
  var s=document.getElementById('side');
  var o=document.getElementById('overlay');
- if(s.className.indexOf('show')===-1){
-   s.className='side show';
-   o.className='sideOverlay show';
- }else{
-   s.className='side';
-   o.className='sideOverlay';
+ var isOpen = s.classList.contains('show');
+ if(!isOpen){
+   s.classList.add('show');
+   o.classList.add('show');
+ } else {
+   s.classList.remove('show');
+   o.classList.remove('show');
  }
 }
 document.addEventListener('DOMContentLoaded',function(){
- var b=document.getElementById('menuBtn');
- if(b){
-   b.addEventListener('touchstart',function(e){e.preventDefault();toggleMenu();},{passive:false});
+ var btn = document.getElementById('menuBtn');
+ var overlay = document.getElementById('overlay');
+ 
+ // One function for all devices
+ function handleMenu(e){
+   if(e) { e.preventDefault(); e.stopPropagation(); }
+   toggleMenu();
  }
+ 
+ // Click - for PC
+ btn.addEventListener('click', handleMenu);
+ // Touch - for Mobile
+ btn.addEventListener('touchend', handleMenu, {passive:false});
+ // Pointer - for all new devices
+ btn.addEventListener('pointerup', function(e){
+   if(e.pointerType==='touch') return; // avoid double
+   handleMenu(e);
+ });
+ 
+ overlay.addEventListener('click', toggleMenu);
+ overlay.addEventListener('touchend', handleMenu, {passive:false});
 });
 </script>
 <script type="module">
