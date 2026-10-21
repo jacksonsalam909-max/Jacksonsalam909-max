@@ -83,9 +83,9 @@ window.loadMasterPatients=loadMasterPatients;
 body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:9999}
 .top h2{color:#fff;font-size:16px;font-weight:800}
-.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 .menuBtn span{display:block;width:20px;height:2px;background:#fff;border-radius:2px;pointer-events:none}
-.side{width:260px;background:#0a1931;position:fixed;left:0;top:64px;bottom:0;z-index:9998;transition:0.3s;padding:18px 14px;display:flex;flex-direction:column;transform:translateX(-100%)}
+.side{width:260px;background:#0a1931;position:fixed;left:0;top:64px;bottom:0;z-index:9998;transition:0.3s;padding:18px 14px;display:flex;flex-direction:column;transform:translateX(-100%);overflow-y:auto}
 .side.show{transform:translateX(0)!important}
 .menu{display:flex;flex-direction:column;gap:8px}
 .menu a{color:#8ea0c0;text-decoration:none;font-size:14px;font-weight:600;padding:12px 14px;border-radius:10px;background:#0f1f3d}
@@ -131,9 +131,25 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 </head>
 <body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='index.html'}</script>
-<div class="top noPrint"><div style="display:flex;align-items:center;gap:10px"><div class="menuBtn" id="menuBtn" onclick="toggleMenu()"><span></span><span></span><span></span></div><h2>SHIJA Dialysis</h2><span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div><div style="display:flex;gap:8px"><button class="btnBlue" onclick="saveToSameStorage()" style="background:#10b981">Save</button><button class="btnBlue" onclick="saveToSameStorage(); setTimeout(()=>window.print(),500)">Save & Print</button><button class="btnBlue" onclick="window.print()">Print</button></div></div>
-<div class="sideOverlay" id="overlay" onclick="toggleMenu()"></div>
-<div class="side noPrint" id="side"><div class="menu"><a href="index.html">Home</a><a href="total.html">Total Patient</a><a href="daily.html">Daily Dialysis</a><a href="discharge.html">Discharge Patient</a><a href="add.html">Add Patient</a><a href="bill.html" class="active">Bill</a></div><div class="settingBtn"><button onclick="openSettings()">Alignment Settings</button></div></div>
+<div class="top noPrint"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA Dialysis</h2><span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div><div style="display:flex;gap:8px"><button class="btnBlue" onclick="saveToSameStorage()" style="background:#10b981">Save</button><button class="btnBlue" onclick="saveToSameStorage(); setTimeout(()=>window.print(),500)">Save & Print</button><button class="btnBlue" onclick="window.print()">Print</button></div></div>
+<div class="sideOverlay" id="overlay"></div>
+<div class="side noPrint" id="side">
+<div class="menu">
+<a href="index.html">HOME</a>
+<a href="total.html">TOTAL PATIENT</a>
+<a href="cmht.html">CMHT TOTAL PATIENT</a>
+<a href="cmhtkft.html">CMHT KFT REPORT</a>
+<a href="cmhtdaily.html">CMHT DAILY DIALYSIS</a>
+<a href="addcmht.html">CMHT ADD PATIENT</a>
+<a href="daily.html">DAILY DIALYSIS</a>
+<a href="discharge.html">DISCHARGE PATIENT</a>
+<a href="kft.html">KFT REPORT</a>
+<a href="add.html">ADD PATIENT</a>
+<a href="bill.html" class="active">BILL</a>
+<a href="dischargesummary.html">DISCHARGE SUMMARY</a>
+</div>
+<div class="settingBtn"><button onclick="openSettings()">ALIGNMENT SETTINGS</button></div>
+</div>
 <div class="content">
 <div class="card noPrint alignBox" id="alignPanel">
 <div style="background:#1e293b;padding:10px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:12px;text-align:center">ALL movable - drag or slider</div>
@@ -184,23 +200,30 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 </div>
 </div>
 <script>
+// UNIVERSAL 3-LINE BUTTON - Works on ALL devices
 function toggleMenu(){
  var s=document.getElementById('side');
  var o=document.getElementById('overlay');
- if(s.className.indexOf('show')===-1){
-   s.className='side show';
-   o.className='sideOverlay show';
- }else{
-   s.className='side';
-   o.className='sideOverlay';
- }
+ s.classList.toggle('show');
+ o.classList.toggle('show');
 }
 document.addEventListener('DOMContentLoaded',function(){
- var b=document.getElementById('menuBtn');
- if(b){
-   b.addEventListener('touchstart',function(e){e.preventDefault();toggleMenu();},{passive:false});
+ var btn=document.getElementById('menuBtn');
+ var overlay=document.getElementById('overlay');
+ var lastTap=0;
+ function handleMenu(e){
+   var now=Date.now();
+   if(now-lastTap<400) return;
+   lastTap=now;
+   if(e){e.preventDefault(); e.stopPropagation();}
+   toggleMenu();
  }
+ btn.addEventListener('click', handleMenu);
+ btn.addEventListener('touchend', handleMenu, {passive:false});
+ overlay.addEventListener('click', toggleMenu);
+ overlay.addEventListener('touchend', handleMenu, {passive:false});
 });
+
 function openSettings(){document.getElementById('alignPanel').classList.add('show');let s=document.getElementById('side');if(s.classList.contains('show'))toggleMenu();}
 function closeSettings(){document.getElementById('alignPanel').classList.remove('show');}
 let cfg = JSON.parse(localStorage.getItem('shija_full_all')||'null') || {};
