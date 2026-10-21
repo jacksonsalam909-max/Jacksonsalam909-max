@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHIJA - Alignment Like Photo</title>
+<title>SHIJA - Final Export Same as Screen</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -27,19 +27,21 @@
 .vUnit{font-size:10px;font-weight:700;color:#94a3b8;margin-right:26px}
 .vStepper{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:3px}
 .vStepBtn{width:22px;height:18px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:6px;font-size:10px;font-weight:900;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.vStepBtn:active{background:#1e3a8a;color:#fff}
 .preBox .vitalCard{border-left:3.5px solid #ef4444}
 .postBox .vitalCard{border-left:3.5px solid #10b981}
+
+/* PAPER - FINAL */
 .paper{background:#fff;width:100%;max-width:800px;margin:0 auto;color:#000;border:1px solid #e2e8f0;--fs:14px;overflow:hidden}
-.letterhead{margin:0;padding:0;line-height:0;display:block}
-.letterhead img{width:100%;display:block;margin:0;padding:0;vertical-align:top}
-.disTitle{text-align:center;font-weight:800;font-size:calc(var(--fs) + 5px);padding:7px 0;border:2.5px solid #000;margin:0 14px 0 14px;background:#fff;box-sizing:border-box;width:calc(100% - 28px)}
-.infoTable{width:100%;border-collapse:collapse;font-size:var(--fs);margin:8px 0 8px 0}
-.infoTable td{padding:4px 8px;vertical-align:top;line-height:1.4}
-.infoTable td:first-child{padding-left:38px !important;width:22%;white-space:nowrap}
-.infoTable td:nth-child(2){padding-left:2px !important;width:30%}
-.infoTable td:nth-child(3){width:18%;white-space:nowrap}
-.section{padding:14px 18px 14px 44px;font-size:var(--fs);line-height:1.75;border-top:2.5px solid #000}
+.letterhead{margin:0;padding:0;line-height:0;display:block;font-size:0;border:0}
+.letterhead img{width:100%;display:block;margin:0;padding:0;vertical-align:top;border:0;outline:0}
+.disTitle{text-align:center;font-weight:800;font-size:calc(var(--fs) + 5px);padding:6px 0;border:2.5px solid #000;margin:-2px 10px 0 10px;background:#fff;box-sizing:border-box;width:calc(100% - 20px);line-height:1.2}
+.infoTable{width:100%;border-collapse:collapse;font-size:var(--fs);margin:5px 0 5px 0;table-layout:fixed}
+.infoTable td{padding:2px 2px;vertical-align:top;line-height:1.35}
+.infoTable td:first-child{padding-left:24px !important;width:145px !important;padding-right:0px !important}
+.infoTable td:nth-child(2){width:215px !important;padding-left:0px !important}
+.infoTable td:nth-child(3){width:110px !important;padding-left:6px !important}
+.infoTable td:nth-child(4){padding-left:0px !important}
+.section{padding:10px 18px 14px 28px;font-size:var(--fs);line-height:1.65;border-top:2.5px solid #000}
 .editable{border-bottom:1px dashed #2563eb;min-width:40px;display:inline-block;padding:0 6px;background:#eff6ff;border-radius:4px}
 .exportGroup{display:flex;align-items:center;background:#fff;border-radius:24px;padding:3px}.exportSelect{border:0;background:transparent;font-weight:800;font-size:11px;padding:8px 10px;outline:0}.exportBtn{background:#10b981;color:#fff;border:0;padding:8px 18px;border-radius:20px;font-weight:800;cursor:pointer;font-size:11px;margin-left:4px}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{opacity:1}
@@ -128,140 +130,32 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 </div>
 <script>
 let allPMJAY=[], allCMHT=[], scheme='PMJAY', lastFiltered=[];
-function stepVital(id, delta){
-  let el=document.getElementById(id);
-  let v=parseInt(el.value)||0;
-  v+=delta;
-  if(v<0) v=0;
-  if(id.includes('spo2') && v>100) v=100;
-  el.value=v;
-  render();
-}
-async function loadFirebaseAll(){
-  const {collection,getDocs} = window.fbTools;
-  allPMJAY=[]; allCMHT=[];
-  const tryCollections = async (names, targetArray) => {
-    for(let name of names){
-      try{
-        let snap = await getDocs(collection(window.db, name));
-        if(!snap.empty){
-          snap.forEach(d=>{
-            let c=d.data();
-            targetArray.push({
-              shri: c.shriId || c.shri || c.UHID || c.uhid || c.id || '',
-              ip: c.pmjayId || c.pmjay || c.cmhtId || c.cmht || c.ipNo || c.IPNO || c.ip || '',
-              name: c.patientName || c.name || c.patient_name || c.Name || '',
-              contact: c.contactNo || c.contact || ''
-            });
-          });
-          if(targetArray.length>0) return name;
-        }
-      }catch(e){}
-    }
-    return null;
-  };
-  let foundPMJAY = await tryCollections(["pmjay_patients","PMJAY_patients","pmjay","PMJAY","patients"], allPMJAY);
-  let foundCMHT = await tryCollections(["cmht_patients","CMHT_patients","cmht","CMHT"], allCMHT);
-  document.getElementById('debugInfo').innerText = `Found - PMJAY: ${allPMJAY.length} | CMHT: ${allCMHT.length}`;
-  document.getElementById('countBadge').innerText = getCombined().length + ' Patients in '+scheme;
-}
-function changeScheme(){scheme=document.getElementById('schemeSelect').value; document.getElementById('countBadge').innerText=getCombined().length+' Patients in '+scheme; render();}
+function stepVital(id, delta){let el=document.getElementById(id);let v=parseInt(el.value)||0;v+=delta;if(v<0)v=0;if(id.includes('spo2')&&v>100)v=100;el.value=v;render();}
+async function loadFirebaseAll(){const {collection,getDocs}=window.fbTools;allPMJAY=[];allCMHT=[];const tryCollections=async(names,targetArray)=>{for(let name of names){try{let snap=await getDocs(collection(window.db,name));if(!snap.empty){snap.forEach(d=>{let c=d.data();targetArray.push({shri:c.shriId||c.shri||c.UHID||c.uhid||c.id||'',ip:c.pmjayId||c.pmjay||c.cmhtId||c.cmht||c.ipNo||c.IPNO||c.ip||'',name:c.patientName||c.name||c.patient_name||c.Name||'',contact:c.contactNo||c.contact||''});});if(targetArray.length>0)return name;}}catch(e){}}return null;};await tryCollections(["pmjay_patients","PMJAY_patients","pmjay","PMJAY","patients"],allPMJAY);await tryCollections(["cmht_patients","CMHT_patients","cmht","CMHT"],allCMHT);document.getElementById('debugInfo').innerText=`Found - PMJAY: ${allPMJAY.length} | CMHT: ${allCMHT.length}`;document.getElementById('countBadge').innerText=getCombined().length+' Patients in '+scheme;}
+function changeScheme(){scheme=document.getElementById('schemeSelect').value;document.getElementById('countBadge').innerText=getCombined().length+' Patients in '+scheme;render();}
 function getCombined(){return scheme=='PMJAY'?allPMJAY:allCMHT;}
-function doSearch(q){
-  let list=document.getElementById('searchList');
-  let combined = getCombined();
-  if(!q || q.length==0){
-    let all = combined.slice(0,20);
-    lastFiltered = all;
-    list.innerHTML = all.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer"><b style="color:#1e3a8a">${p.shri||'No-ID'}</b> - ${p.name||''}</div>`).join('');
-    list.style.display='block'; return;
-  }
-  q=q.toLowerCase();
-  let f=combined.filter(p=> (p.name&&p.name.toLowerCase().includes(q)) || (p.shri&&p.shri.toLowerCase().includes(q)) || (p.ip&&p.ip.toLowerCase().includes(q)) ).slice(0,30);
-  lastFiltered=f;
-  if(f.length==0){ list.innerHTML='<div style="padding:12px">No patient found for "'+q+'"</div>'; list.style.display='block'; return; }
-  list.innerHTML = f.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:12px;font-weight:600"><b style="color:#1e3a8a">${p.shri}</b> - ${p.name.slice(0,50)}<br><small style="color:#64748b">IP:${p.ip||''}</small></div>`).join('');
-  list.style.display='block';
-}
-function selectPatByIdx(i){
-  let p=lastFiltered[i]; if(!p) return;
-  document.getElementById('shriId').value=p.shri; document.getElementById('ipNo').value=p.ip; document.getElementById('patName').value=p.name;
-  document.getElementById('searchList').style.display='none'; document.getElementById('searchInput').value=p.shri+' - '+p.name; render();
-}
+function doSearch(q){let list=document.getElementById('searchList');let combined=getCombined();if(!q||q.length==0){let all=combined.slice(0,20);lastFiltered=all;list.innerHTML=all.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer"><b style="color:#1e3a8a">${p.shri||'No-ID'}</b> - ${p.name||''}</div>`).join('');list.style.display='block';return;}q=q.toLowerCase();let f=combined.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,30);lastFiltered=f;if(f.length==0){list.innerHTML='<div style="padding:12px">No patient found for "'+q+'"</div>';list.style.display='block';return;}list.innerHTML=f.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:12px;font-weight:600"><b style="color:#1e3a8a">${p.shri}</b> - ${p.name.slice(0,50)}<br><small style="color:#64748b">IP:${p.ip||''}</small></div>`).join('');list.style.display='block';}
+function selectPatByIdx(i){let p=lastFiltered[i];if(!p)return;document.getElementById('shriId').value=p.shri;document.getElementById('ipNo').value=p.ip;document.getElementById('patName').value=p.name;document.getElementById('searchList').style.display='none';document.getElementById('searchInput').value=p.shri+' - '+p.name;render();}
 function getAdmDateTime(){let d=document.getElementById('admDate').value;if(!d)return null;let h=parseInt(document.getElementById('admHour').value)||2;let m=parseInt(document.getElementById('admMin').value)||0;let ap=document.getElementById('admAmPm').value;let h24=h%12+(ap=='PM'?12:0);let dt=new Date(d+'T00:00:00');dt.setHours(h24,m,0,0);return dt;}
 function DMY(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+dt.getFullYear();}
 function SHORT(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+String(dt.getFullYear()).slice(-2);}
 function T12(dt){let h=dt.getHours(),m=dt.getMinutes(),ap=h>=12?'PM':'AM',h12=h%12||12;return String(h12).padStart(2,'0')+":"+String(m).padStart(2,'0')+" "+ap;}
-function render(){
-  document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;
-  document.getElementById('b_shri').innerText=document.getElementById('shriId').value;
-  document.getElementById('b_name').innerText=document.getElementById('patName').value;
-  document.getElementById('b_age').innerText=(document.getElementById('ageInput').value||'--')+' Year(s) /'+document.getElementById('sexInput').value;
-  let adm=getAdmDateTime(); if(adm){document.getElementById('b_adm').innerText=DMY(adm)+' '+T12(adm); let dis=new Date(adm.getTime()+4*3600000); document.getElementById('b_dis').innerText=DMY(dis);}
-  document.getElementById('b_bp').innerText=document.getElementById('bp').value+' mmHg';
-  document.getElementById('b_pr').innerText=document.getElementById('pr').value+' bpm';
-  document.getElementById('b_spo2').innerText=document.getElementById('spo2').value+' %@RA';
-  document.getElementById('b_temp').innerText=document.getElementById('temp').value+' degree F';
-  document.getElementById('b_pbp').innerText=document.getElementById('postBp').value+' mmHg';
-  document.getElementById('b_ppr').innerText=document.getElementById('postPr').value+' bpm';
-  document.getElementById('b_pspo2').innerText=document.getElementById('postSpo2').value+' %@RA';
-  document.getElementById('b_ptemp').innerText=document.getElementById('postTemp').value+' degree F';
-  let adv=document.getElementById('adviceDate').value; if(adv) document.getElementById('b_advDate').innerText=SHORT(new Date(adv));
-  document.getElementById('b_advTime').innerText=document.getElementById('adviceTime').value;
-  document.getElementById('b_freq').innerText=document.getElementById('freq').value;
-}
-function doExport(){let t=document.getElementById('exportType').value; if(t==='pdf') exportPDF(); else exportJPG();}
-function createHighResClone(){
-  let paper=document.getElementById('paper'); 
-  let clone=document.createElement('div'); 
-  clone.innerHTML=paper.innerHTML;
-  clone.style.width='2480px'; clone.style.minWidth='2480px'; clone.style.height='3508px'; clone.style.minHeight='3508px';
-  clone.style.background='#fff'; clone.style.color='#000'; clone.style.position='fixed'; clone.style.left='-9999px'; clone.style.top='0';
-  clone.style.display='flex'; clone.style.flexDirection='column'; clone.style.margin='0'; clone.style.padding='0';
-  clone.querySelectorAll('.editable').forEach(el=>{ el.style.border='none'; el.style.background='transparent'; });
-  let lh=clone.querySelector('.letterhead');
-  if(lh){ lh.style.margin='0'; lh.style.padding='0'; lh.style.lineHeight='0'; lh.style.display='block'; }
-  let lhImg=clone.querySelector('.letterhead img');
-  if(lhImg){ lhImg.style.width='2480px'; lhImg.style.margin='0'; lhImg.style.padding='0'; lhImg.style.display='block'; lhImg.style.verticalAlign='top'; }
-  let disTitle=clone.querySelector('.disTitle'); 
-  if(disTitle){ disTitle.style.fontSize='54px'; disTitle.style.padding='18px 0'; disTitle.style.margin='0 36px 0 36px'; disTitle.style.border='5px solid #000'; disTitle.style.width='2408px'; disTitle.style.boxSizing='border-box'; }
-  let infoTable=clone.querySelector('.infoTable'); 
-  if(infoTable){ infoTable.style.fontSize='38px'; infoTable.style.margin='12px 0 12px 0'; }
-  let firstTds=clone.querySelectorAll('.infoTable td:first-child');
-  firstTds.forEach(td=>{ td.style.paddingLeft='82px'; });
-  let section=clone.querySelector('.section'); 
-  if(section){ section.style.fontSize='38px'; section.style.flex='1'; section.style.paddingLeft='110px'; }
-  document.body.appendChild(clone); 
-  return clone;
-}
+function render(){document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;document.getElementById('b_shri').innerText=document.getElementById('shriId').value;document.getElementById('b_name').innerText=document.getElementById('patName').value;document.getElementById('b_age').innerText=(document.getElementById('ageInput').value||'--')+' Year(s) /'+document.getElementById('sexInput').value;let adm=getAdmDateTime();if(adm){document.getElementById('b_adm').innerText=DMY(adm)+' '+T12(adm);let dis=new Date(adm.getTime()+4*3600000);document.getElementById('b_dis').innerText=DMY(dis);}document.getElementById('b_bp').innerText=document.getElementById('bp').value+' mmHg';document.getElementById('b_pr').innerText=document.getElementById('pr').value+' bpm';document.getElementById('b_spo2').innerText=document.getElementById('spo2').value+' %@RA';document.getElementById('b_temp').innerText=document.getElementById('temp').value+' degree F';document.getElementById('b_pbp').innerText=document.getElementById('postBp').value+' mmHg';document.getElementById('b_ppr').innerText=document.getElementById('postPr').value+' bpm';document.getElementById('b_pspo2').innerText=document.getElementById('postSpo2').value+' %@RA';document.getElementById('b_ptemp').innerText=document.getElementById('postTemp').value+' degree F';let adv=document.getElementById('adviceDate').value;if(adv)document.getElementById('b_advDate').innerText=SHORT(new Date(adv));document.getElementById('b_advTime').innerText=document.getElementById('adviceTime').value;document.getElementById('b_freq').innerText=document.getElementById('freq').value;}
+function doExport(){let t=document.getElementById('exportType').value;if(t==='pdf')exportPDF();else exportJPG();}
 async function exportJPG(){
-  let clone=createHighResClone(); let canvas=await html2canvas(clone,{scale:1,useCORS:true,backgroundColor:'#fff',width:2480,height:3508});
-  let link=document.createElement('a'); let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');
-  link.download=name+'.jpg'; link.href=canvas.toDataURL('image/jpeg',0.92); link.click(); document.body.removeChild(clone);
+  let paper=document.getElementById('paper');
+  let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff',windowWidth:800});
+  let link=document.createElement('a');let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');
+  link.download=name+'.jpg';link.href=canvas.toDataURL('image/jpeg',0.95);link.click();
 }
 async function exportPDF(){
-  let clone=createHighResClone(); let canvas=await html2canvas(clone,{scale:1,useCORS:true,backgroundColor:'#fff',width:2480,height:3508});
-  let imgData=canvas.toDataURL('image/jpeg',0.92); const { jsPDF } = window.jspdf; let pdf=new jsPDF('p','mm','a4');
-  pdf.addImage(imgData,'JPEG',0,0,210,297); let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_'); pdf.save(name+'.pdf'); document.body.removeChild(clone);
+  let paper=document.getElementById('paper');
+  let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff',windowWidth:800});
+  let imgData=canvas.toDataURL('image/jpeg',0.95);const {jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');
+  let w=pdf.internal.pageSize.getWidth();let h=canvas.height*w/canvas.width;
+  pdf.addImage(imgData,'JPEG',0,0,w,h);let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');pdf.save(name+'.pdf');
 }
-setTimeout(()=>{
-  document.querySelectorAll('input, select').forEach(el=>{
-    el.addEventListener('input', render); el.addEventListener('change', render);
-  });
-  let today=new Date().toISOString().split('T')[0];
-  if(!document.getElementById('admDate').value) document.getElementById('admDate').value=today;
-  if(!document.getElementById('adviceDate').value) document.getElementById('adviceDate').value=new Date(Date.now()+3*86400000).toISOString().split('T')[0];
-  loadFirebaseAll(); render();
-  document.addEventListener('keydown', e=>{
-    let t=e.target;
-    if(t.tagName==='INPUT' && t.type==='number'){
-      if(['pr','spo2','temp','postPr','postSpo2','postTemp','ageInput','admHour','admMin'].includes(t.id)){
-        if(e.key==='ArrowUp'){ e.preventDefault(); stepVital(t.id,1); }
-        if(e.key==='ArrowDown'){ e.preventDefault(); stepVital(t.id,-1); }
-      }
-    }
-  });
-},300);
+setTimeout(()=>{document.querySelectorAll('input, select').forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render);});let today=new Date().toISOString().split('T')[0];if(!document.getElementById('admDate').value)document.getElementById('admDate').value=today;if(!document.getElementById('adviceDate').value)document.getElementById('adviceDate').value=new Date(Date.now()+3*86400000).toISOString().split('T')[0];loadFirebaseAll();render();document.addEventListener('keydown',e=>{let t=e.target;if(t.tagName==='INPUT'&&t.type==='number'){if(['pr','spo2','temp','postPr','postSpo2','postTemp','ageInput','admHour','admMin'].includes(t.id)){if(e.key==='ArrowUp'){e.preventDefault();stepVital(t.id,1);}if(e.key==='ArrowDown'){e.preventDefault();stepVital(t.id,-1);}}}});},300);
 document.addEventListener('click',e=>{if(!e.target.closest('.searchBox'))document.getElementById('searchList').style.display='none'});
 </script>
 </body>
