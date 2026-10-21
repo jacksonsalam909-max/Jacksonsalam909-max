@@ -42,7 +42,6 @@
 #b_name{white-space:normal !important;display:inline}
 .section{padding:12px 18px 14px 28px;font-size:var(--fs);line-height:1.7;border-top:2.5px solid #000}
 .exportGroup{display:flex;align-items:center;background:#fff;border-radius:24px;padding:3px}.exportSelect{border:0;background:transparent;font-weight:800;font-size:11px;padding:8px 10px;outline:0}.exportBtn{background:#10b981;color:#fff;border:0;padding:8px 18px;border-radius:20px;font-weight:800;cursor:pointer;font-size:11px;margin-left:4px}
-/* ONLY MENU CSS - NEW */
 .hamburger{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer}
 .hamburger span{width:20px;height:2.5px;background:#fff;border-radius:2px;display:block;transition:.25s}
 .hamburger.active span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
@@ -51,7 +50,7 @@
 .menuOverlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;display:none}
 .menuDrawer{position:fixed;top:0;left:-320px;width:300px;height:100vh;background:#0f172a;z-index:10001;transition:left .3s;overflow:auto;display:flex;flex-direction:column}
 .menuDrawer.open{left:0}
-.menuItem{padding:14px 18px;display:flex;align-items:center;gap:12px;color:#cbd5e1;font-size:12.5px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer}
+.menuItem{padding:14px 18px;display:flex;align-items:center;gap:12px;color:#cbd5e1;font-size:12.5px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;text-decoration:none}
 .menuItem:hover{background:#1e293b;color:#fff}
 </style>
 <script type="module">
@@ -65,17 +64,16 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 <div id="menuOverlay" class="menuOverlay" onclick="closeMenu()"></div>
 <div id="menuDrawer" class="menuDrawer">
 <div style="padding:20px;background:linear-gradient(135deg,#0a1931,#1e3a8a)"><div style="color:#fff;font-weight:800">SHIJA HOSPITALS</div><div style="color:#94a3b8;font-size:10px">Dialysis Management</div></div>
-<div class="menuItem" onclick="go('HOME')"> HOME</div>
-<div class="menuItem" onclick="go('PMJAY_TOTAL')"> PMJAY TOTAL PATIENT</div>
-<div class="menuItem" onclick="go('CMHT_TOTAL')"> CMHT TOTAL PATIENT</div>
-<div class="menuItem" onclick="go('PMJAY_DAILY')"> PMJAY DAILY DIALYSIS</div>
-<div class="menuItem" onclick="go('CMHT_DAILY')"> CMHT DAILY DIALYSIS</div>
-<div class="menuItem" onclick="go('PMJAY_KFT')"> PMJAY KFT REPORT</div>
-<div class="menuItem" onclick="go('CMHT_KFT')"> CMHT KFT REPORT</div>
-<div class="menuItem" onclick="go('ADD_PMJAY')"> Add PMJAY PATIENT</div>
-<div class="menuItem" onclick="go('ADD_CMHT')"> ADD CMHT PATIENT</div>
-<div class="menuItem" onclick="go('DISCHARGE')"> DISCHARGE PATIENT</div>
-<div class="menuItem" onclick="go('BILL')"> BILL</div>
+<a class="menuItem" href="index.html">🏠 Home</a>
+<a class="menuItem" href="total.html">📊 TOTAL PMJAY PATIENT</a>
+<a class="menuItem" href="totalcmht.html">📊 CMHT TOTAL PATIENT</a>
+<a class="menuItem" href="add.html">➕ ADD PMJAY PATIENT</a>
+<a class="menuItem" href="addcmht.html">➕ ADD CMHT PATIENT</a>
+<a class="menuItem" href="bill.html">💰 BILL</a>
+<a class="menuItem" href="discharge.html">📄 DISCHARGE PATIENT</a>
+<a class="menuItem" href="kftreport.html">🧪 PMJAY KFT REPORT</a>
+<a class="menuItem" href="cmhtkft.html">🧪 CMHT KFT REPORT</a>
+<a class="menuItem" href="dischargesummary.html" style="background:#1e3a8a;color:#fff">📋 Discharge Summary</a>
 </div>
 
 <div class="top"><div style="display:flex;align-items:center;gap:12px"><button id="hamBtn" class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></button><div style="color:#fff;font-weight:800">SHIJA</div></div><div class="exportGroup"><select id="exportType" class="exportSelect"><option value="jpeg" selected>JPEG</option><option value="pdf">PDF</option></select><button onclick="doExport()" class="exportBtn">⬇ Export</button></div></div>
@@ -142,7 +140,6 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 <script>
 function toggleMenu(){let d=document.getElementById('menuDrawer'),o=document.getElementById('menuOverlay'),b=document.getElementById('hamBtn');if(d.classList.contains('open')){closeMenu()}else{d.classList.add('open');o.style.display='block';b.classList.add('active')}}
 function closeMenu(){document.getElementById('menuDrawer').classList.remove('open');document.getElementById('menuOverlay').style.display='none';document.getElementById('hamBtn').classList.remove('active')}
-function go(t){closeMenu();console.log(t); /* add your links here: window.location.href=t+'.html' */}
 let allPMJAY=[], allCMHT=[], scheme='PMJAY', lastFiltered=[];
 function stepVital(id, delta){let el=document.getElementById(id);let v=parseInt(el.value)||0;v+=delta;if(v<0)v=0;if(id.includes('spo2')&&v>100)v=100;el.value=v;render();}
 async function loadFirebaseAll(){const {collection,getDocs}=window.fbTools;allPMJAY=[];allCMHT=[];const tryCollections=async(names,targetArray)=>{for(let name of names){try{let snap=await getDocs(collection(window.db,name));if(!snap.empty){snap.forEach(d=>{let c=d.data();targetArray.push({shri:c.shriId||c.shri||c.UHID||c.uhid||c.id||'',ip:c.pmjayId||c.pmjay||c.cmhtId||c.cmht||c.ipNo||c.IPNO||c.ip||'',name:c.patientName||c.name||c.patient_name||c.Name||''});});if(targetArray.length>0)return name;}}catch(e){}}return null;};await tryCollections(["pmjay_patients","PMJAY_patients","pmjay","PMJAY","patients"],allPMJAY);await tryCollections(["cmht_patients","CMHT_patients","cmht","CMHT"],allCMHT);document.getElementById('debugInfo').innerText=`Found - PMJAY: ${allPMJAY.length} | CMHT: ${allCMHT.length}`;document.getElementById('countBadge').innerText=getCombined().length+' Patients in '+scheme;}
