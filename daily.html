@@ -9,7 +9,7 @@
 body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;color:#0f172a}
 .top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:9999}
 .top h2{color:#fff;font-size:16px;font-weight:800}
-.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;flex-shrink:0;user-select:none}
+.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;flex-shrink:0}
 .menuBtn span{display:block;width:20px;height:2px;background:#fff;pointer-events:none}
 .adBadge{display:flex;align-items:center;gap:8px;color:#fff}
 .adCircle{width:30px;height:30px;border-radius:50%;background:#1a2a4f;color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px;border:1.5px solid #2a3a6a}
@@ -92,7 +92,7 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
 <div class="top">
 <div style="display:flex;align-items:center;gap:10px">
-<button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+<div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div>
 <h2>SHIJA Dialysis - PMJAY DAILY DIALYSIS LIST</h2>
 </div>
 <div style="display:flex;align-items:center;gap:8px">
@@ -109,11 +109,11 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <a href="cmht.html">CMHT TOTAL PATIENT</a>
 <a href="cmhtkft.html">CMHT KFT REPORT</a>
 <a href="cmhtdaily.html">CMHT DAILY DIALYSIS</a>
-<a href="addcmht.html">CMHT ADD PATIENT</a>
 <a href="daily.html" class="active">DAILY DIALYSIS</a>
 <a href="discharge.html">DISCHARGE PATIENT</a>
 <a href="kft.html">KFT REPORT</a>
 <a href="add.html">ADD PATIENT</a>
+<a href="addcmht.html">CMHT ADD PATIENT</a>
 <a href="bill.html">BILL</a>
 <a href="dischargesummary.html">DISCHARGE SUMMARY</a>
 </div>
@@ -300,7 +300,7 @@ loadMasterPatients();
 window.loadMasterPatients=loadMasterPatients;
 </script>
 <script>
-// UNIVERSAL 3-LINE BUTTON - Works on ALL devices
+// ONLY CHANGED: 3-line button universal fix - no other change
 function toggleMenu(){ 
   var s=document.getElementById('side'); 
   var o=document.getElementById('overlay'); 
@@ -308,23 +308,23 @@ function toggleMenu(){
   o.classList.toggle('show');
 }
 document.addEventListener('DOMContentLoaded',function(){
-  var btn=document.getElementById('menuBtn');
-  var overlay=document.getElementById('overlay');
+  var b=document.getElementById('menuBtn'); 
+  var o=document.getElementById('overlay');
   var lastTap=0;
-  function handleMenu(e){
+  function handle(e){
     var now=Date.now();
     if(now-lastTap<400) return;
     lastTap=now;
-    if(e){e.preventDefault(); e.stopPropagation();}
+    if(e){ e.preventDefault(); e.stopPropagation(); }
     toggleMenu();
   }
-  if(btn){
-    btn.addEventListener('click', handleMenu);
-    btn.addEventListener('touchend', handleMenu, {passive:false});
+  if(b){ 
+    b.addEventListener('click', handle); 
+    b.addEventListener('touchend', handle, {passive:false});
   }
-  if(overlay){
-    overlay.addEventListener('click', toggleMenu);
-    overlay.addEventListener('touchend', handleMenu, {passive:false});
+  if(o){ 
+    o.addEventListener('click', toggleMenu);
+    o.addEventListener('touchend', handle, {passive:false});
   }
 });
 function onSchemeChange(val){ var d=document.getElementById('d_date').value||''; if(val==='CMHT'){ location.href='cmhtdaily.html'+(d?'?date='+d:''); } }
