@@ -55,24 +55,25 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 <body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
 <div class="top">
-<div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()">☰</button><img src="logoc.png" onerror="this.src='shija.jpg'"> SHIJA Dialysis</div>
+<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop">☰</button><img src="logoc.png" onerror="this.src='shija.jpg'"> SHIJA Dialysis</div>
 <div class="searchWrap"><div class="search"><input id="globalSearch" placeholder="Search PMJAY & CMHT patients..." oninput="doGlobalSearch()" onfocus="doGlobalSearch()"></div><div class="searchResult" id="searchResult"></div></div>
 <div class="right"><div class="avatar">A</div><div class="adminWrap" id="adminWrap" onclick="toggleDrop(event)"><div>Admin ▼</div><div class="dropdown" id="adminDrop"><button class="dropItem" onclick="logout()">Logout</button></div></div></div>
 </div>
-<div class="whiteOverlay" id="whiteOverlay" onclick="toggleWhiteBar()"></div>
+<div class="whiteOverlay" id="whiteOverlay"></div>
 <div class="whiteBar" id="whiteBar">
 <div>
-<a href="total.html">PMJAY Total Patient</a>
-<a href="cmht.html">CMHT Total Patient</a>
-<a href="cmhtkft.html">CMHT KFT Report</a>
-<a href="cmhtdaily.html">CMHT Daily Dialysis</a>
-<a href="daily.html">PMJAY DAILY DIALYSIS LIST</a>
-<a href="discharge.html">Discharge Patient</a>
-<a href="dischargesummary.html">Discharge Summary</a>
-<a href="kft.html">PMJAY KFT REPORT</a>
-<a href="add.html">ADD PMJAY Patient</a>
-<a href="addcmht.html">Add CMHT Patient</a>
-<a href="bill.html">Bill</a>
+<a href="index.html">HOME</a>
+<a href="total.html">TOTAL PATIENT</a>
+<a href="cmht.html">CMHT TOTAL PATIENT</a>
+<a href="cmhtkft.html">CMHT KFT REPORT</a>
+<a href="cmhtdaily.html">CMHT DAILY DIALYSIS</a>
+<a href="addcmht.html">CMHT ADD PATIENT</a>
+<a href="daily.html">DAILY DIALYSIS</a>
+<a href="discharge.html">DISCHARGE PATIENT</a>
+<a href="kft.html">KFT REPORT</a>
+<a href="add.html">ADD PATIENT</a>
+<a href="bill.html">BILL</a>
+<a href="dischargesummary.html">DISCHARGE SUMMARY</a>
 </div>
 <div style="padding:10px;font-size:11px;color:#64748b;border-top:1px solid #e2e8f0"><b style="color:#0f172a">System Status</b><br>All Systems Online</div>
 </div>
@@ -101,10 +102,30 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 <div class="opt" onclick="exportExcel('cmhtdaily')"><b>CMHT Daily Dialysis Record</b></div>
 <button class="btn btnG" style="width:100%;margin-top:10px" onclick="closeExport()">Cancel</button></div></div>
 <script>
-function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('open');document.getElementById('whiteOverlay').classList.toggle('show');}
-document.addEventListener('DOMContentLoaded',()=>{
- let btn=document.querySelector('.menuBtnTop');
- if(btn){btn.addEventListener('touchstart',(e)=>{e.preventDefault(); toggleWhiteBar();},{passive:false});}
+// UNIVERSAL 3-LINE BUTTON - ONLY CHANGED - Works on ALL devices
+function toggleWhiteBar(){
+  document.getElementById('whiteBar').classList.toggle('open');
+  document.getElementById('whiteOverlay').classList.toggle('show');
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var btn=document.getElementById('menuBtnTop');
+  var overlay=document.getElementById('whiteOverlay');
+  var lastTap=0;
+  function handle(e){
+    var now=Date.now();
+    if(now-lastTap<400) return;
+    lastTap=now;
+    if(e){ e.preventDefault(); e.stopPropagation(); }
+    toggleWhiteBar();
+  }
+  if(btn){
+    btn.addEventListener('click', handle);
+    btn.addEventListener('touchend', handle, {passive:false});
+  }
+  if(overlay){
+    overlay.addEventListener('click', toggleWhiteBar);
+    overlay.addEventListener('touchend', handle, {passive:false});
+  }
 });
 function toggleDrop(e){e.stopPropagation();document.getElementById('adminDrop').classList.toggle('show');}
 function logout(){if(confirm('Logout now')){localStorage.removeItem('shija_logged');location.href='login.html';}}
