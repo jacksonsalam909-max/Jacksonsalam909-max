@@ -2,8 +2,10 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHIJA - Discharge Final Professional</title>
+<title>SHIJA - Export Only</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f1f5f9}
 .top{height:62px;background:linear-gradient(135deg,#0a1931 0%,#1e3a8a 100%);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:fixed;top:0;left:0;right:0;z-index:9999}
@@ -21,18 +23,21 @@
 .stepper{display:flex;flex-direction:column;gap:2px}
 .stepBtn{width:28px;height:18px;border:1px solid #cbd5e1;background:#fff;border-radius:6px;font-size:10px;font-weight:900;cursor:pointer;line-height:1}
 .vitalGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:10px}
-.vitalCard{border:1.5px solid #e2e8f0;border-radius:14px;padding:10px 12px;background:#f8fafc;display:flex;align-items:center;gap:10px;transition:.2s}
-.vitalCard:focus-within{border-color:#1d4ed8;background:#fff;box-shadow:0 0 0 3px rgba(29,78,216,.1)}
+.vitalCard{border:1.5px solid #e2e8f0;border-radius:14px;padding:10px 12px;background:#f8fafc;display:flex;align-items:center;gap:10px}
 .vIcon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:18px;font-weight:800}
 .vitalCard input{border:0;background:transparent;font-weight:800;font-size:13px;width:100%;outline:0}
 .vControls{display:flex;flex-direction:column;gap:3px;margin-left:auto}
 .vBtn{width:26px;height:20px;border:1px solid #e2e8f0;background:#fff;border-radius:6px;font-weight:900;cursor:pointer;font-size:12px}
-.paper{background:#fff;max-width:100%;min-height:3508px;margin:0 auto;color:#000;border:1px solid #e2e8f0;--fs:14px;width:2480px}
-.letterhead img{width:100%;display:block}
+.paper{background:#fff;width:100%;max-width:800px;margin:0 auto;color:#000;border:1px solid #e2e8f0;--fs:14px}
+.letterhead img{width:100%;display:block;max-width:100%;height:auto}
 .disTitle{text-align:center;font-weight:800;font-size:calc(var(--fs) + 5px);padding:10px 0;border-top:2px solid #000;border-bottom:2px solid #000;background:#f8fafc}
 .infoTable{width:100%;border-collapse:collapse;font-size:var(--fs);margin:10px 0}.infoTable td{padding:6px 14px}
 .section{padding:12px 18px;font-size:var(--fs);line-height:1.7;border-top:2px solid #000}
-@media print{.noPrint{display:none!important}.paper{width:210mm;min-height:297mm;border:none}@page{size:A4;margin:0mm}}
+.exportGroup{display:flex;align-items:center;background:#fff;border-radius:24px;padding:3px;gap:0}
+.exportSelect{border:0;background:transparent;font-weight:800;font-size:11px;padding:8px 10px;outline:0;cursor:pointer}
+.exportBtn{background:#10b981;color:#fff;border:0;padding:8px 18px;border-radius:20px;font-weight:800;cursor:pointer;font-size:11px;margin-left:4px}
+.btn{border:0;padding:8px 14px;border-radius:20px;font-weight:800;cursor:pointer;font-size:11px}
+@media print{.noPrint{display:none!important}}
 </style>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -42,7 +47,18 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 </script>
 </head>
 <body>
-<div class="top noPrint"><div style="color:#fff;font-weight:800">SHIJA - Discharge Professional</div><div style="display:flex;gap:8px"><select id="fontDrop" onchange="document.getElementById('paper').style.setProperty('--fs',this.value+'px')" style="padding:6px 12px;border-radius:20px;font-weight:800;border:0"><option value="12">12px</option><option value="14" selected>14px</option><option value="16">16px</option><option value="18">18px</option><option value="20">20px</option></select><button onclick="window.print()" style="background:#10b981;color:#fff;border:0;padding:8px 18px;border-radius:24px;font-weight:800">Print</button></div></div>
+<div class="top noPrint"><div style="color:#fff;font-weight:800">SHIJA - Export</div><div style="display:flex;gap:8px;align-items:center">
+<select id="fontDrop" onchange="document.getElementById('paper').style.setProperty('--fs',this.value+'px')" class="btn" style="background:#fff"><option value="12">12px</option><option value="14" selected>14px</option><option value="16">16px</option><option value="18">18px</option><option value="20">20px</option></select>
+
+<div class="exportGroup">
+<select id="exportType" class="exportSelect">
+<option value="jpeg" selected>JPEG</option>
+<option value="pdf">PDF</option>
+</select>
+<button onclick="doExport()" class="exportBtn">⬇ Export</button>
+</div>
+
+</div></div>
 
 <div class="content">
 <div class="cardPro noPrint">
@@ -55,23 +71,19 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 <div class="cardPro noPrint">
 <div class="row"><div class="col"><span class="label">UHID / SHRI ID</span><input id="shriId" class="inputPro" value="SHRI.334269" oninput="render()"></div><div class="col"><span class="label">IP No</span><input id="ipNo" class="inputPro" value="185693" oninput="render()"></div><div class="col" style="flex:1.5"><span class="label">Patient Name</span><input id="patName" class="inputPro" value="Mrs. ARAMBAM ASHALATA DEVI" oninput="render()"></div></div>
 <div class="row"><div class="col" style="max-width:160px"><span class="label">Age</span><input type="number" id="ageInput" class="inputPro" value="71" oninput="render()"></div><div class="col" style="max-width:160px"><span class="label">Sex</span><select id="sexInput" class="inputPro" onchange="render()"><option>Male</option><option selected>Female</option></select></div></div>
-
 <div class="timeBox">
 <div><span class="label" style="color:#065f46">Admission Date</span><input type="date" id="admDate" class="inputPro timeInput" onchange="calcDischarge()"></div>
 <div><span class="label">Hour (01-12)</span><div style="display:flex;gap:4px;align-items:center"><input type="number" id="admHour" class="inputPro timeInput" value="02" min="1" max="12"><div class="stepper"><button class="stepBtn" onclick="stepHour(1)">▲</button><button class="stepBtn" onclick="stepHour(-1)">▼</button></div></div></div>
 <div><span class="label">Min</span><div style="display:flex;gap:4px;align-items:center"><input type="number" id="admMin" class="inputPro timeInput" value="00" min="0" max="59" step="5"><div class="stepper"><button class="stepBtn" onclick="stepMin(5)">▲</button><button class="stepBtn" onclick="stepMin(-5)">▼</button></div></div></div>
 <div><span class="label">AM / PM</span><select id="admAmPm" class="inputPro timeInput" onchange="calcDischarge()" style="background:#0f172a;color:#fff;font-weight:800"><option>AM</option><option selected>PM</option></select></div>
-<div style="margin-left:auto;font-size:11px;font-weight:800;color:#065f46">Discharge auto +4Hrs hidden</div>
 </div>
-
-<h3 style="font-size:11px;font-weight:800;margin:14px 0 6px">🩺 PRE DIALYSIS VITALS - Tap ▲▼ to change</h3>
+<h3 style="font-size:11px;font-weight:800;margin:14px 0 6px">🩺 PRE DIALYSIS VITALS</h3>
 <div class="vitalGrid">
 <div class="vitalCard"><div class="vIcon" style="background:#fee2e2;color:#dc2626">🩸</div><div style="flex:1"><span class="label" style="margin:0">B.P mmHg</span><input id="bp" value="150/70" oninput="render()"></div><div class="vControls"><button class="vBtn" onclick="adjustBP(5)">▲</button><button class="vBtn" onclick="adjustBP(-5)">▼</button></div></div>
 <div class="vitalCard"><div class="vIcon" style="background:#ffedd5;color:#ea580c">💓</div><div style="flex:1"><span class="label" style="margin:0">PR bpm</span><input type="number" id="pr" value="86" oninput="render()"></div><div class="vControls"><button class="vBtn" onclick="stepVal('pr',1)">▲</button><button class="vBtn" onclick="stepVal('pr',-1)">▼</button></div></div>
 <div class="vitalCard"><div class="vIcon" style="background:#dcfce7;color:#16a34a">🫁</div><div style="flex:1"><span class="label" style="margin:0">SpO2 %@RA</span><input type="number" id="spo2" value="99" oninput="render()"></div><div class="vControls"><button class="vBtn" onclick="stepVal('spo2',1)">▲</button><button class="vBtn" onclick="stepVal('spo2',-1)">▼</button></div></div>
 <div class="vitalCard"><div class="vIcon" style="background:#fef3c7;color:#d97706">🌡️</div><div style="flex:1"><span class="label" style="margin:0">Temp F</span><input type="number" id="temp" value="98" oninput="render()"></div><div class="vControls"><button class="vBtn" onclick="stepVal('temp',1)">▲</button><button class="vBtn" onclick="stepVal('temp',-1)">▼</button></div></div>
 </div>
-
 <h3 style="font-size:11px;font-weight:800;margin:14px 0 6px">✅ POST DIALYSIS VITALS</h3>
 <div class="vitalGrid">
 <div class="vitalCard" style="border-color:#86efac;background:#f0fdf4"><div class="vIcon" style="background:#dcfce7;color:#15803d">🩸</div><div style="flex:1"><span class="label" style="margin:0">Post B.P</span><input id="postBp" value="160/80" oninput="render()"></div><div class="vControls"><button class="vBtn" onclick="adjustBPPost(5)">▲</button><button class="vBtn" onclick="adjustBPPost(-5)">▼</button></div></div>
@@ -79,13 +91,12 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 <div class="vitalCard" style="border-color:#86efac;background:#f0fdf4"><div class="vIcon" style="background:#dcfce7;color:#15803d">🫁</div><div style="flex:1"><span class="label" style="margin:0">Post SpO2</span><input type="number" id="postSpo2" value="99" oninput="render()"></div><div class="vControls"><button class="vBtn" onclick="stepVal('postSpo2',1)">▲</button><button class="vBtn" onclick="stepVal('postSpo2',-1)">▼</button></div></div>
 <div class="vitalCard" style="border-color:#86efac;background:#f0fdf4"><div class="vIcon" style="background:#dcfce7;color:#15803d">🌡️</div><div style="flex:1"><span class="label" style="margin:0">Post Temp</span><input type="number" id="postTemp" value="98" oninput="render()"></div><div class="vControls"><button class="vBtn" onclick="stepVal('postTemp',1)">▲</button><button class="vBtn" onclick="stepVal('postTemp',-1)">▼</button></div></div>
 </div>
-
-<div class="row"><div class="col" style="max-width:200px"><span class="label">Advice Date</span><input type="date" id="adviceDate" class="inputPro" value="2026-10-22" oninput="render()"></div><div class="col" style="max-width:200px"><span class="label">Advice Time - 12AM 2AM</span><select id="adviceTime" class="inputPro" onchange="render()" style="background:#fff1f2"><option>7AM</option><option selected>12PM</option><option>5PM</option><option>9PM</option><option>12AM</option><option>2AM</option></select></div></div>
+<div class="row"><div class="col" style="max-width:200px"><span class="label">Advice Date</span><input type="date" id="adviceDate" class="inputPro" value="2026-10-22" oninput="render()"></div><div class="col" style="max-width:200px"><span class="label">Advice Time</span><select id="adviceTime" class="inputPro" onchange="render()" style="background:#fff1f2"><option>7AM</option><option selected>12PM</option><option>5PM</option><option>9PM</option><option>12AM</option><option>2AM</option></select></div></div>
 </div>
 
 <input type="hidden" id="disDate"><input type="hidden" id="disTimeShow">
 
-<div class="paper" id="paper"><div class="letterhead"><img src="finalopo.png?v=17" alt="SHIJA"></div><div class="disTitle">Discharge Summary</div><table class="infoTable"><tr><td style="width:22%"><b>IP No.</b></td><td>: <span id="b_ip">185693</span></td><td style="width:20%"><b>UHID NO</b></td><td>: <span id="b_shri">SHRI.334269</span></td></tr><tr><td><b>Patient Name</b></td><td>: <span id="b_name">Mrs. ARAMBAM ASHALATA DEVI</span></td><td><b>Age/Sex</b></td><td>: <span id="b_age">71 Year(s) /Female</span></td></tr><tr><td><b>Admission DateTime</b></td><td>: <span id="b_adm">19/10/2026 02:00 PM</span></td><td><b>Doctor Name</b></td><td>: Dr. Guliver Potsangbam (Nephrology)</td></tr><tr><td><b>Discharge DateTime</b></td><td>: <span id="b_dis">19/10/2026 06:00 PM</span></td><td><b>Scheme</b></td><td>: <span id="b_scheme">PMJAY</span></td></tr></table><div class="section"><div><b>Diagnosis:</b> Chronic Kidney Disease on MHD</div><div><b>Chief Complain:</b> Patient admitted for Haemodialysis</div><div style="margin-top:6px"><b>Vitals:</b></div><div>B.P : <span id="b_bp">150/70 mmHg</span><br>PR : <span id="b_pr">86 bpm</span><br>SpO2 : <span id="b_spo2">99 %@RA</span><br>Temp. : <span id="b_temp">98 degree F</span></div><div style="margin-top:6px"><b>Post Dialysis Vitals:</b></div><div>B.P : <span id="b_pbp">160/80 mmHg</span><br>PR : <span id="b_ppr">84 bpm</span><br>SpO2 : <span id="b_pspo2">99 %@RA</span><br>Temp. : <span id="b_ptemp">98 degree F</span></div><div style="margin-top:12px"><b>Advice:</b> Next Haemodialysis on <span id="b_advDate">22/10/26</span> at <span id="b_advTime">12PM</span>.</div></div></div>
+<div class="paper" id="paper"><div class="letterhead"><img src="finalopo.png?v=20" alt="SHIJA"></div><div class="disTitle">Discharge Summary</div><table class="infoTable"><tr><td style="width:22%"><b>IP No.</b></td><td>: <span id="b_ip">185693</span></td><td style="width:20%"><b>UHID NO</b></td><td>: <span id="b_shri">SHRI.334269</span></td></tr><tr><td><b>Patient Name</b></td><td>: <span id="b_name">Mrs. ARAMBAM ASHALATA DEVI</span></td><td><b>Age/Sex</b></td><td>: <span id="b_age">71 Year(s) /Female</span></td></tr><tr><td><b>Admission DateTime</b></td><td>: <span id="b_adm">19/10/2026 02:00 PM</span></td><td><b>Doctor Name</b></td><td>: Dr. Guliver Potsangbam (Nephrology)</td></tr><tr><td><b>Discharge DateTime</b></td><td>: <span id="b_dis">19/10/2026 06:00 PM</span></td><td><b>Scheme</b></td><td>: <span id="b_scheme">PMJAY</span></td></tr></table><div class="section"><div><b>Diagnosis:</b> Chronic Kidney Disease on MHD</div><div><b>Chief Complain:</b> Patient admitted for Haemodialysis</div><div style="margin-top:6px"><b>Vitals:</b></div><div>B.P : <span id="b_bp">150/70 mmHg</span><br>PR : <span id="b_pr">86 bpm</span><br>SpO2 : <span id="b_spo2">99 %@RA</span><br>Temp. : <span id="b_temp">98 degree F</span></div><div style="margin-top:6px"><b>Post Dialysis Vitals:</b></div><div>B.P : <span id="b_pbp">160/80 mmHg</span><br>PR : <span id="b_ppr">84 bpm</span><br>SpO2 : <span id="b_pspo2">99 %@RA</span><br>Temp. : <span id="b_ptemp">98 degree F</span></div><div style="margin-top:12px"><b>Advice:</b> Next Haemodialysis on <span id="b_advDate">22/10/26</span> at <span id="b_advTime">12PM</span>.</div></div></div>
 </div>
 
 <script>
@@ -106,6 +117,36 @@ function DMY(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMo
 function SHORT(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+String(dt.getFullYear()).slice(-2);}
 function T12(dt){let h=dt.getHours(),m=dt.getMinutes(),ap=h>=12?'PM':'AM',h12=h%12||12;return String(h12).padStart(2,'0')+":"+String(m).padStart(2,'0')+" "+ap;}
 function render(){document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;document.getElementById('b_shri').innerText=document.getElementById('shriId').value;document.getElementById('b_name').innerText=document.getElementById('patName').value;document.getElementById('b_age').innerText=(document.getElementById('ageInput').value||'--')+' Year(s) /'+document.getElementById('sexInput').value;document.getElementById('b_scheme').innerText=scheme;let adm=getAdmDateTime();if(adm){document.getElementById('b_adm').innerText=DMY(adm)+' '+T12(adm);let dis=new Date(adm.getTime()+4*60*60*1000);document.getElementById('b_dis').innerText=DMY(dis)+' '+T12(dis);}document.getElementById('b_bp').innerText=(document.getElementById('bp').value||'--')+' mmHg';document.getElementById('b_pr').innerText=(document.getElementById('pr').value||'--')+' bpm';document.getElementById('b_spo2').innerText=(document.getElementById('spo2').value||'--')+' %@RA';document.getElementById('b_temp').innerText=(document.getElementById('temp').value||'--')+' degree F';document.getElementById('b_pbp').innerText=(document.getElementById('postBp').value||'--')+' mmHg';document.getElementById('b_ppr').innerText=(document.getElementById('postPr').value||'--')+' bpm';document.getElementById('b_pspo2').innerText=(document.getElementById('postSpo2').value||'--')+' %@RA';document.getElementById('b_ptemp').innerText=(document.getElementById('postTemp').value||'--')+' degree F';let adv=document.getElementById('adviceDate').value;if(adv)document.getElementById('b_advDate').innerText=SHORT(new Date(adv));document.getElementById('b_advTime').innerText=document.getElementById('adviceTime').value;}
+
+function doExport(){
+  let type=document.getElementById('exportType').value;
+  if(type==='pdf'){ exportPDF(); } else { exportJPG(); }
+}
+
+async function exportJPG(){
+  let paper=document.getElementById('paper');
+  let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#ffffff'});
+  let link=document.createElement('a');
+  let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');
+  link.download=name+'.jpg';
+  link.href=canvas.toDataURL('image/jpeg',0.95);
+  link.click();
+}
+
+async function exportPDF(){
+  let paper=document.getElementById('paper');
+  let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#ffffff'});
+  let imgData=canvas.toDataURL('image/jpeg',0.95);
+  const { jsPDF } = window.jspdf;
+  let pdf=new jsPDF('p','mm','a4');
+  let pdfWidth=210;
+  let pdfHeight=(canvas.height * pdfWidth) / canvas.width;
+  if(pdfHeight>297){ pdfHeight=297; }
+  pdf.addImage(imgData,'JPEG',0,0,pdfWidth,pdfHeight);
+  let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');
+  pdf.save(name+'.pdf');
+}
+
 let today=new Date().toISOString().split('T')[0];document.getElementById('admDate').value=today;document.getElementById('adviceDate').value=new Date(Date.now()+3*86400000).toISOString().split('T')[0];setTimeout(loadFirebaseAll,800);setTimeout(calcDischarge,1000);
 document.addEventListener('click',e=>{if(!e.target.closest('.searchBox'))document.getElementById('searchList').style.display='none'});
 </script>
