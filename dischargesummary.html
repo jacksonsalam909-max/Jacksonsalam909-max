@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHIJA - Icon Vitals + Boxed</title>
+<title>SHIJA - Final Arrows</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -18,14 +18,16 @@
 .searchBox{position:relative}.searchList{position:absolute;top:110%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:16px;max-height:380px;overflow:auto;z-index:999;display:none;box-shadow:0 20px 40px rgba(0,0,0,.12)}
 .timeBox{border:2px solid #10b981;background:#f0fdf4;border-radius:16px;padding:14px;display:flex;gap:10px;align-items:end;flex-wrap:wrap}
 .timeInput{width:90px!important;text-align:center;font-family:monospace;font-size:14px!important}
-/* ICON VITAL DESIGN - PREVIOUS */
 .vitalGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:8px}
-.vitalCard{border:1.5px solid #e2e8f0;border-radius:16px;padding:12px 14px;background:#fff;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.vitalCard{position:relative;border:1.5px solid #e2e8f0;border-radius:16px;padding:12px 14px;background:#fff;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .vIcon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
 .vContent{flex:1}
 .vLabel{font-size:9px;font-weight:800;color:#64748b;display:block;text-transform:uppercase;letter-spacing:.6px}
 .vContent input{border:0;background:transparent;font-weight:800;font-size:15px;width:100%;outline:0;margin-top:2px;color:#0f172a}
-.vUnit{font-size:10px;font-weight:700;color:#94a3b8}
+.vUnit{font-size:10px;font-weight:700;color:#94a3b8;margin-right:26px}
+.vStepper{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:3px}
+.vStepBtn{width:22px;height:18px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:6px;font-size:10px;font-weight:900;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.vStepBtn:active{background:#1e3a8a;color:#fff}
 .preBox .vitalCard{border-left:3.5px solid #ef4444}
 .postBox .vitalCard{border-left:3.5px solid #10b981}
 .paper{background:#fff;width:100%;max-width:800px;margin:0 auto;color:#000;border:1px solid #e2e8f0;--fs:14px}
@@ -36,6 +38,7 @@
 .section{padding:14px 18px 14px 44px;font-size:var(--fs);line-height:1.75;border-top:2.5px solid #000}
 .editable{border-bottom:1px dashed #2563eb;min-width:40px;display:inline-block;padding:0 6px;background:#eff6ff;border-radius:4px}
 .exportGroup{display:flex;align-items:center;background:#fff;border-radius:24px;padding:3px}.exportSelect{border:0;background:transparent;font-weight:800;font-size:11px;padding:8px 10px;outline:0}.exportBtn{background:#10b981;color:#fff;border:0;padding:8px 18px;border-radius:20px;font-weight:800;cursor:pointer;font-size:11px;margin-left:4px}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{opacity:1}
 </style>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -55,28 +58,28 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 </div>
 <div class="cardPro">
 <div class="row"><div class="col"><span class="label">UHID</span><input id="shriId" class="inputPro" value="SHRI.334269"></div><div class="col"><span class="label">IP No</span><input id="ipNo" class="inputPro" value="185693"></div><div class="col" style="flex:1.5"><span class="label">Patient Name</span><input id="patName" class="inputPro" value="Mrs. ARAMBAM ASHALATA DEVI"></div></div>
-<div class="row"><div class="col" style="max-width:160px"><span class="label">Age</span><input type="number" id="ageInput" class="inputPro" value="71"></div><div class="col" style="max-width:160px"><span class="label">Sex</span><select id="sexInput" class="inputPro"><option>Male</option><option selected>Female</option></select></div></div>
+<div class="row"><div class="col" style="max-width:160px"><span class="label">Age</span><input type="number" step="1" id="ageInput" class="inputPro" value="71"></div><div class="col" style="max-width:160px"><span class="label">Sex</span><select id="sexInput" class="inputPro"><option>Male</option><option selected>Female</option></select></div></div>
 <div class="timeBox">
 <div><span class="label">Admission Date</span><input type="date" id="admDate" class="inputPro timeInput"></div>
-<div><span class="label">Hour</span><input type="number" id="admHour" class="inputPro timeInput" value="02"></div>
-<div><span class="label">Min</span><input type="number" id="admMin" class="inputPro timeInput" value="47"></div>
+<div><span class="label">Hour</span><input type="number" step="1" id="admHour" class="inputPro timeInput" value="02"></div>
+<div><span class="label">Min</span><input type="number" step="1" id="admMin" class="inputPro timeInput" value="47"></div>
 <div><span class="label">AM/PM</span><select id="admAmPm" class="inputPro timeInput" style="background:#0f172a;color:#fff"><option>AM</option><option selected>PM</option></select></div>
 </div>
 
 <h3 style="font-size:11px;font-weight:800;margin:16px 0 8px;color:#ef4444">● PRE DIALYSIS VITALS</h3>
 <div class="vitalGrid preBox">
 <div class="vitalCard"><div class="vIcon" style="background:#fee2e2">🩸</div><div class="vContent"><span class="vLabel">Blood Pressure</span><input id="bp" value="150/70"></div><span class="vUnit">mmHg</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#fef3c7">💓</div><div class="vContent"><span class="vLabel">Pulse Rate</span><input type="number" id="pr" value="86"></div><span class="vUnit">bpm</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#dbeafe">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" id="spo2" value="99"></div><span class="vUnit">% RA</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#ffedd5">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" id="temp" value="98"></div><span class="vUnit">°F</span></div>
+<div class="vitalCard"><div class="vIcon" style="background:#fef3c7">💓</div><div class="vContent"><span class="vLabel">Pulse Rate</span><input type="number" step="1" id="pr" value="86"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('pr',1)">▲</button><button class="vStepBtn" onclick="stepVital('pr',-1)">▼</button></div><span class="vUnit">bpm</span></div>
+<div class="vitalCard"><div class="vIcon" style="background:#dbeafe">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" step="1" min="0" max="100" id="spo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('spo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('spo2',-1)">▼</button></div><span class="vUnit">% RA</span></div>
+<div class="vitalCard"><div class="vIcon" style="background:#ffedd5">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" step="1" id="temp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('temp',1)">▲</button><button class="vStepBtn" onclick="stepVital('temp',-1)">▼</button></div><span class="vUnit">°F</span></div>
 </div>
 
 <h3 style="font-size:11px;font-weight:800;margin:18px 0 8px;color:#10b981">● POST DIALYSIS VITALS</h3>
 <div class="vitalGrid postBox">
 <div class="vitalCard"><div class="vIcon" style="background:#dcfce7">🩸</div><div class="vContent"><span class="vLabel">Blood Pressure</span><input id="postBp" value="160/80"></div><span class="vUnit">mmHg</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#d1fae5">💓</div><div class="vContent"><span class="vLabel">Pulse Rate</span><input type="number" id="postPr" value="84"></div><span class="vUnit">bpm</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#e0e7ff">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" id="postSpo2" value="99"></div><span class="vUnit">% RA</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#fef9c3">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" id="postTemp" value="98"></div><span class="vUnit">°F</span></div>
+<div class="vitalCard"><div class="vIcon" style="background:#d1fae5">💓</div><div class="vContent"><span class="vLabel">Pulse Rate</span><input type="number" step="1" id="postPr" value="84"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postPr',1)">▲</button><button class="vStepBtn" onclick="stepVital('postPr',-1)">▼</button></div><span class="vUnit">bpm</span></div>
+<div class="vitalCard"><div class="vIcon" style="background:#e0e7ff">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" step="1" min="0" max="100" id="postSpo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postSpo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('postSpo2',-1)">▼</button></div><span class="vUnit">% RA</span></div>
+<div class="vitalCard"><div class="vIcon" style="background:#fef9c3">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" step="1" id="postTemp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postTemp',1)">▲</button><button class="vStepBtn" onclick="stepVital('postTemp',-1)">▼</button></div><span class="vUnit">°F</span></div>
 </div>
 
 <div class="row" style="border:2px solid #dc2626;border-radius:12px;padding:12px;margin-top:18px;background:#fffbeb">
@@ -124,6 +127,15 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 </div>
 <script>
 let allPMJAY=[], allCMHT=[], scheme='PMJAY', lastFiltered=[];
+function stepVital(id, delta){
+  let el=document.getElementById(id);
+  let v=parseInt(el.value)||0;
+  v+=delta;
+  if(v<0) v=0;
+  if(id.includes('spo2') && v>100) v=100;
+  el.value=v;
+  render();
+}
 async function loadFirebaseAll(){
   const {collection,getDocs} = window.fbTools;
   allPMJAY=[]; allCMHT=[];
@@ -228,6 +240,15 @@ setTimeout(()=>{
   if(!document.getElementById('admDate').value) document.getElementById('admDate').value=today;
   if(!document.getElementById('adviceDate').value) document.getElementById('adviceDate').value=new Date(Date.now()+3*86400000).toISOString().split('T')[0];
   loadFirebaseAll(); render();
+  document.addEventListener('keydown', e=>{
+    let t=e.target;
+    if(t.tagName==='INPUT' && t.type==='number'){
+      if(['pr','spo2','temp','postPr','postSpo2','postTemp','ageInput','admHour','admMin'].includes(t.id)){
+        if(e.key==='ArrowUp'){ e.preventDefault(); stepVital(t.id,1); }
+        if(e.key==='ArrowDown'){ e.preventDefault(); stepVital(t.id,-1); }
+      }
+    }
+  });
 },300);
 document.addEventListener('click',e=>{if(!e.target.closest('.searchBox'))document.getElementById('searchList').style.display='none'});
 </script>
