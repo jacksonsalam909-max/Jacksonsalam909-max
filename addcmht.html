@@ -15,16 +15,18 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .side.show{transform:translateX(0)!important}
 .side a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px;display:block;margin-bottom:4px}
 .side a.active{background:#1a56db;color:#fff;font-weight:700}
-.content{flex:1;padding:20px;max-width:700px}
+.content{flex:1;padding:12px;width:100%;max-width:100%}
 .sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,0.5);z-index:9997;display:none}
 .sideOverlay.show{display:block}
-.card{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:20px}
-label{font-size:12px;font-weight:700;color:#334155;display:block;margin:12px 0 6px}
-input,textarea{width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;outline:0;font-size:14px;font-weight:600}
-textarea{height:70px;resize:none}
-.btn{width:100%;padding:14px;border:0;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer;margin-top:16px}
+.card{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:16px;width:100%}
+label{font-size:12px;font-weight:700;color:#334155;display:block;margin:14px 0 6px}
+input,textarea,select{width:100%;padding:13px 14px;border:1.5px solid #e2e8f0;border-radius:10px;outline:0;font-size:15px;font-weight:600;background:#fff}
+input:focus,textarea:focus,select:focus{border-color:#1868db}
+textarea{height:80px;resize:none}
+.row{display:flex;gap:10px}
+.row>div{flex:1}
+.btn{width:100%;padding:14px;border:0;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer;margin-top:18px}
 .btnBlue{background:#1868db;color:#fff}
-.btnGreen{background:#10b981;color:#fff;margin-top:10px;display:none}
 .status{margin-top:12px;padding:10px;border-radius:8px;font-size:12px;font-weight:700;display:none}
 .status.ok{background:#dcfce7;color:#166534;display:block}
 .status.err{background:#fee2e2;color:#991b1b;display:block}
@@ -58,55 +60,54 @@ textarea{height:70px;resize:none}
 </div>
 <div class="content">
 <div class="card">
-<h2>Add CMHT Patient - Auto Sync All PCs</h2>
-<p style="font-size:12px;color:#64748b;margin-bottom:16px">Firebase - Visible to all computers & mobile</p>
 
-<label>1. PATIENT NAME *</label>
-<input id="pName" placeholder="Enter Patient Name">
-<label>2. SHRI ID *</label>
-<input id="shriId" placeholder="Enter SHRI ID">
-<label>3. CONTACT NUMBER</label>
-<input id="contact" placeholder="Enter Contact Number">
-<label>4. CMHT ID *</label>
-<input id="cmhtId" placeholder="Enter CMHT ID">
-<label>5. AADHAAR NUMBER</label>
-<input id="aadhaar" placeholder="Enter AADHAAR Number" maxlength="12">
-<label>6. ADDRESS</label>
-<textarea id="address" placeholder="Enter Address"></textarea>
+<label>PATIENT NAME *</label>
+<input id="pName">
+
+<label>SHRI ID *</label>
+<input id="shriId">
+
+<label>CONTACT NUMBER</label>
+<input id="contact">
+
+<label>CMHT ID *</label>
+<input id="cmhtId">
+
+<label>AADHAAR NUMBER</label>
+<input id="aadhaar" maxlength="12">
+
+<div class="row">
+<div>
+<label>AGE</label>
+<input id="age" type="number" placeholder="">
+</div>
+<div>
+<label>SEX</label>
+<select id="sex">
+<option value=""></option>
+<option value="MALE">MALE</option>
+<option value="FEMALE">FEMALE</option>
+<option value="OTHER">OTHER</option>
+</select>
+</div>
+</div>
+
+<label>ADDRESS</label>
+<textarea id="address"></textarea>
 
 <button class="btn btnBlue" id="saveBtn" onclick="savePatient()">SAVE TO FIREBASE - CMHT</button>
-<button class="btn btnGreen" id="viewBtn" onclick="location.href='cmht.html'">VIEW CMHT TOTAL PATIENT →</button>
 <div id="status" class="status"></div>
 </div>
 </div>
 </div>
 
 <script>
-function toggleMenu(){
- var s=document.getElementById('side');
- var o=document.getElementById('overlay');
- s.classList.toggle('show');
- o.classList.toggle('show');
-}
+function toggleMenu(){ var s=document.getElementById('side'); var o=document.getElementById('overlay'); s.classList.toggle('show'); o.classList.toggle('show'); }
 document.addEventListener('DOMContentLoaded',function(){
- var b=document.getElementById('menuBtn');
- var o=document.getElementById('overlay');
- var lastTap=0;
- function handle(e){
-   var now=Date.now();
-   if(now-lastTap<400) return;
-   lastTap=now;
-   if(e){ e.preventDefault(); e.stopPropagation(); }
-   toggleMenu();
- }
- if(b){
-   b.addEventListener('click', handle);
-   b.addEventListener('touchend', handle, {passive:false});
- }
- if(o){
-   o.addEventListener('click', toggleMenu);
-   o.addEventListener('touchend', handle, {passive:false});
- }
+ var b=document.getElementById('menuBtn'); var o=document.getElementById('overlay'); var lastTap=0;
+ function handle(e){ var now=Date.now(); if(now-lastTap<400) return; lastTap=now; if(e){ e.preventDefault(); e.stopPropagation(); } toggleMenu(); }
+ if(b){ b.addEventListener('click', handle); b.addEventListener('touchend', handle, {passive:false}); }
+ if(o){ o.addEventListener('click', toggleMenu); o.addEventListener('touchend', handle, {passive:false}); }
 });
 </script>
 
@@ -116,30 +117,25 @@ import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-function showStatus(msg,type){
- let s=document.getElementById('status');
- s.textContent=msg;
- s.className='status '+type;
-}
+function showStatus(msg,type){ let s=document.getElementById('status'); s.textContent=msg; s.className='status '+type; }
 window.savePatient = async () => {
  let name=document.getElementById('pName').value.trim();
  let shri=document.getElementById('shriId').value.trim();
  let contact=document.getElementById('contact').value.trim();
  let cmht=document.getElementById('cmhtId').value.trim();
  let aadhaar=document.getElementById('aadhaar').value.trim();
+ let age=document.getElementById('age').value.trim();
+ let sex=document.getElementById('sex').value.trim();
  let addr=document.getElementById('address').value.trim();
  if(!name || !shri || !cmht){ showStatus('Fill Name, SHRI ID, CMHT ID','err'); return; }
- let btn=document.getElementById('saveBtn');
- btn.disabled=true; btn.textContent='SAVING...';
- showStatus('Saving to Firebase...','load');
+ let btn=document.getElementById('saveBtn'); btn.disabled=true; btn.textContent='SAVING...'; showStatus('Saving...','load');
  let key = shri.replace(/[^a-zA-Z0-9]/g,'_');
- let data = { patientName:name, name:name, shriId:shri, shri:shri, contactNo:contact, contact:contact, cmhtId:cmht, aadhaarNo:aadhaar, aadhaar:aadhaar, address:addr, addr:addr, key:key, deleted:false, createdAt:new Date().toISOString(), timestamp:serverTimestamp() };
+ let data = { patientName:name, name:name, shriId:shri, shri:shri, contactNo:contact, contact:contact, cmhtId:cmht, aadhaarNo:aadhaar, aadhaar:aadhaar, age:age, sex:sex, address:addr, addr:addr, key:key, deleted:false, createdAt:new Date().toISOString(), timestamp:serverTimestamp() };
  try{
    await setDoc(doc(db,"cmht_patients",key), data, {merge:true});
-   showStatus('SAVED! '+name+' - Synced All PCs - Visible in CMHT TOTAL PATIENT','ok');
-   document.getElementById('viewBtn').style.display='block';
+   showStatus('SAVED! '+name+' - Synced All PCs','ok');
    btn.textContent='SAVED - ADD ANOTHER'; btn.disabled=false;
-   document.getElementById('pName').value=''; document.getElementById('shriId').value=''; document.getElementById('contact').value=''; document.getElementById('cmhtId').value=''; document.getElementById('aadhaar').value=''; document.getElementById('address').value='';
+   document.getElementById('pName').value=''; document.getElementById('shriId').value=''; document.getElementById('contact').value=''; document.getElementById('cmhtId').value=''; document.getElementById('aadhaar').value=''; document.getElementById('age').value=''; document.getElementById('sex').value=''; document.getElementById('address').value='';
  }catch(e){ showStatus('Error: '+e.message,'err'); btn.disabled=false; btn.textContent='SAVE TO FIREBASE - CMHT'; }
 };
 </script>
