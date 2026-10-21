@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHIJA - No Gap</title>
+<title>SHIJA - Final No Gap Export</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -210,16 +210,27 @@ function render(){
 }
 function doExport(){let t=document.getElementById('exportType').value; if(t==='pdf') exportPDF(); else exportJPG();}
 function createHighResClone(){
-  let paper=document.getElementById('paper'); let clone=document.createElement('div'); clone.innerHTML=paper.innerHTML;
+  let paper=document.getElementById('paper'); 
+  let clone=document.createElement('div'); 
+  clone.innerHTML=paper.innerHTML;
   clone.style.width='2480px'; clone.style.minWidth='2480px'; clone.style.height='3508px'; clone.style.minHeight='3508px';
   clone.style.background='#fff'; clone.style.color='#000'; clone.style.position='fixed'; clone.style.left='-9999px'; clone.style.top='0';
-  clone.style.display='flex'; clone.style.flexDirection='column';
+  clone.style.display='flex'; clone.style.flexDirection='column'; clone.style.margin='0'; clone.style.padding='0';
   clone.querySelectorAll('.editable').forEach(el=>{ el.style.border='none'; el.style.background='transparent'; });
-  clone.querySelector('.letterhead img').style.width='2480px';
-  let disTitle=clone.querySelector('.disTitle'); if(disTitle){ disTitle.style.fontSize='54px'; disTitle.style.padding='18px 0'; disTitle.style.margin='0 36px 0 36px'; disTitle.style.border='5px solid #000'; }
-  let infoTable=clone.querySelector('.infoTable'); if(infoTable){ infoTable.style.fontSize='38px'; }
-  let section=clone.querySelector('.section'); if(section){ section.style.fontSize='38px'; section.style.flex='1'; section.style.paddingLeft='110px'; }
-  document.body.appendChild(clone); return clone;
+  let lh=clone.querySelector('.letterhead');
+  if(lh){ lh.style.margin='0'; lh.style.padding='0'; lh.style.lineHeight='0'; lh.style.display='block'; }
+  let lhImg=clone.querySelector('.letterhead img');
+  if(lhImg){ lhImg.style.width='2480px'; lhImg.style.margin='0'; lhImg.style.padding='0'; lhImg.style.display='block'; lhImg.style.verticalAlign='top'; }
+  let disTitle=clone.querySelector('.disTitle'); 
+  if(disTitle){ disTitle.style.fontSize='54px'; disTitle.style.padding='18px 0'; disTitle.style.margin='0 36px 0 36px'; disTitle.style.border='5px solid #000'; }
+  let infoTable=clone.querySelector('.infoTable'); 
+  if(infoTable){ infoTable.style.fontSize='38px'; infoTable.style.margin='12px 0 0 0'; }
+  let firstTds=clone.querySelectorAll('.infoTable td:first-child');
+  firstTds.forEach(td=>{ td.style.paddingLeft='100px'; });
+  let section=clone.querySelector('.section'); 
+  if(section){ section.style.fontSize='38px'; section.style.flex='1'; section.style.paddingLeft='110px'; }
+  document.body.appendChild(clone); 
+  return clone;
 }
 async function exportJPG(){
   let clone=createHighResClone(); let canvas=await html2canvas(clone,{scale:1,useCORS:true,backgroundColor:'#fff',width:2480,height:3508});
