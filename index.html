@@ -2,166 +2,291 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHIJA - Discharge Summary</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<title>SHIJA Dialysis Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f1f5f9}
-.top{height:62px;background:linear-gradient(135deg,#0a1931 0%,#1e3a8a 100%);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:fixed;top:0;left:0;right:0;z-index:9999}
-.content{max-width:1220px;margin:62px auto 0;padding:14px}
-.cardPro{background:#fff;border-radius:20px;border:1px solid #e2e8f0;padding:16px;margin-bottom:12px}
-.label{font-size:10px;font-weight:800;color:#475569;margin-bottom:6px;display:block;text-transform:uppercase}
-.inputPro{padding:11px 12px;border:1.5px solid #e2e8f0;border-radius:12px;font-weight:700;font-size:12px;background:#f8fafc;width:100%;outline:0}
-.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.col{flex:1;min-width:140px}
-.smallFilter{width:110px!important;height:36px!important;border-radius:24px!important;border:1.5px solid #10b981!important;background:#f0fdf4!important;font-weight:800!important}
-.searchBox{position:relative}.searchList{position:absolute;top:110%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:16px;max-height:380px;overflow:auto;z-index:999;display:none;box-shadow:0 20px 40px rgba(0,0,0,.12)}
-.timeBox{border:2px solid #10b981;background:#f0fdf4;border-radius:16px;padding:14px;display:flex;gap:10px;align-items:end;flex-wrap:wrap}
-.timeInput{width:90px!important;text-align:center;font-family:monospace;font-size:14px!important}
-.vitalGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:8px}
-.vitalCard{position:relative;border:1.5px solid #e2e8f0;border-radius:16px;padding:12px 14px;background:#fff;display:flex;align-items:center;gap:12px}
-.vIcon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
-.vContent{flex:1}.vLabel{font-size:9px;font-weight:800;color:#64748b;display:block;text-transform:uppercase}
-.vContent input{border:0;background:transparent;font-weight:800;font-size:15px;width:100%;outline:0;margin-top:2px;color:#0f172a}
-.vUnit{font-size:10px;font-weight:700;color:#94a3b8;margin-right:26px}
-.vStepper{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:3px}
-.vStepBtn{width:22px;height:18px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:6px;font-size:10px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.preBox .vitalCard{border-left:3.5px solid #ef4444}
-.postBox .vitalCard{border-left:3.5px solid #10b981}
-.paper{background:#fff;width:100%;max-width:800px;margin:0 auto;color:#000;border:1px solid #e2e8f0;--fs:14px;overflow:hidden}
-.letterhead{margin:0;padding:0;line-height:0;display:block;font-size:0}
-.letterhead img{width:100%;display:block;margin:0;padding:0;vertical-align:top;border:0}
-.disTitle{text-align:center;font-weight:800;font-size:calc(var(--fs) + 5px);padding:6px 0;border:2.5px solid #000;margin:-2px 10px 0 10px;background:#fff;box-sizing:border-box;width:calc(100% - 20px)}
-.infoTable{width:100%;border-collapse:collapse;font-size:var(--fs);margin:6px 0 6px 0}
-.infoTable td{padding:2px 4px;vertical-align:top;line-height:1.4;white-space:nowrap}
-.infoTable td:first-child{padding-left:18px !important;padding-right:2px !important;white-space:nowrap}
-.infoTable td:nth-child(2){padding-left:0px !important;white-space:nowrap}
-.infoTable td:nth-child(3){padding-left:10px !important;white-space:nowrap}
-.infoTable td:nth-child(4){padding-left:0px !important;white-space:nowrap}
-.infoTable td span{white-space:normal}
-#b_name{white-space:normal !important;display:inline}
-.section{padding:12px 18px 14px 28px;font-size:var(--fs);line-height:1.7;border-top:2.5px solid #000}
-.exportGroup{display:flex;align-items:center;background:#fff;border-radius:24px;padding:3px}.exportSelect{border:0;background:transparent;font-weight:800;font-size:11px;padding:8px 10px;outline:0}.exportBtn{background:#10b981;color:#fff;border:0;padding:8px 18px;border-radius:20px;font-weight:800;cursor:pointer;font-size:11px;margin-left:4px}
-/* 3-LINE MENU - ONLY ADDITION */
-.hamburger{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer}
-.hamburger span{width:20px;height:2.5px;background:#fff;border-radius:2px;display:block;transition:.25s}
-.hamburger.active span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
-.hamburger.active span:nth-child(2){opacity:0}
-.hamburger.active span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
-.menuOverlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;display:none}
-.menuDrawer{position:fixed;top:0;left:-320px;width:300px;height:100vh;background:#0f172a;z-index:10001;transition:left .32s;overflow:auto;display:flex;flex-direction:column}
-.menuDrawer.open{left:0}
-.menuItem{padding:13px 18px;display:flex;align-items:center;gap:12px;color:#cbd5e1;font-size:12px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;text-decoration:none}
-.menuItem:hover{background:#1e293b;color:#fff}
-.menuItem.active{background:#1e3a8a;color:#fff}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui}
+body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:column}
+.top{height:64px;background:#1e293b;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #2d3a4f;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px}
+.logo img{width:38px;height:38px;border-radius:10px;object-fit:contain;background:#fff;padding:3px}
+.menuBtnTop{width:42px;height:36px;border-radius:10px;background:#2563eb;border:0;color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+.menuBtnTop *{pointer-events:none}
+.whiteBar{position:fixed;left:0;top:64px;bottom:0;width:270px;background:#ffffff;transform:translateX(-100%);transition:.35s;z-index:90;padding:16px 10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:4px 0 24px #0003;overflow-y:auto}
+.whiteBar.open{transform:translateX(0)}
+.whiteBar a{display:flex;align-items:center;padding:12px 14px;border-radius:10px;text-decoration:none;color:#334155;font-weight:700;font-size:13px;margin-bottom:5px}
+.whiteBar a:hover{background:#f1f5f9}
+.whiteOverlay{position:fixed;inset:0;top:64px;background:#0005;z-index:85;display:none}
+.whiteOverlay.show{display:block}
+.searchWrap{flex:1;max-width:420px;margin:0 16px;position:relative}
+.search{width:100%;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:10px 16px;display:flex;align-items:center;gap:8px}
+.search input{background:transparent;border:0;color:#fff;outline:0;width:100%;font-size:13px}
+.searchResult{position:absolute;top:100%;left:0;right:0;margin-top:8px;background:#fff;border-radius:12px;box-shadow:0 12px 30px #0005;max-height:340px;overflow-y:auto;display:none;z-index:100}
+.searchResult.show{display:block}
+.sItem{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#0f172a;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.right{display:flex;align-items:center;gap:12px}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:grid;place-items:center;font-weight:900}
+.adminWrap{position:relative;cursor:pointer}
+.dropdown{position:absolute;top:100%;right:0;margin-top:10px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;min-width:130px;display:none;z-index:99;overflow:hidden}
+.dropdown.show{display:block}
+.dropItem{padding:10px 14px;font-size:13px;color:#0f172a;font-weight:600;cursor:pointer;background:#fff;border:0;width:100%;text-align:left}
+.main{display:flex;flex:1;max-width:1400px;width:100%;margin:0 auto}
+.content{flex:1;padding:24px}
+.head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.head h1{font-size:28px;font-weight:900}
+.head p{color:#94a3b8;font-size:13px}
+.dateBar{display:flex;gap:8px;align-items:center;background:#1e293b;border:1px solid #334155;padding:8px 12px;border-radius:12px}
+.dateBar input{background:#0f172a;border:1px solid #334155;color:#fff;padding:6px 10px;border-radius:8px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{border-radius:20px;padding:20px;min-height:170px;text-decoration:none;color:#fff;display:flex;flex-direction:column;justify-content:space-between;transition:.3s}
+.card:hover{transform:translateY(-4px)}
+.card .icon{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.25);display:grid;place-items:center;font-weight:900}
+.card b{font-size:14px;margin-top:10px;display:block}
+.card h2{font-size:34px;font-weight:900;margin:6px 0}
+.c1{background:linear-gradient(135deg,#3b82f6,#06b6d4)}.c2{background:linear-gradient(135deg,#10b981,#059669)}.c3{background:linear-gradient(135deg,#f97316,#f59e0b)}.c4{background:linear-gradient(135deg,#7c3aed,#6d28d9)}.c5{background:linear-gradient(135deg,#ec4899,#d946ef)}.c6{background:linear-gradient(135deg,#ef4444,#f43f5e)}.c7{background:linear-gradient(135deg,#8b5cf6,#6366f1)}.c8{background:linear-gradient(135deg,#14b8a6,#0e7490)}.c9{background:linear-gradient(135deg,#f59e0b,#d97706)}.c10{background:linear-gradient(135deg,#06b6d4,#0891b2)}
+.modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:100}
+.modalBox{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:22px;width:90%;max-width:420px;max-height:85vh;overflow-y:auto}
+.opt{padding:12px;border:1px solid #334155;border-radius:10px;margin-bottom:10px;cursor:pointer}
+.opt:hover{background:#0f172a;border-color:#3b82f6}
+.btn{padding:10px 14px;border:0;border-radius:10px;font-weight:700;cursor:pointer}.btnP{background:#2563eb;color:#fff}.btnG{background:#334155;color:#fff}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.grid{grid-template-columns:1fr 1fr}.content{padding:14px}}
 </style>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;window.fbTools={collection,getDocs};
-</script>
 </head>
 <body>
-<!-- MENU OVERLAY + DRAWER -->
-<div id="menuOverlay" class="menuOverlay" onclick="closeMenu()"></div>
-<div id="menuDrawer" class="menuDrawer">
-<div style="padding:20px;background:linear-gradient(135deg,#0a1931,#1e3a8a);border-bottom:1px solid #1e293b"><div style="color:#fff;font-weight:800">SHIJA HOSPITALS</div><div style="color:#94a3b8;font-size:10px">Dialysis Management</div></div>
-<a class="menuItem" href="index.html">🏠 HOME</a>
-<a class="menuItem" href="total.html">📊 PMJAY TOTAL PATIENT</a>
-<a class="menuItem" href="cmht.html">📊 CMHT TOTAL PATIENT</a>
-<a class="menuItem" href="daily.html">🗓️ PMJAY DAILY DIALYSIS</a>
-<a class="menuItem" href="cmhtdaily.html">🗓️ CMHT DAILY DIALYSIS</a>
-<a class="menuItem" href="kft.html">🧪 PMJAY KFT REPORT</a>
-<a class="menuItem" href="cmhtkft.html">🧪 CMHT KFT REPORT</a>
-<a class="menuItem" href="add.html">➕ Add PMJAY PATIENT</a>
-<a class="menuItem" href="addcmht.html">➕ ADD CMHT PATIENT</a>
-<a class="menuItem" href="discharge.html">📄 DISCHARGE PATIENT</a>
-<a class="menuItem active" href="dischargesummary.html">📋 Discharge Summary</a>
-<a class="menuItem" href="bill.html">💰 BILL</a>
+<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
+<div class="top">
+<div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()">☰</button><img src="logoc.png" onerror="this.src='shija.jpg'"> SHIJA Dialysis</div>
+<div class="searchWrap"><div class="search"><input id="globalSearch" placeholder="Search PMJAY & CMHT patients..." oninput="doGlobalSearch()" onfocus="doGlobalSearch()"></div><div class="searchResult" id="searchResult"></div></div>
+<div class="right"><div class="avatar">A</div><div class="adminWrap" id="adminWrap" onclick="toggleDrop(event)"><div>Admin ▼</div><div class="dropdown" id="adminDrop"><button class="dropItem" onclick="logout()">Logout</button></div></div></div>
 </div>
-
-<div class="top"><div style="display:flex;align-items:center;gap:12px"><button id="hamBtn" class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></button><div style="color:#fff;font-weight:800">SHIJA</div></div><div class="exportGroup"><select id="exportType" class="exportSelect"><option value="jpeg" selected>JPEG</option><option value="pdf">PDF</option></select><button onclick="doExport()" class="exportBtn">⬇ Export</button></div></div>
-<div class="content">
-<div class="cardPro">
-<div style="display:flex;justify-content:space-between"><h3 style="font-size:11px;font-weight:800">🔍 SEARCH</h3><span id="countBadge" style="font-size:10px;font-weight:800;background:#eff6ff;padding:5px 12px;border-radius:20px">Loading...</span></div>
-<div class="row"><div class="col" style="max-width:130px"><span class="label">Scheme</span><select id="schemeSelect" class="smallFilter" onchange="changeScheme()"><option value="PMJAY">PMJAY</option><option value="CMHT">CMHT</option></select></div>
-<div class="col"><span class="label">Search</span><div class="searchBox"><input id="searchInput" class="inputPro" style="border:2px solid #1e3a8a" placeholder="Type SHRI / Name / IP" oninput="doSearch(this.value)" onfocus="doSearch(this.value)"><div id="searchList" class="searchList"></div></div></div></div>
-<div id="debugInfo" style="font-size:10px;font-weight:700;color:#b91c1c;margin-top:6px"></div>
+<div class="whiteOverlay" id="whiteOverlay" onclick="toggleWhiteBar()"></div>
+<div class="whiteBar" id="whiteBar">
+<div>
+<a href="total.html">PMJAY Total Patient</a>
+<a href="cmht.html">CMHT Total Patient</a>
+<a href="cmhtkft.html">CMHT KFT Report</a>
+<a href="cmhtdaily.html">CMHT Daily Dialysis</a>
+<a href="daily.html">PMJAY DAILY DIALYSIS LIST</a>
+<a href="discharge.html">Discharge Patient</a>
+<a href="dischargesummary.html">Discharge Summary</a>
+<a href="kft.html">PMJAY KFT REPORT</a>
+<a href="add.html">ADD PMJAY Patient</a>
+<a href="addcmht.html">Add CMHT Patient</a>
+<a href="bill.html">Bill</a>
 </div>
-<div class="cardPro">
-<div class="row"><div class="col"><span class="label">UHID</span><input id="shriId" class="inputPro" value="SHRI.334269"></div><div class="col"><span class="label">IP No</span><input id="ipNo" class="inputPro" value="185693"></div><div class="col" style="flex:1.5"><span class="label">Patient Name</span><input id="patName" class="inputPro" value="Mrs. ARAMBAM ASHALATA DEVI"></div></div>
-<div class="row"><div class="col" style="max-width:160px"><span class="label">Age</span><input type="number" step="1" id="ageInput" class="inputPro" value="71"></div><div class="col" style="max-width:160px"><span class="label">Sex</span><select id="sexInput" class="inputPro"><option>Male</option><option selected>Female</option></select></div></div>
-<div class="timeBox">
-<div><span class="label">Admission Date</span><input type="date" id="admDate" class="inputPro timeInput"></div>
-<div><span class="label">Hour</span><input type="number" step="1" id="admHour" class="inputPro timeInput" value="02"></div>
-<div><span class="label">Min</span><input type="number" step="1" id="admMin" class="inputPro timeInput" value="47"></div>
-<div><span class="label">AM/PM</span><select id="admAmPm" class="inputPro timeInput" style="background:#0f172a;color:#fff"><option>AM</option><option selected>PM</option></select></div>
+<div style="padding:10px;font-size:11px;color:#64748b;border-top:1px solid #e2e8f0"><b style="color:#0f172a">System Status</b><br>All Systems Online</div>
 </div>
-<h3 style="font-size:11px;font-weight:800;margin:16px 0 8px;color:#ef4444">● PRE DIALYSIS</h3>
-<div class="vitalGrid preBox">
-<div class="vitalCard"><div class="vIcon" style="background:#fee2e2">🩸</div><div class="vContent"><span class="vLabel">Blood Pressure</span><input id="bp" value="150/70"></div><span class="vUnit">mmHg</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#fef3c7">💓</div><div class="vContent"><span class="vLabel">Pulse Rate</span><input type="number" step="1" id="pr" value="86"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('pr',1)">▲</button><button class="vStepBtn" onclick="stepVital('pr',-1)">▼</button></div><span class="vUnit">bpm</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#dbeafe">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" step="1" id="spo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('spo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('spo2',-1)">▼</button></div><span class="vUnit">% RA</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#ffedd5">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" step="1" id="temp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('temp',1)">▲</button><button class="vStepBtn" onclick="stepVital('temp',-1)">▼</button></div><span class="vUnit">°F</span></div>
+<div class="main"><div class="content">
+<div class="head"><div><h1>Dashboard Overview</h1><p id="welcomeText">Welcome back Admin</p></div><div class="dateBar"><input type="date" id="dashDate"><button class="btn btnP" onclick="openExport()">Export Report</button></div></div>
+<div class="grid">
+<a href="total.html" class="card c1"><div><div class="icon">PT</div><b>PMJAY Total Patient</b><h2 id="v1">0</h2><small>All time PMJAY</small></div></a>
+<a href="cmht.html" class="card c7"><div><div class="icon">CM</div><b>CMHT Total Patient</b><h2 id="vCMHT">0</h2><small>CMHT Scheme</small></div></a>
+<a href="cmhtkft.html" class="card c9"><div><div class="icon">CK</div><b>CMHT KFT Report</b><h2 id="vCKFT">0 Received</h2><small id="ckftSmall">1-15 / 15-30</small></div></a>
+<a href="cmhtdaily.html" class="card c10"><div><div class="icon">CD</div><b>CMHT Daily Dialysis</b><h2 id="vCDaily">0</h2><small id="cdailySmall">Today list</small></div></a>
+<a href="add.html" class="card c2"><div><div class="icon">AP</div><b>ADD PMJAY Patient</b><small>Create PMJAY record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add PMJAY</div></a>
+<a href="addcmht.html" class="card c8"><div><div class="icon">AC</div><b>Add CMHT Patient</b><small>Add CMHT record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add CMHT</div></a>
+<a href="daily.html" class="card c3"><div><div class="icon">DD</div><b>PMJAY DAILY DIALYSIS LIST</b><h2 id="v3">0</h2><small id="v3small">Scheduled for today</small><div id="v3f" style="font-size:11px;opacity:.7"></div></div></a>
+<a href="kft.html" class="card c4"><div><div class="icon">KR</div><b>PMJAY KFT REPORT</b><h2 id="v4">0 Submitted</h2><small id="v4small">1-15 / 15-30</small></div></a>
+<a href="bill.html" class="card c5"><div><div class="icon">BL</div><b>Bill</b><h2 id="v5">0 Print</h2><small id="v5small">Prints for selected date</small></div></a>
+<a href="discharge.html" class="card c6"><div><div class="icon">DC</div><b>Discharge</b><h2 id="v6">0</h2><small id="v6small">For selected date</small></div></a>
+<a href="dischargesummary.html" class="card" style="background:linear-gradient(135deg,#334155,#475569)"><div><div class="icon">DS</div><b>Discharge Summary</b><h2 style="font-size:26px;font-weight:900;margin:6px 0">Open</h2><small>Create discharge summary</small></div></a>
 </div>
-<h3 style="font-size:11px;font-weight:800;margin:18px 0 8px;color:#10b981">● POST DIALYSIS</h3>
-<div class="vitalGrid postBox">
-<div class="vitalCard"><div class="vIcon" style="background:#dcfce7">🩸</div><div class="vContent"><span class="vLabel">Blood Pressure</span><input id="postBp" value="160/80"></div><span class="vUnit">mmHg</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#d1fae5">💓</div><div class="vContent"><span class="vLabel">Pulse Rate</span><input type="number" step="1" id="postPr" value="84"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postPr',1)">▲</button><button class="vStepBtn" onclick="stepVital('postPr',-1)">▼</button></div><span class="vUnit">bpm</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#e0e7ff">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" step="1" id="postSpo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postSpo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('postSpo2',-1)">▼</button></div><span class="vUnit">% RA</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#fef9c3">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" step="1" id="postTemp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postTemp',1)">▲</button><button class="vStepBtn" onclick="stepVital('postTemp',-1)">▼</button></div><span class="vUnit">°F</span></div>
-</div>
-<div class="row" style="border:2px solid #dc2626;border-radius:12px;padding:12px;margin-top:18px;background:#fffbeb">
-<div class="col" style="max-width:190px"><span class="label">Advice Date</span><input type="date" id="adviceDate" class="inputPro" value="2026-10-22"></div>
-<div class="col" style="max-width:220px"><span class="label">Advice Time</span><select id="adviceTime" class="inputPro" style="background:#fff1f2;font-weight:800;border:2px solid #f43f5e"><option>7am morning</option><option selected>12pm noon</option><option>5pm evening</option><option>9pm night</option><option>12am midnight</option><option>2am morning</option></select></div>
-<div class="col" style="max-width:190px"><span class="label">Needs dialysis times/week</span><select id="freq" class="inputPro" style="border:2px solid #dc2626;background:#fef2f2;font-weight:800"><option>One</option><option>Two</option><option selected>Three</option><option>Four</option></select></div>
-</div>
-</div>
-<div class="paper" id="paper">
-<div class="letterhead"><img src="finalopo.png?v=20" alt="SHIJA"></div>
-<div class="disTitle">Discharge Summary</div>
-<table class="infoTable">
-<tr><td><b>IP No.</b></td><td>: <span id="b_ip">185693</span></td><td><b>UHID NO</b></td><td>: <span id="b_shri">SHRI.334269</span></td></tr>
-<tr><td><b>Patient Name</b></td><td>: <span id="b_name">Mrs. ARAMBAM ASHALATA DEVI</span></td><td><b>Age/Sex</b></td><td>: <span id="b_age">71 Year(s) /Female</span></td></tr>
-<tr><td><b>Admission DateTime</b></td><td>: <span id="b_adm">21/10/2026 02:47 PM</span></td><td><b>Doctor Name</b></td><td>: <span id="b_doc">Dr. Guliver Potsangbam (Nephrology)</span></td></tr>
-<tr><td><b>Discharge DateTime</b></td><td>: <span id="b_dis">21/10/2026</span></td><td></td><td></td></tr>
-</table>
-<div class="section">
-<div><b>Diagnosis:</b> Chronic Kidney Disease on MHD</div>
-<div><b>Chief Complain:</b> Patient admitted for Haemodialysis</div>
-<div style="margin-top:6px"><b>Vitals:</b></div>
-<div>B.P : <span id="b_bp">150/70 mmHg</span><br>PR : <span id="b_pr">86 bpm</span><br>SpO2 : <span id="b_spo2">99 %@RA</span><br>Temp. : <span id="b_temp">98 degree F</span></div>
-<div style="margin-top:8px"><b>Procedure:</b></div>
-<div><b>Treatment / Medication:</b> Haemodialysis</div>
-<div style="margin-top:8px"><b>Post Dialysis Vitals:</b></div>
-<div>B.P : <span id="b_pbp">160/80 mmHg</span><br>PR : <span id="b_ppr">84 bpm</span><br>SpO2 : <span id="b_pspo2">99 %@RA</span><br>Temp. : <span id="b_ptemp">98 degree F</span></div>
-<div style="margin-top:14px"><b>Advice:</b> Next Haemodialysis on <span id="b_advDate">22/10/26</span> at <span id="b_advTime">12pm noon</span>.</div>
-<div style="margin-top:2px">Patient needs dialysis <span id="b_freq">three</span> times in a week</div>
-<div style="margin-top:80px;line-height:1.5">Dr.Guliver Potsangbam<br>Nephrology<br>Consultant Nephrologist<br>Reg No.:MNP-00240<br>MD,DM (Nephrology)</div>
-</div>
-</div>
-</div>
+</div></div>
+<div class="modal" id="expModal"><div class="modalBox"><h3>Export Report - <span id="expDateShow"></span></h3>
+<div class="opt" onclick="exportExcel('total')"><b>PMJAY Total Patient Record</b></div>
+<div class="opt" onclick="exportExcel('cmht_total')"><b>CMHT Total Patient Record</b></div>
+<div class="opt" onclick="exportExcel('kft')"><b>PMJAY KFT REPORT Record</b></div>
+<div class="opt" onclick="exportExcel('cmhtkft')"><b>CMHT KFT REPORT Record</b></div>
+<div class="opt" onclick="exportExcel('daily')"><b>PMJAY DAILY DIALYSIS LIST Record</b></div>
+<div class="opt" onclick="exportExcel('cmhtdaily')"><b>CMHT Daily Dialysis Record</b></div>
+<button class="btn btnG" style="width:100%;margin-top:10px" onclick="closeExport()">Cancel</button></div></div>
 <script>
-function toggleMenu(){let d=document.getElementById('menuDrawer'),o=document.getElementById('menuOverlay'),b=document.getElementById('hamBtn');if(d.classList.contains('open')){closeMenu()}else{d.classList.add('open');o.style.display='block';b.classList.add('active')}}
-function closeMenu(){document.getElementById('menuDrawer').classList.remove('open');document.getElementById('menuOverlay').style.display='none';document.getElementById('hamBtn').classList.remove('active')}
-let allPMJAY=[], allCMHT=[], scheme='PMJAY', lastFiltered=[];
-function stepVital(id, delta){let el=document.getElementById(id);let v=parseInt(el.value)||0;v+=delta;if(v<0)v=0;if(id.includes('spo2')&&v>100)v=100;el.value=v;render();}
-async function loadFirebaseAll(){const {collection,getDocs}=window.fbTools;allPMJAY=[];allCMHT=[];const tryCollections=async(names,targetArray)=>{for(let name of names){try{let snap=await getDocs(collection(window.db,name));if(!snap.empty){snap.forEach(d=>{let c=d.data();targetArray.push({shri:c.shriId||c.shri||c.UHID||c.uhid||c.id||'',ip:c.pmjayId||c.pmjay||c.cmhtId||c.cmht||c.ipNo||c.IPNO||c.ip||'',name:c.patientName||c.name||c.patient_name||c.Name||''});});if(targetArray.length>0)return name;}}catch(e){}}return null;};await tryCollections(["pmjay_patients","PMJAY_patients","pmjay","PMJAY","patients"],allPMJAY);await tryCollections(["cmht_patients","CMHT_patients","cmht","CMHT"],allCMHT);document.getElementById('debugInfo').innerText=`Found - PMJAY: ${allPMJAY.length} | CMHT: ${allCMHT.length}`;document.getElementById('countBadge').innerText=getCombined().length+' Patients in '+scheme;}
-function changeScheme(){scheme=document.getElementById('schemeSelect').value;document.getElementById('countBadge').innerText=getCombined().length+' Patients in '+scheme;render();}
-function getCombined(){return scheme=='PMJAY'?allPMJAY:allCMHT;}
-function doSearch(q){let list=document.getElementById('searchList');let combined=getCombined();if(!q||q.length==0){let all=combined.slice(0,20);lastFiltered=all;list.innerHTML=all.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer"><b style="color:#1e3a8a">${p.shri||'No-ID'}</b> - ${p.name||''}</div>`).join('');list.style.display='block';return;}q=q.toLowerCase();let f=combined.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,30);lastFiltered=f;if(f.length==0){list.innerHTML='<div style="padding:12px">No patient found</div>';list.style.display='block';return;}list.innerHTML=f.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:12px;font-weight:600"><b style="color:#1e3a8a">${p.shri}</b> - ${p.name.slice(0,50)}</div>`).join('');list.style.display='block';}
-function selectPatByIdx(i){let p=lastFiltered[i];if(!p)return;document.getElementById('shriId').value=p.shri;document.getElementById('ipNo').value=p.ip;document.getElementById('patName').value=p.name;document.getElementById('searchList').style.display='none';document.getElementById('searchInput').value=p.shri+' - '+p.name;render();}
-function getAdmDateTime(){let d=document.getElementById('admDate').value;if(!d)return null;let h=parseInt(document.getElementById('admHour').value)||2;let m=parseInt(document.getElementById('admMin').value)||0;let ap=document.getElementById('admAmPm').value;let h24=h%12+(ap=='PM'?12:0);let dt=new Date(d+'T00:00:00');dt.setHours(h24,m,0,0);return dt;}
-function DMY(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+dt.getFullYear();}
-function SHORT(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+String(dt.getFullYear()).slice(-2);}
-function T12(dt){let h=dt.getHours(),m=dt.getMinutes(),ap=h>=12?'PM':'AM',h12=h%12||12;return String(h12).padStart(2,'0')+":"+String(m).padStart(2,'0')+" "+ap;}
-function render(){document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;document.getElementById('b_shri').innerText=document.getElementById('shriId').value;document.getElementById('b_name').innerText=document.getElementById('patName').value;document.getElementById('b_age').innerText=(document.getElementById('ageInput').value||'--')+' Year(s) /'+document.getElementById('sexInput').value;let adm=getAdmDateTime();if(adm){document.getElementById('b_adm').innerText=DMY(adm)+' '+T12(adm);let dis=new Date(adm.getTime()+4*3600000);document.getElementById('b_dis').innerText=DMY(dis);}document.getElementById('b_bp').innerText=document.getElementById('bp').value+' mmHg';document.getElementById('b_pr').innerText=document.getElementById('pr').value+' bpm';document.getElementById('b_spo2').innerText=document.getElementById('spo2').value+' %@RA';document.getElementById('b_temp').innerText=document.getElementById('temp').value+' degree F';document.getElementById('b_pbp').innerText=document.getElementById('postBp').value+' mmHg';document.getElementById('b_ppr').innerText=document.getElementById('postPr').value+' bpm';document.getElementById('b_pspo2').innerText=document.getElementById('postSpo2').value+' %@RA';document.getElementById('b_ptemp').innerText=document.getElementById('postTemp').value+' degree F';let adv=document.getElementById('adviceDate').value;if(adv)document.getElementById('b_advDate').innerText=SHORT(new Date(adv));document.getElementById('b_advTime').innerText=document.getElementById('adviceTime').value;document.getElementById('b_freq').innerText=document.getElementById('freq').value;}
-function doExport(){let t=document.getElementById('exportType').value;if(t==='pdf')exportPDF();else exportJPG();}
-async function exportJPG(){let paper=document.getElementById('paper');let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff'});let link=document.createElement('a');let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');link.download=name+'.jpg';link.href=canvas.toDataURL('image/jpeg',0.95);link.click();}
-async function exportPDF(){let paper=document.getElementById('paper');let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff'});let imgData=canvas.toDataURL('image/jpeg',0.95);const {jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');let w=pdf.internal.pageSize.getWidth();let h=canvas.height*w/canvas.width;pdf.addImage(imgData,'JPEG',0,0,w,h);let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');pdf.save(name+'.pdf');}
-setTimeout(()=>{document.querySelectorAll('input, select').forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render);});let today=new Date().toISOString().split('T')[0];if(!document.getElementById('admDate').value)document.getElementById('admDate').value=today;if(!document.getElementById('adviceDate').value)document.getElementById('adviceDate').value=new Date(Date.now()+3*86400000).toISOString().split('T')[0];loadFirebaseAll();render();},300);
-document.addEventListener('click',e=>{if(!e.target.closest('.searchBox'))document.getElementById('searchList').style.display='none'});
+function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('open');document.getElementById('whiteOverlay').classList.toggle('show');}
+document.addEventListener('DOMContentLoaded',()=>{
+ let btn=document.querySelector('.menuBtnTop');
+ if(btn){btn.addEventListener('touchstart',(e)=>{e.preventDefault(); toggleWhiteBar();},{passive:false});}
+});
+function toggleDrop(e){e.stopPropagation();document.getElementById('adminDrop').classList.toggle('show');}
+function logout(){if(confirm('Logout now')){localStorage.removeItem('shija_logged');location.href='login.html';}}
+document.addEventListener('click',(e)=>{if(!e.target.closest('.searchWrap'))document.getElementById('searchResult').classList.remove('show');if(!e.target.closest('#adminWrap'))document.getElementById('adminDrop').classList.remove('show');});
+function openExport(){document.getElementById('expDateShow').textContent=document.getElementById('dashDate').value;document.getElementById('expModal').style.display='grid';}
+function closeExport(){document.getElementById('expModal').style.display='none';}
+window.allForSearch=[];
+function doGlobalSearch(){
+ let q=document.getElementById('globalSearch').value.toLowerCase().trim();let box=document.getElementById('searchResult');
+ if(!q){box.classList.remove('show');return;}
+ let f=window.allForSearch.filter(p=>[p.name,p.shri,p.contact,p.type].join(' ').toLowerCase().includes(q)).slice(0,15);
+ if(!f.length){box.innerHTML='<div class="sItem"><b>No patient found</b></div>';box.classList.add('show');return;}
+ let h='';f.forEach(p=>{let target=p.type==='CMHT'?`cmht.html?search=${encodeURIComponent(p.name)}`:`total.html?search=${encodeURIComponent(p.name)}`;h+=`<div class="sItem" onclick="location.href='${target}'"><div><b>${p.name}</b> <small style="background:${p.type==='CMHT'?'#8b5cf6':'#2563eb'};color:#fff;padding:2px 6px;border-radius:10px;font-size:10px">${p.type}</small><br><small>${p.shri} ${p.contact?'| '+p.contact:''}</small></div><small style="color:#2563eb;font-weight:700">View</small></div>`;});
+ box.innerHTML=h;box.classList.add('show');
+}
 </script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(config);const db=getFirestore(app);window.db=db;window.fb={collection,getDocs,query,where};
+function getDeletedKeys(){try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]').concat(JSON.parse(localStorage.getItem('deletedShri')||'[]'));}catch{return[];}}
+let todayStr = new Date().toISOString().slice(0,10);
+document.getElementById('dashDate').value = todayStr;
+document.getElementById('dashDate').addEventListener('change',loadDashboard);
+loadDashboard();
+async function loadDashboard(){
+ let sel=document.getElementById('dashDate').value;
+ if(!sel) sel = todayStr;
+ document.getElementById('welcomeText').textContent=`Data for ${sel}`;
+ let selDateObj = new Date(sel);
+ let selDay = selDateObj.getDate();
+ let selMonth = selDateObj.getMonth();
+ let selYear = selDateObj.getFullYear();
+ let kftDay = selDay <= 15 ? '1' : '15';
+ try{
+   let snap = await getDocs(collection(db,"patients"));
+   let delSet = new Set(getDeletedKeys());
+   let pmjaySearch=[];
+   snap.forEach(d=>{
+     let p=d.data();
+     if(p.deleted) return;
+     let shri = String(p.shriId||p.shri||d.id||'').trim();
+     if(delSet.has(shri)) return;
+     pmjaySearch.push({name:p.patientName||p.name||'',shri:shri,contact:p.contactNo||p.contact||'',type:'PMJAY'});
+   });
+   try{
+     let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');
+     extra.forEach(p=>{
+       let shri=String(p.shriId||p.shri||'').trim();
+       if(shri && !pmjaySearch.some(x=>x.shri===shri)) pmjaySearch.push({name:p.patientName||p.name||'',shri:shri,contact:p.contactNo||p.contact||'',type:'PMJAY'});
+     });
+   }catch(e){}
+   document.getElementById('v1').textContent = pmjaySearch.length;
+   window.allForSearch = pmjaySearch;
+ }catch(e){ document.getElementById('v1').textContent = 0; }
+ try{
+  let csnap = await getDocs(collection(db,"cmht_patients"));
+  let cmhtCount = 0;
+  let cmhtSearch = [];
+  csnap.forEach(d=>{
+    let c = d.data();
+    if(c.deleted) return;
+    cmhtCount++;
+    cmhtSearch.push({name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||'',type:'CMHT'});
+  });
+  document.getElementById('vCMHT').textContent = cmhtCount;
+  window.allForSearch = (window.allForSearch||[]).filter(p=>p.type!=='CMHT').concat(cmhtSearch);
+ }catch(e){ document.getElementById('vCMHT').textContent = 0; }
+ try{
+  let kftSubmitted = 0;
+  try{
+    let kSnap = await getDocs(collection(db,"kft_reports"));
+    kSnap.forEach(d=>{
+      let data = d.data();
+      let m = String(data.month);
+      let y = String(data.year);
+      let day = String(data.day);
+      if(y==selYear && Number(m)==selMonth && day==kftDay && data.statusBool===true){
+        kftSubmitted++;
+      }
+    });
+  }catch(e){kftSubmitted=0;}
+  document.getElementById('v4').textContent = kftSubmitted + ' Submitted';
+  document.getElementById('v4small').textContent = (kftDay=='1'?'1st to 15th':'16th to 30th') + ` - ${selYear}-${selMonth+1}`;
+  let cmhtKftReceived = 0;
+  try{
+    let ckSnap = await getDocs(collection(db,"cmht_kft_reports"));
+    ckSnap.forEach(d=>{
+      let data = d.data();
+      let dDay = data.day ? String(data.day) : (data.date ? (new Date(data.date).getDate()<=15?'1':'15') : '');
+      let dMonth = data.month!==undefined ? Number(data.month) : (data.date ? new Date(data.date).getMonth() : -1);
+      let dYear = data.year ? Number(data.year) : (data.date ? new Date(data.date).getFullYear() : -1);
+      if(dYear==selYear && dMonth==selMonth && dDay==kftDay){
+        if(data.statusBool===true || data.status==='Received' || data.status==='Submitted' || data.received===true) cmhtKftReceived++;
+        else if(data.status!==undefined) cmhtKftReceived++;
+      }
+    });
+  }catch(e){cmhtKftReceived=0;}
+  document.getElementById('vCKFT').textContent = cmhtKftReceived + ' Received';
+  document.getElementById('ckftSmall').textContent = (kftDay=='1'?'1st to 15th':'16th to 30th') + ` - ${selYear}-${selMonth+1}`;
+ }catch(e){
+   document.getElementById('v4').textContent='0 Submitted';
+   document.getElementById('vCKFT').textContent='0 Received';
+ }
+ try{
+  let qDaily = query(collection(db,"daily_dialysis"), where("date","==",sel));
+  let sDaily = await getDocs(qDaily);
+  let dailyCount = sDaily.size;
+  if(dailyCount===0){
+    try{
+      let q2 = query(collection(db,"dailyDialysis"), where("date","==",sel));
+      let s2 = await getDocs(q2);
+      dailyCount = s2.size;
+    }catch(e){}
+  }
+  document.getElementById('v3').textContent = dailyCount;
+  document.getElementById('v3small').textContent = `Scheduled for ${sel}`;
+  document.getElementById('v3f').textContent = dailyCount>0 ? `${dailyCount} patients entered` : `No entry - 0`;
+ }catch(e){ document.getElementById('v3').textContent=0; }
+ try{
+  let qCDaily = query(collection(db,"cmht_daily_dialysis"), where("listDate","==",sel));
+  let sCDaily = await getDocs(qCDaily);
+  if(sCDaily.size===0){
+    try{
+      let qAlt = query(collection(db,"cmht_daily_dialysis"), where("date","==",sel));
+      let sAlt = await getDocs(qAlt);
+      document.getElementById('vCDaily').textContent = sAlt.size;
+      document.getElementById('cdailySmall').textContent = sAlt.size>0 ? `${sAlt.size} patients for ${sel}` : `No entry for ${sel} - 0`;
+      if(sAlt.size>0) throw 'done';
+    }catch(e2){
+      if(e2==='done'){} else {
+        document.getElementById('vCDaily').textContent = sCDaily.size;
+        document.getElementById('cdailySmall').textContent = sCDaily.size>0 ? `${sCDaily.size} patients for ${sel}` : `No entry for ${sel} - 0`;
+      }
+    }
+  } else {
+    document.getElementById('vCDaily').textContent = sCDaily.size;
+    document.getElementById('cdailySmall').textContent = sCDaily.size>0 ? `${sCDaily.size} patients for ${sel}` : `No entry for ${sel} - 0`;
+  }
+ }catch(e){ document.getElementById('vCDaily').textContent=0; }
+ try{
+  let qDis = query(collection(db,"discharges"), where("date","==",sel));
+  let sDis = await getDocs(qDis);
+  document.getElementById('v6').textContent = sDis.size;
+  document.getElementById('v6small').textContent = sDis.size>0 ? `${sDis.size} discharged on ${sel}` : `No discharge for ${sel} - 0`;
+ }catch(e){ document.getElementById('v6').textContent=0; }
+ try{
+  let qBill = query(collection(db,"bills"), where("date","==",sel));
+  let sBill = await getDocs(qBill);
+  let billCount = sBill.size;
+  document.getElementById('v5').textContent = billCount + ' Print';
+  document.getElementById('v5small').textContent = billCount>0 ? `${billCount} bills printed on ${sel}` : `No prints for ${sel} - 0`;
+  if(billCount===0){
+    try{
+      let allBills = await getDocs(collection(db,"bills"));
+      let countToday = 0;
+      allBills.forEach(d=>{
+        let data = d.data();
+        if((data.date||'')===sel) countToday++;
+      });
+      if(countToday>0){
+        document.getElementById('v5').textContent = countToday + ' Print';
+        document.getElementById('v5small').textContent = `${countToday} bills printed on ${sel}`;
+      }
+    }catch(e){}
+  }
+ }catch(e){ document.getElementById('v5').textContent='0 Print'; }
+}
+window.loadDashboard=loadDashboard;
+window.exportExcel=async(type)=>{
+ let sel=document.getElementById('dashDate').value;let wb=XLSX.utils.book_new();let data=[];
+ if(type==='total'){try{let snap=await getDocs(collection(db,"patients"));snap.forEach(d=>{let p=d.data();if(!p.deleted) data.push({Name:p.patientName||p.name,SHRI_ID:p.shriId||p.shri,PMJAY:p.pmjayId||p.pmjay,Contact:p.contactNo||p.contact,Address:p.address||'',Scheme:'PMJAY'});});}catch(e){data=[];}let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY Total");XLSX.writeFile(wb,`PMJAY_Total_${sel}.xlsx`);}
+ else if(type==='cmht_total'){try{let snap=await getDocs(collection(db,"cmht_patients"));snap.forEach(d=>{let p=d.data();if(!p.deleted) data.push({Name:p.patientName||p.name,SHRI_ID:p.shriId||p.shri,CMHT_ID:p.cmhtId||p.cmht||p.pmjay,Contact:p.contactNo||p.contact,Aadhaar:p.aadhaarNo||p.aadhaar,Address:p.address||'',Remark:p.remark||'CMHT'});});}catch(e){}if(!data.length) data=[{Info:"No CMHT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT Total");XLSX.writeFile(wb,`CMHT_Total_${sel}.xlsx`);}
+ else if(type==='kft'){try{let snap=await getDocs(collection(db,"kft_reports"));snap.forEach(d=>{let p=d.data();if(!sel||(p.year==new Date(sel).getFullYear() && Number(p.month)==new Date(sel).getMonth())) data.push({Year:p.year,Month:p.month,Day:p.day,SHRI_ID:p.shriId,Patient:p.patientName,Status:p.status});});}catch(e){data=[{Date:sel}];}if(!data.length) data=[{Date:sel,Info:"No KFT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY KFT");XLSX.writeFile(wb,`PMJAY_KFT_${sel}.xlsx`);}
+ else if(type==='cmhtkft'){try{let snap=await getDocs(collection(db,"cmht_kft_reports"));snap.forEach(d=>{let p=d.data();if(!sel||p.date===sel || (p.year==new Date(sel).getFullYear() && Number(p.month)==new Date(sel).getMonth())) data.push({SHRI_ID:p.shriId,Date:p.date||p.year+'-'+p.month+'-'+p.day,Status:p.status,Remark:'CMHT'});});}catch(e){}if(!data.length) data=[{Date:sel,Info:"No CMHT KFT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT KFT");XLSX.writeFile(wb,`CMHT_KFT_${sel}.xlsx`);}
+ else if(type==='daily'){try{let snap=await getDocs(query(collection(db,"daily_dialysis"),where("date","==",sel)));snap.forEach(d=>{data.push(d.data());});if(!data.length){let snap2=await getDocs(query(collection(db,"dailyDialysis"),where("date","==",sel)));snap2.forEach(d=>{data.push(d.data());});}}catch(e){data=[{Date:sel}];}if(!data.length) data=[{Date:sel}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY DAILY DIALYSIS");XLSX.writeFile(wb,`PMJAY_DAILY_DIALYSIS_${sel}.xlsx`);}
+ else if(type==='cmhtdaily'){try{let snap=await getDocs(query(collection(db,"cmht_daily_dialysis"),where("listDate","==",sel)));snap.forEach(d=>{let p=d.data();data.push({Name:p.name,SHRI_ID:p.shri,Time:p.time,Block:p.block,Previous_Date:p.prevDate,List_Date:p.listDate,Remark:'CMHT'});});}catch(e){}if(!data.length) data=[{Date:sel}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT Daily");XLSX.writeFile(wb,`CMHT_Daily_${sel}.xlsx`);}
+ closeExport();
+};
+</script>
+<div style="text-align:center;padding:10px;font-size:10px;color:#475569">SHIJA Dialysis <span id="lastUp"></span></div>
+<script>document.getElementById('lastUp').textContent='Last updated '+new Date().toLocaleString();</script>
 </body>
 </html>
