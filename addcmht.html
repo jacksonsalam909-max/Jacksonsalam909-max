@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Add CMHT Patient - SHIJA</title>
+<title>Add Patient - SHIJA</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Inter}
 body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
@@ -19,11 +19,8 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,0.5);z-index:9997;display:none}
 .sideOverlay.show{display:block}
 .box{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:24px;max-width:700px;width:100%}
-.box input{width:100%;padding:13px;border:1.5px solid #cbd5e1;border-radius:10px;margin:9px 0}
-.box label{font-size:12px;font-weight:700;color:#475569;margin-top:4px;display:block}
-.btn{width:100%;padding:13px;background:#8b5cf6;color:#fff;border:0;border-radius:10px;font-weight:800;cursor:pointer;margin-top:14px}
-.msg{margin:10px 0;padding:10px;border-radius:8px;font-size:13px;display:none}.msg.ok{display:block;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}.msg.err{display:block;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
-.remarkTag{background:#ede9fe;color:#6d28d9;padding:6px 10px;border-radius:6px;font-weight:800;font-size:12px;display:inline-block;border:1px solid #ddd6fe}
+.box input{width:100%;padding:13px;border:1.5px solid #cbd5e1;border-radius:10px;margin:9px 0;font-size:14px}
+.btn{width:100%;padding:13px;background:#1868db;color:#fff;border:0;border-radius:10px;font-weight:800;cursor:pointer;margin-top:12px;font-size:15px}
 </style>
 </head>
 <body>
@@ -31,32 +28,32 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 <div class="sideOverlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="mainWrap">
 <div class="side" id="side">
-<a href="index.html">Home</a>
-<a href="total.html">PMJAY Total Patient</a>
-<a href="cmht.html">CMHT Total Patient</a>
-<a href="daily.html">Daily Dialysis</a>
-<a href="discharge.html">Discharge Patient</a>
-<a href="kft.html">PMJAY KFT REPORT</a>
-<a href="add.html">ADD PMJAY Patient</a>
-<a href="addcmht.html" class="active">Add CMHT Patient</a>
-<a href="bill.html">Bill</a>
+<a href="index.html">HOME</a>
+<a href="total.html">TOTAL PATIENT</a>
+<a href="cmht.html">CMHT TOTAL PATIENT</a>
+<a href="cmhtkft.html">CMHT KFT REPORT</a>
+<a href="cmhtdaily.html">CMHT DAILY DIALYSIS</a>
+<a href="addcmht.html">CMHT ADD PATIENT</a>
+<a href="daily.html">DAILY DIALYSIS</a>
+<a href="discharge.html">DISCHARGE PATIENT</a>
+<a href="kft.html">KFT REPORT</a>
+<a href="add.html" class="active">ADD PATIENT</a>
+<a href="bill.html">BILL</a>
+<a href="dischargesummary.html">DISCHARGE SUMMARY</a>
 </div>
 <div class="content" id="content">
-<h1>Add CMHT Patient</h1><p style="color:#64748b;font-size:13px">Remark CMHT will be auto-added for every patient</p>
-<div id="msgBox" class="msg"></div>
+<h1>Add Patient</h1><p id="msg" style="margin:8px 0;color:#64748b;font-size:13px">Will show in Total Patients on all devices</p>
 <div class="box">
-<label>Patient Name *</label><input id="name" placeholder="Patient Name">
-<label>SHRI ID</label><input id="shri" placeholder="e.g. SHRI123 - auto if empty">
-<label>CMHT ID *</label><input id="cmht" placeholder="CMHT Card Number">
-<label>Contact Number</label><input id="contact" placeholder="Contact Number">
-<label>Aadhaar Number</label><input id="aadhaar" placeholder="12 digit Aadhaar" maxlength="12">
-<label>Address</label><input id="addr" placeholder="Address">
-<label>Remark</label><div style="margin:9px 0"><span class="remarkTag">CMHT</span> <small style="color:#64748b">Auto-added</small></div>
-<input id="remark" type="hidden" value="CMHT">
-<button class="btn" id="addBtn" onclick="addCMHT()">Add CMHT Patient</button>
+<input id="name" placeholder="Patient Name *">
+<input id="shri" placeholder="SHRI ID (e.g. SHRI123) - Leave empty to auto generate">
+<input id="contact" placeholder="Contact No">
+<input id="pmjay" placeholder="PMJAY ID">
+<input id="addr" placeholder="Address">
+<button class="btn" onclick="addPatient()">Add Patient</button>
 </div>
 </div>
 </div>
+
 <script>
 function toggleMenu(){
  var s=document.getElementById('side');
@@ -80,22 +77,35 @@ document.addEventListener('DOMContentLoaded',function(){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);
-function showMsg(t,ok){let b=document.getElementById('msgBox');b.textContent=t;b.className='msg '+(ok?'ok':'err');}
-window.addCMHT=async()=>{
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+function saveEditedLocal(key,data){
+  let m={}; try{m=JSON.parse(localStorage.getItem('editedKeys')||'{}');}catch{}
+  m[key]=data; localStorage.setItem('editedKeys',JSON.stringify(m));
+  let added=[]; try{added=JSON.parse(localStorage.getItem('addedKeys')||'[]');}catch{}
+  if(!added.includes(key)){ added.push(key); localStorage.setItem('addedKeys',JSON.stringify(added)); }
+}
+
+window.addPatient=async()=>{
  let name=document.getElementById('name').value.trim();
  let shri=document.getElementById('shri').value.trim();
- let cmht=document.getElementById('cmht').value.trim();
  let contact=document.getElementById('contact').value.trim();
- let aadhaar=document.getElementById('aadhaar').value.trim();
+ let pmjay=document.getElementById('pmjay').value.trim();
  let addr=document.getElementById('addr').value.trim();
- let remark="CMHT";
- if(!name){showMsg('Enter Patient Name',false);return;}
- if(!cmht){showMsg('Enter CMHT ID',false);return;}
- if(!shri) shri='CMHT_'+Date.now().toString().slice(-6);
- let btn=document.getElementById('addBtn');btn.disabled=true;btn.textContent='Saving to Firebase...';
- let data={patientName:name,name:name,shriId:shri,shri:shri,cmhtId:cmht,cmht:cmht,pmjay:cmht,contactNo:contact,contact:contact,aadhaarNo:aadhaar,aadhaar:aadhaar,address:addr,addr:addr,remark:remark,remarks:remark,scheme:'CMHT',key:shri,createdAt:new Date().toISOString()};
- try{await setDoc(doc(db,"cmht_patients",shri),data);showMsg('✅ Added '+name+' ('+shri+') with Remark: CMHT - Now open CMHT Total Patient page',true);document.getElementById('name').value='';document.getElementById('shri').value='';document.getElementById('cmht').value='';document.getElementById('contact').value='';document.getElementById('aadhaar').value='';document.getElementById('addr').value='';btn.disabled=false;btn.textContent='Add CMHT Patient';}catch(e){btn.disabled=false;btn.textContent='Add CMHT Patient';showMsg('Error: '+e.message,false);}
+ if(!name){ alert('Enter Name'); return; }
+ if(!shri){ shri='SHRI'+Date.now().toString().slice(-6); }
+ let data={ patientName:name,name:name, shriId:shri,shri:shri, contactNo:contact,contact:contact, pmjayId:pmjay,pmjay:pmjay, address:addr,addr:addr, key:shri,deleted:false, createdAt:new Date().toISOString() };
+ document.getElementById('msg').textContent='Saving '+shri+'...';
+ try{
+   await setDoc(doc(db,"patients",shri),data,{merge:true});
+   saveEditedLocal(shri,data);
+   document.getElementById('msg').textContent='✅ Added '+name+' ('+shri+') - Now go to Total Patients page';
+   document.getElementById('name').value=''; document.getElementById('shri').value=''; document.getElementById('contact').value=''; document.getElementById('pmjay').value=''; document.getElementById('addr').value='';
+ }catch(e){
+   saveEditedLocal(shri,data);
+   document.getElementById('msg').textContent='Saved locally (Firebase error: '+e.message+')';
+ }
 };
 </script>
 </body>
