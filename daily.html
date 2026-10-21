@@ -9,7 +9,7 @@
 body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;color:#0f172a}
 .top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:9999}
 .top h2{color:#fff;font-size:16px;font-weight:800}
-.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;flex-shrink:0;user-select:none}
 .menuBtn span{display:block;width:20px;height:2px;background:#fff;pointer-events:none}
 .adBadge{display:flex;align-items:center;gap:8px;color:#fff}
 .adCircle{width:30px;height:30px;border-radius:50%;background:#1a2a4f;color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px;border:1.5px solid #2a3a6a}
@@ -92,7 +92,7 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
 <div class="top">
 <div style="display:flex;align-items:center;gap:10px">
-<div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div>
+<button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button>
 <h2>SHIJA Dialysis - PMJAY DAILY DIALYSIS LIST</h2>
 </div>
 <div style="display:flex;align-items:center;gap:8px">
@@ -104,17 +104,18 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <div class="mainWrap">
 <div class="side" id="side">
 <div class="menu">
-<a href="index.html">Home</a>
-<a href="total.html">PMJAY Total Patient</a>
-<a href="cmht.html">CMHT Total Patient</a>
-<a href="cmhtkft.html">CMHT KFT Report</a>
-<a href="cmhtdaily.html">CMHT Daily Dialysis</a>
-<a href="daily.html" class="active">PMJAY DAILY DIALYSIS LIST</a>
-<a href="discharge.html">Discharge Patient</a>
-<a href="kft.html">PMJAY KFT REPORT</a>
-<a href="add.html">ADD PMJAY Patient</a>
-<a href="addcmht.html">Add CMHT Patient</a>
-<a href="bill.html">Bill</a>
+<a href="index.html">HOME</a>
+<a href="total.html">TOTAL PATIENT</a>
+<a href="cmht.html">CMHT TOTAL PATIENT</a>
+<a href="cmhtkft.html">CMHT KFT REPORT</a>
+<a href="cmhtdaily.html">CMHT DAILY DIALYSIS</a>
+<a href="addcmht.html">CMHT ADD PATIENT</a>
+<a href="daily.html" class="active">DAILY DIALYSIS</a>
+<a href="discharge.html">DISCHARGE PATIENT</a>
+<a href="kft.html">KFT REPORT</a>
+<a href="add.html">ADD PATIENT</a>
+<a href="bill.html">BILL</a>
+<a href="dischargesummary.html">DISCHARGE SUMMARY</a>
 </div>
 <div class="sideBottom">Help & Support<br>v2.4.1 • <span id="fbStatus">Connecting...</span></div>
 </div>
@@ -191,7 +192,6 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <div class="slotFoot"><button class="slotCancel" onclick="closePop('popPrev')">Cancel</button><button class="slotSave" onclick="confirmAdd()">Add to List (Auto Save Firebase)</button></div>
 </div></div></div>
 
-<!-- EDIT POPUP NEW -->
 <div id="popEdit" class="popup"><div class="popupBoxSmall"><div class="slotPop">
 <h3>Edit Patient</h3>
 <div class="slotPatient">Editing: <b id="editPatientLabel">-</b></div>
@@ -300,11 +300,32 @@ loadMasterPatients();
 window.loadMasterPatients=loadMasterPatients;
 </script>
 <script>
-function toggleMenu(){ var s=document.getElementById('side'); var o=document.getElementById('overlay'); var isOpen=s.classList.contains('show'); s.classList.toggle('show',!isOpen); o.classList.toggle('show',!isOpen); }
+// UNIVERSAL 3-LINE BUTTON - Works on ALL devices
+function toggleMenu(){ 
+  var s=document.getElementById('side'); 
+  var o=document.getElementById('overlay'); 
+  s.classList.toggle('show');
+  o.classList.toggle('show');
+}
 document.addEventListener('DOMContentLoaded',function(){
-  var b=document.getElementById('menuBtn'); if(b){ b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); toggleMenu(); }); }
-  var o=document.getElementById('overlay'); if(o){ o.addEventListener('click',toggleMenu); }
-  document.querySelectorAll('.side.menu a').forEach(function(a){ a.addEventListener('click',function(){ document.getElementById('side').classList.remove('show'); document.getElementById('overlay').classList.remove('show'); }); });
+  var btn=document.getElementById('menuBtn');
+  var overlay=document.getElementById('overlay');
+  var lastTap=0;
+  function handleMenu(e){
+    var now=Date.now();
+    if(now-lastTap<400) return;
+    lastTap=now;
+    if(e){e.preventDefault(); e.stopPropagation();}
+    toggleMenu();
+  }
+  if(btn){
+    btn.addEventListener('click', handleMenu);
+    btn.addEventListener('touchend', handleMenu, {passive:false});
+  }
+  if(overlay){
+    overlay.addEventListener('click', toggleMenu);
+    overlay.addEventListener('touchend', handleMenu, {passive:false});
+  }
 });
 function onSchemeChange(val){ var d=document.getElementById('d_date').value||''; if(val==='CMHT'){ location.href='cmhtdaily.html'+(d?'?date='+d:''); } }
 function getAllPatients(){
@@ -363,7 +384,6 @@ async function confirmAdd(){ let prev=document.getElementById('prev_date').value
 function closePop(id){document.getElementById(id).style.display='none'; if(id==='popEdit') editFbId=null;}
 function getFilteredList(){ let timeFilter=document.getElementById('timeFilter').value; let blockFilter=document.getElementById('blockFilter').value; let searchAdded=document.getElementById('searchAdded').value.toLowerCase().trim(); let list=[...firebaseList]; if(timeFilter!=='all') list=list.filter(x=>x.time===timeFilter); if(blockFilter!=='all') list=list.filter(x=>x.block===blockFilter); if(searchAdded){ list=list.filter(x=>{ let n=(x.name||'').toLowerCase(); let s=(x.shriId||'').toLowerCase(); let p=(x.pmjayId||'').toLowerCase(); let b=(x.block||'').toLowerCase(); let t=(x.time||'').toLowerCase(); return n.includes(searchAdded)||s.includes(searchAdded)||p.includes(searchAdded)||b.includes(searchAdded)||t.includes(searchAdded); }); } list.sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase())); return list; }
 
-// EDIT FUNCTION NEW
 function editEntry(fbId){
   let rec = firebaseList.find(x=>x.fbId===fbId);
   if(!rec){ alert('Record not found'); return; }
