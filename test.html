@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHIJA - Professional</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#0f172a}
+.top{height:62px;background:#0f172a;border-bottom:1px solid #1e293b;display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:fixed;top:0;left:0;right:0;z-index:9999}
+.main{max-width:100%;margin:62px 0 0 0;display:flex;height:calc(100vh - 62px)}
+.leftPro{flex:0 0 62%;background:#111d32;overflow:auto;padding:16px;border-right:1px solid #1e293b}
+.rightPro{flex:1;background:#f1f5f9;overflow:auto;padding:16px;display:flex;flex-direction:column}
+.rHead{display:flex;justify-content:space-between;align-items:center;color:#0f172a;margin-bottom:12px}
+.rHead h3{font-size:15px;font-weight:800}
+.sBadge{background:#e2e8f0;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700}
+.prevWrap{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.12);height:780px;overflow:hidden;display:flex;justify-content:center;align-items:flex-start;padding-top:8px}
+
+/* YOUR ORIGINAL CARD STYLES - KEPT SAME FUNCTION, JUST DARK THEME ADAPTED */
+.cardPro{background:#1a2744;border-radius:20px;border:1px solid #233554;padding:16px;margin-bottom:12px}
+.label{font-size:10px;font-weight:800;color:#94a3b8;margin-bottom:6px;display:block;text-transform:uppercase}
+.inputPro{padding:11px 12px;border:1.5px solid #24324f;border-radius:12px;font-weight:700;font-size:12px;background:#0f1a30;color:#fff;width:100%;outline:0}
+.inputPro option{background:#0f1a30}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.col{flex:1;min-width:140px}
+.smallFilter{width:110px!important;height:36px!important;border-radius:24px!important;border:1.5px solid #10b981!important;background:#052e16!important;color:#fff!important;font-weight:800!important}
+.searchBox{position:relative}.searchList{position:absolute;top:110%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:16px;max-height:380px;overflow:auto;z-index:999;display:none;box-shadow:0 20px 40px rgba(0,0,0,.12);color:#000}
+.timeBox{border:2px solid #10b981;background:#0a1f15;border-radius:16px;padding:14px;display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.timeInput{width:90px!important;text-align:center;font-family:monospace;font-size:14px!important}
+.vitalGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:8px}
+.vitalCard{position:relative;border:1.5px solid #233554;border-radius:16px;padding:12px 14px;background:#1a2744;display:flex;align-items:center;gap:12px}
+.vIcon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.vContent{flex:1}.vLabel{font-size:9px;font-weight:800;color:#94a3b8;display:block;text-transform:uppercase}
+.vContent input{border:0;background:transparent;font-weight:800;font-size:15px;width:100%;outline:0;margin-top:2px;color:#fff}
+.vUnit{font-size:10px;font-weight:700;color:#94a3b8;margin-right:26px}
+.vStepper{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:3px}
+.vStepBtn{width:22px;height:18px;border:1px solid #334155;background:#0f1a30;color:#fff;border-radius:6px;font-size:10px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.preBox .vitalCard{border-left:3.5px solid #ef4444}
+.postBox .vitalCard{border-left:3.5px solid #10b981}
+.paper{background:#fff;width:760px;color:#000;border:1px solid #000;--fs:14px;overflow:hidden;transform:scale(0.60);transform-origin:top center;flex-shrink:0}
+.letterhead{margin:0;padding:0;line-height:0;display:block;font-size:0}
+.letterhead img{width:100%;display:block;margin:0;padding:0;vertical-align:top;border:0}
+.disTitle{text-align:center;font-weight:800;font-size:calc(var(--fs) + 5px);padding:6px 0;border:2.5px solid #000;margin:-2px 10px 0 10px;background:#fff;box-sizing:border-box;width:calc(100% - 20px)}
+.infoTable{width:100%;border-collapse:collapse;font-size:var(--fs);margin:6px 0 6px 0}
+.infoTable td{padding:2px 4px;vertical-align:top;line-height:1.4;white-space:nowrap}
+.infoTable td:first-child{padding-left:18px !important;padding-right:2px !important;white-space:nowrap}
+.infoTable td:nth-child(2){padding-left:0px !important;white-space:nowrap}
+.infoTable td:nth-child(3){padding-left:10px !important;white-space:nowrap}
+.infoTable td:nth-child(4){padding-left:0px !important;white-space:nowrap}
+.infoTable td span{white-space:normal}
+#b_name{white-space:normal !important;display:inline}
+.section{padding:12px 18px 14px 28px;font-size:var(--fs);line-height:1.7;border-top:2.5px solid #000}
+.exportGroup{display:flex;align-items:center;background:#fff;border-radius:24px;padding:3px}.exportSelect{border:0;background:transparent;font-weight:800;font-size:11px;padding:8px 10px;outline:0;color:#000}.exportBtn{background:#10b981;color:#fff;border:0;padding:8px 18px;border-radius:20px;font-weight:800;cursor:pointer;font-size:11px;margin-left:4px}
+.openFullBtn{margin:14px auto 0 auto;background:#fff;border:1px solid #3b82f6;color:#3b82f6;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700}
+@media(max-width:1100px){.main{flex-direction:column;height:auto}.leftPro{flex:none}.rightPro{flex:none}.prevWrap{height:650px}.paper{transform:scale(0.45)}}
+</style>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;window.fbTools={collection,getDocs};
+</script>
+</head>
+<body>
+<div class="top"><div style="color:#fff;font-weight:800;display:flex;align-items:center;gap:8px"><span style="background:#ef4444;border-radius:50%;padding:4px 7px;font-size:10px">Shija</span> SHIJA HOSPITALS & RESEARCH INSTITUTE <span style="font-size:10px;color:#94a3b8;font-weight:400">NABH ACCREDITED</span></div><div class="exportGroup"><select id="exportType" class="exportSelect"><option value="jpeg" selected>JPEG</option><option value="pdf">PDF</option></select><button onclick="doExport()" class="exportBtn">⬇ Export</button></div></div>
+
+<div class="main">
+<div class="leftPro">
+<div class="cardPro">
+<div style="display:flex;justify-content:space-between"><h3 style="font-size:11px;font-weight:800;color:#fff">🔍 SEARCH</h3><span id="countBadge" style="font-size:10px;font-weight:800;background:#0f1a30;color:#60a5fa;padding:5px 12px;border-radius:20px;border:1px solid #233554">Loading...</span></div>
+<div class="row"><div class="col" style="max-width:130px"><span class="label">Scheme</span><select id="schemeSelect" class="smallFilter" onchange="changeScheme()"><option value="PMJAY">PMJAY</option><option value="CMHT">CMHT</option></select></div>
+<div class="col"><span class="label">Search</span><div class="searchBox"><input id="searchInput" class="inputPro" style="border:2px solid #1e3a8a" placeholder="Type SHRI / Name / IP" oninput="doSearch(this.value)" onfocus="doSearch(this.value)"><div id="searchList" class="searchList"></div></div></div></div>
+<div id="debugInfo" style="font-size:10px;font-weight:700;color:#f87171;margin-top:6px"></div>
+</div>
+
+<div class="cardPro">
+<div class="row"><div class="col"><span class="label">UHID</span><input id="shriId" class="inputPro" value="SHRI.334269"></div><div class="col"><span class="label">IP No</span><input id="ipNo" class="inputPro" value="185693"></div><div class="col" style="flex:1.5"><span class="label">Patient Name</span><input id="patName" class="inputPro" value="Mrs. ARAMBAM ASHALATA DEVI"></div></div>
+<div class="row"><div class="col" style="max-width:160px"><span class="label">Age</span><input type="number" step="1" id="ageInput" class="inputPro" value="71"></div><div class="col" style="max-width:160px"><span class="label">Sex</span><select id="sexInput" class="inputPro"><option>Male</option><option selected>Female</option></select></div></div>
+<div class="timeBox">
+<div><span class="label">Admission Date</span><input type="date" id="admDate" class="inputPro timeInput"></div>
+<div><span class="label">Hour</span><input type="number" step="1" id="admHour" class="inputPro timeInput" value="02"></div>
+<div><span class="label">Min</span><input type="number" step="1" id="admMin" class="inputPro timeInput" value="47"></div>
+<div><span class="label">AM/PM</span><select id="admAmPm" class="inputPro timeInput" style="background:#0f172a;color:#fff"><option>AM</option><option selected>PM</option></select></div>
+</div>
+<h3 style="font-size:11px;font-weight:800;margin:16px 0 8px;color:#f87171">● PRE DIALYSIS</h3>
+<div class="vitalGrid preBox">
+<div class="vitalCard"><div class="vIcon" style="background:#fee2e2">🩸</div><div class="vContent"><span class="vLabel">Blood Pressure</span><input id="bp" value="150/70"></div><span class="vUnit">mmHg</span></div>
+<div class="vitalCard"><div class="vIcon" style="background:#fef3c7">💓</div><div class="vContent"><span class="vLabel">Pulse Rate</span><input type="number" step="1" id="pr" value="86"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('pr',1)">▲</button><button class="vStepBtn" onclick="stepVital('pr',-1)">▼</button></div><span class="vUnit">bpm</span></div>
+<div class="vitalCard"><div class="vIcon" style="background:#dbeafe">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" step="1" id="spo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('spo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('spo2',-1)">▼</button></div><span class="vUnit">% RA</span></div>
+<div class="vitalCard"><div class="vIcon" style="background:#ffedd5">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" step="1" id="temp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('temp',1)">▲</button><button class="vStepBtn" onclick="stepVital('temp',-1)">▼</button></div><span class="vUnit">°F</span></div>
+</div>
+<h3 style="font-size:11px;font-weight:800;margin:18px 0 8px;color:#4ade80">● POST DIALYSIS</h3>
+<div class="vitalGrid postBox">
+<div class="vitalCard"><div class="vIcon" style="background:#dcfce7">🩸</div><div class="vContent"><span class="vLabel">Blood Pressure</span><input id="postBp" value="160/80"></div><span class="vUnit">mmHg</span></div>
+<div class="vitalCard"><div class="vIcon" style="background:#d1fae5">💓</div><div class="vContent"><span class="vLabel">Pulse Rate</span><input type="number" step="1" id="postPr" value="84"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postPr',1)">▲</button><button class="vStepBtn" onclick="stepVital('postPr',-1)">▼</button></div><span class="vUnit">bpm</span></div>
+<div class="vitalCard"><div class="vIcon" style="background:#e0e7ff">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" step="1" id="postSpo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postSpo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('postSpo2',-1)">▼</button></div><span class="vUnit">% RA</span></div>
+<div class="vitalCard"><div class="vIcon" style="background:#fef9c3">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" step="1" id="postTemp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postTemp',1)">▲</button><button class="vStepBtn" onclick="stepVital('postTemp',-1)">▼</button></div><span class="vUnit">°F</span></div>
+</div>
+<div class="row" style="border:2px solid #f43f5e;border-radius:12px;padding:12px;margin-top:18px;background:#1a0f14">
+<div class="col" style="max-width:190px"><span class="label">Advice Date</span><input type="date" id="adviceDate" class="inputPro" value="2026-10-22"></div>
+<div class="col" style="max-width:220px"><span class="label">Advice Time</span><select id="adviceTime" class="inputPro" style="background:#1a0f14;font-weight:800;border:2px solid #f43f5e"><option>7am morning</option><option selected>12pm noon</option><option>5pm evening</option><option>9pm night</option><option>12am midnight</option><option>2am morning</option></select></div>
+<div class="col" style="max-width:190px"><span class="label">Needs dialysis times/week</span><select id="freq" class="inputPro" style="border:2px solid #f43f5e;background:#1a0f14;font-weight:800"><option>One</option><option>Two</option><option selected>Three</option><option>Four</option></select></div>
+</div>
+</div>
+</div>
+
+<div class="rightPro">
+<div class="rHead"><h3>Discharge Summary Preview</h3><span class="sBadge">Scaled 60% ⓘ</span></div>
+<div class="prevWrap">
+<div class="paper" id="paper">
+<div class="letterhead"><img src="finalopo.png?v=20" alt="SHIJA"></div>
+<div class="disTitle">Discharge Summary</div>
+<table class="infoTable">
+<tr><td><b>IP No.</b></td><td>: <span id="b_ip">185693</span></td><td><b>UHID NO</b></td><td>: <span id="b_shri">SHRI.334269</span></td></tr>
+<tr><td><b>Patient Name</b></td><td>: <span id="b_name">Mrs. ARAMBAM ASHALATA DEVI</span></td><td><b>Age/Sex</b></td><td>: <span id="b_age">71 Year(s) /Female</span></td></tr>
+<tr><td><b>Admission DateTime</b></td><td>: <span id="b_adm">21/10/2026 02:47 PM</span></td><td><b>Doctor Name</b></td><td>: <span id="b_doc">Dr. Guliver Potsangbam (Nephrology)</span></td></tr>
+<tr><td><b>Discharge DateTime</b></td><td>: <span id="b_dis">21/10/2026</span></td><td></td><td></td></tr>
+</table>
+<div class="section">
+<div><b>Diagnosis:</b> Chronic Kidney Disease on MHD</div>
+<div><b>Chief Complain:</b> Patient admitted for Haemodialysis</div>
+<div style="margin-top:6px"><b>Vitals:</b></div>
+<div>B.P : <span id="b_bp">150/70 mmHg</span><br>PR : <span id="b_pr">86 bpm</span><br>SpO2 : <span id="b_spo2">99 %@RA</span><br>Temp. : <span id="b_temp">98 degree F</span></div>
+<div style="margin-top:8px"><b>Procedure:</b></div>
+<div><b>Treatment / Medication:</b> Haemodialysis</div>
+<div style="margin-top:8px"><b>Post Dialysis Vitals:</b></div>
+<div>B.P : <span id="b_pbp">160/80 mmHg</span><br>PR : <span id="b_ppr">84 bpm</span><br>SpO2 : <span id="b_pspo2">99 %@RA</span><br>Temp. : <span id="b_ptemp">98 degree F</span></div>
+<div style="margin-top:14px"><b>Advice:</b> Next Haemodialysis on <span id="b_advDate">22/10/26</span> at <span id="b_advTime">12pm noon</span>.</div>
+<div style="margin-top:2px">Patient needs dialysis <span id="b_freq">three</span> times in a week</div>
+<div style="margin-top:80px;line-height:1.5">Dr.Guliver Potsangbam<br>Nephrology<br>Consultant Nephrologist<br>Reg No.:MNP-00240<br>MD,DM (Nephrology)</div>
+</div>
+</div>
+</div>
+<button class="openFullBtn" onclick="openFull()">Open Full Summary</button>
+<div style="font-size:11px;color:#64748b;text-align:center;margin-top:8px">This is a preview • Final version will be available on discharge approval</div>
+</div>
+</div>
+
+<script>
+let allPMJAY=[], allCMHT=[], scheme='PMJAY', lastFiltered=[];
+function stepVital(id, delta){let el=document.getElementById(id);let v=parseInt(el.value)||0;v+=delta;if(v<0)v=0;if(id.includes('spo2')&&v>100)v=100;el.value=v;render();}
+async function loadFirebaseAll(){const {collection,getDocs}=window.fbTools;allPMJAY=[];allCMHT=[];const tryCollections=async(names,targetArray)=>{for(let name of names){try{let snap=await getDocs(collection(window.db,name));if(!snap.empty){snap.forEach(d=>{let c=d.data();targetArray.push({shri:c.shriId||c.shri||c.UHID||c.uhid||c.id||'',ip:c.pmjayId||c.pmjay||c.cmhtId||c.cmht||c.ipNo||c.IPNO||c.ip||'',name:c.patientName||c.name||c.patient_name||c.Name||''});});if(targetArray.length>0)return name;}}catch(e){}}return null;};await tryCollections(["pmjay_patients","PMJAY_patients","pmjay","PMJAY","patients"],allPMJAY);await tryCollections(["cmht_patients","CMHT_patients","cmht","CMHT"],allCMHT);document.getElementById('debugInfo').innerText=`Found - PMJAY: ${allPMJAY.length} | CMHT: ${allCMHT.length}`;document.getElementById('countBadge').innerText=getCombined().length+' Patients in '+scheme;}
+function changeScheme(){scheme=document.getElementById('schemeSelect').value;document.getElementById('countBadge').innerText=getCombined().length+' Patients in '+scheme;render();}
+function getCombined(){return scheme=='PMJAY'?allPMJAY:allCMHT;}
+function doSearch(q){let list=document.getElementById('searchList');let combined=getCombined();if(!q||q.length==0){let all=combined.slice(0,20);lastFiltered=all;list.innerHTML=all.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer"><b style="color:#1e3a8a">${p.shri||'No-ID'}</b> - ${p.name||''}</div>`).join('');list.style.display='block';return;}q=q.toLowerCase();let f=combined.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,30);lastFiltered=f;if(f.length==0){list.innerHTML='<div style="padding:12px">No patient found</div>';list.style.display='block';return;}list.innerHTML=f.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:12px;font-weight:600"><b style="color:#1e3a8a">${p.shri}</b> - ${p.name.slice(0,50)}</div>`).join('');list.style.display='block';}
+function selectPatByIdx(i){let p=lastFiltered[i];if(!p)return;document.getElementById('shriId').value=p.shri;document.getElementById('ipNo').value=p.ip;document.getElementById('patName').value=p.name;document.getElementById('searchList').style.display='none';document.getElementById('searchInput').value=p.shri+' - '+p.name;render();}
+function getAdmDateTime(){let d=document.getElementById('admDate').value;if(!d)return null;let h=parseInt(document.getElementById('admHour').value)||2;let m=parseInt(document.getElementById('admMin').value)||0;let ap=document.getElementById('admAmPm').value;let h24=h%12+(ap=='PM'?12:0);let dt=new Date(d+'T00:00:00');dt.setHours(h24,m,0,0);return dt;}
+function DMY(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+dt.getFullYear();}
+function SHORT(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+String(dt.getFullYear()).slice(-2);}
+function T12(dt){let h=dt.getHours(),m=dt.getMinutes(),ap=h>=12?'PM':'AM',h12=h%12||12;return String(h12).padStart(2,'0')+":"+String(m).padStart(2,'0')+" "+ap;}
+function render(){document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;document.getElementById('b_shri').innerText=document.getElementById('shriId').value;document.getElementById('b_name').innerText=document.getElementById('patName').value;document.getElementById('b_age').innerText=(document.getElementById('ageInput').value||'--')+' Year(s) /'+document.getElementById('sexInput').value;let adm=getAdmDateTime();if(adm){document.getElementById('b_adm').innerText=DMY(adm)+' '+T12(adm);let dis=new Date(adm.getTime()+4*3600000);document.getElementById('b_dis').innerText=DMY(dis);}document.getElementById('b_bp').innerText=document.getElementById('bp').value+' mmHg';document.getElementById('b_pr').innerText=document.getElementById('pr').value+' bpm';document.getElementById('b_spo2').innerText=document.getElementById('spo2').value+' %@RA';document.getElementById('b_temp').innerText=document.getElementById('temp').value+' degree F';document.getElementById('b_pbp').innerText=document.getElementById('postBp').value+' mmHg';document.getElementById('b_ppr').innerText=document.getElementById('postPr').value+' bpm';document.getElementById('b_pspo2').innerText=document.getElementById('postSpo2').value+' %@RA';document.getElementById('b_ptemp').innerText=document.getElementById('postTemp').value+' degree F';let adv=document.getElementById('adviceDate').value;if(adv)document.getElementById('b_advDate').innerText=SHORT(new Date(adv));document.getElementById('b_advTime').innerText=document.getElementById('adviceTime').value;document.getElementById('b_freq').innerText=document.getElementById('freq').value;}
+function doExport(){let t=document.getElementById('exportType').value;if(t==='pdf')exportPDF();else exportJPG();}
+async function exportJPG(){let paper=document.getElementById('paper');let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff'});let link=document.createElement('a');let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');link.download=name+'.jpg';link.href=canvas.toDataURL('image/jpeg',0.95);link.click();}
+async function exportPDF(){let paper=document.getElementById('paper');let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff'});let imgData=canvas.toDataURL('image/jpeg',0.95);const {jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');let w=pdf.internal.pageSize.getWidth();let h=canvas.height*w/canvas.width;pdf.addImage(imgData,'JPEG',0,0,w,h);let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');pdf.save(name+'.pdf');}
+function openFull(){let w=window.open('','_blank'); w.document.write('<html><body style=margin:0>'+document.getElementById('paper').outerHTML+'</body></html>'); w.document.close(); setTimeout(()=>w.print(),500); }
+setTimeout(()=>{document.querySelectorAll('input, select').forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render);});let today=new Date().toISOString().split('T')[0];if(!document.getElementById('admDate').value)document.getElementById('admDate').value=today;if(!document.getElementById('adviceDate').value)document.getElementById('adviceDate').value=new Date(Date.now()+3*86400000).toISOString().split('T')[0];loadFirebaseAll();render();},300);
+document.addEventListener('click',e=>{if(!e.target.closest('.searchBox'))document.getElementById('searchList').style.display='none'});
+</script>
+</body>
+</html>
