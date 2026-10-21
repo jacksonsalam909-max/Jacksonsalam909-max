@@ -9,7 +9,7 @@
 body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:9999}
 .top h2{color:#fff;font-size:16px;font-weight:800}
-.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 .menuBtn span{display:block;width:20px;height:2px;background:#fff;pointer-events:none}
 .mainWrap{display:flex;flex:1;margin-top:64px}
 .side{width:260px;background:#0a1931;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;transition:.3s;z-index:9998;overflow-y:auto;transform:translateX(-100%)}
@@ -36,7 +36,6 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .btn{padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}
 .btnExp{background:#0a1931;color:#fff}
 @media(max-width:900px){.searchAddedWrap{width:100%;margin-left:0;border-left:0;padding-left:0}}
-/* --- ONLY ADDED: Pagination Styles --- */
 .pageBar{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px 14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:12px}
 .pageBar select{padding:8px 10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700}
 .pageBtns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
@@ -46,21 +45,22 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 </style>
 </head>
 <body>
-<div class="top"><div style="display:flex;align-items:center;gap:10px"><div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div><h2>SHIJA - CMHT KFT REPORT</h2></div><span style="color:#fff">Admin</span></div>
+<div class="top"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA - CMHT KFT REPORT</h2></div><span style="color:#fff">Admin</span></div>
 <div class="sideOverlay" id="overlay"></div>
 <div class="mainWrap">
 <div class="side" id="side">
-<a href="index.html">Home</a>
-<a href="total.html">PMJAY Total Patient</a>
-<a href="cmht.html">CMHT Total Patient</a>
-<a href="cmhtkft.html" class="active">CMHT KFT Report</a>
-<a href="cmhtdaily.html">CMHT Daily Dialysis</a>
-<a href="daily.html">Daily Dialysis</a>
-<a href="discharge.html">Discharge Patient</a>
-<a href="kft.html">PMJAY KFT REPORT</a>
-<a href="add.html">ADD PMJAY Patient</a>
-<a href="addcmht.html">Add CMHT Patient</a>
-<a href="bill.html">Bill</a>
+<a href="index.html">HOME</a>
+<a href="total.html">TOTAL PATIENT</a>
+<a href="cmht.html">CMHT TOTAL PATIENT</a>
+<a href="cmhtkft.html" class="active">CMHT KFT REPORT</a>
+<a href="cmhtdaily.html">CMHT DAILY DIALYSIS</a>
+<a href="addcmht.html">CMHT ADD PATIENT</a>
+<a href="daily.html">DAILY DIALYSIS</a>
+<a href="discharge.html">DISCHARGE PATIENT</a>
+<a href="kft.html">KFT REPORT</a>
+<a href="add.html">ADD PATIENT</a>
+<a href="bill.html">BILL</a>
+<a href="dischargesummary.html">DISCHARGE SUMMARY</a>
 </div>
 <div class="content" id="content">
 <h1>CMHT KFT Report</h1><p id="info" style="color:#64748b;font-size:13px">Shows all patients from Add CMHT page - only Name, SHRI ID, Contact - KFT Status for 1 & 15 date</p>
@@ -79,7 +79,6 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <span id="countInfo" style="font-weight:700;color:#475569"></span>
 </div>
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div></div>
-<!-- ONLY ADDED: Pagination Bar -->
 <div class="pageBar">
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
     <label style="font-size:12px;font-weight:800">Show:</label>
@@ -99,28 +98,34 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 </div>
 </div>
 <script>
-/* --- FIXED: 3-line button now works universally --- */
+// UNIVERSAL 3-LINE BUTTON - Works on ALL devices
 function toggleMenu(){
  var s=document.getElementById('side');
  var o=document.getElementById('overlay');
- var isOpen = s.classList.contains('show');
- if(isOpen){ s.classList.remove('show'); o.classList.remove('show'); }
- else { s.classList.add('show'); o.classList.add('show'); }
+ s.classList.toggle('show');
+ o.classList.toggle('show');
 }
 document.addEventListener('DOMContentLoaded',function(){
-  var b=document.getElementById('menuBtn');
-  var o=document.getElementById('overlay');
-  // ONE handler for ALL devices - click works on mobile + desktop + tablet
-  // Old code had onclick + touchstart both, which caused double-toggle on mobile
-  if(b) b.addEventListener('click', toggleMenu);
-  if(o) o.addEventListener('click', toggleMenu);
-  // Auto-close menu when clicking a link (mobile friendly)
-  document.querySelectorAll('#side a').forEach(function(a){
-    a.addEventListener('click', function(){
-      document.getElementById('side').classList.remove('show');
-      document.getElementById('overlay').classList.remove('show');
-    });
-  });
+ var btn=document.getElementById('menuBtn');
+ var overlay=document.getElementById('overlay');
+ var lastTap=0;
+ function handleMenu(e){
+   var now=Date.now();
+   if(now-lastTap<400) return;
+   lastTap=now;
+   if(e){e.preventDefault(); e.stopPropagation();}
+   toggleMenu();
+ }
+ btn.addEventListener('click', handleMenu);
+ btn.addEventListener('touchend', handleMenu, {passive:false});
+ overlay.addEventListener('click', toggleMenu);
+ overlay.addEventListener('touchend', handleMenu, {passive:false});
+ document.querySelectorAll('#side a').forEach(function(a){
+   a.addEventListener('click', function(){
+     document.getElementById('side').classList.remove('show');
+     document.getElementById('overlay').classList.remove('show');
+   });
+ });
 });
 </script>
 <script type="module">
@@ -130,7 +135,7 @@ const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDom
 const app=initializeApp(firebaseConfig);const db=getFirestore(app);
 let allCMHT=[];
 let currentPage=1;
-let pageSize=10; // Default 10
+let pageSize=10;
 let yearSel=document.getElementById('yearSel');
 for(let y=2024;y<=2030;y++){let o=document.createElement('option');o.value=y;o.textContent=y;if(y==2026)o.selected=true;yearSel.appendChild(o);}
 let monthSel=document.getElementById('monthSel');monthSel.value=new Date().toISOString().slice(5,7);
@@ -156,7 +161,6 @@ function renderPageBtns(total, totalPages){
   let end=Math.min(currentPage*pageSize, total);
   info.textContent=`Showing ${start} - ${end} of ${total} patients | Page ${currentPage} of ${totalPages}`;
   let html=`<button onclick="goToPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹ Prev</button>`;
-  // Show max 5 page numbers around current page
   let s=Math.max(1, currentPage-2);
   let e=Math.min(totalPages, s+4);
   if(e-s<4) s=Math.max(1, e-4);
@@ -183,11 +187,9 @@ window.resetPageAndLoad=()=>{ currentPage=1; loadKFT(); };
 
 window.loadKFT=async(keepPage)=>{
  let dateKey=getDateKey();
- if(!keepPage) { /* keep currentPage when paging, else caller resets */ }
  let searchQ=document.getElementById('searchAdded').value.toLowerCase().trim();
  document.getElementById('info').textContent=`KFT Status for ${dateKey} - Loading...${searchQ?' - Search: "'+searchQ+'"':''}`;
  let filtered=getFiltered();
- // --- PAGINATION: Only load patients for current page, so it FITS and loads FAST ---
  let totalPages = pageSize==='all' ? 1 : Math.max(1, Math.ceil(filtered.length/pageSize));
  if(currentPage>totalPages) currentPage=totalPages;
  let pageItems = pageSize==='all' ? filtered : filtered.slice((currentPage-1)*pageSize, currentPage*pageSize);
