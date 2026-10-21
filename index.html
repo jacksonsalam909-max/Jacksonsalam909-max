@@ -65,6 +65,7 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 <a href="index.html">HOME</a>
 <a href="total.html">TOTAL PATIENT</a>
 <a href="cmht.html">CMHT TOTAL PATIENT</a>
+<a href="searchpatient.html">SEARCH PATIENT</a>
 <a href="cmhtkft.html">CMHT KFT REPORT</a>
 <a href="cmhtdaily.html">CMHT DAILY DIALYSIS</a>
 <a href="addcmht.html">CMHT ADD PATIENT</a>
@@ -102,7 +103,6 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 <div class="opt" onclick="exportExcel('cmhtdaily')"><b>CMHT Daily Dialysis Record</b></div>
 <button class="btn btnG" style="width:100%;margin-top:10px" onclick="closeExport()">Cancel</button></div></div>
 <script>
-// UNIVERSAL 3-LINE BUTTON - ONLY CHANGED - Works on ALL devices
 function toggleWhiteBar(){
   document.getElementById('whiteBar').classList.toggle('open');
   document.getElementById('whiteOverlay').classList.toggle('show');
@@ -133,12 +133,20 @@ document.addEventListener('click',(e)=>{if(!e.target.closest('.searchWrap'))docu
 function openExport(){document.getElementById('expDateShow').textContent=document.getElementById('dashDate').value;document.getElementById('expModal').style.display='grid';}
 function closeExport(){document.getElementById('expModal').style.display='none';}
 window.allForSearch=[];
+
+// === UPDATED: CLICK OPENS searchpatient.html ===
 function doGlobalSearch(){
- let q=document.getElementById('globalSearch').value.toLowerCase().trim();let box=document.getElementById('searchResult');
+ let q=document.getElementById('globalSearch').value.toLowerCase().trim();
+ let box=document.getElementById('searchResult');
  if(!q){box.classList.remove('show');return;}
  let f=window.allForSearch.filter(p=>[p.name,p.shri,p.contact,p.type].join(' ').toLowerCase().includes(q)).slice(0,15);
  if(!f.length){box.innerHTML='<div class="sItem"><b>No patient found</b></div>';box.classList.add('show');return;}
- let h='';f.forEach(p=>{let target=p.type==='CMHT'?`cmht.html?search=${encodeURIComponent(p.name)}`:`total.html?search=${encodeURIComponent(p.name)}`;h+=`<div class="sItem" onclick="location.href='${target}'"><div><b>${p.name}</b> <small style="background:${p.type==='CMHT'?'#8b5cf6':'#2563eb'};color:#fff;padding:2px 6px;border-radius:10px;font-size:10px">${p.type}</small><br><small>${p.shri} ${p.contact?'| '+p.contact:''}</small></div><small style="color:#2563eb;font-weight:700">View</small></div>`;});
+ let h='';
+ f.forEach(p=>{
+   h+=`<div class="sItem" onclick="location.href='searchpatient.html?shri=${encodeURIComponent(p.shri)}'">
+   <div><b>${p.name}</b> <small style="background:${p.type==='CMHT'?'#8b5cf6':'#2563eb'};color:#fff;padding:2px 6px;border-radius:10px;font-size:10px">${p.type}</small><br><small>${p.shri} ${p.contact?'| '+p.contact:''}</small></div>
+   <small style="color:#2563eb;font-weight:700">View →</small></div>`;
+ });
  box.innerHTML=h;box.classList.add('show');
 }
 </script>
@@ -279,20 +287,6 @@ async function loadDashboard(){
   let billCount = sBill.size;
   document.getElementById('v5').textContent = billCount + ' Print';
   document.getElementById('v5small').textContent = billCount>0 ? `${billCount} bills printed on ${sel}` : `No prints for ${sel} - 0`;
-  if(billCount===0){
-    try{
-      let allBills = await getDocs(collection(db,"bills"));
-      let countToday = 0;
-      allBills.forEach(d=>{
-        let data = d.data();
-        if((data.date||'')===sel) countToday++;
-      });
-      if(countToday>0){
-        document.getElementById('v5').textContent = countToday + ' Print';
-        document.getElementById('v5small').textContent = `${countToday} bills printed on ${sel}`;
-      }
-    }catch(e){}
-  }
  }catch(e){ document.getElementById('v5').textContent='0 Print'; }
 }
 window.loadDashboard=loadDashboard;
