@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHIJA - Final Original Format</title>
+<title>SHIJA - Clean Final</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
 body{background:#eef2f7}
@@ -47,12 +47,12 @@ window.db=db; window.fbTools={collection,getDocs};
 <h2 style="color:#fff;font-size:11px">SHIJA - Final</h2>
 <div style="display:flex;gap:8px;align-items:center">
 <span style="color:#fff;font-size:10px;font-weight:800">FONT:</span>
-<select id="fontDrop" onchange="setFont(this.value)" style="padding:6px 10px;border-radius:6px;font-weight:800;font-size:11px;border:0;width:auto;min-width:90px">
+<select id="fontDrop" onchange="setFont(this.value)" style="padding:6px 10px;border-radius:6px;font-weight:800;font-size:11px;border:0;min-width:90px">
 <option value="12">12px</option>
-<option value="14" selected>14px Med</option>
+<option value="14" selected>14px</option>
 <option value="16">16px</option>
-<option value="18">18px Big</option>
-<option value="20">20px V Big</option>
+<option value="18">18px</option>
+<option value="20">20px</option>
 </select>
 <button onclick="window.print()" style="background:#10b981;color:#fff;border:0;padding:6px 12px;border-radius:6px;font-weight:800">Print PDF</button>
 </div>
@@ -60,19 +60,17 @@ window.db=db; window.fbTools={collection,getDocs};
 
 <div class="content">
 <div class="card noPrint" style="border:2px solid #1a56db">
-<div style="font-weight:900;margin-bottom:8px;color:#1a56db">Scheme Dropdown + Firebase Patient Hint</div>
+<div style="font-weight:900;margin-bottom:8px;color:#1a56db">Scheme Dropdown + Search Patient</div>
 <div class="row">
-<div class="col"><span class="label">Scheme Dropdown</span>
+<div class="col"><span class="label">Scheme Dropdown - Select PMJAY / CMHT</span>
 <select id="schemeSelect" onchange="changeScheme()" style="border:2px solid #10b981;background:#fff;font-size:14px">
-<option value="PMJAY">PMJAY - total.html + Firebase PMJAY</option>
-<option value="CMHT">CMHT - totalcmht.html + Firebase CMHT</option>
+<option value="PMJAY">PMJAY - total.html</option>
+<option value="CMHT">CMHT - totalcmht.html</option>
 </select></div>
-<div class="col"><span class="label">Status - Patients Loaded</span><input id="loadStatus" readonly></div>
-<div class="col"><span class="label">Scheme Auto</span><input id="schemeShow" readonly style="background:#e2e8f0" value="PMJAY"></div>
 </div>
 <div class="row">
-<div class="col" style="min-width:350px"><span class="label">Search Patient - Shows Hint from Firebase + total.html (Filtered by Scheme)</span>
-<div class="searchBox"><input id="searchInput" placeholder="Type name / SHRI / IP - Hint will show" oninput="doSearch(this.value)" style="border:2px solid #1a56db"><div id="searchList" class="searchList"></div></div></div>
+<div class="col" style="min-width:350px"><span class="label">Search Patient - Hint from Firebase + total.html</span>
+<div class="searchBox"><input id="searchInput" placeholder="Type SHRI ID / Name / IP" oninput="doSearch(this.value)" style="border:2px solid #1a56db"><div id="searchList" class="searchList"></div></div></div>
 </div>
 </div>
 
@@ -83,16 +81,23 @@ window.db=db; window.fbTools={collection,getDocs};
 <div class="col"><span class="label">Patient Name</span><input id="patName" value="Mrs. ARAMBAM ASHALATA DEVI" oninput="render()"></div>
 </div>
 <div class="row">
-<div class="col"><span class="label">2. Age - Type Years</span><input type="number" id="ageInput" value="71" placeholder="e.g. 71" oninput="render()" style="border-color:#e11d48;background:#fff1f2"></div>
-<div class="col"><span class="label">Sex - Dropdown Male/Female</span><select id="sexInput" onchange="render()" style="border-color:#e11d48;background:#fff1f2"><option value="Male">Male</option><option value="Female" selected>Female</option></select></div>
-<div class="col"><span class="label">Preview Age/Sex</span><input id="ageSexPrev" readonly style="background:#e2e8f0"></div>
+<div class="col"><span class="label">2. Age - Type Years</span><input type="number" id="ageInput" value="71" placeholder="71" oninput="render()" style="border-color:#e11d48;background:#fff1f2"></div>
+<div class="col"><span class="label">Sex - Dropdown</span><select id="sexInput" onchange="render()" style="border-color:#e11d48;background:#fff1f2"><option value="Male">Male</option><option value="Female" selected>Female</option></select></div>
 </div>
-<div class="row" style="border:2px solid #10b981;padding:10px;border-radius:10px">
-<div class="col"><span class="label" style="color:#10b981">3. Admission Date (Select Date)</span><input type="date" id="admDate" value="2026-10-19" onchange="calcDischarge()"></div>
-<div class="col"><span class="label">Admission Time 12H AM/PM</span><div style="display:flex;gap:4px"><select id="admHour" onchange="calcDischarge()"><option>01</option><option>02</option><option selected>02</option><option>03</option><option>04</option><option>05</option><option>06</option><option>07</option><option>08</option><option>09</option><option>10</option><option>11</option><option>12</option></select><select id="admMin" onchange="calcDischarge()"><option>00</option><option>15</option><option>30</option><option>45</option><option>47</option></select><select id="admAmPm" onchange="calcDischarge()"><option>AM</option><option selected>PM</option></select></div></div>
-<div class="col"><span class="label" style="color:#e11d48">Discharge Date Auto +4Hrs</span><input type="date" id="disDate" readonly style="background:#ffe4e6;border-color:#e11d48"></div>
-<div class="col"><span class="label">Discharge Time Auto - Date Changes Auto</span><input id="disTimeShow" readonly style="background:#ffe4e6;border-color:#e11d48"></div>
+
+<!-- FIXED ADMISSION TIME SELECT - DATE CHANGES AUTO WITH AM/PM -->
+<div class="row" style="border:2px solid #10b981;padding:10px;border-radius:10px;background:#f0fdf4">
+<div class="col"><span class="label" style="color:#10b981">3. Admission Date</span><input type="date" id="admDate" onchange="calcDischarge()"></div>
+<div class="col"><span class="label">Admission Time - 12H AM/PM (Changes Date Auto)</span>
+<div style="display:flex;gap:4px">
+<select id="admHour" onchange="calcDischarge()" style="border:2px solid #0a1931"><option>01</option><option>02</option><option>03</option><option>04</option><option>05</option><option>06</option><option>07</option><option>08</option><option>09</option><option>10</option><option>11</option><option>12</option></select>
+<select id="admMin" onchange="calcDischarge()" style="border:2px solid #0a1931"><option>00</option><option>05</option><option>10</option><option>15</option><option>20</option><option>25</option><option>30</option><option>35</option><option>40</option><option>45</option><option>50</option><option>55</option></select>
+<select id="admAmPm" onchange="calcDischarge()" style="border:2px solid #0a1931;background:#0a1931;color:#fff"><option>AM</option><option>PM</option></select>
+</div></div>
+<div class="col"><span class="label" style="color:#e11d48">Discharge Date Auto +4Hrs (Auto Changes)</span><input type="date" id="disDate" readonly style="background:#ffe4e6;border-color:#e11d48"></div>
+<div class="col"><span class="label">Discharge Time Auto</span><input id="disTimeShow" readonly style="background:#ffe4e6;border-color:#e11d48;font-weight:900"></div>
 </div>
+
 <div class="row">
 <div class="col"><span class="label">4. B.P mmHg</span><input id="bp" value="150/70" oninput="render()"></div>
 <div class="col"><span class="label">5. PR bpm</span><input id="pr" value="86" oninput="render()"></div>
@@ -109,35 +114,21 @@ window.db=db; window.fbTools={collection,getDocs};
 <div class="col"><span class="label">8. Advice Date</span><input type="date" id="adviceDate" value="2026-10-22" oninput="render()"></div>
 <div class="col"><span class="label">8. Advice Time - Includes 12AM 2AM</span>
 <select id="adviceTime" onchange="render()" style="border:2px solid #e11d48;background:#fff1f2">
-<option>7AM</option>
-<option selected>12PM</option>
-<option>5PM</option>
-<option>9PM</option>
-<option>12AM</option>
-<option>2AM</option>
-</select>
-</div>
-<div class="col"><span class="label">Font Size Dropdown 12-20</span>
-<select onchange="setFont(this.value)">
-<option value="12">12px</option>
-<option value="14" selected>14px Medium</option>
-<option value="16">16px</option>
-<option value="18">18px Big</option>
-<option value="20">20px V Big</option>
+<option>7AM</option><option selected>12PM</option><option>5PM</option><option>9PM</option><option>12AM</option><option>2AM</option>
 </select>
 </div>
 </div>
 </div>
 
-<!-- ORIGINAL FORMAT - NOT CHANGED -->
+<!-- ORIGINAL FORMAT SAME -->
 <div class="paper" id="paper">
-<div class="letterhead"><img src="lopo.png?v=12" alt="SHIJA"></div>
+<div class="letterhead"><img src="lopo.png?v=13" alt="SHIJA"></div>
 <div class="disTitle">Discharge Summary</div>
 <table class="infoTable">
 <tr><td style="width:22%"><b>IP No.</b></td><td>: <span id="b_ip">185693</span></td><td style="width:20%"><b>UHID NO</b></td><td>: <span id="b_shri">SHRI.334269</span></td></tr>
 <tr><td><b>Patient Name</b></td><td>: <span id="b_name">Mrs. ARAMBAM ASHALATA DEVI</span></td><td><b>Age/Sex</b></td><td>: <span id="b_age">71 Year(s) /Female</span></td></tr>
-<tr><td><b>Admission DateTime</b></td><td>: <span id="b_adm">19/10/2026 02:47 PM</span></td><td><b>Doctor Name</b></td><td>: Dr. Guliver Potsangbam (Nephrology)</td></tr>
-<tr><td><b>Discharge DateTime</b></td><td>: <span id="b_dis">19/10/2026 06:47 PM</span></td><td><b>Scheme</b></td><td>: <span id="b_scheme">PMJAY</span></td></tr>
+<tr><td><b>Admission DateTime</b></td><td>: <span id="b_adm">19/10/2026 02:00 PM</span></td><td><b>Doctor Name</b></td><td>: Dr. Guliver Potsangbam (Nephrology)</td></tr>
+<tr><td><b>Discharge DateTime</b></td><td>: <span id="b_dis">19/10/2026 06:00 PM</span></td><td><b>Scheme</b></td><td>: <span id="b_scheme">PMJAY</span></td></tr>
 </table>
 <div class="section">
 <div><b>Diagnosis:</b> Chronic Kidney Disease on MHD</div>
@@ -156,33 +147,33 @@ let allLocalPMJAY=[], allLocalCMHT=[], allFirebase=[], scheme='PMJAY';
 async function loadLocal(){
 try{let r=await fetch('total.html');let t=await r.text();allLocalPMJAY=parseHTML(t);}catch(e){}
 try{let r=await fetch('totalcmht.html');let t=await r.text();allLocalCMHT=parseHTML(t);}catch(e){try{let r2=await fetch('cmhtotal.html');let t2=await r2.text();allLocalCMHT=parseHTML(t2);}catch(e2){}}
-updateStatus();
 }
 function parseHTML(html){
 let arr=[];let doc=new DOMParser().parseFromString(html,'text/html');
-doc.querySelectorAll('tr').forEach(tr=>{
-let txt=tr.innerText;let shri=(txt.match(/SHRI\.\d+/i)||[''])[0];if(!shri)return;
-let ip=(txt.match(/\b\d{5,6}\b/)||[''])[0]||'';let tds=[...tr.querySelectorAll('td')].map(x=>x.innerText.trim());
-let name=tds.find(x=>x.length>8)||txt.slice(0,60);let age=(txt.match(/(\d{1,3})\s*Year/i)||['',''])[1]||'';let sex=(txt.match(/Male|Female/i)||[''])[0]||'';
-arr.push({shri,ip,name,age,sex,scheme:'',source:'local',raw:txt});
+let rows=doc.querySelectorAll('table tr, tr');
+rows.forEach(tr=>{
+let txt=(tr.innerText||'').trim();if(txt.length<5)return;
+let shri=(txt.match(/SHRI\.\d+/i)||[''])[0];if(!shri)return;
+let ipMatch=txt.match(/\b\d{5,6}\b/);let ip=ipMatch?ipMatch[0]:'';
+let tds=[...tr.querySelectorAll('td')].map(x=>x.innerText.trim());
+let name='';
+for(let td of tds){if(td.length>8 && !/SHRI/i.test(td) && !/^\d+$/.test(td) && td.toUpperCase().includes(' ')){name=td;break;}}
+if(!name)name=tds[tds.length-1]||txt.slice(0,60);
+let age=(txt.match(/(\d{1,3})\s*Year/i)||['',''])[1]||'';let sex=(txt.match(/Female|Male/i)||[''])[0]||'';
+arr.push({shri,ip,name,age,sex,source:'local'});
 });return arr;
 }
 async function loadFirebase(){
 try{
-if(!window.db){updateStatus();return;}
+if(!window.db)return;
 const {collection,getDocs}=window.fbTools;const snap=await getDocs(collection(window.db,"patients"));
-allFirebase=[];snap.forEach(doc=>{let d=doc.data();allFirebase.push({shri:d.shriId||d.SHRI||'',ip:d.ipNo||'',name:d.name||d.patientName||'',age:d.age?String(d.age):'',sex:d.sex||'',scheme:(d.scheme||'').toUpperCase(),source:'firebase',full:d});});
-}catch(e){document.getElementById('loadStatus').value="Firebase error: "+e.message;}
-updateStatus();
+allFirebase=[];snap.forEach(doc=>{let d=doc.data();allFirebase.push({shri:d.shriId||d.SHRI||'',ip:d.ipNo||'',name:d.name||d.patientName||'',age:d.age?String(d.age):'',sex:d.sex||'',scheme:(d.scheme||'').toUpperCase(),source:'firebase'});});
+}catch(e){}
 }
-function updateStatus(){
-let curLocal=scheme=='PMJAY'?allLocalPMJAY:allLocalCMHT;let curFb=allFirebase.filter(p=>p.scheme==scheme|| (scheme=='PMJAY'&&!p.scheme));
-document.getElementById('loadStatus').value=`${scheme}: Local ${curLocal.length} + Firebase ${curFb.length} = ${curLocal.length+curFb.length} patients`;
-}
-function changeScheme(){scheme=document.getElementById('schemeSelect').value;document.getElementById('schemeShow').value=scheme;updateStatus();document.getElementById('searchList').style.display='none';render();}
+function changeScheme(){scheme=document.getElementById('schemeSelect').value;document.getElementById('searchList').style.display='none';render();}
 function getCombined(){let local=scheme=='PMJAY'?allLocalPMJAY:allLocalCMHT;let fb=allFirebase.filter(p=>scheme=='CMHT'?p.scheme=='CMHT':(p.scheme=='PMJAY'||!p.scheme));return [...fb,...local];}
-function doSearch(q){let list=document.getElementById('searchList');if(!q){list.style.display='none';return;}q=q.toLowerCase();let combined=getCombined();let filt=combined.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||p.ip.includes(q)).slice(0,30);list.innerHTML=filt.map(p=>`<div onclick="selectPat('${p.shri}')"><b>${p.shri}</b> | ${p.name.slice(0,50)}<br><span style="font-size:10px">Age:${p.age||'-'} Sex:${p.sex||'-'} IP:${p.ip} | ${p.source=='firebase'?'🔥Firebase':'📄Local'}</span></div>`).join('')||'<div>No patient in '+scheme+'</div>';list.style.display='block';}
-function selectPat(shri){let combined=getCombined();let p=combined.find(x=>x.shri==shri)||combined[0];if(!p)return;document.getElementById('shriId').value=p.shri;document.getElementById('ipNo').value=p.ip;document.getElementById('patName').value=p.name.replace(/[^A-Za-z .]/g,' ').trim().slice(0,70);if(p.age)document.getElementById('ageInput').value=p.age;if(p.sex)document.getElementById('sexInput').value=p.sex.charAt(0).toUpperCase()+p.sex.slice(1).toLowerCase();document.getElementById('schemeShow').value=p.scheme||scheme;document.getElementById('searchList').style.display='none';document.getElementById('searchInput').value=p.shri+' - '+p.name;calcDischarge();}
+function doSearch(q){let list=document.getElementById('searchList');if(!q){list.style.display='none';return;}q=q.toLowerCase();let combined=getCombined();let filt=combined.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||p.ip.includes(q)).slice(0,30);list.innerHTML=filt.map(p=>`<div onclick="selectPat('${p.shri}')"><b>${p.shri}</b> | ${p.name.slice(0,55)}<br><span style="font-size:10px">Age:${p.age||'-'} Sex:${p.sex||'-'} IP:${p.ip} | ${p.source=='firebase'?'🔥Firebase':'📄'+scheme}</span></div>`).join('')||'<div>No patient in '+scheme+'</div>';list.style.display='block';}
+function selectPat(shri){let combined=getCombined();let p=combined.find(x=>x.shri==shri);if(!p)return;document.getElementById('shriId').value=p.shri;document.getElementById('ipNo').value=p.ip;document.getElementById('patName').value=p.name.replace(/[^A-Za-z .]/g,' ').trim().slice(0,70);if(p.age)document.getElementById('ageInput').value=p.age;if(p.sex)document.getElementById('sexInput').value=p.sex.charAt(0).toUpperCase()+p.sex.slice(1).toLowerCase();document.getElementById('searchList').style.display='none';document.getElementById('searchInput').value=p.shri+' - '+p.name;calcDischarge();}
 function setFont(px){document.getElementById('paper').style.setProperty('--fs',px+'px');}
 function getAdmDateTime(){let date=document.getElementById('admDate').value;if(!date)return null;let h=parseInt(document.getElementById('admHour').value);let m=parseInt(document.getElementById('admMin').value);let ap=document.getElementById('admAmPm').value;let h24=h%12+(ap=='PM'?12:0);let dt=new Date(date+'T00:00:00');dt.setHours(h24,m,0,0);return dt;}
 function calcDischarge(){
@@ -190,9 +181,8 @@ let adm=getAdmDateTime();if(!adm)return;
 let dis=new Date(adm.getTime()+4*60*60*1000);
 document.getElementById('disDate').value=dis.toISOString().split('T')[0];
 let h24=dis.getHours();let ap=h24>=12?'PM':'AM';let h12=h24%12||12;
-let minStr=String(dis.getMinutes()).padStart(2,'0');
-let tStr=String(h12).padStart(2,'0')+':'+minStr+' '+ap;
-document.getElementById('disTimeShow').value=tStr+' | '+dis.toISOString().split('T')[0];
+let tStr=String(h12).padStart(2,'0')+':'+String(dis.getMinutes()).padStart(2,'0')+' '+ap;
+document.getElementById('disTimeShow').value=tStr+' - '+dis.toISOString().split('T')[0];
 render();
 }
 function DMY(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+dt.getFullYear();}
@@ -203,10 +193,8 @@ document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;
 document.getElementById('b_shri').innerText=document.getElementById('shriId').value;
 document.getElementById('b_name').innerText=document.getElementById('patName').value;
 let age=document.getElementById('ageInput').value||'--';let sex=document.getElementById('sexInput').value;
-let combined=age+' Year(s) /'+sex;
-document.getElementById('b_age').innerText=combined;
-document.getElementById('ageSexPrev').value=combined;
-document.getElementById('b_scheme').innerText=document.getElementById('schemeShow').value||scheme;
+document.getElementById('b_age').innerText=age+' Year(s) /'+sex;
+document.getElementById('b_scheme').innerText=scheme;
 let adm=getAdmDateTime();if(adm)document.getElementById('b_adm').innerText=DMY(adm)+' '+T12(adm);
 if(adm){let dis=new Date(adm.getTime()+4*60*60*1000);document.getElementById('b_dis').innerText=DMY(dis)+' '+T12(dis);}
 document.getElementById('b_bp').innerText=(document.getElementById('bp').value||'--')+' mmHg';
@@ -220,7 +208,12 @@ document.getElementById('b_ptemp').innerText=(document.getElementById('postTemp'
 let adv=document.getElementById('adviceDate').value;if(adv)document.getElementById('b_advDate').innerText=SHORT(new Date(adv));
 document.getElementById('b_advTime').innerText=document.getElementById('adviceTime').value;
 }
-document.getElementById('admDate').value=new Date().toISOString().split('T')[0];
+let today=new Date().toISOString().split('T')[0];
+document.getElementById('admDate').value=today;
+document.getElementById('adviceDate').value=new Date(Date.now()+3*86400000).toISOString().split('T')[0];
+document.getElementById('admHour').value='02';
+document.getElementById('admMin').value='00';
+document.getElementById('admAmPm').value='PM';
 loadLocal();setTimeout(loadFirebase,500);setTimeout(calcDischarge,800);
 document.addEventListener('click',e=>{if(!e.target.closest('.searchBox'))document.getElementById('searchList').style.display='none'});
 </script>
