@@ -9,7 +9,7 @@
 body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;color:#0f172a}
 .top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:9999}
 .top h2{color:#fff;font-size:16px;font-weight:800}
-.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 .menuBtn span{display:block;width:20px;height:2px;background:#fff;pointer-events:none}
 .mainWrap{display:flex;flex:1;margin-top:64px}
 .side{width:260px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;z-index:9998;transition:.3s;transform:translateX(-100%);overflow-y:auto}
@@ -54,26 +54,27 @@ tr:hover{background:#f8fafc}
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='index.html'}</script>
 <div class="top">
 <div style="display:flex;align-items:center;gap:10px">
-<div class="menuBtn" id="menuBtn" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+<button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button>
 <h2>SHIJA Dialysis - KFT Auto Sync All PCs</h2>
 </div>
 <div style="color:#10b981;font-weight:700;font-size:12px" id="fbStatus">Connecting...</div>
 </div>
-<div class="sideOverlay" id="overlay" onclick="toggleMenu()"></div>
+<div class="sideOverlay" id="overlay"></div>
 <div class="mainWrap">
 <div class="side" id="side">
 <div class="menu">
-<a href="index.html">Home</a>
-<a href="total.html">Total Patient</a>
-<a href="cmht.html">CMHT Total Patient</a>
-<a href="cmhtkft.html">CMHT KFT Report</a>
-<a href="cmhtdaily.html">CMHT Daily Dialysis</a>
-<a href="addcmht.html">CMHT Add Patient</a>
-<a href="daily.html">Daily Dialysis</a>
-<a href="discharge.html">Discharge Patient</a>
-<a href="kft.html" class="active">KFT Report</a>
-<a href="add.html">Add Patient</a>
-<a href="bill.html">Bill</a>
+<a href="index.html">HOME</a>
+<a href="total.html">TOTAL PATIENT</a>
+<a href="cmht.html">CMHT TOTAL PATIENT</a>
+<a href="cmhtkft.html">CMHT KFT REPORT</a>
+<a href="cmhtdaily.html">CMHT DAILY DIALYSIS</a>
+<a href="addcmht.html">CMHT ADD PATIENT</a>
+<a href="daily.html">DAILY DIALYSIS</a>
+<a href="discharge.html">DISCHARGE PATIENT</a>
+<a href="kft.html" class="active">KFT REPORT</a>
+<a href="add.html">ADD PATIENT</a>
+<a href="bill.html">BILL</a>
+<a href="dischargesummary.html">DISCHARGE SUMMARY</a>
 </div>
 <div class="sideBottom">Auto Save ON - All PCs Sync<br><span id="fbStatus2">Firebase Connected</span></div>
 </div>
@@ -124,7 +125,6 @@ window.db = db;
 window.fb = { collection, getDocs, query, where, serverTimestamp, setDoc, doc };
 document.getElementById('fbStatus').innerText = "Firebase Connected - Auto Sync";
 document.getElementById('fbStatus2').innerText = "Auto Save ON";
-// --- MASTER PATIENTS FROM FIREBASE (replaces Patient.js) ---
 window.allPatients = [];
 window.patients = [];
 async function loadMasterPatients(){
@@ -154,11 +154,8 @@ async function loadMasterPatients(){
     merged.sort((a,b)=>(a.patientName||'').localeCompare(b.patientName||''));
     window.allPatients=merged;
     window.patients=merged;
-    // Update the global used by render() below
     patients=merged;
     document.getElementById('totalP').textContent=merged.length;
-    console.log('Master loaded from Firebase:', merged.length);
-    // Refresh KFT statuses + table after master loads
     loadFromFirebase();
   }catch(e){ console.error('Master load error', e); }
 }
@@ -166,21 +163,31 @@ loadMasterPatients();
 window.loadMasterPatients=loadMasterPatients;
 </script>
 <script>
+// UNIVERSAL 3-LINE BUTTON - ONLY CHANGED - Works on ALL devices
 function toggleMenu(){
  var s=document.getElementById('side');
  var o=document.getElementById('overlay');
- if(s.className.indexOf('show')===-1){
-   s.className='side show';
-   o.className='sideOverlay show';
- }else{
-   s.className='side';
-   o.className='sideOverlay';
- }
+ s.classList.toggle('show');
+ o.classList.toggle('show');
 }
 document.addEventListener('DOMContentLoaded',function(){
  var b=document.getElementById('menuBtn');
+ var o=document.getElementById('overlay');
+ var lastTap=0;
+ function handle(e){
+   var now=Date.now();
+   if(now-lastTap<400) return;
+   lastTap=now;
+   if(e){ e.preventDefault(); e.stopPropagation(); }
+   toggleMenu();
+ }
  if(b){
-   b.addEventListener('touchstart',function(e){e.preventDefault();toggleMenu();},{passive:false});
+   b.addEventListener('click', handle);
+   b.addEventListener('touchend', handle, {passive:false});
+ }
+ if(o){
+   o.addEventListener('click', toggleMenu);
+   o.addEventListener('touchend', handle, {passive:false});
  }
 });
 let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');
