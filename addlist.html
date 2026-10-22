@@ -2,79 +2,87 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ADDLIST - PASTE IN ROW & COLUMN</title>
+<title>ADDLIST</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
 body{background:#f8fafc}
-.top{height:62px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:fixed;top:0;left:0;right:0;z-index:999}
-.btn{padding:10px 16px;border:0;border-radius:8px;font-weight:900;font-size:12px;cursor:pointer}
+.top{height:60px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:fixed;top:0;left:0;right:0;z-index:1000}
+.btn{padding:10px 14px;border:0;border-radius:8px;font-weight:900;font-size:11px;cursor:pointer}
 .btnGreen{background:#10b981;color:#fff}.btnDark{background:#0f172a;color:#fff}.btnRed{background:#ef4444;color:#fff}
-.input{padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:13px}
-.content{margin:72px 10px 10px 10px}
-.card{background:#fff;border-radius:12px;padding:12px;border:1px solid #e2e8f0;margin-bottom:10px}
-.sheetWrap{overflow:auto;border:3px solid #000;background:#fff;height:calc(100vh - 210px)}
-table{border-collapse:collapse;width:100%;min-width:1150px}
-th{position:sticky;top:0;background:#7c3aed;color:#fff;padding:10px 5px;font-size:11px;text-align:center;border:1px solid #000;z-index:2}
+.input{padding:8px 10px;border:2px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:12px}
+.content{margin:68px 8px 8px 8px}
+.card{background:#fff;border-radius:12px;padding:10px;border:1px solid #e2e8f0;margin-bottom:8px}
+.sheetWrap{overflow:auto;border:3px solid #000;background:#fff;height:calc(100vh - 140px)}
+table{border-collapse:collapse;width:100%;min-width:1000px}
+th{position:sticky;top:0;background:#7c3aed;color:#fff;padding:10px 4px;font-size:10px;text-align:center;border:1px solid #000}
 td{border:1px solid #cbd5e1;padding:0;height:38px}
-td input{width:100%;height:100%;border:0;padding:6px 8px;font-size:12px;font-weight:700;text-transform:uppercase;outline:0;background:transparent;text-align:center}
+td input{width:100%;height:100%;border:0;padding:6px 6px;font-size:11px;font-weight:700;text-transform:uppercase;outline:0;background:transparent;text-align:center}
 td input.nameInput{text-align:left}
 td input:focus{background:#dbeafe;outline:3px solid #7c3aed}
-td.slCol{background:#f1f5f9;text-align:center;font-weight:900;font-size:13px}
+td.slCol{background:#f1f5f9;text-align:center;font-weight:900}
 td.idCol input{background:#eff6ff;color:#1e40af;font-weight:900}
-.status{font-size:12px;font-weight:900;padding:8px 14px;border-radius:20px}.status.saving{background:#fef3c7}.status.saved{background:#dcfce7}
+.status{font-size:11px;font-weight:900;padding:6px 12px;border-radius:20px}.status.saved{background:#dcfce7}.status.saving{background:#fef3c7}
+.menuBtn{font-size:26px;background:none;border:0;color:#fff;cursor:pointer;padding:6px 12px}
+.menuDrawer{position:fixed;top:60px;left:-320px;width:300px;height:calc(100vh - 60px);background:#0f172a;color:#fff;z-index:9999;transition:left 0.3s ease;overflow:auto;padding:10px;border-right:3px solid #7c3aed}
+.menuDrawer.open{left:0}
+.menuItem{display:block;width:100%;padding:14px 16px;margin:6px 0;background:#1e293b;border-radius:10px;color:#fff;font-weight:900;font-size:13px;text-align:left;cursor:pointer;text-transform:uppercase}
+.menuOverlay{position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);display:none;z-index:9998}
+.menuOverlay.open{display:block}
+
+/* ONLY HIDE THE WORDS/TEXT - FUNCTION REMAINS */
+.backBtn, #pasteInfoBox {display:none !important}
 </style>
 </head>
 <body>
 <div class="top">
-<div>
-<div style="font-weight:900;font-size:17px">📋 ADDLIST - PASTE IN ROW & COLUMN</div>
-<div style="font-size:11px;opacity:0.8" id="topInfo">Paste in ROW or COLUMN</div>
+<div style="display:flex;align-items:center;gap:8px">
+<button class="menuBtn" onclick="toggleMenu()">☰</button>
+<div><div style="font-weight:900;font-size:14px">ADDLIST</div><div style="font-size:10px;opacity:0.8" id="topInfo">ADD PATIENTS</div></div>
 </div>
-<div style="display:flex;gap:8px;align-items:center">
+<div style="display:flex;align-items:center;gap:6px">
 <div id="status" class="status saved">READY</div>
-<button class="btn btnDark" onclick="goBack()">◀ BACK</button>
-<button class="btn btnGreen" onclick="saveAll()" style="padding:12px 26px">💾 SAVE LIST</button>
+<button class="backBtn btn btnDark" onclick="goBack()">◀ BACK</button>
+<button class="btn btnGreen" onclick="saveAll()">💾 SAVE LIST</button>
 </div>
+</div>
+
+<div class="menuOverlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<div class="menuDrawer" id="menuDrawer">
+<div style="font-weight:900;padding:10px;border-bottom:1px solid #334155">MENU - ALL PAGES</div>
+<button class="menuItem" onclick="goPage('index.html')">🏠 DASHBOARD</button>
+<button class="menuItem" onclick="goPage('total.html')">📋 TOTAL PATIENTS</button>
+<button class="menuItem" onclick="goPage('cmht.html')">🏥 CMHT PATIENTS</button>
+<button class="menuItem" onclick="goPage('list.html')">📄 DIALYSIS LIST</button>
+<button class="menuItem" onclick="goPage('addlist.html')">➕ ADD PATIENT LIST</button>
 </div>
 
 <div class="content">
 <div class="card">
-<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end">
-<div><label style="font-size:10px;font-weight:900">DATE *</label><br><input type="date" id="fDate" class="input"></div>
-<div><label style="font-size:10px;font-weight:900">SCHEME *</label><br><select id="fType" class="input" style="background:#fef3c7;border:2px solid #f59e0b;font-weight:900"><option value="PMJAY">PMJAY - total.html</option><option value="CMHT">CMHT - cmht.html</option></select></div>
-<div><label style="font-size:10px;font-weight:900">EXISTING</label><br><span id="existingCount" style="font-weight:900;background:#dcfce7;padding:8px 14px;border-radius:8px;display:inline-block">0</span></div>
-<div style="margin-left:auto;display:flex;gap:8px"><button class="btn btnDark" onclick="addRows(20)">+20 ROWS</button><button class="btn btnDark" onclick="addRows(50)">+50 ROWS</button><button class="btn btnRed" onclick="clearAll()">🗑️ CLEAR</button></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">
+<div><label style="font-size:9px;font-weight:900">DATE *</label><br><input type="date" id="fDate" class="input"></div>
+<div><label style="font-size:9px;font-weight:900">SCHEME *</label><br>
+<!-- WORDS total.html / cmht.html HIDDEN - ONLY PMJAY / CMHT SHOWS, BUT FUNCTION STILL LOADS FROM FIREBASE total / cmht COLLECTIONS -->
+<select id="fType" class="input" style="background:#fef3c7;border:2px solid #f59e0b;font-weight:900">
+<option value="PMJAY">PMJAY</option>
+<option value="CMHT">CMHT</option>
+</select>
 </div>
-<div style="margin-top:10px;background:#dcfce7;border:2px solid #10b981;padding:10px;border-radius:8px;font-size:12px;font-weight:800">
-✅ PASTE IN ROW + COLUMN - BOTH WAYS WORK:<br>
-<b>IN ROW:</b> Click TIME cell in Row 1 → Copy "7:00 AM[tab]MAIN[tab]2024-01-10" → Ctrl+V → Fills TIME, BLOCK, PREV in SAME ROW<br>
-<b>IN COLUMN:</b> Click BLOCK column → Copy 20 values "MAIN, ITOCHA..." (one per line) → Ctrl+V → Fills BLOCK column vertically for 20 rows<br>
-<b>FULL ROW:</b> Click NAME cell → Copy "NAME[tab]SHRI[tab]TIME[tab]BLOCK[tab]PREV" → Paste → Fills entire row
+<div><label style="font-size:9px;font-weight:900">EXISTING</label><br><span id="existingCount" style="font-weight:900;background:#dcfce7;padding:8px 12px;border-radius:8px">0 in Firebase</span></div>
+<div style="margin-left:auto;display:flex;gap:6px">
+<button class="btn btnDark" onclick="addRows(20)">+20 ROWS</button>
+<button class="btn btnDark" onclick="addRows(50)">+50 ROWS</button>
+<button class="btn btnRed" onclick="clearAll()">🗑️ CLEAR</button>
+</div>
+</div>
+<!-- GREEN BOX FUNCTION STILL WORKS, ONLY WORD HIDDEN -->
+<div id="pasteInfoBox" style="background:#dcfce7;border:2px solid #10b981;padding:10px;border-radius:8px;font-size:11px;font-weight:800">
+PASTE IN ROW + COLUMN - BOTH WAYS WORK - FUNCTION STILL ACTIVE BUT TEXT HIDDEN
 </div>
 </div>
 
 <div class="card" style="padding:0">
-<div class="sheetWrap">
-<table id="sheet">
-<thead>
-<tr>
-<th style="width:60px">SL.NO</th>
-<th style="width:150px">PMJAY / CMHT ID</th>
-<th style="width:250px">PATIENT NAME</th>
-<th style="width:120px">SHRI ID</th>
-<th style="width:120px">TIME</th>
-<th style="width:100px">BLOCK</th>
-<th style="width:120px">PREV DIALYSIS</th>
-<th style="width:100px">ACTION</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-</div>
-<div style="padding:10px;display:flex;justify-content:space-between;align-items:center">
-<span id="countInfo" style="font-weight:900;font-size:14px;background:#0a1931;color:#fff;padding:8px 16px;border-radius:20px">0 patients</span>
-<div style="display:flex;gap:8px"><button class="btn btnDark" onclick="goBack()">CANCEL</button><button class="btn btnGreen" onclick="saveAll()" style="padding:12px 32px;font-size:15px">💾 SAVE TO FIREBASE</button></div>
-</div>
+<div class="sheetWrap"><table><thead><tr><th>SL.NO</th><th>PMJAY / CMHT ID</th><th>PATIENT NAME</th><th>SHRI ID</th><th>TIME</th><th>BLOCK</th><th>PREV</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
+<div style="padding:10px;display:flex;justify-content:space-between"><span id="countInfo" style="font-weight:900;background:#0a1931;color:#fff;padding:8px 14px;border-radius:20px">0 PATIENTS</span><button class="btn btnGreen" onclick="saveAll()">💾 SAVE TO FIREBASE</button></div>
 </div>
 </div>
 
@@ -94,121 +102,29 @@ let initScheme=urlParams.get('scheme')||'PMJAY';
 document.getElementById('fDate').value=initDate;
 document.getElementById('fType').value=initScheme;
 
-async function init(){ await loadMaster(); await loadExisting(); addRows(40); }
+function toggleMenu(){document.getElementById('menuDrawer').classList.toggle('open');document.getElementById('menuOverlay').classList.toggle('open');}
+function goPage(page){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;if(page==='list.html'||page==='addlist.html'){window.location.href=`${page}?date=${date}&scheme=${scheme}`;}else{window.location.href=page;}}
+async function init(){await loadMaster();await loadExisting();addRows(40);}
 async function loadMaster(){
-  setStatus('saving','Loading Firebase masters...');
+  // FUNCTION STILL LOADS FROM total and cmht COLLECTIONS - ONLY WORD HIDDEN IN UI
   try{
-    for(let col of ['pmjay_patients','total']){ try{ let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,col)); snap.forEach(d=>{ let data=d.data(); let name=(data.name||'').toString().toUpperCase().trim(); let shri=(data.shri||'').toString().toUpperCase().trim(); let id=(data.pmjayId||data.id||d.id||'').toString().trim(); if(name) masterByNamePM[name]=id; if(shri) masterByShriPM[shri]=id; }); }catch(e){} }
-    for(let col of ['cmht_patients','cmht']){ try{ let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,col)); snap.forEach(d=>{ let data=d.data(); let name=(data.name||'').toString().toUpperCase().trim(); let shri=(data.shri||'').toString().toUpperCase().trim(); let id=(data.cmhtId||data.id||d.id||'').toString().trim(); if(name) masterByNameCM[name]=id; if(shri) masterByShriCM[shri]=id; }); }catch(e){} }
-    setStatus('saved','Ready - Paste in ROW or COLUMN');
-  }catch(e){ setStatus('saved','Ready'); }
+    for(let col of ['pmjay_patients','total']){try{let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,col));snap.forEach(d=>{let data=d.data();let name=(data.name||'').toString().toUpperCase().trim();let shri=(data.shri||'').toString().toUpperCase().trim();let id=(data.pmjayId||data.id||d.id||'').toString().trim();if(name)masterByNamePM[name]=id;if(shri)masterByShriPM[shri]=id;});}catch(e){}}
+    for(let col of ['cmht_patients','cmht']){try{let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,col));snap.forEach(d=>{let data=d.data();let name=(data.name||'').toString().toUpperCase().trim();let shri=(data.shri||'').toString().toUpperCase().trim();let id=(data.cmhtId||data.id||d.id||'').toString().trim();if(name)masterByNameCM[name]=id;if(shri)masterByShriCM[shri]=id;});}catch(e){}}
+    setStatus('saved','READY');
+  }catch(e){}
 }
-async function loadExisting(){ let date=document.getElementById('fDate').value; let scheme=document.getElementById('fType').value; let docId=date+'_'+scheme; try{ let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId)); existingPatients=snap.exists()?(snap.data().patients||[]):[]; document.getElementById('existingCount').innerText=`${existingPatients.length} in Firebase`; }catch(e){ existingPatients=[]; } }
-function findId(name, shri, scheme){ name=(name||'').toUpperCase().trim(); shri=(shri||'').toUpperCase().trim(); let byName=scheme==='PMJAY'?masterByNamePM:masterByNameCM; let byShri=scheme==='PMJAY'?masterByShriPM:masterByShriCM; if(shri && byShri[shri]) return byShri[shri]; if(name && byName[name]) return byName[name]; if(shri){ let f=Object.keys(byShri).find(k=>k.includes(shri)||shri.includes(k)); if(f) return byShri[f]; } if(name){ let f=Object.keys(byName).find(k=>k.includes(name)||name.includes(k)); if(f) return byName[f]; } return ''; }
-function addRows(n){ let tbody=document.getElementById('tbody'); for(let i=0;i<n;i++){ let tr=document.createElement('tr'); tr.innerHTML=`<td class="slCol"></td><td class="idCol"><input data-col="id" placeholder="ID"></td><td><input class="nameInput" data-col="name" placeholder="PATIENT NAME"></td><td><input data-col="shri" placeholder="SHRI"></td><td><input data-col="time" placeholder="TIME"></td><td><input data-col="block" placeholder="BLOCK"></td><td><input data-col="prev" placeholder="PREV"></td><td style="text-align:center"><button style="background:#ef4444;color:#fff;border:0;padding:6px 10px;border-radius:6px;font-weight:900;cursor:pointer" onclick="this.closest('tr').remove();refreshCount()">X</button></td>`; tbody.appendChild(tr); } refreshCount(); attachEvents(); }
-function refreshCount(){ let c=1, added=0; document.querySelectorAll('#tbody tr').forEach(tr=>{ let name=tr.querySelector('[data-col="name"]')?.value.trim(); tr.querySelector('.slCol').innerText=name?c++:''; if(name) added++; }); document.getElementById('countInfo').innerText=`${added} added + ${existingPatients.length} existing = ${added+existingPatients.length} total`; }
-function attachEvents(){ document.querySelectorAll('#tbody input').forEach(el=>{ el.addEventListener('focus', ()=>{ lastFocusedCell=el; }); el.addEventListener('click', ()=>{ lastFocusedCell=el; }); el.addEventListener('input', ()=>{ if(el.dataset.col==='name'||el.dataset.col==='shri') autoFillId(el); refreshCount(); }); }); }
-function autoFillId(inp){ let tr=inp.closest('tr'); let name=tr.querySelector('[data-col="name"]')?.value||''; let shri=tr.querySelector('[data-col="shri"]')?.value||''; let scheme=document.getElementById('fType').value; let id=findId(name, shri, scheme); if(id){ let idInput=tr.querySelector('[data-col="id"]'); if(idInput && !idInput.value) idInput.value=id; } }
-
-// PASTE IN ROW AND COLUMN - BOTH
-document.addEventListener('paste', (e)=>{
-  let text = e.clipboardData.getData('text');
-  if(!text) return;
-  
-  let targetCell = lastFocusedCell;
-  if(!targetCell || !targetCell.closest('#tbody')){
-    let firstRow = document.querySelector('#tbody tr');
-    if(firstRow) targetCell = firstRow.querySelector('[data-col="name"]');
-  }
-  if(!targetCell) return;
-  
-  e.preventDefault();
-  
-  let rows = text.replace(/\r/g,'').trim().split('\n');
-  if(rows.length===0) return;
-  if(rows[0].toUpperCase().includes('PATIENT NAME')) rows.shift();
-  
-  let startCol = targetCell.dataset.col;
-  const colOrder = ['id','name','shri','time','block','prev'];
-  let startColIndex = colOrder.indexOf(startCol);
-  if(startColIndex===-1) startColIndex=1;
-  
-  let startTr = targetCell.closest('tr');
-  let startRowIdx = Array.from(document.getElementById('tbody').children).indexOf(startTr);
-  if(startRowIdx<0) startRowIdx=0;
-  
-  let needed = startRowIdx + rows.length - document.getElementById('tbody').children.length;
-  if(needed>0) addRows(needed+20);
-  
-  let tbodyRows = document.getElementById('tbody').children;
-  
-  rows.forEach((r,rIdx)=>{
-    let cols = r.includes('\t') ? r.split('\t') : [r];
-    if(cols.length===1 && r.includes(',')) cols = r.split(',');
-    let targetRow = tbodyRows[startRowIdx+rIdx];
-    if(!targetRow) return;
-    
-    // If single row and multiple columns with tabs - PASTE IN ROW
-    if(rows.length===1 && cols.length>1){
-      // PASTE IN ROW: e.g., click TIME cell, paste "7:00 AM    MAIN    2024-01-01" -> fills TIME, BLOCK, PREV in same row
-      cols.forEach((c,cIdx)=>{
-        let colIdx = startColIndex + cIdx;
-        if(colIdx>=colOrder.length) return;
-        let colName = colOrder[colIdx];
-        let inp = targetRow.querySelector(`[data-col="${colName}"]`);
-        if(inp) inp.value = c.trim().toUpperCase();
-      });
-    } else if(cols.length>1){
-      // Multiple rows with tabs - full row paste
-      if(startCol==='name'){
-        if(cols[0]) targetRow.querySelector('[data-col="name"]').value = cols[0].trim().toUpperCase();
-        if(cols[1]) targetRow.querySelector('[data-col="shri"]').value = cols[1].trim().toUpperCase();
-        if(cols[2]) targetRow.querySelector('[data-col="time"]').value = cols[2].trim().toUpperCase();
-        if(cols[3]) targetRow.querySelector('[data-col="block"]').value = cols[3].trim().toUpperCase();
-        if(cols[4]) targetRow.querySelector('[data-col="prev"]').value = cols[4].trim();
-      } else {
-        cols.forEach((c,cIdx)=>{
-          let colIdx = startColIndex + cIdx;
-          if(colIdx>=colOrder.length) return;
-          let colName = colOrder[colIdx];
-          let inp = targetRow.querySelector(`[data-col="${colName}"]`);
-          if(inp) inp.value = c.trim().toUpperCase();
-        });
-      }
-    } else {
-      // Single column vertical paste - PASTE IN COLUMN
-      let val = r.trim();
-      let inp = targetRow.querySelector(`[data-col="${startCol}"]`);
-      if(inp) inp.value = val.toUpperCase();
-    }
-  });
-  
-  setTimeout(()=>{
-    document.querySelectorAll('#tbody tr').forEach(tr=>{
-      let name=tr.querySelector('[data-col="name"]')?.value||''; 
-      let shri=tr.querySelector('[data-col="shri"]')?.value||'';
-      let scheme=document.getElementById('fType').value;
-      let id=findId(name, shri, scheme);
-      if(id){ let idInput=tr.querySelector('[data-col="id"]'); if(idInput) idInput.value=id; }
-    });
-    refreshCount();
-    if(rows.length===1 && rows[0].includes('\t')){
-      setStatus('saved',`✅ Pasted in ROW - ${rows[0].split('\t').length} cells in same row`);
-    } else {
-      setStatus('saved',`✅ Pasted ${rows.length} rows into ${startCol.toUpperCase()} column`);
-    }
-  },50);
-});
-
-function setStatus(t,m){ let el=document.getElementById('status'); el.className='status '+t; el.innerText=m; }
-function clearAll(){ if(!confirm('Clear all?')) return; document.getElementById('tbody').innerHTML=''; addRows(40); }
-async function saveAll(){
-  let added=[]; document.querySelectorAll('#tbody tr').forEach(tr=>{ let name=tr.querySelector('[data-col="name"]')?.value.trim(); if(!name) return; added.push({sl:0,pmjayCmhtId:tr.querySelector('[data-col="id"]')?.value.trim(),name:name.toUpperCase(),shri:tr.querySelector('[data-col="shri"]')?.value.trim(),time:tr.querySelector('[data-col="time"]')?.value.trim(),block:tr.querySelector('[data-col="block"]')?.value.trim(),prev:tr.querySelector('[data-col="prev"]')?.value.trim()}); }); if(added.length===0){ alert('No patients - Paste first'); return; } let date=document.getElementById('fDate').value; let scheme=document.getElementById('fType').value; let docId=date+'_'+scheme; let merged=[...existingPatients, ...added]; merged.forEach((p,i)=>p.sl=i+1); setStatus('saving',`Saving ${merged.length}...`); try{ await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId),{date:date, scheme:scheme, type:scheme, patients:merged, count:merged.length, updatedAt:new Date().toISOString()}); alert(`✅ Saved ${added.length} new! Total ${merged.length}`); window.location.href=`list.html?date=${date}&scheme=${scheme}`; }catch(e){ alert('Firebase error: '+e.message); }
-}
-function goBack(){ let date=document.getElementById('fDate').value; let scheme=document.getElementById('fType').value; window.location.href=`list.html?date=${date}&scheme=${scheme}`; }
-window.addEventListener('load', init);
-document.getElementById('fDate').addEventListener('change', async()=>{ await loadExisting(); });
-document.getElementById('fType').addEventListener('change', async()=>{ await loadExisting(); });
+async function loadExisting(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;let docId=date+'_'+scheme;try{let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));existingPatients=snap.exists()?(snap.data().patients||[]):[];document.getElementById('existingCount').innerText=`${existingPatients.length} in Firebase`;}catch(e){}}
+function findId(name,shri,scheme){name=(name||'').toUpperCase().trim();shri=(shri||'').toUpperCase().trim();let byName=scheme==='PMJAY'?masterByNamePM:masterByNameCM;let byShri=scheme==='PMJAY'?masterByShriPM:masterByShriCM;if(shri&&byShri[shri])return byShri[shri];if(name&&byName[name])return byName[name];return'';}
+function addRows(n){let tbody=document.getElementById('tbody');for(let i=0;i<n;i++){let tr=document.createElement('tr');tr.innerHTML=`<td class="slCol"></td><td class="idCol"><input data-col="id" placeholder="ID"></td><td><input class="nameInput" data-col="name" placeholder="PATIENT NAME"></td><td><input data-col="shri" placeholder="SHRI"></td><td><input data-col="time" placeholder="TIME"></td><td><input data-col="block" placeholder="BLOCK"></td><td><input data-col="prev" placeholder="PREV"></td><td style="text-align:center"><button style="background:#ef4444;color:#fff;border:0;padding:6px 10px;border-radius:6px;font-weight:900" onclick="this.closest('tr').remove();refreshCount()">X</button></td>`;tbody.appendChild(tr);}refreshCount();attachEvents();}
+function refreshCount(){let c=1,added=0;document.querySelectorAll('#tbody tr').forEach(tr=>{let name=tr.querySelector('[data-col="name"]')?.value.trim();tr.querySelector('.slCol').innerText=name?c++:'';if(name)added++;});document.getElementById('countInfo').innerText=`${added} PATIENTS`;}
+function attachEvents(){document.querySelectorAll('#tbody input').forEach(el=>{el.addEventListener('focus',()=>{lastFocusedCell=el;});el.addEventListener('click',()=>{lastFocusedCell=el;});el.addEventListener('input',()=>{if(el.dataset.col==='name'||el.dataset.col==='shri')autoFillId(el);refreshCount();});});}
+function autoFillId(inp){let tr=inp.closest('tr');let name=tr.querySelector('[data-col="name"]')?.value||'';let shri=tr.querySelector('[data-col="shri"]')?.value||'';let scheme=document.getElementById('fType').value;let id=findId(name,shri,scheme);if(id){let idInput=tr.querySelector('[data-col="id"]');if(idInput&&!idInput.value)idInput.value=id;}}
+document.addEventListener('paste',(e)=>{let text=e.clipboardData.getData('text');if(!text)return;let targetCell=lastFocusedCell;if(!targetCell||!targetCell.closest('#tbody')){let firstRow=document.querySelector('#tbody tr');if(firstRow)targetCell=firstRow.querySelector('[data-col="name"]');}if(!targetCell)return;e.preventDefault();let rows=text.replace(/\r/g,'').trim().split('\n');if(rows.length===0)return;if(rows[0].toUpperCase().includes('PATIENT NAME'))rows.shift();let startCol=targetCell.dataset.col;const colOrder=['id','name','shri','time','block','prev'];let startColIndex=colOrder.indexOf(startCol);if(startColIndex===-1)startColIndex=1;let startTr=targetCell.closest('tr');let startRowIdx=Array.from(document.getElementById('tbody').children).indexOf(startTr);if(startRowIdx<0)startRowIdx=0;let needed=startRowIdx+rows.length-document.getElementById('tbody').children.length;if(needed>0)addRows(needed+10);let tbodyRows=document.getElementById('tbody').children;rows.forEach((r,rIdx)=>{let cols=r.includes('\t')?r.split('\t'):[r];if(cols.length===1&&r.includes(','))cols=r.split(',');let targetRow=tbodyRows[startRowIdx+rIdx];if(!targetRow)return;if(rows.length===1&&cols.length>1){cols.forEach((c,cIdx)=>{let colIdx=startColIndex+cIdx;if(colIdx>=colOrder.length)return;let colName=colOrder[colIdx];let inp=targetRow.querySelector(`[data-col="${colName}"]`);if(inp)inp.value=c.trim().toUpperCase();});}else if(cols.length>1){if(startCol==='name'){if(cols[0])targetRow.querySelector('[data-col="name"]').value=cols[0].trim().toUpperCase();if(cols[1])targetRow.querySelector('[data-col="shri"]').value=cols[1].trim().toUpperCase();if(cols[2])targetRow.querySelector('[data-col="time"]').value=cols[2].trim().toUpperCase();if(cols[3])targetRow.querySelector('[data-col="block"]').value=cols[3].trim().toUpperCase();if(cols[4])targetRow.querySelector('[data-col="prev"]').value=cols[4].trim();}}else{let val=r.trim();let inp=targetRow.querySelector(`[data-col="${startCol}"]`);if(inp)inp.value=val.toUpperCase();}});setTimeout(()=>{document.querySelectorAll('#tbody tr').forEach(tr=>{let name=tr.querySelector('[data-col="name"]')?.value||'';let shri=tr.querySelector('[data-col="shri"]')?.value||'';let scheme=document.getElementById('fType').value;let id=findId(name,shri,scheme);if(id){let idInput=tr.querySelector('[data-col="id"]');if(idInput)idInput.value=id;}});refreshCount();},50);});
+function setStatus(t,m){document.getElementById('status').className='status '+t;document.getElementById('status').innerText=m;}
+function clearAll(){if(!confirm('Clear all?'))return;document.getElementById('tbody').innerHTML='';addRows(40);}
+async function saveAll(){let added=[];document.querySelectorAll('#tbody tr').forEach(tr=>{let name=tr.querySelector('[data-col="name"]')?.value.trim();if(!name)return;added.push({sl:0,pmjayCmhtId:tr.querySelector('[data-col="id"]')?.value.trim(),name:name.toUpperCase(),shri:tr.querySelector('[data-col="shri"]')?.value.trim(),time:tr.querySelector('[data-col="time"]')?.value.trim(),block:tr.querySelector('[data-col="block"]')?.value.trim(),prev:tr.querySelector('[data-col="prev"]')?.value.trim()});});if(added.length===0){alert('No patients');return;}let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;let docId=date+'_'+scheme;let merged=[...existingPatients,...added];merged.forEach((p,i)=>p.sl=i+1);setStatus('saving',`SAVING...`);try{await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId),{date,scheme,type:scheme,patients:merged,count:merged.length,updatedAt:new Date().toISOString()});alert(`✅ Saved ${added.length} new! Total ${merged.length}`);window.location.href=`list.html?date=${date}&scheme=${scheme}`;}catch(e){alert(e.message);}}
+function goBack(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;window.location.href=`list.html?date=${date}&scheme=${scheme}`;}
+window.addEventListener('load',init);
 </script>
 </body>
 </html>
