@@ -2,13 +2,23 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHIJA - Fixed No Wrap</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+<title>SHIJA - DISCHARGE SUMMARY</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f1f5f9}
-.top{height:62px;background:linear-gradient(135deg,#0a1931 0%,#1e3a8a 100%);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:fixed;top:0;left:0;right:0;z-index:9999}
+.top{height:62px;background:linear-gradient(135deg,#0a1931 0%,#1e3a8a 100%);display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:fixed;top:0;left:0;right:0;z-index:9999}
+.leftTop{display:flex;align-items:center;gap:10px}
+.menuBtn{width:42px;height:38px;border-radius:10px;background:#fff;border:0;color:#0f172a;font-size:20px;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;font-weight:900;-webkit-touch-callout:none}
+.menuBtn *{pointer-events:none}
+.whiteBar{position:fixed;left:0;top:62px;bottom:0;width:300px;background:#fff;transform:translateX(-100%);transition:.35s cubic-bezier(.4,0,.2,1);z-index:10000;padding:14px 12px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:8px 0 30px rgba(0,0,0,.3);overflow-y:auto}
+.whiteBar.open{transform:translateX(0)}
+.whiteBar a{display:flex;align-items:center;gap:10px;padding:13px 14px;border-radius:12px;text-decoration:none;color:#334155;font-weight:800;font-size:11.5px;margin-bottom:6px;cursor:pointer;text-transform:uppercase;letter-spacing:.4px;border:1px solid transparent}
+.whiteBar a:hover{background:#f1f5f9;color:#0f172a;border-color:#e2e8f0}
+.whiteBar a.active{background:#0f172a;color:#fff}
+.whiteOverlay{position:fixed;inset:0;top:62px;background:rgba(0,0,0,.6);z-index:9998;display:none;backdrop-filter:blur(2px)}
+.whiteOverlay.show{display:block}
 .content{max-width:1220px;margin:62px auto 0;padding:14px}
 .cardPro{background:#fff;border-radius:20px;border:1px solid #e2e8f0;padding:16px;margin-bottom:12px}
 .label{font-size:10px;font-weight:800;color:#475569;margin-bottom:6px;display:block;text-transform:uppercase}
@@ -29,9 +39,10 @@
 .preBox .vitalCard{border-left:3.5px solid #ef4444}
 .postBox .vitalCard{border-left:3.5px solid #10b981}
 .paper{background:#fff;width:100%;max-width:800px;margin:0 auto;color:#000;border:1px solid #e2e8f0;--fs:14px;overflow:hidden}
-.letterhead{margin:0;padding:0;line-height:0;display:block;font-size:0}
+.letterhead{margin:0;padding:0;line-height:0;display:block;font-size:0;border:0}
 .letterhead img{width:100%;display:block;margin:0;padding:0;vertical-align:top;border:0}
-.disTitle{text-align:center;font-weight:800;font-size:calc(var(--fs) + 5px);padding:6px 0;border:2.5px solid #000;margin:-2px 10px 0 10px;background:#fff;box-sizing:border-box;width:calc(100% - 20px)}
+/* BORDER ABOVE DISCHARGE SUMMARY FIXED - NOT REMOVED */
+.disTitle{text-align:center;font-weight:800;font-size:calc(var(--fs) + 5px);padding:6px 0;border:2.5px solid #000;margin:0 10px 0 10px;background:#fff;box-sizing:border-box;width:calc(100% - 20px)}
 .infoTable{width:100%;border-collapse:collapse;font-size:var(--fs);margin:6px 0 6px 0}
 .infoTable td{padding:2px 4px;vertical-align:top;line-height:1.4;white-space:nowrap}
 .infoTable td:first-child{padding-left:18px !important;padding-right:2px !important;white-space:nowrap}
@@ -51,7 +62,35 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 </script>
 </head>
 <body>
-<div class="top"><div style="color:#fff;font-weight:800">SHIJA</div><div class="exportGroup"><select id="exportType" class="exportSelect"><option value="jpeg" selected>JPEG</option><option value="pdf">PDF</option></select><button onclick="doExport()" class="exportBtn">⬇ Export</button></div></div>
+
+<div class="whiteOverlay" id="whiteOverlay"></div>
+<div class="whiteBar" id="whiteBar">
+<div>
+<a href="index.html"> HOME</a>
+<a href="total.html"> TOTAL PMJAY PATIENT</a>
+<a href="cmht.html"> TOTAL CMHT PATIENT</a>
+<a href="add.html"> ADD PMJAY PATIENT</a>
+<a href="addcmht.html"> ADD CMHT PATIENT</a>
+<a href="discharge.html"> DISCHARGE PATIENT</a>
+<a href="bill.html"> BILL</a>
+<a href="searchpatient.html"> SEARCH PATIENT</a>
+<a href="kft.html"> KFT REPORT</a>
+<a href="cmhtkft.html"> CMHT KFT REPORT</a>
+<a href="dischargesummary.html" class="active"> DISCHARGE SUMMARY</a>
+</div>
+<div style="padding:12px;font-size:10px;color:#64748b;border-top:1px solid #e2e8f0;font-weight:800;text-transform:uppercase">
+<b style="color:#0f172a">SHIJA HOSPITALS DIALYSIS</b><br>© 2026
+</div>
+</div>
+
+<div class="top">
+<div class="leftTop">
+<button type="button" class="menuBtn" id="menuBtn">☰</button>
+<div style="color:#fff;font-weight:900;font-size:13px;letter-spacing:.5px;text-transform:uppercase">SHIJA HOSPITALS DIALYSIS</div>
+</div>
+<div class="exportGroup"><select id="exportType" class="exportSelect"><option value="jpeg" selected>JPEG</option><option value="pdf">PDF</option></select><button onclick="doExport()" class="exportBtn">⬇ EXPORT</button></div>
+</div>
+
 <div class="content">
 <div class="cardPro">
 <div style="display:flex;justify-content:space-between"><h3 style="font-size:11px;font-weight:800">🔍 SEARCH</h3><span id="countBadge" style="font-size:10px;font-weight:800;background:#eff6ff;padding:5px 12px;border-radius:20px">Loading...</span></div>
@@ -59,15 +98,18 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 <div class="col"><span class="label">Search</span><div class="searchBox"><input id="searchInput" class="inputPro" style="border:2px solid #1e3a8a" placeholder="Type SHRI / Name / IP" oninput="doSearch(this.value)" onfocus="doSearch(this.value)"><div id="searchList" class="searchList"></div></div></div></div>
 <div id="debugInfo" style="font-size:10px;font-weight:700;color:#b91c1c;margin-top:6px"></div>
 </div>
+
 <div class="cardPro">
 <div class="row"><div class="col"><span class="label">UHID</span><input id="shriId" class="inputPro" value="SHRI.334269"></div><div class="col"><span class="label">IP No</span><input id="ipNo" class="inputPro" value="185693"></div><div class="col" style="flex:1.5"><span class="label">Patient Name</span><input id="patName" class="inputPro" value="Mrs. ARAMBAM ASHALATA DEVI"></div></div>
 <div class="row"><div class="col" style="max-width:160px"><span class="label">Age</span><input type="number" step="1" id="ageInput" class="inputPro" value="71"></div><div class="col" style="max-width:160px"><span class="label">Sex</span><select id="sexInput" class="inputPro"><option>Male</option><option selected>Female</option></select></div></div>
+
 <div class="timeBox">
 <div><span class="label">Admission Date</span><input type="date" id="admDate" class="inputPro timeInput"></div>
-<div><span class="label">Hour</span><input type="number" step="1" id="admHour" class="inputPro timeInput" value="02"></div>
-<div><span class="label">Min</span><input type="number" step="1" id="admMin" class="inputPro timeInput" value="47"></div>
+<div><span class="label">Hour (1-12 Only)</span><input type="number" min="1" max="12" step="1" id="admHour" class="inputPro timeInput" value="02"></div>
+<div><span class="label">Min (0-59)</span><input type="number" min="0" max="59" step="1" id="admMin" class="inputPro timeInput" value="47"></div>
 <div><span class="label">AM/PM</span><select id="admAmPm" class="inputPro timeInput" style="background:#0f172a;color:#fff"><option>AM</option><option selected>PM</option></select></div>
 </div>
+
 <h3 style="font-size:11px;font-weight:800;margin:16px 0 8px;color:#ef4444">● PRE DIALYSIS</h3>
 <div class="vitalGrid preBox">
 <div class="vitalCard"><div class="vIcon" style="background:#fee2e2">🩸</div><div class="vContent"><span class="vLabel">Blood Pressure</span><input id="bp" value="150/70"></div><span class="vUnit">mmHg</span></div>
@@ -75,6 +117,7 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 <div class="vitalCard"><div class="vIcon" style="background:#dbeafe">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" step="1" id="spo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('spo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('spo2',-1)">▼</button></div><span class="vUnit">% RA</span></div>
 <div class="vitalCard"><div class="vIcon" style="background:#ffedd5">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" step="1" id="temp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('temp',1)">▲</button><button class="vStepBtn" onclick="stepVital('temp',-1)">▼</button></div><span class="vUnit">°F</span></div>
 </div>
+
 <h3 style="font-size:11px;font-weight:800;margin:18px 0 8px;color:#10b981">● POST DIALYSIS</h3>
 <div class="vitalGrid postBox">
 <div class="vitalCard"><div class="vIcon" style="background:#dcfce7">🩸</div><div class="vContent"><span class="vLabel">Blood Pressure</span><input id="postBp" value="160/80"></div><span class="vUnit">mmHg</span></div>
@@ -82,12 +125,14 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 <div class="vitalCard"><div class="vIcon" style="background:#e0e7ff">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" step="1" id="postSpo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postSpo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('postSpo2',-1)">▼</button></div><span class="vUnit">% RA</span></div>
 <div class="vitalCard"><div class="vIcon" style="background:#fef9c3">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" step="1" id="postTemp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postTemp',1)">▲</button><button class="vStepBtn" onclick="stepVital('postTemp',-1)">▼</button></div><span class="vUnit">°F</span></div>
 </div>
+
 <div class="row" style="border:2px solid #dc2626;border-radius:12px;padding:12px;margin-top:18px;background:#fffbeb">
 <div class="col" style="max-width:190px"><span class="label">Advice Date ( )</span><input type="date" id="adviceDate" class="inputPro" value="2026-10-22"></div>
 <div class="col" style="max-width:220px"><span class="label">Advice Time ( )</span><select id="adviceTime" class="inputPro" style="background:#fff1f2;font-weight:800;border:2px solid #f43f5e"><option>7am morning</option><option selected>12pm noon</option><option>5pm evening</option><option>9pm night</option><option>12am midnight</option><option>2am morning</option></select></div>
 <div class="col" style="max-width:190px"><span class="label">Needs dialysis ( ) times/week</span><select id="freq" class="inputPro" style="border:2px solid #dc2626;background:#fef2f2;font-weight:800"><option>One</option><option>Two</option><option selected>Three</option><option>Four</option></select></div>
 </div>
 </div>
+
 <div class="paper" id="paper">
 <div class="letterhead"><img src="finalopo.png?v=20" alt="SHIJA"></div>
 <div class="disTitle">Discharge Summary</div>
@@ -112,15 +157,64 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 </div>
 </div>
 </div>
+
 <script>
+let menuOpen=false;
+function toggleMenu(){
+  menuOpen=!menuOpen;
+  var bar=document.getElementById('whiteBar');
+  var over=document.getElementById('whiteOverlay');
+  if(menuOpen){ bar.classList.add('open'); over.classList.add('show'); document.body.style.overflow='hidden'; }
+  else{ bar.classList.remove('open'); over.classList.remove('show'); document.body.style.overflow=''; }
+}
+function closeMenu(){ menuOpen=false; document.getElementById('whiteBar').classList.remove('open'); document.getElementById('whiteOverlay').classList.remove('show'); document.body.style.overflow=''; }
+document.addEventListener('DOMContentLoaded',function(){
+  var btn=document.getElementById('menuBtn');
+  var overlay=document.getElementById('whiteOverlay');
+  var last=0;
+  function handleMenu(e){
+    var now=Date.now();
+    if(now-last<350) return;
+    last=now;
+    if(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); }
+    toggleMenu();
+  }
+  if(btn){
+    btn.addEventListener('click', handleMenu, true);
+    btn.addEventListener('touchstart', function(e){ e.preventDefault(); }, {passive:false});
+    btn.addEventListener('touchend', handleMenu, {passive:false, capture:true});
+    btn.addEventListener('pointerup', handleMenu);
+  }
+  if(overlay){
+    overlay.addEventListener('click', closeMenu);
+    overlay.addEventListener('touchend', function(e){ e.preventDefault(); closeMenu(); }, {passive:false});
+  }
+  document.querySelectorAll('.whiteBar a').forEach(function(a){
+    a.addEventListener('touchend', function(e){ e.preventDefault(); e.stopPropagation(); window.location.href=this.getAttribute('href'); }, {passive:false});
+    a.addEventListener('click', function(){ var h=this.getAttribute('href'); if(h) window.location.href=h; });
+  });
+});
+
 let allPMJAY=[], allCMHT=[], scheme='PMJAY', lastFiltered=[];
-function stepVital(id, delta){let el=document.getElementById(id);let v=parseInt(el.value)||0;v+=delta;if(v<0)v=0;if(id.includes('spo2')&&v>100)v=100;el.value=v;render();}
+function stepVital(id, delta){
+  let el=document.getElementById(id);
+  let v=parseInt(el.value)||0;
+  v+=delta;
+  if(v<0) v=0;
+  if(id.includes('spo2')&&v>100) v=100;
+  if(id==='admHour'){ if(v>12) v=12; if(v<1) v=1; }
+  if(id==='admMin'){ if(v>59) v=59; if(v<0) v=0; }
+  el.value=v;
+  render();
+}
+function clampHour12(){ let el=document.getElementById('admHour'); let v=parseInt(el.value); if(isNaN(v)) return; if(v>12) v=12; if(v<1) v=1; el.value=String(v).padStart(2,'0'); }
+function clampMin60(){ let el=document.getElementById('admMin'); let v=parseInt(el.value); if(isNaN(v)) return; if(v>59) v=59; if(v<0) v=0; el.value=String(v).padStart(2,'0'); }
 async function loadFirebaseAll(){const {collection,getDocs}=window.fbTools;allPMJAY=[];allCMHT=[];const tryCollections=async(names,targetArray)=>{for(let name of names){try{let snap=await getDocs(collection(window.db,name));if(!snap.empty){snap.forEach(d=>{let c=d.data();targetArray.push({shri:c.shriId||c.shri||c.UHID||c.uhid||c.id||'',ip:c.pmjayId||c.pmjay||c.cmhtId||c.cmht||c.ipNo||c.IPNO||c.ip||'',name:c.patientName||c.name||c.patient_name||c.Name||''});});if(targetArray.length>0)return name;}}catch(e){}}return null;};await tryCollections(["pmjay_patients","PMJAY_patients","pmjay","PMJAY","patients"],allPMJAY);await tryCollections(["cmht_patients","CMHT_patients","cmht","CMHT"],allCMHT);document.getElementById('debugInfo').innerText=`Found - PMJAY: ${allPMJAY.length} | CMHT: ${allCMHT.length}`;document.getElementById('countBadge').innerText=getCombined().length+' Patients in '+scheme;}
 function changeScheme(){scheme=document.getElementById('schemeSelect').value;document.getElementById('countBadge').innerText=getCombined().length+' Patients in '+scheme;render();}
 function getCombined(){return scheme=='PMJAY'?allPMJAY:allCMHT;}
 function doSearch(q){let list=document.getElementById('searchList');let combined=getCombined();if(!q||q.length==0){let all=combined.slice(0,20);lastFiltered=all;list.innerHTML=all.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer"><b style="color:#1e3a8a">${p.shri||'No-ID'}</b> - ${p.name||''}</div>`).join('');list.style.display='block';return;}q=q.toLowerCase();let f=combined.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,30);lastFiltered=f;if(f.length==0){list.innerHTML='<div style="padding:12px">No patient found</div>';list.style.display='block';return;}list.innerHTML=f.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:12px;font-weight:600"><b style="color:#1e3a8a">${p.shri}</b> - ${p.name.slice(0,50)}</div>`).join('');list.style.display='block';}
 function selectPatByIdx(i){let p=lastFiltered[i];if(!p)return;document.getElementById('shriId').value=p.shri;document.getElementById('ipNo').value=p.ip;document.getElementById('patName').value=p.name;document.getElementById('searchList').style.display='none';document.getElementById('searchInput').value=p.shri+' - '+p.name;render();}
-function getAdmDateTime(){let d=document.getElementById('admDate').value;if(!d)return null;let h=parseInt(document.getElementById('admHour').value)||2;let m=parseInt(document.getElementById('admMin').value)||0;let ap=document.getElementById('admAmPm').value;let h24=h%12+(ap=='PM'?12:0);let dt=new Date(d+'T00:00:00');dt.setHours(h24,m,0,0);return dt;}
+function getAdmDateTime(){let d=document.getElementById('admDate').value;if(!d)return null;let h=parseInt(document.getElementById('admHour').value)||1;let m=parseInt(document.getElementById('admMin').value)||0;if(h>12) h=12; if(h<1) h=1; if(m>59) m=59; if(m<0) m=0; let ap=document.getElementById('admAmPm').value;let h24=h%12+(ap=='PM'?12:0);let dt=new Date(d+'T00:00:00');dt.setHours(h24,m,0,0);return dt;}
 function DMY(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+dt.getFullYear();}
 function SHORT(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+String(dt.getFullYear()).slice(-2);}
 function T12(dt){let h=dt.getHours(),m=dt.getMinutes(),ap=h>=12?'PM':'AM',h12=h%12||12;return String(h12).padStart(2,'0')+":"+String(m).padStart(2,'0')+" "+ap;}
@@ -128,7 +222,18 @@ function render(){document.getElementById('b_ip').innerText=document.getElementB
 function doExport(){let t=document.getElementById('exportType').value;if(t==='pdf')exportPDF();else exportJPG();}
 async function exportJPG(){let paper=document.getElementById('paper');let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff'});let link=document.createElement('a');let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');link.download=name+'.jpg';link.href=canvas.toDataURL('image/jpeg',0.95);link.click();}
 async function exportPDF(){let paper=document.getElementById('paper');let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff'});let imgData=canvas.toDataURL('image/jpeg',0.95);const {jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');let w=pdf.internal.pageSize.getWidth();let h=canvas.height*w/canvas.width;pdf.addImage(imgData,'JPEG',0,0,w,h);let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');pdf.save(name+'.pdf');}
-setTimeout(()=>{document.querySelectorAll('input, select').forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render);});let today=new Date().toISOString().split('T')[0];if(!document.getElementById('admDate').value)document.getElementById('admDate').value=today;if(!document.getElementById('adviceDate').value)document.getElementById('adviceDate').value=new Date(Date.now()+3*86400000).toISOString().split('T')[0];loadFirebaseAll();render();},300);
+setTimeout(()=>{
+  document.querySelectorAll('input, select').forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render);});
+  let today=new Date().toISOString().split('T')[0];
+  if(!document.getElementById('admDate').value)document.getElementById('admDate').value=today;
+  if(!document.getElementById('adviceDate').value)document.getElementById('adviceDate').value=new Date(Date.now()+3*86400000).toISOString().split('T')[0];
+  document.getElementById('admHour').addEventListener('input', function(){ let v=parseInt(this.value); if(v>12) this.value=12; });
+  document.getElementById('admHour').addEventListener('blur', clampHour12);
+  document.getElementById('admMin').addEventListener('input', function(){ let v=parseInt(this.value); if(v>59) this.value=59; });
+  document.getElementById('admMin').addEventListener('blur', clampMin60);
+  loadFirebaseAll();
+  render();
+},300);
 document.addEventListener('click',e=>{if(!e.target.closest('.searchBox'))document.getElementById('searchList').style.display='none'});
 </script>
 </body>
