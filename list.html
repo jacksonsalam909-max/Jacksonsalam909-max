@@ -38,6 +38,42 @@ td.idCol{background:#eff6ff;color:#1e40af;font-weight:900}
 </style>
 </head>
 <body>
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_list_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_list2_"+Math.random()); }
+const dbGuard=getFirestore(app);
+try{
+  onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      localStorage.removeItem('shija_role');
+      alert('🔒 Logged out by Admin from all devices');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+try{
+  window.addEventListener('storage',(e)=>{
+    if(e.key==='shija_force_logout_this_device'){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      location.href='login.html';
+    }
+  });
+  const bc=new BroadcastChannel('shija_logout');
+  bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } };
+}catch(e){}
+</script>
 <div class="top">
 <div style="display:flex;align-items:center;gap:8px">
 <button class="menuBtn" id="menuBtn">☰</button>
@@ -49,7 +85,6 @@ td.idCol{background:#eff6ff;color:#1e40af;font-weight:900}
 <button class="btn btnPurple" onclick="openAddPatientPage()" style="padding:10px 16px">➕ ADD PATIENT</button>
 </div>
 </div>
-
 <div class="menuOverlay" id="menuOverlay"></div>
 <div class="menuDrawer" id="menuDrawer">
 <div style="font-weight:900;padding:16px 18px;border-bottom:2px solid #0a1931;font-size:14px;background:#0a1931;color:#fff">MENU</div>
@@ -68,7 +103,6 @@ td.idCol{background:#eff6ff;color:#1e40af;font-weight:900}
 <button class="menuItem" onclick="goPage('dischargesummary.html')">DISCHARGE SUMMARY</button>
 <div style="margin-top:16px;padding:10px;background:#f8fafc;border-radius:8px;font-size:10px;margin:10px;border:1px solid #e2e8f0"><div style="font-weight:900;margin-bottom:4px">CURRENT:</div><div id="menuCurrentInfo">DATE + SCHEME</div></div>
 </div>
-
 <div class="content">
 <div class="card">
 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
@@ -93,14 +127,12 @@ td.idCol{background:#eff6ff;color:#1e40af;font-weight:900}
 </div>
 </div>
 </div>
-
 <div id="editModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9999"><div style="background:#fff;border-radius:14px;padding:16px;width:90%;max-width:420px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-weight:900" id="editTitle">EDIT PATIENT</span><button class="btn btnDark" onclick="closeModal()">X</button></div><div style="display:flex;flex-direction:column;gap:8px"><input id="editName" class="input" placeholder="PATIENT NAME"><input id="editShri" class="input" placeholder="SHRI ID"><input id="editId" class="input" placeholder="PMJAY/CMHT ID"><input id="editTime" class="input" placeholder="TIME - 7:00 AM"><input id="editBlock" class="input" placeholder="BLOCK - MAIN"><input id="editPrev" class="input" placeholder="PREV - 10/20/2026"><button class="btn btnGreen" style="padding:12px" onclick="saveEdit()">💾 SAVE CHANGES</button></div></div></div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, getDocs, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);window._fb={db,doc,setDoc,getDoc,getDocs,collection,deleteDoc};
+const app=initializeApp(firebaseConfig,"listMain_"+Math.random());const db=getFirestore(app);window._fb={db,doc,setDoc,getDoc,getDocs,collection,deleteDoc};
 </script>
 <script>
 let allPatients=[],filteredPatients=[],currentPage=1,pageSize=10,editIndex=-1;
@@ -108,7 +140,6 @@ document.getElementById('fDate').valueAsDate=new Date();
 let urlParams=new URLSearchParams(window.location.search);
 if(urlParams.get('date')) document.getElementById('fDate').value=urlParams.get('date');
 if(urlParams.get('scheme')) document.getElementById('fType').value=urlParams.get('scheme');
-
 const menuBtn=document.getElementById('menuBtn');
 const menuDrawer=document.getElementById('menuDrawer');
 const menuOverlay=document.getElementById('menuOverlay');
@@ -118,7 +149,6 @@ menuBtn.addEventListener('click', toggleMenu);
 menuBtn.addEventListener('touchstart', (e)=>{e.preventDefault();toggleMenu();},{passive:false});
 menuOverlay.addEventListener('click', closeMenu);
 menuOverlay.addEventListener('touchstart', closeMenu, {passive:true});
-
 function goPage(page){
   closeMenu();
   setTimeout(()=>{
