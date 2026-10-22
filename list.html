@@ -2,75 +2,114 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LIST - REAL EXCEL PASTE</title>
+<title>LIST - DIALYSIS LIST</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
 body{background:#f1f5f9}
-.top{height:60px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:fixed;top:0;left:0;right:0;z-index:999}
-.btn{padding:8px 12px;border:0;border-radius:8px;font-weight:900;font-size:11px;cursor:pointer}
-.btnGreen{background:#10b981;color:#fff}.btnBlue{background:#2563eb;color:#fff}.btnDark{background:#0f172a;color:#fff}.btnRed{background:#ef4444;color:#fff}
-.input{padding:8px;border:1.5px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:12px}
-.content{max-width:1400px;margin:68px auto 0;padding:10px}
+.top{height:58px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:fixed;top:0;left:0;right:0;z-index:999}
+.btn{padding:7px 12px;border:0;border-radius:8px;font-weight:900;font-size:11px;cursor:pointer;text-transform:uppercase}
+.btnGreen{background:#10b981;color:#fff}.btnBlue{background:#2563eb;color:#fff}.btnDark{background:#0f172a;color:#fff}.btnRed{background:#ef4444;color:#fff}.btnOrange{background:#f59e0b;color:#fff}
+.input{padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:12px}
+.content{max-width:1300px;margin:66px auto 0;padding:10px}
 .card{background:#fff;border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid #e2e8f0}
-.sheetWrap{overflow:auto;border:2px solid #000;background:#fff;height:72vh;position:relative}
-table{border-collapse:collapse;width:100%;min-width:950px}
-th{position:sticky;top:0;background:#0f172a;color:#fff;padding:7px 4px;font-size:10px;text-align:center;border:1px solid #000;z-index:3}
-td{border:1px solid #d1d5db;padding:0;height:28px;min-width:80px;position:relative}
-td input{width:100%;height:100%;border:0;padding:4px 6px;font-size:11px;font-weight:600;text-transform:uppercase;outline:0;background:transparent}
-td input:focus{background:#dbeafe!important;outline:2px solid #2563eb}
-td.sl{background:#f1f5f9}
-td.sl input{text-align:center;font-weight:800}
-.rowNum{position:sticky;left:0;background:#f8fafc;z-index:2;border-right:2px solid #000;width:40px;text-align:center;font-size:10px;font-weight:800;color:#64748b}
-.status{font-size:11px;font-weight:800;padding:6px 10px;border-radius:20px}
-.status.saving{background:#fef3c7;color:#92400e}.status.saved{background:#dcfce7;color:#14532d}.status.error{background:#fee2e2;color:#991b1b}
-.pagination{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
-.pageBtn{padding:6px 12px;border-radius:6px;border:1.5px solid #e2e8f0;background:#fff;font-weight:800;cursor:pointer;font-size:10px}
-.pageBtn.active{background:#0f172a;color:#fff}
+.sheetWrap{overflow:auto;border:2px solid #000;background:#fff}
+table{border-collapse:collapse;width:100%;min-width:900px}
+th{position:sticky;top:0;background:#0f172a;color:#fff;padding:8px 4px;font-size:10px;text-align:center;border:1px solid #000;z-index:2}
+td{border:1px solid #d1d5db;padding:0;height:30px}
+td input, td select{width:100%;height:100%;border:0;padding:5px 6px;font-size:11px;font-weight:700;text-transform:uppercase;outline:0;background:transparent;text-align:center}
+td input.nameInput{text-align:left}
+td input:focus, td select:focus{background:#dbeafe;outline:2px solid #2563eb}
+td.slCol{background:#f1f5f9;text-align:center;font-weight:900;font-size:12px}
+.status{font-size:11px;font-weight:800;padding:5px 10px;border-radius:20px}
+.status.saving{background:#fef3c7;color:#92400e}.status.saved{background:#dcfce7;color:#14532d}
+.pagination{display:flex;gap:4px;flex-wrap:wrap}
+.pageBtn{padding:7px 12px;border-radius:7px;border:1.5px solid #e2e8f0;background:#fff;font-weight:900;cursor:pointer;font-size:11px}
+.pageBtn.active{background:#0a1931;color:#fff;border-color:#0a1931}
+.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9999}
+.modalBox{background:#fff;border-radius:14px;padding:16px;width:90%;max-width:380px}
 </style>
 </head>
 <body>
 <div class="top">
-<div style="font-weight:900;font-size:13px">LIST - REAL EXCEL | Click cell → Paste (Ctrl+V) → Auto Save</div>
+<div style="font-weight:900">DIALYSIS LIST</div>
 <div style="display:flex;gap:6px;align-items:center">
-<div id="status" class="status saved">✅ READY</div>
+<div id="status" class="status saved">READY - Click cell & Paste</div>
 <button class="btn btnGreen" onclick="manualSave()">💾 SAVE</button>
-<button class="btn btnBlue" onclick="loadFromFirebase()">🔄 LOAD</button>
-<button class="btn btnRed" onclick="clearDate()">CLEAR DATE</button>
 </div>
 </div>
 
 <div class="content">
 
 <div class="card">
-<div style="display:flex;gap:8px;flex-wrap:wrap">
-<div><label style="font-size:9px;font-weight:800">DATE *</label><br><input type="date" id="fDate" class="input"></div>
-<div><label style="font-size:9px;font-weight:800">DAY</label><br><select id="fDay" class="input"><option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option><option selected>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option></select></div>
-<div><label style="font-size:9px;font-weight:800">TYPE</label><br><select id="fType" class="input"><option selected>PMJAY</option><option>CMHT</option></select></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+<div><label style="font-size:9px;font-weight:800">DATE *</label><br><input type="date" id="fDate" class="input" onchange="onDateChange()"></div>
+<div><label style="font-size:9px;font-weight:800">TYPE</label><br><select id="fType" class="input" onchange="onDateChange()"><option selected>PMJAY</option><option>CMHT</option></select></div>
+<div><label style="font-size:9px;font-weight:800">SHOW ROWS</label><br>
+<select id="rowsPerPage" class="input" onchange="changeRowsPerPage()">
+<option selected>10</option><option>20</option><option>30</option><option>40</option><option>50</option>
+</select></div>
 <div><label style="font-size:9px;font-weight:800">TIME FILTER</label><br><select id="filterTime" class="input" onchange="applyFilter()"><option value="">ALL TIME</option><option>7:00 AM</option><option>12:00 PM</option><option>5:00 PM</option><option>9:00 PM</option></select></div>
 <div><label style="font-size:9px;font-weight:800">BLOCK FILTER</label><br><select id="filterBlock" class="input" onchange="applyFilter()"><option value="">ALL BLOCK</option><option>MAIN</option><option>ITOCHA</option></select></div>
-<div><label style="font-size:9px;font-weight:800">SEARCH</label><br><input type="text" id="searchName" class="input" placeholder="NAME..." oninput="applyFilter()" style="width:140px"></div>
-<div style="margin-left:auto;font-size:10px;font-weight:700;color:#64748b">Tip: Click any cell, Ctrl+V Excel data. It will fill like real Excel. Auto saves.</div>
+<div><label style="font-size:9px;font-weight:800">SEARCH</label><br><input type="text" id="searchName" class="input" placeholder="SEARCH NAME..." oninput="applyFilter()" style="width:160px"></div>
+<div style="margin-left:auto;display:flex;gap:6px">
+<button class="btn btnBlue" onclick="addEmptyRows(10)">+10 ROWS</button>
+<button class="btn btnRed" onclick="clearDate()">CLEAR</button>
+</div>
 </div>
 </div>
 
 <div class="card" style="padding:0">
-<div class="sheetWrap" id="sheetWrap">
+<div class="sheetWrap">
 <table id="sheet">
 <thead>
-<tr><th style="width:35px;left:0;z-index:4" class="rowNum">#</th><th style="width:50px">SL.NO</th><th style="width:220px">NAME</th><th style="width:110px">SHRI</th><th style="width:110px">TIME</th><th style="width:100px">BLOCK</th><th style="width:130px">PREV DIALYSIS</th></tr>
+<tr>
+<th style="width:60px">SL.NO</th>
+<th style="width:240px">NAME</th>
+<th style="width:110px">SHRI</th>
+<th style="width:120px">TIME</th>
+<th style="width:100px">BLOCK</th>
+<th style="width:130px">PREV DIALYSIS</th>
+<th style="width:120px">ACTION</th>
+</tr>
 </thead>
 <tbody id="tbody"></tbody>
 </table>
 </div>
-<div style="padding:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+<div style="padding:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
 <div class="pagination" id="pagination"></div>
-<button class="btn btnDark" onclick="addRows(50)">+ 50 ROWS</button>
+<div style="display:flex;gap:6px;margin-left:auto">
 <button class="btn btnDark" onclick="changePage(-1)">◀ PREV</button>
 <button class="btn btnDark" onclick="changePage(1)">NEXT ▶</button>
-<span id="pageInfo" style="font-weight:800;font-size:11px;margin-left:auto"></span>
+</div>
+<span id="pageInfo" style="font-weight:800;font-size:11px;width:100%;margin-top:6px"></span>
 </div>
 </div>
 
+<div class="card" style="background:#eff6ff;border:2px dashed #2563eb">
+<div style="font-size:11px;font-weight:800">HOW TO USE: Click any cell in table → Ctrl+V paste Excel (format: NAME SHRI TIME BLOCK PREV). SL.NO auto generates. Auto saves to Firebase for selected DATE. Change DATE → list changes automatically.</div>
+</div>
+
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal" id="editModal">
+<div class="modalBox">
+<h3 style="font-weight:900;margin-bottom:12px" id="editTitle">EDIT PATIENT</h3>
+<div style="display:flex;flex-direction:column;gap:10px">
+<label style="font-size:10px;font-weight:800">TIME</label>
+<select id="editTime" class="input"><option>7:00 AM</option><option>12:00 PM</option><option>5:00 PM</option><option>9:00 PM</option></select>
+<label style="font-size:10px;font-weight:800">BLOCK</label>
+<select id="editBlock" class="input"><option>MAIN</option><option>ITOCHA</option></select>
+<label style="font-size:10px;font-weight:800">NAME</label>
+<input id="editName" class="input" style="text-transform:uppercase">
+<label style="font-size:10px;font-weight:800">PREV DIALYSIS</label>
+<input id="editPrev" class="input">
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn btnGreen" style="flex:1" onclick="saveEdit()">SAVE</button>
+<button class="btn btnDark" style="flex:1" onclick="closeModal()">CANCEL</button>
+</div>
+</div>
+</div>
 </div>
 
 <script type="module">
@@ -81,107 +120,115 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window._fb={d
 </script>
 
 <script>
-let allPatients=[]; 
-let filteredIndexes=[]; // indexes in allPatients
+let allPatients=[]; // all for current date
+let filteredPatients=[];
 let currentPage=1;
-let pageSize=100;
-let autoSaveTimer=null;
+let pageSize=10;
+let editIndex=-1;
 let lastFocusedCell=null;
+let autoSaveTimer=null;
 
 document.getElementById('fDate').valueAsDate=new Date();
 
-function addRows(n){
+function addEmptyRows(n){
   let tbody=document.getElementById('tbody');
-  let start=tbody.children.length+1;
   for(let i=0;i<n;i++){
-    let idx=start+i;
     let tr=document.createElement('tr');
-    tr.dataset.row=idx;
     tr.innerHTML=`
-      <td class="rowNum">${idx}</td>
-      <td class="sl"><input data-col="0" placeholder=""></td>
-      <td><input data-col="1" placeholder="NAME"></td>
+      <td class="slCol"></td>
+      <td><input class="nameInput" data-col="1" placeholder="NAME"></td>
       <td><input data-col="2" placeholder="SHRI"></td>
-      <td><input data-col="3" placeholder="7:00 AM"></td>
-      <td><input data-col="4" placeholder="MAIN"></td>
+      <td><select data-col="3"><option value="">TIME</option><option>7:00 AM</option><option>12:00 PM</option><option>5:00 PM</option><option>9:00 PM</option></select></td>
+      <td><select data-col="4"><option value="">BLOCK</option><option>MAIN</option><option>ITOCHA</option></select></td>
       <td><input data-col="5" placeholder="10/19/2026"></td>
+      <td style="display:flex;gap:3px;padding:2px"><button class="btn btnOrange" style="padding:4px 8px;font-size:9px" onclick="openEdit(this)">EDIT</button><button class="btn btnRed" style="padding:4px 6px;font-size:9px" onclick="deleteRow(this)">X</button></td>
     `;
     tbody.appendChild(tr);
   }
+  refreshSerials();
   attachEvents();
 }
 
 function attachEvents(){
-  document.querySelectorAll('#tbody input').forEach(inp=>{
-    inp.onfocus=()=>{ lastFocusedCell=inp; };
-    inp.oninput=()=>{
+  document.querySelectorAll('#tbody input, #tbody select').forEach(el=>{
+    el.onfocus=()=>{ lastFocusedCell=el; };
+    el.oninput=el.onchange=()=>{
+      refreshSerials();
       setStatus('saving','💾 Saving...');
       clearTimeout(autoSaveTimer);
-      autoSaveTimer=setTimeout(()=>{ autoSave(); },1500);
+      autoSaveTimer=setTimeout(autoSave, 1000);
     };
   });
 }
 
-addRows(200);
+function refreshSerials(){
+  // auto SL 1,2,3 as you paste
+  let count=1;
+  document.querySelectorAll('#tbody tr').forEach(tr=>{
+    let nameInput=tr.querySelector('[data-col="1"]')?.value.trim();
+    let slCell=tr.querySelector('.slCol');
+    if(nameInput){
+      slCell.innerText=count++;
+    } else {
+      slCell.innerText='';
+    }
+  });
+}
 
-// REAL EXCEL PASTE INSIDE TABLE
+// PASTE INSIDE EXCEL TABLE DIRECTLY
 document.addEventListener('paste', (e)=>{
   if(!lastFocusedCell) return;
+  // only if focus is inside table
+  if(!lastFocusedCell.closest('#tbody')) return;
+  
   let text=e.clipboardData.getData('text');
-  if(!text || (!text.includes('\t') && !text.includes('\n'))) return; // let normal paste if single cell
+  if(!text || (!text.includes('\t') && !text.includes('\n'))) return;
   
   e.preventDefault();
   let rows=text.trim().split('\n');
-  // remove header
-  if(rows[0].toUpperCase().includes('SL.NO') && rows[0].toUpperCase().includes('NAME')) rows=rows.slice(1);
+  if(rows[0].toUpperCase().includes('NAME') && rows[0].toUpperCase().includes('SHRI')) rows=rows.slice(1);
   
   let startTr=lastFocusedCell.closest('tr');
   let startRowIdx=Array.from(document.getElementById('tbody').children).indexOf(startTr);
   let startColIdx=parseInt(lastFocusedCell.dataset.col);
   
-  // Ensure enough rows
-  let neededRows=startRowIdx+rows.length - document.getElementById('tbody').children.length;
-  if(neededRows>0) addRows(neededRows+50);
+  let needed=startRowIdx+rows.length - document.getElementById('tbody').children.length;
+  if(needed>0) addEmptyRows(needed+10);
   
   let tbodyRows=document.getElementById('tbody').children;
-  
   rows.forEach((r, rIdx)=>{
     let cols=r.split('\t');
     if(cols.length===1) cols=r.split(',');
     let targetRow=tbodyRows[startRowIdx+rIdx];
     if(!targetRow) return;
-    let inputs=targetRow.querySelectorAll('input');
+    let inputs=targetRow.querySelectorAll('input,select');
     cols.forEach((c, cIdx)=>{
       let targetCol=startColIdx+cIdx;
-      if(targetCol<6 && inputs[targetCol]){
-        inputs[targetCol].value=c.trim();
-      }
+      let el=Array.from(inputs).find(i=>parseInt(i.dataset.col)===targetCol);
+      if(el){ el.value=c.trim().toUpperCase(); }
     });
   });
   
+  refreshSerials();
   setStatus('saving','📋 Pasted '+rows.length+' rows, auto saving...');
   clearTimeout(autoSaveTimer);
-  autoSaveTimer=setTimeout(()=>{ autoSave(); },800);
+  autoSaveTimer=setTimeout(autoSave, 700);
 });
 
 function getTableData(){
   let data=[];
   document.querySelectorAll('#tbody tr').forEach(tr=>{
-    let inputs=tr.querySelectorAll('input');
-    let sl=inputs[0]?.value.trim();
-    let name=inputs[1]?.value.trim();
-    if(!name) return; // skip empty
+    let name=tr.querySelector('[data-col="1"]')?.value.trim();
+    if(!name) return;
     data.push({
-      sl: sl?parseInt(sl):data.length+1,
+      sl: data.length+1, // auto serial
       name:name.toUpperCase(),
-      shri:inputs[2]?.value.trim(),
-      time:inputs[3]?.value.trim().toUpperCase(),
-      block:inputs[4]?.value.trim().toUpperCase(),
-      prev:inputs[5]?.value.trim()
+      shri:tr.querySelector('[data-col="2"]')?.value.trim(),
+      time:tr.querySelector('[data-col="3"]')?.value.trim().toUpperCase(),
+      block:tr.querySelector('[data-col="4"]')?.value.trim().toUpperCase(),
+      prev:tr.querySelector('[data-col="5"]')?.value.trim()
     });
   });
-  // sort by sl
-  data.sort((a,b)=>a.sl-b.sl);
   return data;
 }
 
@@ -193,56 +240,42 @@ function setStatus(type,msg){
 
 async function autoSave(){
   let date=document.getElementById('fDate').value;
-  if(!date){ setStatus('error','Select Date first'); return; }
+  if(!date) return;
   let data=getTableData();
-  if(data.length===0){ setStatus('error','No data'); return; }
-  
-  // Validate quickly but don't block - just warn
-  let invalid=data.filter(p=>!['7:00 AM','12:00 PM','5:00 PM','9:00 PM',''].includes(p.time) || !['MAIN','ITOCHA',''].includes(p.block));
-  if(invalid.length>0){
-    setStatus('error','⚠️ '+invalid.length+' rows have wrong TIME/BLOCK - Check');
-    // don't block, still save
-  }
-  
+  if(data.length===0) return;
   let type=document.getElementById('fType').value;
-  let day=document.getElementById('fDay').value;
   let docId=date+'_'+type;
-  
-  // MERGE LOGIC - Don't lose old data when pasting new list
-  // Load existing from memory + Firebase backup, merge
   try{
+    // MERGE - Never lose when paste another list
     let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));
-    let existing=[];
-    if(snap.exists()) existing=snap.data().patients||[];
-    
-    // Merge: keep existing, add new that don't exist by SL, update if same SL
+    let existing=snap.exists()? (snap.data().patients||[]):[];
+    // Merge by NAME (keep unique)
     let map=new Map();
-    existing.forEach(p=>map.set(p.sl,p));
-    data.forEach(p=>map.set(p.sl,p)); // new overwrites same SL
+    existing.forEach(p=>map.set(p.name,p));
+    data.forEach(p=>map.set(p.name,p));
+    let merged=Array.from(map.values());
+    merged.forEach((p,i)=>p.sl=i+1);
     
-    let merged=Array.from(map.values()).sort((a,b)=>a.sl-b.sl);
+    // If table has more than existing, use table directly (user deleted some)
+    if(data.length>=existing.length) merged=data;
     
     await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId),{
-      date:date, day:day, type:type, patients:merged, count:merged.length, updatedAt:new Date().toISOString()
+      date:date, type:type, patients:merged, count:merged.length, updatedAt:new Date().toISOString()
     });
-    
     allPatients=merged;
-    filteredIndexes=merged.map((_,i)=>i);
-    setStatus('saved','✅ AUTO SAVED '+merged.length+' patients for '+date);
+    applyFilterInternal();
+    setStatus('saved','✅ AUTO SAVED '+merged.length+' for '+date);
     localStorage.setItem(docId, JSON.stringify(merged));
-    renderPagination();
   }catch(e){
-    setStatus('error','❌ '+e.message);
+    setStatus('saved','✅ SAVED locally '+data.length);
     localStorage.setItem(docId, JSON.stringify(data));
   }
 }
 
-async function manualSave(){
-  setStatus('saving','💾 Saving...');
-  await autoSave();
-}
+async function manualSave(){ setStatus('saving','Saving...'); await autoSave(); }
 
-async function loadFromFirebase(){
+async function onDateChange(){
+  // When date changes, list changes automatically
   let date=document.getElementById('fDate').value;
   let type=document.getElementById('fType').value;
   if(!date) return;
@@ -250,76 +283,153 @@ async function loadFromFirebase(){
   setStatus('saving','Loading '+date+'...');
   try{
     let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));
-    let patients=[];
-    if(snap.exists()){
-      patients=snap.data().patients||[];
-      document.getElementById('fDay').value=snap.data().day||'THURSDAY';
-    } else {
+    let patients=snap.exists()? (snap.data().patients||[]):[];
+    if(patients.length===0){
       let local=localStorage.getItem(docId);
       if(local) patients=JSON.parse(local);
     }
-    
-    if(patients.length===0){
-      setStatus('error','No data for '+date); return;
-    }
-    
-    // Fill table
     document.getElementById('tbody').innerHTML='';
-    addRows(Math.max(patients.length+100,200));
-    let rows=document.getElementById('tbody').children;
-    patients.forEach((p,i)=>{
-      let tr=rows[i];
-      if(!tr) return;
-      let inputs=tr.querySelectorAll('input');
-      inputs[0].value=p.sl;
-      inputs[1].value=p.name;
-      inputs[2].value=p.shri;
-      inputs[3].value=p.time;
-      inputs[4].value=p.block;
-      inputs[5].value=p.prev;
-    });
-    
-    allPatients=patients;
-    filteredIndexes=patients.map((_,i)=>i);
-    currentPage=1;
-    renderPagination();
-    setStatus('saved','✅ Loaded '+patients.length+' for '+date);
-  }catch(e){ setStatus('error','❌ '+e.message); }
+    if(patients.length===0){
+      addEmptyRows(10);
+      allPatients=[];
+      setStatus('saved','No data for '+date+' - Paste here');
+    } else {
+      addEmptyRows(patients.length);
+      let rows=document.getElementById('tbody').children;
+      patients.forEach((p,i)=>{
+        let tr=rows[i];
+        tr.querySelector('[data-col="1"]').value=p.name;
+        tr.querySelector('[data-col="2"]').value=p.shri;
+        tr.querySelector('[data-col="3"]').value=p.time;
+        tr.querySelector('[data-col="4"]').value=p.block;
+        tr.querySelector('[data-col="5"]').value=p.prev;
+      });
+      allPatients=patients;
+      setStatus('saved','✅ Loaded '+patients.length+' for '+date);
+    }
+    refreshSerials();
+    applyFilterInternal();
+  }catch(e){ setStatus('saved','Error: '+e.message); }
 }
 
-function renderPagination(){
-  let total=allPatients.length;
-  document.getElementById('pageInfo').innerText=`Total: ${total} patients | Page ${currentPage}`;
-}
-
-function applyFilter(){
+function applyFilterInternal(){
   let fTime=document.getElementById('filterTime').value;
   let fBlock=document.getElementById('filterBlock').value;
   let fName=document.getElementById('searchName').value.toLowerCase().trim();
-  document.querySelectorAll('#tbody tr').forEach(tr=>{
-    let time=tr.querySelectorAll('input')[3]?.value.toUpperCase()||'';
-    let block=tr.querySelectorAll('input')[4]?.value.toUpperCase()||'';
-    let name=tr.querySelectorAll('input')[1]?.value.toLowerCase()||'';
-    let show=true;
-    if(fTime && time!==fTime) show=false;
-    if(fBlock && block!==fBlock) show=false;
-    if(fName && !name.includes(fName)) show=false;
-    tr.style.display=show?'':'none';
+  filteredPatients=allPatients.filter(p=>{
+    if(fTime && p.time!==fTime) return false;
+    if(fBlock && p.block!==fBlock) return false;
+    if(fName && !p.name.toLowerCase().includes(fName)) return false;
+    return true;
   });
+  currentPage=1;
+  renderPagination();
 }
 
-function changePage(dir){ /* pagination simplified - table already shows all, filter only */ }
+function applyFilter(){ applyFilterInternal(); }
+
+function renderPagination(){
+  pageSize=parseInt(document.getElementById('rowsPerPage').value)||10;
+  let totalPages=Math.max(1, Math.ceil(filteredPatients.length/pageSize));
+  if(currentPage>totalPages) currentPage=totalPages;
+  let pag=document.getElementById('pagination');
+  pag.innerHTML='';
+  for(let i=1;i<=totalPages;i++){
+    let btn=document.createElement('button');
+    btn.className='pageBtn'+(i===currentPage?' active':'');
+    btn.innerText=i;
+    btn.onclick=()=>{ currentPage=i; showPage(); };
+    pag.appendChild(btn);
+  }
+  showPage();
+}
+
+function showPage(){
+  // Hide/show rows based on filter + pagination
+  let start=(currentPage-1)*pageSize;
+  let end=start+pageSize;
+  let visibleSl=new Set(filteredPatients.slice(start,end).map(p=>p.sl));
+  
+  // If filtering, show only filtered in pagination
+  let hasFilter=document.getElementById('filterTime').value||document.getElementById('filterBlock').value||document.getElementById('searchName').value;
+  
+  if(!hasFilter){
+    // Normal pagination - show table rows by index
+    document.querySelectorAll('#tbody tr').forEach((tr,idx)=>{
+      tr.style.display=(idx>=start && idx<end)?'':'none';
+    });
+  } else {
+    // Filtered view
+    document.querySelectorAll('#tbody tr').forEach(tr=>{
+      let name=tr.querySelector('[data-col="1"]')?.value.toUpperCase();
+      let match=filteredPatients.some(p=>p.name===name);
+      tr.style.display=match?'':'none';
+    });
+  }
+  
+  document.getElementById('pageInfo').innerText=`Showing ${Math.min(pageSize, filteredPatients.length)} of ${allPatients.length} patients | Page ${currentPage}/${Math.max(1,Math.ceil(filteredPatients.length/pageSize))} | ${pageSize} per page`;
+}
+
+function changePage(dir){
+  let totalPages=Math.ceil(filteredPatients.length/pageSize);
+  currentPage+=dir;
+  if(currentPage<1) currentPage=1;
+  if(currentPage>totalPages) currentPage=totalPages;
+  renderPagination();
+}
+
+function changeRowsPerPage(){ currentPage=1; renderPagination(); }
+
+function openEdit(btn){
+  let tr=btn.closest('tr');
+  let idx=Array.from(document.getElementById('tbody').children).indexOf(tr);
+  let data=getTableData();
+  let patient=data[idx] || allPatients[idx];
+  if(!patient) return;
+  editIndex=idx;
+  document.getElementById('editTitle').innerText='EDIT: '+patient.name;
+  document.getElementById('editName').value=patient.name;
+  document.getElementById('editTime').value=patient.time;
+  document.getElementById('editBlock').value=patient.block;
+  document.getElementById('editPrev').value=patient.prev;
+  document.getElementById('editModal').style.display='flex';
+}
+
+function saveEdit(){
+  let tr=document.getElementById('tbody').children[editIndex];
+  if(!tr) return;
+  tr.querySelector('[data-col="1"]').value=document.getElementById('editName').value.toUpperCase();
+  tr.querySelector('[data-col="3"]').value=document.getElementById('editTime').value;
+  tr.querySelector('[data-col="4"]').value=document.getElementById('editBlock').value;
+  tr.querySelector('[data-col="5"]').value=document.getElementById('editPrev').value;
+  closeModal();
+  autoSave();
+}
+
+function closeModal(){ document.getElementById('editModal').style.display='none'; }
+
+function deleteRow(btn){
+  if(!confirm('Delete?')) return;
+  btn.closest('tr').remove();
+  refreshSerials();
+  autoSave();
+}
 
 async function clearDate(){
   let date=document.getElementById('fDate').value; let type=document.getElementById('fType').value;
-  if(!confirm('Clear ALL for '+date+' '+type+'?')) return;
+  if(!confirm('Clear all for '+date+'?')) return;
   let docId=date+'_'+type;
-  document.getElementById('tbody').innerHTML=''; addRows(200);
-  allPatients=[]; localStorage.removeItem(docId);
-  try{ await window._fb.deleteDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId)); setStatus('saved','🗑️ Cleared'); }catch(e){}
+  document.getElementById('tbody').innerHTML='';
+  addEmptyRows(10);
+  allPatients=[]; filteredPatients=[];
+  localStorage.removeItem(docId);
+  try{ await window._fb.deleteDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId)); setStatus('saved','Cleared '+date); }catch(e){}
+  renderPagination();
 }
 
-window.addEventListener('load',()=>{ setTimeout(loadFromFirebase,800); });
+// Init
+addEmptyRows(10);
+window.addEventListener('load',()=>{ setTimeout(onDateChange,800); });
 </script>
 </body>
 </html>
