@@ -86,6 +86,42 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 </style>
 </head>
 <body>
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_cmhtdaily_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_cmhtdaily2_"+Math.random()); }
+const dbGuard=getFirestore(app);
+try{
+  onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      localStorage.removeItem('shija_role');
+      alert('🔒 Logged out by Admin from all devices');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+try{
+  window.addEventListener('storage',(e)=>{
+    if(e.key==='shija_force_logout_this_device'){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      location.href='login.html';
+    }
+  });
+  const bc=new BroadcastChannel('shija_logout');
+  bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } };
+}catch(e){}
+</script>
 <div class="top"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA - CMHT Daily Dialysis</h2></div><span style="color:#fff" id="fbStatus">Connecting...</span></div>
 <div class="sideOverlay" id="overlay"></div>
 <div class="mainWrap">
@@ -136,8 +172,6 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">← Prev</button><button class="pBtn" id="nextBtn" onclick="nextPage()">Next →</button></div><div id="pageInfo" style="font-weight:600;color:#475569"></div><div id="pageNums" style="display:flex;gap:4px"></div></div></div>
 </div>
 </div>
-
-<!-- SINGLE -->
 <div class="modal" id="modalTime"><div class="modalBox"><h3>Select Time Slot</h3><p id="selPatientInfo" style="font-size:13px;color:#64748b"></p><div class="timeGrid">
 <button class="timeBtn" onclick="selectTime('7AM')">7AM</button>
 <button class="timeBtn" onclick="selectTime('12PM')">12PM</button>
@@ -151,8 +185,6 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <button class="blockBtn" onclick="selectBlock('Main')">Main</button>
 </div><button class="btn" onclick="closeAll()">Cancel</button></div></div>
 <div class="modal" id="modalPrev"><div class="modalBox"><h3>Previous Dialysis Date</h3><input type="date" id="prevDate" style="width:100%;padding:12px;border-radius:8px;border:1.5px solid #cbd5e1"><div style="display:flex;gap:8px;margin-top:14px"><button class="btn" onclick="closeAll()" style="flex:1">Cancel</button><button class="btn btnAdd" onclick="finalAdd()" style="flex:1">Add to List (Auto Save Firebase)</button></div></div></div>
-
-<!-- EDIT MODAL NEW -->
 <div class="modal" id="modalEdit"><div class="modalBox"><h3>Edit Patient</h3><p id="editPatientLabel" style="font-size:13px;color:#64748b;margin-bottom:10px"></p>
 <span class="editLabel">Name</span><input id="edit_name" class="editInput" readonly style="background:#f8fafc">
 <span class="editLabel">SHRI ID</span><input id="edit_shri" class="editInput" readonly style="background:#f8fafc">
@@ -160,8 +192,6 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <span class="editLabel">Block</span><select id="edit_block" class="editInput"><option>Main</option><option>Itocha</option></select>
 <span class="editLabel">Previous Dialysis Date</span><input type="date" id="edit_prev" class="editInput">
 <div style="display:flex;gap:8px;margin-top:14px"><button class="btn" onclick="closeAll()" style="flex:1">Cancel</button><button class="btn btnAdd" onclick="saveEdit()" style="flex:1">Save Changes to Firebase</button></div></div></div>
-
-<!-- MULTIPLE ADD -->
 <div class="modal" id="popMulti"><div class="modalBoxLarge">
 <div class="popHead"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Add Multiple Patients</h3><button class="closeX" onclick="closeMulti()">×</button></div></div>
 <div style="padding:12px;display:flex;flex-direction:column;gap:10px;overflow:auto">
@@ -170,8 +200,6 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <div id="m_empty" style="text-align:center;color:#94a3b8;font-size:12px;padding:10px">No patients added yet. Search above and tap a patient.</div>
 <button class="btn" id="m_saveBtn" onclick="saveMultiple()" style="background:#0a1931;color:#fff;padding:12px;border-radius:12px;position:sticky;bottom:0">Save All to Firebase (0)</button>
 </div></div></div>
-
-<!-- MULTIPLE: Time / Block / Prev -->
 <div class="modal" id="popMTime"><div class="modalBox"><h3>Select Time Slot</h3><p id="mTimePatient" style="font-size:13px;color:#64748b"></p><div class="timeGrid">
 <button class="timeBtn" onclick="selectMultiTime('7AM')">7AM</button><button class="timeBtn" onclick="selectMultiTime('12PM')">12PM</button><button class="timeBtn" onclick="selectMultiTime('5PM')">5PM</button><button class="timeBtn" onclick="selectMultiTime('9PM')">9PM</button><button class="timeBtn" onclick="selectMultiTime('12AM')">12AM</button><button class="timeBtn" onclick="selectMultiTime('2AM')">2AM</button>
 </div><button class="btn" onclick="closeMultiPop('popMTime')">Cancel</button></div></div>
@@ -179,9 +207,7 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <button class="blockBtn" onclick="selectMultiBlock('Itocha')">Itocha</button><button class="blockBtn" onclick="selectMultiBlock('Main')">Main</button>
 </div><button class="btn" onclick="closeMultiPop('popMBlock')">Cancel</button></div></div>
 <div class="modal" id="popMPrev"><div class="modalBox"><h3>Previous Dialysis Date</h3><p id="mPrevPatient" style="font-size:13px;color:#64748b"></p><input type="date" id="m_prev_date" style="width:100%;padding:12px;border-radius:8px;border:1.5px solid #cbd5e1"><div style="display:flex;gap:8px;margin-top:14px"><button class="btn" onclick="closeMultiPop('popMPrev')" style="flex:1">Cancel</button><button class="btn btnAdd" onclick="confirmMultiPrev()" style="flex:1">Set Previous Date</button></div></div></div>
-
 <script>
-// UNIVERSAL 3-LINE BUTTON - Works on ALL devices
 function toggleMenu(){
  var s=document.getElementById('side');
  var o=document.getElementById('overlay');
@@ -211,7 +237,7 @@ function onSchemeChange(val){ var d=document.getElementById('listDate').value||'
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc, query, where, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);
+const app=initializeApp(firebaseConfig,"cmhtdailyMain_"+Math.random());const db=getFirestore(app);
 window.db=db;window.fb={collection,getDocs,doc,setDoc,addDoc,deleteDoc,query,where,serverTimestamp,updateDoc};
 let allCMHT=[], allList=[], filteredList=[], currentPage=1;
 let selectedPatient=null, selectedTime='', selectedBlock='';
@@ -291,7 +317,6 @@ window.prevPage=()=>{if(currentPage>1){currentPage--;renderTable();}};
 window.nextPage=()=>{let ps=parseInt(document.getElementById('pageSize').value);if(currentPage<Math.ceil(filteredList.length/ps)){currentPage++;renderTable();}};
 window.goPage=(n)=>{currentPage=n;renderTable();};
 window.deleteEntry=async(id)=>{if(!confirm('Delete from Firebase? Will delete for all computers'))return;try{await deleteDoc(doc(db,"cmht_daily_dialysis",id));document.getElementById('fbStatus').textContent='Deleted from Firebase';loadList();}catch(e){alert(e.message);}};
-
 window.editEntry=(id)=>{
  let rec = allList.find(x=>x.id===id);
  if(!rec){ alert('Record not found'); return; }
@@ -318,7 +343,6 @@ window.saveEdit=async()=>{
    await loadList();
  }catch(e){ document.getElementById('fbStatus').textContent='Update Error: '+e.message; alert(e.message); }
 };
-
 function updateHintSelection(){
  let items=document.querySelectorAll('#mainHintList.sItem');
  items.forEach((el,i)=>{if(i===hintIndex) el.classList.add('selected'); else el.classList.remove('selected');});
@@ -396,7 +420,6 @@ window.finalAdd=async()=>{
   await loadList();
  }catch(e){alert('Firebase Error: '+e.message);document.getElementById('fbStatus').textContent='Error: '+e.message;}
 };
-// MULTIPLE
 window.openMulti=()=>{ multiList=[]; renderMultiList(); document.getElementById('m_search').value=''; document.getElementById('m_suggest').style.display='none'; document.getElementById('popMulti').classList.add('show'); };
 window.closeMulti=()=>{ document.getElementById('popMulti').classList.remove('show'); };
 window.closeMultiPop=(id)=>{ document.getElementById(id).classList.remove('show'); };
