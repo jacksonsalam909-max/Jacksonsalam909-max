@@ -45,6 +45,42 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 </style>
 </head>
 <body>
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_cmhtkft_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_cmhtkft2_"+Math.random()); }
+const dbGuard=getFirestore(app);
+try{
+  onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      localStorage.removeItem('shija_role');
+      alert('🔒 Logged out by Admin from all devices');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+try{
+  window.addEventListener('storage',(e)=>{
+    if(e.key==='shija_force_logout_this_device'){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      location.href='login.html';
+    }
+  });
+  const bc=new BroadcastChannel('shija_logout');
+  bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } };
+}catch(e){}
+</script>
 <div class="top"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA - CMHT KFT REPORT</h2></div><span style="color:#fff">Admin</span></div>
 <div class="sideOverlay" id="overlay"></div>
 <div class="mainWrap">
@@ -98,7 +134,6 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 </div>
 </div>
 <script>
-// UNIVERSAL 3-LINE BUTTON - Works on ALL devices
 function toggleMenu(){
  var s=document.getElementById('side');
  var o=document.getElementById('overlay');
@@ -132,7 +167,7 @@ document.addEventListener('DOMContentLoaded',function(){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);
+const app=initializeApp(firebaseConfig,"cmhtkftMain_"+Math.random());const db=getFirestore(app);
 let allCMHT=[];
 let currentPage=1;
 let pageSize=10;
@@ -141,7 +176,6 @@ for(let y=2024;y<=2030;y++){let o=document.createElement('option');o.value=y;o.t
 let monthSel=document.getElementById('monthSel');monthSel.value=new Date().toISOString().slice(5,7);
 function getDateKey(){return `${yearSel.value}-${monthSel.value}-${document.getElementById('daySel').value}`;}
 async function init(){const snap=await getDocs(collection(db,"cmht_patients"));allCMHT=[];snap.forEach(d=>{let c=d.data();allCMHT.push({key:d.id,name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||''});});loadKFT();}
-
 function getFiltered(){
   let searchQ=document.getElementById('searchAdded').value.toLowerCase().trim();
   return allCMHT.filter(p=>{
@@ -184,7 +218,6 @@ window.changePageSize=()=>{
   loadKFT(true);
 };
 window.resetPageAndLoad=()=>{ currentPage=1; loadKFT(); };
-
 window.loadKFT=async(keepPage)=>{
  let dateKey=getDateKey();
  let searchQ=document.getElementById('searchAdded').value.toLowerCase().trim();
@@ -194,7 +227,6 @@ window.loadKFT=async(keepPage)=>{
  if(currentPage>totalPages) currentPage=totalPages;
  let pageItems = pageSize==='all' ? filtered : filtered.slice((currentPage-1)*pageSize, currentPage*pageSize);
  let startIndex = pageSize==='all' ? 0 : (currentPage-1)*pageSize;
-
  let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Contact</th><th>KFT Status</th><th>Date</th></tr>';
  for(let i=0;i<pageItems.length;i++){
   let p=pageItems[i];let docId=`${p.shri}_${dateKey}`;let status='Not-Received';
