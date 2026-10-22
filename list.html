@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DAILY DIALYSIS LIST</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;window.fb={collection,doc,setDoc,getDoc};
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',Arial,sans-serif}
+body{background:#f1f5f9}
+.top{height:62px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:fixed;top:0;left:0;right:0;z-index:9999}
+.menuBtn{width:42px;height:38px;border-radius:10px;background:#fff;border:0;color:#0f172a;font-size:20px;font-weight:900;cursor:pointer}
+.whiteBar{position:fixed;left:0;top:62px;bottom:0;width:300px;background:#fff;transform:translateX(-100%);transition:.35s;z-index:10000;padding:14px 12px;overflow:auto}
+.whiteBar.open{transform:translateX(0)}
+.whiteBar a{display:flex;padding:13px 14px;border-radius:12px;text-decoration:none;color:#334155;font-weight:800;font-size:11.5px;margin-bottom:6px;text-transform:uppercase}
+.whiteBar a.active{background:#0f172a;color:#fff}
+.whiteOverlay{position:fixed;inset:0;top:62px;background:rgba(0,0,0,.6);z-index:9998;display:none}
+.whiteOverlay.show{display:block}
+.content{max-width:1400px;margin:76px auto 0;padding:14px}
+.card{background:#fff;border-radius:16px;border:1px solid #e2e8f0;padding:16px;margin-bottom:14px}
+.uploadZone{border:2.5px dashed #2563eb;background:#eff6ff;border-radius:16px;padding:20px;text-align:center;cursor:pointer}
+.btn{padding:10px 18px;border-radius:8px;border:0;font-weight:900;font-size:11px;cursor:pointer;text-transform:uppercase}
+.btnBlue{background:#2563eb;color:#fff}.btnDark{background:#0f172a;color:#fff}.btnGreen{background:#10b981;color:#fff}
+.inputPro{padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-weight:700;font-size:12px;background:#f8fafc;outline:0}
+.paper{width:100%;max-width:1100px;margin:0 auto;background:#fff;border:1.5px solid #000;color:#000;overflow:hidden}
+.paperTitle{text-align:center;font-weight:900;font-size:18px;padding:10px 0;text-transform:uppercase;border-bottom:2px solid #000}
+.listTable{width:100%;border-collapse:collapse;font-size:11px}
+.listTable th{border:1px solid #000;padding:4px 4px;background:#f1f5f9;font-weight:800;text-transform:uppercase;font-size:9.5px;text-align:center;white-space:nowrap}
+.listTable td{border:1px solid #000;padding:3px 4px;font-size:10.5px;font-weight:600;text-transform:uppercase;white-space:nowrap}
+.listTable .center{text-align:center}
+.listTable .sectionRow td{font-weight:900;text-align:center;background:#fffbe6;padding:5px;font-size:11px}
+.searchInput{width:280px!important;border:2px solid #0f172a!important}
+</style>
+</head>
+<body>
+
+<div class="whiteOverlay" id="whiteOverlay"></div>
+<div class="whiteBar" id="whiteBar">
+<div>
+<a href="index.html">🏠 HOME</a>
+<a href="total.html">📋 TOTAL PMJAY PATIENT</a>
+<a href="cmht.html">🏥 TOTAL CMHT PATIENT</a>
+<a href="add.html">➕ ADD PMJAY PATIENT</a>
+<a href="addcmht.html">➕ ADD CMHT PATIENT</a>
+<a href="discharge.html">🏥 DISCHARGE PATIENT</a>
+<a href="bill.html">💰 BILL</a>
+<a href="searchpatient.html">🔍 SEARCH PATIENT</a>
+<a href="kft.html">📊 KFT REPORT</a>
+<a href="cmhtkft.html">📊 CMHT KFT REPORT</a>
+<a href="dischargesummary.html">📄 DISCHARGE SUMMARY</a>
+<a href="list.html" class="active">📅 DAILY DIALYSIS LIST</a>
+</div>
+</div>
+
+<div class="top">
+<div style="display:flex;align-items:center;gap:10px">
+<button class="menuBtn" id="menuBtn">☰</button>
+<div style="color:#fff;font-weight:900;font-size:12px;text-transform:uppercase">DAILY DIALYSIS LIST - FIREBASE</div>
+</div>
+<div style="display:flex;gap:6px">
+<button class="btn btnGreen" onclick="exportJPG()">JPG</button>
+<button class="btn btnBlue" onclick="exportPDF()">PDF</button>
+</div>
+</div>
+
+<div class="content">
+<div class="card">
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">
+<div><label style="font-size:10px;font-weight:800">SELECT DATE</label><input type="date" id="listDate" class="inputPro" onchange="loadFromFirebase()"></div>
+<div><label style="font-size:10px;font-weight:800">DAY</label><select id="listDay" class="inputPro"><option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option><option selected>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option></select></div>
+<div><label style="font-size:10px;font-weight:800">TYPE</label><select id="listType" class="inputPro"><option selected>PMJAY</option><option>CMHT</option></select></div>
+<div><label style="font-size:10px;font-weight:800">SEARCH PATIENT NAME</label><input type="text" id="searchName" class="inputPro searchInput" placeholder="TYPE NAME TO FILTER..." oninput="filterList()"></div>
+<div style="margin-left:auto;display:flex;gap:6px">
+<button class="btn btnDark" onclick="loadFromFirebase()">🔄 LOAD</button>
+<button class="btn btnBlue" onclick="document.getElementById('excelFile').click()">📤 UPLOAD EXCEL</button>
+</div>
+</div>
+<div class="uploadZone" style="margin-top:14px" onclick="document.getElementById('excelFile').click()">
+<div style="font-weight:900;font-size:12px;text-transform:uppercase">CLICK TO UPLOAD TODAY'S EXCEL - WILL SAVE TO FIREBASE</div>
+<input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFile(this.files[0])">
+</div>
+<div id="status" style="margin-top:8px;font-size:11px;font-weight:800;text-transform:uppercase;color:#2563eb"></div>
+</div>
+
+<div class="paper" id="paper">
+<div class="paperTitle" id="paperTitle">22/10/2026 THURSDAY PMJAY DIALYSIS LIST</div>
+<table class="listTable">
+<thead><tr><th>SL.NO</th><th>NAME</th><th>SHRI</th><th>TIME</th><th>BLOCK</th><th>PREV DIALYSIS</th><th>SL.NO</th><th>NAME</th><th>SHRI</th><th>TIME</th><th>BLOCK</th><th>PREV DIALYSIS</th></tr></thead>
+<tbody id="listBody"><tr><td colspan="12" style="text-align:center;padding:20px;font-weight:800">SELECT DATE OR UPLOAD EXCEL</td></tr></tbody>
+</table>
+</div>
+</div>
+
+<script>
+document.getElementById('menuBtn').onclick=function(){document.getElementById('whiteBar').classList.toggle('open');document.getElementById('whiteOverlay').classList.toggle('show');}
+document.getElementById('whiteOverlay').onclick=function(){document.getElementById('whiteBar').classList.remove('open');document.getElementById('whiteOverlay').classList.remove('show');}
+let allData=[],filteredData=[];
+function normalize(k){return String(k||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
+function findVal(row,keys){for(let rk in row){for(let k of keys){if(normalize(rk).includes(normalize(k))) return row[rk];}}return '';}
+function formatPrev(v){if(!v)return'';if(typeof v==='number'){let d=new Date(Math.round((v-25569)*86400*1000));return (d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getDate().toString().padStart(2,'0')+'/'+d.getFullYear();}return String(v).trim();}
+async function handleFile(file){
+  if(!file)return;let date=document.getElementById('listDate').value;if(!date){alert('SELECT DATE FIRST');return;}
+  let reader=new FileReader();reader.onload=async function(e){
+    let wb=XLSX.read(e.target.result,{type:'binary'});let ws=wb.Sheets[wb.SheetNames[0]];let json=XLSX.utils.sheet_to_json(ws,{defval:''});
+    let parsed=[];json.forEach((r,i)=>{let sl=findVal(r,['slno','sl','sno'])||(i+1);let name=findVal(r,['name','patientname']);let shri=findVal(r,['shri','uhid','id']);let time=findVal(r,['time']);let block=findVal(r,['block']);let prev=findVal(r,['prevdialysis','prevdial','previous','lastdialysis']);if(!name)return;parsed.push({sl:parseInt(sl)||i+1,name:String(name).toUpperCase(),shri:String(shri||'').trim(),time:String(time||'').toUpperCase(),block:String(block||'').toUpperCase(),prev:formatPrev(prev)});});
+    let type=document.getElementById('listType').value;let docId=date+'_'+type;
+    document.getElementById('status').innerText='SAVING '+parsed.length+' PATIENTS TO FIREBASE...';
+    const {doc,setDoc}=window.fb;await setDoc(doc(window.db,'daily_dialysis_lists',docId),{date:date,day:document.getElementById('listDay').value,type:type,patients:parsed,count:parsed.length,updatedAt:new Date().toISOString()});
+    document.getElementById('status').innerText='✅ SAVED '+parsed.length+' FOR '+date;allData=parsed;filteredData=parsed;buildTable();
+  };reader.readAsBinaryString(file);
+}
+async function loadFromFirebase(){
+  let date=document.getElementById('listDate').value;let type=document.getElementById('listType').value;if(!date){alert('SELECT DATE');return;}
+  let docId=date+'_'+type;document.getElementById('status').innerText='LOADING FOR '+date+'...';
+  const {doc,getDoc}=window.fb;let snap=await getDoc(doc(window.db,'daily_dialysis_lists',docId));
+  if(!snap.exists()){document.getElementById('status').innerText='❌ NO DATA FOR '+date;document.getElementById('listBody').innerHTML=`<tr><td colspan="12" style="text-align:center;padding:20px">NO DATA FOR ${date}</td></tr>`;allData=[];filteredData=[];updateTitle();return;}
+  let data=snap.data();allData=data.patients||[];filteredData=allData;document.getElementById('listDay').value=data.day||'THURSDAY';document.getElementById('status').innerText='✅ LOADED '+allData.length+' FOR '+date;buildTable();
+}
+function updateTitle(){let date=document.getElementById('listDate').value;let dStr=date?new Date(date).toLocaleDateString('en-GB'):new Date().toLocaleDateString('en-GB');document.getElementById('paperTitle').innerText=dStr+' '+document.getElementById('listDay').value+' '+document.getElementById('listType').value+' DIALYSIS LIST';}
+function filterList(){let q=document.getElementById('searchName').value.toLowerCase().trim();filteredData=!q?allData:allData.filter(p=>p.name.toLowerCase().includes(q)||p.shri.toLowerCase().includes(q));buildTable();}
+function buildTable(){
+  updateTitle();let list=filteredData.length>0||document.getElementById('searchName').value?filteredData:allData;if(list.length===0)return;
+  let groups={},groupOrder=[];list.forEach(p=>{let key=p.time+'_'+p.block;if(!groups[key]){groups[key]=[];groupOrder.push(key);}groups[key].push(p);});
+  let timeOrder={'7:00 AM':1,'12:00 PM':2,'5:00 PM':3,'9:00 PM':4};groupOrder.sort((a,b)=>{let ta=groups[a][0]?.time,tb=groups[b][0]?.time;return (timeOrder[ta]||99)-(timeOrder[tb]||99);});
+  let flat=[];groupOrder.forEach(k=>{let time=groups[k][0].time,block=groups[k][0].block,label='';if(time.includes('7:00'))label='MORNING 7AM '+block;else if(time.includes('12:00'))label='EVENING 12PM '+block;else if(time.includes('5:00'))label='EVENING 5PM '+block;else if(time.includes('9:00'))label='NIGHT 9PM '+block;else label=time+' '+block;flat.push({isSection:true,label});groups[k].forEach(p=>flat.push({isSection:false,p}));});
+  let half=Math.ceil(flat.length/2),col1=flat.slice(0,half),col2=flat.slice(half),maxRows=Math.max(col1.length,col2.length),tbody=document.getElementById('listBody');tbody.innerHTML='';
+  for(let i=0;i<maxRows;i++){let c1=col1[i],c2=col2[i],tr=document.createElement('tr');if(c1&&c1.isSection){tr.innerHTML=`<td colspan="6" class="sectionRow">${c1.label}</td>`;if(c2&&c2.isSection)tr.innerHTML+=`<td colspan="6" class="sectionRow">${c2.label}</td>`;else if(c2)tr.innerHTML+=`<td class="center">${c2.p.sl}</td><td>${c2.p.name}</td><td class="center">${c2.p.shri}</td><td class="center">${c2.p.time}</td><td class="center">${c2.p.block}</td><td class="center">${c2.p.prev}</td>`;else tr.innerHTML+=`<td></td><td></td><td></td><td></td>`;}else if(c2&&c2.isSection){if(c1)tr.innerHTML=`<td class="center">${c1.p.sl}</td><td>${c1.p.name}</td><td class="center">${c1.p.shri}</td><td class="center">${c1.p.time}</td><td class="center">${c1.p.block}</td><td class="center">${c1.p.prev}</td>`;else tr.innerHTML=`<td></td><td></td><td></td><td></td>`;tr.innerHTML+=`<td colspan="6" class="sectionRow">${c2.label}</td>`;}else{let lh=c1?`<td class="center">${c1.p.sl}</td><td>${c1.p.name}</td><td class="center">${c1.p.shri}</td><td class="center">${c1.p.time}</td><td class="center">${c1.p.block}</td><td class="center">${c1.p.prev}</td>`:`<td></td><td></td><td></td><td></td>`;let rh=c2?`<td class="center">${c2.p.sl}</td><td>${c2.p.name}</td><td class="center">${c2.p.shri}</td><td class="center">${c2.p.time}</td><td class="center">${c2.p.block}</td><td class="center">${c2.p.prev}</td>`:`<td></td><td></td><td></td><td></td>`;tr.innerHTML=lh+rh;}tbody.appendChild(tr);}
+}
+async function exportJPG(){let paper=document.getElementById('paper');let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff'});let link=document.createElement('a');link.download=document.getElementById('paperTitle').innerText.replace(/[^a-zA-Z0-9]/g,'_')+'.jpg';link.href=canvas.toDataURL('image/jpeg',0.95);link.click();}
+async function exportPDF(){let paper=document.getElementById('paper');let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff'});let imgData=canvas.toDataURL('image/jpeg',0.95);const {jsPDF}=window.jspdf;let pdf=new jsPDF('l','mm','a4');let w=pdf.internal.pageSize.getWidth();let h=canvas.height*w/canvas.width;pdf.addImage(imgData,'JPEG',0,0,w,h);pdf.save(document.getElementById('paperTitle').innerText.replace(/[^a-zA-Z0-9]/g,'_')+'.pdf');}
+document.getElementById('listDate').valueAsDate=new Date();
+document.getElementById('listDay').addEventListener('change',buildTable);
+document.getElementById('listType').addEventListener('change',loadFromFirebase);
+window.addEventListener('load',()=>{loadFromFirebase();});
+</script>
+</body>
+</html>
