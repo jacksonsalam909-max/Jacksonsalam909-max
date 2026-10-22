@@ -1,162 +1,218 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHIJA - Fixed No Wrap + 3Line</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PATIENT DETAILS - SHIJA HOSPITALS DIALYSIS</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f1f5f9}
-.top{height:62px;background:linear-gradient(135deg,#0a1931 0%,#1e3a8a 100%);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:fixed;top:0;left:0;right:0;z-index:9999}
-.content{max-width:1220px;margin:62px auto 0;padding:14px}
-.cardPro{background:#fff;border-radius:20px;border:1px solid #e2e8f0;padding:16px;margin-bottom:12px}
-.label{font-size:10px;font-weight:800;color:#475569;margin-bottom:6px;display:block;text-transform:uppercase}
-.inputPro{padding:11px 12px;border:1.5px solid #e2e8f0;border-radius:12px;font-weight:700;font-size:12px;background:#f8fafc;width:100%;outline:0}
-.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.col{flex:1;min-width:140px}
-.smallFilter{width:110px!important;height:36px!important;border-radius:24px!important;border:1.5px solid #10b981!important;background:#f0fdf4!important;font-weight:800!important}
-.searchBox{position:relative}.searchList{position:absolute;top:110%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:16px;max-height:380px;overflow:auto;z-index:999;display:none;box-shadow:0 20px 40px rgba(0,0,0,.12)}
-.timeBox{border:2px solid #10b981;background:#f0fdf4;border-radius:16px;padding:14px;display:flex;gap:10px;align-items:end;flex-wrap:wrap}
-.timeInput{width:90px!important;text-align:center;font-family:monospace;font-size:14px!important}
-.vitalGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:8px}
-.vitalCard{position:relative;border:1.5px solid #e2e8f0;border-radius:16px;padding:12px 14px;background:#fff;display:flex;align-items:center;gap:12px}
-.vIcon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
-.vContent{flex:1}.vLabel{font-size:9px;font-weight:800;color:#64748b;display:block;text-transform:uppercase}
-.vContent input{border:0;background:transparent;font-weight:800;font-size:15px;width:100%;outline:0;margin-top:2px;color:#0f172a}
-.vUnit{font-size:10px;font-weight:700;color:#94a3b8;margin-right:26px}
-.vStepper{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:3px}
-.vStepBtn{width:22px;height:18px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:6px;font-size:10px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.preBox .vitalCard{border-left:3.5px solid #ef4444}
-.postBox .vitalCard{border-left:3.5px solid #10b981}
-.paper{background:#fff;width:100%;max-width:800px;margin:0 auto;color:#000;border:1px solid #e2e8f0;--fs:14px;overflow:hidden}
-.letterhead{margin:0;padding:0;line-height:0;display:block;font-size:0}
-.letterhead img{width:100%;display:block;margin:0;padding:0;vertical-align:top;border:0}
-.disTitle{text-align:center;font-weight:800;font-size:calc(var(--fs) + 5px);padding:6px 0;border:2.5px solid #000;margin:-2px 10px 0 10px;background:#fff;box-sizing:border-box;width:calc(100% - 20px)}
-.infoTable{width:100%;border-collapse:collapse;font-size:var(--fs);margin:6px 0 6px 0}
-.infoTable td{padding:2px 4px;vertical-align:top;line-height:1.4;white-space:nowrap}
-.infoTable td:first-child{padding-left:18px !important;padding-right:2px !important;white-space:nowrap}
-.infoTable td:nth-child(2){padding-left:0px !important;white-space:nowrap}
-.infoTable td:nth-child(3){padding-left:10px !important;white-space:nowrap}
-.infoTable td:nth-child(4){padding-left:0px !important;white-space:nowrap}
-.infoTable td span{white-space:normal}
-#b_name{white-space:normal !important;display:inline}
-.section{padding:12px 18px 14px 28px;font-size:var(--fs);line-height:1.7;border-top:2.5px solid #000}
-.exportGroup{display:flex;align-items:center;background:#fff;border-radius:24px;padding:3px}.exportSelect{border:0;background:transparent;font-weight:800;font-size:11px;padding:8px 10px;outline:0}.exportBtn{background:#10b981;color:#fff;border:0;padding:8px 18px;border-radius:20px;font-weight:800;cursor:pointer;font-size:11px;margin-left:4px}
-.hamburger{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer}
-.hamburger span{width:20px;height:2.5px;background:#fff;border-radius:2px;display:block;transition:.25s}
-.hamburger.active span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
-.hamburger.active span:nth-child(2){opacity:0}
-.hamburger.active span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
-.menuOverlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;display:none}
-.menuDrawer{position:fixed;top:0;left:-320px;width:300px;height:100vh;background:#0f172a;z-index:10001;transition:left .3s;overflow:auto;display:flex;flex-direction:column}
-.menuDrawer.open{left:0}
-.menuItem{padding:14px 18px;display:flex;align-items:center;gap:12px;color:#cbd5e1;font-size:12.5px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;text-decoration:none}
-.menuItem:hover{background:#1e293b;color:#fff}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',sans-serif}
+body{background:#0f172a;min-height:100vh;color:#fff}
+.top{height:64px;background:#1e293b;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #2d3a4f;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:12px;font-weight:900;font-size:14px;color:#fff;letter-spacing:.5px;text-transform:uppercase}
+.menuBtn{width:42px;height:38px;border-radius:10px;background:#fff;border:0;color:#0f172a;font-size:20px;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;font-weight:900;-webkit-touch-callout:none}
+.menuBtn *{pointer-events:none}
+.whiteBar{position:fixed;left:0;top:64px;bottom:0;width:280px;background:#ffffff;transform:translateX(-100%);transition:.35s cubic-bezier(.4,0,.2,1);z-index:200;padding:18px 12px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:8px 0 30px #0006}
+.whiteBar.open{transform:translateX(0)}
+.whiteBar a{display:flex;align-items:center;gap:10px;padding:14px 14px;border-radius:12px;text-decoration:none;color:#334155;font-weight:800;font-size:12px;margin-bottom:8px;cursor:pointer;text-transform:uppercase;letter-spacing:.4px;border:1px solid transparent}
+.whiteBar a:hover{background:#f1f5f9;color:#0f172a;border-color:#e2e8f0}
+.whiteOverlay{position:fixed;inset:0;top:64px;background:#0007;z-index:150;display:none;backdrop-filter:blur(2px)}
+.whiteOverlay.show{display:block}
+.main{max-width:1100px;margin:0 auto;padding:24px 16px}
+.pageHead{margin-bottom:18px}
+.pageHead h1{font-size:30px;font-weight:900;color:#fff;letter-spacing:-.5px;text-transform:uppercase}
+.pageHead p{color:#94a3b8;font-size:12px;margin-top:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.card{background:#fff;border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.5);border:1px solid #e2e8f0;overflow:hidden;display:none}
+.cardHeader{height:7px}
+.cardBody{padding:26px}
+.cardTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.cardTitle h2{font-size:18px;font-weight:900;color:#0f172a;text-transform:uppercase;letter-spacing:.3px}
+.remark{padding:8px 16px;border-radius:100px;font-size:11px;font-weight:900;border:1px solid;text-transform:uppercase;letter-spacing:.6px}
+.remark-PMJAY{background:#fef9c3;color:#854d0e;border-color:#fde68a}
+.remark-CMHT{background:#dcfce7;color:#14532d;border-color:#86efac}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.field{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px}
+.field .label{font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;letter-spacing:.8px}
+.field .value{font-size:14.5px;font-weight:800;color:#0f172a;margin-top:6px;word-break:break-word;text-transform:uppercase}
+.field.full{grid-column:span 2}
+.footerBar{background:#f8fafc;border-top:1px solid #e2e8f0;padding:14px 22px;display:flex;justify-content:space-between;align-items:center}
+.btn{padding:10px 18px;border-radius:10px;border:0;font-weight:900;font-size:11px;cursor:pointer;text-transform:uppercase;letter-spacing:.5px}
+.btnDark{background:#0f172a;color:#fff}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.field.full{grid-column:span 1}}
 </style>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;window.fbTools={collection,getDocs};
-</script>
 </head>
 <body>
-<div id="menuOverlay" class="menuOverlay" onclick="closeMenu()"></div>
-<div id="menuDrawer" class="menuDrawer">
-<div style="padding:20px;background:linear-gradient(135deg,#0a1931,#1e3a8a)"><div style="color:#fff;font-weight:800">SHIJA HOSPITALS</div><div style="color:#94a3b8;font-size:10px">Dialysis Management</div></div>
-<a class="menuItem" href="index.html"> Home</a>
-<a class="menuItem" href="total.html"> TOTAL PMJAY PATIENT</a>
-<a class="menuItem" href="totalcmht.html"> CMHT TOTAL PATIENT</a>
-<a class="menuItem" href="add.html"> ADD PMJAY PATIENT</a>
-<a class="menuItem" href="addcmht.html"> ADD CMHT PATIENT</a>
-<a class="menuItem" href="bill.html"> BILL</a>
-<a class="menuItem" href="discharge.html"> DISCHARGE PATIENT</a>
-<a class="menuItem" href="kftreport.html"> PMJAY KFT REPORT</a>
-<a class="menuItem" href="cmhtkft.html"> CMHT KFT REPORT</a>
-<a class="menuItem" href="dischargesummary.html" style="background:#1e3a8a;color:#fff">📋 Discharge Summary</a>
+
+<div class="top">
+<div class="logo">
+<button type="button" class="menuBtn" id="menuBtn" aria-label="MENU">☰</button>
+SHIJA HOSPITALS DIALYSIS PATIENT
+</div>
+<div style="display:flex;align-items:center;gap:8px;font-weight:900;font-size:11px;color:#cbd5e1;text-transform:uppercase;letter-spacing:.5px">
+<div style="width:32px;height:32px;border-radius:50%;background:#fff;color:#0f172a;display:grid;place-items:center;font-weight:900">A</div> ADMIN
+</div>
 </div>
 
-<div class="top"><div style="display:flex;align-items:center;gap:12px"><button id="hamBtn" class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></button><div style="color:#fff;font-weight:800">SHIJA</div></div><div class="exportGroup"><select id="exportType" class="exportSelect"><option value="jpeg" selected>JPEG</option><option value="pdf">PDF</option></select><button onclick="doExport()" class="exportBtn">⬇ Export</button></div></div>
-<div class="content">
-<div class="cardPro">
-<div style="display:flex;justify-content:space-between"><h3 style="font-size:11px;font-weight:800">🔍 SEARCH</h3><span id="countBadge" style="font-size:10px;font-weight:800;background:#eff6ff;padding:5px 12px;border-radius:20px">Loading...</span></div>
-<div class="row"><div class="col" style="max-width:130px"><span class="label">Scheme</span><select id="schemeSelect" class="smallFilter" onchange="changeScheme()"><option value="PMJAY">PMJAY</option><option value="CMHT">CMHT</option></select></div>
-<div class="col"><span class="label">Search</span><div class="searchBox"><input id="searchInput" class="inputPro" style="border:2px solid #1e3a8a" placeholder="Type SHRI / Name / IP" oninput="doSearch(this.value)" onfocus="doSearch(this.value)"><div id="searchList" class="searchList"></div></div></div></div>
-<div id="debugInfo" style="font-size:10px;font-weight:700;color:#b91c1c;margin-top:6px"></div>
+<div class="whiteOverlay" id="whiteOverlay"></div>
+<div class="whiteBar" id="whiteBar">
+<div>
+<a href="index.html">🏠 HOME</a>
+<a href="total.html">📋 TOTAL PMJAY PATIENT</a>
+<a href="cmht.html">🏥 TOTAL CMHT PATIENT</a>
+<a href="kft.html">📊 PMJAY KFT REPORT</a>
 </div>
-<div class="cardPro">
-<div class="row"><div class="col"><span class="label">UHID</span><input id="shriId" class="inputPro" value="SHRI.334269"></div><div class="col"><span class="label">IP No</span><input id="ipNo" class="inputPro" value="185693"></div><div class="col" style="flex:1.5"><span class="label">Patient Name</span><input id="patName" class="inputPro" value="Mrs. ARAMBAM ASHALATA DEVI"></div></div>
-<div class="row"><div class="col" style="max-width:160px"><span class="label">Age</span><input type="number" step="1" id="ageInput" class="inputPro" value="71"></div><div class="col" style="max-width:160px"><span class="label">Sex</span><select id="sexInput" class="inputPro"><option>Male</option><option selected>Female</option></select></div></div>
-<div class="timeBox">
-<div><span class="label">Admission Date</span><input type="date" id="admDate" class="inputPro timeInput"></div>
-<div><span class="label">Hour</span><input type="number" step="1" id="admHour" class="inputPro timeInput" value="02"></div>
-<div><span class="label">Min</span><input type="number" step="1" id="admMin" class="inputPro timeInput" value="47"></div>
-<div><span class="label">AM/PM</span><select id="admAmPm" class="inputPro timeInput" style="background:#0f172a;color:#fff"><option>AM</option><option selected>PM</option></select></div>
-</div>
-<h3 style="font-size:11px;font-weight:800;margin:16px 0 8px;color:#ef4444">● PRE DIALYSIS</h3>
-<div class="vitalGrid preBox">
-<div class="vitalCard"><div class="vIcon" style="background:#fee2e2">🩸</div><div class="vContent"><span class="vLabel">Blood Pressure</span><input id="bp" value="150/70"></div><span class="vUnit">mmHg</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#fef3c7">💓</div><div class="vContent"><span class="vLabel">Pulse Rate</span><input type="number" step="1" id="pr" value="86"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('pr',1)">▲</button><button class="vStepBtn" onclick="stepVital('pr',-1)">▼</button></div><span class="vUnit">bpm</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#dbeafe">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" step="1" id="spo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('spo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('spo2',-1)">▼</button></div><span class="vUnit">% RA</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#ffedd5">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" step="1" id="temp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('temp',1)">▲</button><button class="vStepBtn" onclick="stepVital('temp',-1)">▼</button></div><span class="vUnit">°F</span></div>
-</div>
-<h3 style="font-size:11px;font-weight:800;margin:18px 0 8px;color:#10b981">● POST DIALYSIS</h3>
-<div class="vitalGrid postBox">
-<div class="vitalCard"><div class="vIcon" style="background:#dcfce7">🩸</div><div class="vContent"><span class="vLabel">Blood Pressure</span><input id="postBp" value="160/80"></div><span class="vUnit">mmHg</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#d1fae5">💓</div><div class="vContent"><span class="vLabel">Pulse Rate</span><input type="number" step="1" id="postPr" value="84"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postPr',1)">▲</button><button class="vStepBtn" onclick="stepVital('postPr',-1)">▼</button></div><span class="vUnit">bpm</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#e0e7ff">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" step="1" id="postSpo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postSpo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('postSpo2',-1)">▼</button></div><span class="vUnit">% RA</span></div>
-<div class="vitalCard"><div class="vIcon" style="background:#fef9c3">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" step="1" id="postTemp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postTemp',1)">▲</button><button class="vStepBtn" onclick="stepVital('postTemp',-1)">▼</button></div><span class="vUnit">°F</span></div>
-</div>
-<div class="row" style="border:2px solid #dc2626;border-radius:12px;padding:12px;margin-top:18px;background:#fffbeb">
-<div class="col" style="max-width:190px"><span class="label">Advice Date ( )</span><input type="date" id="adviceDate" class="inputPro" value="2026-10-22"></div>
-<div class="col" style="max-width:220px"><span class="label">Advice Time ( )</span><select id="adviceTime" class="inputPro" style="background:#fff1f2;font-weight:800;border:2px solid #f43f5e"><option>7am morning</option><option selected>12pm noon</option><option>5pm evening</option><option>9pm night</option><option>12am midnight</option><option>2am morning</option></select></div>
-<div class="col" style="max-width:190px"><span class="label">Needs dialysis ( ) times/week</span><select id="freq" class="inputPro" style="border:2px solid #dc2626;background:#fef2f2;font-weight:800"><option>One</option><option>Two</option><option selected>Three</option><option>Four</option></select></div>
+<div style="padding:12px;font-size:10px;color:#64748b;border-top:1px solid #e2e8f0;font-weight:800;text-transform:uppercase;letter-spacing:.4px">
+<b style="color:#0f172a">SHIJA DIALYSIS SYSTEM</b><br>© 2026 SHIJA HOSPITALS
 </div>
 </div>
-<div class="paper" id="paper">
-<div class="letterhead"><img src="finalopo.png?v=20" alt="SHIJA"></div>
-<div class="disTitle">Discharge Summary</div>
-<table class="infoTable">
-<tr><td><b>IP No.</b></td><td>: <span id="b_ip">185693</span></td><td><b>UHID NO</b></td><td>: <span id="b_shri">SHRI.334269</span></td></tr>
-<tr><td><b>Patient Name</b></td><td>: <span id="b_name">Mrs. ARAMBAM ASHALATA DEVI</span></td><td><b>Age/Sex</b></td><td>: <span id="b_age">71 Year(s) /Female</span></td></tr>
-<tr><td><b>Admission DateTime</b></td><td>: <span id="b_adm">21/10/2026 02:47 PM</span></td><td><b>Doctor Name</b></td><td>: <span id="b_doc">Dr. Guliver Potsangbam (Nephrology)</span></td></tr>
-<tr><td><b>Discharge DateTime</b></td><td>: <span id="b_dis">21/10/2026</span></td><td></td><td></td></tr>
-</table>
-<div class="section">
-<div><b>Diagnosis:</b> Chronic Kidney Disease on MHD</div>
-<div><b>Chief Complain:</b> Patient admitted for Haemodialysis</div>
-<div style="margin-top:6px"><b>Vitals:</b></div>
-<div>B.P : <span id="b_bp">150/70 mmHg</span><br>PR : <span id="b_pr">86 bpm</span><br>SpO2 : <span id="b_spo2">99 %@RA</span><br>Temp. : <span id="b_temp">98 degree F</span></div>
-<div style="margin-top:8px"><b>Procedure:</b></div>
-<div><b>Treatment / Medication:</b> Haemodialysis</div>
-<div style="margin-top:8px"><b>Post Dialysis Vitals:</b></div>
-<div>B.P : <span id="b_pbp">160/80 mmHg</span><br>PR : <span id="b_ppr">84 bpm</span><br>SpO2 : <span id="b_pspo2">99 %@RA</span><br>Temp. : <span id="b_ptemp">98 degree F</span></div>
-<div style="margin-top:14px"><b>Advice:</b> Next Haemodialysis on <span id="b_advDate">22/10/26</span> at <span id="b_advTime">12pm noon</span>.</div>
-<div style="margin-top:2px">Patient needs dialysis <span id="b_freq">three</span> times in a week</div>
-<div style="margin-top:80px;line-height:1.5">Dr.Guliver Potsangbam<br>Nephrology<br>Consultant Nephrologist<br>Reg No.:MNP-00240<br>MD,DM (Nephrology)</div>
+
+<div class="main">
+<div class="pageHead">
+<h1>PATIENT DETAILS</h1>
+<p id="subtitle">LOADING...</p>
+</div>
+
+<div id="loading" style="background:#fff;border-radius:20px;padding:28px;border:1px solid #e2e8f0;text-align:center;color:#64748b;font-weight:800;text-transform:uppercase;letter-spacing:.5px">LOADING PATIENT DETAILS...</div>
+
+<div id="card" class="card">
+<div class="cardHeader" id="cardTop" style="background:#2563eb"></div>
+<div class="cardBody">
+<div class="cardTitle">
+<h2>PATIENT INFORMATION</h2>
+<span id="remarkBadge" class="remark remark-PMJAY">PMJAY</span>
+</div>
+
+<div class="grid">
+<div class="field"><div class="label">PATIENT NAME</div><div class="value" id="pName">-</div></div>
+<div class="field"><div class="label">REMARK / SCHEME</div><div class="value" id="pRemark">-</div></div>
+<div class="field"><div class="label">SHRI ID / IPD NO</div><div class="value" id="pId">-</div></div>
+<div class="field"><div class="label">PMJAY / CMHT CARD ID</div><div class="value" id="pSchemeId">-</div></div>
+<div class="field"><div class="label">AGE</div><div class="value" id="pAge">-</div></div>
+<div class="field"><div class="label">SEX / GENDER</div><div class="value" id="pSex">-</div></div>
+<div class="field"><div class="label">CONTACT NUMBER</div><div class="value" id="pPhone">-</div></div>
+<div class="field"><div class="label">AADHAAR NUMBER</div><div class="value" id="pAadhaar">-</div></div>
+<div class="field full"><div class="label">ADDRESS</div><div class="value" id="pAddress">-</div></div>
 </div>
 </div>
+
+<div class="footerBar">
+<span style="font-size:10px;color:#64748b;font-weight:900;text-transform:uppercase;letter-spacing:.5px" id="fTime"></span>
+<button class="btn btnDark" onclick="location.href='index.html'">BACK TO HOME</button>
 </div>
+</div>
+
+<p id="notFound" style="display:none;text-align:center;margin-top:30px;background:#fff;padding:18px;border-radius:14px;color:#64748b;font-weight:800;text-transform:uppercase">NO RECORD FOUND</p>
+</div>
+
 <script>
-function toggleMenu(){let d=document.getElementById('menuDrawer'),o=document.getElementById('menuOverlay'),b=document.getElementById('hamBtn');if(d.classList.contains('open')){closeMenu()}else{d.classList.add('open');o.style.display='block';b.classList.add('active')}}
-function closeMenu(){document.getElementById('menuDrawer').classList.remove('open');document.getElementById('menuOverlay').style.display='none';document.getElementById('hamBtn').classList.remove('active')}
-let allPMJAY=[], allCMHT=[], scheme='PMJAY', lastFiltered=[];
-function stepVital(id, delta){let el=document.getElementById(id);let v=parseInt(el.value)||0;v+=delta;if(v<0)v=0;if(id.includes('spo2')&&v>100)v=100;el.value=v;render();}
-async function loadFirebaseAll(){const {collection,getDocs}=window.fbTools;allPMJAY=[];allCMHT=[];const tryCollections=async(names,targetArray)=>{for(let name of names){try{let snap=await getDocs(collection(window.db,name));if(!snap.empty){snap.forEach(d=>{let c=d.data();targetArray.push({shri:c.shriId||c.shri||c.UHID||c.uhid||c.id||'',ip:c.pmjayId||c.pmjay||c.cmhtId||c.cmht||c.ipNo||c.IPNO||c.ip||'',name:c.patientName||c.name||c.patient_name||c.Name||''});});if(targetArray.length>0)return name;}}catch(e){}}return null;};await tryCollections(["pmjay_patients","PMJAY_patients","pmjay","PMJAY","patients"],allPMJAY);await tryCollections(["cmht_patients","CMHT_patients","cmht","CMHT"],allCMHT);document.getElementById('debugInfo').innerText=`Found - PMJAY: ${allPMJAY.length} | CMHT: ${allCMHT.length}`;document.getElementById('countBadge').innerText=getCombined().length+' Patients in '+scheme;}
-function changeScheme(){scheme=document.getElementById('schemeSelect').value;document.getElementById('countBadge').innerText=getCombined().length+' Patients in '+scheme;render();}
-function getCombined(){return scheme=='PMJAY'?allPMJAY:allCMHT;}
-function doSearch(q){let list=document.getElementById('searchList');let combined=getCombined();if(!q||q.length==0){let all=combined.slice(0,20);lastFiltered=all;list.innerHTML=all.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer"><b style="color:#1e3a8a">${p.shri||'No-ID'}</b> - ${p.name||''}</div>`).join('');list.style.display='block';return;}q=q.toLowerCase();let f=combined.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,30);lastFiltered=f;if(f.length==0){list.innerHTML='<div style="padding:12px">No patient found</div>';list.style.display='block';return;}list.innerHTML=f.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:12px;font-weight:600"><b style="color:#1e3a8a">${p.shri}</b> - ${p.name.slice(0,50)}</div>`).join('');list.style.display='block';}
-function selectPatByIdx(i){let p=lastFiltered[i];if(!p)return;document.getElementById('shriId').value=p.shri;document.getElementById('ipNo').value=p.ip;document.getElementById('patName').value=p.name;document.getElementById('searchList').style.display='none';document.getElementById('searchInput').value=p.shri+' - '+p.name;render();}
-function getAdmDateTime(){let d=document.getElementById('admDate').value;if(!d)return null;let h=parseInt(document.getElementById('admHour').value)||2;let m=parseInt(document.getElementById('admMin').value)||0;let ap=document.getElementById('admAmPm').value;let h24=h%12+(ap=='PM'?12:0);let dt=new Date(d+'T00:00:00');dt.setHours(h24,m,0,0);return dt;}
-function DMY(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+dt.getFullYear();}
-function SHORT(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+String(dt.getFullYear()).slice(-2);}
-function T12(dt){let h=dt.getHours(),m=dt.getMinutes(),ap=h>=12?'PM':'AM',h12=h%12||12;return String(h12).padStart(2,'0')+":"+String(m).padStart(2,'0')+" "+ap;}
-function render(){document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;document.getElementById('b_shri').innerText=document.getElementById('shriId').value;document.getElementById('b_name').innerText=document.getElementById('patName').value;document.getElementById('b_age').innerText=(document.getElementById('ageInput').value||'--')+' Year(s) /'+document.getElementById('sexInput').value;let adm=getAdmDateTime();if(adm){document.getElementById('b_adm').innerText=DMY(adm)+' '+T12(adm);let dis=new Date(adm.getTime()+4*3600000);document.getElementById('b_dis').innerText=DMY(dis);}document.getElementById('b_bp').innerText=document.getElementById('bp').value+' mmHg';document.getElementById('b_pr').innerText=document.getElementById('pr').value+' bpm';document.getElementById('b_spo2').innerText=document.getElementById('spo2').value+' %@RA';document.getElementById('b_temp').innerText=document.getElementById('temp').value+' degree F';document.getElementById('b_pbp').innerText=document.getElementById('postBp').value+' mmHg';document.getElementById('b_ppr').innerText=document.getElementById('postPr').value+' bpm';document.getElementById('b_pspo2').innerText=document.getElementById('postSpo2').value+' %@RA';document.getElementById('b_ptemp').innerText=document.getElementById('postTemp').value+' degree F';let adv=document.getElementById('adviceDate').value;if(adv)document.getElementById('b_advDate').innerText=SHORT(new Date(adv));document.getElementById('b_advTime').innerText=document.getElementById('adviceTime').value;document.getElementById('b_freq').innerText=document.getElementById('freq').value;}
-function doExport(){let t=document.getElementById('exportType').value;if(t==='pdf')exportPDF();else exportJPG();}
-async function exportJPG(){let paper=document.getElementById('paper');let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff'});let link=document.createElement('a');let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');link.download=name+'.jpg';link.href=canvas.toDataURL('image/jpeg',0.95);link.click();}
-async function exportPDF(){let paper=document.getElementById('paper');let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff'});let imgData=canvas.toDataURL('image/jpeg',0.95);const {jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');let w=pdf.internal.pageSize.getWidth();let h=canvas.height*w/canvas.width;pdf.addImage(imgData,'JPEG',0,0,w,h);let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');pdf.save(name+'.pdf');}
-setTimeout(()=>{document.querySelectorAll('input, select').forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render);});let today=new Date().toISOString().split('T')[0];if(!document.getElementById('admDate').value)document.getElementById('admDate').value=today;if(!document.getElementById('adviceDate').value)document.getElementById('adviceDate').value=new Date(Date.now()+3*86400000).toISOString().split('T')[0];loadFirebaseAll();render();},300);
-document.addEventListener('click',e=>{if(!e.target.closest('.searchBox'))document.getElementById('searchList').style.display='none'});
+const firebaseConfig = {
+  apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
+  authDomain: "discharge-b9528.firebaseapp.com",
+  projectId: "discharge-b9528",
+  storageBucket: "discharge-b9528.firebasestorage.app",
+  messagingSenderId: "1076050472607",
+  appId: "1:1076050472607:web:736e0688a41462460efcaa"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// UNIVERSAL MENU FIX - WORKS ON IPHONE / ANDROID / DESKTOP
+let menuOpen=false;
+function toggleMenu(){
+  menuOpen=!menuOpen;
+  var bar=document.getElementById('whiteBar');
+  var over=document.getElementById('whiteOverlay');
+  if(menuOpen){ bar.classList.add('open'); over.classList.add('show'); document.body.style.overflow='hidden'; }
+  else{ bar.classList.remove('open'); over.classList.remove('show'); document.body.style.overflow=''; }
+}
+function closeMenu(){
+  menuOpen=false;
+  document.getElementById('whiteBar').classList.remove('open');
+  document.getElementById('whiteOverlay').classList.remove('show');
+  document.body.style.overflow='';
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  var btn=document.getElementById('menuBtn');
+  var overlay=document.getElementById('whiteOverlay');
+  var last=0;
+  function handleMenu(e){
+    var now=Date.now();
+    if(now-last<400) return;
+    last=now;
+    if(e){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); }
+    toggleMenu();
+    return false;
+  }
+  if(btn){
+    btn.addEventListener('click', handleMenu, true);
+    btn.addEventListener('touchstart', function(e){ e.preventDefault(); }, {passive:false});
+    btn.addEventListener('touchend', handleMenu, {passive:false, capture:true});
+    btn.addEventListener('pointerup', handleMenu);
+  }
+  if(overlay){
+    overlay.addEventListener('click', closeMenu);
+    overlay.addEventListener('touchend', function(e){ e.preventDefault(); closeMenu(); }, {passive:false});
+  }
+  // MAKE ALL MENU LINKS WORK ON IPHONE - KFT.HTML FIX
+  document.querySelectorAll('.whiteBar a').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var href=this.getAttribute('href');
+      if(href){ window.location.href=href; }
+    });
+    a.addEventListener('touchend', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var href=this.getAttribute('href');
+      if(href){ window.location.href=href; }
+    }, {passive:false});
+  });
+});
+
+document.getElementById('fTime').innerText='VERIFIED • '+new Date().toLocaleString().toUpperCase();
+
+async function loadPatient(){
+  const params = new URLSearchParams(location.search);
+  const shriParam = (params.get('shri') || params.get('search') || '').trim();
+  if(!shriParam){
+    document.getElementById('loading').innerText='NO PATIENT SELECTED FROM INDEX SEARCH';
+    return;
+  }
+  document.getElementById('subtitle').innerText = 'SHOWING DETAILS FOR SHRI ID: ' + shriParam.toUpperCase();
+  const q = shriParam.toLowerCase();
+  let all=[];
+  try{ let s=await db.collection("patients").get(); s.forEach(d=>{ if(!d.data().deleted) all.push({...d.data(), _source:'total.html'}) }) }catch(e){}
+  try{ let s=await db.collection("cmht_patients").get(); s.forEach(d=>{ if(!d.data().deleted) all.push({...d.data(), _source:'cmht.html'}) }) }catch(e){}
+  let found = all.find(p=> String(p.shriId||p.shri||'').toLowerCase()===q );
+  if(!found) found = all.find(p=> String(p.shriId||p.shri||'').toLowerCase().includes(q) || String(p.patientName||p.name||'').toLowerCase()===q );
+  document.getElementById('loading').style.display='none';
+  if(!found){ document.getElementById('notFound').style.display='block'; return; }
+
+  document.getElementById('pName').innerText = (found.patientName || found.name || '-').toUpperCase();
+  document.getElementById('pId').innerText = (found.shriId || found.shri || '-').toString().toUpperCase();
+  document.getElementById('pSchemeId').innerText = (found.pmjayId || found.pmjay || found.cmhtId || found.cmht || '-').toString().toUpperCase();
+  document.getElementById('pPhone').innerText = (found.contactNo || found.contact || '-').toString();
+  document.getElementById('pAadhaar').innerText = (found.aadhaarNo || found.aadhaar || 'NOT PROVIDED').toString().toUpperCase();
+  document.getElementById('pAddress').innerText = (found.address || 'NOT PROVIDED').toUpperCase();
+  document.getElementById('pAge').innerText = (found.age || found.patientAge || '-').toString().toUpperCase();
+  document.getElementById('pSex').innerText = (found.gender || found.sex || '-').toString().toUpperCase();
+
+  if(found._source==='cmht.html'){
+    document.getElementById('pRemark').innerText='CMHT';
+    document.getElementById('remarkBadge').innerText='CMHT';
+    document.getElementById('remarkBadge').className='remark remark-CMHT';
+    document.getElementById('cardTop').style.background='#10b981';
+  }else{
+    document.getElementById('pRemark').innerText='PMJAY';
+    document.getElementById('remarkBadge').innerText='PMJAY';
+    document.getElementById('remarkBadge').className='remark remark-PMJAY';
+    document.getElementById('cardTop').style.background='#2563eb';
+  }
+  document.getElementById('card').style.display='block';
+}
+loadPatient();
 </script>
 </body>
 </html>
