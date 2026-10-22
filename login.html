@@ -60,15 +60,23 @@ label{font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;display:blo
 <label>Password</label>
 <div class="input"><input id="pass" type="password" placeholder="Enter your password"></div>
 
-<div class="row"><label style="margin:0;display:flex;align-items:center;gap:6px;font-weight:600"><input type="checkbox" style="width:auto"> Remember me</label><a href="#" style="color:#dc2626;text-decoration:none;font-weight:700">Forgot password?</a></div>
+<div class="row"><label style="margin:0;display:flex;align-items:center;gap:6px;font-weight:600"><input type="checkbox" id="rememberCheck" style="width:auto"> Remember me</label><a href="#" style="color:#dc2626;text-decoration:none;font-weight:700">Forgot password?</a></div>
 
 <button class="btn" onclick="doLogin()">Login</button>
 
-<div class="foot">Don't have an account? <b>Contact Admin</b><br><br>© 2024 SHIJA Hospitals • Secure & Protected<br><span id="hint">User: admin / admin123</span></div>
+<div class="foot">Don't have an account? <b>Contact Admin</b><br><br>© 2024 SHIJA Hospitals • Secure & Protected<br><span id="hint">User: admin / admin123</span><br><small id="logoutMsg" style="color:#ef4444;font-weight:700;display:none;margin-top:8px"></small></div>
 </div>
 </div>
 
 <script>
+// If already logged in, go to dashboard (but check global logout first)
+if(localStorage.getItem('shija_logged')==='1'){
+  let role = localStorage.getItem('shija_role')||'ADMIN';
+  // Don't auto redirect if there is a fresh global logout pending - let listener handle
+  if(role==='ADMIN'){ /* keep on login for 1 sec to check logout */ setTimeout(()=>{ if(localStorage.getItem('shija_logged')==='1') location.href='index.html'; },800); }
+  else { setTimeout(()=>{ if(localStorage.getItem('shija_logged')==='1') location.href='user-index.html'; },800); }
+}
+
 function onRoleChange(){
   let r=document.getElementById('roleSelect').value;
   document.getElementById('hint').textContent = r==='ADMIN' ? 'Admin: shija / shija321' : 'User: admin / admin123';
@@ -86,7 +94,8 @@ function doLogin(){
  if(isAdmin || isUser){
    localStorage.setItem('shija_logged','1');
    localStorage.setItem('shija_role', role);
-   localStorage.setItem('shija_login_time', Date.now().toString()); // for 30 min auto logout
+   localStorage.setItem('shija_login_time', Date.now().toString()); // For global logout + auto logout
+   localStorage.removeItem('shija_force_logout_this_device'); // clear old logout signal
    if(role==='ADMIN') location.href='index.html';
    else location.href='user-index.html';
  }else{
@@ -94,5 +103,35 @@ function doLogin(){
  }
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter') doLogin();});
+
+// Check if logged out by admin
+let urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get('reason')==='global'){
+  document.getElementById('logoutMsg').style.display='block';
+  document.getElementById('logoutMsg').textContent='🔒 Logged out by Admin from all devices';
+}
+</script>
+
+<script type="module">
+// GLOBAL LOGOUT LISTENER ON LOGIN PAGE TOO - Shows message if logged out
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(cfg,"loginGuard_"+Math.random());
+const db=getFirestore(app);
+try{
+  onSnapshot(doc(db,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      localStorage.removeItem('shija_role');
+      let msg=document.getElementById('logoutMsg');
+      if(msg){msg.style.display='block'; msg.textContent='🔒 Logged out by Admin from all devices - Password jack8189 required';}
+    }
+  });
+}catch(e){}
 </script>
 </body></html>
