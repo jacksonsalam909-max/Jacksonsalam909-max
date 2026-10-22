@@ -25,8 +25,6 @@ body{background:#0f172a;min-height:100vh;color:#fff}
 .pageHead{margin-bottom:18px}
 .pageHead h1{font-size:30px;font-weight:900;color:#fff;letter-spacing:-.5px}
 .pageHead p{color:#94a3b8;font-size:13px;margin-top:6px}
-
-/* SEARCH TAB - NEW */
 .searchTab{background:#ffffff;border-radius:16px;padding:14px;border:1px solid #e2e8f0;margin-bottom:16px;position:relative}
 .searchTab .searchRow{display:flex;gap:10px;align-items:center}
 .searchTab input{flex:1;background:#f8fafc;border:1.5px solid #e2e8f0;color:#0f172a;padding:12px 14px;border-radius:12px;font-weight:700;font-size:13px;outline:0}
@@ -38,8 +36,6 @@ body{background:#0f172a;min-height:100vh;color:#fff}
 .sItem:hover{background:#f8fafc}
 .sItem b{font-size:13px}
 .sItem small{color:#64748b}
-
-/* WHITE CARD ON DARK NAVY */
 .card{background:#ffffff;border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.4);border:1px solid #e2e8f0;overflow:hidden;display:none}
 .cardHeader{height:7px}
 .cardBody{padding:26px}
@@ -60,7 +56,42 @@ body{background:#0f172a;min-height:100vh;color:#fff}
 </style>
 </head>
 <body>
-
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_searchpatient_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_searchpatient2_"+Math.random()); }
+const dbGuard=getFirestore(app);
+try{
+  onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      localStorage.removeItem('shija_role');
+      alert('🔒 Logged out by Admin from all devices');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+try{
+  window.addEventListener('storage',(e)=>{
+    if(e.key==='shija_force_logout_this_device'){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      location.href='login.html';
+    }
+  });
+  const bc=new BroadcastChannel('shija_logout');
+  bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } };
+}catch(e){}
+</script>
 <div class="top">
 <div class="logo">
 <button type="button" class="menuBtn" id="menuBtn">☰</button>
@@ -70,7 +101,6 @@ SHIJA HOSPITALS DIALYSIS PATIENT
 <div style="width:32px;height:32px;border-radius:50%;background:#fff;color:#0f172a;display:grid;place-items:center;font-weight:900">A</div> Admin
 </div>
 </div>
-
 <div class="whiteOverlay" id="whiteOverlay"></div>
 <div class="whiteBar" id="whiteBar">
 <div>
@@ -83,14 +113,11 @@ SHIJA HOSPITALS DIALYSIS PATIENT
 <b style="color:#0f172a">SHIJA Dialysis System</b><br>Dark Navy + White Cards • © 2026
 </div>
 </div>
-
 <div class="main">
 <div class="pageHead">
 <h1>Patient Details</h1>
 <p id="subtitle">Search any patient by Name, SHRI ID, PMJAY/CMHT ID</p>
 </div>
-
-<!-- NEW SEARCH TAB INSIDE -->
 <div class="searchTab">
 <div class="searchRow">
 <input type="text" id="patientSearch" placeholder="Search patient - Name / SHRI ID / PMJAY / CMHT / Contact..." oninput="doSearch()" onfocus="doSearch()" autocomplete="off">
@@ -99,9 +126,7 @@ SHIJA HOSPITALS DIALYSIS PATIENT
 <div class="searchResults" id="searchResults"></div>
 <div style="margin-top:8px;font-size:10px;font-weight:700;color:#64748b"><span id="searchCount">All PMJAY + CMHT patients loaded</span> • Type to filter</div>
 </div>
-
 <div id="loading" style="background:#ffffff;border-radius:20px;padding:28px;border:1px solid #e2e8f0;text-align:center;color:#64748b;font-weight:700">Loading patient details...</div>
-
 <div id="card" class="card">
 <div class="cardHeader" id="cardTop" style="background:#2563eb"></div>
 <div class="cardBody">
@@ -109,7 +134,6 @@ SHIJA HOSPITALS DIALYSIS PATIENT
 <h2>Patient Information</h2>
 <span id="remarkBadge" class="remark remark-PMJAY">PMJAY</span>
 </div>
-
 <div class="grid">
 <div class="field"><div class="label">Patient Name</div><div class="value" id="pName">-</div></div>
 <div class="field"><div class="label">Remark / Scheme</div><div class="value" id="pRemark">-</div></div>
@@ -122,16 +146,13 @@ SHIJA HOSPITALS DIALYSIS PATIENT
 <div class="field full"><div class="label">Address</div><div class="value" id="pAddress">-</div></div>
 </div>
 </div>
-
 <div class="footerBar">
 <span style="font-size:11px;color:#64748b;font-weight:700" id="fTime"></span>
 <button class="btn btnDark" onclick="location.href='index.html'">Back to Home</button>
 </div>
 </div>
-
 <p id="notFound" style="display:none;text-align:center;margin-top:20px;background:#fff;padding:18px;border-radius:14px;color:#64748b;font-weight:600">No record found - Try search tab above</p>
 </div>
-
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
@@ -143,7 +164,6 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
 function toggleMenu(){
   document.getElementById('whiteBar').classList.toggle('open');
   document.getElementById('whiteOverlay').classList.toggle('show');
@@ -168,11 +188,8 @@ document.addEventListener('DOMContentLoaded',function(){
     overlay.addEventListener('touchend', handle, {passive:false});
   }
 });
-
 document.getElementById('fTime').innerText='Verified • '+new Date().toLocaleString();
-
 let allPatients = [];
-
 function showPatient(found){
   if(!found){
     document.getElementById('card').style.display='none';
@@ -189,7 +206,6 @@ function showPatient(found){
   document.getElementById('pAddress').innerText = found.address || 'Not Provided';
   document.getElementById('pAge').innerText = found.age || found.patientAge || '-';
   document.getElementById('pSex').innerText = found.gender || found.sex || '-';
-
   if(found._source==='cmht.html'){
     document.getElementById('pRemark').innerText='CMHT';
     document.getElementById('remarkBadge').innerText='CMHT';
@@ -205,7 +221,6 @@ function showPatient(found){
   document.getElementById('subtitle').innerText='Showing details for SHRI ID: ' + (found.shriId||found.shri);
   window.scrollTo({top:300, behavior:'smooth'});
 }
-
 function doSearch(){
   let q = document.getElementById('patientSearch').value.toLowerCase().trim();
   let box = document.getElementById('searchResults');
@@ -219,9 +234,7 @@ function doSearch(){
     let txt = `${p.patientName||p.name||''} ${p.shriId||p.shri||''} ${p.pmjayId||p.pmjay||''} ${p.cmhtId||p.cmht||''} ${p.contactNo||p.contact||''} ${p.aadhaarNo||p.aadhaar||''}`.toLowerCase();
     return txt.includes(q);
   }).slice(0,20);
-  
   countEl.innerText = `${filtered.length} found / ${allPatients.length} total`;
-  
   if(filtered.length===0){
     box.innerHTML = `<div class="sItem"><b>No patient found for "${q}"</b></div>`;
     box.classList.add('show');
@@ -241,7 +254,6 @@ function doSearch(){
   box.innerHTML = html;
   box.classList.add('show');
 }
-
 function selectPatient(shri){
   document.getElementById('searchResults').classList.remove('show');
   document.getElementById('patientSearch').value = shri;
@@ -252,16 +264,13 @@ function selectPatient(shri){
     let f2 = allPatients.find(p=> String(p.shriId||p.shri||'').toLowerCase().includes(lower));
     if(f2) showPatient(f2);
   }
-  // update URL without reload
   history.replaceState(null,'',`?shri=${encodeURIComponent(shri)}`);
 }
-
 document.addEventListener('click',(e)=>{
   if(!e.target.closest('.searchTab')){
     document.getElementById('searchResults').classList.remove('show');
   }
 });
-
 async function loadPatient(){
   const params = new URLSearchParams(location.search);
   const shriParam = (params.get('shri') || params.get('search') || '').trim();
@@ -272,7 +281,6 @@ async function loadPatient(){
   allPatients = all;
   document.getElementById('searchCount').innerText = `${all.length} patients loaded - Type to search`;
   document.getElementById('loading').style.display='none';
-  
   if(!shriParam){
     document.getElementById('subtitle').innerText = 'Search any patient - Type in search tab above';
     document.getElementById('loading').style.display='none';
