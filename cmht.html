@@ -37,6 +37,42 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 </style>
 </head>
 <body>
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_cmht_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_cmht2_"+Math.random()); }
+const db=getFirestore(app);
+try{
+  onSnapshot(doc(db,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      localStorage.removeItem('shija_role');
+      alert('🔒 Logged out by Admin from all devices');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+try{
+  window.addEventListener('storage',(e)=>{
+    if(e.key==='shija_force_logout_this_device'){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      location.href='login.html';
+    }
+  });
+  const bc=new BroadcastChannel('shija_logout');
+  bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } };
+}catch(e){}
+</script>
 <div class="top"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA - CMHT Total Patient</h2></div><span style="color:#fff">Admin</span></div>
 <div class="sideOverlay" id="overlay"></div>
 <div class="mainWrap">
@@ -62,7 +98,6 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 </div>
 <div class="modal" id="editModal"><div class="modalBox"><h3>Edit CMHT Patient</h3><input id="eName" placeholder="Patient Name"><input id="eShri" placeholder="SHRI ID"><input id="eCmht" placeholder="CMHT ID"><input id="eContact" placeholder="Contact Number"><input id="eAadhaar" placeholder="Aadhaar Number"><input id="eAddr" placeholder="Address"><input id="eRemark" value="CMHT" placeholder="Remark"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" onclick="saveEdit()">Save</button></div></div></div>
 <script>
-// UNIVERSAL 3-LINE BUTTON - Works on ALL devices
 function toggleMenu(){
  var s=document.getElementById('side');
  var o=document.getElementById('overlay');
@@ -90,7 +125,7 @@ document.addEventListener('DOMContentLoaded',function(){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);
+const app=initializeApp(firebaseConfig,"cmhtMain_"+Math.random());const db=getFirestore(app);
 let allPatients=[],filtered=[],currentPage=1,pageSize=10,editIndex=-1;
 window.closeEdit=()=>document.getElementById('editModal').classList.remove('show');
 window.openEdit=(idx)=>{let p=allPatients[idx];editIndex=idx;document.getElementById('eName').value=p.name;document.getElementById('eShri').value=p.shri;document.getElementById('eCmht').value=p.cmht;document.getElementById('eContact').value=p.contact;document.getElementById('eAadhaar').value=p.aadhaar;document.getElementById('eAddr').value=p.addr;document.getElementById('eRemark').value=p.remark||'CMHT';document.getElementById('editModal').classList.add('show');};
