@@ -254,19 +254,264 @@ async function loadFromFirebase(){
       document.getElementById('successBox').style.display='none';
       showError(['No data for '+date]);
       allPatients=[]; filteredPatients=[]; renderPage(); return;
-    }
-    let data=snap.data();
-    allPatients=data.patients||[];
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LIST - NEVER LOSE DATA</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f1f5f9}
+.top{height:60px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:fixed;top:0;left:0;right:0;z-index:999}
+.btn{padding:8px 12px;border:0;border-radius:8px;font-weight:900;font-size:11px;cursor:pointer}
+.btnBlue{background:#2563eb;color:#fff}.btnGreen{background:#10b981;color:#fff}.btnDark{background:#0f172a;color:#fff}.btnRed{background:#ef4444;color:#fff}
+.input{padding:8px;border:1.5px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:12px}
+.content{max-width:1400px;margin:70px auto 0;padding:12px}
+.card{background:#fff;border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid #e2e8f0}
+.sheetWrap{overflow:auto;border:2px solid #000;background:#fff;max-height:65vh}
+table{border-collapse:collapse;width:100%;min-width:900px}
+th{position:sticky;top:0;background:#0f172a;color:#fff;padding:8px 5px;font-size:10px;text-align:center;border:1px solid #000;z-index:2}
+td{border:1px solid #cbd5e1;padding:6px;font-size:11px;font-weight:600;text-transform:uppercase;text-align:center}
+td.nameCol{text-align:left}
+.errorBox{background:#fee2e2;border:2px solid #ef4444;color:#991b1b;padding:10px;border-radius:10px;font-weight:700;font-size:11px;display:none;margin-top:8px}
+.successBox{background:#dcfce7;border:2px solid #10b981;color:#14532d;padding:10px;border-radius:10px;font-weight:800;font-size:11px;display:none;margin-top:8px}
+.pasteArea{width:100%;height:80px;border:2.5px dashed #2563eb;background:#eff6ff;border-radius:10px;padding:8px;font-size:11px}
+.pagination{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pageBtn{padding:8px 14px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;font-weight:900;cursor:pointer;font-size:11px}
+.pageBtn.active{background:#0f172a;color:#fff}
+</style>
+</head>
+<body>
+<div class="top">
+<div style="font-weight:900">LIST - AUTO APPEND + NEVER LOSE</div>
+<div id="autoStatus" style="font-size:11px;font-weight:800;background:#10b981;padding:6px 10px;border-radius:20px;display:none">✅ SAVED</div>
+</div>
+
+<div class="content">
+
+<div class="card">
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+<div><label style="font-size:9px;font-weight:800">DATE</label><br><input type="date" id="fDate" class="input"></div>
+<div><label style="font-size:9px;font-weight:800">DAY</label><br><select id="fDay" class="input"><option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option><option selected>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option></select></div>
+<div><label style="font-size:9px;font-weight:800">TYPE</label><br><select id="fType" class="input"><option selected>PMJAY</option><option>CMHT</option></select></div>
+<div><label style="font-size:9px;font-weight:800">FILTER TIME</label><br><select id="filterTime" class="input" onchange="applyFilters()"><option value="">ALL TIME</option><option>7:00 AM</option><option>12:00 PM</option><option>5:00 PM</option><option>9:00 PM</option></select></div>
+<div><label style="font-size:9px;font-weight:800">FILTER BLOCK</label><br><select id="filterBlock" class="input" onchange="applyFilters()"><option value="">ALL BLOCK</option><option>MAIN</option><option>ITOCHA</option></select></div>
+<div><label style="font-size:9px;font-weight:800">SEARCH</label><br><input type="text" id="searchName" class="input" placeholder="NAME..." oninput="applyFilters()"></div>
+<div style="margin-left:auto;display:flex;gap:6px">
+<button class="btn btnBlue" onclick="loadFromFirebase()">🔄 LOAD DATE</button>
+<button class="btn btnRed" onclick="clearAll()">🗑️ CLEAR ALL FOR DATE</button>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div style="font-weight:900;font-size:11px">📋 PASTE HERE - WILL APPEND (NOT CLEAR) AND AUTO-SAVE TO FIREBASE:</div>
+<textarea id="pasteArea" class="pasteArea" placeholder="COPY FROM EXCEL (Ctrl+C) AND PASTE HERE - Format: SL.NO  NAME  SHRI  TIME  BLOCK  PREV DIALYSIS - Paste multiple times, it will ADD, not clear"></textarea>
+<div id="errorBox" class="errorBox"></div>
+<div id="successBox" class="successBox"></div>
+<div id="countInfo" style="font-size:11px;font-weight:800;margin-top:6px;color:#0f172a">Total: 0 patients for this date</div>
+</div>
+
+<div class="card" style="padding:0">
+<div class="sheetWrap">
+<table id="sheet"><thead><tr><th>SL.NO</th><th>NAME</th><th>SHRI</th><th>TIME</th><th>BLOCK</th><th>PREV DIALYSIS</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table>
+</div>
+<div style="padding:10px">
+<div class="pagination" id="pagination"></div>
+<div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+<button class="btn btnDark" onclick="changePage(-1)">◀ PREV</button>
+<button class="btn btnDark" onclick="changePage(1)">NEXT ▶</button>
+<span id="pageInfo" style="font-weight:800;font-size:11px;margin-left:auto"></span>
+</div>
+</div>
+</div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(firebaseConfig);const db=getFirestore(app);window._fb={db,doc,setDoc,getDoc,deleteDoc};
+</script>
+
+<script>
+let allPatients=[]; 
+let filteredPatients=[];
+let currentPage=1;
+let pageSize=25;
+
+document.getElementById('fDate').valueAsDate=new Date();
+
+function validateRow(cols, rowNum){
+  let errors=[];
+  if(cols.length<6) return [`Row ${rowNum}: Need 6 columns, found ${cols.length} - Format: SL.NO TAB NAME TAB SHRI TAB TIME TAB BLOCK TAB PREV`];
+  let sl=cols[0]?.trim();
+  let name=cols[1]?.trim();
+  let time=cols[3]?.trim().toUpperCase();
+  let block=cols[4]?.trim().toUpperCase();
+  if(!sl || isNaN(parseInt(sl))) errors.push(`Row ${rowNum}: SL.NO must be number`);
+  if(!name || name.length<2) errors.push(`Row ${rowNum}: NAME missing`);
+  if(!time || !['7:00 AM','12:00 PM','5:00 PM','9:00 PM'].includes(time)) errors.push(`Row ${rowNum}: TIME must be 7:00 AM/12:00 PM/5:00 PM/9:00 PM (found "${cols[3]}")`);
+  if(!block || !['MAIN','ITOCHA'].includes(block)) errors.push(`Row ${rowNum}: BLOCK must be MAIN/ITOCHA (found "${cols[4]}")`);
+  return errors;
+}
+
+function showError(msgs){
+  let box=document.getElementById('errorBox');
+  box.style.display='block'; document.getElementById('successBox').style.display='none';
+  box.innerHTML='❌ PASTE BLOCKED:<br>'+msgs.slice(0,6).join('<br>');
+}
+
+function showSuccess(msg){
+  document.getElementById('errorBox').style.display='none';
+  let box=document.getElementById('successBox'); box.style.display='block';
+  box.innerHTML=msg;
+}
+
+document.getElementById('pasteArea').addEventListener('paste', e=>{
+  setTimeout(async ()=>{
+    let text=document.getElementById('pasteArea').value.trim();
+    if(!text) return;
+    let rows=text.split('\n').filter(r=>r.trim()!=='');
+    if(rows[0].toUpperCase().includes('SL.NO') && rows[0].toUpperCase().includes('NAME')) rows=rows.slice(1);
+    
+    let allErrors=[]; let validData=[];
+    rows.forEach((r, idx)=>{
+      let cols=r.split('\t'); if(cols.length===1) cols=r.split(','); if(cols.length===1) cols=r.split(/\s{2,}/);
+      cols=cols.map(c=>c.trim());
+      let errs=validateRow(cols, idx+1);
+      if(errs.length>0) allErrors.push(...errs);
+      else validData.push({sl:parseInt(cols[0]), name:cols[1].toUpperCase(), shri:cols[2], time:cols[3].toUpperCase(), block:cols[4].toUpperCase(), prev:cols[5]});
+    });
+    
+    if(allErrors.length>0){ showError(allErrors); document.getElementById('pasteArea').value=''; return; }
+    
+    // APPEND - NOT REPLACE
+    let existingSl=new Set(allPatients.map(p=>p.sl));
+    let newCount=0;
+    validData.forEach(p=>{
+      if(!existingSl.has(p.sl)){
+        allPatients.push(p);
+        newCount++;
+      } else {
+        // update existing same SL
+        let idx=allPatients.findIndex(x=>x.sl===p.sl);
+        if(idx>=0) allPatients[idx]=p;
+      }
+    });
+    
+    allPatients.sort((a,b)=>a.sl-b.sl);
     filteredPatients=allPatients;
-    document.getElementById('fDay').value=data.day||'THURSDAY';
-    currentPage=1;
+    currentPage=Math.ceil(allPatients.length/pageSize); // go to last page
     renderPage();
-    showSuccess(allPatients.length);
-    document.getElementById('successBox').innerHTML=`✅ Loaded ${allPatients.length} patients for ${date} from Firebase`;
+    showSuccess(`✅ Added ${validData.length} rows (${newCount} new). Total now: ${allPatients.length} patients. Auto-saving...`);
+    document.getElementById('pasteArea').value='';
+    
+    // AUTO SAVE - APPEND TO FIREBASE
+    await autoSave();
+    
+  },100);
+});
+
+async function autoSave(){
+  let date=document.getElementById('fDate').value; if(!date) return;
+  let type=document.getElementById('fType').value; let day=document.getElementById('fDay').value;
+  let docId=date+'_'+type;
+  try{
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId),{
+      date:date, day:day, type:type, patients:allPatients, count:allPatients.length, updatedAt:new Date().toISOString()
+    });
+    let auto=document.getElementById('autoStatus'); auto.style.display='block'; auto.innerText='✅ AUTO SAVED '+allPatients.length;
+    setTimeout(()=>{auto.style.display='none';},3000);
+    document.getElementById('countInfo').innerText=`Total: ${allPatients.length} patients for ${date} | Firebase: ${docId}`;
+    // also backup to localStorage
+    localStorage.setItem(docId, JSON.stringify(allPatients));
   }catch(e){ showError([e.message]); }
 }
 
-window.addEventListener('load',()=>{ loadFromFirebase(); });
+function renderPage(){
+  let tbody=document.getElementById('tbody'); tbody.innerHTML='';
+  let start=(currentPage-1)*pageSize; let end=start+pageSize;
+  let pageData=filteredPatients.slice(start,end);
+  pageData.forEach((p,idx)=>{
+    let tr=document.createElement('tr');
+    tr.innerHTML=`<td>${p.sl}</td><td class="nameCol">${p.name}</td><td>${p.shri}</td><td>${p.time}</td><td>${p.block}</td><td>${p.prev}</td><td><button class="btn btnRed" style="padding:4px 8px" onclick="deleteRow(${p.sl})">X</button></td>`;
+    tbody.appendChild(tr);
+  });
+  renderPagination();
+  document.getElementById('countInfo').innerText=`Total: ${allPatients.length} patients | Filtered: ${filteredPatients.length} | Page ${currentPage}`;
+}
+
+function renderPagination(){
+  let totalPages=Math.max(1,Math.ceil(filteredPatients.length/pageSize));
+  let pag=document.getElementById('pagination'); pag.innerHTML='';
+  for(let i=1;i<=totalPages;i++){
+    if(totalPages>10 && Math.abs(i-currentPage)>2 && i!==1 && i!==totalPages) { if(i===currentPage-3||i===currentPage+3) pag.innerHTML+='<span style="padding:8px">...</span>'; continue; }
+    let btn=document.createElement('button'); btn.className='pageBtn'+(i===currentPage?' active':''); btn.innerText=i; btn.onclick=()=>{currentPage=i;renderPage();};
+    pag.appendChild(btn);
+  }
+  document.getElementById('pageInfo').innerText=`PAGE ${currentPage} / ${totalPages} | ${pageSize} per page`;
+}
+
+function changePage(dir){
+  let totalPages=Math.ceil(filteredPatients.length/pageSize);
+  currentPage+=dir; if(currentPage<1) currentPage=1; if(currentPage>totalPages) currentPage=totalPages;
+  renderPage();
+}
+
+function applyFilters(){
+  let fTime=document.getElementById('filterTime').value;
+  let fBlock=document.getElementById('filterBlock').value;
+  let fName=document.getElementById('searchName').value.toLowerCase().trim();
+  filteredPatients=allPatients.filter(p=>{
+    if(fTime && p.time!==fTime) return false;
+    if(fBlock && p.block!==fBlock) return false;
+    if(fName && !p.name.toLowerCase().includes(fName) && !p.shri.toLowerCase().includes(fName)) return false;
+    return true;
+  });
+  currentPage=1; renderPage();
+}
+
+function deleteRow(sl){
+  if(!confirm('Delete SL '+sl+'?')) return;
+  allPatients=allPatients.filter(p=>p.sl!==sl);
+  filteredPatients=filteredPatients.filter(p=>p.sl!==sl);
+  renderPage(); autoSave();
+}
+
+async function loadFromFirebase(){
+  let date=document.getElementById('fDate').value; let type=document.getElementById('fType').value;
+  if(!date) return; let docId=date+'_'+type;
+  try{
+    let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));
+    if(!snap.exists()){
+      // try localStorage backup
+      let local=localStorage.getItem(docId);
+      if(local){ allPatients=JSON.parse(local); filteredPatients=allPatients; currentPage=1; renderPage(); showSuccess(`⚠️ Firebase empty, loaded ${allPatients.length} from local backup`); return; }
+      showError(['No data for '+date+' - Paste to add']); allPatients=[]; filteredPatients=[]; renderPage(); return;
+    }
+    let data=snap.data();
+    allPatients=data.patients||[]; filteredPatients=allPatients; currentPage=1; renderPage();
+    document.getElementById('fDay').value=data.day||'THURSDAY';
+    showSuccess(`✅ Loaded ${allPatients.length} patients for ${date} from Firebase`);
+    document.getElementById('countInfo').innerText=`Total: ${allPatients.length} patients for ${date}`;
+  }catch(e){ showError([e.message]); }
+}
+
+async function clearAll(){
+  let date=document.getElementById('fDate').value; let type=document.getElementById('fType').value;
+  if(!confirm(`Clear ALL ${allPatients.length} patients for ${date} ${type}?`)) return;
+  let docId=date+'_'+type;
+  allPatients=[]; filteredPatients=[]; renderPage();
+  try{ await window._fb.deleteDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId)); localStorage.removeItem(docId); showSuccess('🗑️ Cleared Firebase for '+date); }catch(e){}
+}
+
+window.addEventListener('load',()=>{
+  document.getElementById('fDate').valueAsDate=new Date();
+  // auto load today's date if exists in localStorage
+  setTimeout(()=>{ loadFromFirebase(); },1000);
+});
 </script>
 </body>
 </html>
