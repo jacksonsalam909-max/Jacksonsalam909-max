@@ -28,6 +28,53 @@ body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 </style>
 </head>
 <body>
+<script>
+// --- LOGIN CHECK + GLOBAL LOGOUT GUARD FOR ALL PAGES ---
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+// GLOBAL LOGOUT ALL DEVICES LISTENER + THIS DEVICE LISTENER
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_add_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_add2_"+Math.random()); }
+const db= getFirestore(app);
+// Listen for Admin Logout All Devices (password jack8189 in index.html)
+try{
+  onSnapshot(doc(db,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      localStorage.removeItem('shija_role');
+      alert('🔒 Logged out by Admin from all devices');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+// Listen for Normal Logout - This Device All Tabs
+try{
+  window.addEventListener('storage',(e)=>{
+    if(e.key==='shija_force_logout_this_device'){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      location.href='login.html';
+    }
+  });
+  const bc = new BroadcastChannel('shija_logout');
+  bc.onmessage = (ev)=>{
+    if(ev.data==='logout_this_device'){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      location.href='login.html';
+    }
+  };
+}catch(e){}
+</script>
+
 <div class="top"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA Dialysis Management</h2></div><span style="color:#fff">Admin</span></div>
 <div class="sideOverlay" id="overlay"></div>
 <div class="mainWrap">
@@ -107,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function(){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig);
+const app=initializeApp(firebaseConfig,"addPageApp");
 const db=getFirestore(app);
 function saveEditedLocal(key,data){
   let m={}; try{m=JSON.parse(localStorage.getItem('editedKeys')||'{}');}catch{}
