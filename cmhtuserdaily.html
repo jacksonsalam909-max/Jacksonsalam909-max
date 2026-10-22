@@ -49,8 +49,39 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 </head>
 <body>
 <script>
-// USER ONLY + 30 MIN AUTO LOGOUT
-(function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired - Auto logout after 30 minutes');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();</script>
+// USER ONLY + 30 MIN AUTO LOGOUT + GLOBAL LOGOUT GUARD
+(function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired - Auto logout after 30 minutes');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_cmhtuserdaily_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_cmhtuserdaily2_"+Math.random()); }
+const dbGuard=getFirestore(app);
+try{
+  onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.clear();
+      alert('🔒 Logged out by Admin from all devices');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+try{
+  window.addEventListener('storage',(e)=>{
+    if(e.key==='shija_force_logout_this_device'){
+      localStorage.clear();
+      location.href='login.html';
+    }
+  });
+  const bc=new BroadcastChannel('shija_logout');
+  bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.clear(); location.href='login.html'; } };
+}catch(e){}
+</script>
 <div class="top"><div style="display:flex;align-items:center;gap:10px"><div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div><h2>SHIJA - CMHT Daily Dialysis</h2></div><span style="color:#fff" id="fbStatus">Connecting...</span></div>
 <div class="sideOverlay" id="overlay"></div>
 <div class="mainWrap">
@@ -86,9 +117,7 @@ tr.repeatRow td:first-child{border-left:4px solid #eab308}
 <p style="font-size:11px;color:#94a3b8;margin-top:10px;text-align:center">Same data as Admin. Yellow = Repeated patient.</p>
 </div>
 </div>
-
 <script>
-// UNIVERSAL 3-LINE BUTTON - Works on Mobile + Desktop + Tablet
 function toggleMenu(){
   document.getElementById('side').classList.toggle('show');
   document.getElementById('overlay').classList.toggle('show');
@@ -116,7 +145,7 @@ document.addEventListener('DOMContentLoaded',function(){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);
+const app=initializeApp(firebaseConfig,"cmhtuserdailyMain_"+Math.random());const db=getFirestore(app);
 let allList=[], filteredList=[], currentPage=1;
 document.getElementById('listDate').valueAsDate=new Date();
 document.getElementById('fbStatus').textContent='Firebase Connected';
@@ -127,7 +156,6 @@ async function loadList(){
   const q=query(collection(db,"cmht_daily_dialysis"), where("listDate","==",dateVal));
   const snap=await getDocs(q);
   allList=[];snap.forEach(d=>allList.push({id:d.id,...d.data()}));
-  // Fallback if admin saved with field "date" instead of "listDate"
   if(allList.length===0){
     try{ const q2=query(collection(db,"cmht_daily_dialysis"), where("date","==",dateVal)); const snap2=await getDocs(q2); snap2.forEach(d=>allList.push({id:d.id,...d.data()})); }catch(e){}
   }
