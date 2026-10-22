@@ -2,81 +2,68 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LIST - EXCEL PASTE SHEET</title>
+<title>LIST - VALIDATED SHEET</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
 body{background:#f1f5f9}
 .top{height:60px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:fixed;top:0;left:0;right:0;z-index:999}
-.btn{padding:9px 14px;border:0;border-radius:8px;font-weight:900;font-size:11px;cursor:pointer;text-transform:uppercase}
-.btnBlue{background:#2563eb;color:#fff}.btnGreen{background:#10b981;color:#fff}.btnDark{background:#0f172a;color:#fff}.btnRed{background:#ef4444;color:#fff}
-.input{padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:12px}
+.btn{padding:8px 12px;border:0;border-radius:8px;font-weight:900;font-size:11px;cursor:pointer}
+.btnBlue{background:#2563eb;color:#fff}.btnGreen{background:#10b981;color:#fff}.btnDark{background:#0f172a;color:#fff}
+.input{padding:8px;border:1.5px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:12px}
 .content{max-width:1400px;margin:70px auto 0;padding:12px}
 .card{background:#fff;border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid #e2e8f0}
-.sheetWrap{overflow:auto;max-height:70vh;border:2px solid #000;background:#fff}
+.sheetWrap{overflow:auto;border:2px solid #000;background:#fff;max-height:65vh}
 table{border-collapse:collapse;width:100%;min-width:900px}
-th{position:sticky;top:0;background:#0f172a;color:#fff;padding:8px 6px;font-size:10px;text-align:center;border:1px solid #000;z-index:2}
-td{border:1px solid #cbd5e1;padding:0;min-width:90px;height:28px}
-td input{width:100%;height:100%;border:0;padding:4px 6px;font-size:11px;font-weight:600;text-transform:uppercase;outline:0}
-td input:focus{background:#dbeafe}
-.slCell{background:#f1f5f9;text-align:center;font-weight:800}
-.filterBar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.pasteArea{width:100%;height:80px;border:2px dashed #2563eb;border-radius:10px;padding:10px;font-size:11px;background:#eff6ff}
+th{position:sticky;top:0;background:#0f172a;color:#fff;padding:8px 5px;font-size:10px;text-align:center;border:1px solid #000;z-index:2}
+td{border:1px solid #cbd5e1;padding:0;height:30px;min-width:80px}
+td input{width:100%;height:100%;border:0;padding:5px;font-size:11px;font-weight:600;text-transform:uppercase;outline:0}
+td input.invalid{background:#fecaca!important;border:2px solid #ef4444}
+.pasteArea{width:100%;height:70px;border:2.5px dashed #2563eb;background:#eff6ff;border-radius:10px;padding:8px;font-size:11px}
+.pagination{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pageBtn{padding:8px 14px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;font-weight:900;cursor:pointer;font-size:11px}
+.pageBtn.active{background:#0f172a;color:#fff}
+.errorBox{background:#fee2e2;border:2px solid #ef4444;color:#991b1b;padding:10px;border-radius:10px;font-weight:700;font-size:11px;display:none;margin-top:8px}
+.successBox{background:#dcfce7;border:2px solid #10b981;color:#14532d;padding:10px;border-radius:10px;font-weight:800;font-size:11px;display:none;margin-top:8px}
 </style>
 </head>
 <body>
 <div class="top">
-<div style="font-weight:900;font-size:13px">LIST - PASTE EXCEL SHEET → FIREBASE</div>
-<div style="display:flex;gap:6px">
-<button class="btn btnGreen" onclick="saveToFirebase()">💾 SAVE TO FIREBASE</button>
-<button class="btn btnBlue" onclick="loadFromFirebase()">🔄 LOAD</button>
-</div>
+<div style="font-weight:900">LIST - AUTO VALIDATION + PAGE WISE</div>
+<div id="autoStatus" style="font-size:11px;font-weight:800;background:#10b981;padding:6px 10px;border-radius:20px;display:none">✅ AUTO SAVED</div>
 </div>
 
 <div class="content">
 
 <div class="card">
-<div class="filterBar">
-<div><label style="font-size:9px;font-weight:800">DATE</label><br><input type="date" id="fDate" class="input"></div>
-<div><label style="font-size:9px;font-weight:800">DAY</label><br>
-<select id="fDay" class="input"><option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option><option selected>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option></select></div>
-<div><label style="font-size:9px;font-weight:800">TYPE</label><br><select id="fType" class="input"><option selected>PMJAY</option><option>CMHT</option></select></div>
-<div><label style="font-size:9px;font-weight:800">FILTER TIME</label><br>
-<select id="filterTime" class="input" onchange="applyFilters()"><option value="">ALL TIME</option><option>7:00 AM</option><option>12:00 PM</option><option>5:00 PM</option><option>9:00 PM</option></select></div>
-<div><label style="font-size:9px;font-weight:800">FILTER BLOCK</label><br>
-<select id="filterBlock" class="input" onchange="applyFilters()"><option value="">ALL BLOCK</option><option>MAIN</option><option>ITOCHA</option></select></div>
-<div><label style="font-size:9px;font-weight:800">SEARCH NAME</label><br><input type="text" id="searchName" class="input" placeholder="NAME..." oninput="applyFilters()" style="width:180px"></div>
-<div style="margin-left:auto;display:flex;gap:6px;align-items:end">
-<button class="btn btnDark" onclick="addRows(20)">+ 20 ROWS</button>
-<button class="btn btnRed" onclick="clearSheet()">CLEAR</button>
-</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<div><label style="font-size:9px;font-weight:800">DATE</label><br><input type="date" id="fDate" class="input" onchange="loadFromFirebase()"></div>
+<div><label style="font-size:9px;font-weight:800">DAY</label><br><select id="fDay" class="input"><option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option><option selected>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option></select></div>
+<div><label style="font-size:9px;font-weight:800">TYPE</label><br><select id="fType" class="input" onchange="loadFromFirebase()"><option selected>PMJAY</option><option>CMHT</option></select></div>
+<div><label style="font-size:9px;font-weight:800">FILTER TIME</label><br><select id="filterTime" class="input" onchange="applyFilters()"><option value="">ALL TIME</option><option>7:00 AM</option><option>12:00 PM</option><option>5:00 PM</option><option>9:00 PM</option></select></div>
+<div><label style="font-size:9px;font-weight:800">FILTER BLOCK</label><br><select id="filterBlock" class="input" onchange="applyFilters()"><option value="">ALL BLOCK</option><option>MAIN</option><option>ITOCHA</option></select></div>
+<div><label style="font-size:9px;font-weight:800">SEARCH</label><br><input type="text" id="searchName" class="input" placeholder="NAME..." oninput="applyFilters()"></div>
 </div>
 </div>
 
 <div class="card">
-<div style="font-weight:900;font-size:11px;margin-bottom:6px">📋 PASTE FROM EXCEL HERE - COPY FROM EXCEL AND PASTE (Ctrl+V) ANYWHERE IN SHEET:</div>
-<textarea id="pasteArea" class="pasteArea" placeholder="COPY YOUR EXCEL (Ctrl+C) AND PASTE HERE (Ctrl+V) - Will auto fill sheet..."></textarea>
-<div id="msg" style="margin-top:6px;font-weight:800;font-size:11px;color:#2563eb"></div>
+<div style="font-weight:900;font-size:11px">📋 PASTE YOUR EXCEL HERE - WRONG FORMAT WILL BE BLOCKED:</div>
+<textarea id="pasteArea" class="pasteArea" placeholder="COPY FROM EXCEL (Ctrl+C) AND PASTE HERE (Ctrl+V) - Must be: SL.NO [TAB] NAME [TAB] SHRI [TAB] TIME [TAB] BLOCK [TAB] PREV DIALYSIS"></textarea>
+<div id="errorBox" class="errorBox"></div>
+<div id="successBox" class="successBox"></div>
+<div style="font-size:10px;color:#64748b;margin-top:6px">Correct format: 1 [TAB] KIM [TAB] 123 [TAB] 7:00 AM [TAB] MAIN [TAB] 10/19/2026 | TIME must be 7:00 AM / 12:00 PM / 5:00 PM / 9:00 PM | BLOCK must be MAIN / ITOCHA</div>
 </div>
 
-<div class="card" style="padding:0;overflow:hidden">
-<div class="sheetWrap" id="sheetWrap">
-<table id="sheet">
-<thead>
-<tr>
-<th style="width:50px">SL.NO</th>
-<th style="width:220px">NAME</th>
-<th style="width:110px">SHRI</th>
-<th style="width:110px">TIME</th>
-<th style="width:100px">BLOCK</th>
-<th style="width:130px">PREV DIALYSIS</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
+<div class="card" style="padding:0">
+<div class="sheetWrap">
+<table id="sheet"><thead><tr><th>SL.NO</th><th>NAME</th><th>SHRI</th><th>TIME</th><th>BLOCK</th><th>PREV DIALYSIS</th></tr></thead><tbody id="tbody"></tbody></table>
 </div>
-<div style="padding:8px;display:flex;gap:8px">
-<button class="btn btnDark" onclick="addRows(10)">+ ADD 10 ROWS</button>
-<div style="font-size:10px;font-weight:700;color:#64748b;margin-left:auto">TIP: Click any cell and Paste (Ctrl+V) your Excel data - It will auto fill. You can also paste in the blue box above.</div>
+<div style="padding:10px">
+<div class="pagination" id="pagination"></div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn btnDark" onclick="changePage(-1)">◀ PREV PAGE</button>
+<button class="btn btnDark" onclick="changePage(1)">NEXT PAGE ▶</button>
+<span id="pageInfo" style="font-weight:800;font-size:11px;margin-left:auto;padding:8px"></span>
+</div>
 </div>
 </div>
 
@@ -90,160 +77,155 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window._fb={d
 </script>
 
 <script>
-let rowCount=0;
-let allData=[]; // for filtering
+let allPatients=[]; // full data
+let filteredPatients=[];
+let currentPage=1;
+let pageSize=20; // 20 rows per page
 
 document.getElementById('fDate').valueAsDate=new Date();
 
-function addRows(n){
-  let tbody=document.getElementById('tbody');
-  for(let i=0;i<n;i++){
-    rowCount++;
-    let tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td class="slCell"><input value="${rowCount}" data-col="sl" style="text-align:center;background:#f1f5f9"></td>
-      <td><input data-col="name" placeholder="NAME"></td>
-      <td><input data-col="shri" placeholder="SHRI"></td>
-      <td><input data-col="time" placeholder="7:00 AM" list="timeList"></td>
-      <td><input data-col="block" placeholder="MAIN" list="blockList"></td>
-      <td><input data-col="prev" placeholder="10/19/2026"></td>
-    `;
-    tbody.appendChild(tr);
-  }
-  attachPasteHandlers();
-}
-addRows(100);
-
-document.body.insertAdjacentHTML('beforeend', `<datalist id="timeList"><option value="7:00 AM"><option value="12:00 PM"><option value="5:00 PM"><option value="9:00 PM"></datalist><datalist id="blockList"><option value="MAIN"><option value="ITOCHA"></datalist>`);
-
-function attachPasteHandlers(){
-  document.querySelectorAll('td input').forEach(inp=>{
-    inp.removeEventListener('paste', handlePaste);
-    inp.addEventListener('paste', handlePaste);
-  });
-}
-
-function handlePaste(e){
-  let clipboard=e.clipboardData.getData('text');
-  if(!clipboard.includes('\t') && !clipboard.includes('\n')) return; // normal paste
-  e.preventDefault();
-  let startInput=e.target;
-  let startTr=startInput.closest('tr');
-  let startRowIndex=Array.from(document.getElementById('tbody').children).indexOf(startTr);
-  let startColIndex=Array.from(startTr.children).indexOf(startInput.parentElement);
+function validateRow(cols, rowNum){
+  let errors=[];
+  if(cols.length<6) errors.push(`Row ${rowNum}: Need 6 columns, found ${cols.length}`);
+  let sl=cols[0]?.trim();
+  let name=cols[1]?.trim();
+  let shri=cols[2]?.trim();
+  let time=cols[3]?.trim().toUpperCase();
+  let block=cols[4]?.trim().toUpperCase();
+  let prev=cols[5]?.trim();
   
-  let rows=clipboard.trim().split('\n');
-  rows.forEach((r, rIdx)=>{
-    let cols=r.split('\t');
-    let targetRow=document.getElementById('tbody').children[startRowIndex+rIdx];
-    if(!targetRow){
-      addRows(1);
-      targetRow=document.getElementById('tbody').children[document.getElementById('tbody').children.length-1];
-    }
-    cols.forEach((c, cIdx)=>{
-      let targetCell=targetRow.children[startColIndex+cIdx];
-      if(targetCell){
-        let input=targetCell.querySelector('input');
-        if(input) input.value=c.trim();
-      }
-    });
-  });
-  document.getElementById('msg').innerText='✅ Pasted '+rows.length+' rows from Excel';
+  if(!sl || isNaN(parseInt(sl))) errors.push(`Row ${rowNum}: SL.NO must be number (found "${sl}")`);
+  if(!name || name.length<2) errors.push(`Row ${rowNum}: NAME missing`);
+  if(!time || !['7:00 AM','12:00 PM','5:00 PM','9:00 PM'].includes(time)) errors.push(`Row ${rowNum}: TIME must be 7:00 AM / 12:00 PM / 5:00 PM / 9:00 PM (found "${cols[3]}")`);
+  if(!block || !['MAIN','ITOCHA'].includes(block)) errors.push(`Row ${rowNum}: BLOCK must be MAIN or ITOCHA (found "${cols[4]}")`);
+  
+  return errors;
 }
 
-// Paste area
+function showError(msgs){
+  let box=document.getElementById('errorBox');
+  box.style.display='block';
+  document.getElementById('successBox').style.display='none';
+  box.innerHTML='❌ PASTE BLOCKED - Wrong format:<br>'+msgs.slice(0,5).join('<br>')+(msgs.length>5?`<br>+ ${msgs.length-5} more errors...`:'');
+}
+
+function showSuccess(count){
+  document.getElementById('errorBox').style.display='none';
+  let box=document.getElementById('successBox');
+  box.style.display='block';
+  box.innerHTML=`✅ Correct format! ${count} patients validated and auto-saved to Firebase`;
+  setTimeout(()=>{box.style.display='none';},5000);
+}
+
+// PASTE HANDLER WITH VALIDATION
 document.getElementById('pasteArea').addEventListener('paste', e=>{
-  setTimeout(()=>{
-    let text=document.getElementById('pasteArea').value;
+  setTimeout(async ()=>{
+    let text=document.getElementById('pasteArea').value.trim();
     if(!text) return;
-    let rows=text.trim().split('\n');
-    // Clear first
-    document.getElementById('tbody').innerHTML='';
-    rowCount=0;
-    addRows(rows.length+20);
-    let tbodyRows=document.getElementById('tbody').children;
+    let rows=text.split('\n').filter(r=>r.trim()!=='');
+    
+    // Remove header if present
+    if(rows[0].toUpperCase().includes('SL.NO') && rows[0].toUpperCase().includes('NAME')) rows=rows.slice(1);
+    
+    let allErrors=[];
+    let validData=[];
+    
     rows.forEach((r, idx)=>{
       let cols=r.split('\t');
-      if(cols.length===1) cols=r.split(',');
-      let tr=tbodyRows[idx];
-      if(!tr) return;
-      for(let i=0;i<Math.min(cols.length,6);i++){
-        let input=tr.children[i]?.querySelector('input');
-        if(input) input.value=cols[i].trim();
+      if(cols.length===1) cols=r.split(','); // try comma
+      if(cols.length===1) cols=r.split(/\s{2,}/); // try multiple spaces
+      cols=cols.map(c=>c.trim());
+      let errs=validateRow(cols, idx+1);
+      if(errs.length>0) allErrors.push(...errs);
+      else{
+        validData.push({
+          sl:parseInt(cols[0]),
+          name:cols[1].toUpperCase(),
+          shri:cols[2],
+          time:cols[3].toUpperCase(),
+          block:cols[4].toUpperCase(),
+          prev:cols[5]
+        });
       }
     });
+    
+    if(allErrors.length>0){
+      showError(allErrors);
+      document.getElementById('pasteArea').value='';
+      return; // BLOCK
+    }
+    
+    // Correct - save
+    allPatients=validData.sort((a,b)=>a.sl-b.sl);
+    filteredPatients=allPatients;
+    currentPage=1;
+    renderPage();
+    showSuccess(validData.length);
     document.getElementById('pasteArea').value='';
-    document.getElementById('msg').innerText='✅ Pasted '+rows.length+' rows into sheet - Now click SAVE TO FIREBASE';
+    
+    // AUTO SAVE TO FIREBASE
+    await autoSave();
+    
   },100);
 });
 
-function getSheetData(){
-  let data=[];
-  document.querySelectorAll('#tbody tr').forEach(tr=>{
-    let inputs=tr.querySelectorAll('input');
-    let obj={
-      sl:inputs[0]?.value.trim(),
-      name:inputs[1]?.value.trim().toUpperCase(),
-      shri:inputs[2]?.value.trim(),
-      time:inputs[3]?.value.trim().toUpperCase(),
-      block:inputs[4]?.value.trim().toUpperCase(),
-      prev:inputs[5]?.value.trim()
-    };
-    if(obj.name) data.push(obj);
-  });
-  return data;
-}
-
-async function saveToFirebase(){
+async function autoSave(){
   let date=document.getElementById('fDate').value;
-  if(!date){alert('Select Date');return;}
-  let data=getSheetData();
-  if(data.length===0){alert('No data to save');return;}
+  if(!date){alert('Select Date first');return;}
   let type=document.getElementById('fType').value;
   let day=document.getElementById('fDay').value;
   let docId=date+'_'+type;
-  document.getElementById('msg').innerText='Saving '+data.length+' patients to Firebase...';
   try{
     await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId),{
-      date:date, day:day, type:type, patients:data, count:data.length, updatedAt:new Date().toISOString()
+      date:date, day:day, type:type, patients:allPatients, count:allPatients.length, updatedAt:new Date().toISOString()
     });
-    document.getElementById('msg').innerText='✅ Saved '+data.length+' patients for '+date+' to Firebase';
-    allData=data;
-  }catch(e){ document.getElementById('msg').innerText='❌ Error: '+e.message; }
+    let auto=document.getElementById('autoStatus');
+    auto.style.display='block';
+    auto.innerText='✅ AUTO SAVED '+allPatients.length+' FOR '+date;
+    setTimeout(()=>{auto.style.display='none';},3000);
+  }catch(e){ console.log(e); }
 }
 
-async function loadFromFirebase(){
-  let date=document.getElementById('fDate').value;
-  let type=document.getElementById('fType').value;
-  if(!date){alert('Select Date');return;}
-  let docId=date+'_'+type;
-  document.getElementById('msg').innerText='Loading '+date+'...';
-  try{
-    let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));
-    if(!snap.exists()){
-      document.getElementById('msg').innerText='❌ No data for '+date;
-      return;
+function renderPage(){
+  let tbody=document.getElementById('tbody');
+  tbody.innerHTML='';
+  let start=(currentPage-1)*pageSize;
+  let end=start+pageSize;
+  let pageData=filteredPatients.slice(start,end);
+  
+  pageData.forEach(p=>{
+    let tr=document.createElement('tr');
+    tr.innerHTML=`<td style="text-align:center;background:#f1f5f9;font-weight:800">${p.sl}</td><td>${p.name}</td><td style="text-align:center">${p.shri}</td><td style="text-align:center">${p.time}</td><td style="text-align:center">${p.block}</td><td style="text-align:center">${p.prev}</td>`;
+    tbody.appendChild(tr);
+  });
+  
+  renderPagination();
+}
+
+function renderPagination(){
+  let totalPages=Math.ceil(filteredPatients.length/pageSize);
+  let pag=document.getElementById('pagination');
+  pag.innerHTML='';
+  for(let i=1;i<=totalPages;i++){
+    if(i>7 && i<totalPages-1 && Math.abs(i-currentPage)>1){
+      if(i===8) pag.innerHTML+='<span style="padding:8px">...</span>';
+      continue;
     }
-    let d=snap.data();
-    let patients=d.patients||[];
-    document.getElementById('tbody').innerHTML='';
-    rowCount=0;
-    addRows(Math.max(patients.length+20,100));
-    let rows=document.getElementById('tbody').children;
-    patients.forEach((p,i)=>{
-      let tr=rows[i];
-      if(!tr) return;
-      tr.children[0].querySelector('input').value=p.sl;
-      tr.children[1].querySelector('input').value=p.name;
-      tr.children[2].querySelector('input').value=p.shri;
-      tr.children[3].querySelector('input').value=p.time;
-      tr.children[4].querySelector('input').value=p.block;
-      tr.children[5].querySelector('input').value=p.prev;
-    });
-    document.getElementById('fDay').value=d.day||'THURSDAY';
-    allData=patients;
-    document.getElementById('msg').innerText='✅ Loaded '+patients.length+' for '+date;
-  }catch(e){ document.getElementById('msg').innerText='❌ '+e.message; }
+    let btn=document.createElement('button');
+    btn.className='pageBtn'+(i===currentPage?' active':'');
+    btn.innerText='PAGE '+i;
+    btn.onclick=()=>{currentPage=i;renderPage();};
+    pag.appendChild(btn);
+  }
+  document.getElementById('pageInfo').innerText=`PAGE ${currentPage} / ${totalPages} | Showing ${filteredPatients.length} patients | ${pageSize} per page`;
+}
+
+function changePage(dir){
+  let totalPages=Math.ceil(filteredPatients.length/pageSize);
+  currentPage+=dir;
+  if(currentPage<1) currentPage=1;
+  if(currentPage>totalPages) currentPage=totalPages;
+  renderPage();
 }
 
 function applyFilters(){
@@ -251,26 +233,40 @@ function applyFilters(){
   let fBlock=document.getElementById('filterBlock').value;
   let fName=document.getElementById('searchName').value.toLowerCase().trim();
   
-  document.querySelectorAll('#tbody tr').forEach(tr=>{
-    let time=tr.children[3]?.querySelector('input')?.value.toUpperCase()||'';
-    let block=tr.children[4]?.querySelector('input')?.value.toUpperCase()||'';
-    let name=tr.children[1]?.querySelector('input')?.value.toLowerCase()||'';
-    let show=true;
-    if(fTime && !time.includes(fTime)) show=false;
-    if(fBlock && block!==fBlock) show=false;
-    if(fName && !name.includes(fName)) show=false;
-    tr.style.display=show?'':'none';
+  filteredPatients=allPatients.filter(p=>{
+    if(fTime && p.time!==fTime) return false;
+    if(fBlock && p.block!==fBlock) return false;
+    if(fName && !p.name.toLowerCase().includes(fName) && !p.shri.toLowerCase().includes(fName)) return false;
+    return true;
   });
+  currentPage=1;
+  renderPage();
 }
 
-function clearSheet(){
-  if(!confirm('Clear all?')) return;
-  document.getElementById('tbody').innerHTML='';
-  rowCount=0;
-  addRows(100);
+async function loadFromFirebase(){
+  let date=document.getElementById('fDate').value;
+  let type=document.getElementById('fType').value;
+  if(!date) return;
+  let docId=date+'_'+type;
+  try{
+    let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));
+    if(!snap.exists()){
+      document.getElementById('successBox').style.display='none';
+      showError(['No data for '+date]);
+      allPatients=[]; filteredPatients=[]; renderPage(); return;
+    }
+    let data=snap.data();
+    allPatients=data.patients||[];
+    filteredPatients=allPatients;
+    document.getElementById('fDay').value=data.day||'THURSDAY';
+    currentPage=1;
+    renderPage();
+    showSuccess(allPatients.length);
+    document.getElementById('successBox').innerHTML=`✅ Loaded ${allPatients.length} patients for ${date} from Firebase`;
+  }catch(e){ showError([e.message]); }
 }
 
-window.addEventListener('load',()=>{ document.getElementById('fDate').valueAsDate=new Date(); });
+window.addEventListener('load',()=>{ loadFromFirebase(); });
 </script>
 </body>
 </html>
