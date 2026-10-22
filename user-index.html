@@ -48,7 +48,38 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.grid{grid-template-columns:1fr 1fr}.content{padding:14px}}
 </style></head>
 <body>
-<script>(function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired - Auto logout after 30 minutes');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();</script>
+<script>(function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired - Auto logout after 30 minutes');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_userindex_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_userindex2_"+Math.random()); }
+const dbGuard=getFirestore(app);
+try{
+  onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.clear();
+      alert('🔒 Logged out by Admin from all devices');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+try{
+  window.addEventListener('storage',(e)=>{
+    if(e.key==='shija_force_logout_this_device'){
+      localStorage.clear();
+      location.href='login.html';
+    }
+  });
+  const bc=new BroadcastChannel('shija_logout');
+  bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.clear(); location.href='login.html'; } };
+}catch(e){}
+</script>
 <div class="top">
 <div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop">☰</button><img src="logoc.png" onerror="this.src='shija.jpg'"> SHIJA Dialysis</div>
 <div class="searchWrap"><div class="search"><input id="globalSearch" placeholder="Search PMJAY & CMHT patients..." oninput="doGlobalSearch()" onfocus="doGlobalSearch()"></div><div class="searchResult" id="searchResult"></div></div>
@@ -118,7 +149,7 @@ function doGlobalSearch(){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(config);const db=getFirestore(app);
+const app=initializeApp(config,"userindexMain_"+Math.random());const db=getFirestore(app);
 function getDeletedKeys(){try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]').concat(JSON.parse(localStorage.getItem('deletedShri')||'[]'));}catch{return[];}}
 let todayStr = new Date().toISOString().slice(0,10);
 document.getElementById('dashDate').value = todayStr;
@@ -127,7 +158,6 @@ loadDashboard();
 async function loadDashboard(){
  let sel=document.getElementById('dashDate').value || todayStr;
  document.getElementById('welcomeText').textContent=`Data for ${sel}`;
- // PMJAY TOTAL + SEARCH - FROM FIREBASE collection "patients"
  try{
    let snap = await getDocs(collection(db,"patients"));
    let pmjaySearch=[];
@@ -149,7 +179,6 @@ async function loadDashboard(){
    document.getElementById('v1').textContent = pmjaySearch.length;
    window.allForSearch = pmjaySearch;
  }catch(e){ console.error(e); }
- // CMHT TOTAL + SEARCH - FROM FIREBASE collection "cmht_patients"
  try{
    let csnap = await getDocs(collection(db,"cmht_patients"));
    let cmhtCount = 0; let cmhtSearch = [];
@@ -157,7 +186,6 @@ async function loadDashboard(){
    document.getElementById('vCMHT').textContent = cmhtCount;
    window.allForSearch = (window.allForSearch||[]).filter(p=>p.type!=='CMHT').concat(cmhtSearch);
  }catch(e){}
- // PMJAY DAILY - FROM FIREBASE collection "daily_dialysis"
  try{
    let qDaily = query(collection(db,"daily_dialysis"), where("date","==",sel));
    let sDaily = await getDocs(qDaily);
@@ -167,7 +195,6 @@ async function loadDashboard(){
    document.getElementById('v3small').textContent = `Scheduled for ${sel}`;
    document.getElementById('v3f').textContent = dailyCount>0 ? `${dailyCount} patients entered` : `No entry - 0`;
  }catch(e){}
- // CMHT DAILY - FROM FIREBASE collection "cmht_daily_dialysis"
  try{
    let qCDaily = query(collection(db,"cmht_daily_dialysis"), where("listDate","==",sel));
    let sCDaily = await getDocs(qCDaily);
