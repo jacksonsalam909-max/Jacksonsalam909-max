@@ -22,8 +22,6 @@ td input:focus{background:#dbeafe;outline:3px solid #7c3aed}
 td.slCol{background:#f1f5f9;text-align:center;font-weight:900}
 td.idCol input{background:#eff6ff;color:#1e40af;font-weight:900}
 .status{font-size:11px;font-weight:900;padding:6px 12px;border-radius:20px}.status.saved{background:#dcfce7}.status.saving{background:#fef3c7}
-
-/* UNIVERSAL MENU */
 .menuBtn{font-size:28px;background:none;border:0;color:#fff;cursor:pointer;padding:6px 12px;touch-action:manipulation;user-select:none;line-height:1}
 .menuBtn *{pointer-events:none}
 .menuDrawer{position:fixed;top:60px;left:-320px;width:300px;height:calc(100vh - 60px);background:#ffffff;color:#0f172a;z-index:9999;transition:left 0.28s ease;overflow:auto;padding:0;border-right:1px solid #e2e8f0;box-shadow:4px 0 25px rgba(0,0,0,0.15);-webkit-overflow-scrolling:touch}
@@ -32,7 +30,6 @@ td.idCol input{background:#eff6ff;color:#1e40af;font-weight:900}
 .menuItem:active{background:#e2e8f0}
 .menuOverlay{position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.2);display:none;z-index:9998}
 .menuOverlay.open{display:block}
-
 .controlsRow{display:flex;gap:8px;flex-wrap:nowrap;align-items:flex-end;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
 .ctrl{flex:0 0 auto;min-width:0}.ctrlDate{width:125px}.ctrlScheme{width:95px}.ctrlExist{width:110px}
 .ctrlButtons{margin-left:auto;display:flex;gap:6px;flex:0 0 auto}
@@ -41,6 +38,42 @@ td.idCol input{background:#eff6ff;color:#1e40af;font-weight:900}
 </style>
 </head>
 <body>
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_addlist_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_addlist2_"+Math.random()); }
+const db=getFirestore(app);
+try{
+  onSnapshot(doc(db,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      localStorage.removeItem('shija_role');
+      alert('🔒 Logged out by Admin from all devices');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+try{
+  window.addEventListener('storage',(e)=>{
+    if(e.key==='shija_force_logout_this_device'){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      location.href='login.html';
+    }
+  });
+  const bc=new BroadcastChannel('shija_logout');
+  bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } };
+}catch(e){}
+</script>
 <div class="top">
 <div style="display:flex;align-items:center;gap:8px">
 <button class="menuBtn" id="menuBtn">☰</button>
@@ -89,7 +122,7 @@ td.idCol input{background:#eff6ff;color:#1e40af;font-weight:900}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);window._fb={db,doc,setDoc,getDoc,getDocs,collection};
+const app=initializeApp(firebaseConfig,"addlistMain_"+Math.random());const db=getFirestore(app);window._fb={db,doc,setDoc,getDoc,getDocs,collection};
 </script>
 <script>
 let masterByNamePM={},masterByShriPM={},masterByNameCM={},masterByShriCM={};
@@ -99,8 +132,6 @@ let initDate=urlParams.get('date')||new Date().toISOString().split('T')[0];
 let initScheme=urlParams.get('scheme')||'PMJAY';
 document.getElementById('fDate').value=initDate;
 document.getElementById('fType').value=initScheme;
-
-// UNIVERSAL MENU - ALL DEVICES
 const menuBtn=document.getElementById('menuBtn');
 const menuDrawer=document.getElementById('menuDrawer');
 const menuOverlay=document.getElementById('menuOverlay');
@@ -110,7 +141,6 @@ menuBtn.addEventListener('click', toggleMenu);
 menuBtn.addEventListener('touchend', (e)=>{e.preventDefault();toggleMenu();},{passive:false});
 menuOverlay.addEventListener('click', closeMenu);
 menuOverlay.addEventListener('touchend', closeMenu, {passive:true});
-
 function goPage(page){
   closeMenu();
   setTimeout(()=>{
