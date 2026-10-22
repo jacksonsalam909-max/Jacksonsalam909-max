@@ -15,7 +15,7 @@ const firebaseConfig = {
   appId: "1:1076050472607:web:736e0688a41462460efcaa",
   measurementId: "G-RXBJ1FD2E4"
 };
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig,"billMainApp");
 const db = getFirestore(app);
 window.db = db;
 window.saveToSameStorage = async function(){
@@ -130,7 +130,42 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 </style>
 </head>
 <body>
-<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='index.html'}</script>
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_bill_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_bill2_"+Math.random()); }
+const db=getFirestore(app);
+try{
+  onSnapshot(doc(db,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      localStorage.removeItem('shija_role');
+      alert('🔒 Logged out by Admin from all devices');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+try{
+  window.addEventListener('storage',(e)=>{
+    if(e.key==='shija_force_logout_this_device'){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      location.href='login.html';
+    }
+  });
+  const bc=new BroadcastChannel('shija_logout');
+  bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } };
+}catch(e){}
+</script>
 <div class="top noPrint"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA Dialysis</h2><span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div><div style="display:flex;gap:8px"><button class="btnBlue" onclick="saveToSameStorage()" style="background:#10b981">Save</button><button class="btnBlue" onclick="saveToSameStorage(); setTimeout(()=>window.print(),500)">Save & Print</button><button class="btnBlue" onclick="window.print()">Print</button></div></div>
 <div class="sideOverlay" id="overlay"></div>
 <div class="side noPrint" id="side">
@@ -200,7 +235,6 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 </div>
 </div>
 <script>
-// UNIVERSAL 3-LINE BUTTON - Works on ALL devices
 function toggleMenu(){
  var s=document.getElementById('side');
  var o=document.getElementById('overlay');
