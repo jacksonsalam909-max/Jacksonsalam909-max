@@ -2,13 +2,13 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ADDLIST - FULL EXCEL PAGE</title>
+<title>ADDLIST - PASTE ANY COLUMN ROW</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
 body{background:#f8fafc}
 .top{height:62px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:fixed;top:0;left:0;right:0;z-index:999}
 .btn{padding:10px 16px;border:0;border-radius:8px;font-weight:900;font-size:12px;cursor:pointer;text-transform:uppercase}
-.btnGreen{background:#10b981;color:#fff}.btnBlue{background:#2563eb;color:#fff}.btnDark{background:#0f172a;color:#fff}.btnPurple{background:#7c3aed;color:#fff}.btnRed{background:#ef4444;color:#fff}
+.btnGreen{background:#10b981;color:#fff}.btnDark{background:#0f172a;color:#fff}.btnRed{background:#ef4444;color:#fff}
 .input{padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:13px}
 .content{margin:72px 10px 10px 10px}
 .card{background:#fff;border-radius:12px;padding:12px;border:1px solid #e2e8f0;margin-bottom:10px}
@@ -27,11 +27,11 @@ td.idCol input{background:#eff6ff;color:#1e40af;font-weight:900}
 <body>
 <div class="top">
 <div>
-<div style="font-weight:900;font-size:17px">📋 ADDLIST - FULL EXCEL PAGE</div>
-<div style="font-size:11px;opacity:0.8" id="topInfo">Paste patient list continuously - Auto ID from Firebase</div>
+<div style="font-weight:900;font-size:17px">📋 ADDLIST - PASTE ANY COLUMN / ROW</div>
+<div style="font-size:11px;opacity:0.8" id="topInfo">Click any cell - Paste NAME, SHRI, BLOCK, TIME, PREV separately</div>
 </div>
 <div style="display:flex;gap:8px;align-items:center">
-<div id="status" class="status saved">READY TO PASTE</div>
+<div id="status" class="status saved">READY - CLICK ANY CELL TO PASTE</div>
 <button class="btn btnDark" onclick="goBack()">◀ BACK</button>
 <button class="btn btnGreen" onclick="saveAll()" style="padding:12px 26px;font-size:14px">💾 SAVE LIST</button>
 </div>
@@ -50,11 +50,13 @@ td.idCol input{background:#eff6ff;color:#1e40af;font-weight:900}
 </div>
 </div>
 <div style="margin-top:10px;background:#eff6ff;border:2px dashed #2563eb;padding:10px;border-radius:8px;font-size:12px;font-weight:800">
-📌 FULL EXCEL PAGE - ADDLIST.HTML:<br>
-1. Click PATIENT NAME cell → Ctrl+V paste list (NAME, SHRI, TIME, BLOCK, PREV) → Keep pasting continuously<br>
-2. SL.NO auto + PMJAY/CMHT ID auto from Firebase (total.html for PMJAY, cmht.html for CMHT) by SHRI ID OR PATIENT NAME<br>
-3. Table auto expands when you paste more<br>
-4. Click SAVE LIST → Saves to Firebase daily_dialysis_lists/DATE_SCHEME and goes back to list.html
+📌 NOW YOU CAN PASTE IN ANY ROW / COLUMN:<br>
+• Click <b>PATIENT NAME</b> cell → Paste NAME list<br>
+• Click <b>SHRI ID</b> cell → Paste SHRI list separately<br>
+• Click <b>BLOCK</b> cell → Paste BLOCK (MAIN/ITOCHA) list separately<br>
+• Click <b>TIME</b> cell → Paste TIME list separately<br>
+• Click <b>PREV DIALYSIS</b> cell → Paste PREV DATE list separately<br>
+• Paste 1 cell or 100 cells vertically in same column - Auto expands
 </div>
 </div>
 
@@ -65,11 +67,11 @@ td.idCol input{background:#eff6ff;color:#1e40af;font-weight:900}
 <tr>
 <th style="width:60px">SL.NO</th>
 <th style="width:150px">PMJAY / CMHT ID<br><span style="font-size:8px">AUTO FROM FIREBASE</span></th>
-<th style="width:250px">PATIENT NAME *</th>
-<th style="width:120px">SHRI ID</th>
-<th style="width:120px">TIME</th>
-<th style="width:100px">BLOCK</th>
-<th style="width:120px">PREV DIALYSIS</th>
+<th style="width:250px">PATIENT NAME *<br><span style="font-size:8px">CLICK & PASTE HERE</span></th>
+<th style="width:120px">SHRI ID<br><span style="font-size:8px">CLICK & PASTE</span></th>
+<th style="width:120px">TIME<br><span style="font-size:8px">CLICK & PASTE</span></th>
+<th style="width:100px">BLOCK<br><span style="font-size:8px">CLICK & PASTE</span></th>
+<th style="width:120px">PREV DIALYSIS<br><span style="font-size:8px">CLICK & PASTE</span></th>
 <th style="width:100px">ACTION</th>
 </tr>
 </thead>
@@ -102,7 +104,7 @@ let initDate=urlParams.get('date')||new Date().toISOString().split('T')[0];
 let initScheme=urlParams.get('scheme')||'PMJAY';
 document.getElementById('fDate').value=initDate;
 document.getElementById('fType').value=initScheme;
-document.getElementById('topInfo').innerText=`Date: ${initDate} | Scheme: ${initScheme} | Master: ${initScheme==='PMJAY'?'total.html':'cmht.html'} | Paste continuously`;
+document.getElementById('topInfo').innerText=`Date: ${initDate} | Scheme: ${initScheme} | Master: ${initScheme==='PMJAY'?'total.html':'cmht.html'} | Paste in any column/row`;
 
 async function init(){
   await loadMaster();
@@ -139,8 +141,8 @@ async function loadMaster(){
         });
       }catch(e){}
     }
-    setStatus('saved',`Masters: PMJAY ${Object.keys(masterByNamePM).length} | CMHT ${Object.keys(masterByNameCM).length} - Ready to paste`);
-  }catch(e){ setStatus('saved','Ready to paste'); }
+    setStatus('saved',`Masters: PMJAY ${Object.keys(masterByNamePM).length} | CMHT ${Object.keys(masterByNameCM).length} - Click any cell to paste`);
+  }catch(e){ setStatus('saved','Ready - Click any cell to paste'); }
 }
 
 async function loadExisting(){
@@ -169,7 +171,7 @@ function addRows(n){
   let tbody=document.getElementById('tbody');
   for(let i=0;i<n;i++){
     let tr=document.createElement('tr');
-    tr.innerHTML=`<td class="slCol"></td><td class="idCol"><input data-col="id" placeholder="AUTO ID"></td><td><input class="nameInput" data-col="name" placeholder="PATIENT NAME - PASTE HERE" oninput="onChange(this)"></td><td><input data-col="shri" placeholder="SHRI ID" oninput="onChange(this)"></td><td><select data-col="time"><option value="">TIME</option><option>7:00 AM</option><option>12:00 PM</option><option>5:00 PM</option><option>9:00 PM</option></select></td><td><select data-col="block"><option value="">BLOCK</option><option>MAIN</option><option>ITOCHA</option></select></td><td><input data-col="prev" placeholder="PREV"></td><td style="text-align:center"><button style="background:#ef4444;color:#fff;border:0;padding:6px 10px;border-radius:6px;font-weight:900;cursor:pointer" onclick="this.closest('tr').remove();refreshCount()">X</button></td>`;
+    tr.innerHTML=`<td class="slCol"></td><td class="idCol"><input data-col="id" placeholder="AUTO ID"></td><td><input class="nameInput" data-col="name" placeholder="PATIENT NAME" oninput="onChange(this)"></td><td><input data-col="shri" placeholder="SHRI ID" oninput="onChange(this)"></td><td><select data-col="time"><option value="">TIME</option><option>7:00 AM</option><option>12:00 PM</option><option>5:00 PM</option><option>9:00 PM</option></select></td><td><select data-col="block"><option value="">BLOCK</option><option>MAIN</option><option>ITOCHA</option></select></td><td><input data-col="prev" placeholder="PREV DATE"></td><td style="text-align:center"><button style="background:#ef4444;color:#fff;border:0;padding:6px 10px;border-radius:6px;font-weight:900;cursor:pointer" onclick="this.closest('tr').remove();refreshCount()">X</button></td>`;
     tbody.appendChild(tr);
   }
   refreshCount(); attachEvents();
@@ -182,13 +184,14 @@ function refreshCount(){
     tr.querySelector('.slCol').innerText=name?c++:'';
     if(name) added++;
   });
-  document.getElementById('countInfo').innerText=`${added} patients added in addlist.html + ${existingPatients.length} existing = ${added+existingPatients.length} total will save to Firebase`;
+  document.getElementById('countInfo').innerText=`${added} added in this page + ${existingPatients.length} existing = ${added+existingPatients.length} total`;
 }
 
 function attachEvents(){
   document.querySelectorAll('#tbody input, #tbody select').forEach(el=>{
-    el.onfocus=()=>{ lastFocusedCell=el; };
+    el.onfocus=()=>{ lastFocusedCell=el; el.select(); };
     el.oninput=()=>{ if(el.dataset.col==='name'||el.dataset.col==='shri') onChange(el); refreshCount(); };
+    el.onchange=()=>{ refreshCount(); };
   });
 }
 
@@ -198,41 +201,124 @@ function onChange(inp){
   let shri=tr.querySelector('[data-col="shri"]')?.value||'';
   let scheme=document.getElementById('fType').value;
   let id=findId(name, shri, scheme);
-  if(id){ let idInput=tr.querySelector('[data-col="id"]'); if(idInput){ idInput.value=id; idInput.style.background='#dcfce7'; } }
+  if(id){ let idInput=tr.querySelector('[data-col="id"]'); if(idInput && !idInput.value){ idInput.value=id; idInput.style.background='#dcfce7'; } }
   refreshCount();
 }
 
+// ===== MAIN PASTE LOGIC - PASTE IN ANY ROW / COLUMN SEPARATELY =====
 document.addEventListener('paste',(e)=>{
-  if(!lastFocusedCell||!lastFocusedCell.closest('#tbody')) return;
+  if(!lastFocusedCell || !lastFocusedCell.closest('#tbody')) return;
   let text=e.clipboardData.getData('text');
-  if(!text||(!text.includes('\t')&&!text.includes('\n'))) return;
-  e.preventDefault();
+  if(!text) return;
+  
+  // Allow even single cell paste
   let rows=text.trim().split('\n');
-  if(rows[0].toUpperCase().includes('NAME')) rows=rows.slice(1);
+  if(rows.length===0) return;
+  
+  e.preventDefault();
+  
+  // Detect if it's multi-column (Excel row with tabs) or single column list
+  let hasTabs = text.includes('\t');
+  let startCol = lastFocusedCell.dataset.col; // id, name, shri, time, block, prev
+  
+  // Map column names to handle separately
+  const colOrder = ['name','shri','time','block','prev','id'];
+  let startColIndex = colOrder.indexOf(startCol);
+  if(startColIndex===-1) startColIndex=0;
+  
   let startTr=lastFocusedCell.closest('tr');
   let startRowIdx=Array.from(document.getElementById('tbody').children).indexOf(startTr);
+  
+  // Ensure enough rows
   let needed=startRowIdx+rows.length - document.getElementById('tbody').children.length;
   if(needed>0) addRows(needed+20);
+  
   let tbodyRows=document.getElementById('tbody').children;
-  rows.forEach((r,rIdx)=>{
-    let cols=r.split('\t'); if(cols.length===1) cols=r.split(',');
-    let targetRow=tbodyRows[startRowIdx+rIdx];
-    if(!targetRow) return;
-    if(cols[0]) targetRow.querySelector('[data-col="name"]').value=cols[0].trim().toUpperCase();
-    if(cols[1]) targetRow.querySelector('[data-col="shri"]').value=cols[1].trim().toUpperCase();
-    if(cols[2]) targetRow.querySelector('[data-col="time"]').value=cols[2].trim().toUpperCase();
-    if(cols[3]) targetRow.querySelector('[data-col="block"]').value=cols[3].trim().toUpperCase();
-    if(cols[4]) targetRow.querySelector('[data-col="prev"]').value=cols[4].trim();
-  });
+  
+  if(hasTabs){
+    // Multi-column paste (full Excel row)
+    rows.forEach((r,rIdx)=>{
+      if(r.toUpperCase().includes('PATIENT NAME') && rIdx===0) return; // skip header
+      let cols=r.split('\t');
+      let targetRow=tbodyRows[startRowIdx+rIdx];
+      if(!targetRow) return;
+      
+      // If pasting starting from NAME column, distribute as NAME, SHRI, TIME, BLOCK, PREV
+      if(startCol==='name'){
+        if(cols[0]) targetRow.querySelector('[data-col="name"]').value=cols[0].trim().toUpperCase();
+        if(cols[1]) targetRow.querySelector('[data-col="shri"]').value=cols[1].trim().toUpperCase();
+        if(cols[2]) {
+          let timeVal=cols[2].trim().toUpperCase();
+          let timeSelect=targetRow.querySelector('[data-col="time"]');
+          if(timeSelect){ 
+            // Try to match time option
+            let opts=Array.from(timeSelect.options).map(o=>o.value);
+            let found=opts.find(o=>o && timeVal.includes(o.split(' ')[0]));
+            timeSelect.value=found||timeVal;
+          }
+        }
+        if(cols[3]) {
+          let blockVal=cols[3].trim().toUpperCase();
+          let blockSelect=targetRow.querySelector('[data-col="block"]');
+          if(blockSelect) blockSelect.value=blockVal.includes('MAIN')?'MAIN':blockVal.includes('ITO')?'ITOCHA':blockVal;
+        }
+        if(cols[4]) targetRow.querySelector('[data-col="prev"]').value=cols[4].trim();
+      } else {
+        // Pasting in other columns with tabs - fill starting from that column
+        cols.forEach((c,cIdx)=>{
+          let colIdx=startColIndex+cIdx;
+          if(colIdx>=colOrder.length) return;
+          let colName=colOrder[colIdx];
+          let targetInput=targetRow.querySelector(`[data-col="${colName}"]`);
+          if(targetInput) targetInput.value=c.trim().toUpperCase();
+        });
+      }
+    });
+  } else {
+    // Single column paste - VERTICAL PASTE in the focused column (THIS IS WHAT YOU ASKED)
+    // Example: Click PREV column, paste 20 dates vertically - fills 20 rows in PREV only
+    // Click BLOCK column, paste MAIN, ITOCHA list vertically
+    rows.forEach((r,rIdx)=>{
+      let val=r.trim();
+      if(!val) return;
+      let targetRow=tbodyRows[startRowIdx+rIdx];
+      if(!targetRow) return;
+      
+      let targetInput=targetRow.querySelector(`[data-col="${startCol}"]`);
+      if(!targetInput) return;
+      
+      if(startCol==='time' || startCol==='block'){
+        // For SELECT columns
+        let upperVal=val.toUpperCase();
+        if(startCol==='block'){
+          targetInput.value=upperVal.includes('MAIN')?'MAIN':upperVal.includes('ITO')?'ITOCHA':upperVal;
+        } else {
+          // Time - try to match
+          let opts=Array.from(targetInput.options).map(o=>o.value);
+          let found=opts.find(o=>o && (upperVal.includes(o) || o.includes(upperVal)));
+          targetInput.value=found||val;
+        }
+      } else {
+        targetInput.value=val.toUpperCase();
+      }
+    });
+  }
+  
+  // Auto fill IDs after paste
   setTimeout(()=>{
     document.querySelectorAll('#tbody tr').forEach(tr=>{
-      let name=tr.querySelector('[data-col="name"]')?.value||''; let shri=tr.querySelector('[data-col="shri"]')?.value||'';
+      let name=tr.querySelector('[data-col="name"]')?.value||''; 
+      let shri=tr.querySelector('[data-col="shri"]')?.value||'';
       let scheme=document.getElementById('fType').value;
       let id=findId(name, shri, scheme);
-      if(id){ let idInput=tr.querySelector('[data-col="id"]'); if(idInput) idInput.value=id; }
+      if(id){ 
+        let idInput=tr.querySelector('[data-col="id"]'); 
+        if(idInput && !idInput.value) { idInput.value=id; idInput.style.background='#dcfce7'; }
+      }
     });
     refreshCount();
-    setStatus('saved',`Pasted ${rows.length} rows - ID auto from ${document.getElementById('fType').value==='PMJAY'?'total.html':'cmht.html'}`);
+    let colName = startCol==='prev'?'PREV DIALYSIS DATE':startCol.toUpperCase();
+    setStatus('saved',`✅ Pasted ${rows.length} rows into ${colName} column - ID auto from ${document.getElementById('fType').value==='PMJAY'?'total.html':'cmht.html'}`);
   },100);
 });
 
@@ -254,7 +340,7 @@ async function saveAll(){
       prev:tr.querySelector('[data-col="prev"]')?.value.trim()
     });
   });
-  if(added.length===0){ alert('No patients in addlist.html - Paste list first'); return; }
+  if(added.length===0){ alert('No patients - Click any cell and paste list first'); return; }
   let date=document.getElementById('fDate').value;
   let scheme=document.getElementById('fType').value;
   let docId=date+'_'+scheme;
@@ -266,7 +352,7 @@ async function saveAll(){
       date:date, scheme:scheme, type:scheme, patients:merged, count:merged.length, updatedAt:new Date().toISOString()
     });
     setStatus('saved',`✅ Saved ${merged.length} to Firebase`);
-    alert(`✅ Saved ${added.length} new patients from addlist.html!\nTotal ${merged.length} for ${date} ${scheme} stored in Firebase.\nGoing back to list.html...`);
+    alert(`✅ Saved ${added.length} new patients!\nTotal ${merged.length} for ${date} ${scheme} stored in Firebase.\nGoing back to list...`);
     window.location.href=`list.html?date=${date}&scheme=${scheme}`;
   }catch(e){ alert('Firebase error: '+e.message); }
 }
@@ -279,7 +365,7 @@ function goBack(){
 
 window.addEventListener('load', init);
 document.getElementById('fDate').addEventListener('change', async()=>{ await loadExisting(); });
-document.getElementById('fType').addEventListener('change', async()=>{ await loadExisting(); document.getElementById('topInfo').innerText=`Date: ${document.getElementById('fDate').value} | Scheme: ${document.getElementById('fType').value} | Master: ${document.getElementById('fType').value==='PMJAY'?'total.html':'cmht.html'}`; });
+document.getElementById('fType').addEventListener('change', async()=>{ await loadExisting(); document.getElementById('topInfo').innerText=`Date: ${document.getElementById('fDate').value} | Scheme: ${document.getElementById('fType').value} | Master: ${document.getElementById('fType').value==='PMJAY'?'total.html':'cmht.html'} | Paste in any column/row`; });
 </script>
 </body>
 </html>
