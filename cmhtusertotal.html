@@ -34,8 +34,39 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 </head>
 <body>
 <script>
-// USER ONLY + 30 MIN AUTO LOGOUT
-(function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired - Auto logout after 30 minutes');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();</script>
+// USER ONLY + 30 MIN AUTO LOGOUT + GLOBAL LOGOUT GUARD
+(function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired - Auto logout after 30 minutes');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_cmhtusertotal_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_cmhtusertotal2_"+Math.random()); }
+const dbGuard=getFirestore(app);
+try{
+  onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.clear();
+      alert('🔒 Logged out by Admin from all devices');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+try{
+  window.addEventListener('storage',(e)=>{
+    if(e.key==='shija_force_logout_this_device'){
+      localStorage.clear();
+      location.href='login.html';
+    }
+  });
+  const bc=new BroadcastChannel('shija_logout');
+  bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.clear(); location.href='login.html'; } };
+}catch(e){}
+</script>
 <div class="top"><div style="display:flex;align-items:center;gap:10px"><div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div><h2>SHIJA - CMHT Total Patient <span class="viewBadge">USER • VIEW ONLY</span></h2></div><span style="color:#fff">User</span></div>
 <div class="sideOverlay" id="overlay"></div>
 <div class="mainWrap">
@@ -54,7 +85,6 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 </div>
 </div>
 <script>
-// UNIVERSAL 3-LINE BUTTON - Works on Mobile + Desktop + Tablet
 function toggleMenu(){
   document.getElementById('side').classList.toggle('show');
   document.getElementById('overlay').classList.toggle('show');
@@ -63,16 +93,13 @@ document.addEventListener('DOMContentLoaded',function(){
   var b=document.getElementById('menuBtn');
   var o=document.getElementById('overlay');
   if(b){
-    // Desktop click
     b.addEventListener('click',function(e){e.preventDefault();toggleMenu();});
-    // Mobile touch - prevent double toggle
     b.addEventListener('touchstart',function(e){e.preventDefault();toggleMenu();},{passive:false});
   }
   if(o){
     o.addEventListener('click',function(){toggleMenu();});
     o.addEventListener('touchstart',function(e){e.preventDefault();toggleMenu();},{passive:false});
   }
-  // Close menu when clicking a link inside sidebar
   document.querySelectorAll('#side a').forEach(function(a){
     a.addEventListener('click',function(){
       document.getElementById('side').classList.remove('show');
@@ -85,7 +112,7 @@ document.addEventListener('DOMContentLoaded',function(){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);
+const app=initializeApp(firebaseConfig,"cmhtusertotalMain_"+Math.random());const db=getFirestore(app);
 let allPatients=[],filtered=[],currentPage=1,pageSize=10;
 window.onSearch=()=>{currentPage=1;applyFilter();};window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderTable();};
 window.applyFilter=()=>{let q=document.getElementById('search').value.toLowerCase();filtered=allPatients.filter(p=>[p.name,p.shri,p.cmht,p.contact,p.aadhaar,p.addr,p.remark].join(' ').toLowerCase().includes(q));renderTable();};
