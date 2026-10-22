@@ -31,8 +31,39 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 </head>
 <body>
 <script>
-// USER ONLY + 30 MIN AUTO LOGOUT
-(function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired - Auto logout after 30 minutes');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();</script>
+// USER ONLY + 30 MIN AUTO LOGOUT + GLOBAL LOGOUT GUARD
+(function(){let l=localStorage.getItem('shija_logged'),r=localStorage.getItem('shija_role'),t=parseInt(localStorage.getItem('shija_login_time')||'0');if(l!=='1'||r!=='USER'||(Date.now()-t)>1800000){localStorage.clear();location.href='login.html';}else setTimeout(()=>{alert('Session expired - Auto logout after 30 minutes');localStorage.clear();location.href='login.html';},1800000-(Date.now()-t));})();
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_pmjayusertotal_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_pmjayusertotal2_"+Math.random()); }
+const dbGuard=getFirestore(app);
+try{
+  onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.clear();
+      alert('🔒 Logged out by Admin from all devices');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+try{
+  window.addEventListener('storage',(e)=>{
+    if(e.key==='shija_force_logout_this_device'){
+      localStorage.clear();
+      location.href='login.html';
+    }
+  });
+  const bc=new BroadcastChannel('shija_logout');
+  bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.clear(); location.href='login.html'; } };
+}catch(e){}
+</script>
 <div class="top">
 <div style="display:flex;align-items:center;gap:10px">
 <div class="menuBtn" id="menuBtn" onclick="toggleMenu()"><span></span><span></span><span></span></div>
@@ -56,7 +87,6 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 <p style="font-size:11px;color:#94a3b8;margin-top:10px;text-align:center">🔒 View Only — Same data as Admin. You cannot Edit or Delete.</p>
 </div>
 </div>
-
 <script>
 function toggleMenu(){
  var s=document.getElementById('side');
@@ -76,12 +106,11 @@ document.addEventListener('DOMContentLoaded',function(){
  }
 });
 </script>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig,"pmjayusertotalMain_"+Math.random());
 const db = getFirestore(app);
 let allPatients=[],filtered=[],currentPage=1,pageSize=10;
 function getKey(p){ return String(p.key||p.shri||p.id||p.name).trim(); }
@@ -124,7 +153,6 @@ async function init(){
        id: d.id
      });
    });
-   // Fallback: if Firebase empty, use localStorage
    let extra=[];
    try{ extra=JSON.parse(localStorage.getItem('shija_patients')||'[]'); }catch(e){}
    let seen=new Set();
