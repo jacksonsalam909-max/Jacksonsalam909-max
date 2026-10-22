@@ -1,60 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ADDLIST</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>LIST - MAIN PAGE</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-body{background:#f8fafc}
-.top{height:60px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:fixed;top:0;left:0;right:0;z-index:1000}
-.btn{padding:10px 14px;border:0;border-radius:8px;font-weight:900;font-size:11px;cursor:pointer;text-transform:uppercase;white-space:nowrap}
-.btnGreen{background:#10b981;color:#fff}.btnDark{background:#0f172a;color:#fff}.btnRed{background:#ef4444;color:#fff}
-.input{padding:8px 10px;border:2px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:12px;background:#fff}
-.content{margin:68px 8px 8px 8px}
-.card{background:#fff;border-radius:12px;padding:10px;border:1px solid #e2e8f0;margin-bottom:8px}
-.sheetWrap{overflow:auto;border:3px solid #000;background:#fff;height:calc(100vh - 140px)}
-table{border-collapse:collapse;width:100%;min-width:1000px}
-th{position:sticky;top:0;background:#7c3aed;color:#fff;padding:10px 4px;font-size:10px;text-align:center;border:1px solid #000}
-td{border:1px solid #cbd5e1;padding:0;height:38px}
-td input{width:100%;height:100%;border:0;padding:6px 6px;font-size:11px;font-weight:700;text-transform:uppercase;outline:0;background:transparent;text-align:center}
-td input.nameInput{text-align:left}
-td input:focus{background:#dbeafe;outline:3px solid #7c3aed}
-td.slCol{background:#f1f5f9;text-align:center;font-weight:900}
-td.idCol input{background:#eff6ff;color:#1e40af;font-weight:900}
-.status{font-size:11px;font-weight:900;padding:6px 12px;border-radius:20px}.status.saved{background:#dcfce7}.status.saving{background:#fef3c7}
-.menuBtn{font-size:26px;background:none;border:0;color:#fff;cursor:pointer;padding:6px 12px}
-.menuDrawer{position:fixed;top:60px;left:-320px;width:300px;height:calc(100vh - 60px);background:#ffffff;color:#0f172a;z-index:9999;transition:left 0.3s ease;overflow:auto;padding:0;border-right:1px solid #e2e8f0;box-shadow:4px 0 20px rgba(0,0,0,0.15)}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:#f1f5f9;overscroll-behavior:none}
+.top{height:58px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:fixed;top:0;left:0;right:0;z-index:1000}
+.btn{padding:7px 11px;border:0;border-radius:8px;font-weight:900;font-size:11px;cursor:pointer;touch-action:manipulation}
+.btnGreen{background:#10b981;color:#fff}.btnDark{background:#0f172a;color:#fff}.btnPurple{background:#7c3aed;color:#fff}
+.input{padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:12px;background:#fff}
+.content{max-width:1450px;margin:66px auto 0;padding:10px}
+.card{background:#fff;border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid #e2e8f0}
+.sheetWrap{overflow:auto;border:2px solid #000;background:#fff;max-height:70vh;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;min-width:1100px}
+th{position:sticky;top:0;background:#0a1931;color:#fff;padding:10px 4px;font-size:10px;text-align:center;border:1px solid #000;z-index:2}
+td{border:1px solid #d1d5db;padding:8px 4px;height:42px;font-size:11px;font-weight:700;text-align:center;text-transform:uppercase;background:#fff}
+td.nameCol{text-align:left;padding-left:8px}
+td.slCol{background:#f1f5f9;font-weight:900}
+td.idCol{background:#eff6ff;color:#1e40af;font-weight:900}
+.status{font-size:11px;font-weight:800;padding:5px 10px;border-radius:20px}.status.saved{background:#dcfce7;color:#14532d}.status.blank{background:#f3f4f6}
+.pagination{display:flex;gap:4px;flex-wrap:wrap}.pageBtn{padding:8px 12px;border-radius:7px;border:1.5px solid #e2e8f0;background:#fff;font-weight:900;cursor:pointer;font-size:11px;touch-action:manipulation}.pageBtn.active{background:#0a1931;color:#fff;border-color:#0a1931}
+.actionCell{display:flex;gap:6px;justify-content:center;align-items:center;height:100%}
+.btnEdit{background:#FFD60A;color:#000;font-weight:900;font-size:11px;padding:8px 16px;border-radius:6px;border:0;cursor:pointer;min-width:56px;touch-action:manipulation}
+.btnDelete{background:#EF4444;color:#fff;font-weight:900;font-size:11px;padding:8px 12px;border-radius:6px;border:0;cursor:pointer;min-width:56px;touch-action:manipulation}
+#btnSaveFirebase, #btnLoadMaster, #btnClear{display:none !important}
+.menuBtn{font-size:28px;background:none;border:0;color:#fff;cursor:pointer;padding:6px 12px;touch-action:manipulation;user-select:none;line-height:1}
+.menuDrawer{position:fixed;top:58px;left:-320px;width:300px;height:calc(100vh - 58px);background:#ffffff;color:#0f172a;z-index:9999;transition:left 0.28s ease;overflow:auto;padding:0;border-right:1px solid #e2e8f0;box-shadow:4px 0 25px rgba(0,0,0,0.15);-webkit-overflow-scrolling:touch}
 .menuDrawer.open{left:0}
-.menuItem{display:block;width:100%;padding:14px 18px;margin:0;background:#ffffff;border:0;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:700;font-size:13px;text-align:left;cursor:pointer;text-transform:uppercase;letter-spacing:0.3px}
-.menuItem:hover{background:#f8fafc;color:#0f172a}
+.menuItem{display:block;width:100%;padding:14px 18px;margin:0;background:#ffffff;border:0;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:700;font-size:13px;text-align:left;cursor:pointer;text-transform:uppercase;touch-action:manipulation}
 .menuItem:active{background:#e2e8f0}
-.menuOverlay{position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.2);display:none;z-index:9998}
+.menuOverlay{position:fixed;top:58px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.2);display:none;z-index:9998}
 .menuOverlay.open{display:block}
-.controlsRow{display:flex;gap:8px;flex-wrap:nowrap;align-items:flex-end;overflow-x:auto;padding-bottom:4px}
-.ctrl{flex:0 0 auto;min-width:0}
-.ctrlDate{width:125px}
-.ctrlScheme{width:95px}
-.ctrlExist{width:110px}
-.ctrlButtons{margin-left:auto;display:flex;gap:6px;flex:0 0 auto}
-.existBadge{font-weight:900;background:#dcfce7;color:#14532d;padding:9px 12px;border-radius:8px;display:block;text-align:center;font-size:11px;border:1.5px solid #10b981;white-space:nowrap;min-width:90px}
-.backBtn, #pasteInfoBox, #btnSaveFirebaseBottom, #topSaveBtn{display:none !important}
+.filterRow{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-top:8px}
 </style>
 </head>
 <body>
 <div class="top">
 <div style="display:flex;align-items:center;gap:8px">
-<button class="menuBtn" onclick="toggleMenu()">☰</button>
-<div><div style="font-weight:900;font-size:13px">ADDLIST</div><div style="font-size:9px;opacity:0.9" id="topInfo">10 ROWS</div></div>
-</div>
-<div style="display:flex;align-items:center;gap:6px">
+<button class="menuBtn" id="menuBtn">☰</button>
+<div style="font-weight:900;font-size:14px">DIALYSIS LIST</div>
 <div id="status" class="status saved">READY</div>
-<button class="backBtn btn btnDark" onclick="goBack()">BACK</button>
-<button id="topSaveBtn" class="btn btnGreen" onclick="saveAll()">SAVE</button>
-<button class="btn btnGreen" onclick="saveAll()" style="padding:11px 14px">SAVE</button>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<button class="btn btnGreen" onclick="exportPDF()">📄 PDF</button>
+<button class="btn btnPurple" onclick="openAddPatientPage()" style="padding:10px 16px">➕ ADD PATIENT</button>
 </div>
 </div>
 
-<div class="menuOverlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<div class="menuOverlay" id="menuOverlay"></div>
 <div class="menuDrawer" id="menuDrawer">
 <div style="font-weight:900;padding:16px 18px;border-bottom:2px solid #0a1931;font-size:14px;background:#0a1931;color:#fff">MENU</div>
 <button class="menuItem" onclick="goPage('index.html')">HOME</button>
@@ -70,85 +66,169 @@ td.idCol input{background:#eff6ff;color:#1e40af;font-weight:900}
 <button class="menuItem" onclick="goPage('addlist.html')">ADD PATIENT</button>
 <button class="menuItem" onclick="goPage('bill.html')">BILL</button>
 <button class="menuItem" onclick="goPage('dischargesummary.html')">DISCHARGE SUMMARY</button>
+<div style="margin-top:16px;padding:10px;background:#f8fafc;border-radius:8px;font-size:10px;margin:10px;border:1px solid #e2e8f0"><div style="font-weight:900;margin-bottom:4px">CURRENT:</div><div id="menuCurrentInfo">DATE + SCHEME</div></div>
 </div>
 
 <div class="content">
 <div class="card">
-<div class="controlsRow">
-<div class="ctrl ctrlDate"><label style="font-size:8px;font-weight:900">DATE *</label><br><input type="date" id="fDate" class="input" style="width:100%"></div>
-<div class="ctrl ctrlScheme"><label style="font-size:8px;font-weight:900">SCHEME *</label><br><select id="fType" class="input" style="width:100%;background:#fef3c7;border:2px solid #f59e0b;font-weight:900"><option value="PMJAY">PMJAY</option><option value="CMHT">CMHT</option></select></div>
-<div class="ctrl ctrlExist"><label style="font-size:8px;font-weight:900">EXISTING</label><br><span id="existingCount" class="existBadge">0 EXISTING</span></div>
-<div class="ctrl ctrlButtons">
-<button class="btn btnDark" onclick="addRows(5)" style="background:#0a1931">+ ROWS</button>
-<button class="btn btnRed" onclick="removeRows(5)">- ROWS</button>
-<button class="btn btnRed" onclick="clearAll()" style="background:#991b1b">CLEAR</button>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+<div><label style="font-size:9px;font-weight:800">DATE *</label><br><input type="date" id="fDate" class="input"></div>
+<div><label style="font-size:9px;font-weight:800">SCHEME *</label><br><select id="fType" class="input" style="background:#fef3c7;border:2px solid #f59e0b;font-weight:900"><option value="PMJAY" selected>PMJAY</option><option value="CMHT">CMHT</option></select></div>
+<div><label style="font-size:9px;font-weight:800">SHOW</label><br><select id="rowsPerPage" class="input"><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option></select></div>
+<div><label style="font-size:9px;font-weight:800">SEARCH</label><br><input type="text" id="searchName" class="input" placeholder="NAME/SHRI/ID..." style="width:120px"></div>
 </div>
+<div class="filterRow">
+<div><label style="font-size:9px;font-weight:800">FILTER BY TIME</label><br><select id="filterTime" class="input"><option value="">ALL TIME</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option></select></div>
+<div><label style="font-size:9px;font-weight:800">FILTER BY BLOCK</label><br><select id="filterBlock" class="input"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
+<div style="margin-left:auto;display:flex;align-items:center;gap:6px"><span id="filterCount" style="font-weight:900;font-size:11px;background:#0a1931;color:#fff;padding:6px 12px;border-radius:20px">0 PATIENTS</span><button class="btn btnDark" onclick="clearFilters()">CLEAR FILTERS</button></div>
 </div>
-<div id="pasteInfoBox"></div>
+<div id="masterInfo" style="font-size:11px;font-weight:800;margin-top:8px;background:#eff6ff;padding:8px;border-radius:6px">LOADING...</div>
 </div>
 <div class="card" style="padding:0">
-<div class="sheetWrap"><table><thead><tr><th>SL.NO</th><th>PMJAY / CMHT ID</th><th>PATIENT NAME</th><th>SHRI ID</th><th>TIME</th><th>BLOCK</th><th>PREV</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
-<div style="padding:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-<span id="countInfo" style="font-weight:900;background:#0a1931;color:#fff;padding:8px 14px;border-radius:20px;font-size:11px">0 PATIENTS - 10 ROWS</span>
-<div style="display:flex;gap:6px"><button class="btn btnDark" onclick="addRows(5)" style="background:#0a1931">+ ROWS</button><button class="btn btnRed" onclick="removeRows(5)">- ROWS</button><button id="btnSaveFirebaseBottom" class="btn btnGreen" onclick="saveAll()">SAVE</button></div>
+<div class="sheetWrap"><table><thead><tr><th style="width:50px">SL.NO</th><th style="width:135px">PMJAY / CMHT ID</th><th style="width:210px">PATIENT NAME</th><th style="width:110px">SHRI ID</th><th style="width:110px">TIME</th><th style="width:90px">BLOCK</th><th style="width:110px">PREV</th><th style="width:130px">ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
+<div style="padding:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+<div class="pagination" id="pagination"></div>
+<div style="display:flex;gap:6px;margin-left:auto"><button class="btn btnDark" onclick="changePage(-1)">◀ PREV</button><button class="btn btnDark" onclick="changePage(1)">NEXT ▶</button></div>
+<span id="pageInfo" style="font-weight:800;font-size:11px;width:100%;margin-top:6px"></span>
 </div>
 </div>
 </div>
 
+<div id="editModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9999"><div style="background:#fff;border-radius:14px;padding:16px;width:90%;max-width:420px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-weight:900" id="editTitle">EDIT PATIENT</span><button class="btn btnDark" onclick="closeModal()">X</button></div><div style="display:flex;flex-direction:column;gap:8px"><input id="editName" class="input" placeholder="PATIENT NAME"><input id="editShri" class="input" placeholder="SHRI ID"><input id="editId" class="input" placeholder="PMJAY/CMHT ID"><input id="editTime" class="input" placeholder="TIME - 7:00 AM"><input id="editBlock" class="input" placeholder="BLOCK - MAIN"><input id="editPrev" class="input" placeholder="PREV - 10/20/2026"><button class="btn btnGreen" style="padding:12px" onclick="saveEdit()">💾 SAVE CHANGES</button></div></div></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, getDocs, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);window._fb={db,doc,setDoc,getDoc,getDocs,collection};
+const app=initializeApp(firebaseConfig);const db=getFirestore(app);window._fb={db,doc,setDoc,getDoc,getDocs,collection,deleteDoc};
 </script>
 <script>
-let masterByNamePM={},masterByShriPM={},masterByNameCM={},masterByShriCM={};
-let lastFocusedCell=null, existingPatients=[];
+let allPatients=[],filteredPatients=[],currentPage=1,pageSize=10,editIndex=-1;
+document.getElementById('fDate').valueAsDate=new Date();
 let urlParams=new URLSearchParams(window.location.search);
-let initDate=urlParams.get('date')||new Date().toISOString().split('T')[0];
-let initScheme=urlParams.get('scheme')||'PMJAY';
-document.getElementById('fDate').value=initDate;
-document.getElementById('fType').value=initScheme;
-function toggleMenu(){document.getElementById('menuDrawer').classList.toggle('open');document.getElementById('menuOverlay').classList.toggle('open');}
+if(urlParams.get('date')) document.getElementById('fDate').value=urlParams.get('date');
+if(urlParams.get('scheme')) document.getElementById('fType').value=urlParams.get('scheme');
+
+const menuBtn=document.getElementById('menuBtn');
+const menuDrawer=document.getElementById('menuDrawer');
+const menuOverlay=document.getElementById('menuOverlay');
+function toggleMenu(){menuDrawer.classList.toggle('open');menuOverlay.classList.toggle('open');}
+function closeMenu(){menuDrawer.classList.remove('open');menuOverlay.classList.remove('open');}
+menuBtn.addEventListener('click', toggleMenu);
+menuBtn.addEventListener('touchstart', (e)=>{e.preventDefault();toggleMenu();},{passive:false});
+menuOverlay.addEventListener('click', closeMenu);
+menuOverlay.addEventListener('touchstart', closeMenu, {passive:true});
+
 function goPage(page){
-  let date=document.getElementById('fDate').value;
-  let scheme=document.getElementById('fType').value;
-  if(page==='list.html' || page==='addlist.html' || page==='cmhtdialysis.html'){ window.location.href=`${page}?date=${date}&scheme=${scheme}`; }
-  else { window.location.href=page; }
+  closeMenu();
+  setTimeout(()=>{
+    let date=document.getElementById('fDate').value;
+    let scheme=document.getElementById('fType').value;
+    if(page==='list.html' || page==='addlist.html' || page==='cmhtdialysis.html'){window.location.href=`${page}?date=${date}&scheme=${scheme}`;}else{window.location.href=page;}
+  },150);
 }
-async function init(){await loadMaster();await loadExisting();addRows(10);}
-async function loadMaster(){
+function openAddPatientPage(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;window.location.href=`addlist.html?date=${date}&scheme=${scheme}`;}
+async function loadMasterFromFirebase(){
   try{
-    for(let col of ['pmjay_patients','total']){try{let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,col));snap.forEach(d=>{let data=d.data();let name=(data.name||'').toString().toUpperCase().trim();let shri=(data.shri||'').toString().toUpperCase().trim();let id=(data.pmjayId||data.id||d.id||'').toString().trim();if(name)masterByNamePM[name]=id;if(shri)masterByShriPM[shri]=id;});}catch(e){}}
-    for(let col of ['cmht_patients','cmht']){try{let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,col));snap.forEach(d=>{let data=d.data();let name=(data.name||'').toString().toUpperCase().trim();let shri=(data.shri||'').toString().toUpperCase().trim();let id=(data.cmhtId||data.id||d.id||'').toString().trim();if(name)masterByNameCM[name]=id;if(shri)masterByShriCM[shri]=id;});}catch(e){}}
+    let countPM=0,countCM=0;
+    for(let col of ['pmjay_patients','total']){try{let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,col));countPM+=snap.size;}catch(e){}}
+    for(let col of ['cmht_patients','cmht']){try{let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,col));countCM+=snap.size;}catch(e){}}
+    document.getElementById('masterInfo').innerHTML=`✅ PMJAY: ${countPM} | CMHT: ${countCM} | CURRENT: ${document.getElementById('fType').value}`;
+    document.getElementById('menuCurrentInfo').innerText=`${document.getElementById('fDate').value} | ${document.getElementById('fType').value} | ${allPatients.length} PATIENTS`;
   }catch(e){}
 }
-async function loadExisting(){
+function setStatus(t,m){let el=document.getElementById('status');el.className='status '+t;el.innerText=m;}
+async function autoSaveToFirebase(){
   let date=document.getElementById('fDate').value;
   let scheme=document.getElementById('fType').value;
   let docId=date+'_'+scheme;
-  document.getElementById('existingCount').innerText=`...`;
+  setStatus('saving','SAVING...');
+  try{
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId),{date:date, scheme:scheme, type:scheme, patients:allPatients, count:allPatients.length, updatedAt:new Date().toISOString()});
+    setStatus('saved',`SAVED ${allPatients.length}`);
+  }catch(e){}
+}
+async function onDateChange(){
+  let date=document.getElementById('fDate').value;
+  let scheme=document.getElementById('fType').value;
+  let docId=date+'_'+scheme;
+  setStatus('saving','LOADING...');
   try{
     let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));
-    existingPatients=snap.exists()?(snap.data().patients||[]):[];
-    document.getElementById('existingCount').innerText=`${existingPatients.length} EXISTING`;
-    document.getElementById('topInfo').innerText=`${date} | ${scheme} | ${existingPatients.length} EXISTING`;
-  }catch(e){ existingPatients=[]; document.getElementById('existingCount').innerText=`0 EXISTING`; }
+    let patients=snap.exists()?(snap.data().patients||[]):[];
+    allPatients=patients.map((p,i)=>({...p, sl:i+1}));
+    filteredPatients=[...allPatients];
+    currentPage=1;
+    pageSize=parseInt(document.getElementById('rowsPerPage').value)||10;
+    if(patients.length===0){
+      document.getElementById('masterInfo').innerHTML=`📋 BLANK - DATE: ${date} | SCHEME: ${scheme}`;
+      setStatus('blank','BLANK');
+    } else {
+      document.getElementById('masterInfo').innerHTML=`✅ ${patients.length} PATIENTS FOR ${date} ${scheme}`;
+      setStatus('saved',`${patients.length} PATIENTS`);
+    }
+    applyFilter();
+  }catch(e){ setStatus('saved','ERROR'); }
 }
-function findId(name,shri,scheme){name=(name||'').toUpperCase().trim();shri=(shri||'').toUpperCase().trim();let byName=scheme==='PMJAY'?masterByNamePM:masterByNameCM;let byShri=scheme==='PMJAY'?masterByShriPM:masterByShriCM;if(shri&&byShri[shri])return byShri[shri];if(name&&byName[name])return byName[name];return'';}
-function addRows(n){let tbody=document.getElementById('tbody');for(let i=0;i<n;i++){let tr=document.createElement('tr');tr.innerHTML=`<td class="slCol"></td><td class="idCol"><input data-col="id" placeholder="ID"></td><td><input class="nameInput" data-col="name" placeholder="PATIENT NAME"></td><td><input data-col="shri" placeholder="SHRI"></td><td><input data-col="time" placeholder="TIME"></td><td><input data-col="block" placeholder="BLOCK"></td><td><input data-col="prev" placeholder="PREV"></td><td style="text-align:center"><button style="background:#ef4444;color:#fff;border:0;padding:6px 10px;border-radius:6px;font-weight:900" onclick="this.closest('tr').remove();refreshCount()">X</button></td>`;tbody.appendChild(tr);}refreshCount();attachEvents();}
-function removeRows(n){let tbody=document.getElementById('tbody');let total=tbody.children.length;if(total<=10){alert('Minimum 10 rows');return;}let toRemove=Math.min(n,total-10);for(let i=0;i<toRemove;i++){let last=tbody.lastElementChild;if(last)last.remove();}refreshCount();}
-function refreshCount(){let c=1,added=0;let total=document.querySelectorAll('#tbody tr').length;document.querySelectorAll('#tbody tr').forEach(tr=>{let name=tr.querySelector('[data-col="name"]')?.value.trim();tr.querySelector('.slCol').innerText=name?c++:'';if(name)added++;});document.getElementById('countInfo').innerText=`${added} NEW - ${total} ROWS - ${existingPatients.length} EXISTING`;}
-function attachEvents(){document.querySelectorAll('#tbody input').forEach(el=>{el.addEventListener('focus',()=>{lastFocusedCell=el;});el.addEventListener('click',()=>{lastFocusedCell=el;});el.addEventListener('input',()=>{if(el.dataset.col==='name'||el.dataset.col==='shri')autoFillId(el);refreshCount();});});}
-function autoFillId(inp){let tr=inp.closest('tr');let name=tr.querySelector('[data-col="name"]')?.value||'';let shri=tr.querySelector('[data-col="shri"]')?.value||'';let scheme=document.getElementById('fType').value;let id=findId(name,shri,scheme);if(id){let idInput=tr.querySelector('[data-col="id"]');if(idInput&&!idInput.value)idInput.value=id;}}
-document.addEventListener('paste',(e)=>{let text=e.clipboardData.getData('text');if(!text)return;let targetCell=lastFocusedCell;if(!targetCell||!targetCell.closest('#tbody')){let firstRow=document.querySelector('#tbody tr');if(firstRow)targetCell=firstRow.querySelector('[data-col="name"]');}if(!targetCell)return;e.preventDefault();let rows=text.replace(/\r/g,'').trim().split('\n');if(rows.length===0)return;if(rows[0].toUpperCase().includes('PATIENT NAME'))rows.shift();let startCol=targetCell.dataset.col;const colOrder=['id','name','shri','time','block','prev'];let startColIndex=colOrder.indexOf(startCol);if(startColIndex===-1)startColIndex=1;let startTr=targetCell.closest('tr');let startRowIdx=Array.from(document.getElementById('tbody').children).indexOf(startTr);if(startRowIdx<0)startRowIdx=0;let needed=startRowIdx+rows.length-document.getElementById('tbody').children.length;if(needed>0)addRows(needed);let tbodyRows=document.getElementById('tbody').children;rows.forEach((r,rIdx)=>{let cols=r.includes('\t')?r.split('\t'):[r];if(cols.length===1&&r.includes(','))cols=r.split(',');let targetRow=tbodyRows[startRowIdx+rIdx];if(!targetRow)return;if(rows.length===1&&cols.length>1){cols.forEach((c,cIdx)=>{let colIdx=startColIndex+cIdx;if(colIdx>=colOrder.length)return;let colName=colOrder[colIdx];let inp=targetRow.querySelector(`[data-col="${colName}"]`);if(inp)inp.value=c.trim().toUpperCase();});}else if(cols.length>1){if(startCol==='name'){if(cols[0])targetRow.querySelector('[data-col="name"]').value=cols[0].trim().toUpperCase();if(cols[1])targetRow.querySelector('[data-col="shri"]').value=cols[1].trim().toUpperCase();if(cols[2])targetRow.querySelector('[data-col="time"]').value=cols[2].trim().toUpperCase();if(cols[3])targetRow.querySelector('[data-col="block"]').value=cols[3].trim().toUpperCase();if(cols[4])targetRow.querySelector('[data-col="prev"]').value=cols[4].trim();}}else{let val=r.trim();let inp=targetRow.querySelector(`[data-col="${startCol}"]`);if(inp)inp.value=val.toUpperCase();}});setTimeout(()=>{document.querySelectorAll('#tbody tr').forEach(tr=>{let name=tr.querySelector('[data-col="name"]')?.value||'';let shri=tr.querySelector('[data-col="shri"]')?.value||'';let scheme=document.getElementById('fType').value;let id=findId(name,shri,scheme);if(id){let idInput=tr.querySelector('[data-col="id"]');if(idInput)idInput.value=id;}});refreshCount();},50);});
-function setStatus(t,m){document.getElementById('status').className='status '+t;document.getElementById('status').innerText=m;}
-function clearAll(){if(!confirm('Clear all?'))return;document.getElementById('tbody').innerHTML='';addRows(10);}
-async function saveAll(){let added=[];document.querySelectorAll('#tbody tr').forEach(tr=>{let name=tr.querySelector('[data-col="name"]')?.value.trim();if(!name)return;added.push({sl:0,pmjayCmhtId:tr.querySelector('[data-col="id"]')?.value.trim(),name:name.toUpperCase(),shri:tr.querySelector('[data-col="shri"]')?.value.trim(),time:tr.querySelector('[data-col="time"]')?.value.trim(),block:tr.querySelector('[data-col="block"]')?.value.trim(),prev:tr.querySelector('[data-col="prev"]')?.value.trim()});});if(added.length===0){alert('No patients');return;}let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;let docId=date+'_'+scheme;let merged=[...existingPatients,...added];merged.forEach((p,i)=>p.sl=i+1);setStatus('saving',`SAVING...`);try{await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId),{date,scheme,type:scheme,patients:merged,count:merged.length,updatedAt:new Date().toISOString()});alert(`✅ Saved ${added.length} new! Total ${merged.length} in ${scheme}`);window.location.href=`list.html?date=${date}&scheme=${scheme}`;}catch(e){alert(e.message);}}
-function goBack(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;window.location.href=`list.html?date=${date}&scheme=${scheme}`;}
-window.addEventListener('load',init);
-document.getElementById('fDate').addEventListener('change', async()=>{ await loadExisting(); });
-document.getElementById('fType').addEventListener('change', async()=>{ await loadExisting(); });
+async function onSchemeChange(){allPatients=[]; filteredPatients=[]; currentPage=1; await onDateChange();}
+function applyFilter(){
+  let search=document.getElementById('searchName').value.toLowerCase().trim();
+  let timeFilter=document.getElementById('filterTime').value;
+  let blockFilter=document.getElementById('filterBlock').value;
+  filteredPatients=allPatients.filter(p=>{
+    if(search && !p.name.toLowerCase().includes(search) && !p.shri.toLowerCase().includes(search) && !p.pmjayCmhtId.toLowerCase().includes(search)) return false;
+    if(timeFilter && p.time!==timeFilter) return false;
+    if(blockFilter && p.block!==blockFilter) return false;
+    return true;
+  });
+  document.getElementById('filterCount').innerText=`${filteredPatients.length} / ${allPatients.length} PATIENTS`;
+  currentPage=1;
+  renderPagination();
+}
+function clearFilters(){document.getElementById('filterTime').value='';document.getElementById('filterBlock').value='';document.getElementById('searchName').value='';applyFilter();}
+function renderPagination(){
+  pageSize=parseInt(document.getElementById('rowsPerPage').value)||10;
+  let totalPages=Math.max(1,Math.ceil(filteredPatients.length/pageSize));
+  if(currentPage>totalPages) currentPage=totalPages;
+  let pag=document.getElementById('pagination');
+  pag.innerHTML='';
+  for(let i=1;i<=totalPages;i++){
+    let b=document.createElement('button');
+    b.className='pageBtn'+(i===currentPage?' active':'');
+    b.innerText=i;
+    b.onclick=()=>{currentPage=i; renderTable(); renderPagination();};
+    pag.appendChild(b);
+  }
+  renderTable();
+}
+function renderTable(){
+  let tbody=document.getElementById('tbody');
+  tbody.innerHTML='';
+  let start=(currentPage-1)*pageSize;
+  let end=start+pageSize;
+  let pagePatients=filteredPatients.slice(start,end);
+  pagePatients.forEach((p,idx)=>{
+    let globalIdx=allPatients.indexOf(p);
+    let tr=document.createElement('tr');
+    tr.innerHTML=`<td class="slCol">${p.sl||start+idx+1}</td><td class="idCol">${p.pmjayCmhtId||''}</td><td class="nameCol">${p.name||''}</td><td>${p.shri||''}</td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td><td><div class="actionCell"><button class="btnEdit" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">DELETE</button></div></td>`;
+    tbody.appendChild(tr);
+  });
+  if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="8" style="padding:20px;text-align:center;background:#f8fafc">NO PATIENTS - USE ADD PATIENT BUTTON</td>`;tbody.appendChild(tr);}
+  document.getElementById('pageInfo').innerText=`SCHEME: ${document.getElementById('fType').value} | PAGE ${currentPage} OF ${Math.max(1,Math.ceil(filteredPatients.length/pageSize))} | SHOWING ${pagePatients.length} OF ${filteredPatients.length} | ${pageSize} PER PAGE`;
+}
+function changePage(d){let totalPages=Math.max(1,Math.ceil(filteredPatients.length/pageSize));currentPage+=d;if(currentPage<1) currentPage=1;if(currentPage>totalPages) currentPage=totalPages;renderPagination();}
+function openEdit(globalIdx){editIndex=globalIdx;let p=allPatients[globalIdx];if(!p) return;document.getElementById('editTitle').innerText=`EDIT: ${p.name}`;document.getElementById('editName').value=p.name||'';document.getElementById('editShri').value=p.shri||'';document.getElementById('editId').value=p.pmjayCmhtId||'';document.getElementById('editTime').value=p.time||'';document.getElementById('editBlock').value=p.block||'';document.getElementById('editPrev').value=p.prev||'';document.getElementById('editModal').style.display='flex';}
+function saveEdit(){if(editIndex<0) return;allPatients[editIndex].name=document.getElementById('editName').value.toUpperCase();allPatients[editIndex].shri=document.getElementById('editShri').value.toUpperCase();allPatients[editIndex].pmjayCmhtId=document.getElementById('editId').value.toUpperCase();allPatients[editIndex].time=document.getElementById('editTime').value.toUpperCase();allPatients[editIndex].block=document.getElementById('editBlock').value.toUpperCase();allPatients[editIndex].prev=document.getElementById('editPrev').value;closeModal();applyFilter();autoSaveToFirebase();}
+function closeModal(){document.getElementById('editModal').style.display='none';}
+function deleteRow(globalIdx){if(!confirm('DELETE THIS PATIENT?')) return;allPatients.splice(globalIdx,1);allPatients.forEach((p,i)=>p.sl=i+1);applyFilter();autoSaveToFirebase();}
+function exportPDF(){if(filteredPatients.length===0){alert('No data');return;}let date=document.getElementById('fDate').value;let type=document.getElementById('fType').value;const { jsPDF }=window.jspdf;let docPdf=new jsPDF('landscape','mm','a4');docPdf.setFontSize(13);docPdf.text(`${date} ${type} - Total: ${filteredPatients.length}`,14,12);let rows=filteredPatients.map(p=>[p.sl,p.pmjayCmhtId,p.name,p.shri,p.time,p.block,p.prev]);docPdf.autoTable({startY:16,head:[['SL','ID','PATIENT NAME','SHRI ID','TIME','BLOCK','PREV']],body:rows,theme:'grid',styles:{fontSize:8,halign:'center'},headStyles:{fillColor:[10,25,49]}});docPdf.save(`${date}_${type}_LIST.pdf`);}
+document.getElementById('fDate').addEventListener('change', onDateChange);
+document.getElementById('fType').addEventListener('change', onSchemeChange);
+document.getElementById('rowsPerPage').addEventListener('change', renderPagination);
+document.getElementById('searchName').addEventListener('input', applyFilter);
+document.getElementById('filterTime').addEventListener('change', applyFilter);
+document.getElementById('filterBlock').addEventListener('change', applyFilter);
+window.addEventListener('load',()=>{ loadMasterFromFirebase(); setTimeout(onDateChange,800); });
 </script>
 </body>
 </html>
