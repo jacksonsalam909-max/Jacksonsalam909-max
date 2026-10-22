@@ -9,7 +9,6 @@
 body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:column}
 .top{height:64px;background:#1e293b;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #2d3a4f;position:sticky;top:0;z-index:100}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px}
-.logo img{width:38px;height:38px;border-radius:10px;object-fit:contain;background:#fff;padding:3px}
 .menuBtnTop{width:42px;height:36px;border-radius:10px;background:#2563eb;border:0;color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 .menuBtnTop *{pointer-events:none}
 .whiteBar{position:fixed;left:0;top:64px;bottom:0;width:270px;background:#ffffff;transform:translateX(-100%);transition:.35s;z-index:90;padding:16px 10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:4px 0 24px #0003;overflow-y:auto}
@@ -69,7 +68,7 @@ if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
 </script>
 <div class="top">
-<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop">☰</button><img src="logoc.png" onerror="this.src='shija.jpg'"> SHIJA Dialysis</div>
+<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop">☰</button> SHIJA Dialysis</div>
 <div class="searchWrap"><div class="search"><input id="globalSearch" placeholder="Search PMJAY & CMHT patients..." oninput="doGlobalSearch()" onfocus="doGlobalSearch()"></div><div class="searchResult" id="searchResult"></div></div>
 <div class="right"><div class="avatar">A</div><div class="adminWrap" id="adminWrap" onclick="toggleDrop(event)"><div>Admin ▼</div><div class="dropdown" id="adminDrop"><button class="dropItem" onclick="logoutNormal()">🚪 Logout</button><button class="dropItem logoutAll" onclick="openLogoutAllModal()">🌐 Logout All Devices</button></div></div></div>
 </div>
@@ -123,9 +122,9 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div class="passModal" id="passModal">
 <div class="passBox">
 <h3>🌐 Logout All Devices</h3>
-<p>Enter password to logout from ALL devices everywhere (PC, Mobile, iOS)</p>
+<p>Enter password to logout from ALL devices everywhere</p>
 <input type="password" id="adminPassInput" class="passInput" placeholder="Enter Password" onkeydown="if(event.key==='Enter')confirmLogoutAll()">
-<div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-top:8px;display:none">❌ Wrong password! Try jack8189</div>
+<div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-top:8px;display:none">❌ Wrong password! Try again</div>
 <div class="passActions">
 <button style="background:#e2e8f0;color:#0f172a" onclick="closeLogoutAllModal()">Cancel</button>
 <button class="btnR" onclick="confirmLogoutAll()">Logout All</button>
@@ -161,10 +160,9 @@ document.addEventListener('DOMContentLoaded',function(){
 function toggleDrop(e){e.stopPropagation();document.getElementById('adminDrop').classList.toggle('show');}
 document.addEventListener('click',(e)=>{if(!e.target.closest('.searchWrap'))document.getElementById('searchResult').classList.remove('show');if(!e.target.closest('#adminWrap'))document.getElementById('adminDrop').classList.remove('show');});
 
-// NORMAL LOGOUT - THIS DEVICE ALL TABS
 function logoutNormal(){
   document.getElementById('adminDrop').classList.remove('show');
-  if(!confirm('Logout from this device?\nAll tabs on this phone/PC will logout.')) return;
+  if(!confirm('Logout from this device?\nAll tabs on this device will logout.')) return;
   try{
     localStorage.setItem('shija_force_logout_this_device', Date.now().toString());
     const bc = new BroadcastChannel('shija_logout');
@@ -192,7 +190,6 @@ try{
   };
 }catch(e){}
 
-// LOGOUT ALL DEVICES WITH PASSWORD jack8189
 function openLogoutAllModal(){
   document.getElementById('adminDrop').classList.remove('show');
   document.getElementById('passModal').classList.add('show');
@@ -203,7 +200,7 @@ function openLogoutAllModal(){
 function closeLogoutAllModal(){ document.getElementById('passModal').classList.remove('show'); }
 async function confirmLogoutAll(){
   let pass = document.getElementById('adminPassInput').value.trim();
-  const ADMIN_PASSWORD = "jack8189"; // YOUR PASSWORD
+  const ADMIN_PASSWORD = "jack8189";
   if(pass !== ADMIN_PASSWORD){
     document.getElementById('passError').style.display='block';
     document.getElementById('adminPassInput').value='';
