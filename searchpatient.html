@@ -26,6 +26,19 @@ body{background:#0f172a;min-height:100vh;color:#fff}
 .pageHead h1{font-size:30px;font-weight:900;color:#fff;letter-spacing:-.5px}
 .pageHead p{color:#94a3b8;font-size:13px;margin-top:6px}
 
+/* SEARCH TAB - NEW */
+.searchTab{background:#ffffff;border-radius:16px;padding:14px;border:1px solid #e2e8f0;margin-bottom:16px;position:relative}
+.searchTab .searchRow{display:flex;gap:10px;align-items:center}
+.searchTab input{flex:1;background:#f8fafc;border:1.5px solid #e2e8f0;color:#0f172a;padding:12px 14px;border-radius:12px;font-weight:700;font-size:13px;outline:0}
+.searchTab input:focus{border-color:#2563eb;background:#fff}
+.searchBtn{padding:12px 16px;background:#0f172a;color:#fff;border:0;border-radius:12px;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap}
+.searchResults{position:absolute;top:100%;left:14px;right:14px;margin-top:8px;background:#fff;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.3);border:1px solid #e2e8f0;max-height:340px;overflow-y:auto;display:none;z-index:50}
+.searchResults.show{display:block}
+.sItem{padding:12px 14px;border-bottom:1px solid #f1f5f9;color:#0f172a;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.sItem:hover{background:#f8fafc}
+.sItem b{font-size:13px}
+.sItem small{color:#64748b}
+
 /* WHITE CARD ON DARK NAVY */
 .card{background:#ffffff;border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.4);border:1px solid #e2e8f0;overflow:hidden;display:none}
 .cardHeader{height:7px}
@@ -43,7 +56,7 @@ body{background:#0f172a;min-height:100vh;color:#fff}
 .footerBar{background:#f8fafc;border-top:1px solid #e2e8f0;padding:14px 22px;display:flex;justify-content:space-between;align-items:center}
 .btn{padding:10px 18px;border-radius:10px;border:0;font-weight:700;font-size:12px;cursor:pointer}
 .btnDark{background:#0f172a;color:#fff}
-@media(max-width:700px){.grid{grid-template-columns:1fr}.field.full{grid-column:span 1}}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.field.full{grid-column:span 1}.searchTab .searchRow{flex-direction:column}.searchBtn{width:100%}}
 </style>
 </head>
 <body>
@@ -64,6 +77,7 @@ SHIJA HOSPITALS DIALYSIS PATIENT
 <a href="index.html"> HOME</a>
 <a href="total.html"> TOTAL PMJAY PATIENT</a>
 <a href="cmht.html"> TOTAL CMHT PATIENT</a>
+<a href="searchpatient.html" class="active"> SEARCH PATIENT</a>
 </div>
 <div style="padding:12px;font-size:11px;color:#64748b;border-top:1px solid #e2e8f0">
 <b style="color:#0f172a">SHIJA Dialysis System</b><br>Dark Navy + White Cards • © 2026
@@ -73,7 +87,17 @@ SHIJA HOSPITALS DIALYSIS PATIENT
 <div class="main">
 <div class="pageHead">
 <h1>Patient Details</h1>
-<p id="subtitle">Dark Navy Background + White Professional Card</p>
+<p id="subtitle">Search any patient by Name, SHRI ID, PMJAY/CMHT ID</p>
+</div>
+
+<!-- NEW SEARCH TAB INSIDE -->
+<div class="searchTab">
+<div class="searchRow">
+<input type="text" id="patientSearch" placeholder="Search patient - Name / SHRI ID / PMJAY / CMHT / Contact..." oninput="doSearch()" onfocus="doSearch()" autocomplete="off">
+<button class="searchBtn" onclick="doSearch()">SEARCH</button>
+</div>
+<div class="searchResults" id="searchResults"></div>
+<div style="margin-top:8px;font-size:10px;font-weight:700;color:#64748b"><span id="searchCount">All PMJAY + CMHT patients loaded</span> • Type to filter</div>
 </div>
 
 <div id="loading" style="background:#ffffff;border-radius:20px;padding:28px;border:1px solid #e2e8f0;text-align:center;color:#64748b;font-weight:700">Loading patient details...</div>
@@ -105,7 +129,7 @@ SHIJA HOSPITALS DIALYSIS PATIENT
 </div>
 </div>
 
-<p id="notFound" style="display:none;text-align:center;margin-top:30px;background:#fff;padding:18px;border-radius:14px;color:#64748b;font-weight:600">No record found</p>
+<p id="notFound" style="display:none;text-align:center;margin-top:20px;background:#fff;padding:18px;border-radius:14px;color:#64748b;font-weight:600">No record found - Try search tab above</p>
 </div>
 
 <script>
@@ -147,23 +171,16 @@ document.addEventListener('DOMContentLoaded',function(){
 
 document.getElementById('fTime').innerText='Verified • '+new Date().toLocaleString();
 
-async function loadPatient(){
-  const params = new URLSearchParams(location.search);
-  const shriParam = (params.get('shri') || params.get('search') || '').trim();
-  if(!shriParam){
-    document.getElementById('loading').innerText='No patient selected';
+let allPatients = [];
+
+function showPatient(found){
+  if(!found){
+    document.getElementById('card').style.display='none';
+    document.getElementById('notFound').style.display='block';
     return;
   }
-  document.getElementById('subtitle').innerText = 'Showing details for SHRI ID: ' + shriParam;
-  const q = shriParam.toLowerCase();
-  let all=[];
-  try{ let s=await db.collection("patients").get(); s.forEach(d=>{ if(!d.data().deleted) all.push({...d.data(), _docId:d.id, _source:'total.html'}) }) }catch(e){}
-  try{ let s=await db.collection("cmht_patients").get(); s.forEach(d=>{ if(!d.data().deleted) all.push({...d.data(), _docId:d.id, _source:'cmht.html'}) }) }catch(e){}
-  let found = all.find(p=> String(p.shriId||p.shri||'').toLowerCase()===q );
-  if(!found) found = all.find(p=> String(p.shriId||p.shri||'').toLowerCase().includes(q) || String(p.patientName||p.name||'').toLowerCase()===q );
   document.getElementById('loading').style.display='none';
-  if(!found){ document.getElementById('notFound').style.display='block'; return; }
-
+  document.getElementById('notFound').style.display='none';
   document.getElementById('pName').innerText = found.patientName || found.name || '-';
   document.getElementById('pId').innerText = found.shriId || found.shri || '-';
   document.getElementById('pSchemeId').innerText = found.pmjayId || found.pmjay || found.cmhtId || found.cmht || '-';
@@ -185,6 +202,88 @@ async function loadPatient(){
     document.getElementById('cardTop').style.background='#2563eb';
   }
   document.getElementById('card').style.display='block';
+  document.getElementById('subtitle').innerText='Showing details for SHRI ID: ' + (found.shriId||found.shri);
+  window.scrollTo({top:300, behavior:'smooth'});
+}
+
+function doSearch(){
+  let q = document.getElementById('patientSearch').value.toLowerCase().trim();
+  let box = document.getElementById('searchResults');
+  let countEl = document.getElementById('searchCount');
+  if(!q){
+    box.classList.remove('show');
+    countEl.innerText = `${allPatients.length} patients loaded - Type to search`;
+    return;
+  }
+  let filtered = allPatients.filter(p=>{
+    let txt = `${p.patientName||p.name||''} ${p.shriId||p.shri||''} ${p.pmjayId||p.pmjay||''} ${p.cmhtId||p.cmht||''} ${p.contactNo||p.contact||''} ${p.aadhaarNo||p.aadhaar||''}`.toLowerCase();
+    return txt.includes(q);
+  }).slice(0,20);
+  
+  countEl.innerText = `${filtered.length} found / ${allPatients.length} total`;
+  
+  if(filtered.length===0){
+    box.innerHTML = `<div class="sItem"><b>No patient found for "${q}"</b></div>`;
+    box.classList.add('show');
+    return;
+  }
+  let html='';
+  filtered.forEach(p=>{
+    let name = p.patientName || p.name || 'Unknown';
+    let shri = p.shriId || p.shri || '';
+    let type = p._source==='cmht.html' ? 'CMHT' : 'PMJAY';
+    let color = type==='CMHT' ? '#10b981' : '#2563eb';
+    html+=`<div class="sItem" onclick="selectPatient('${shri}')">
+      <div><b>${name}</b> <small style="background:${color};color:#fff;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:6px">${type}</small><br><small>${shri} | ${p.contactNo||p.contact||''} | ${p.pmjayId||p.cmhtId||''}</small></div>
+      <small style="color:${color};font-weight:800">VIEW →</small>
+    </div>`;
+  });
+  box.innerHTML = html;
+  box.classList.add('show');
+}
+
+function selectPatient(shri){
+  document.getElementById('searchResults').classList.remove('show');
+  document.getElementById('patientSearch').value = shri;
+  let found = allPatients.find(p=> String(p.shriId||p.shri||'').toLowerCase()===shri.toLowerCase());
+  if(found) showPatient(found);
+  else {
+    let lower = shri.toLowerCase();
+    let f2 = allPatients.find(p=> String(p.shriId||p.shri||'').toLowerCase().includes(lower));
+    if(f2) showPatient(f2);
+  }
+  // update URL without reload
+  history.replaceState(null,'',`?shri=${encodeURIComponent(shri)}`);
+}
+
+document.addEventListener('click',(e)=>{
+  if(!e.target.closest('.searchTab')){
+    document.getElementById('searchResults').classList.remove('show');
+  }
+});
+
+async function loadPatient(){
+  const params = new URLSearchParams(location.search);
+  const shriParam = (params.get('shri') || params.get('search') || '').trim();
+  document.getElementById('loading').innerText='Loading all patients...';
+  let all=[];
+  try{ let s=await db.collection("patients").get(); s.forEach(d=>{ if(!d.data().deleted) all.push({...d.data(), _docId:d.id, _source:'total.html'}) }) }catch(e){}
+  try{ let s=await db.collection("cmht_patients").get(); s.forEach(d=>{ if(!d.data().deleted) all.push({...d.data(), _docId:d.id, _source:'cmht.html'}) }) }catch(e){}
+  allPatients = all;
+  document.getElementById('searchCount').innerText = `${all.length} patients loaded - Type to search`;
+  document.getElementById('loading').style.display='none';
+  
+  if(!shriParam){
+    document.getElementById('subtitle').innerText = 'Search any patient - Type in search tab above';
+    document.getElementById('loading').style.display='none';
+    return;
+  }
+  const q = shriParam.toLowerCase();
+  let found = all.find(p=> String(p.shriId||p.shri||'').toLowerCase()===q );
+  if(!found) found = all.find(p=> String(p.shriId||p.shri||'').toLowerCase().includes(q) || String(p.patientName||p.name||'').toLowerCase()===q );
+  if(!found){ document.getElementById('notFound').style.display='block'; return; }
+  showPatient(found);
+  document.getElementById('patientSearch').value = found.shriId || found.shri || shriParam;
 }
 loadPatient();
 </script>
