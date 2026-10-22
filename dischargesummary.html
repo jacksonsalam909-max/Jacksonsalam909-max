@@ -41,7 +41,6 @@
 .paper{background:#fff;width:100%;max-width:800px;margin:0 auto;color:#000;border:1px solid #e2e8f0;--fs:14px;overflow:hidden}
 .letterhead{margin:0;padding:0;line-height:0;display:block;font-size:0;border:0}
 .letterhead img{width:100%;display:block;margin:0;padding:0;vertical-align:top;border:0}
-/* BORDER ABOVE DISCHARGE SUMMARY FIXED - NOT REMOVED */
 .disTitle{text-align:center;font-weight:800;font-size:calc(var(--fs) + 5px);padding:6px 0;border:2.5px solid #000;margin:0 10px 0 10px;background:#fff;box-sizing:border-box;width:calc(100% - 20px)}
 .infoTable{width:100%;border-collapse:collapse;font-size:var(--fs);margin:6px 0 6px 0}
 .infoTable td{padding:2px 4px;vertical-align:top;line-height:1.4;white-space:nowrap}
@@ -54,15 +53,50 @@
 .section{padding:12px 18px 14px 28px;font-size:var(--fs);line-height:1.7;border-top:2.5px solid #000}
 .exportGroup{display:flex;align-items:center;background:#fff;border-radius:24px;padding:3px}.exportSelect{border:0;background:transparent;font-weight:800;font-size:11px;padding:8px 10px;outline:0}.exportBtn{background:#10b981;color:#fff;border:0;padding:8px 18px;border-radius:20px;font-weight:800;cursor:pointer;font-size:11px;margin-left:4px}
 </style>
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_dischargesum_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_dischargesum2_"+Math.random()); }
+const dbGuard=getFirestore(app);
+try{
+  onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      localStorage.removeItem('shija_role');
+      alert('🔒 Logged out by Admin from all devices');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+try{
+  window.addEventListener('storage',(e)=>{
+    if(e.key==='shija_force_logout_this_device'){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      location.href='login.html';
+    }
+  });
+  const bc=new BroadcastChannel('shija_logout');
+  bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } };
+}catch(e){}
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;window.fbTools={collection,getDocs};
+const app=initializeApp(firebaseConfig,"dischargeSummaryMain_"+Math.random());const db=getFirestore(app);window.db=db;window.fbTools={collection,getDocs};
 </script>
 </head>
 <body>
-
 <div class="whiteOverlay" id="whiteOverlay"></div>
 <div class="whiteBar" id="whiteBar">
 <div>
@@ -82,7 +116,6 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 <b style="color:#0f172a">SHIJA HOSPITALS DIALYSIS</b><br>© 2026
 </div>
 </div>
-
 <div class="top">
 <div class="leftTop">
 <button type="button" class="menuBtn" id="menuBtn">☰</button>
@@ -90,7 +123,6 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 </div>
 <div class="exportGroup"><select id="exportType" class="exportSelect"><option value="jpeg" selected>JPEG</option><option value="pdf">PDF</option></select><button onclick="doExport()" class="exportBtn">⬇ EXPORT</button></div>
 </div>
-
 <div class="content">
 <div class="cardPro">
 <div style="display:flex;justify-content:space-between"><h3 style="font-size:11px;font-weight:800">🔍 SEARCH</h3><span id="countBadge" style="font-size:10px;font-weight:800;background:#eff6ff;padding:5px 12px;border-radius:20px">Loading...</span></div>
@@ -98,18 +130,15 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 <div class="col"><span class="label">Search</span><div class="searchBox"><input id="searchInput" class="inputPro" style="border:2px solid #1e3a8a" placeholder="Type SHRI / Name / IP" oninput="doSearch(this.value)" onfocus="doSearch(this.value)"><div id="searchList" class="searchList"></div></div></div></div>
 <div id="debugInfo" style="font-size:10px;font-weight:700;color:#b91c1c;margin-top:6px"></div>
 </div>
-
 <div class="cardPro">
 <div class="row"><div class="col"><span class="label">UHID</span><input id="shriId" class="inputPro" value="SHRI.334269"></div><div class="col"><span class="label">IP No</span><input id="ipNo" class="inputPro" value="185693"></div><div class="col" style="flex:1.5"><span class="label">Patient Name</span><input id="patName" class="inputPro" value="Mrs. ARAMBAM ASHALATA DEVI"></div></div>
 <div class="row"><div class="col" style="max-width:160px"><span class="label">Age</span><input type="number" step="1" id="ageInput" class="inputPro" value="71"></div><div class="col" style="max-width:160px"><span class="label">Sex</span><select id="sexInput" class="inputPro"><option>Male</option><option selected>Female</option></select></div></div>
-
 <div class="timeBox">
 <div><span class="label">Admission Date</span><input type="date" id="admDate" class="inputPro timeInput"></div>
 <div><span class="label">Hour (1-12 Only)</span><input type="number" min="1" max="12" step="1" id="admHour" class="inputPro timeInput" value="02"></div>
 <div><span class="label">Min (0-59)</span><input type="number" min="0" max="59" step="1" id="admMin" class="inputPro timeInput" value="47"></div>
 <div><span class="label">AM/PM</span><select id="admAmPm" class="inputPro timeInput" style="background:#0f172a;color:#fff"><option>AM</option><option selected>PM</option></select></div>
 </div>
-
 <h3 style="font-size:11px;font-weight:800;margin:16px 0 8px;color:#ef4444">● PRE DIALYSIS</h3>
 <div class="vitalGrid preBox">
 <div class="vitalCard"><div class="vIcon" style="background:#fee2e2">🩸</div><div class="vContent"><span class="vLabel">Blood Pressure</span><input id="bp" value="150/70"></div><span class="vUnit">mmHg</span></div>
@@ -117,7 +146,6 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 <div class="vitalCard"><div class="vIcon" style="background:#dbeafe">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" step="1" id="spo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('spo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('spo2',-1)">▼</button></div><span class="vUnit">% RA</span></div>
 <div class="vitalCard"><div class="vIcon" style="background:#ffedd5">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" step="1" id="temp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('temp',1)">▲</button><button class="vStepBtn" onclick="stepVital('temp',-1)">▼</button></div><span class="vUnit">°F</span></div>
 </div>
-
 <h3 style="font-size:11px;font-weight:800;margin:18px 0 8px;color:#10b981">● POST DIALYSIS</h3>
 <div class="vitalGrid postBox">
 <div class="vitalCard"><div class="vIcon" style="background:#dcfce7">🩸</div><div class="vContent"><span class="vLabel">Blood Pressure</span><input id="postBp" value="160/80"></div><span class="vUnit">mmHg</span></div>
@@ -125,14 +153,12 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 <div class="vitalCard"><div class="vIcon" style="background:#e0e7ff">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" step="1" id="postSpo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postSpo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('postSpo2',-1)">▼</button></div><span class="vUnit">% RA</span></div>
 <div class="vitalCard"><div class="vIcon" style="background:#fef9c3">🌡️</div><div class="vContent"><span class="vLabel">Temperature</span><input type="number" step="1" id="postTemp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postTemp',1)">▲</button><button class="vStepBtn" onclick="stepVital('postTemp',-1)">▼</button></div><span class="vUnit">°F</span></div>
 </div>
-
 <div class="row" style="border:2px solid #dc2626;border-radius:12px;padding:12px;margin-top:18px;background:#fffbeb">
 <div class="col" style="max-width:190px"><span class="label">Advice Date ( )</span><input type="date" id="adviceDate" class="inputPro" value="2026-10-22"></div>
 <div class="col" style="max-width:220px"><span class="label">Advice Time ( )</span><select id="adviceTime" class="inputPro" style="background:#fff1f2;font-weight:800;border:2px solid #f43f5e"><option>7am morning</option><option selected>12pm noon</option><option>5pm evening</option><option>9pm night</option><option>12am midnight</option><option>2am morning</option></select></div>
 <div class="col" style="max-width:190px"><span class="label">Needs dialysis ( ) times/week</span><select id="freq" class="inputPro" style="border:2px solid #dc2626;background:#fef2f2;font-weight:800"><option>One</option><option>Two</option><option selected>Three</option><option>Four</option></select></div>
 </div>
 </div>
-
 <div class="paper" id="paper">
 <div class="letterhead"><img src="finalopo.png?v=20" alt="SHIJA"></div>
 <div class="disTitle">Discharge Summary</div>
@@ -157,7 +183,6 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);window.db=db;
 </div>
 </div>
 </div>
-
 <script>
 let menuOpen=false;
 function toggleMenu(){
@@ -194,7 +219,6 @@ document.addEventListener('DOMContentLoaded',function(){
     a.addEventListener('click', function(){ var h=this.getAttribute('href'); if(h) window.location.href=h; });
   });
 });
-
 let allPMJAY=[], allCMHT=[], scheme='PMJAY', lastFiltered=[];
 function stepVital(id, delta){
   let el=document.getElementById(id);
