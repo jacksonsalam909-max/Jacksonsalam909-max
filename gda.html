@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>GDA - PHOTO + OPD TASK</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:#f1f5f9}
+.top{height:58px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:fixed;top:0;left:0;right:0;z-index:1000}
+.btn{padding:8px 12px;border:0;border-radius:8px;font-weight:900;font-size:11px;cursor:pointer}
+.btnGreen{background:#10b981;color:#fff}.btnDark{background:#0f172a;color:#fff}.btnPurple{background:#7c3aed;color:#fff}
+.input{padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:12px;background:#fff}
+.content{max-width:1100px;margin:66px auto 0;padding:10px}
+.card{background:#fff;border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid #e2e8f0}
+.sheetWrap{overflow:auto;border:2px solid #000;background:#fff;max-height:75vh}
+table{border-collapse:collapse;width:100%;min-width:700px}
+th{position:sticky;top:0;background:#0a1931;color:#fff;padding:10px 6px;font-size:11px;text-align:center;border:1px solid #000;z-index:2}
+td{border:1px solid #d1d5db;padding:10px 6px;height:48px;font-size:12px;font-weight:800;text-align:center;text-transform:uppercase;background:#fff}
+td.nameCol{text-align:left;padding-left:10px;font-size:13px}
+.btnStatus{padding:10px 12px;border-radius:8px;border:0;font-weight:900;font-size:11px;cursor:pointer;min-width:135px;transition:all 0.2s}
+.notTaken{background:#fee2e2;color:#991b1b;border:2px solid #ef4444}
+.taken{background:#dcfce7;color:#14532d;border:2px solid #10b981}
+.statusSaved{background:#dcfce7;color:#14532d;padding:4px 8px;border-radius:12px;font-size:10px;font-weight:800}
+.menuBtn{font-size:28px;background:none;border:0;color:#fff;cursor:pointer;padding:6px 12px}
+.menuDrawer{position:fixed;top:58px;left:-320px;width:300px;height:calc(100vh - 58px);background:#fff;color:#0f172a;z-index:9999;transition:left 0.28s ease;overflow:auto;padding:0;border-right:1px solid #e2e8f0;box-shadow:4px 0 25px rgba(0,0,0,0.15)}
+.menuDrawer.open{left:0}
+.menuItem{display:block;width:100%;padding:14px 18px;background:#fff;border:0;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:700;font-size:13px;text-align:left;cursor:pointer;text-transform:uppercase}
+.menuOverlay{position:fixed;top:58px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.2);display:none;z-index:9998}
+.menuOverlay.open{display:block}
+</style>
+</head>
+<body>
+<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
+<div class="top">
+<div style="display:flex;align-items:center;gap:8px">
+<button class="menuBtn" id="menuBtn">☰</button>
+<div style="font-weight:900;font-size:14px">GDA TASK</div>
+<div id="saveStatus" class="statusSaved">READY</div>
+</div>
+<div style="display:flex;gap:8px">
+<button class="btn btnPurple" onclick="openCompleted()" id="btnCompleted">VIEW COMPLETED (0)</button>
+<button class="btn btnGreen" onclick="location.href='list.html'">BACK TO LIST</button>
+</div>
+</div>
+<div class="menuOverlay" id="menuOverlay"></div>
+<div class="menuDrawer" id="menuDrawer">
+<div style="font-weight:900;padding:16px 18px;border-bottom:2px solid #0a1931;background:#0a1931;color:#fff">MENU</div>
+<button class="menuItem" onclick="goPage('index.html')">HOME</button>
+<button class="menuItem" onclick="goPage('list.html')">DAILY DIALYSIS LIST</button>
+<button class="menuItem" onclick="goPage('gda.html')">GDA TASK - PHOTO + OPD</button>
+<button class="menuItem" onclick="goPage('total.html')">TOTAL PATIENT</button>
+<button class="menuItem" onclick="goPage('cmht.html')">CMHT TOTAL</button>
+</div>
+<div class="content">
+<div class="card">
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+<div><label style="font-size:9px;font-weight:800">DATE * (TODAY DEFAULT)</label><br><input type="date" id="fDate" class="input"></div>
+<div><label style="font-size:9px;font-weight:800">SCHEME *</label><br><select id="fType" class="input" style="background:#fef3c7;border:2px solid #f59e0b;font-weight:900"><option value="PMJAY" selected>PMJAY</option><option value="CMHT">CMHT</option></select></div>
+<div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+<span id="countInfo" style="font-weight:900;font-size:11px;background:#0a1931;color:#fff;padding:6px 12px;border-radius:20px">0 PENDING</span>
+<button class="btn btnDark" onclick="loadData()">RELOAD</button>
+</div>
+</div>
+<div id="masterInfo" style="font-size:11px;font-weight:800;margin-top:8px;background:#eff6ff;padding:8px;border-radius:6px">LOADING...</div>
+</div>
+<div class="card" style="padding:0">
+<div class="sheetWrap">
+<table>
+<thead><tr><th style="width:50px">SL</th><th>PATIENT NAME</th><th style="width:120px">TIME</th><th style="width:100px">BLOCK</th><th style="width:160px">PHOTO STATUS</th><th style="width:160px">OPD STATUS</th></tr></thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="completedModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;z-index:9999;align-items:center;justify-content:center;padding:10px">
+<div style="background:#fff;border-radius:12px;width:100%;max-width:1000px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column">
+<div style="padding:12px;background:#0a1931;color:#fff;display:flex;justify-content:space-between;align-items:center"><span style="font-weight:900">COMPLETED / DISAPPEARED LIST - GDA</span><button class="btn btnDark" onclick="closeCompleted()">X CLOSE</button></div>
+<div style="padding:10px;overflow:auto">
+<table style="width:100%;border-collapse:collapse;min-width:600px"><thead><tr><th style="background:#0a1931;color:#fff;padding:8px;border:1px solid #000">SL</th><th style="background:#0a1931;color:#fff;padding:8px;border:1px solid #000">NAME</th><th style="background:#0a1931;color:#fff;padding:8px;border:1px solid #000">TIME</th><th style="background:#0a1931;color:#fff;padding:8px;border:1px solid #000">BLOCK</th><th style="background:#0a1931;color:#fff;padding:8px;border:1px solid #000">PHOTO</th><th style="background:#0a1931;color:#fff;padding:8px;border:1px solid #000">OPD</th><th style="background:#0a1931;color:#fff;padding:8px;border:1px solid #000">ACTION</th></tr></thead><tbody id="completedBody"></tbody></table>
+</div>
+</div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(firebaseConfig,"gda_"+Math.random());const db=getFirestore(app);window._fb={db,doc,setDoc,getDoc};
+</script>
+<script>
+function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+let urlParams=new URLSearchParams(window.location.search);
+document.getElementById('fDate').value=urlParams.get('date')||getTodayIST();
+document.getElementById('fType').value=urlParams.get('scheme')||'PMJAY';
+const menuBtn=document.getElementById('menuBtn'),menuDrawer=document.getElementById('menuDrawer'),menuOverlay=document.getElementById('menuOverlay');
+function toggleMenu(){menuDrawer.classList.toggle('open');menuOverlay.classList.toggle('open');}
+function closeMenu(){menuDrawer.classList.remove('open');menuOverlay.classList.remove('open');}
+menuBtn.addEventListener('click',toggleMenu);menuOverlay.addEventListener('click',closeMenu);
+function goPage(p){closeMenu();let d=document.getElementById('fDate').value,s=document.getElementById('fType').value;if(p.includes('list')||p.includes('gda'))location.href=`${p}?date=${d}&scheme=${s}`;else location.href=p;}
+let allPatients=[],statusMap={};
+function setSaveStatus(t){document.getElementById('saveStatus').innerText=t;}
+async function loadData(){
+  let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;
+  if(!date){date=getTodayIST();document.getElementById('fDate').value=date;}
+  setSaveStatus('LOADING...');document.getElementById('masterInfo').innerText=`LOADING LIST FOR ${date} ${scheme}...`;
+  try{
+    let docId=date+'_'+scheme;
+    let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));
+    allPatients=snap.exists()?(snap.data().patients||[]):[];
+    let statusDocId=date+'_'+scheme;
+    let statusSnap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_photo_opd',statusDocId));
+    statusMap=statusSnap.exists()?(statusSnap.data().status||{}):{};
+    document.getElementById('masterInfo').innerText=`✅ FROM list.html: ${allPatients.length} PATIENTS FOR ${date} ${scheme} | ONLY NAME, TIME, BLOCK | GDA TASK`;
+    setSaveStatus(`LOADED ${allPatients.length}`);renderTable();
+  }catch(e){document.getElementById('masterInfo').innerText='ERROR: '+e.message;setSaveStatus('ERROR');}
+}
+async function saveStatusToFirebase(){
+  let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;let docId=date+'_'+scheme;
+  setSaveStatus('SAVING...');
+  try{await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_photo_opd',docId),{date:date,scheme:scheme,status:statusMap,updatedAt:new Date().toISOString()});setSaveStatus('SAVED');}
+  catch(e){setSaveStatus('SAVE ERROR');}
+}
+function togglePhoto(shri){if(!statusMap[shri])statusMap[shri]={photoTaken:false,opdDone:false};statusMap[shri].photoTaken=!statusMap[shri].photoTaken;saveStatusToFirebase();renderTable();}
+function toggleOpd(shri){if(!statusMap[shri])statusMap[shri]={photoTaken:false,opdDone:false};statusMap[shri].opdDone=!statusMap[shri].opdDone;saveStatusToFirebase();renderTable();}
+function renderTable(){
+  let tbody=document.getElementById('tbody');tbody.innerHTML='';let pending=0,completed=0;
+  allPatients.forEach((p,idx)=>{
+    let shri=String(p.shri||'').toUpperCase();if(!shri)return;let st=statusMap[shri]||{photoTaken:false,opdDone:false};
+    if(st.photoTaken&&st.opdDone){completed++;return;}
+    pending++;
+    let tr=document.createElement('tr');
+    tr.innerHTML=`<td>${idx+1}</td><td class="nameCol">${p.name||''}</td><td>${p.time||''}</td><td>${p.block||''}</td><td><button class="btnStatus ${st.photoTaken?'taken':'notTaken'}" onclick="togglePhoto('${shri}')">${st.photoTaken?'📸 PHOTO TAKEN':'📷 PHOTO NOT TAKEN'}</button></td><td><button class="btnStatus ${st.opdDone?'taken':'notTaken'}" onclick="toggleOpd('${shri}')">${st.opdDone?'✅ OPD DONE':'❌ OPD NOT DONE'}</button></td>`;
+    tbody.appendChild(tr);
+  });
+  if(pending===0){tbody.innerHTML=`<tr><td colspan="6" style="padding:20px;background:#f8fafc">ALL DONE - NO PENDING FOR TODAY</td></tr>`;}
+  document.getElementById('countInfo').innerText=`${pending} PENDING | ${completed} DONE`;
+  document.getElementById('btnCompleted').innerText=`VIEW COMPLETED (${completed})`;
+}
+function openCompleted(){
+  let tbody=document.getElementById('completedBody');tbody.innerHTML='';
+  allPatients.forEach((p,idx)=>{
+    let shri=String(p.shri||'').toUpperCase();let st=statusMap[shri];if(!st||!(st.photoTaken&&st.opdDone))return;
+    let tr=document.createElement('tr');
+    tr.innerHTML=`<td style="border:1px solid #ccc;padding:8px;text-align:center">${idx+1}</td><td style="border:1px solid #ccc;padding:8px">${p.name}</td><td style="border:1px solid #ccc;padding:8px;text-align:center">${p.time}</td><td style="border:1px solid #ccc;padding:8px;text-align:center">${p.block}</td><td style="border:1px solid #ccc;padding:8px;text-align:center">TAKEN</td><td style="border:1px solid #ccc;padding:8px;text-align:center">DONE</td><td style="border:1px solid #ccc;padding:8px;text-align:center"><button class="btn btnDark" onclick="bringBack('${shri}')">BRING BACK</button></td>`;
+    tbody.appendChild(tr);
+  });
+  if(tbody.innerHTML==='')tbody.innerHTML='<tr><td colspan="7" style="padding:20px;text-align:center">NO COMPLETED YET</td></tr>';
+  document.getElementById('completedModal').style.display='flex';
+}
+function closeCompleted(){document.getElementById('completedModal').style.display='none';}
+function bringBack(shri){if(statusMap[shri]){statusMap[shri].photoTaken=false;statusMap[shri].opdDone=false;}saveStatusToFirebase();renderTable();openCompleted();}
+document.getElementById('fDate').addEventListener('change',loadData);
+document.getElementById('fType').addEventListener('change',loadData);
+window.addEventListener('load',loadData);
+</script>
+</body>
+</html>
