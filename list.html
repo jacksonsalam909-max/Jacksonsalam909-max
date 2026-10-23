@@ -109,7 +109,7 @@ try{
 <div><label style="font-size:9px;font-weight:800">DATE *</label><br><input type="date" id="fDate" class="input"></div>
 <div><label style="font-size:9px;font-weight:800">SCHEME *</label><br><select id="fType" class="input" style="background:#fef3c7;border:2px solid #f59e0b;font-weight:900"><option value="PMJAY" selected>PMJAY</option><option value="CMHT">CMHT</option></select></div>
 <div><label style="font-size:9px;font-weight:800">SHOW</label><br><select id="rowsPerPage" class="input"><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option></select></div>
-<div><label style="font-size:9px;font-weight:800">SEARCH</label><br><input type="text" id="searchName" class="input" placeholder="NAME/SHRI/ID..." style="width:120px" autocomplete="off"></div>
+<div><label style="font-size:9px;font-weight:800">SEARCH</label><br><input type="text" id="searchName" class="input" placeholder="NAME/SHRI/ID..." style="width:240px" autocomplete="off"></div>
 </div>
 <div class="filterRow">
 <div><label style="font-size:9px;font-weight:800">FILTER BY TIME</label><br><select id="filterTime" class="input"><option value="">ALL TIME</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option></select></div>
@@ -136,18 +136,15 @@ const app=initializeApp(firebaseConfig,"listMain_"+Math.random());const db=getFi
 </script>
 <script>
 let allPatients=[],filteredPatients=[],currentPage=1,pageSize=10,editIndex=-1;
-let masterMap = {}; // SHRI ID -> { pmjayId, cmhtId, name }
-
+let masterMap = {};
 document.getElementById('fDate').valueAsDate=new Date();
 let urlParams=new URLSearchParams(window.location.search);
 if(urlParams.get('date')) document.getElementById('fDate').value=urlParams.get('date');
-// FORCE DEFAULT PMJAY - if no scheme in URL, stay PMJAY
 if(urlParams.get('scheme')) {
   document.getElementById('fType').value=urlParams.get('scheme');
 } else {
   document.getElementById('fType').value='PMJAY';
 }
-
 const menuBtn=document.getElementById('menuBtn');
 const menuDrawer=document.getElementById('menuDrawer');
 const menuOverlay=document.getElementById('menuOverlay');
@@ -166,11 +163,9 @@ function goPage(page){
   },150);
 }
 function openAddPatientPage(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;window.location.href=`addlist.html?date=${date}&scheme=${scheme}`;}
-
 async function buildMasterMap(){
   masterMap = {};
   try{
-    // PMJAY from patients collection - MAIN
     let snap = await window._fb.getDocs(window._fb.collection(window._fb.db,'patients'));
     snap.forEach(d=>{
       let p=d.data();
@@ -195,11 +190,9 @@ async function buildMasterMap(){
       masterMap[shri].cmhtId = cmht;
       if(name) masterMap[shri].name = name;
       masterMap[shri].shri = shri;
-      // also allow cmht as pmjayId fallback
       if(!masterMap[shri].pmjayId && cmht) masterMap[shri].pmjayId = cmht;
     });
   }catch(e){ console.log('cmht error',e); }
-  // also check alternative collections
   for(let col of ['pmjay_patients','total','cmht','cmht_patients_list']){
     try{
       let s = await window._fb.getDocs(window._fb.collection(window._fb.db,col));
@@ -218,13 +211,11 @@ async function buildMasterMap(){
   document.getElementById('masterInfo').innerHTML = `✅ MASTER LOADED: ${Object.keys(masterMap).length} SHRI MAP | DEFAULT: PMJAY | AUTO-MATCH ENABLED`;
   return masterMap;
 }
-
 function enrichPatient(p){
   let shriKey = String(p.shri||'').trim().toUpperCase();
   if(!shriKey) return p;
   let m = masterMap[shriKey];
   if(!m) return p;
-  // If pmjayCmhtId blank, fill from master
   if(!p.pmjayCmhtId || p.pmjayCmhtId==='-' || p.pmjayCmhtId==='') {
     let scheme = document.getElementById('fType').value;
     if(scheme==='PMJAY' && m.pmjayId) p.pmjayCmhtId = m.pmjayId;
@@ -232,11 +223,9 @@ function enrichPatient(p){
     else if(m.pmjayId) p.pmjayCmhtId = m.pmjayId;
     else if(m.cmhtId) p.pmjayCmhtId = m.cmhtId;
   }
-  // If name blank, fill
   if((!p.name || p.name==='') && m.name) p.name = m.name;
   return p;
 }
-
 async function loadMasterFromFirebase(){
   await buildMasterMap();
   document.getElementById('menuCurrentInfo').innerText=`${document.getElementById('fDate').value} | ${document.getElementById('fType').value} | ${allPatients.length} PATIENTS`;
@@ -261,7 +250,6 @@ async function onDateChange(){
   try{
     let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));
     let patients=snap.exists()?(snap.data().patients||[]):[];
-    // ENRICH WITH MASTER MAP - AUTO MATCH SHRI ID -> PMJAY ID
     patients = patients.map((p,i)=>{
       let enriched = enrichPatient({...p, sl:i+1});
       enriched.sl = i+1;
@@ -282,7 +270,6 @@ async function onDateChange(){
   }catch(e){ console.log(e); setStatus('saved','ERROR'); }
 }
 async function onSchemeChange(){
-  // Keep PMJAY as default if user clears
   let scheme = document.getElementById('fType').value;
   if(!scheme) { document.getElementById('fType').value='PMJAY'; scheme='PMJAY'; }
   allPatients=[]; filteredPatients=[]; currentPage=1; await onDateChange();
@@ -342,7 +329,6 @@ function saveEdit(){
   allPatients[editIndex].time=document.getElementById('editTime').value.toUpperCase();
   allPatients[editIndex].block=document.getElementById('editBlock').value.toUpperCase();
   allPatients[editIndex].prev=document.getElementById('editPrev').value;
-  // auto-fill again if ID blank but SHRI present
   allPatients[editIndex] = enrichPatient(allPatients[editIndex]);
   closeModal();applyFilter();autoSaveToFirebase();
 }
