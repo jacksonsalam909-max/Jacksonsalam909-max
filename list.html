@@ -152,8 +152,6 @@ const app=initializeApp(firebaseConfig,"listMain_"+Math.random());const db=getFi
 <script>
 let allPatients=[],filteredPatients=[],currentPage=1,pageSize=10,editIndex=-1;
 let masterMap = {};
-
-// TODAY IN LOCAL IST - NOT UTC
 function getTodayIST(){
   let d = new Date();
   let yyyy = d.getFullYear();
@@ -163,10 +161,8 @@ function getTodayIST(){
 }
 let urlParams=new URLSearchParams(window.location.search);
 let todayStr = getTodayIST();
-// FORCE TODAY DEFAULT - IGNORE OLD URL DATE
 document.getElementById('fDate').value = todayStr;
 if(urlParams.get('date') && urlParams.get('force')==='1'){
-  // Only if force=1, allow old date
   document.getElementById('fDate').value = urlParams.get('date');
 }
 if(urlParams.get('scheme')) {
@@ -174,7 +170,6 @@ if(urlParams.get('scheme')) {
 } else {
   document.getElementById('fType').value='PMJAY';
 }
-
 const menuBtn=document.getElementById('menuBtn');
 const menuDrawer=document.getElementById('menuDrawer');
 const menuOverlay=document.getElementById('menuOverlay');
@@ -194,10 +189,10 @@ function goPage(page){
 }
 function openAddPatientPage(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;window.location.href=`addlist.html?date=${date}&scheme=${scheme}&force=1`;}
 
-// REMOVED LATEST DATE AUTO - NOW ONLY TODAY DEFAULT
-
+// MASTER LOAD - EXACT NAME FROM TOTAL.HTML AND CMHT.HTML
 async function buildMasterMap(){
   masterMap = {};
+  // 1. PMJAY TOTAL - FROM total.html (patients collection)
   try{
     let snap = await window._fb.getDocs(window._fb.collection(window._fb.db,'patients'));
     snap.forEach(d=>{
@@ -207,9 +202,17 @@ async function buildMasterMap(){
       let pmjay = String(p.pmjayId||p.pmjay||'').trim().toUpperCase();
       let name = String(p.patientName||p.name||'').trim().toUpperCase();
       if(!shri) return;
-      masterMap[shri] = { pmjayId: pmjay, name: name, shri: shri };
+      masterMap[shri] = { 
+        shri: shri,
+        pmjayId: pmjay, 
+        pmjayName: name,
+        cmhtId: '', 
+        cmhtName: ''
+      };
     });
   }catch(e){}
+
+  // 2. CMHT TOTAL - FROM cmht.html (cmht_patients collection)
   try{
     let snap2 = await window._fb.getDocs(window._fb.collection(window._fb.db,'cmht_patients'));
     snap2.forEach(d=>{
@@ -219,46 +222,37 @@ async function buildMasterMap(){
       let cmht = String(p.cmhtId||p.cmht||p.pmjayId||p.pmjay||'').trim().toUpperCase();
       let name = String(p.patientName||p.name||'').trim().toUpperCase();
       if(!shri) return;
-      if(!masterMap[shri]) masterMap[shri] = {};
+      if(!masterMap[shri]) masterMap[shri] = { shri:shri, pmjayId:'', pmjayName:'', cmhtId:'', cmhtName:'' };
       masterMap[shri].cmhtId = cmht;
-      if(name) masterMap[shri].name = name;
-      masterMap[shri].shri = shri;
-      if(!masterMap[shri].pmjayId && cmht) masterMap[shri].pmjayId = cmht;
+      masterMap[shri].cmhtName = name;
     });
   }catch(e){}
-  for(let col of ['pmjay_patients','total','cmht','cmht_patients_list']){
-    try{
-      let s = await window._fb.getDocs(window._fb.collection(window._fb.db,col));
-      s.forEach(d=>{
-        let p=d.data();
-        let shri = String(p.shriId||p.shri||d.id||'').trim().toUpperCase();
-        if(!shri || masterMap[shri]?.pmjayId) return;
-        let pid = String(p.pmjayId||p.pmjay||p.cmhtId||p.cmht||'').trim().toUpperCase();
-        if(pid) {
-          if(!masterMap[shri]) masterMap[shri]={};
-          if(!masterMap[shri].pmjayId) masterMap[shri].pmjayId = pid;
-        }
-      });
-    }catch(e){}
-  }
-  document.getElementById('masterInfo').innerHTML = `✅ MASTER LOADED: ${Object.keys(masterMap).length} SHRI MAP | TODAY: ${getTodayIST()} | PMJAY DEFAULT`;
+
+  document.getElementById('masterInfo').innerHTML = `✅ MASTER: ${Object.keys(masterMap).length} | PMJAY name from total.html | CMHT name from cmht.html | TODAY: ${getTodayIST()}`;
   return masterMap;
 }
+
+// ALWAYS SHOW EXACT NAME FROM MASTER BY SHRI ID
 function enrichPatient(p){
   let shriKey = String(p.shri||'').trim().toUpperCase();
   if(!shriKey) return p;
   let m = masterMap[shriKey];
   if(!m) return p;
-  if(!p.pmjayCmhtId || p.pmjayCmhtId==='-' || p.pmjayCmhtId==='') {
-    let scheme = document.getElementById('fType').value;
-    if(scheme==='PMJAY' && m.pmjayId) p.pmjayCmhtId = m.pmjayId;
-    else if(scheme==='CMHT' && m.cmhtId) p.pmjayCmhtId = m.cmhtId;
+  let scheme = document.getElementById('fType').value;
+
+  if(scheme==='PMJAY'){
+    // EXACT FROM total.html
+    if(m.pmjayName) p.name = m.pmjayName;
+    if(m.pmjayId) p.pmjayCmhtId = m.pmjayId;
+  } else if(scheme==='CMHT'){
+    // EXACT FROM cmht.html
+    if(m.cmhtName) p.name = m.cmhtName;
+    if(m.cmhtId) p.pmjayCmhtId = m.cmhtId;
     else if(m.pmjayId) p.pmjayCmhtId = m.pmjayId;
-    else if(m.cmhtId) p.pmjayCmhtId = m.cmhtId;
   }
-  if((!p.name || p.name==='') && m.name) p.name = m.name;
   return p;
 }
+
 async function loadMasterFromFirebase(){
   await buildMasterMap();
   document.getElementById('menuCurrentInfo').innerText=`${document.getElementById('fDate').value} | ${document.getElementById('fType').value} | ${allPatients.length} PATIENTS`;
@@ -293,10 +287,10 @@ async function onDateChange(){
     currentPage=1;
     pageSize=parseInt(document.getElementById('rowsPerPage').value)||10;
     if(patients.length===0){
-      document.getElementById('masterInfo').innerHTML=`📋 BLANK - DATE: ${date} (TODAY) | SCHEME: ${scheme} - Master has ${Object.keys(masterMap).length} SHRI`;
+      document.getElementById('masterInfo').innerHTML=`📋 BLANK - DATE: ${date} (TODAY) | SCHEME: ${scheme} | MASTER: ${Object.keys(masterMap).length} SHRI`;
       setStatus('blank','BLANK');
     } else {
-      document.getElementById('masterInfo').innerHTML=`✅ ${patients.length} PATIENTS FOR ${date} (TODAY) ${scheme}`;
+      document.getElementById('masterInfo').innerHTML=`✅ ${patients.length} PATIENTS FOR ${date} (TODAY) ${scheme} | EXACT NAME FROM MASTER`;
       setStatus('saved',`${patients.length} PATIENTS`);
     }
     applyFilter();
@@ -382,6 +376,7 @@ function saveEdit(){
   allPatients[editIndex].time=document.getElementById('editTime').value.toUpperCase();
   allPatients[editIndex].block=document.getElementById('editBlock').value.toUpperCase();
   allPatients[editIndex].prev=document.getElementById('editPrev').value;
+  // Re-apply exact master after edit (if SHRI changed)
   allPatients[editIndex] = enrichPatient(allPatients[editIndex]);
   closeModal();applyFilter();autoSaveToFirebase();
 }
@@ -395,7 +390,6 @@ document.getElementById('searchName').addEventListener('input', applyFilter);
 document.getElementById('filterTime').addEventListener('change', applyFilter);
 document.getElementById('filterBlock').addEventListener('change', applyFilter);
 window.addEventListener('load', async ()=>{
-  // FORCE TODAY BEFORE ANY LOAD
   document.getElementById('fDate').value = getTodayIST();
   await buildMasterMap();
   await loadMasterFromFirebase();
