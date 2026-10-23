@@ -24,7 +24,7 @@ body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:
 .searchResult.show{display:block}
 .sItem{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#0f172a;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
 .right{display:flex;align-items:center;gap:12px}
-.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:grid;place-items:center;font-weight:900}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:grid;place-items:center;font-weight:900;cursor:pointer}
 .adminWrap{position:relative;cursor:pointer}
 .dropdown{position:absolute;top:100%;right:0;margin-top:10px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;min-width:210px;display:none;z-index:99;overflow:hidden;box-shadow:0 12px 30px #0003}
 .dropdown.show{display:block}
@@ -69,8 +69,8 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </script>
 <div class="top">
 <div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop">☰</button> SHIJA Dialysis</div>
-<div class="searchWrap"><div class="search"><input id="globalSearch" placeholder="Search PMJAY & CMHT patients..." oninput="doGlobalSearch()" onfocus="doGlobalSearch()"></div><div class="searchResult" id="searchResult"></div></div>
-<div class="right"><div class="avatar">A</div><div class="adminWrap" id="adminWrap" onclick="toggleDrop(event)"><div>Admin ▼</div><div class="dropdown" id="adminDrop"><button class="dropItem" onclick="logoutNormal()"> Logout</button><button class="dropItem logoutAll" onclick="openLogoutAllModal()"> Logout All Devices</button></div></div></div>
+<div class="searchWrap"><div class="search"><input id="globalSearch" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="shija_patient_search_xyz" value="" placeholder="Search PMJAY & CMHT patients..." oninput="doGlobalSearch()" onfocus="doGlobalSearch()"></div><div class="searchResult" id="searchResult"></div></div>
+<div class="right"><div class="adminWrap" id="adminWrap" onclick="toggleDrop(event)"><div class="avatar">A</div><div class="dropdown" id="adminDrop"><button class="dropItem" onclick="logoutNormal()">Logout</button><button class="dropItem logoutAll" onclick="openLogoutAllModal()">Logout All Devices</button></div></div></div>
 </div>
 <div class="whiteOverlay" id="whiteOverlay"></div>
 <div class="whiteBar" id="whiteBar">
@@ -118,13 +118,12 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div class="opt" onclick="exportExcel('cmhtdaily')"><b>CMHT Daily Dialysis Record</b></div>
 <button class="btn btnG" style="width:100%;margin-top:10px" onclick="closeExport()">Cancel</button></div></div>
 
-<!-- PASSWORD POPUP -->
 <div class="passModal" id="passModal">
 <div class="passBox">
-<h3> Logout All Devices</h3>
+<h3>Logout All Devices</h3>
 <p>Enter password to logout from ALL devices everywhere</p>
 <input type="password" id="adminPassInput" class="passInput" placeholder="Enter Password" onkeydown="if(event.key==='Enter')confirmLogoutAll()">
-<div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-top:8px;display:none">❌ Wrong password! Try again</div>
+<div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-top:8px;display:none">Wrong password! Try again</div>
 <div class="passActions">
 <button style="background:#e2e8f0;color:#0f172a" onclick="closeLogoutAllModal()">Cancel</button>
 <button class="btnR" onclick="confirmLogoutAll()">Logout All</button>
@@ -138,6 +137,9 @@ function toggleWhiteBar(){
   document.getElementById('whiteOverlay').classList.toggle('show');
 }
 document.addEventListener('DOMContentLoaded',function(){
+  // FORCE CLEAR SEARCH BAR - FIX ADMIN WORD ISSUE
+  var gs = document.getElementById('globalSearch');
+  if(gs){ gs.value=''; gs.setAttribute('autocomplete','off'); gs.focus(); gs.blur(); }
   var btn=document.getElementById('menuBtnTop');
   var overlay=document.getElementById('whiteOverlay');
   var lastTap=0;
@@ -156,6 +158,8 @@ document.addEventListener('DOMContentLoaded',function(){
     overlay.addEventListener('click', toggleWhiteBar);
     overlay.addEventListener('touchend', handle, {passive:false});
   }
+  // Extra safety - clear search after 500ms
+  setTimeout(function(){ var s=document.getElementById('globalSearch'); if(s) s.value=''; },500);
 });
 function toggleDrop(e){e.stopPropagation();document.getElementById('adminDrop').classList.toggle('show');}
 document.addEventListener('click',(e)=>{if(!e.target.closest('.searchWrap'))document.getElementById('searchResult').classList.remove('show');if(!e.target.closest('#adminWrap'))document.getElementById('adminDrop').classList.remove('show');});
@@ -216,8 +220,8 @@ async function confirmLogoutAll(){
     let app; try{ app = initializeApp(firebaseConfig,"logoutAll_"+Date.now()); }catch(e){ app = initializeApp(firebaseConfig); }
     const db2 = getFirestore(app);
     await setDoc(doc(db2,"system","global_logout"),{logoutTime:Date.now(), by:"Admin", date:new Date().toISOString()});
-    alert('✅ All devices logged out globally!');
-  }catch(e){ alert('✅ All devices will be logged out!'); }
+    alert('All devices logged out globally!');
+  }catch(e){ alert('All devices will be logged out!'); }
   localStorage.removeItem('shija_logged');
   localStorage.removeItem('shija_login_time');
   try{ localStorage.setItem('shija_force_logout_this_device', Date.now().toString()); }catch(e){}
@@ -253,7 +257,7 @@ try{
     let logoutTime = snap.data().logoutTime || 0;
     let myLoginTime = parseInt(localStorage.getItem('shija_login_time')||'0');
     if(logoutTime > myLoginTime && myLoginTime!==0){
-      alert('🔒 Logged out by Admin from all devices');
+      alert('Logged out by Admin from all devices');
       localStorage.removeItem('shija_logged');
       localStorage.removeItem('shija_login_time');
       location.href='login.html';
