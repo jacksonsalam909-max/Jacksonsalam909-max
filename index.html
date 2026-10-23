@@ -69,7 +69,33 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </script>
 <div class="top">
 <div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop">☰</button> SHIJA Dialysis</div>
-<div class="searchWrap"><div class="search"><input id="globalSearch" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="shija_patient_search_xyz" value="" placeholder="Search PMJAY & CMHT patients..." oninput="doGlobalSearch()" onfocus="doGlobalSearch()"></div><div class="searchResult" id="searchResult"></div></div>
+<div class="searchWrap">
+  <!-- FAKE FIELDS TO TRAP AUTOFILL -->
+  <div style="position:absolute;left:-9999px;top:-9999px;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none" aria-hidden="true">
+    <input type="text" name="fake_username" tabindex="-1" autocomplete="username">
+    <input type="password" name="fake_password" tabindex="-1" autocomplete="new-password">
+  </div>
+  <form autocomplete="off" onsubmit="return false" style="margin:0">
+  <div class="search">
+    <input 
+      id="globalSearch" 
+      type="search"
+      name="q_search_patient_2026_xyz"
+      autocomplete="one-time-code"
+      autocorrect="off"
+      autocapitalize="off"
+      spellcheck="false"
+      data-form-type="other"
+      data-lpignore="true"
+      data-1p-ignore="true"
+      readonly
+      onfocus="this.removeAttribute('readonly'); if(this.value.toLowerCase().indexOf('admin')>-1){this.value='';} doGlobalSearch()"
+      oninput="if(this.value.toLowerCase().indexOf('admin')>-1){this.value=''; return;} doGlobalSearch()"
+      placeholder="Search PMJAY & CMHT patients...">
+  </div>
+  </form>
+  <div class="searchResult" id="searchResult"></div>
+</div>
 <div class="right"><div class="adminWrap" id="adminWrap" onclick="toggleDrop(event)"><div class="avatar">A</div><div class="dropdown" id="adminDrop"><button class="dropItem" onclick="logoutNormal()">Logout</button><button class="dropItem logoutAll" onclick="openLogoutAllModal()">Logout All Devices</button></div></div></div>
 </div>
 <div class="whiteOverlay" id="whiteOverlay"></div>
@@ -137,9 +163,23 @@ function toggleWhiteBar(){
   document.getElementById('whiteOverlay').classList.toggle('show');
 }
 document.addEventListener('DOMContentLoaded',function(){
-  // FORCE CLEAR SEARCH BAR - FIX ADMIN WORD ISSUE
   var gs = document.getElementById('globalSearch');
-  if(gs){ gs.value=''; gs.setAttribute('autocomplete','off'); gs.focus(); gs.blur(); }
+  if(gs){
+    gs.value='';
+    gs.setAttribute('autocomplete','one-time-code');
+    setTimeout(function(){ gs.removeAttribute('readonly'); gs.value=''; gs.blur(); },150);
+    setTimeout(function(){ gs.value=''; },500);
+    setTimeout(function(){ gs.value=''; },1000);
+    setInterval(function(){
+      if(!gs) return;
+      var v = (gs.value||'').toLowerCase();
+      if(v.indexOf('admin')>-1 || v==='a' || v==='ad' || v==='adm'){
+        gs.value='';
+        document.getElementById('searchResult').classList.remove('show');
+      }
+    },400);
+    window.addEventListener('pageshow', function(){ gs.value=''; });
+  }
   var btn=document.getElementById('menuBtnTop');
   var overlay=document.getElementById('whiteOverlay');
   var lastTap=0;
@@ -158,12 +198,9 @@ document.addEventListener('DOMContentLoaded',function(){
     overlay.addEventListener('click', toggleWhiteBar);
     overlay.addEventListener('touchend', handle, {passive:false});
   }
-  // Extra safety - clear search after 500ms
-  setTimeout(function(){ var s=document.getElementById('globalSearch'); if(s) s.value=''; },500);
 });
 function toggleDrop(e){e.stopPropagation();document.getElementById('adminDrop').classList.toggle('show');}
 document.addEventListener('click',(e)=>{if(!e.target.closest('.searchWrap'))document.getElementById('searchResult').classList.remove('show');if(!e.target.closest('#adminWrap'))document.getElementById('adminDrop').classList.remove('show');});
-
 function logoutNormal(){
   document.getElementById('adminDrop').classList.remove('show');
   if(!confirm('Logout from this device?\nAll tabs on this device will logout.')) return;
@@ -193,7 +230,6 @@ try{
     }
   };
 }catch(e){}
-
 function openLogoutAllModal(){
   document.getElementById('adminDrop').classList.remove('show');
   document.getElementById('passModal').classList.add('show');
@@ -227,12 +263,12 @@ async function confirmLogoutAll(){
   try{ localStorage.setItem('shija_force_logout_this_device', Date.now().toString()); }catch(e){}
   location.href='login.html';
 }
-
 function openExport(){document.getElementById('expDateShow').textContent=document.getElementById('dashDate').value;document.getElementById('expModal').style.display='grid';}
 function closeExport(){document.getElementById('expModal').style.display='none';}
 window.allForSearch=[];
 function doGlobalSearch(){
  let q=document.getElementById('globalSearch').value.toLowerCase().trim();
+ if(q.indexOf('admin')>-1){document.getElementById('globalSearch').value=''; q='';}
  let box=document.getElementById('searchResult');
  if(!q){box.classList.remove('show');return;}
  let f=window.allForSearch.filter(p=>[p.name,p.shri,p.contact,p.type].join(' ').toLowerCase().includes(q)).slice(0,15);
