@@ -108,7 +108,7 @@ try{
 <div class="content">
 <div class="card">
 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
-<div><label style="font-size:9px;font-weight:800">DATE *</label><br><input type="date" id="fDate" class="input"></div>
+<div><label style="font-size:9px;font-weight:800">DATE * (TODAY DEFAULT)</label><br><input type="date" id="fDate" class="input"></div>
 <div><label style="font-size:9px;font-weight:800">SCHEME *</label><br><select id="fType" class="input" style="background:#fef3c7;border:2px solid #f59e0b;font-weight:900"><option value="PMJAY" selected>PMJAY</option><option value="CMHT">CMHT</option></select></div>
 <div><label style="font-size:9px;font-weight:800">SHOW</label><br><select id="rowsPerPage" class="input"><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option></select></div>
 </div>
@@ -152,18 +152,29 @@ const app=initializeApp(firebaseConfig,"listMain_"+Math.random());const db=getFi
 <script>
 let allPatients=[],filteredPatients=[],currentPage=1,pageSize=10,editIndex=-1;
 let masterMap = {};
+
+// TODAY IN LOCAL IST - NOT UTC
+function getTodayIST(){
+  let d = new Date();
+  let yyyy = d.getFullYear();
+  let mm = String(d.getMonth()+1).padStart(2,'0');
+  let dd = String(d.getDate()).padStart(2,'0');
+  return `${yyyy}-${mm}-${dd}`;
+}
 let urlParams=new URLSearchParams(window.location.search);
-let todayStr = new Date().toISOString().split('T')[0];
-if(urlParams.get('date')){
-  document.getElementById('fDate').value=urlParams.get('date');
-} else {
-  document.getElementById('fDate').value = todayStr;
+let todayStr = getTodayIST();
+// FORCE TODAY DEFAULT - IGNORE OLD URL DATE
+document.getElementById('fDate').value = todayStr;
+if(urlParams.get('date') && urlParams.get('force')==='1'){
+  // Only if force=1, allow old date
+  document.getElementById('fDate').value = urlParams.get('date');
 }
 if(urlParams.get('scheme')) {
   document.getElementById('fType').value=urlParams.get('scheme');
 } else {
   document.getElementById('fType').value='PMJAY';
 }
+
 const menuBtn=document.getElementById('menuBtn');
 const menuDrawer=document.getElementById('menuDrawer');
 const menuOverlay=document.getElementById('menuOverlay');
@@ -178,24 +189,13 @@ function goPage(page){
   setTimeout(()=>{
     let date=document.getElementById('fDate').value;
     let scheme=document.getElementById('fType').value;
-    if(page==='list.html' || page==='addlist.html' || page==='cmhtdialysis.html'){window.location.href=`${page}?date=${date}&scheme=${scheme}`;}else{window.location.href=page;}
+    if(page==='list.html' || page==='addlist.html' || page==='cmhtdialysis.html'){window.location.href=`${page}?date=${date}&scheme=${scheme}&force=1`;}else{window.location.href=page;}
   },150);
 }
-function openAddPatientPage(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;window.location.href=`addlist.html?date=${date}&scheme=${scheme}`;}
-async function getLatestDateFromDB(){
-  try{
-    let snap = await window._fb.getDocs(window._fb.collection(window._fb.db,'daily_dialysis_lists'));
-    let maxDate = '';
-    snap.forEach(d=>{
-      let data = d.data();
-      let dt = data.date || (d.id.split('_')[0]) || '';
-      if(!dt) return;
-      if(!/^\d{4}-\d{2}-\d{2}$/.test(dt)) return;
-      if(dt > maxDate) maxDate = dt;
-    });
-    return maxDate;
-  }catch(e){ return ''; }
-}
+function openAddPatientPage(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;window.location.href=`addlist.html?date=${date}&scheme=${scheme}&force=1`;}
+
+// REMOVED LATEST DATE AUTO - NOW ONLY TODAY DEFAULT
+
 async function buildMasterMap(){
   masterMap = {};
   try{
@@ -241,7 +241,7 @@ async function buildMasterMap(){
       });
     }catch(e){}
   }
-  document.getElementById('masterInfo').innerHTML = `✅ MASTER LOADED: ${Object.keys(masterMap).length} SHRI MAP | DEFAULT: PMJAY | AUTO-MATCH ENABLED`;
+  document.getElementById('masterInfo').innerHTML = `✅ MASTER LOADED: ${Object.keys(masterMap).length} SHRI MAP | TODAY: ${getTodayIST()} | PMJAY DEFAULT`;
   return masterMap;
 }
 function enrichPatient(p){
@@ -293,10 +293,10 @@ async function onDateChange(){
     currentPage=1;
     pageSize=parseInt(document.getElementById('rowsPerPage').value)||10;
     if(patients.length===0){
-      document.getElementById('masterInfo').innerHTML=`📋 BLANK - DATE: ${date} | SCHEME: ${scheme} (PMJAY DEFAULT) - Master has ${Object.keys(masterMap).length} SHRI`;
+      document.getElementById('masterInfo').innerHTML=`📋 BLANK - DATE: ${date} (TODAY) | SCHEME: ${scheme} - Master has ${Object.keys(masterMap).length} SHRI`;
       setStatus('blank','BLANK');
     } else {
-      document.getElementById('masterInfo').innerHTML=`✅ ${patients.length} PATIENTS FOR ${date} ${scheme} - AUTO-MATCHED SHRI→PMJAY ID`;
+      document.getElementById('masterInfo').innerHTML=`✅ ${patients.length} PATIENTS FOR ${date} (TODAY) ${scheme}`;
       setStatus('saved',`${patients.length} PATIENTS`);
     }
     applyFilter();
@@ -369,8 +369,8 @@ function renderTable(){
     tr.innerHTML=`<td class="slCol">${p.sl||start+idx+1}</td><td class="idCol">${p.pmjayCmhtId||'<span style="color:#ef4444">NO ID</span>'}</td><td class="nameCol">${p.name||''}</td><td>${p.shri||''}</td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td><td><div class="actionCell"><button class="btnEdit" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">DELETE</button></div></td>`;
     tbody.appendChild(tr);
   });
-  if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="8" style="padding:20px;text-align:center;background:#f8fafc">NO PATIENTS - DATE: ${document.getElementById('fDate').value} | SCHEME: ${document.getElementById('fType').value}</td>`;tbody.appendChild(tr);}
-  document.getElementById('pageInfo').innerText=`DATE: ${document.getElementById('fDate').value} | SCHEME: ${document.getElementById('fType').value} | PAGE ${currentPage} OF ${Math.max(1,Math.ceil(filteredPatients.length/pageSize))} | SHOWING ${pagePatients.length} OF ${filteredPatients.length}`;
+  if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="8" style="padding:20px;text-align:center;background:#f8fafc">NO PATIENTS - TODAY: ${document.getElementById('fDate').value} | SCHEME: ${document.getElementById('fType').value}</td>`;tbody.appendChild(tr);}
+  document.getElementById('pageInfo').innerText=`TODAY: ${document.getElementById('fDate').value} | SCHEME: ${document.getElementById('fType').value} | PAGE ${currentPage} OF ${Math.max(1,Math.ceil(filteredPatients.length/pageSize))}`;
 }
 function changePage(d){let totalPages=Math.max(1,Math.ceil(filteredPatients.length/pageSize));currentPage+=d;if(currentPage<1) currentPage=1;if(currentPage>totalPages) currentPage=totalPages;renderPagination();}
 function openEdit(globalIdx){editIndex=globalIdx;let p=allPatients[globalIdx];if(!p) return;document.getElementById('editTitle').innerText=`EDIT: ${p.name}`;document.getElementById('editName').value=p.name||'';document.getElementById('editShri').value=p.shri||'';document.getElementById('editId').value=p.pmjayCmhtId||'';document.getElementById('editTime').value=p.time||'';document.getElementById('editBlock').value=p.block||'';document.getElementById('editPrev').value=p.prev||'';document.getElementById('editModal').style.display='flex';}
@@ -395,18 +395,11 @@ document.getElementById('searchName').addEventListener('input', applyFilter);
 document.getElementById('filterTime').addEventListener('change', applyFilter);
 document.getElementById('filterBlock').addEventListener('change', applyFilter);
 window.addEventListener('load', async ()=>{
+  // FORCE TODAY BEFORE ANY LOAD
+  document.getElementById('fDate').value = getTodayIST();
   await buildMasterMap();
   await loadMasterFromFirebase();
-  if(!urlParams.get('date')){
-    let latest = await getLatestDateFromDB();
-    let today = new Date().toISOString().split('T')[0];
-    if(latest && latest > today){
-      document.getElementById('fDate').value = latest;
-    } else {
-      document.getElementById('fDate').value = today;
-    }
-  }
-  setTimeout(onDateChange,300);
+  setTimeout(onDateChange,200);
 });
 </script>
 </body>
