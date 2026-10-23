@@ -152,9 +152,13 @@ const app=initializeApp(firebaseConfig,"listMain_"+Math.random());const db=getFi
 <script>
 let allPatients=[],filteredPatients=[],currentPage=1,pageSize=10,editIndex=-1;
 let masterMap = {};
-document.getElementById('fDate').valueAsDate=new Date();
 let urlParams=new URLSearchParams(window.location.search);
-if(urlParams.get('date')) document.getElementById('fDate').value=urlParams.get('date');
+let todayStr = new Date().toISOString().split('T')[0];
+if(urlParams.get('date')){
+  document.getElementById('fDate').value=urlParams.get('date');
+} else {
+  document.getElementById('fDate').value = todayStr;
+}
 if(urlParams.get('scheme')) {
   document.getElementById('fType').value=urlParams.get('scheme');
 } else {
@@ -178,6 +182,20 @@ function goPage(page){
   },150);
 }
 function openAddPatientPage(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;window.location.href=`addlist.html?date=${date}&scheme=${scheme}`;}
+async function getLatestDateFromDB(){
+  try{
+    let snap = await window._fb.getDocs(window._fb.collection(window._fb.db,'daily_dialysis_lists'));
+    let maxDate = '';
+    snap.forEach(d=>{
+      let data = d.data();
+      let dt = data.date || (d.id.split('_')[0]) || '';
+      if(!dt) return;
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(dt)) return;
+      if(dt > maxDate) maxDate = dt;
+    });
+    return maxDate;
+  }catch(e){ return ''; }
+}
 async function buildMasterMap(){
   masterMap = {};
   try{
@@ -289,32 +307,22 @@ async function onSchemeChange(){
   if(!scheme) { document.getElementById('fType').value='PMJAY'; scheme='PMJAY'; }
   allPatients=[]; filteredPatients=[]; currentPage=1; await onDateChange();
 }
-
-// === TIME NORMALIZER - 7AM = 7:00 AM etc ===
 function normalizeTime(t){
   if(!t) return '';
   let s = String(t).toUpperCase().trim();
-  s = s.replace(/\s+/g,' '); // remove extra spaces
-  s = s.replace(/\./g,''); // remove dots
-  // Extract hour and AM/PM
-  // formats: 7AM, 7 AM, 7:00AM, 7:00 AM, 07:00 AM, 7:00
+  s = s.replace(/\s+/g,' ').replace(/\./g,'');
   let m = s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);
   if(!m) return s;
   let hour = parseInt(m[1]);
   let min = m[2] ? m[2].padStart(2,'0') : '00';
   let ap = m[3] || '';
-  // If AM/PM missing, try guess from original string
   if(!ap){
     if(s.includes('AM')) ap='AM';
     else if(s.includes('PM')) ap='PM';
   }
-  if(ap){
-    return `${hour}:${min} ${ap}`;
-  }
-  // If still no AM/PM, return with hour only normalized
+  if(ap){ return `${hour}:${min} ${ap}`; }
   return `${hour}:${min}`;
 }
-
 function applyFilter(){
   let search=document.getElementById('searchName').value.toLowerCase().trim();
   let timeFilter=document.getElementById('filterTime').value;
@@ -361,8 +369,8 @@ function renderTable(){
     tr.innerHTML=`<td class="slCol">${p.sl||start+idx+1}</td><td class="idCol">${p.pmjayCmhtId||'<span style="color:#ef4444">NO ID</span>'}</td><td class="nameCol">${p.name||''}</td><td>${p.shri||''}</td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td><td><div class="actionCell"><button class="btnEdit" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">DELETE</button></div></td>`;
     tbody.appendChild(tr);
   });
-  if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="8" style="padding:20px;text-align:center;background:#f8fafc">NO PATIENTS - SCHEME: ${document.getElementById('fType').value}</td>`;tbody.appendChild(tr);}
-  document.getElementById('pageInfo').innerText=`SCHEME: ${document.getElementById('fType').value} | PAGE ${currentPage} OF ${Math.max(1,Math.ceil(filteredPatients.length/pageSize))} | SHOWING ${pagePatients.length} OF ${filteredPatients.length}`;
+  if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="8" style="padding:20px;text-align:center;background:#f8fafc">NO PATIENTS - DATE: ${document.getElementById('fDate').value} | SCHEME: ${document.getElementById('fType').value}</td>`;tbody.appendChild(tr);}
+  document.getElementById('pageInfo').innerText=`DATE: ${document.getElementById('fDate').value} | SCHEME: ${document.getElementById('fType').value} | PAGE ${currentPage} OF ${Math.max(1,Math.ceil(filteredPatients.length/pageSize))} | SHOWING ${pagePatients.length} OF ${filteredPatients.length}`;
 }
 function changePage(d){let totalPages=Math.max(1,Math.ceil(filteredPatients.length/pageSize));currentPage+=d;if(currentPage<1) currentPage=1;if(currentPage>totalPages) currentPage=totalPages;renderPagination();}
 function openEdit(globalIdx){editIndex=globalIdx;let p=allPatients[globalIdx];if(!p) return;document.getElementById('editTitle').innerText=`EDIT: ${p.name}`;document.getElementById('editName').value=p.name||'';document.getElementById('editShri').value=p.shri||'';document.getElementById('editId').value=p.pmjayCmhtId||'';document.getElementById('editTime').value=p.time||'';document.getElementById('editBlock').value=p.block||'';document.getElementById('editPrev').value=p.prev||'';document.getElementById('editModal').style.display='flex';}
@@ -388,8 +396,17 @@ document.getElementById('filterTime').addEventListener('change', applyFilter);
 document.getElementById('filterBlock').addEventListener('change', applyFilter);
 window.addEventListener('load', async ()=>{
   await buildMasterMap();
-  await loadMasterFromFirebase(); 
-  setTimeout(onDateChange,500);
+  await loadMasterFromFirebase();
+  if(!urlParams.get('date')){
+    let latest = await getLatestDateFromDB();
+    let today = new Date().toISOString().split('T')[0];
+    if(latest && latest > today){
+      document.getElementById('fDate').value = latest;
+    } else {
+      document.getElementById('fDate').value = today;
+    }
+  }
+  setTimeout(onDateChange,300);
 });
 </script>
 </body>
