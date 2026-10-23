@@ -113,18 +113,25 @@ try{
 <div><label style="font-size:9px;font-weight:800">SHOW</label><br><select id="rowsPerPage" class="input"><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option></select></div>
 </div>
 <div class="filterRow">
-<div><label style="font-size:9px;font-weight:800">FILTER BY TIME</label><br><select id="filterTime" class="input"><option value="">ALL TIME</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option></select></div>
+<div><label style="font-size:9px;font-weight:800">FILTER BY TIME</label><br>
+<select id="filterTime" class="input">
+<option value="">ALL TIME</option>
+<option value="7:00 AM">7:00 AM / 7AM</option>
+<option value="12:00 PM">12:00 PM / 12PM</option>
+<option value="5:00 PM">5:00 PM / 5PM</option>
+<option value="9:00 PM">9:00 PM / 9PM</option>
+<option value="12:00 AM">12:00 AM / 12AM</option>
+<option value="2:00 AM">2:00 AM / 2AM</option>
+</select>
+</div>
 <div><label style="font-size:9px;font-weight:800">FILTER BY BLOCK</label><br><select id="filterBlock" class="input"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
 <div style="margin-left:auto;display:flex;align-items:center;gap:6px"><span id="filterCount" style="font-weight:900;font-size:11px;background:#0a1931;color:#fff;padding:6px 12px;border-radius:20px">0 PATIENTS</span><button class="btn btnDark" onclick="clearFilters()">CLEAR FILTERS</button></div>
 </div>
 <div id="masterInfo" style="font-size:11px;font-weight:800;margin-top:8px;background:#eff6ff;padding:8px;border-radius:6px">LOADING MASTER...</div>
-
-<!-- SEARCH BAR DOWN ABOVE LIST - FULL WIDTH -->
 <div class="searchWideWrap">
 <label style="font-size:9px;font-weight:900;display:block;margin-bottom:4px">SEARCH PATIENT (NAME / SHRI / PMJAY ID)</label>
 <input type="text" id="searchName" placeholder="SEARCH NAME / SHRI ID / PMJAY ID..." autocomplete="off">
 </div>
-
 </div>
 <div class="card" style="padding:0">
 <div class="sheetWrap"><table><thead><tr><th style="width:50px">SL.NO</th><th style="width:135px">PMJAY / CMHT ID</th><th style="width:210px">PATIENT NAME</th><th style="width:110px">SHRI ID</th><th style="width:110px">TIME</th><th style="width:90px">BLOCK</th><th style="width:110px">PREV</th><th style="width:130px">ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
@@ -282,13 +289,43 @@ async function onSchemeChange(){
   if(!scheme) { document.getElementById('fType').value='PMJAY'; scheme='PMJAY'; }
   allPatients=[]; filteredPatients=[]; currentPage=1; await onDateChange();
 }
+
+// === TIME NORMALIZER - 7AM = 7:00 AM etc ===
+function normalizeTime(t){
+  if(!t) return '';
+  let s = String(t).toUpperCase().trim();
+  s = s.replace(/\s+/g,' '); // remove extra spaces
+  s = s.replace(/\./g,''); // remove dots
+  // Extract hour and AM/PM
+  // formats: 7AM, 7 AM, 7:00AM, 7:00 AM, 07:00 AM, 7:00
+  let m = s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);
+  if(!m) return s;
+  let hour = parseInt(m[1]);
+  let min = m[2] ? m[2].padStart(2,'0') : '00';
+  let ap = m[3] || '';
+  // If AM/PM missing, try guess from original string
+  if(!ap){
+    if(s.includes('AM')) ap='AM';
+    else if(s.includes('PM')) ap='PM';
+  }
+  if(ap){
+    return `${hour}:${min} ${ap}`;
+  }
+  // If still no AM/PM, return with hour only normalized
+  return `${hour}:${min}`;
+}
+
 function applyFilter(){
   let search=document.getElementById('searchName').value.toLowerCase().trim();
   let timeFilter=document.getElementById('filterTime').value;
+  let timeFilterNorm = normalizeTime(timeFilter);
   let blockFilter=document.getElementById('filterBlock').value;
   filteredPatients=allPatients.filter(p=>{
     if(search && !String(p.name||'').toLowerCase().includes(search) && !String(p.shri||'').toLowerCase().includes(search) && !String(p.pmjayCmhtId||'').toLowerCase().includes(search)) return false;
-    if(timeFilter && p.time!==timeFilter) return false;
+    if(timeFilter){
+      let pTimeNorm = normalizeTime(p.time);
+      if(pTimeNorm !== timeFilterNorm) return false;
+    }
     if(blockFilter && p.block!==blockFilter) return false;
     return true;
   });
