@@ -17,8 +17,14 @@ body{background:#eef2f8;min-height:100vh}
 .dateBox input,.dateBox select{border:0;width:100%;font-weight:700;font-size:13px;outline:none;background:transparent;color:#0B1F4A}
 .count{margin-top:10px;background:rgba(255,255,255,0.15);border-radius:14px;height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,0.15)}
 .count span:last-child{background:#fff;color:#0B1F4A;padding:6px 12px;border-radius:100px;font-size:11px;font-weight:800}
-.searchBar{padding:10px 12px;display:flex;gap:8px;background:#fff;border-bottom:1px solid #dde4f0}
+.filter{padding:10px 12px;display:flex;gap:6px;overflow-x:auto;background:#fff;flex-shrink:0;border-bottom:1px solid #dde4f0}
+.filter::-webkit-scrollbar{display:none}
+.chip{height:34px;padding:0 14px;border-radius:100px;border:1.5px solid #d0d9ea;background:#f4f7fd;font-weight:800;font-size:10px;white-space:nowrap;flex-shrink:0;color:#4a5f85;cursor:pointer}
+.chip.on{background:#0B1F4A;color:#fff;border-color:#0B1F4A}
+.searchBar{padding:10px 12px;display:flex;gap:8px;background:#fff;border-bottom:1px solid #dde4f0;align-items:center}
 .searchInput{flex:1;height:42px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 14px;border-radius:100px;font-weight:700;font-size:12px;color:#0B1F4A;outline:none}
+.blockSelect{border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 12px;height:42px;border-radius:100px;font-weight:800;font-size:10px;color:#0B1F4A;min-width:105px;outline:none}
+.searchMeta{padding:0 12px 8px;background:#fff;font-size:10px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px}
 @media(min-width:769px){.grid{grid-template-columns:repeat(6,1fr)}}
 .card{background:#fff;border-radius:16px;padding:11px 10px 12px;display:flex;flex-direction:column;box-shadow:0 6px 18px rgba(11,31,74,0.08);border:1px solid #e8eefb}
@@ -40,19 +46,20 @@ body{background:#eef2f8;min-height:100vh}
 <div class="overlay" id="overlay"></div>
 <div class="drawer" id="drawer">
 <div style="background:linear-gradient(135deg,#0B1F4A,#12367F);padding:20px 16px;color:#fff"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b><div style="font-size:10px;opacity:0.85">DIALYSIS MANAGEMENT</div></div><button id="closeDrawerBtn" style="width:40px;height:40px;border-radius:12px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:22px">✕</button></div><div style="margin-top:12px;background:#fff;color:#0B1F4A;padding:6px 12px;border-radius:100px;font-size:10px;font-weight:800;display:inline-block" id="drawerCount">0 COMPLETED</div></div>
-<div><div class="menuItem" data-url="gda.html">GDA PAGE - PENDING</div><div class="menuItem" data-url="index.html">HOME - index.html</div><div class="menuItem active" data-url="gdacompleted.html">COMPLETED LIST - PHOTO + OPD DONE</div><div class="menuItem" data-url="total.html">TOTAL PMJAY PATIENT</div><div class="menuItem" data-url="cmht.html">TOTAL CMHT PATIENT</div></div>
+<div><div class="menuItem" data-url="gda.html">GDA PAGE - PENDING</div><div class="menuItem" data-url="index.html">HOME - index.html</div><div class="menuItem active" data-url="gdacompleted.html">COMPLETED - PHOTO + OPD DONE</div></div>
 </div>
 <div class="top">
 <button class="menuBtn" id="menuBtn">☰</button>
-<div style="flex:1"><div class="hTitle">COMPLETED PATIENTS</div><div class="hSub">PHOTO + OPD DONE - SEPARATE PAGE</div></div>
+<div style="flex:1"><div class="hTitle">COMPLETED PATIENTS</div><div class="hSub">PHOTO + OPD DONE - FILTERED VIEW</div></div>
 <button class="btnView" onclick="location.href='gda.html'">BACK TO GDA</button>
 </div>
 <div style="background:linear-gradient(135deg,#0B1F4A 0%,#12367F 100%);padding:0 12px 12px">
 <div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:100px"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div>
 <div class="count"><span id="cLeft">Loading</span><span id="cRight">DONE 0</span></div>
 </div>
-<div class="searchBar"><input type="text" id="searchName" class="searchInput" placeholder="Search completed by name or SHRI..."><button class="btnView" id="btnRefresh" style="min-width:80px;background:#0B1F4A;color:#fff">REFRESH</button></div>
-<div style="padding:8px 12px;background:#fff;font-size:10px;font-weight:700;color:#5a7196" id="searchInfo"></div>
+<div class="filter"><button class="chip on" data-time="">ALL TIME</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div>
+<div class="searchBar"><input type="text" id="searchName" class="searchInput" placeholder="Search completed by name or SHRI..."><select id="filterBlock" class="blockSelect"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
+<div class="searchMeta"><span id="searchInfo"></span><span id="blockInfo"></span></div>
 <div class="grid" id="grid"></div>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -61,7 +68,6 @@ const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharg
 const app=initializeApp(cfg,"gdacompleted_"+Math.random());const db=getFirestore(app);window._fb={db,doc,getDoc,setDoc};
 </script>
 <script>
-// menu
 (function(){
   const drawer=document.getElementById('drawer'); const overlay=document.getElementById('overlay');
   document.getElementById('menuBtn').addEventListener('click', ()=>{drawer.classList.add('open');overlay.classList.add('show');});
@@ -71,17 +77,63 @@ const app=initializeApp(cfg,"gdacompleted_"+Math.random());const db=getFirestore
 })();
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 document.getElementById('fDate').value=new URLSearchParams(location.search).get('date')||getTodayIST();
-let allPatients=[],statusMap={},searchQuery='';
+let allPatients=[],statusMap={},searchQuery='',activeTimeFilter='',activeBlockFilter='';
+function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
 async function loadData(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;document.getElementById('cLeft').innerText='Loading...';let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',id));allPatients=snap.exists()?(snap.data().patients||[]):[];let sSnap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id));statusMap=sSnap.exists()?(sSnap.data().status||{}):{};render();}
 async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id),{date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()});}
 function getInit(n){return (n||'A').charAt(0).toUpperCase();}
 function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#6366F1)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#10B981,#06B6D4)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#3B82F6,#06B6D4)'];let hash=0;for(let i=0;i<name.length;i++){hash=name.charCodeAt(i)+((hash<<5)-hash);}return colors[Math.abs(hash)%colors.length];}
-function getFilteredDone(){let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(!st||!(st.photoTaken&&st.opdDone))return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}return true;});}
-function render(){let grid=document.getElementById('grid');grid.innerHTML='';let filtered=getFilteredDone();let totalDone=allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];return st&&st.photoTaken&&st.opdDone;}).length;filtered.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let div=document.createElement('div');div.className='card';div.innerHTML=`<div style="display:flex;gap:9px;align-items:center"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh}</div><div class="sub" style="color:#16a34a;font-weight:800;margin-top:4px">✓ PHOTO + OPD DONE</div></div></div><button class="btnUndo" onclick="bringBack('${sh}')">UNDO - MOVE BACK TO PENDING</button>`;grid.appendChild(div);});if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;color:#0B1F4A;font-weight:700">${searchQuery?`No completed patients for "${searchQuery}"`:'No completed patients yet'}</div>`;}document.getElementById('cLeft').innerText=`${allPatients.length} TOTAL • ${totalDone} DONE`;document.getElementById('cRight').innerText=`DONE ${totalDone}`;document.getElementById('searchInfo').innerText=searchQuery?`Found ${filtered.length} completed for "${searchQuery}"`:`${filtered.length} patients completed`;document.getElementById('drawerCount').innerText=`${totalDone} COMPLETED`;}
+function getFilteredDone(){
+  let sq=searchQuery.toLowerCase().trim();
+  let tn=normalizeTime(activeTimeFilter);
+  let bf=activeBlockFilter;
+  return allPatients.filter(p=>{
+    let sh=String(p.shri||'').toUpperCase();
+    let st=statusMap[sh];
+    if(!st||!(st.photoTaken&&st.opdDone))return false;
+    if(activeTimeFilter && normalizeTime(p.time)!==tn) return false;
+    if(bf && p.block!==bf) return false;
+    if(sq){
+      let nameL=String(p.name||'').toLowerCase();
+      let shriL=sh.toLowerCase();
+      let blockL=String(p.block||'').toLowerCase();
+      if(!nameL.includes(sq)&&!shriL.includes(sq)&&!blockL.includes(sq))return false;
+    }
+    return true;
+  });
+}
+function render(){
+  let grid=document.getElementById('grid');grid.innerHTML='';
+  let filtered=getFilteredDone();
+  let totalDone=allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];return st&&st.photoTaken&&st.opdDone;}).length;
+  filtered.forEach(p=>{
+    let sh=String(p.shri||'').toUpperCase();
+    let div=document.createElement('div');div.className='card';
+    div.innerHTML=`<div style="display:flex;gap:9px;align-items:center"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh}</div><div class="sub" style="color:#16a34a;font-weight:800;margin-top:4px">✓ ${p.time} • ${p.block} • PHOTO + OPD DONE</div></div></div><button class="btnUndo" onclick="bringBack('${sh}')">UNDO - MOVE BACK TO PENDING</button>`;
+    grid.appendChild(div);
+  });
+  if(filtered.length===0){
+    let msg='No completed patients';
+    if(searchQuery) msg=`No completed for "${searchQuery}"`;
+    else if(activeTimeFilter) msg=`No completed for ${activeTimeFilter}${activeBlockFilter?' + '+activeBlockFilter:''}`;
+    else if(activeBlockFilter) msg=`No completed for Block ${activeBlockFilter}`;
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;color:#0B1F4A;font-weight:700">${msg}</div>`;
+  }
+  document.getElementById('cLeft').innerText=`${allPatients.length} TOTAL • ${totalDone} DONE`;
+  document.getElementById('cRight').innerText=`DONE ${filtered.length}/${totalDone}`;
+  let infoParts=[];
+  if(activeTimeFilter) infoParts.push(activeTimeFilter);
+  if(activeBlockFilter) infoParts.push(activeBlockFilter);
+  let filterText=infoParts.length?` [${infoParts.join(' + ')}] `:'';
+  document.getElementById('searchInfo').innerText=searchQuery?`Found ${filtered.length} for "${searchQuery}"${filterText}`:`${filtered.length} completed${filterText}`;
+  document.getElementById('blockInfo').innerText=activeBlockFilter?`Block: ${activeBlockFilter}`:'';
+  document.getElementById('drawerCount').innerText=`${totalDone} COMPLETED`;
+}
 function bringBack(sh){if(statusMap[sh]){statusMap[sh].photoTaken=false;statusMap[sh].opdDone=false;}saveStatus();render();}
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;render();}));
+document.getElementById('filterBlock').addEventListener('change',(e)=>{activeBlockFilter=e.target.value;render();});
 document.getElementById('fDate').addEventListener('change',loadData);
 document.getElementById('fType').addEventListener('change',loadData);
-document.getElementById('btnRefresh').addEventListener('click',loadData);
 document.getElementById('searchName').addEventListener('input',(e)=>{searchQuery=e.target.value;render();});
 window.bringBack=bringBack;
 window.addEventListener('load',loadData);
