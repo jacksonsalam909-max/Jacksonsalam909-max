@@ -37,38 +37,31 @@ body{background:#e8eef5;width:100%;min-height:100dvh;overflow:auto}
 .viewIconSingle svg{width:20px;height:20px}
 .viewIconSingle svg rect{stroke:#0B1F4A;stroke-width:2.2;fill:none}
 .viewIconSingle svg line{stroke:#0B1F4A;stroke-width:2.6;stroke-linecap:round}
-
-/* GRID LIKE YOUR PHOTO - 3 COLS - 36/PAGE - COMPACT */
 .scroll{flex:1;overflow:visible;padding:6px;background:#e8eef5;position:relative;display:flex;flex-direction:column;width:100%}
 .grid{display:grid;grid-template-columns:repeat(3,1fr) !important;gap:8px;width:100%;align-items:start;grid-auto-rows:auto}
 .grid.listView{grid-template-columns:1fr !important;gap:12px !important}
 .grid.desktopView{grid-template-columns:repeat(6,1fr) !important}
 .grid.listView.desktopView{grid-template-columns:1fr !important}
-
-/* CARD EXACT LIKE PHOTO */
-.card{background:#fff;border-radius:14px;padding:10px 10px 8px;display:flex;flex-direction:column;box-shadow:0 2px 10px rgba(11,31,74,0.07);border:1px solid #e6ecf5;align-self:start}
+.card{background:#fff;border-radius:14px;padding:10px 10px 8px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 2px 10px rgba(11,31,74,0.07);border:1px solid #e6ecf5;align-self:start;aspect-ratio:1/1;overflow:hidden}
 .cardTop{display:flex;gap:8px;align-items:center}
 .avatarSq{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0}
 .info{flex:1;min-width:0}
 .name{font-size:13px;font-weight:900;color:#0B1F4A;text-transform:uppercase;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sub{margin-top:2px;font-size:9px;font-weight:700;color:#6b7fa3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.actions{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.actions{margin-top:8px;display:flex;flex-direction:column;gap:4px}
 .toggleRow{display:flex;align-items:center;justify-content:space-between;width:100%;padding:3px 0}
-.lab{font-size:10px;font-weight:800;color:#0B1F4A;letter-spacing:0.3px}
+.lab{font-size:10px;font-weight:800;color:#0B1F4A}
 .switch{width:44px;height:24px;border-radius:100px;background:#e2e8f0;position:relative;transition:.25s;cursor:pointer;flex-shrink:0}
 .switch:after{content:'';width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:.25s;box-shadow:0 1px 4px rgba(0,0,0,0.2)}
 .switch.on{background:linear-gradient(135deg,#22c55e,#16a34a)}
 .switch.on:after{left:23px}
-
-/* LIST VIEW - BIGGER */
-.card.listCard{flex-direction:row !important;align-items:center !important;padding:18px 14px !important;border-radius:16px !important;min-height:96px !important;border-left:6px solid #0B1F4A !important}
+.card.listCard{aspect-ratio:auto !important;flex-direction:row !important;align-items:center !important;padding:18px 14px !important;border-radius:16px !important;min-height:96px !important;border-left:6px solid #0B1F4A !important}
 .card.listCard .cardTop{flex:1 !important;gap:12px !important}
 .card.listCard .avatarSq{width:48px !important;height:48px !important;font-size:18px !important}
 .card.listCard .name{font-size:20px !important}
 .card.listCard .sub{font-size:11px !important}
 .card.listCard .actions{flex-direction:row !important;gap:14px !important;margin-top:0 !important;margin-left:10px !important}
 .card.listCard .toggleRow{flex-direction:column !important;gap:4px !important}
-
 .bottom{position:fixed;bottom:0;left:0;right:0;z-index:90;background:#fff;border-top:1px solid #dde4f0;display:flex;justify-content:space-around;padding:6px 0 max(14px,env(safe-area-inset-bottom))}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:8px;font-weight:700;color:#8aa0c5;cursor:pointer}
 .tab.active{color:#0B1F4A}
@@ -204,7 +197,7 @@ function render(direction){
     let pg=document.getElementById('pages');pg.innerHTML='';if(pages>1){for(let i=1;i<=pages;i++){let b=document.createElement('button');b.className='pageBtn'+(i===currentPage?' active':'');b.innerText=i;b.onclick=()=>{currentPage=i;render();window.scrollTo({top:0,behavior:'smooth'});};pg.appendChild(b);}}
     document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done | MASTER ${Object.keys(masterMap).length}`;document.getElementById('cRight').innerText=`PENDING ${filtered.length} (${ps}/page)`;document.getElementById('doneB').innerText=done;
     let modeText = isListView ? `LIST ${ps}/page` : `GRID ${ps}/page`;
-    document.getElementById('searchInfo').innerText = `${filtered.length} patients • ${modeText} • EXACT NAME`;document.getElementById('drawerCount').innerText=`${allPatients.length} PATIENTS`;updateToggleBtn();
+    document.getElementById('searchInfo').innerText = `${filtered.length} patients • ${modeText} • SQUARE`;document.getElementById('drawerCount').innerText=`${allPatients.length} PATIENTS`;updateToggleBtn();
   }
 }
 function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;render('next');return true;}}
