@@ -92,7 +92,7 @@ body.desktop-mode .filter,body.desktop-mode .searchBar,body.desktop-mode .search
 <div class="drawerTop">
 <div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b><small>DIALYSIS MANAGEMENT</small></div><button id="closeDrawerBtn" style="width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:22px;font-weight:900">✕</button></div>
 <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><div style="background:rgba(255,255,255,0.18);padding:6px 12px;border-radius:100px;font-size:10px;font-weight:700">● ONLINE</div><div style="background:#fff;color:#0B1F4A;padding:6px 12px;border-radius:100px;font-size:10px;font-weight:800" id="drawerCount">0 PATIENTS</div></div>
-<div style="margin-top:12px"><div style="font-size:10px;font-weight:800;opacity:0.9">VIEW MODE</div><select id="viewModeDrawer" class="drawerDropdown"><option value="mobile">MOBILE VIEW - 3 Col (36/page)</option><option value="desktop">DESKTOP VIEW - 6 Col (36/page)</option></select></div>
+<div style="margin-top:12px"><div style="font-size:10px;font-weight:800;opacity:0.9">VIEW MODE</div><select id="viewModeDrawer" class="drawerDropdown"><option value="mobile">MOBILE VIEW - 3 Col (27/page)</option><option value="desktop">DESKTOP VIEW - 6 Col (27/page)</option></select></div>
 </div>
 <div class="menuList">
 <div class="menuItem active" data-url="index.html">HOME</div>
@@ -157,7 +157,7 @@ let isListView = false;
 if(localStorage.getItem('gda_view') === 'list'){isListView = true;}
 const gridIconSVG = `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg>`;
 const listIconSVG = `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="5.7" x2="21" y2="5.7"/><rect x="3" y="9.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="12.7" x2="21" y2="12.7"/><rect x="3" y="16.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="19.7" x2="21" y2="19.7"/></svg>`;
-function getPageSize(){ if(isListView) return 10; return 36; }
+function getPageSize(){ if(isListView) return 10; return 27; }
 function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
 function hardRefresh(){location.reload();}
 async function buildMasterMap(){
@@ -197,7 +197,7 @@ function render(direction){
     let pg=document.getElementById('pages');pg.innerHTML='';if(pages>1){for(let i=1;i<=pages;i++){let b=document.createElement('button');b.className='pageBtn'+(i===currentPage?' active':'');b.innerText=i;b.onclick=()=>{currentPage=i;render();window.scrollTo({top:0,behavior:'smooth'});};pg.appendChild(b);}}
     document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done | MASTER ${Object.keys(masterMap).length}`;document.getElementById('cRight').innerText=`PENDING ${filtered.length} (${ps}/page)`;document.getElementById('doneB').innerText=done;
     let modeText = isListView ? `LIST ${ps}/page` : `GRID ${ps}/page`;
-    document.getElementById('searchInfo').innerText = `${filtered.length} patients • ${modeText} • SQUARE`;document.getElementById('drawerCount').innerText=`${allPatients.length} PATIENTS`;updateToggleBtn();
+    document.getElementById('searchInfo').innerText = `${filtered.length} patients • ${modeText} • SQUARE 27`;document.getElementById('drawerCount').innerText=`${allPatients.length} PATIENTS`;updateToggleBtn();
   }
 }
 function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;render('next');return true;}}
