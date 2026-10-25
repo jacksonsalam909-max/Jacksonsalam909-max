@@ -24,14 +24,12 @@ body{background:#eef2f8;min-height:100vh}
 .searchBar{padding:10px 12px;display:flex;gap:8px;background:#fff;border-bottom:1px solid #dde4f0;align-items:center;flex-wrap:wrap}
 .searchInput{flex:1;min-width:140px;height:42px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 14px;border-radius:100px;font-weight:700;font-size:12px;color:#0B1F4A;outline:none}
 .blockSelect{border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 12px;height:42px;border-radius:100px;font-weight:800;font-size:10px;color:#0B1F4A;min-width:105px;outline:none}
-/* ICON TOGGLE */
-.viewIconGroup{display:flex;gap:0;border:1.5px solid #d0d9ea;border-radius:100px;overflow:hidden;height:42px;background:#f4f7fd}
-.viewIconBtn{width:46px;height:100%;border:0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.2s}
-.viewIconBtn.active{background:#0B1F4A}
-.viewIconBtn.active svg rect,.viewIconBtn.active svg line{stroke:#fff;fill:none}
-.viewIconBtn svg{width:22px;height:22px}
-.viewIconBtn svg rect{stroke:#0B1F4A;stroke-width:2.2;fill:none;rx:2}
-.viewIconBtn svg line{stroke:#0B1F4A;stroke-width:2.6;stroke-linecap:round}
+.viewIconSingle{width:46px;height:42px;border-radius:100px;border:1.5px solid #d0d9ea;background:#f4f7fd;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.2s;flex-shrink:0}
+.viewIconSingle.active{background:#0B1F4A;border-color:#0B1F4A}
+.viewIconSingle.active svg rect,.viewIconSingle.active svg line{stroke:#fff}
+.viewIconSingle svg{width:22px;height:22px}
+.viewIconSingle svg rect{stroke:#0B1F4A;stroke-width:2.2;fill:none}
+.viewIconSingle svg line{stroke:#0B1F4A;stroke-width:2.6;stroke-linecap:round}
 .searchMeta{padding:0 12px 8px;background:#fff;font-size:10px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px;transition:0.2s}
 @media(min-width:769px){.grid{grid-template-columns:repeat(6,1fr)}}
@@ -74,14 +72,7 @@ body{background:#eef2f8;min-height:100vh}
 <div class="searchBar">
 <input type="text" id="searchName" class="searchInput" placeholder="Search completed...">
 <select id="filterBlock" class="blockSelect"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select>
-<div class="viewIconGroup">
-<button id="gridBtn" class="viewIconBtn active" title="Grid View">
-<svg viewBox="0 0 24 24"><rect x="2" y="2" width="8" height="8"/><rect x="14" y="2" width="8" height="8"/><rect x="2" y="14" width="8" height="8"/><rect x="14" y="14" width="8" height="8"/></svg>
-</button>
-<button id="listBtn" class="viewIconBtn" title="List View">
-<svg viewBox="0 0 24 24"><rect x="2" y="2" width="8" height="8"/><line x1="14" y1="6" x2="22" y2="6"/><rect x="2" y="9" width="8" height="8" style="transform:translateY(6px)"/><line x1="14" y1="13" x2="22" y2="13"/><rect x="2" y="16" width="8" height="8" style="transform:translateY(2px)"/><line x1="14" y1="20" x2="22" y2="20"/></svg>
-</button>
-</div>
+<button id="toggleViewBtn" class="viewIconSingle" title="Toggle View"></button>
 </div>
 <div class="searchMeta"><span id="searchInfo"></span><span id="blockInfo"></span></div>
 <div class="grid" id="grid"></div>
@@ -103,6 +94,8 @@ function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.ge
 document.getElementById('fDate').value=new URLSearchParams(location.search).get('date')||getTodayIST();
 let allPatients=[],statusMap={},searchQuery='',activeTimeFilter='',activeBlockFilter='';
 let isListView = localStorage.getItem('gda_completed_view') === 'list';
+const gridIconSVG = `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg>`;
+const listIconSVG = `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="5.7" x2="21" y2="5.7"/><rect x="3" y="9.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="12.7" x2="21" y2="12.7"/><rect x="3" y="16.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="19.7" x2="21" y2="19.7"/></svg>`;
 function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
 async function loadData(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;document.getElementById('cLeft').innerText='Loading...';let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',id));allPatients=snap.exists()?(snap.data().patients||[]):[];let sSnap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id));statusMap=sSnap.exists()?(sSnap.data().status||{}):{};render();}
 async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id),{date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()});}
@@ -163,13 +156,19 @@ function render(){
   updateToggleBtn();
 }
 function updateToggleBtn(){
-  let gridBtn=document.getElementById('gridBtn');
-  let listBtn=document.getElementById('listBtn');
-  if(isListView){listBtn.classList.add('active');gridBtn.classList.remove('active');}
-  else {gridBtn.classList.add('active');listBtn.classList.remove('active');}
+  let btn=document.getElementById('toggleViewBtn');
+  if(isListView){
+    // Currently LIST, show GRID icon to go to GRID
+    btn.innerHTML = gridIconSVG;
+    btn.title = "Switch to Grid View";
+  } else {
+    // Currently GRID, show LIST icon to go to LIST
+    btn.innerHTML = listIconSVG;
+    btn.title = "Switch to List View";
+  }
 }
-function setView(list){
-  isListView = list;
+function toggleView(){
+  isListView = !isListView;
   localStorage.setItem('gda_completed_view', isListView?'list':'grid');
   render();
 }
@@ -179,8 +178,7 @@ document.getElementById('filterBlock').addEventListener('change',(e)=>{activeBlo
 document.getElementById('fDate').addEventListener('change',loadData);
 document.getElementById('fType').addEventListener('change',loadData);
 document.getElementById('searchName').addEventListener('input',(e)=>{searchQuery=e.target.value;render();});
-document.getElementById('gridBtn').addEventListener('click', ()=>setView(false));
-document.getElementById('listBtn').addEventListener('click', ()=>setView(true));
+document.getElementById('toggleViewBtn').addEventListener('click', toggleView);
 window.bringBack=bringBack;
 window.addEventListener('load',()=>{updateToggleBtn(); loadData();});
 </script>
