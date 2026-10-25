@@ -21,14 +21,21 @@ body{background:#eef2f8;min-height:100vh}
 .filter::-webkit-scrollbar{display:none}
 .chip{height:34px;padding:0 14px;border-radius:100px;border:1.5px solid #d0d9ea;background:#f4f7fd;font-weight:800;font-size:10px;white-space:nowrap;flex-shrink:0;color:#4a5f85;cursor:pointer}
 .chip.on{background:#0B1F4A;color:#fff;border-color:#0B1F4A}
-.searchBar{padding:10px 12px;display:flex;gap:8px;background:#fff;border-bottom:1px solid #dde4f0;align-items:center}
-.searchInput{flex:1;height:42px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 14px;border-radius:100px;font-weight:700;font-size:12px;color:#0B1F4A;outline:none}
+.searchBar{padding:10px 12px;display:flex;gap:8px;background:#fff;border-bottom:1px solid #dde4f0;align-items:center;flex-wrap:wrap}
+.searchInput{flex:1;min-width:140px;height:42px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 14px;border-radius:100px;font-weight:700;font-size:12px;color:#0B1F4A;outline:none}
 .blockSelect{border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 12px;height:42px;border-radius:100px;font-weight:800;font-size:10px;color:#0B1F4A;min-width:105px;outline:none}
+.viewToggle{height:42px;padding:0 16px;border-radius:100px;border:1.5px solid #0B1F4A;background:#0B1F4A;color:#fff;font-weight:800;font-size:10px;cursor:pointer;white-space:nowrap}
+.viewToggle.list{background:#fff;color:#0B1F4A;border-color:#d0d9ea}
 .searchMeta{padding:0 12px 8px;background:#fff;font-size:10px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px;transition:0.2s}
 @media(min-width:769px){.grid{grid-template-columns:repeat(6,1fr)}}
+.grid.listView{grid-template-columns:1fr !important;gap:8px}
 .card{background:#fff;border-radius:16px;padding:11px 10px 12px;display:flex;flex-direction:column;box-shadow:0 6px 18px rgba(11,31,74,0.08);border:1px solid #e8eefb}
-.avatarSq{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:17px}
+.card.listCard{flex-direction:row;align-items:center;gap:12px;padding:12px 14px;border-radius:12px}
+.card.listCard .avatarSq{width:42px;height:42px;font-size:18px}
+.card.listCard .info{flex:1}
+.card.listCard .btnUndo{width:auto;margin-top:0;padding:8px 18px;margin-left:auto;flex-shrink:0}
+.avatarSq{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:17px;flex-shrink:0}
 .info{flex:1;min-width:0}
 .name{font-size:13px;font-weight:900;color:#0B1F4A;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sub{margin-top:3px;font-size:8.5px;font-weight:700;color:#6b7fa3}
@@ -50,7 +57,7 @@ body{background:#eef2f8;min-height:100vh}
 </div>
 <div class="top">
 <button class="menuBtn" id="menuBtn">☰</button>
-<div style="flex:1"><div class="hTitle">COMPLETED PATIENTS</div><div class="hSub">PHOTO + OPD DONE - FILTERED VIEW</div></div>
+<div style="flex:1"><div class="hTitle">COMPLETED PATIENTS</div><div class="hSub">PHOTO + OPD DONE</div></div>
 <button class="btnView" onclick="location.href='gda.html'">BACK TO GDA</button>
 </div>
 <div style="background:linear-gradient(135deg,#0B1F4A 0%,#12367F 100%);padding:0 12px 12px">
@@ -58,7 +65,11 @@ body{background:#eef2f8;min-height:100vh}
 <div class="count"><span id="cLeft">Loading</span><span id="cRight">DONE 0</span></div>
 </div>
 <div class="filter"><button class="chip on" data-time="">ALL TIME</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div>
-<div class="searchBar"><input type="text" id="searchName" class="searchInput" placeholder="Search completed by name or SHRI..."><select id="filterBlock" class="blockSelect"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
+<div class="searchBar">
+<input type="text" id="searchName" class="searchInput" placeholder="Search completed...">
+<select id="filterBlock" class="blockSelect"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select>
+<button id="toggleViewBtn" class="viewToggle">GRID VIEW</button>
+</div>
 <div class="searchMeta"><span id="searchInfo"></span><span id="blockInfo"></span></div>
 <div class="grid" id="grid"></div>
 <script type="module">
@@ -78,6 +89,7 @@ const app=initializeApp(cfg,"gdacompleted_"+Math.random());const db=getFirestore
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 document.getElementById('fDate').value=new URLSearchParams(location.search).get('date')||getTodayIST();
 let allPatients=[],statusMap={},searchQuery='',activeTimeFilter='',activeBlockFilter='';
+let isListView = localStorage.getItem('gda_completed_view') === 'list';
 function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
 async function loadData(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;document.getElementById('cLeft').innerText='Loading...';let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',id));allPatients=snap.exists()?(snap.data().patients||[]):[];let sSnap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id));statusMap=sSnap.exists()?(sSnap.data().status||{}):{};render();}
 async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id),{date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()});}
@@ -103,13 +115,21 @@ function getFilteredDone(){
   });
 }
 function render(){
-  let grid=document.getElementById('grid');grid.innerHTML='';
+  let grid=document.getElementById('grid');
+  grid.classList.toggle('listView', isListView);
+  grid.innerHTML='';
   let filtered=getFilteredDone();
   let totalDone=allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];return st&&st.photoTaken&&st.opdDone;}).length;
+  
   filtered.forEach(p=>{
     let sh=String(p.shri||'').toUpperCase();
-    let div=document.createElement('div');div.className='card';
-    div.innerHTML=`<div style="display:flex;gap:9px;align-items:center"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh}</div><div class="sub" style="color:#16a34a;font-weight:800;margin-top:4px">✓ ${p.time} • ${p.block} • PHOTO + OPD DONE</div></div></div><button class="btnUndo" onclick="bringBack('${sh}')">UNDO - MOVE BACK TO PENDING</button>`;
+    let div=document.createElement('div');
+    div.className = isListView ? 'card listCard' : 'card';
+    if(isListView){
+      div.innerHTML=`<div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh} • ✓ DONE</div></div><button class="btnUndo" onclick="bringBack('${sh}')">UNDO</button>`;
+    } else {
+      div.innerHTML=`<div style="display:flex;gap:9px;align-items:center"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh}</div><div class="sub" style="color:#16a34a;font-weight:800;margin-top:4px">✓ ${p.time} • ${p.block} • DONE</div></div></div><button class="btnUndo" onclick="bringBack('${sh}')">UNDO</button>`;
+    }
     grid.appendChild(div);
   });
   if(filtered.length===0){
@@ -125,9 +145,20 @@ function render(){
   if(activeTimeFilter) infoParts.push(activeTimeFilter);
   if(activeBlockFilter) infoParts.push(activeBlockFilter);
   let filterText=infoParts.length?` [${infoParts.join(' + ')}] `:'';
-  document.getElementById('searchInfo').innerText=searchQuery?`Found ${filtered.length} for "${searchQuery}"${filterText}`:`${filtered.length} completed${filterText}`;
+  document.getElementById('searchInfo').innerText=searchQuery?`Found ${filtered.length} for "${searchQuery}"${filterText}`:`${filtered.length} completed${filterText} • ${isListView?'LIST':'GRID'}`;
   document.getElementById('blockInfo').innerText=activeBlockFilter?`Block: ${activeBlockFilter}`:'';
   document.getElementById('drawerCount').innerText=`${totalDone} COMPLETED`;
+  updateToggleBtn();
+}
+function updateToggleBtn(){
+  let btn=document.getElementById('toggleViewBtn');
+  if(isListView){btn.innerText='LIST VIEW'; btn.classList.remove('list');}
+  else {btn.innerText='GRID VIEW'; btn.classList.add('list');}
+}
+function toggleView(){
+  isListView = !isListView;
+  localStorage.setItem('gda_completed_view', isListView?'list':'grid');
+  render();
 }
 function bringBack(sh){if(statusMap[sh]){statusMap[sh].photoTaken=false;statusMap[sh].opdDone=false;}saveStatus();render();}
 document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;render();}));
@@ -135,8 +166,9 @@ document.getElementById('filterBlock').addEventListener('change',(e)=>{activeBlo
 document.getElementById('fDate').addEventListener('change',loadData);
 document.getElementById('fType').addEventListener('change',loadData);
 document.getElementById('searchName').addEventListener('input',(e)=>{searchQuery=e.target.value;render();});
+document.getElementById('toggleViewBtn').addEventListener('click', toggleView);
 window.bringBack=bringBack;
-window.addEventListener('load',loadData);
+window.addEventListener('load',()=>{updateToggleBtn(); loadData();});
 </script>
 </body>
 </html>
