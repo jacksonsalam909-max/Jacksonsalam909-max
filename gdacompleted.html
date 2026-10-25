@@ -70,9 +70,10 @@ body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 .info{flex:1;min-width:0}
 .name{font-size:13px;font-weight:900;color:#0B1F4A;text-transform:uppercase;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sub{margin-top:3px;font-size:8.5px;font-weight:700;color:#6b7fa3}
-.actions{margin-top:12px;display:flex;flex-direction:column;gap:8px}
-.btnUndo{height:34px;padding:0 14px;border-radius:100px;border:0;background:#0B1F4A;color:#fff;font-size:10px;font-weight:900;letter-spacing:0.5px;cursor:pointer}
-.btnUndo.list{height:42px;padding:0 18px;font-size:11px;border-radius:100px;background:#ef4444}
+.actions{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+.btnUndo{height:52px;padding:0 24px;border-radius:12px;border:0;background:#0B1F4A;color:#fff;font-size:13px;font-weight:900;letter-spacing:0.8px;cursor:pointer;width:100%;box-shadow:0 4px 14px rgba(11,31,74,0.25)}
+.btnUndo.list{height:56px;padding:0 32px;font-size:14px;border-radius:14px;background:#ef4444;min-width:120px;width:auto;box-shadow:0 4px 14px rgba(239,68,68,0.35);letter-spacing:1px}
+.card.listCard .btnUndo.list{width:130px;height:56px}
 .bottom{flex-shrink:0;background:#fff;border-top:1px solid #dde4f0;display:flex;justify-content:space-around;padding:8px 0 max(16px,env(safe-area-inset-bottom));position:sticky;bottom:0;z-index:10}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;font-weight:700;color:#8aa0c5;cursor:pointer}
 .tab.active{color:#0B1F4A}
@@ -82,7 +83,7 @@ body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 .pageBtn{min-width:42px;height:42px;border-radius:12px;border:1.5px solid #d0d9ea;background:#fff;font-weight:800;font-size:12px;color:#0B1F4A;transition:0.2s}
 .pageBtn.active{background:#0B1F4A;color:#fff;transform:scale(1.1)}
 .zoomBtns{position:fixed;right:12px;bottom:90px;z-index:50;display:flex;flex-direction:column;gap:8px}
-.zoomBtns button{width:44px;height:44px;border-radius:12px;border:1.5px solid #d0d9ea;background:#fff;box-shadow:0 4px 12px rgba(11,31,74,0.15);font-weight:900;font-size:18px;color:#0B1F4A}
+.zoomBtns button{width:48px;height:48px;border-radius:12px;border:1.5px solid #d0d9ea;background:#fff;box-shadow:0 4px 12px rgba(11,31,74,0.15);font-weight:900;font-size:22px;color:#0B1F4A}
 .overlay{position:fixed;inset:0;background:rgba(11,31,74,0.55);backdrop-filter:blur(5px);z-index:9998;display:none;opacity:0;transition:opacity 0.3s ease;pointer-events:none}
 .overlay.show{display:block;opacity:1;pointer-events:auto}
 .drawer{position:fixed;left:0;top:0;bottom:0;width:85%;max-width:300px;background:#fff;z-index:9999;transform:translate3d(-100%,0,0);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);box-shadow:8px 0 40px rgba(11,31,74,0.3);display:flex;flex-direction:column;overflow:hidden;pointer-events:none}
@@ -130,7 +131,7 @@ body.desktop-mode .grid.listView{grid-template-columns:1fr !important;max-width:
 <div class="scroll" id="scroll"><div class="grid" id="grid"></div><div class="pages" id="pages"></div></div>
 <div class="bottom"><div class="tab" id="tabPending"><div class="ic">⌂</div>Pending</div><div class="tab active" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#22c55e;color:#fff;padding:2px 6px;border-radius:100px;font-size:8px">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
 </div>
-<div class="zoomBtns"><button onclick="zoomIn()">+</button><button onclick="zoomReset()">⊙</button></div>
+<div class="zoomBtns"><button onclick="zoomIn()">+</button></div>
 <div class="swipeHint left" id="swipeLeft">‹</div>
 <div class="swipeHint right" id="swipeRight">›</div>
 <div class="pageIndicator" id="pageIndicator">Page 1/1</div>
@@ -174,10 +175,8 @@ const app=initializeApp(cfg,"gda_completed_"+Math.random());const db=getFirestor
   selDrawer.addEventListener('change', function(e){ onChange(e); setTimeout(()=>{ window.closeMenu(); },350); });
 })();
 function zoomIn(){let cur=parseFloat(document.body.style.zoom||1);document.body.style.zoom=Math.min(cur+0.25,3);}
-function zoomReset(){document.body.style.zoom=1;window.scrollTo(0,0);}
-function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 let params=new URLSearchParams(location.search);
-document.getElementById('fDate').value=params.get('date')||getTodayIST();
+document.getElementById('fDate').value=params.get('date')||new Date().toISOString().slice(0,10);
 if(params.get('type')) document.getElementById('fType').value=params.get('type');
 let allPatients=[],statusMap={},activeTimeFilter='',currentPage=1;
 let gridPageSize=36, listPageSize=10;
@@ -192,7 +191,7 @@ async function loadData(){let d=document.getElementById('fDate').value,s=documen
 async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id),{date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()});}
 function bringBack(sh){if(statusMap[sh]){statusMap[sh].photoTaken=false;statusMap[sh].opdDone=false;}saveStatus();render();}
 function getInit(n){return (n||'A').charAt(0).toUpperCase();}
-function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#6366F1)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#10B981,#06B6D4)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#3B82F6,#06B6D4)'];let hash=0;for(let i=0;i<name.length;i++){hash=name.charCodeAt(i)+((hash<<5)-hash);}return colors[Math.abs(hash)%colors.length];}
+function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#6366F1)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#10B981,#06B6D4)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#3B82F6,#06B6D4)','linear-gradient(135deg,#14B8A6,#8B5CF6)','linear-gradient(135deg,#F97316,#EAB308)','linear-gradient(135deg,#EC4899,#8B5CF6)','linear-gradient(135deg,#06B6D4,#3B82F6)','linear-gradient(135deg,#84CC16,#10B981)','linear-gradient(135deg,#F43F5E,#F97316)','linear-gradient(135deg,#6366F1,#EC4899)','linear-gradient(135deg,#0EA5E9,#10B981)','linear-gradient(135deg,#A855F7,#F43F5E)','linear-gradient(135deg,#EAB308,#EF4444)','linear-gradient(135deg,#06B6D4,#8B5CF6)','linear-gradient(135deg,#10B981,#F59E0B)','linear-gradient(135deg,#3B82F6,#A855F7)'];let hash=0;for(let i=0;i<name.length;i++){hash=name.charCodeAt(i)+((hash<<5)-hash);}return colors[Math.abs(hash)%colors.length];}
 function getFilteredDone(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(!(st.photoTaken&&st.opdDone))return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();let blockL=String(p.block||'').toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq)&&!blockL.includes(sq))return false;}return true;});}
 function updateToggleBtn(){
   let btn=document.getElementById('toggleViewBtn');
@@ -216,7 +215,7 @@ function render(direction){
       if(isListView){
         div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh} • ✓ DONE</div></div></div><div class="actions"><button class="btnUndo list" onclick="bringBack('${sh}')">UNDO</button></div>`;
       }else{
-        div.innerHTML=`<div class="badgeDone">✓ DONE</div><div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh}</div></div></div><div class="actions"><button class="btnUndo" onclick="bringBack('${sh}')">UNDO - BACK TO PENDING</button></div>`;
+        div.innerHTML=`<div class="badgeDone">✓ DONE</div><div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh}</div></div></div><div class="actions"><button class="btnUndo" onclick="bringBack('${sh}')">UNDO</button></div>`;
       }
       grid.appendChild(div);
     });
