@@ -36,10 +36,13 @@ body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
 .viewIconSingle svg{width:20px;height:20px}
 .viewIconSingle svg rect{stroke:#0B1F4A;stroke-width:2.2;fill:none}
 .viewIconSingle svg line{stroke:#0B1F4A;stroke-width:2.6;stroke-linecap:round}
-.scroll{flex:1;display:flex;flex-direction:column;background:#e9eef6;padding:12px;min-height:calc(100dvh - 320px)}
-.grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr) !important;gap:12px;width:100%;align-content:stretch;grid-auto-rows:1fr}
+.scroll{flex:1;display:flex;flex-direction:column;background:#e9eef6;padding:12px;min-height:calc(100dvh - 320px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* GRID VIEW - NO STRETCH - AUTO FILL - NO FIXED COUNT */
+.grid{flex:0 0 auto !important;display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:12px !important;width:100% !important;align-content:start !important;align-items:start !important;grid-auto-rows:auto !important}
 .grid.desktopView{grid-template-columns:repeat(6,1fr) !important}
-.card{background:#fff;border-radius:20px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;border:0;box-shadow:0 8px 24px rgba(11,31,74,0.06), 0 2px 8px rgba(11,31,74,0.04);height:100%;min-height:0}
+
+.card{background:#fff;border-radius:20px;padding:14px;display:flex;flex-direction:column;justify-content:flex-start;border:0;box-shadow:0 8px 24px rgba(11,31,74,0.06), 0 2px 8px rgba(11,31,74,0.04);height:auto !important;min-height:auto !important;align-self:start !important}
 .cardTop{display:flex;gap:12px;align-items:flex-start}
 .avatarSq{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:22px;flex-shrink:0}
 .info{flex:1;min-width:0;overflow:hidden;padding-top:1px}
@@ -53,24 +56,21 @@ body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
 .switch.on{background:linear-gradient(135deg,#22c55e,#16a34a)}
 .switch.on:after{left:29px}
 
-/* LIST VIEW ONLY - FIXED HEIGHT - NO FILL STRETCH */
+/* LIST VIEW ONLY - NO STRETCH - NO FIXED COUNT - AUTO FILL */
 .grid.listView{
   display:flex !important;
   flex-direction:column !important;
-  grid-template-columns:1fr !important;
   gap:10px !important;
   flex:0 0 auto !important;
   min-height:auto !important;
-  align-content:start !important;
 }
 .grid.listView .card.listCard{
   flex:0 0 auto !important;
   height:auto !important;
-  min-height:96px !important;
-  max-height:none !important;
+  min-height:auto !important;
   flex-direction:row !important;
   align-items:center !important;
-  padding:18px !important;
+  padding:16px 18px !important;
   border-radius:18px !important;
   border-left:7px solid #0B1F4A !important;
 }
@@ -109,7 +109,7 @@ body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
 <div class="drawerTop">
 <div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b><small>DIALYSIS MANAGEMENT</small></div><button id="closeDrawerBtn" style="width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:22px;font-weight:900">✕</button></div>
 <div style="margin-top:12px;display:flex;gap:8px"><div style="background:rgba(255,255,255,0.18);padding:6px 12px;border-radius:100px;font-size:10px;font-weight:700">● ONLINE</div><div style="background:#fff;color:#0B1F4A;padding:6px 12px;border-radius:100px;font-size:10px;font-weight:800" id="drawerCount">0</div></div>
-<div style="margin-top:12px"><select id="viewModeDrawer" class="drawerDropdown"><option value="mobile">MOBILE</option><option value="desktop">DESKTOP</option></select></div>
+<div style="margin-top:12px"><select id="viewModeDrawer" class="drawerDropdown"><option value="mobile">MOBILE AUTO BOTH</option><option value="desktop">DESKTOP AUTO BOTH</option></select></div>
 </div>
 <div class="menuList">
 <div class="menuItem active" data-url="index.html">HOME</div>
@@ -124,7 +124,7 @@ body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
 <div style="background:linear-gradient(135deg,#0B1F4A,#12367F);padding:0 12px 12px"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:100px"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div><div class="count"><span id="cLeft">Loading...</span><span id="cRight">PENDING 0</span></div></div>
 <div class="filter"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div>
 <div class="searchBar"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><select id="filterBlock" style="border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 12px;height:42px;border-radius:100px;font-weight:800;font-size:10px;color:#0B1F4A;min-width:90px"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select><button id="toggleViewBtn" class="viewIconSingle"></button></div>
-<div class="searchMeta"><span id="searchInfo"></span><span>← Swipe →</span></div>
+<div class="searchMeta"><span id="searchInfo"></span><span>Scroll ↕ Free</span></div>
 <div class="scroll" id="scroll"><div class="grid" id="grid"></div><div class="pages" id="pages"></div></div>
 <div class="bottom"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:100px;font-size:8px">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
 </div>
@@ -162,18 +162,17 @@ function applyDesktopView(state){
       if(selDrawerEl) selDrawerEl.value='mobile';
       localStorage.setItem('gda_desktop','0');
     }
-    currentPage=1;render();
+    render();
   }catch(e){console.warn(e);}
 }
 document.getElementById('viewModeTop')?.addEventListener('change', e=>applyDesktopView(e.target.value==='desktop'));
 document.getElementById('viewModeDrawer')?.addEventListener('change', e=>{applyDesktopView(e.target.value==='desktop');});
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 document.getElementById('fDate').value=new URLSearchParams(location.search).get('date')||getTodayIST();
-let allPatients=[],statusMap={},activeTimeFilter='',currentPage=1,masterMap={},searchQuery='',isListView=false;
+let allPatients=[],statusMap={},activeTimeFilter='',masterMap={},searchQuery='',isListView=false;
 if(localStorage.getItem('gda_view')==='list')isListView=true;
 const gridIconSVG=`<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg>`;
 const listIconSVG=`<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="5.7" x2="21" y2="5.7"/><rect x="3" y="9.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="12.7" x2="21" y2="12.7"/><rect x="3" y="16.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="19.7" x2="21" y2="19.7"/></svg>`;
-function getPageSize(){if(isListView)return 10;return 18;}
 function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
 function formatNameParagraph(fullName){if(!fullName) return '';let words = String(fullName).trim().split(/\s+/).filter(Boolean);if(words.length <= 1) return words[0] || '';let first = words[0];let rest = words.slice(1).join(' ');return first + '<br>' + rest;}
 async function buildMasterMap(){masterMap={};try{let snap=await db.collection('patients').get();snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let pmjay=String(p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={shri:shri,pmjayId:pmjay,pmjayName:name,cmhtId:'',cmhtName:''};});}catch(e){}try{let snap2=await db.collection('cmht_patients').get();snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let cmht=String(p.cmhtId||p.cmht||p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={shri:shri,pmjayId:'',pmjayName:'',cmhtId:'',cmhtName:''};masterMap[shri].cmhtId=cmht;masterMap[shri].cmhtName=name;});}catch(e){}}
@@ -189,25 +188,30 @@ function render(){
   let grid=document.getElementById('grid'); if(!grid) return;
   grid.classList.toggle('listView',isListView);
   let filtered=getFiltered();let done=0;allPatients.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(st&&st.photoTaken&&st.opdDone)done++;});
-  let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;let items=filtered.slice((currentPage-1)*ps,currentPage*ps);
+  let items=filtered;
   grid.innerHTML='';
   items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh]||{photoTaken:false,opdDone:false};let div=document.createElement('div');div.className=isListView?'card listCard':'card';div.id='card_'+sh;
   let displayName = formatNameParagraph(p.name);
   div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${displayName}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh}</div></div></div><div class="actions"><div class="toggleRow"><span class="lab">PHOTO</span><div class="switch ${st.photoTaken?'on':''}" onclick="toggle('${sh}','photo')"></div></div><div class="toggleRow"><span class="lab">OPD</span><div class="switch ${st.opdDone?'on':''}" onclick="toggle('${sh}','opd')"></div></div></div>`;grid.appendChild(div);});
   if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:20px;color:#0B1F4A;font-weight:700">All done</div>`;}
-  let pg=document.getElementById('pages');if(pg){pg.innerHTML=`<div class="pageIndicator">PAGE ${currentPage} / ${pages}</div>`;}
+  let pg=document.getElementById('pages');
+  if(pg){
+    pg.innerHTML=`<div class="pageIndicator">${filtered.length} patients • Auto fill • No fixed pages</div>`;
+  }
   document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done`;
-  document.getElementById('cRight').innerText=`PENDING ${filtered.length} (Page ${currentPage}/${pages})`;
+  document.getElementById('cRight').innerText=`PENDING ${filtered.length}`;
   document.getElementById('doneB').innerText=done;
-  document.getElementById('searchInfo').innerText=`${filtered.length} patients • Page ${currentPage} of ${pages} • Swipe ← →`;
+  if(isListView){
+    document.getElementById('searchInfo').innerText=`${filtered.length} patients • List 22px/14px/20px • Auto fill • Scroll ↕`;
+  }else{
+    document.getElementById('searchInfo').innerText=`${filtered.length} patients • Grid 16px • Auto fill • Scroll ↕`;
+  }
   document.getElementById('drawerCount').innerText=`${allPatients.length}`;
   updateToggleBtn();
 }
-function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;render();return true;}}
-function goPrevPage(){if(currentPage>1){currentPage--;render();return true;}}
 function goToCompleted(){let d=document.getElementById('fDate').value;let t=document.getElementById('fType').value;location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
-document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;currentPage=1;render();}));
-document.getElementById('filterBlock')?.addEventListener('change',()=>{currentPage=1;render();});
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;render();}));
+document.getElementById('filterBlock')?.addEventListener('change',()=>{render();});
 document.getElementById('fDate')?.addEventListener('change',loadData);
 document.getElementById('fType')?.addEventListener('change',loadData);
 document.getElementById('tabSync')?.addEventListener('click',()=>location.reload());
@@ -215,10 +219,9 @@ document.getElementById('viewListBtn')?.addEventListener('click',goToCompleted);
 document.getElementById('tabDone')?.addEventListener('click',goToCompleted);
 document.getElementById('tabHome')?.addEventListener('click',()=>location.href='index.html');
 const searchInput=document.getElementById('searchName');const clearBtn=document.getElementById('clearSearch');
-searchInput?.addEventListener('input',e=>{searchQuery=e.target.value;if(clearBtn) clearBtn.style.display=searchQuery?'flex':'none';currentPage=1;render();});
-clearBtn?.addEventListener('click',()=>{if(searchInput) searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
-document.getElementById('toggleViewBtn')?.addEventListener('click',()=>{isListView=!isListView;localStorage.setItem('gda_view',isListView?'list':'grid');currentPage=1;render();});
-(function(){let startX=0,isSwipe=false,threshold=75;const scrollEl=document.getElementById('scroll');const gridEl=document.getElementById('grid');if(!scrollEl||!gridEl) return;scrollEl.addEventListener('touchstart',e=>{if(e.touches.length===1)startX=e.touches[0].clientX;isSwipe=false;},{passive:true});scrollEl.addEventListener('touchmove',e=>{if(!startX)return;let dx=e.touches[0].clientX-startX;if(Math.abs(dx)>18){isSwipe=true;gridEl.style.transform=`translateX(${dx*0.5}px)`;gridEl.style.opacity=`${1-Math.min(0.2,Math.abs(dx)/500)}`;}},{passive:true});scrollEl.addEventListener('touchend',e=>{if(!isSwipe){gridEl.style.transform='';gridEl.style.opacity='1';startX=0;return;}let dx=e.changedTouches[0].clientX-startX;gridEl.style.transform='';gridEl.style.opacity='1';if(dx<-threshold)goNextPage();else if(dx>threshold)goPrevPage();startX=0;isSwipe=false;},{passive:true});})();
+searchInput?.addEventListener('input',e=>{searchQuery=e.target.value;if(clearBtn) clearBtn.style.display=searchQuery?'flex':'none';render();});
+clearBtn?.addEventListener('click',()=>{if(searchInput) searchInput.value='';searchQuery='';clearBtn.style.display='none';render();});
+document.getElementById('toggleViewBtn')?.addEventListener('click',()=>{isListView=!isListView;localStorage.setItem('gda_view',isListView?'list':'grid');render();});
 window.addEventListener('load',()=>{setTimeout(()=>{updateToggleBtn();loadData();},400);});
 window.toggle=toggle;
 </script>
