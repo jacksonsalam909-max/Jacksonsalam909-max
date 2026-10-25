@@ -8,18 +8,18 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%;touch-action:manipulation}
-body{background:#eef2f8;width:100%;min-height:100dvh;overflow:auto;overscroll-behavior:none;transform-origin:0 0}
-body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
-.app{min-height:100dvh;display:flex;flex-direction:column;transform-origin:top left;transition:transform 0.25s cubic-bezier(0.32,0.72,0,1);will-change:transform}
-.top{flex-shrink:0;background:linear-gradient(135deg,#0B1F4A 0%,#12367F 100%);padding:12px 12px 12px;color:#fff;position:sticky;top:0;z-index:10;box-shadow:0 4px 20px rgba(11,31,74,0.3);display:flex;align-items:center;gap:10px}
+body{background:#eef2f8;width:100%;min-height:100dvh;overflow:auto}
+.top{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(135deg,#0B1F4A 0%,#12367F 100%);padding:12px;color:#fff;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(11,31,74,0.3);height:58px}
 .menuBtn{width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,0.18);color:#fff;font-size:22px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 .hWrap{flex:1;min-width:0}
 .hTitle{font-size:13px;font-weight:900;letter-spacing:0.5px;line-height:1.2;text-transform:uppercase}
 .hSub{font-size:9px;font-weight:700;opacity:0.85;margin-top:2px;letter-spacing:0.8px}
 .topActions{display:flex;gap:8px;align-items:center}
-.viewDropdown{height:38px;border-radius:12px;border:0;background:#fff;color:#0B1F4A;font-size:11px;font-weight:900;padding:0 12px;outline:none;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.12);min-width:130px}
+.viewDropdown{height:38px;border-radius:12px;border:0;background:#fff;color:#0B1F4A;font-size:11px;font-weight:900;padding:0 12px;outline:none;cursor:pointer;min-width:130px}
 .drawerDropdown{margin-top:12px;width:100%;height:44px;border-radius:12px;border:0;background:#fff;color:#0B1F4A;font-size:12px;font-weight:900;padding:0 12px;outline:none}
-.btnViewList{height:38px;padding:0 14px;border-radius:12px;border:0;background:#fff;color:#0B1F4A;font-size:11px;font-weight:900;letter-spacing:0.5px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.12);white-space:nowrap}
+.btnViewList{height:38px;padding:0 14px;border-radius:12px;border:0;background:#fff;color:#0B1F4A;font-size:11px;font-weight:900;cursor:pointer}
+.app{min-height:100dvh;display:flex;flex-direction:column;padding-top:58px}
+.zoomWrap{flex:1;display:flex;flex-direction:column;transform-origin:top left;transition:transform 0.35s cubic-bezier(0.25,0.8,0.25,1);will-change:transform;width:100%}
 .rowTop{display:flex;gap:8px;margin-top:10px}
 .dateBox{flex:1;border-radius:14px;height:46px;display:flex;align-items:center;padding:0 12px;background:#fff}
 .dateBox input,.dateBox select{border:0;width:100%;font-weight:700;font-size:13px;outline:none;background:transparent;color:#0B1F4A}
@@ -32,43 +32,23 @@ body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 .searchBar{padding:10px 12px;display:flex;gap:8px;background:#fff;border-bottom:1px solid #dde4f0;align-items:center;flex-shrink:0;flex-wrap:wrap}
 .searchInputWrap{flex:1;position:relative;display:flex;align-items:center;min-width:140px}
 .searchInput{width:100%;height:42px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 14px;border-radius:100px;font-weight:700;font-size:12px;color:#0B1F4A;outline:none}
-.searchInput:focus{border-color:#0B1F4A;background:#fff}
 .clearSearch{position:absolute;right:8px;width:28px;height:28px;border-radius:50%;border:0;background:#dde4f0;color:#0B1F4A;font-weight:900;font-size:14px;display:none;align-items:center;justify-content:center;cursor:pointer}
 .searchMeta{padding:0 12px 8px;background:#fff;font-size:10px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between;flex-shrink:0;min-height:18px}
-.viewIconSingle{width:46px;height:42px;border-radius:100px;border:1.5px solid #d0d9ea;background:#f4f7fd;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.2s;flex-shrink:0}
+.viewIconSingle{width:46px;height:42px;border-radius:100px;border:1.5px solid #d0d9ea;background:#f4f7fd;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 .viewIconSingle svg{width:22px;height:22px}
 .viewIconSingle svg rect{stroke:#0B1F4A;stroke-width:2.2;fill:none}
 .viewIconSingle svg line{stroke:#0B1F4A;stroke-width:2.6;stroke-linecap:round}
-.scroll{flex:1;overflow:hidden;padding:12px;background:#eef2f8;position:relative;touch-action:pan-y}
-.grid{display:grid;grid-template-columns:repeat(3,1fr) !important;gap:12px;max-width:900px;margin:0 auto;width:100%;align-items:start;transition:transform 0.32s cubic-bezier(0.32,0.72,0,1), opacity 0.25s ease;will-change:transform}
+.scroll{flex:1;overflow:visible;padding:12px;background:#eef2f8;position:relative;touch-action:pan-y}
+.grid{display:grid;grid-template-columns:repeat(3,1fr) !important;gap:12px;max-width:900px;margin:0 auto;width:100%;align-items:start}
 .grid.listView{grid-template-columns:1fr !important;max-width:100% !important;width:100% !important;margin:0 !important;gap:12px;padding:0}
 .grid.swipe-out-left{transform:translate3d(-100%,0,0);opacity:0}
 .grid.swipe-out-right{transform:translate3d(100%,0,0);opacity:0}
-.grid.swipe-in-left{transform:translate3d(100%,0,0);opacity:0}
-.grid.swipe-in-right{transform:translate3d(-100%,0,0);opacity:0}
-.swipeHint{position:fixed;top:50%;transform:translateY(-50%);width:50px;height:80px;background:rgba(11,31,74,0.85);color:#fff;display:none;align-items:center;justify-content:center;font-size:28px;font-weight:900;z-index:60;border-radius:0 16px 16px 0;backdrop-filter:blur(8px)}
-.swipeHint.right{right:0;border-radius:16px 0 0 16px;left:auto}
-.swipeHint.left{left:0}
-.swipeHint.show{display:flex;animation:swipePulse 0.6s ease}
-@keyframes swipePulse{0%{transform:translateY(-50%) scale(0.8);opacity:0}50%{transform:translateY(-50%) scale(1.1)}100%{transform:translateY(-50%) scale(1);opacity:1}}
-.pageIndicator{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#0B1F4A;color:#fff;padding:8px 18px;border-radius:100px;font-size:12px;font-weight:900;z-index:55;display:none;box-shadow:0 6px 20px rgba(11,31,74,0.4);letter-spacing:0.5px}
-.pageIndicator.show{display:block;animation:fadeUp 0.3s ease}
-@keyframes fadeUp{from{transform:translateX(-50%) translateY(10px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
-.card{background:#fff;border-radius:16px;padding:11px 10px 12px;display:flex;flex-direction:column;box-shadow:0 6px 18px rgba(11,31,74,0.08);border:1px solid #e8eefb;height:auto;align-self:start}
+.card{background:#fff;border-radius:16px;padding:11px 10px 12px;display:flex;flex-direction:column;box-shadow:0 6px 18px rgba(11,31,74,0.08);border:1px solid #e8eefb;align-self:start}
 .card.listCard{flex-direction:row;align-items:center;gap:16px;padding:22px 18px;border-radius:18px;width:100%;min-height:98px;box-shadow:0 4px 18px rgba(11,31,74,0.12);border:1.5px solid #e3eaf5;border-left:6px solid #0B1F4A}
 .card.listCard .cardTop{flex:1;display:flex;align-items:center;gap:16px}
-.card.listCard .avatarSq{width:60px;height:60px;font-size:26px;border-radius:16px;flex-shrink:0;box-shadow:0 6px 18px rgba(0,0,0,0.20)}
-.card.listCard .info{flex:1;min-width:0}
-.card.listCard .name{font-size:16.5px;font-weight:900;line-height:1.25;letter-spacing:0.3px;white-space:normal;overflow:visible;text-overflow:clip}
-.card.listCard .sub{font-size:11.5px;margin-top:6px;font-weight:700;color:#5a7196;line-height:1.35}
-.card.listCard .actions{margin-top:0;flex-direction:row;gap:28px;margin-left:auto;flex-shrink:0;align-items:center}
-.card.listCard .toggleRow{width:auto;gap:12px;flex-direction:column;align-items:center;justify-content:center}
-.card.listCard .lab{font-size:12px;font-weight:900;letter-spacing:0.8px;color:#0B1F4A}
-.card.listCard .switch{width:78px;height:42px;border-radius:100px;box-shadow:inset 0 2px 6px rgba(0,0,0,0.08)}
-.card.listCard .switch:after{width:36px;height:36px;top:3px;left:3px;box-shadow:0 3px 8px rgba(0,0,0,0.25)}
-.card.listCard .switch.on:after{left:39px}
+.card.listCard .avatarSq{width:60px;height:60px;font-size:26px;border-radius:16px;flex-shrink:0}
 .cardTop{display:flex;gap:9px;align-items:center}
-.avatarSq{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:17px;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.15);text-shadow:0 1px 2px rgba(0,0,0,0.2)}
+.avatarSq{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:17px;flex-shrink:0}
 .info{flex:1;min-width:0}
 .name{font-size:13px;font-weight:900;color:#0B1F4A;text-transform:uppercase;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sub{margin-top:3px;font-size:8.5px;font-weight:700;color:#6b7fa3}
@@ -79,18 +59,19 @@ body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 .switch:after{content:'';width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:.25s;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
 .switch.on{background:linear-gradient(135deg,#22c55e,#16a34a)}
 .switch.on:after{left:23px}
-.bottom{flex-shrink:0;background:#fff;border-top:1px solid #dde4f0;display:flex;justify-content:space-around;padding:8px 0 max(16px,env(safe-area-inset-bottom));position:sticky;bottom:0;z-index:10}
+.bottom{position:fixed;bottom:0;left:0;right:0;z-index:90;background:#fff;border-top:1px solid #dde4f0;display:flex;justify-content:space-around;padding:8px 0 max(16px,env(safe-area-inset-bottom))}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;font-weight:700;color:#8aa0c5;cursor:pointer}
 .tab.active{color:#0B1F4A}
 .tab .ic{width:30px;height:30px;border-radius:12px;background:#e8eefb;display:flex;align-items:center;justify-content:center;font-size:14px;color:#0B1F4A}
 .tab.active .ic{background:#0B1F4A;color:#fff}
-.pages{grid-column:1/-1;display:flex;justify-content:center;gap:6px;padding:14px 0;flex-wrap:wrap}
-.pageBtn{min-width:42px;height:42px;border-radius:12px;border:1.5px solid #d0d9ea;background:#fff;font-weight:800;font-size:12px;color:#0B1F4A;transition:0.2s}
+.pages{grid-column:1/-1;display:flex;justify-content:center;gap:6px;padding:14px 0 80px;flex-wrap:wrap}
+.pageBtn{min-width:42px;height:42px;border-radius:12px;border:1.5px solid #d0d9ea;background:#fff;font-weight:800;font-size:12px;color:#0B1F4A}
 .pageBtn.active{background:#0B1F4A;color:#fff;transform:scale(1.1)}
-.zoomBtns{position:fixed;right:12px;bottom:90px;z-index:50;display:flex;flex-direction:column;gap:10px}
-.zoomBtns button{width:56px;height:56px;border-radius:14px;border:0;background:linear-gradient(135deg,#0B1F4A,#12367F);color:#fff;box-shadow:0 6px 18px rgba(11,31,74,0.35);font-weight:900;font-size:26px;display:flex;align-items:center;justify-content:center}
+.zoomBtns{position:fixed;right:12px;bottom:90px;z-index:95;display:flex;flex-direction:column;gap:10px}
+.zoomBtns button{width:56px;height:56px;border-radius:14px;border:0;background:linear-gradient(135deg,#0B1F4A,#12367F);color:#fff;box-shadow:0 6px 18px rgba(11,31,74,0.35);font-weight:900;font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform 0.2s}
+.zoomBtns button:active{transform:scale(0.92)}
 .zoomBtns button:nth-child(2){background:#fff;color:#0B1F4A;border:1.5px solid #d0d9ea;font-size:28px}
-.zoomInfo{position:fixed;right:12px;bottom:220px;z-index:50;background:#0B1F4A;color:#fff;padding:6px 12px;border-radius:100px;font-size:11px;font-weight:900;display:none;box-shadow:0 4px 12px rgba(11,31,74,0.3)}
+.zoomInfo{position:fixed;right:12px;bottom:210px;z-index:95;background:#0B1F4A;color:#fff;padding:6px 12px;border-radius:100px;font-size:11px;font-weight:900;display:block}
 .overlay{position:fixed;inset:0;background:rgba(11,31,74,0.55);backdrop-filter:blur(5px);z-index:9998;display:none;opacity:0;transition:opacity 0.3s ease;pointer-events:none}
 .overlay.show{display:block;opacity:1;pointer-events:auto}
 .drawer{position:fixed;left:0;top:0;bottom:0;width:85%;max-width:300px;background:#fff;z-index:9999;transform:translate3d(-100%,0,0);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);box-shadow:8px 0 40px rgba(11,31,74,0.3);display:flex;flex-direction:column;overflow:hidden;pointer-events:none}
@@ -100,35 +81,20 @@ body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 .drawerTop small{font-size:10px;opacity:0.85;letter-spacing:0.8px;margin-top:3px;display:block}
 .menuList{padding:8px 0;flex:1;overflow-y:auto}
 .menuItem{padding:17px 20px;font-size:13px;font-weight:800;color:#334155;cursor:pointer;border-left:4px solid transparent;min-height:54px;display:block;letter-spacing:0.3px}
-.menuItem:active{background:#e8eefb}
 .menuItem.active{background:#e8eefb;color:#0B1F4A;border-left-color:#0B1F4A}
-.doneOverlay{position:fixed;inset:0;background:rgba(11,31,74,0.45);backdrop-filter:blur(8px);z-index:200;display:none;opacity:0;transition:opacity 0.3s}
-.doneOverlay.show{display:block;opacity:1}
-.doneSheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:28px 28px 0 0;z-index:201;transform:translate3d(0,100%,0);transition:transform 0.4s cubic-bezier(0.32,0.72,0,1);box-shadow:0 -10px 40px rgba(11,31,74,0.2);display:flex;flex-direction:column;max-height:92vh;height:72vh;touch-action:none}
-.doneSheet.open{transform:translate3d(0,0,0)}
-.doneSheet.full{height:92vh}
-.doneSheet.small{height:45vh}
-.dragHandleArea{padding:12px 0 8px;display:flex;flex-direction:column;align-items:center;touch-action:pan-y;cursor:grab}
-.dragBar{width:44px;height:5px;background:#d0d9ea;border-radius:100px}
-.dragHint{margin-top:6px;font-size:9px;font-weight:800;color:#8aa0c5;letter-spacing:0.8px}
-.doneHeader{padding:4px 16px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e8eefb;flex-shrink:0}
-.doneBody{padding:12px;overflow-y:auto;flex:1;display:grid;gap:10px;grid-template-columns:repeat(3,1fr) !important;align-content:start;overscroll-behavior:contain}
-.doneBody.listView{grid-template-columns:1fr !important;gap:12px;max-width:100% !important;width:100% !important;margin:0 !important}
-body.desktop-mode{background:#d9e0ef}
-body.desktop-mode .app{max-width:1600px;margin:0 auto;background:#eef2f8;box-shadow:0 0 60px rgba(11,31,74,0.15);min-height:100vh}
-body.desktop-mode .grid{grid-template-columns:repeat(6,1fr) !important;max-width:100% !important;gap:16px;padding:0 8px}
-body.desktop-mode .grid.listView{grid-template-columns:1fr !important;max-width:100% !important}
-body.desktop-mode .doneBody{grid-template-columns:repeat(6,1fr) !important}
-body.desktop-mode .doneBody.listView{grid-template-columns:1fr !important}
-@media(max-width:768px){.grid{grid-template-columns:repeat(3,1fr) !important;}.grid.listView{grid-template-columns:1fr !important;}.doneBody{grid-template-columns:repeat(3,1fr) !important;}.doneBody.listView{grid-template-columns:1fr !important;}}
-.scroll:has(.grid.listView){padding:6px;background:#eef2f8}
+.swipeHint{position:fixed;top:50%;transform:translateY(-50%);width:50px;height:80px;background:rgba(11,31,74,0.85);color:#fff;display:none;align-items:center;justify-content:center;font-size:28px;font-weight:900;z-index:60;border-radius:0 16px 16px 0}
+.swipeHint.right{right:0;border-radius:16px 0 0 16px;left:auto}
+.swipeHint.left{left:0}
+.pageIndicator{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#0B1F4A;color:#fff;padding:8px 18px;border-radius:100px;font-size:12px;font-weight:900;z-index:55;display:none}
+.pageIndicator.show{display:block}
+.drawerDropdown{margin-top:12px;width:100%;height:44px;border-radius:12px;border:0;background:#fff;color:#0B1F4A;font-size:12px;font-weight:900;padding:0 12px;outline:none}
 </style>
 </head>
 <body>
 <div class="overlay" id="overlay"></div>
 <div class="drawer" id="drawer">
 <div class="drawerTop">
-<div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b><small>DIALYSIS MANAGEMENT</small></div><button id="closeDrawerBtn" style="width:48px;height:48px;border-radius:12px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:26px;font-weight:900;display:flex;align-items:center;justify-content:center">✕</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b><small>DIALYSIS MANAGEMENT</small></div><button id="closeDrawerBtn" style="width:48px;height:48px;border-radius:12px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:26px;font-weight:900">✕</button></div>
 <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><div style="background:rgba(255,255,255,0.18);padding:6px 12px;border-radius:100px;font-size:10px;font-weight:700">● ONLINE</div><div style="background:#fff;color:#0B1F4A;padding:6px 12px;border-radius:100px;font-size:10px;font-weight:800" id="drawerCount">0 PATIENTS</div></div>
 <div style="margin-top:12px"><div style="font-size:10px;font-weight:800;letter-spacing:0.8px;opacity:0.9">VIEW MODE</div><select id="viewModeDrawer" class="drawerDropdown"><option value="mobile">MOBILE VIEW - 3 Columns</option><option value="desktop">DESKTOP VIEW - 6 Columns</option></select></div>
 </div>
@@ -139,27 +105,24 @@ body.desktop-mode .doneBody.listView{grid-template-columns:1fr !important}
 <div class="menuItem" data-url="searchpatient.html">SEARCH PATIENT</div>
 <div class="menuItem" data-url="list.html">EXCEL LIST</div>
 </div>
-<div style="padding:14px 16px;border-top:1px solid #e8eefb;font-size:10px;font-weight:700;color:#8aa0c5;text-align:center">SHIJA HOSPITALS © 2026</div>
 </div>
-<div class="app" id="appRoot">
+
 <div class="top"><button class="menuBtn" id="menuBtn">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS</div><div class="hSub">DIALYSIS MANAGEMENT</div></div><div class="topActions"><select id="viewModeTop" class="viewDropdown"><option value="mobile">MOBILE VIEW</option><option value="desktop">DESKTOP VIEW</option></select><button class="btnViewList" id="viewListBtn">VIEW LIST</button></div></div>
+
+<div class="app" id="appRoot">
+<div class="zoomWrap" id="zoomWrap">
 <div style="background:linear-gradient(135deg,#0B1F4A 0%,#12367F 100%);padding:0 12px 12px"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:100px"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div><div class="count"><span id="cLeft">Loading</span><span id="cRight">PENDING 0</span></div></div>
 <div class="filter"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div>
 <div class="searchBar"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search by name or SHRI..." autocomplete="off"><button class="clearSearch" id="clearSearch">✕</button></div><select id="filterBlock" style="border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 12px;height:42px;border-radius:100px;font-weight:800;font-size:10px;color:#0B1F4A;min-width:105px"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select><button id="toggleViewBtn" class="viewIconSingle" title="Toggle View"></button></div>
 <div class="searchMeta"><span id="searchInfo"></span><span id="blockInfo"></span><span style="color:#0B1F4A">← Swipe to change page →</span></div>
 <div class="scroll" id="scroll"><div class="grid" id="grid"></div><div class="pages" id="pages"></div></div>
+</div>
+</div>
+
 <div class="bottom"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:100px;font-size:8px">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
-</div>
-<div class="zoomInfo" id="zoomInfo">100%</div>
+
+<div class="zoomInfo" id="zoomInfo">125%</div>
 <div class="zoomBtns"><button onclick="zoomIn()" title="Zoom In">+</button><button onclick="zoomOut()" title="Zoom Out">−</button></div>
-<div class="doneOverlay" id="doneOverlay"></div>
-<div class="doneSheet" id="doneSheet">
-<div class="dragHandleArea" id="dragHandle"><div class="dragBar"></div><div class="dragHint">PULL UP / DOWN TO EXPAND</div></div>
-<div class="doneHeader"><div><b style="color:#0B1F4A;font-size:15px">Completed - Done Patients</b><div style="font-size:10px;color:#6b7fa3;margin-top:2px;font-weight:700" id="doneCountText">0 patients</div></div><button onclick="closeCompleted()" style="width:48px;height:48px;border-radius:50%;border:0;background:#e8eefb;color:#0B1F4A;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center">✕</button></div>
-<div style="padding:8px 12px;border-bottom:1px solid #e8eefb;display:flex;gap:8px;background:#fff"><div style="flex:1;position:relative;display:flex;align-items:center"><input type="text" id="searchDone" placeholder="Search in done..." style="width:100%;height:40px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 14px;border-radius:100px;font-weight:700;font-size:12px;color:#0B1F4A;outline:none"></div><button id="toggleDoneViewBtn" class="viewIconSingle" title="Toggle Done View" style="height:40px"></button></div>
-<div class="doneBody" id="completedBody"></div>
-<div style="padding:10px 16px 16px;padding-bottom:max(16px,env(safe-area-inset-bottom));border-top:1px solid #e8eefb;display:flex;gap:10px;flex-shrink:0"><button onclick="closeCompleted()" style="flex:1;height:46px;border-radius:12px;border:1.5px solid #d0d9ea;background:#fff;color:#0B1F4A;font-weight:800;font-size:12px">CLOSE</button><button onclick="closeCompleted()" style="flex:1;height:46px;border-radius:12px;border:0;background:#0B1F4A;color:#fff;font-weight:800;font-size:12px">DONE</button></div>
-</div>
 <div class="swipeHint left" id="swipeLeft">‹</div>
 <div class="swipeHint right" id="swipeRight">›</div>
 <div class="pageIndicator" id="pageIndicator">Page 1/1</div>
@@ -202,95 +165,40 @@ const app=initializeApp(cfg,"gda_"+Math.random());const db=getFirestore(app);win
   selTop.addEventListener('change', onChange);
   selDrawer.addEventListener('change', function(e){ onChange(e); setTimeout(()=>{ window.closeMenu(); },350); });
 })();
-(function(){
-  const sheet=document.getElementById('doneSheet'); const overlay=document.getElementById('doneOverlay'); const handle=document.getElementById('dragHandle'); const body=document.getElementById('completedBody'); let startY=0, currentY=0, isDragging=false, startHeight=0;
-  function openCompletedSheet(){sheet.classList.add('open');overlay.classList.add('show');sheet.classList.remove('small');sheet.classList.remove('full');document.body.style.overflow='hidden';}
-  function closeCompletedSheet(){sheet.classList.remove('open');sheet.classList.remove('full');sheet.classList.remove('small');overlay.classList.remove('show');document.body.style.overflow='';setTimeout(()=>{sheet.style.transform='';},300);}
-  function onStart(y){isDragging=true;startY=y;startHeight=sheet.offsetHeight;sheet.style.transition='none';}
-  function onMove(y){if(!isDragging)return;currentY=y;let diff=startY-y;let newHeight=startHeight+diff;let minH=window.innerHeight*0.4;let maxH=window.innerHeight*0.92;newHeight=Math.max(minH,Math.min(maxH,newHeight));if(diff<-80){let translate=Math.max(0,-diff-80);sheet.style.transform=`translate3d(0,${translate}px,0)`;overlay.style.opacity=Math.max(0,1-translate/200);}else{sheet.style.transform='';sheet.style.height=newHeight+'px';}}
-  function onEnd(){if(!isDragging)return;isDragging=false;sheet.style.transition='';sheet.style.height='';let diff=startY-currentY;if(diff<-120){closeCompletedSheet();}else if(diff>100){sheet.classList.add('full');sheet.classList.remove('small');sheet.style.transform='';}else if(diff<-40){sheet.classList.add('small');sheet.classList.remove('full');sheet.style.transform='';}else{sheet.style.transform='';}}
-  handle.addEventListener('touchstart', e=>{onStart(e.touches[0].clientY);},{passive:true}); handle.addEventListener('touchmove', e=>{onMove(e.touches[0].clientY);},{passive:true}); handle.addEventListener('touchend', onEnd,{passive:true});
-  handle.addEventListener('mousedown', e=>{onStart(e.clientY);}); window.addEventListener('mousemove', e=>{if(isDragging)onMove(e.clientY);}); window.addEventListener('mouseup', onEnd);
-  let bodyStartY=0; body.addEventListener('touchstart', e=>{if(body.scrollTop<=0){bodyStartY=e.touches[0].clientY;}else{bodyStartY=0;}},{passive:true});
-  body.addEventListener('touchmove', e=>{if(bodyStartY&&body.scrollTop<=0){let curY=e.touches[0].clientY;let diff=curY-bodyStartY;if(diff>0){e.preventDefault();sheet.style.transform=`translate3d(0,${diff*0.6}px,0)`;overlay.style.opacity=Math.max(0,1-diff/300);if(diff>140){body.style.overflow='hidden';}} }},{passive:false});
-  body.addEventListener('touchend', e=>{if(bodyStartY){let endY=e.changedTouches[0].clientY;let diff=endY-bodyStartY;body.style.overflow='';if(diff>120){closeCompletedSheet();}else{sheet.style.transform='';overlay.style.opacity='';}bodyStartY=0;}},{passive:true});
-  overlay.addEventListener('click', closeCompletedSheet);
-  window.openCompleted=function(){openCompletedSheet();}; window.closeCompleted=closeCompletedSheet;
-})();
 
-// === ZOOM LOGIC: Touch = IN only, Buttons = IN + OUT ===
-let zoomLevel = parseFloat(localStorage.getItem('gda_zoom') || '1');
-const appRoot = document.getElementById('appRoot');
+// FIXED: DEFAULT 125% - ZOOM OUT STOPS AT 100%
+let savedZoom = parseFloat(localStorage.getItem('gda_zoom') || '1.25');
+if(savedZoom < 1.0 || savedZoom > 3 || isNaN(savedZoom)) savedZoom = 1.25;
+let zoomLevel = savedZoom;
+
+const zoomWrap = document.getElementById('zoomWrap');
 const zoomInfo = document.getElementById('zoomInfo');
-
 function applyZoom(){
-  if(!appRoot) return;
-  appRoot.style.transform = `scale(${zoomLevel})`;
-  appRoot.style.width = `${100/zoomLevel}%`;
-  appRoot.style.transformOrigin = 'top left';
-  try{ document.body.style.zoom = zoomLevel; }catch(e){}
-  if(zoomInfo){
-    zoomInfo.textContent = Math.round(zoomLevel*100)+'%';
-    zoomInfo.style.display = 'block';
-    clearTimeout(zoomInfo._t);
-    zoomInfo._t=setTimeout(()=>zoomInfo.style.display='none',1500);
-  }
+  if(!zoomWrap) return;
+  zoomWrap.style.transform = `scale(${zoomLevel})`;
+  zoomWrap.style.width = `100%`;
+  zoomWrap.style.transformOrigin = `top left`;
+  if(zoomInfo){zoomInfo.textContent = Math.round(zoomLevel*100)+'%';}
+  localStorage.setItem('gda_zoom', zoomLevel);
 }
-
 function zoomIn(){
-  zoomLevel = Math.min(zoomLevel+0.25, 3);
-  localStorage.setItem('gda_zoom', zoomLevel);
-  applyZoom();
-  if(navigator.vibrate) navigator.vibrate(30);
-}
-
-function zoomOut(){
-  zoomLevel = Math.max(zoomLevel-0.25, 0.5);
-  localStorage.setItem('gda_zoom', zoomLevel);
+  zoomLevel = Math.min(zoomLevel+0.10, 2.0);
   applyZoom();
   if(navigator.vibrate) navigator.vibrate(20);
 }
-
-function zoomReset(){
-  zoomLevel = 1;
-  localStorage.setItem('gda_zoom', zoomLevel);
+function zoomOut(){
+  zoomLevel = Math.max(zoomLevel-0.10, 1.0); // STOPS AT 100%
   applyZoom();
+  if(navigator.vibrate) navigator.vibrate(20);
 }
-
-// --- TOUCH: Zoom IN only by touching screen (double-tap) ---
-let lastTap = 0;
-let touchStartTime = 0;
-
-appRoot.addEventListener('touchstart', function(e){
-  touchStartTime = Date.now();
-  if(e.touches.length > 1){ e.preventDefault(); }
-}, {passive:false});
-
-appRoot.addEventListener('touchend', function(e){
-  let now = Date.now();
-  let timeDiff = now - touchStartTime;
-  if(now - lastTap < 350 && timeDiff < 200){
-    e.preventDefault();
-    zoomIn();
-  }
-  lastTap = now;
-}, {passive:false});
-
-document.addEventListener('touchmove', function(e){
-  if(e.touches.length > 1){ e.preventDefault(); }
-}, {passive:false});
-
-document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
-document.addEventListener('gesturechange', function(e){ e.preventDefault(); });
-document.addEventListener('gestureend', function(e){ e.preventDefault(); });
 
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 document.getElementById('fDate').value=new URLSearchParams(location.search).get('date')||getTodayIST();
 let allPatients=[],statusMap={},activeTimeFilter='',currentPage=1;
 let gridPageSize=36, listPageSize=10;
-let searchQuery='',searchDoneQuery='';
-let isListView = localStorage.getItem('gda_view') === 'list';
-let isDoneListView = localStorage.getItem('gda_done_view') === 'list';
+let searchQuery='';
+let isListView = false;
+if(localStorage.getItem('gda_view') === 'list'){isListView = true;}
 const gridIconSVG = `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg>`;
 const listIconSVG = `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="5.7" x2="21" y2="5.7"/><rect x="3" y="9.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="12.7" x2="21" y2="12.7"/><rect x="3" y="16.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="19.7" x2="21" y2="19.7"/></svg>`;
 function getPageSize(){ return isListView ? listPageSize : gridPageSize; }
@@ -300,18 +208,13 @@ async function loadData(){let d=document.getElementById('fDate').value,s=documen
 async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id),{date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()});}
 function toggle(sh,type){if(!statusMap[sh])statusMap[sh]={photoTaken:false,opdDone:false};if(type==='photo')statusMap[sh].photoTaken=!statusMap[sh].photoTaken;else statusMap[sh].opdDone=!statusMap[sh].opdDone;saveStatus();let st=statusMap[sh];if(st.photoTaken&&st.opdDone){let el=document.getElementById('card_'+sh);if(el){el.style.transform='scale(0.85)';el.style.opacity='0';setTimeout(render,200);}}else render();}
 function getInit(n){return (n||'A').charAt(0).toUpperCase();}
-function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#6366F1)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#10B981,#06B6D4)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#3B82F6,#06B6D4)','linear-gradient(135deg,#14B8A6,#8B5CF6)','linear-gradient(135deg,#F97316,#EAB308)','linear-gradient(135deg,#EC4899,#8B5CF6)','linear-gradient(135deg,#06B6D4,#3B82F6)','linear-gradient(135deg,#84CC16,#10B981)','linear-gradient(135deg,#F43F5E,#F97316)','linear-gradient(135deg,#6366F1,#EC4899)','linear-gradient(135deg,#0EA5E9,#10B981)','linear-gradient(135deg,#A855F7,#F43F5E)','linear-gradient(135deg,#EAB308,#EF4444)','linear-gradient(135deg,#06B6D4,#8B5CF6)','linear-gradient(135deg,#10B981,#F59E0B)','linear-gradient(135deg,#3B82F6,#A855F7)'];let hash=0;for(let i=0;i<name.length;i++){hash=name.charCodeAt(i)+((hash<<5)-hash);}return colors[Math.abs(hash)%colors.length];}
+function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#6366F1)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#10B981,#06B6D4)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#3B82F6,#06B6D4)'];let hash=0;for(let i=0;i<name.length;i++){hash=name.charCodeAt(i)+((hash<<5)-hash);}return colors[Math.abs(hash)%colors.length];}
 function getFiltered(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(st.photoTaken&&st.opdDone)return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();let blockL=String(p.block||'').toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq)&&!blockL.includes(sq))return false;}return true;});}
 function updateToggleBtn(){
   let btn=document.getElementById('toggleViewBtn');
-  let btnDone=document.getElementById('toggleDoneViewBtn');
   if(btn){
-    if(isListView){btn.innerHTML=gridIconSVG; btn.title="Grid View";}
+    if(isListView){btn.innerHTML=gridIconSVG; btn.title="Grid View - 3 Columns";}
     else {btn.innerHTML=listIconSVG; btn.title="List View";}
-  }
-  if(btnDone){
-    if(isDoneListView){btnDone.innerHTML=gridIconSVG; btnDone.title="Grid View";}
-    else {btnDone.innerHTML=listIconSVG; btnDone.title="List View";}
   }
 }
 function render(direction){
@@ -331,19 +234,16 @@ function render(direction){
     });
     if(filtered.length===0){let msg = searchQuery ? `No results for "${searchQuery}"` : 'All done'; grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;color:#0B1F4A;font-weight:700">${msg}</div>`;}
     let pg=document.getElementById('pages');pg.innerHTML='';if(pages>1){for(let i=1;i<=pages;i++){let b=document.createElement('button');b.className='pageBtn'+(i===currentPage?' active':'');b.innerText=i;b.onclick=()=>{let dir = i>currentPage?'next':'prev';currentPage=i;showPageIndicator();render(dir);};pg.appendChild(b);}}
-    document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done`;document.getElementById('cRight').innerText=`PENDING ${filtered.length} (${ps}/page)`;document.getElementById('doneB').innerText=done;let dc=document.getElementById('drawerCount');if(dc)dc.innerText=`${allPatients.length} PATIENTS`;let sInfo=document.getElementById('searchInfo');if(searchQuery){sInfo.innerText=`Found ${filtered.length} for "${searchQuery}"`; } else {sInfo.innerText=`${filtered.length} patients ${isListView?'• LIST 10/page BIG':'• GRID 36/page'}`; } document.getElementById('blockInfo').innerText = document.getElementById('filterBlock').value ? `Block: ${document.getElementById('filterBlock').value}` : '';
+    document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done`;document.getElementById('cRight').innerText=`PENDING ${filtered.length} (${ps}/page)`;document.getElementById('doneB').innerText=done;
+    document.getElementById('searchInfo').innerText = `${filtered.length} patients ${isListView?'• LIST 10/page':'• GRID 36/page'}`;
     updateToggleBtn();
     window._totalPages = pages;
   }
 }
 function showPageIndicator(){let el=document.getElementById('pageIndicator');el.innerText=`Page ${currentPage}/${window._totalPages||1}`;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1200);}
-function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;showPageIndicator();document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});render('next');document.getElementById('swipeRight').classList.add('show');setTimeout(()=>document.getElementById('swipeRight').classList.remove('show'),400);return true;}else{return false;}}
-function goPrevPage(){if(currentPage>1){currentPage--;showPageIndicator();document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});render('prev');document.getElementById('swipeLeft').classList.add('show');setTimeout(()=>document.getElementById('swipeLeft').classList.remove('show'),400);return true;}else{return false;}}
-function goToCompleted(){
-  let d=document.getElementById('fDate').value;
-  let t=document.getElementById('fType').value;
-  location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);
-}
+function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;showPageIndicator();document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});render('next');return true;}else{return false;}}
+function goPrevPage(){if(currentPage>1){currentPage--;showPageIndicator();document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});render('prev');return true;}else{return false;}}
+function goToCompleted(){let d=document.getElementById('fDate').value;let t=document.getElementById('fType').value;location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
 document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;currentPage=1;render();}));
 document.getElementById('filterBlock').addEventListener('change',()=>{currentPage=1;render();});
 document.getElementById('fDate').addEventListener('change',loadData);
@@ -356,17 +256,11 @@ const searchInput = document.getElementById('searchName');
 const clearBtn = document.getElementById('clearSearch');
 searchInput.addEventListener('input', (e)=>{searchQuery = e.target.value;clearBtn.style.display = searchQuery ? 'flex' : 'none';currentPage=1;render();});
 clearBtn.addEventListener('click', ()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
-document.getElementById('searchDone').addEventListener('input', (e)=>{searchDoneQuery = e.target.value.toLowerCase().trim();prepareDoneList(true);});
 document.getElementById('toggleViewBtn').addEventListener('click', ()=>{
   isListView = !isListView;
   localStorage.setItem('gda_view', isListView?'list':'grid');
   currentPage=1;
   render();
-});
-document.getElementById('toggleDoneViewBtn').addEventListener('click', ()=>{
-  isDoneListView = !isDoneListView;
-  localStorage.setItem('gda_done_view', isDoneListView?'list':'grid');
-  prepareDoneList(true);
 });
 (function(){
   let startX=0,startY=0,isSwipe=false,threshold=80;
@@ -380,46 +274,23 @@ document.getElementById('toggleDoneViewBtn').addEventListener('click', ()=>{
       isSwipe=true;
       gridEl.style.transform=`translate3d(${dx*0.6}px,0,0)`;
       gridEl.style.opacity=1-Math.min(0.4,Math.abs(dx)/400);
-      if(dx<0){document.getElementById('swipeRight').style.display='flex';document.getElementById('swipeRight').style.opacity=Math.min(1,Math.abs(dx)/80);}else{document.getElementById('swipeLeft').style.display='flex';document.getElementById('swipeLeft').style.opacity=Math.min(1,Math.abs(dx)/80);}
     }
   }
   function onEnd(x,y){
-    if(!isSwipe){gridEl.style.transform='';gridEl.style.opacity='';document.getElementById('swipeLeft').style.display='';document.getElementById('swipeRight').style.display='';document.getElementById('swipeLeft').style.opacity='';document.getElementById('swipeRight').style.opacity='';startX=0;return;}
+    if(!isSwipe){gridEl.style.transform='';gridEl.style.opacity='';startX=0;return;}
     let dx=x-startX;
-    gridEl.style.transform='';gridEl.style.opacity='';document.getElementById('swipeLeft').style.display='';document.getElementById('swipeRight').style.display='';document.getElementById('swipeLeft').style.opacity='';document.getElementById('swipeRight').style.opacity='';
+    gridEl.style.transform='';gridEl.style.opacity='';
     if(dx<-threshold){goNextPage();}else if(dx>threshold){goPrevPage();}
     startX=0;isSwipe=false;
   }
   scrollEl.addEventListener('touchstart', e=>{if(e.touches.length===1){onStart(e.touches[0].clientX,e.touches[0].clientY);}},{passive:true});
   scrollEl.addEventListener('touchmove', e=>{if(e.touches.length===1){onMove(e.touches[0].clientX,e.touches[0].clientY);}},{passive:true});
   scrollEl.addEventListener('touchend', e=>{let x=e.changedTouches[0].clientX,y=e.changedTouches[0].clientY;onEnd(x,y);},{passive:true});
-  let mouseDown=false;
-  scrollEl.addEventListener('mousedown', e=>{mouseDown=true;onStart(e.clientX,e.clientY);});
-  window.addEventListener('mousemove', e=>{if(mouseDown)onMove(e.clientX,e.clientY);});
-  window.addEventListener('mouseup', e=>{if(mouseDown){mouseDown=false;onEnd(e.clientX,e.clientY);}});
 })();
-function prepareDoneList(keepOpen){
-  let body=document.getElementById('completedBody');
-  body.classList.toggle('listView', isDoneListView);
-  body.innerHTML=''; let doneCount=0; let shown=0;
-  allPatients.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(!st||!(st.photoTaken&&st.opdDone))return;doneCount++; if(searchDoneQuery){let n=String(p.name||'').toLowerCase(); if(!n.includes(searchDoneQuery) && !sh.toLowerCase().includes(searchDoneQuery)) return; } shown++; let d=document.createElement('div');d.className=isDoneListView?'card listCard':'card';
-    if(isDoneListView){
-      d.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time} • ${p.block} • ${sh}</div></div></div><button onclick="bringBack('${sh}')" style="margin-left:auto;background:#0B1F4A;color:#fff;border:0;padding:8px 16px;border-radius:100px;font-weight:800;font-size:9px">UNDO</button>`;
-    }else{
-      d.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time} • ${p.block} • ${sh}</div></div></div><button onclick="bringBack('${sh}')" style="margin-top:12px;background:#0B1F4A;color:#fff;border:0;padding:8px;border-radius:100px;font-weight:800;font-size:9px;width:100%">UNDO</button>`;
-    }
-    body.appendChild(d);
-  });
-  if(doneCount===0) body.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#6b7fa3;padding:20px">No completed patients</div>';
-  else if(shown===0) body.innerHTML=`<div style="grid-column:1/-1;text-align:center;color:#6b7fa3;padding:20px">No results for "${searchDoneQuery}"</div>`;
-  document.getElementById('doneCountText').innerText = searchDoneQuery ? `${shown}/${doneCount} shown ${isDoneListView?'• LIST':'• GRID'}` : doneCount + ' patients completed ' + (isDoneListView?'• LIST':'• GRID');
-  updateToggleBtn();
-  if(!keepOpen) openCompleted();
-}
-function bringBack(sh){if(statusMap[sh]){statusMap[sh].photoTaken=false;statusMap[sh].opdDone=false;}saveStatus();render();prepareDoneList(true);}
 window.addEventListener('load',()=>{updateToggleBtn();loadData();applyZoom();});
-window.toggle=toggle;window.bringBack=bringBack;
-window.zoomIn=zoomIn;window.zoomOut=zoomOut;window.zoomReset=zoomReset;
+window.toggle=toggle;
+window.zoomIn=zoomIn;
+window.zoomOut=zoomOut;
 </script>
 </body>
 </html>
