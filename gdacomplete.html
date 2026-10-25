@@ -24,8 +24,14 @@ body{background:#eef2f8;min-height:100vh}
 .searchBar{padding:10px 12px;display:flex;gap:8px;background:#fff;border-bottom:1px solid #dde4f0;align-items:center;flex-wrap:wrap}
 .searchInput{flex:1;min-width:140px;height:42px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 14px;border-radius:100px;font-weight:700;font-size:12px;color:#0B1F4A;outline:none}
 .blockSelect{border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 12px;height:42px;border-radius:100px;font-weight:800;font-size:10px;color:#0B1F4A;min-width:105px;outline:none}
-.viewToggle{height:42px;padding:0 16px;border-radius:100px;border:1.5px solid #0B1F4A;background:#0B1F4A;color:#fff;font-weight:800;font-size:10px;cursor:pointer;white-space:nowrap}
-.viewToggle.list{background:#fff;color:#0B1F4A;border-color:#d0d9ea}
+/* ICON TOGGLE */
+.viewIconGroup{display:flex;gap:0;border:1.5px solid #d0d9ea;border-radius:100px;overflow:hidden;height:42px;background:#f4f7fd}
+.viewIconBtn{width:46px;height:100%;border:0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.2s}
+.viewIconBtn.active{background:#0B1F4A}
+.viewIconBtn.active svg rect,.viewIconBtn.active svg line{stroke:#fff;fill:none}
+.viewIconBtn svg{width:22px;height:22px}
+.viewIconBtn svg rect{stroke:#0B1F4A;stroke-width:2.2;fill:none;rx:2}
+.viewIconBtn svg line{stroke:#0B1F4A;stroke-width:2.6;stroke-linecap:round}
 .searchMeta{padding:0 12px 8px;background:#fff;font-size:10px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px;transition:0.2s}
 @media(min-width:769px){.grid{grid-template-columns:repeat(6,1fr)}}
@@ -68,7 +74,14 @@ body{background:#eef2f8;min-height:100vh}
 <div class="searchBar">
 <input type="text" id="searchName" class="searchInput" placeholder="Search completed...">
 <select id="filterBlock" class="blockSelect"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select>
-<button id="toggleViewBtn" class="viewToggle">GRID VIEW</button>
+<div class="viewIconGroup">
+<button id="gridBtn" class="viewIconBtn active" title="Grid View">
+<svg viewBox="0 0 24 24"><rect x="2" y="2" width="8" height="8"/><rect x="14" y="2" width="8" height="8"/><rect x="2" y="14" width="8" height="8"/><rect x="14" y="14" width="8" height="8"/></svg>
+</button>
+<button id="listBtn" class="viewIconBtn" title="List View">
+<svg viewBox="0 0 24 24"><rect x="2" y="2" width="8" height="8"/><line x1="14" y1="6" x2="22" y2="6"/><rect x="2" y="9" width="8" height="8" style="transform:translateY(6px)"/><line x1="14" y1="13" x2="22" y2="13"/><rect x="2" y="16" width="8" height="8" style="transform:translateY(2px)"/><line x1="14" y1="20" x2="22" y2="20"/></svg>
+</button>
+</div>
 </div>
 <div class="searchMeta"><span id="searchInfo"></span><span id="blockInfo"></span></div>
 <div class="grid" id="grid"></div>
@@ -120,7 +133,6 @@ function render(){
   grid.innerHTML='';
   let filtered=getFilteredDone();
   let totalDone=allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];return st&&st.photoTaken&&st.opdDone;}).length;
-  
   filtered.forEach(p=>{
     let sh=String(p.shri||'').toUpperCase();
     let div=document.createElement('div');
@@ -151,12 +163,13 @@ function render(){
   updateToggleBtn();
 }
 function updateToggleBtn(){
-  let btn=document.getElementById('toggleViewBtn');
-  if(isListView){btn.innerText='LIST VIEW'; btn.classList.remove('list');}
-  else {btn.innerText='GRID VIEW'; btn.classList.add('list');}
+  let gridBtn=document.getElementById('gridBtn');
+  let listBtn=document.getElementById('listBtn');
+  if(isListView){listBtn.classList.add('active');gridBtn.classList.remove('active');}
+  else {gridBtn.classList.add('active');listBtn.classList.remove('active');}
 }
-function toggleView(){
-  isListView = !isListView;
+function setView(list){
+  isListView = list;
   localStorage.setItem('gda_completed_view', isListView?'list':'grid');
   render();
 }
@@ -166,7 +179,8 @@ document.getElementById('filterBlock').addEventListener('change',(e)=>{activeBlo
 document.getElementById('fDate').addEventListener('change',loadData);
 document.getElementById('fType').addEventListener('change',loadData);
 document.getElementById('searchName').addEventListener('input',(e)=>{searchQuery=e.target.value;render();});
-document.getElementById('toggleViewBtn').addEventListener('click', toggleView);
+document.getElementById('gridBtn').addEventListener('click', ()=>setView(false));
+document.getElementById('listBtn').addEventListener('click', ()=>setView(true));
 window.bringBack=bringBack;
 window.addEventListener('load',()=>{updateToggleBtn(); loadData();});
 </script>
