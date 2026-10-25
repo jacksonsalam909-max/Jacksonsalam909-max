@@ -39,7 +39,7 @@ body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
 .scroll{flex:1;display:flex;flex-direction:column;background:#e9eef6;padding:12px}
 .grid{flex:0 0 auto !important;display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:12px !important;width:100% !important;min-height:auto !important;align-content:start !important;align-items:start !important;grid-auto-rows:auto !important}
 .grid.desktopView{grid-template-columns:repeat(6,1fr) !important}
-.card{background:#fff;border-radius:20px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;border:0;box-shadow:0 8px 24px rgba(11,31,74,0.06), 0 2px 8px rgba(11,31,74,0.04);height:auto !important;min-height:210px !important;max-height:none !important;align-self:start !important}
+.card{background:#fff;border-radius:20px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;border:0;box-shadow:0 8px 24px rgba(11,31,74,0.06), 0 2px 8px rgba(11,31,74,0.04);height:auto !important;min-height:210px !important;align-self:start !important}
 .cardTop{display:flex;gap:12px;align-items:flex-start}
 .avatarSq{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:22px;flex-shrink:0}
 .info{flex:1;min-width:0;overflow:hidden;padding-top:1px}
@@ -52,8 +52,31 @@ body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
 .switch:after{content:'';width:26px;height:26px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:.25s;box-shadow:0 2px 6px rgba(0,0,0,0.18)}
 .switch.on{background:linear-gradient(135deg,#22c55e,#16a34a)}
 .switch.on:after{left:29px}
-.grid.listView{display:flex !important;flex-direction:column !important;flex:0 0 auto !important;min-height:auto !important;gap:10px !important}
-.grid.listView .card.listCard{flex:0 0 auto !important;height:auto !important;min-height:96px !important;max-height:none !important;flex-direction:row !important;align-items:center !important;padding:16px 18px !important;border-radius:18px !important;border-left:7px solid #0B1F4A !important}
+
+/* LIST VIEW - STRESS HORIZONTAL TO FILL PAGES */
+.grid.listView{
+  display:flex !important;
+  flex-direction:column !important;
+  flex:0 0 auto !important;
+  width:100% !important;
+  min-height:auto !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+.grid.listView .card.listCard{
+  width:100% !important;
+  max-width:100% !important;
+  align-self:stretch !important;
+  flex:0 0 auto !important;
+  height:auto !important;
+  min-height:96px !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  padding:16px 18px !important;
+  border-radius:18px !important;
+  border-left:7px solid #0B1F4A !important;
+  box-sizing:border-box !important;
+}
 .grid.listView .card.listCard .name{font-size:22px !important;line-height:1.15 !important;min-height:auto !important}
 .grid.listView .card.listCard .sub{font-size:14px !important;margin-top:4px !important}
 .grid.listView .card.listCard .lab{font-size:20px !important;font-weight:900 !important}
@@ -64,13 +87,14 @@ body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
 .grid.listView .card.listCard .switch{width:60px !important;height:34px !important}
 .grid.listView .card.listCard .switch:after{width:28px !important;height:28px !important}
 .grid.listView .card.listCard .switch.on:after{left:29px !important}
+
 .bottom{position:fixed;bottom:0;left:0;right:0;z-index:90;background:#fff;border-top:1px solid #dde4f0;display:flex;justify-content:space-around;padding:8px 0 14px}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:8px;font-weight:700;color:#8aa0c5}
 .tab.active{color:#0B1F4A}
 .tab .ic{width:28px;height:28px;border-radius:10px;background:#e8eefb;display:flex;align-items:center;justify-content:center;font-size:13px}
 .tab.active .ic{background:#0B1F4A;color:#fff}
 .pages{display:flex;justify-content:center;padding:14px 0 80px}
-.pageIndicator{background:#0B1F4A;color:#fff;padding:12px 28px;border-radius:100px;font-weight:900;font-size:14px;letter-spacing:0.5px}
+.pageIndicator{background:#0B1F4A;color:#fff;padding:12px 28px;border-radius:100px;font-weight:900;font-size:14px}
 .overlay{position:fixed;inset:0;background:rgba(11,31,74,0.55);z-index:9998;display:none}
 .overlay.show{display:block}
 .drawer{position:fixed;left:0;top:0;bottom:0;width:85%;max-width:300px;background:#fff;z-index:9999;transform:translateX(-100%);transition:.35s;pointer-events:none}
@@ -174,13 +198,7 @@ function render(){
   let displayName = formatNameParagraph(p.name);
   div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${displayName}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh}</div></div></div><div class="actions"><div class="toggleRow"><span class="lab">PHOTO</span><div class="switch ${st.photoTaken?'on':''}" onclick="toggle('${sh}','photo')"></div></div><div class="toggleRow"><span class="lab">OPD</span><div class="switch ${st.opdDone?'on':''}" onclick="toggle('${sh}','opd')"></div></div></div>`;grid.appendChild(div);});
   if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:20px;color:#0B1F4A;font-weight:700">All done</div>`;}
-
-  // ONLY ONE PAGE NUMBER - FIXED
-  let pg=document.getElementById('pages');
-  if(pg){
-    pg.innerHTML=`<div class="pageIndicator">PAGE ${currentPage}</div>`;
-  }
-
+  let pg=document.getElementById('pages');if(pg){pg.innerHTML=`<div class="pageIndicator">PAGE ${currentPage}</div>`;}
   document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done`;
   document.getElementById('cRight').innerText=`PENDING ${filtered.length}`;
   document.getElementById('doneB').innerText=done;
