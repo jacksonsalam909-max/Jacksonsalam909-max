@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" id="viewportMeta" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" id="viewportMeta" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=0.5, user-scalable=yes, viewport-fit=cover">
 <title>SHIJA HOSPITALS - COMPLETED PATIENTS</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -82,7 +82,9 @@ body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 .pages{grid-column:1/-1;display:flex;justify-content:center;gap:6px;padding:14px 0;flex-wrap:wrap}
 .pageBtn{min-width:42px;height:42px;border-radius:12px;border:1.5px solid #d0d9ea;background:#fff;font-weight:800;font-size:12px;color:#0B1F4A;transition:0.2s}
 .pageBtn.active{background:#0B1F4A;color:#fff;transform:scale(1.1)}
-.zoomBtns{position:fixed;right:12px;bottom:90px;z-index:50;display:flex;flex-direction:column;gap:10px}
+.zoomBtns{position:fixed;right:12px;bottom:90px;z-index:50;display:none;flex-direction:column;gap:10px;opacity:0;transition:opacity 0.3s ease}
+.zoomBtns.show{display:flex;opacity:1;animation:zoomPop 0.3s ease}
+@keyframes zoomPop{0%{transform:scale(0.7);opacity:0}100%{transform:scale(1);opacity:1}}
 .zoomBtns button{width:56px;height:56px;border-radius:14px;border:0;background:linear-gradient(135deg,#0B1F4A,#12367F);color:#fff;box-shadow:0 6px 18px rgba(11,31,74,0.35);font-weight:900;font-size:26px;display:flex;align-items:center;justify-content:center}
 .zoomBtns button:nth-child(2){background:#fff;color:#0B1F4A;border:1.5px solid #d0d9ea;font-size:28px}
 .zoomInfo{position:fixed;right:12px;bottom:220px;z-index:50;background:#0B1F4A;color:#fff;padding:6px 12px;border-radius:100px;font-size:11px;font-weight:900;display:none;box-shadow:0 4px 12px rgba(11,31,74,0.3)}
@@ -134,7 +136,7 @@ body.desktop-mode .grid.listView{grid-template-columns:1fr !important;max-width:
 <div class="bottom"><div class="tab" id="tabPending"><div class="ic">⌂</div>Pending</div><div class="tab active" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#22c55e;color:#fff;padding:2px 6px;border-radius:100px;font-size:8px">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
 </div>
 <div class="zoomInfo" id="zoomInfo">100%</div>
-<div class="zoomBtns"><button onclick="zoomIn()" title="Zoom In">+</button><button onclick="zoomOut()" title="Zoom Out">−</button></div>
+<div class="zoomBtns" id="zoomBtns"><button onclick="zoomIn()" title="Zoom In">+</button><button onclick="zoomOut()" title="Zoom Out">−</button></div>
 <div class="swipeHint left" id="swipeLeft">‹</div>
 <div class="swipeHint right" id="swipeRight">›</div>
 <div class="pageIndicator" id="pageIndicator">Page 1/1</div>
@@ -167,7 +169,7 @@ const app=initializeApp(cfg,"gda_completed_"+Math.random());const db=getFirestor
       localStorage.setItem('gda_desktop','1');
     }else{
       document.body.classList.remove('desktop-mode');
-      vpMeta.setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover');
+      vpMeta.setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=0.5, user-scalable=yes, viewport-fit=cover');
       selTop.value='mobile'; selDrawer.value='mobile';
       localStorage.setItem('gda_desktop','0');
     }
@@ -178,10 +180,24 @@ const app=initializeApp(cfg,"gda_completed_"+Math.random());const db=getFirestor
   selDrawer.addEventListener('change', function(e){ onChange(e); setTimeout(()=>{ window.closeMenu(); },350); });
 })();
 
-// === ZOOM LOGIC: Touch = IN only, Buttons = IN + OUT ===
+// === ZOOM: TOUCH IN + OUT + BUTTONS APPEAR ONLY WHEN ZOOMING ===
 let zoomLevel = parseFloat(localStorage.getItem('gda_completed_zoom') || '1');
 const appRoot = document.getElementById('appRoot');
 const zoomInfo = document.getElementById('zoomInfo');
+const zoomBtns = document.getElementById('zoomBtns');
+let zoomBtnsTimeout;
+let initialDistance = 0;
+let initialZoom = 1;
+let isPinching = false;
+
+function showZoomBtns(){
+  zoomBtns.classList.add('show');
+  clearTimeout(zoomBtnsTimeout);
+  zoomBtnsTimeout = setTimeout(()=>{
+    if(zoomLevel <= 1.01) zoomBtns.classList.remove('show');
+  }, 4000);
+}
+
 function applyZoom(){
   if(!appRoot) return;
   appRoot.style.transform = `scale(${zoomLevel})`;
@@ -190,49 +206,81 @@ function applyZoom(){
   try{ document.body.style.zoom = zoomLevel; }catch(e){}
   if(zoomInfo){
     zoomInfo.textContent = Math.round(zoomLevel*100)+'%';
-    zoomInfo.style.display = 'block';
+    zoomInfo.style.display = zoomLevel>1 ? 'block' : 'none';
     clearTimeout(zoomInfo._t);
-    zoomInfo._t=setTimeout(()=>zoomInfo.style.display='none',1500);
+    if(zoomLevel>1){ zoomInfo._t=setTimeout(()=>zoomInfo.style.display='none',1500); }
+  }
+  if(zoomLevel > 1.01) showZoomBtns();
+  else {
+    clearTimeout(zoomBtnsTimeout);
+    zoomBtnsTimeout = setTimeout(()=>{ zoomBtns.classList.remove('show'); }, 2000);
   }
 }
+
 function zoomIn(){
   zoomLevel = Math.min(zoomLevel+0.25, 3);
   localStorage.setItem('gda_completed_zoom', zoomLevel);
   applyZoom();
+  showZoomBtns();
   if(navigator.vibrate) navigator.vibrate(30);
 }
+
 function zoomOut(){
-  zoomLevel = Math.max(zoomLevel-0.25, 0.5);
+  zoomLevel = Math.max(zoomLevel-0.25, 1);
   localStorage.setItem('gda_completed_zoom', zoomLevel);
   applyZoom();
-  if(navigator.vibrate) navigator.vibrate(20);
+  showZoomBtns();
+  if(navigator.vibrate) navigator.vibrate(30);
 }
+
 function zoomReset(){
   zoomLevel = 1;
   localStorage.setItem('gda_completed_zoom', zoomLevel);
   applyZoom();
 }
+
+// Double-tap = zoom in
 let lastTap=0;
-let touchStartTime=0;
-appRoot.addEventListener('touchstart', function(e){
-  touchStartTime = Date.now();
-  if(e.touches.length > 1){ e.preventDefault(); }
-}, {passive:false});
 appRoot.addEventListener('touchend', function(e){
   let now=Date.now();
-  let timeDiff=now-touchStartTime;
-  if(now-lastTap<350 && timeDiff<200){
+  if(now-lastTap<300 && !isPinching){
     e.preventDefault();
     zoomIn();
   }
   lastTap=now;
 }, {passive:false});
-document.addEventListener('touchmove', function(e){
-  if(e.touches.length > 1){ e.preventDefault(); }
+
+// Pinch zoom IN + OUT
+appRoot.addEventListener('touchstart', function(e){
+  if(e.touches.length === 2){
+    isPinching = true;
+    initialDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    initialZoom = zoomLevel;
+    showZoomBtns();
+  }
+}, {passive:true});
+
+appRoot.addEventListener('touchmove', function(e){
+  if(e.touches.length === 2 && isPinching){
+    e.preventDefault();
+    let currentDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    let scale = currentDistance / initialDistance;
+    let newZoom = initialZoom * scale;
+    zoomLevel = Math.max(1, Math.min(newZoom, 3));
+    localStorage.setItem('gda_completed_zoom', zoomLevel);
+    applyZoom();
+  }
 }, {passive:false});
-document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
-document.addEventListener('gesturechange', function(e){ e.preventDefault(); });
-document.addEventListener('gestureend', function(e){ e.preventDefault(); });
+
+appRoot.addEventListener('touchend', function(e){
+  if(e.touches.length < 2) isPinching = false;
+}, {passive:true});
 
 let params=new URLSearchParams(location.search);
 document.getElementById('fDate').value=params.get('date')||new Date().toISOString().slice(0,10);
@@ -252,13 +300,7 @@ function bringBack(sh){if(statusMap[sh]){statusMap[sh].photoTaken=false;statusMa
 function getInit(n){return (n||'A').charAt(0).toUpperCase();}
 function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#6366F1)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#10B981,#06B6D4)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#3B82F6,#06B6D4)'];let hash=0;for(let i=0;i<name.length;i++){hash=name.charCodeAt(i)+((hash<<5)-hash);}return colors[Math.abs(hash)%colors.length];}
 function getFilteredDone(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(!(st.photoTaken&&st.opdDone))return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();let blockL=String(p.block||'').toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq)&&!blockL.includes(sq))return false;}return true;});}
-function updateToggleBtn(){
-  let btn=document.getElementById('toggleViewBtn');
-  if(btn){
-    if(isListView){btn.innerHTML=gridIconSVG; btn.title="Grid View";}
-    else {btn.innerHTML=listIconSVG; btn.title="List View";}
-  }
-}
+function updateToggleBtn(){let btn=document.getElementById('toggleViewBtn');if(btn){if(isListView){btn.innerHTML=gridIconSVG; btn.title="Grid View";} else {btn.innerHTML=listIconSVG; btn.title="List View";}}}
 function render(direction){
   let grid=document.getElementById('grid');
   grid.classList.toggle('listView', isListView);
