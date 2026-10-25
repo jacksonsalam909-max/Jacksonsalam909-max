@@ -32,7 +32,7 @@ body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:900px;margin:0 auto;width:100%;align-items:start}
 .card{background:#fff;border-radius:16px;padding:11px 10px 12px;display:flex;flex-direction:column;box-shadow:0 6px 18px rgba(11,31,74,0.08);border:1px solid #e8eefb;height:auto;align-self:start;touch-action:manipulation}
 .cardTop{display:flex;gap:9px;align-items:center}
-.avatarSq{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:17px;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.15);text-shadow:0 1px 2px rgba(0,0,0,0.2);letter-spacing:0.5px}
+.avatarSq{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:17px;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.15);text-shadow:0 1px 2px rgba(0,0,0,0.2)}
 .info{flex:1;min-width:0}
 .name{font-size:13px;font-weight:900;color:#0B1F4A;text-transform:uppercase;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sub{margin-top:3px;font-size:8.5px;font-weight:700;color:#6b7fa3}
@@ -61,10 +61,10 @@ body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 .drawerTop b{font-size:14px;letter-spacing:0.5px;display:block}
 .drawerTop small{font-size:10px;opacity:0.85;letter-spacing:0.8px;margin-top:3px;display:block}
 .menuList{padding:8px 0;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.menuItem{padding:15px 18px;font-size:13px;font-weight:800;color:#334155;display:flex;align-items:center;gap:12px;cursor:pointer;border-left:4px solid transparent;touch-action:manipulation;min-height:52px}
+.menuItem{padding:16px 18px;font-size:13px;font-weight:800;color:#334155;display:flex;align-items:center;gap:12px;cursor:pointer;border-left:4px solid transparent;touch-action:manipulation;min-height:56px}
 .menuItem:active{background:#e8eefb}
 .menuItem.active{background:#e8eefb;color:#0B1F4A;border-left-color:#0B1F4A}
-.menuItem .mi{width:34px;height:34px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:15px;color:#0B1F4A;flex-shrink:0}
+.menuItem .mi{width:36px;height:36px;border-radius:11px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:16px;color:#0B1F4A;flex-shrink:0}
 .menuItem.active .mi{background:#0B1F4A;color:#fff}
 </style>
 </head>
@@ -81,17 +81,16 @@ body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 <div style="background:#fff;color:#0B1F4A;padding:6px 12px;border-radius:100px;font-size:10px;font-weight:800" id="drawerCount">0 PATIENTS</div>
 </div>
 </div>
+
+<!-- ONLY 5 MENU ITEMS AS YOU ASKED -->
 <div class="menuList">
 <div class="menuItem active" data-url="index.html"><div class="mi">⌂</div> HOME</div>
-<div class="menuItem" data-url="total_patient.html"><div class="mi">👥</div> TOTAL PATIENT</div>
-<div class="menuItem" data-url="cmht_total_patient.html"><div class="mi">🏥</div> CMHT TOTAL PATIENT</div>
-<div class="menuItem" data-url="search_patient.html"><div class="mi">🔍</div> SEARCH PATIENT</div>
-<div class="menuItem" data-url="cmht_kft_report.html"><div class="mi">📊</div> CMHT KFT REPORT</div>
-<div class="menuItem" data-url="cmht_daily_dialysis.html"><div class="mi">💧</div> CMHT DAILY DIALYSIS</div>
-<div class="menuItem" data-url="cmht_add_patient.html"><div class="mi">➕</div> CMHT ADD PATIENT</div>
-<div class="menuItem" data-url="daily_dialysis.html"><div class="mi">📅</div> DAILY DIALYSIS</div>
-<div class="menuItem" data-url="excel_list.html"><div class="mi">📄</div> EXCEL LIST</div>
+<div class="menuItem" data-url="total.html"><div class="mi">👥</div> TOTAL PMJAY PATIENT</div>
+<div class="menuItem" data-url="cmht.html"><div class="mi">🏥</div> TOTAL CMHT PATIENT</div>
+<div class="menuItem" data-url="searchpatient.html"><div class="mi">🔍</div> SEARCH PATIENT</div>
+<div class="menuItem" data-url="list.html"><div class="mi">📄</div> EXCEL LIST</div>
 </div>
+
 <div style="padding:14px 16px;border-top:1px solid #e8eefb;font-size:10px;font-weight:700;color:#8aa0c5;text-align:center">SHIJA HOSPITALS © 2026</div>
 </div>
 
@@ -141,7 +140,6 @@ const app=initializeApp(cfg,"gda_"+Math.random());const db=getFirestore(app);win
   document.addEventListener('keydown', e=>{if(e.key==='Escape')closeMenu();});
   window.openMenu=openMenu; window.closeMenu=closeMenu;
 })();
-
 function zoomIn(){let cur=parseFloat(document.body.style.zoom||1);document.body.style.zoom=Math.min(cur+0.25,3);}
 function zoomReset(){document.body.style.zoom=1;window.scrollTo(0,0);}
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
@@ -153,36 +151,13 @@ async function loadData(){let d=document.getElementById('fDate').value,s=documen
 async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id),{date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()});}
 function toggle(sh,type){if(!statusMap[sh])statusMap[sh]={photoTaken:false,opdDone:false};if(type==='photo')statusMap[sh].photoTaken=!statusMap[sh].photoTaken;else statusMap[sh].opdDone=!statusMap[sh].opdDone;saveStatus();let st=statusMap[sh];if(st.photoTaken&&st.opdDone){let el=document.getElementById('card_'+sh);if(el){el.style.transform='scale(0.85)';el.style.opacity='0';setTimeout(render,200);}}else render();}
 function getInit(n){return (n||'A').charAt(0).toUpperCase();}
-
-// MULTI COLOUR GRADIENT FOR PATIENT ICONS
 function getCol(name){
   const colors=[
-    'linear-gradient(135deg,#8B5CF6,#6366F1)', /* Purple-Blue */
-    'linear-gradient(135deg,#F59E0B,#F97316)', /* Orange-Amber */
-    'linear-gradient(135deg,#10B981,#06B6D4)', /* Green-Cyan */
-    'linear-gradient(135deg,#EF4444,#EC4899)', /* Red-Pink */
-    'linear-gradient(135deg,#3B82F6,#06B6D4)', /* Blue-Cyan */
-    'linear-gradient(135deg,#14B8A6,#8B5CF6)', /* Teal-Purple */
-    'linear-gradient(135deg,#F97316,#EAB308)', /* Orange-Yellow */
-    'linear-gradient(135deg,#EC4899,#8B5CF6)', /* Pink-Purple */
-    'linear-gradient(135deg,#06B6D4,#3B82F6)', /* Cyan-Blue */
-    'linear-gradient(135deg,#84CC16,#10B981)', /* Lime-Green */
-    'linear-gradient(135deg,#F43F5E,#F97316)', /* Rose-Orange */
-    'linear-gradient(135deg,#6366F1,#EC4899)', /* Indigo-Pink */
-    'linear-gradient(135deg,#0EA5E9,#10B981)', /* Sky-Green */
-    'linear-gradient(135deg,#A855F7,#F43F5E)', /* Purple-Rose */
-    'linear-gradient(135deg,#EAB308,#EF4444)', /* Yellow-Red */
-    'linear-gradient(135deg,#06B6D4,#8B5CF6)', /* Cyan-Purple */
-    'linear-gradient(135deg,#10B981,#F59E0B)', /* Green-Amber */
-    'linear-gradient(135deg,#3B82F6,#A855F7)'  /* Blue-Purple */
+    'linear-gradient(135deg,#8B5CF6,#6366F1)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#10B981,#06B6D4)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#3B82F6,#06B6D4)','linear-gradient(135deg,#14B8A6,#8B5CF6)','linear-gradient(135deg,#F97316,#EAB308)','linear-gradient(135deg,#EC4899,#8B5CF6)','linear-gradient(135deg,#06B6D4,#3B82F6)','linear-gradient(135deg,#84CC16,#10B981)','linear-gradient(135deg,#F43F5E,#F97316)','linear-gradient(135deg,#6366F1,#EC4899)','linear-gradient(135deg,#0EA5E9,#10B981)','linear-gradient(135deg,#A855F7,#F43F5E)','linear-gradient(135deg,#EAB308,#EF4444)','linear-gradient(135deg,#06B6D4,#8B5CF6)','linear-gradient(135deg,#10B981,#F59E0B)','linear-gradient(135deg,#3B82F6,#A855F7)'
   ];
-  // Use full name hash for better distribution
-  let hash=0;
-  for(let i=0;i<name.length;i++){ hash = name.charCodeAt(i) + ((hash<<5)-hash); }
-  let idx = Math.abs(hash) % colors.length;
-  return colors[idx];
+  let hash=0; for(let i=0;i<name.length;i++){ hash=name.charCodeAt(i)+((hash<<5)-hash); }
+  return colors[Math.abs(hash)%colors.length];
 }
-
 function getFiltered(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(st.photoTaken&&st.opdDone)return false;return true;});}
 function render(){let grid=document.getElementById('grid');grid.innerHTML='';let filtered=getFiltered();let done=0;allPatients.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(st&&st.photoTaken&&st.opdDone)done++;});let pages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>pages)currentPage=pages;let items=filtered.slice((currentPage-1)*pageSize,currentPage*pageSize);items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh]||{photoTaken:false,opdDone:false};let div=document.createElement('div');div.className='card';div.id='card_'+sh;div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'}</div></div></div><div class="actions"><div class="toggleRow"><span class="lab">PHOTO</span><div class="switch ${st.photoTaken?'on':''}" onclick="toggle('${sh}','photo')"></div></div><div class="toggleRow"><span class="lab">OPD</span><div class="switch ${st.opdDone?'on':''}" onclick="toggle('${sh}','opd')"></div></div></div>`;grid.appendChild(div);});if(filtered.length===0)grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;color:#0B1F4A">🎉 All done</div>`;let pg=document.getElementById('pages');pg.innerHTML='';if(pages>1){for(let i=1;i<=pages;i++){let b=document.createElement('button');b.className='pageBtn'+(i===currentPage?' active':'');b.innerText=i;b.onclick=()=>{currentPage=i;document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});render();};pg.appendChild(b);}}document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done`;document.getElementById('cRight').innerText=`PENDING ${filtered.length}`;document.getElementById('doneB').innerText=done;let dc=document.getElementById('drawerCount');if(dc)dc.innerText=`${allPatients.length} PATIENTS`;}
 document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;currentPage=1;render();}));
