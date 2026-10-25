@@ -2,13 +2,13 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" id="viewportMeta" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=0.5, user-scalable=yes, viewport-fit=cover">
+<meta name="viewport" id="viewportMeta" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>SHIJA HOSPITALS - COMPLETED PATIENTS</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%;touch-action:manipulation}
-body{background:#eef2f8;width:100%;min-height:100dvh;overflow:auto;overscroll-behavior:none;transform-origin:0 0;transition:transform 0.2s ease}
+body{background:#eef2f8;width:100%;min-height:100dvh;overflow:auto;overscroll-behavior:none;transform-origin:0 0}
 body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 .app{min-height:100dvh;display:flex;flex-direction:column;transform-origin:top left;transition:transform 0.25s cubic-bezier(0.32,0.72,0,1);will-change:transform}
 .top{flex-shrink:0;background:linear-gradient(135deg,#0B1F4A 0%,#12367F 100%);padding:12px 12px 12px;color:#fff;position:sticky;top:0;z-index:10;box-shadow:0 4px 20px rgba(11,31,74,0.3);display:flex;align-items:center;gap:10px}
@@ -83,8 +83,9 @@ body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 .pageBtn{min-width:42px;height:42px;border-radius:12px;border:1.5px solid #d0d9ea;background:#fff;font-weight:800;font-size:12px;color:#0B1F4A;transition:0.2s}
 .pageBtn.active{background:#0B1F4A;color:#fff;transform:scale(1.1)}
 .zoomBtns{position:fixed;right:12px;bottom:90px;z-index:50;display:flex;flex-direction:column;gap:10px}
-.zoomBtns button{width:56px;height:56px;border-radius:14px;border:0;background:linear-gradient(135deg,#0B1F4A,#12367F);color:#fff;box-shadow:0 6px 18px rgba(11,31,74,0.35);font-weight:900;font-size:28px;display:flex;align-items:center;justify-content:center}
-.zoomInfo{position:fixed;right:12px;bottom:158px;z-index:50;background:#0B1F4A;color:#fff;padding:6px 10px;border-radius:100px;font-size:10px;font-weight:900;display:none}
+.zoomBtns button{width:56px;height:56px;border-radius:14px;border:0;background:linear-gradient(135deg,#0B1F4A,#12367F);color:#fff;box-shadow:0 6px 18px rgba(11,31,74,0.35);font-weight:900;font-size:26px;display:flex;align-items:center;justify-content:center}
+.zoomBtns button:nth-child(2){background:#fff;color:#0B1F4A;border:1.5px solid #d0d9ea;font-size:28px}
+.zoomInfo{position:fixed;right:12px;bottom:220px;z-index:50;background:#0B1F4A;color:#fff;padding:6px 12px;border-radius:100px;font-size:11px;font-weight:900;display:none;box-shadow:0 4px 12px rgba(11,31,74,0.3)}
 .overlay{position:fixed;inset:0;background:rgba(11,31,74,0.55);backdrop-filter:blur(5px);z-index:9998;display:none;opacity:0;transition:opacity 0.3s ease;pointer-events:none}
 .overlay.show{display:block;opacity:1;pointer-events:auto}
 .drawer{position:fixed;left:0;top:0;bottom:0;width:85%;max-width:300px;background:#fff;z-index:9999;transform:translate3d(-100%,0,0);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);box-shadow:8px 0 40px rgba(11,31,74,0.3);display:flex;flex-direction:column;overflow:hidden;pointer-events:none}
@@ -133,7 +134,7 @@ body.desktop-mode .grid.listView{grid-template-columns:1fr !important;max-width:
 <div class="bottom"><div class="tab" id="tabPending"><div class="ic">⌂</div>Pending</div><div class="tab active" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#22c55e;color:#fff;padding:2px 6px;border-radius:100px;font-size:8px">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
 </div>
 <div class="zoomInfo" id="zoomInfo">100%</div>
-<div class="zoomBtns"><button onclick="zoomIn()" title="Zoom In">+</button></div>
+<div class="zoomBtns"><button onclick="zoomIn()" title="Zoom In">+</button><button onclick="zoomOut()" title="Zoom Out">−</button></div>
 <div class="swipeHint left" id="swipeLeft">‹</div>
 <div class="swipeHint right" id="swipeRight">›</div>
 <div class="pageIndicator" id="pageIndicator">Page 1/1</div>
@@ -166,7 +167,7 @@ const app=initializeApp(cfg,"gda_completed_"+Math.random());const db=getFirestor
       localStorage.setItem('gda_desktop','1');
     }else{
       document.body.classList.remove('desktop-mode');
-      vpMeta.setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=0.5, user-scalable=yes, viewport-fit=cover');
+      vpMeta.setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover');
       selTop.value='mobile'; selDrawer.value='mobile';
       localStorage.setItem('gda_desktop','0');
     }
@@ -176,7 +177,8 @@ const app=initializeApp(cfg,"gda_completed_"+Math.random());const db=getFirestor
   selTop.addEventListener('change', onChange);
   selDrawer.addEventListener('change', function(e){ onChange(e); setTimeout(()=>{ window.closeMenu(); },350); });
 })();
-// --- FIXED ZOOM THAT WORKS ON ALL PHONES ---
+
+// === ZOOM LOGIC: Touch = IN only, Buttons = IN + OUT ===
 let zoomLevel = parseFloat(localStorage.getItem('gda_completed_zoom') || '1');
 const appRoot = document.getElementById('appRoot');
 const zoomInfo = document.getElementById('zoomInfo');
@@ -188,9 +190,9 @@ function applyZoom(){
   try{ document.body.style.zoom = zoomLevel; }catch(e){}
   if(zoomInfo){
     zoomInfo.textContent = Math.round(zoomLevel*100)+'%';
-    zoomInfo.style.display = zoomLevel>1 ? 'block' : 'none';
+    zoomInfo.style.display = 'block';
     clearTimeout(zoomInfo._t);
-    if(zoomLevel>1){ zoomInfo._t=setTimeout(()=>zoomInfo.style.display='none',1500); }
+    zoomInfo._t=setTimeout(()=>zoomInfo.style.display='none',1500);
   }
 }
 function zoomIn(){
@@ -199,15 +201,38 @@ function zoomIn(){
   applyZoom();
   if(navigator.vibrate) navigator.vibrate(30);
 }
+function zoomOut(){
+  zoomLevel = Math.max(zoomLevel-0.25, 0.5);
+  localStorage.setItem('gda_completed_zoom', zoomLevel);
+  applyZoom();
+  if(navigator.vibrate) navigator.vibrate(20);
+}
+function zoomReset(){
+  zoomLevel = 1;
+  localStorage.setItem('gda_completed_zoom', zoomLevel);
+  applyZoom();
+}
 let lastTap=0;
+let touchStartTime=0;
+appRoot.addEventListener('touchstart', function(e){
+  touchStartTime = Date.now();
+  if(e.touches.length > 1){ e.preventDefault(); }
+}, {passive:false});
 appRoot.addEventListener('touchend', function(e){
   let now=Date.now();
-  if(now-lastTap<300){
+  let timeDiff=now-touchStartTime;
+  if(now-lastTap<350 && timeDiff<200){
     e.preventDefault();
     zoomIn();
   }
   lastTap=now;
 }, {passive:false});
+document.addEventListener('touchmove', function(e){
+  if(e.touches.length > 1){ e.preventDefault(); }
+}, {passive:false});
+document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
+document.addEventListener('gesturechange', function(e){ e.preventDefault(); });
+document.addEventListener('gestureend', function(e){ e.preventDefault(); });
 
 let params=new URLSearchParams(location.search);
 document.getElementById('fDate').value=params.get('date')||new Date().toISOString().slice(0,10);
@@ -227,7 +252,13 @@ function bringBack(sh){if(statusMap[sh]){statusMap[sh].photoTaken=false;statusMa
 function getInit(n){return (n||'A').charAt(0).toUpperCase();}
 function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#6366F1)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#10B981,#06B6D4)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#3B82F6,#06B6D4)'];let hash=0;for(let i=0;i<name.length;i++){hash=name.charCodeAt(i)+((hash<<5)-hash);}return colors[Math.abs(hash)%colors.length];}
 function getFilteredDone(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(!(st.photoTaken&&st.opdDone))return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();let blockL=String(p.block||'').toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq)&&!blockL.includes(sq))return false;}return true;});}
-function updateToggleBtn(){let btn=document.getElementById('toggleViewBtn');if(btn){if(isListView){btn.innerHTML=gridIconSVG; btn.title="Grid View";} else {btn.innerHTML=listIconSVG; btn.title="List View";}}}
+function updateToggleBtn(){
+  let btn=document.getElementById('toggleViewBtn');
+  if(btn){
+    if(isListView){btn.innerHTML=gridIconSVG; btn.title="Grid View";}
+    else {btn.innerHTML=listIconSVG; btn.title="List View";}
+  }
+}
 function render(direction){
   let grid=document.getElementById('grid');
   grid.classList.toggle('listView', isListView);
@@ -309,7 +340,7 @@ document.getElementById('toggleViewBtn').addEventListener('click', ()=>{
 })();
 window.addEventListener('load',()=>{updateToggleBtn();loadData();applyZoom();});
 window.bringBack=bringBack;
-window.zoomIn=zoomIn;
+window.zoomIn=zoomIn;window.zoomOut=zoomOut;window.zoomReset=zoomReset;
 </script>
 </body>
 </html>
