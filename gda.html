@@ -9,14 +9,15 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif}
-body{background:#e9eef6;min-height:100dvh}
+html,body{height:100%}
+body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
 .top{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(135deg,#0B1F4A,#12367F);padding:12px;color:#fff;display:flex;align-items:center;gap:10px;height:58px}
 .menuBtn{width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,0.18);color:#fff;font-size:22px;font-weight:900}
 .hWrap{flex:1}.hTitle{font-size:13px;font-weight:900}.hSub{font-size:9px;opacity:0.8}
 .topActions{display:flex;gap:8px}
 .viewDropdown{height:38px;border-radius:12px;border:0;background:#fff;color:#0B1F4A;font-size:11px;font-weight:900;padding:0 12px}
 .btnViewList{height:38px;padding:0 14px;border-radius:12px;border:0;background:#fff;color:#0B1F4A;font-size:11px;font-weight:900}
-.app{padding-top:58px;display:flex;flex-direction:column;min-height:100dvh}
+.app{padding-top:58px;display:flex;flex-direction:column;flex:1;min-height:100dvh;width:100%}
 .rowTop{display:flex;gap:8px;margin-top:10px}
 .dateBox{flex:1;border-radius:14px;height:46px;display:flex;align-items:center;padding:0 12px;background:#fff}
 .dateBox input,.dateBox select{border:0;width:100%;font-weight:700;font-size:13px;outline:none;background:transparent;color:#0B1F4A}
@@ -35,39 +36,40 @@ body{background:#e9eef6;min-height:100dvh}
 .viewIconSingle svg{width:20px;height:20px}
 .viewIconSingle svg rect{stroke:#0B1F4A;stroke-width:2.2;fill:none}
 .viewIconSingle svg line{stroke:#0B1F4A;stroke-width:2.6;stroke-linecap:round}
-.scroll{flex:1;padding:12px;background:#e9eef6;display:flex;flex-direction:column}
-.grid{display:grid;grid-template-columns:repeat(3,1fr) !important;gap:12px;width:100%}
-.grid.listView{grid-template-columns:1fr !important}
+
+/* FILL PAGE - NO EMPTY SPACE */
+.scroll{flex:1;display:flex;flex-direction:column;background:#e9eef6;padding:12px;min-height:calc(100dvh - 320px)}
+.grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr) !important;gap:12px;width:100%;align-content:stretch;grid-auto-rows:1fr}
+.grid.listView{grid-template-columns:1fr !important;grid-auto-rows:auto !important}
 .grid.desktopView{grid-template-columns:repeat(6,1fr) !important}
 .grid.listView.desktopView{grid-template-columns:1fr !important}
 
-/* CARD - RIGHT PROPORTION LIKE YOUR PHOTO */
+/* CARD - STRETCH TO FILL */
 .card{
   background:#fff;
   border-radius:20px;
-  padding:14px 14px 14px;
+  padding:14px;
   display:flex;
   flex-direction:column;
   justify-content:space-between;
   border:0;
   box-shadow:0 8px 24px rgba(11,31,74,0.06), 0 2px 8px rgba(11,31,74,0.04);
-  min-height:152px;
+  height:100%;
+  min-height:0;
 }
 .cardTop{display:flex;gap:12px;align-items:flex-start}
-.avatarSq{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;flex-shrink:0;box-shadow:0 6px 14px rgba(0,0,0,0.15);line-height:1}
+.avatarSq{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;flex-shrink:0;box-shadow:0 6px 14px rgba(0,0,0,0.15)}
 .info{flex:1;min-width:0;overflow:hidden;padding-top:1px}
-.name{font-size:14px;font-weight:900;color:#0B1F4A;text-transform:uppercase;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0.1px}
-.sub{margin-top:4px;font-size:10px;font-weight:700;color:#7a8db0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0.3px}
-.actions{margin-top:16px;display:flex;flex-direction:column;gap:12px}
+.name{font-size:14px;font-weight:900;color:#0B1F4A;text-transform:uppercase;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub{margin-top:4px;font-size:10px;font-weight:700;color:#7a8db0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actions{margin-top:12px;display:flex;flex-direction:column;gap:10px}
 .toggleRow{display:flex;align-items:center;justify-content:space-between;width:100%}
-.lab{font-size:12px;font-weight:800;color:#0B1F4A;letter-spacing:0.2px}
+.lab{font-size:12px;font-weight:800;color:#0B1F4A}
 .switch{width:56px;height:30px;border-radius:100px;background:#dfe6f3;position:relative;cursor:pointer;flex-shrink:0;transition:.25s}
-.switch:after{content:'';width:24px;height:24px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:.25s;box-shadow:0 2px 6px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.1)}
+.switch:after{content:'';width:24px;height:24px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:.25s;box-shadow:0 2px 6px rgba(0,0,0,0.18)}
 .switch.on{background:linear-gradient(135deg,#22c55e,#16a34a)}
 .switch.on:after{left:29px}
-
-/* LIST - BIGGER */
-.card.listCard{flex-direction:row !important;align-items:center !important;padding:20px 18px !important;min-height:108px !important;border-radius:18px !important;border-left:7px solid #0B1F4A !important}
+.card.listCard{height:auto !important;min-height:108px !important;flex-direction:row !important;align-items:center !important;padding:20px 18px !important;border-radius:18px !important;border-left:7px solid #0B1F4A !important}
 .card.listCard .cardTop{flex:1 !important;gap:14px !important;align-items:center !important}
 .card.listCard .avatarSq{width:54px !important;height:54px !important;font-size:22px !important}
 .card.listCard .name{font-size:20px !important}
@@ -80,7 +82,7 @@ body{background:#e9eef6;min-height:100dvh}
 .tab.active{color:#0B1F4A}
 .tab .ic{width:28px;height:28px;border-radius:10px;background:#e8eefb;display:flex;align-items:center;justify-content:center;font-size:13px}
 .tab.active .ic{background:#0B1F4A;color:#fff}
-.pages{grid-column:1/-1;display:flex;justify-content:center;gap:6px;padding:16px 0 76px;flex-wrap:wrap}
+.pages{grid-column:1/-1;display:flex;justify-content:center;gap:6px;padding:12px 0 76px;width:100%;flex-shrink:0}
 .pageBtn{min-width:42px;height:42px;border-radius:12px;border:1.5px solid #d0d9ea;background:#fff;font-weight:800;font-size:12px}
 .pageBtn.active{background:#0B1F4A;color:#fff;transform:scale(1.05)}
 .overlay{position:fixed;inset:0;background:rgba(11,31,74,0.55);z-index:9998;display:none}
@@ -102,7 +104,7 @@ body.desktop-mode .filter,body.desktop-mode .searchBar,body.desktop-mode .search
 <div class="drawerTop">
 <div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b><small>DIALYSIS MANAGEMENT</small></div><button id="closeDrawerBtn" style="width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:22px;font-weight:900">✕</button></div>
 <div style="margin-top:12px;display:flex;gap:8px"><div style="background:rgba(255,255,255,0.18);padding:6px 12px;border-radius:100px;font-size:10px;font-weight:700">● ONLINE</div><div style="background:#fff;color:#0B1F4A;padding:6px 12px;border-radius:100px;font-size:10px;font-weight:800" id="drawerCount">0</div></div>
-<div style="margin-top:12px"><select id="viewModeDrawer" class="drawerDropdown"><option value="mobile">MOBILE 3-COL 18/page</option><option value="desktop">DESKTOP 6-COL 18/page</option></select></div>
+<div style="margin-top:12px"><select id="viewModeDrawer" class="drawerDropdown"><option value="mobile">MOBILE FILL 18/page</option><option value="desktop">DESKTOP FILL 18/page</option></select></div>
 </div>
 <div class="menuList">
 <div class="menuItem active" data-url="index.html">HOME</div>
@@ -194,7 +196,7 @@ function render(){
   items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh]||{photoTaken:false,opdDone:false};let div=document.createElement('div');div.className=isListView?'card listCard':'card';div.id='card_'+sh;div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh}</div></div></div><div class="actions"><div class="toggleRow"><span class="lab">PHOTO</span><div class="switch ${st.photoTaken?'on':''}" onclick="toggle('${sh}','photo')"></div></div><div class="toggleRow"><span class="lab">OPD</span><div class="switch ${st.opdDone?'on':''}" onclick="toggle('${sh}','opd')"></div></div></div>`;grid.appendChild(div);});
   if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:20px;color:#0B1F4A;font-weight:700">All done</div>`;}
   let pg=document.getElementById('pages');pg.innerHTML='';if(pages>1){for(let i=1;i<=pages;i++){let b=document.createElement('button');b.className='pageBtn'+(i===currentPage?' active':'');b.innerText=i;b.onclick=()=>{currentPage=i;render();window.scrollTo({top:0,behavior:'smooth'});};pg.appendChild(b);}}
-  document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done`;document.getElementById('cRight').innerText=`PENDING ${filtered.length} (${ps}/page)`;document.getElementById('doneB').innerText=done;document.getElementById('searchInfo').innerText=`${filtered.length} patients • ${ps}/page • PROPORTION`;document.getElementById('drawerCount').innerText=`${allPatients.length}`;updateToggleBtn();
+  document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done`;document.getElementById('cRight').innerText=`PENDING ${filtered.length} (${ps}/page)`;document.getElementById('doneB').innerText=done;document.getElementById('searchInfo').innerText=`${filtered.length} patients • ${ps}/page • FILL PAGE`;document.getElementById('drawerCount').innerText=`${allPatients.length}`;updateToggleBtn();
 }
 function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;render();return true;}}
 function goPrevPage(){if(currentPage>1){currentPage--;render();return true;}}
