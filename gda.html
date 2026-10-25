@@ -40,10 +40,11 @@ body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 .viewIconSingle svg rect{stroke:#0B1F4A;stroke-width:2.2;fill:none}
 .viewIconSingle svg line{stroke:#0B1F4A;stroke-width:2.6;stroke-linecap:round}
 .scroll{flex:1;overflow:visible;padding:12px;background:#eef2f8}
+.scroll.listMode{padding:8px 8px;background:#eef2f8}
 .grid{display:grid;grid-template-columns:repeat(3,1fr) !important;gap:12px;max-width:900px;margin:0 auto;width:100%;align-items:start;transition:0.2s}
-.grid.listView{grid-template-columns:1fr !important;max-width:700px;gap:8px}
+.grid.listView{grid-template-columns:1fr !important;max-width:100% !important;width:100% !important;margin:0 !important;gap:8px;padding:0;align-items:stretch}
 .card{background:#fff;border-radius:16px;padding:11px 10px 12px;display:flex;flex-direction:column;box-shadow:0 6px 18px rgba(11,31,74,0.08);border:1px solid #e8eefb;height:auto;align-self:start}
-.card.listCard{flex-direction:row;align-items:center;gap:12px;padding:12px 14px;border-radius:12px}
+.card.listCard{flex-direction:row;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;width:100%;max-width:100%;margin:0;align-self:stretch}
 .card.listCard .cardTop{flex:1}
 .card.listCard .avatarSq{width:42px;height:42px;font-size:18px}
 .card.listCard .actions{margin-top:0;flex-direction:row;gap:16px;margin-left:auto;flex-shrink:0}
@@ -92,14 +93,14 @@ body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 .dragHint{margin-top:6px;font-size:9px;font-weight:800;color:#8aa0c5;letter-spacing:0.8px}
 .doneHeader{padding:4px 16px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e8eefb;flex-shrink:0}
 .doneBody{padding:12px;overflow-y:auto;flex:1;display:grid;gap:10px;grid-template-columns:repeat(3,1fr) !important;align-content:start;overscroll-behavior:contain}
-.doneBody.listView{grid-template-columns:1fr !important;gap:8px}
+.doneBody.listView{grid-template-columns:1fr !important;max-width:100% !important;width:100% !important;gap:8px}
 body.desktop-mode{background:#d9e0ef}
 body.desktop-mode .app{max-width:1600px;margin:0 auto;background:#eef2f8;box-shadow:0 0 60px rgba(11,31,74,0.15);min-height:100vh}
 body.desktop-mode .grid{grid-template-columns:repeat(6,1fr) !important;max-width:100% !important;gap:16px;padding:0 8px}
-body.desktop-mode .grid.listView{grid-template-columns:1fr !important}
+body.desktop-mode .grid.listView{grid-template-columns:1fr !important;max-width:100% !important;width:100% !important;margin:0 !important}
 body.desktop-mode .doneBody{grid-template-columns:repeat(6,1fr) !important}
-body.desktop-mode .doneBody.listView{grid-template-columns:1fr !important}
-@media(max-width:768px){.grid{grid-template-columns:repeat(3,1fr) !important;}.grid.listView{grid-template-columns:1fr !important;}.doneBody{grid-template-columns:repeat(3,1fr) !important;}.doneBody.listView{grid-template-columns:1fr !important;}}
+body.desktop-mode .doneBody.listView{grid-template-columns:1fr !important;max-width:100% !important}
+@media(max-width:768px){.grid{grid-template-columns:repeat(3,1fr) !important;}.grid.listView{grid-template-columns:1fr !important;max-width:100% !important;width:100% !important;margin:0 !important;}.doneBody{grid-template-columns:repeat(3,1fr) !important;}.doneBody.listView{grid-template-columns:1fr !important;max-width:100% !important;width:100% !important;}}
 </style>
 </head>
 <body>
@@ -224,8 +225,10 @@ function updateToggleBtn(){
   }
 }
 function render(){
+  let scroll=document.getElementById('scroll');
   let grid=document.getElementById('grid');
   grid.classList.toggle('listView', isListView);
+  scroll.classList.toggle('listMode', isListView);
   grid.innerHTML='';let filtered=getFiltered();let done=0;allPatients.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(st&&st.photoTaken&&st.opdDone)done++;});let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;let items=filtered.slice((currentPage-1)*ps,currentPage*ps);
   items.forEach(p=>{
     let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh]||{photoTaken:false,opdDone:false};
@@ -235,7 +238,7 @@ function render(){
   });
   if(filtered.length===0){let msg = searchQuery ? `No results for "${searchQuery}"` : 'All done'; grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;color:#0B1F4A;font-weight:700">${msg}</div>`;}
   let pg=document.getElementById('pages');pg.innerHTML='';if(pages>1){for(let i=1;i<=pages;i++){let b=document.createElement('button');b.className='pageBtn'+(i===currentPage?' active':'');b.innerText=i;b.onclick=()=>{currentPage=i;document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});render();};pg.appendChild(b);}}
-  document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done`;document.getElementById('cRight').innerText=`PENDING ${filtered.length} (${ps}/page)`;document.getElementById('doneB').innerText=done;let dc=document.getElementById('drawerCount');if(dc)dc.innerText=`${allPatients.length} PATIENTS`;let sInfo=document.getElementById('searchInfo');if(searchQuery){sInfo.innerText=`Found ${filtered.length} for "${searchQuery}"`; } else {sInfo.innerText=`${filtered.length} patients ${isListView?'• LIST 10/page':'• GRID 36/page'}`; } document.getElementById('blockInfo').innerText = document.getElementById('filterBlock').value ? `Block: ${document.getElementById('filterBlock').value}` : '';
+  document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done`;document.getElementById('cRight').innerText=`PENDING ${filtered.length} (${ps}/page)`;document.getElementById('doneB').innerText=done;let dc=document.getElementById('drawerCount');if(dc)dc.innerText=`${allPatients.length} PATIENTS`;let sInfo=document.getElementById('searchInfo');if(searchQuery){sInfo.innerText=`Found ${filtered.length} for "${searchQuery}"`; } else {sInfo.innerText=`${filtered.length} patients ${isListView?'• LIST 10/page FULL':'• GRID 36/page'}`; } document.getElementById('blockInfo').innerText = document.getElementById('filterBlock').value ? `Block: ${document.getElementById('filterBlock').value}` : '';
   updateToggleBtn();
 }
 function goToCompleted(){
