@@ -92,7 +92,7 @@ body{background:#eef2f8;width:100%;min-height:100dvh;overflow:auto}
 <div class="drawerTop">
 <div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b><small>DIALYSIS MANAGEMENT</small></div><button id="closeDrawerBtn" style="width:48px;height:48px;border-radius:12px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:26px;font-weight:900">✕</button></div>
 <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><div style="background:rgba(255,255,255,0.18);padding:6px 12px;border-radius:100px;font-size:10px;font-weight:700">● ONLINE</div><div style="background:#fff;color:#0B1F4A;padding:6px 12px;border-radius:100px;font-size:10px;font-weight:800" id="drawerCount">0 PATIENTS</div></div>
-<div style="margin-top:12px"><div style="font-size:10px;font-weight:800;letter-spacing:0.8px;opacity:0.9">VIEW MODE</div><select id="viewModeDrawer" class="drawerDropdown"><option value="mobile">MOBILE VIEW - 3 Columns</option><option value="desktop">DESKTOP VIEW - 5 Columns</option></select></div>
+<div style="margin-top:12px"><div style="font-size:10px;font-weight:800;letter-spacing:0.8px;opacity:0.9">VIEW MODE</div><select id="viewModeDrawer" class="drawerDropdown"><option value="mobile">MOBILE VIEW - 3 Col x 5 Rows (15/page)</option><option value="desktop">DESKTOP VIEW - 5 Col x 5 Rows (25/page)</option></select></div>
 </div>
 <div class="menuList">
 <div class="menuItem active" data-url="index.html">HOME</div>
@@ -104,7 +104,7 @@ body{background:#eef2f8;width:100%;min-height:100dvh;overflow:auto}
 </div>
 <div class="top"><button class="menuBtn" id="menuBtn">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS</div><div class="hSub">DIALYSIS MANAGEMENT</div></div><div class="topActions"><select id="viewModeTop" class="viewDropdown"><option value="mobile">MOBILE VIEW</option><option value="desktop">DESKTOP VIEW</option></select><button class="btnViewList" id="viewListBtn">VIEW LIST</button></div></div>
 <div class="app" id="appRoot">
-<div style="background:linear-gradient(135deg,#0B1F4A 0%,#12367F 100%);padding:0 12px 12px"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:100px"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div><div class="count"><span id="cLeft">Loading</span><span id="cRight">PENDING 0</span></div></div>
+<div style="background:linear-gradient(135deg,#0B1F4A 0%,#12367F 100%);padding:0 12px 12px"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:100px"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div><div class="count"><span id="cLeft">Loading...</span><span id="cRight">PENDING 0</span></div></div>
 <div class="filter"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div>
 <div class="searchBar"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search by name or SHRI..." autocomplete="off"><button class="clearSearch" id="clearSearch">✕</button></div><select id="filterBlock" style="border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 12px;height:42px;border-radius:100px;font-weight:800;font-size:10px;color:#0B1F4A;min-width:105px"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select><button id="toggleViewBtn" class="viewIconSingle" title="Toggle View"></button></div>
 <div class="searchMeta"><span id="searchInfo"></span><span id="blockInfo"></span><span style="color:#0B1F4A">← Swipe to change page →</span></div>
@@ -115,7 +115,8 @@ body{background:#eef2f8;width:100%;min-height:100dvh;overflow:auto}
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getFirestore,doc,getDoc,setDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(cfg,"gda_"+Math.random());const db=getFirestore(app);window._fb={db,doc,getDoc,setDoc};
+const app=initializeApp(cfg,"gda_"+Date.now());const db=getFirestore(app);window._fb={db,doc,getDoc,setDoc};
+console.log("Firebase ready");
 </script>
 <script>
 (function(){
@@ -174,7 +175,39 @@ function getPageSize(){
 
 function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
 function hardRefresh(){location.reload();}
-async function loadData(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',id));allPatients=snap.exists()?(snap.data().patients||[]):[];let sSnap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id));statusMap=sSnap.exists()?(sSnap.data().status||{}):{};currentPage=1;render();}
+
+async function loadData(){
+  if(!window._fb || !window._fb.db){
+    document.getElementById('cLeft').innerText="Connecting to Firebase...";
+    setTimeout(loadData, 800);
+    return;
+  }
+  try{
+    let d=document.getElementById('fDate').value;
+    let s=document.getElementById('fType').value;
+    let id=d+'_'+s;
+    document.getElementById('cLeft').innerText="Loading "+id+"...";
+    let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',id));
+    allPatients=snap.exists()?(snap.data().patients||[]):[];
+    let sSnap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id));
+    statusMap=sSnap.exists()?(sSnap.data().status||{}):{};
+    if(allPatients.length===0){
+      document.getElementById('grid').innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;color:#0B1F4A;font-weight:700">No data for ${d} ${s}<br><br>Check date or upload list</div>`;
+      document.getElementById('cLeft').innerText=`0 patients`;
+      document.getElementById('cRight').innerText=`PENDING 0`;
+      document.getElementById('searchInfo').innerText=`No data for ${id}`;
+      document.getElementById('doneB').innerText='0';
+      return;
+    }
+    currentPage=1;
+    render();
+  }catch(e){
+    console.error(e);
+    document.getElementById('cLeft').innerText="Error: "+e.message;
+    document.getElementById('grid').innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:20px;background:#fff;border-radius:16px;color:#ef4444;font-weight:700">Load failed: ${e.message}<br><br>Check internet<br>Check Firestore rules</div>`;
+  }
+}
+
 async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id),{date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()});}
 function toggle(sh,type){if(!statusMap[sh])statusMap[sh]={photoTaken:false,opdDone:false};if(type==='photo')statusMap[sh].photoTaken=!statusMap[sh].photoTaken;else statusMap[sh].opdDone=!statusMap[sh].opdDone;saveStatus();let st=statusMap[sh];if(st.photoTaken&&st.opdDone){let el=document.getElementById('card_'+sh);if(el){el.style.transform='scale(0.85)';el.style.opacity='0';setTimeout(render,200);}}else render();}
 function getInit(n){return (n||'A').charAt(0).toUpperCase();}
@@ -252,7 +285,12 @@ document.getElementById('toggleViewBtn').addEventListener('click', ()=>{
   scrollEl.addEventListener('touchmove', e=>{if(e.touches.length===1){onMove(e.touches[0].clientX,e.touches[0].clientY);}},{passive:true});
   scrollEl.addEventListener('touchend', e=>{let x=e.changedTouches[0].clientX,y=e.changedTouches[0].clientY;onEnd(x,y);},{passive:true});
 })();
-window.addEventListener('load',()=>{updateToggleBtn();loadData();});
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    updateToggleBtn();
+    loadData();
+  }, 1200);
+});
 window.toggle=toggle;
 </script>
 </body>
