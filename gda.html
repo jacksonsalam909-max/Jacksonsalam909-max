@@ -2,15 +2,15 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" id="viewportMeta" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<meta name="viewport" id="viewportMeta" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>SHIJA HOSPITALS DIALYSIS MANAGEMENT</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%;touch-action:manipulation}
-body{background:#eef2f8;width:100%;min-height:100dvh;overflow:auto;overscroll-behavior:none}
+body{background:#eef2f8;width:100%;min-height:100dvh;overflow:auto;overscroll-behavior:none;transform-origin:0 0}
 body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
-.app{min-height:100dvh;display:flex;flex-direction:column}
+.app{min-height:100dvh;display:flex;flex-direction:column;transform-origin:top left;transition:transform 0.25s cubic-bezier(0.32,0.72,0,1);will-change:transform}
 .top{flex-shrink:0;background:linear-gradient(135deg,#0B1F4A 0%,#12367F 100%);padding:12px 12px 12px;color:#fff;position:sticky;top:0;z-index:10;box-shadow:0 4px 20px rgba(11,31,74,0.3);display:flex;align-items:center;gap:10px}
 .menuBtn{width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,0.18);color:#fff;font-size:22px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 .hWrap{flex:1;min-width:0}
@@ -87,8 +87,10 @@ body.menu-open{overflow:hidden;position:fixed;width:100%;height:100%}
 .pages{grid-column:1/-1;display:flex;justify-content:center;gap:6px;padding:14px 0;flex-wrap:wrap}
 .pageBtn{min-width:42px;height:42px;border-radius:12px;border:1.5px solid #d0d9ea;background:#fff;font-weight:800;font-size:12px;color:#0B1F4A;transition:0.2s}
 .pageBtn.active{background:#0B1F4A;color:#fff;transform:scale(1.1)}
-.zoomBtns{position:fixed;right:12px;bottom:90px;z-index:50;display:flex;flex-direction:column;gap:8px}
-.zoomBtns button{width:48px;height:48px;border-radius:12px;border:1.5px solid #d0d9ea;background:#fff;box-shadow:0 4px 12px rgba(11,31,74,0.15);font-weight:900;font-size:22px;color:#0B1F4A}
+.zoomBtns{position:fixed;right:12px;bottom:90px;z-index:50;display:flex;flex-direction:column;gap:10px}
+.zoomBtns button{width:56px;height:56px;border-radius:14px;border:0;background:linear-gradient(135deg,#0B1F4A,#12367F);color:#fff;box-shadow:0 6px 18px rgba(11,31,74,0.35);font-weight:900;font-size:26px;display:flex;align-items:center;justify-content:center}
+.zoomBtns button:nth-child(2){background:#fff;color:#0B1F4A;border:1.5px solid #d0d9ea;font-size:28px}
+.zoomInfo{position:fixed;right:12px;bottom:220px;z-index:50;background:#0B1F4A;color:#fff;padding:6px 12px;border-radius:100px;font-size:11px;font-weight:900;display:none;box-shadow:0 4px 12px rgba(11,31,74,0.3)}
 .overlay{position:fixed;inset:0;background:rgba(11,31,74,0.55);backdrop-filter:blur(5px);z-index:9998;display:none;opacity:0;transition:opacity 0.3s ease;pointer-events:none}
 .overlay.show{display:block;opacity:1;pointer-events:auto}
 .drawer{position:fixed;left:0;top:0;bottom:0;width:85%;max-width:300px;background:#fff;z-index:9999;transform:translate3d(-100%,0,0);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);box-shadow:8px 0 40px rgba(11,31,74,0.3);display:flex;flex-direction:column;overflow:hidden;pointer-events:none}
@@ -139,7 +141,7 @@ body.desktop-mode .doneBody.listView{grid-template-columns:1fr !important}
 </div>
 <div style="padding:14px 16px;border-top:1px solid #e8eefb;font-size:10px;font-weight:700;color:#8aa0c5;text-align:center">SHIJA HOSPITALS © 2026</div>
 </div>
-<div class="app">
+<div class="app" id="appRoot">
 <div class="top"><button class="menuBtn" id="menuBtn">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS</div><div class="hSub">DIALYSIS MANAGEMENT</div></div><div class="topActions"><select id="viewModeTop" class="viewDropdown"><option value="mobile">MOBILE VIEW</option><option value="desktop">DESKTOP VIEW</option></select><button class="btnViewList" id="viewListBtn">VIEW LIST</button></div></div>
 <div style="background:linear-gradient(135deg,#0B1F4A 0%,#12367F 100%);padding:0 12px 12px"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:100px"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div><div class="count"><span id="cLeft">Loading</span><span id="cRight">PENDING 0</span></div></div>
 <div class="filter"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div>
@@ -148,7 +150,8 @@ body.desktop-mode .doneBody.listView{grid-template-columns:1fr !important}
 <div class="scroll" id="scroll"><div class="grid" id="grid"></div><div class="pages" id="pages"></div></div>
 <div class="bottom"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:100px;font-size:8px">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
 </div>
-<div class="zoomBtns"><button onclick="zoomIn()">+</button></div>
+<div class="zoomInfo" id="zoomInfo">100%</div>
+<div class="zoomBtns"><button onclick="zoomIn()" title="Zoom In">+</button><button onclick="zoomOut()" title="Zoom Out">−</button></div>
 <div class="doneOverlay" id="doneOverlay"></div>
 <div class="doneSheet" id="doneSheet">
 <div class="dragHandleArea" id="dragHandle"><div class="dragBar"></div><div class="dragHint">PULL UP / DOWN TO EXPAND</div></div>
@@ -189,7 +192,7 @@ const app=initializeApp(cfg,"gda_"+Math.random());const db=getFirestore(app);win
       localStorage.setItem('gda_desktop','1');
     }else{
       document.body.classList.remove('desktop-mode');
-      vpMeta.setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=3.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover');
+      vpMeta.setAttribute('content','width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover');
       selTop.value='mobile'; selDrawer.value='mobile';
       localStorage.setItem('gda_desktop','0');
     }
@@ -214,7 +217,73 @@ const app=initializeApp(cfg,"gda_"+Math.random());const db=getFirestore(app);win
   overlay.addEventListener('click', closeCompletedSheet);
   window.openCompleted=function(){openCompletedSheet();}; window.closeCompleted=closeCompletedSheet;
 })();
-function zoomIn(){let cur=parseFloat(document.body.style.zoom||1);document.body.style.zoom=Math.min(cur+0.25,3);}
+
+// === ZOOM LOGIC: Touch = IN only, Buttons = IN + OUT ===
+let zoomLevel = parseFloat(localStorage.getItem('gda_zoom') || '1');
+const appRoot = document.getElementById('appRoot');
+const zoomInfo = document.getElementById('zoomInfo');
+
+function applyZoom(){
+  if(!appRoot) return;
+  appRoot.style.transform = `scale(${zoomLevel})`;
+  appRoot.style.width = `${100/zoomLevel}%`;
+  appRoot.style.transformOrigin = 'top left';
+  try{ document.body.style.zoom = zoomLevel; }catch(e){}
+  if(zoomInfo){
+    zoomInfo.textContent = Math.round(zoomLevel*100)+'%';
+    zoomInfo.style.display = 'block';
+    clearTimeout(zoomInfo._t);
+    zoomInfo._t=setTimeout(()=>zoomInfo.style.display='none',1500);
+  }
+}
+
+function zoomIn(){
+  zoomLevel = Math.min(zoomLevel+0.25, 3);
+  localStorage.setItem('gda_zoom', zoomLevel);
+  applyZoom();
+  if(navigator.vibrate) navigator.vibrate(30);
+}
+
+function zoomOut(){
+  zoomLevel = Math.max(zoomLevel-0.25, 0.5);
+  localStorage.setItem('gda_zoom', zoomLevel);
+  applyZoom();
+  if(navigator.vibrate) navigator.vibrate(20);
+}
+
+function zoomReset(){
+  zoomLevel = 1;
+  localStorage.setItem('gda_zoom', zoomLevel);
+  applyZoom();
+}
+
+// --- TOUCH: Zoom IN only by touching screen (double-tap) ---
+let lastTap = 0;
+let touchStartTime = 0;
+
+appRoot.addEventListener('touchstart', function(e){
+  touchStartTime = Date.now();
+  if(e.touches.length > 1){ e.preventDefault(); }
+}, {passive:false});
+
+appRoot.addEventListener('touchend', function(e){
+  let now = Date.now();
+  let timeDiff = now - touchStartTime;
+  if(now - lastTap < 350 && timeDiff < 200){
+    e.preventDefault();
+    zoomIn();
+  }
+  lastTap = now;
+}, {passive:false});
+
+document.addEventListener('touchmove', function(e){
+  if(e.touches.length > 1){ e.preventDefault(); }
+}, {passive:false});
+
+document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
+document.addEventListener('gesturechange', function(e){ e.preventDefault(); });
+document.addEventListener('gestureend', function(e){ e.preventDefault(); });
+
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 document.getElementById('fDate').value=new URLSearchParams(location.search).get('date')||getTodayIST();
 let allPatients=[],statusMap={},activeTimeFilter='',currentPage=1;
@@ -348,8 +417,9 @@ function prepareDoneList(keepOpen){
   if(!keepOpen) openCompleted();
 }
 function bringBack(sh){if(statusMap[sh]){statusMap[sh].photoTaken=false;statusMap[sh].opdDone=false;}saveStatus();render();prepareDoneList(true);}
-window.addEventListener('load',()=>{updateToggleBtn();loadData();});
+window.addEventListener('load',()=>{updateToggleBtn();loadData();applyZoom();});
 window.toggle=toggle;window.bringBack=bringBack;
+window.zoomIn=zoomIn;window.zoomOut=zoomOut;window.zoomReset=zoomReset;
 </script>
 </body>
 </html>
