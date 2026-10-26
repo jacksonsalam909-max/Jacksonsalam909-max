@@ -2,128 +2,361 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bill - SHIJA - Half Page Spread</title>
+<title>Bill - SHIJA</title>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, serverTimestamp, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig = { apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE", authDomain: "discharge-b9528.firebaseapp.com", projectId: "discharge-b9528", storageBucket: "discharge-b9528.firebasestorage.app", messagingSenderId: "1076050472607", appId: "1:1076050472607:web:736e0688a41462460efcaa" };
-const app = initializeApp(firebaseConfig,"billMainApp"); const db = getFirestore(app);
-window.saveToSameStorage = async function(){ const b=document.getElementById('billNo').value||"SHIC"+Date.now(); await setDoc(doc(db,"bills",b),{name:document.getElementById('pName').value,shriId:document.getElementById('uhid').value,billNo:b,ipNo:document.getElementById('ipNo').value,amount:document.getElementById('amt').value,createdAt:serverTimestamp(),type:"BILL"}); document.getElementById('fbStatus').innerText="✓ Saved"; }
-window.allPatients=[]; async function loadMasterPatients(){try{const s=await getDocs(collection(db,"patients"));let a=[];s.forEach(d=>{let p=d.data(); if(p.deleted) return; a.push({patientName:p.patientName||p.name||'',shriId:p.shriId||p.shri||'',contactNo:p.contactNo||'',address:p.address||''})}); window.allPatients=a;}catch(e){}} loadMasterPatients();
+const firebaseConfig = {
+  apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
+  authDomain: "discharge-b9528.firebaseapp.com",
+  projectId: "discharge-b9528",
+  storageBucket: "discharge-b9528.firebasestorage.app",
+  messagingSenderId: "1076050472607",
+  appId: "1:1076050472607:web:736e0688a41462460efcaa",
+  measurementId: "G-RXBJ1FD2E4"
+};
+const app = initializeApp(firebaseConfig,"billMainApp");
+const db = getFirestore(app);
+window.db = db;
+window.saveToSameStorage = async function(){
+  const billNo = document.getElementById('billNo').value || "SHIC"+Date.now();
+  const payload = {
+    block: document.getElementById('bedNo').value,
+    name: document.getElementById('pName').value,
+    shriId: document.getElementById('uhid').value,
+    uhid: document.getElementById('uhid').value,
+    pmjayId: "PMJAY",
+    date: document.getElementById('admDateOnly').value,
+    prevDate: document.getElementById('admDateOnly').value,
+    time: document.getElementById('admTimeOnly').value,
+    localTime: document.getElementById('billTimeShow').value,
+    billNo: billNo,
+    ipNo: document.getElementById('ipNo').value,
+    mobile: document.getElementById('mobile').value,
+    address: document.getElementById('address').value,
+    amount: document.getElementById('amt').value,
+    bedNo: document.getElementById('bedNo').value,
+    ageSex: document.getElementById('ageSex').value,
+    createdAt: serverTimestamp(),
+    type: "BILL"
+  };
+  try{
+    document.getElementById('fbStatus').innerText="Saving...";
+    await setDoc(doc(db, "bills", billNo), payload);
+    document.getElementById('fbStatus').innerText="✓ Saved in bills/"+billNo;
+  }catch(e){ document.getElementById('fbStatus').innerText="Error: "+e.message; alert(e.message); }
+}
+window.allPatients = [];
+async function loadMasterPatients(){
+  try{
+    const snap = await getDocs(collection(db,"patients"));
+    let fbPatients=[];
+    snap.forEach(d=>{
+      let p=d.data();
+      if(p.deleted) return;
+      fbPatients.push({
+        patientName: p.patientName || p.name || '',
+        shriId: p.shriId || p.shri || '',
+        pmjayId: p.pmjayId || p.PMJAY || p.pmjay || '',
+        contactNo: p.contactNo || p.contact || '',
+        address: p.address || p.addr || ''
+      });
+    });
+    let extra=[];
+    try{ extra=JSON.parse(localStorage.getItem('shija_patients')||'[]'); }catch(e){}
+    let seen=new Set();
+    let merged=[...fbPatients,...extra].filter(p=>{
+      let key=((p.shriId||'').toLowerCase()+'|'+(p.patientName||'').toLowerCase()).trim();
+      if(seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    window.allPatients=merged;
+  }catch(e){}
+}
+loadMasterPatients();
+window.loadMasterPatients=loadMasterPatients;
 </script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box} body{background:#eef2f7;font-family:Inter,system-ui}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,Segoe UI,system-ui}
+body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:9999}
-.top h2{color:#fff;font-size:16px;font-weight:800} .menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer} .menuBtn span{width:20px;height:2px;background:#fff;display:block}
-.side{width:260px;background:#0a1931;position:fixed;left:0;top:64px;bottom:0;z-index:9998;transform:translateX(-100%);transition:0.3s;padding:18px 14px} .side.show{transform:translateX(0)!important} .sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,.5);z-index:9997;display:none} .sideOverlay.show{display:block} .menu a{color:#8ea0c0;text-decoration:none;padding:12px 14px;border-radius:10px;background:#0f1f3d;display:block;margin-bottom:8px} .menu a.active{background:#4338ca;color:#fff}
-.content{flex:1;padding:16px;max-width:1300px;width:100%;margin:64px auto 0} .card{background:#fff;border-radius:18px;border:1px solid #e5e7eb;padding:16px;margin-bottom:14px} .card input{padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:12px;font-weight:600;font-size:13px;background:#f8fafc;width:100%} .label{font-size:10px;font-weight:800;text-transform:uppercase;color:#475569;margin-bottom:5px;display:block} .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px} .col{flex:1;min-width:140px} .searchWrap{position:relative;flex:1;min-width:280px} .suggest{position:absolute;top:105%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:14px;max-height:260px;overflow:auto;z-index:60;display:none;box-shadow:0 16px 32px #0002} .suggest div{padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer} .btnBlue{background:#1a56db;color:#fff;border:0;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer} .boldBtn{background:#fff !important;color:#000 !important;border:2px solid #000 !important;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:900;border-radius:8px} .boldBtn.active{background:#000 !important;color:#fff !important}
-
-/* ===== A4 - HALF PAGE SPREAD ===== */
-.billPaper{
-  background:#fff;
-  width:210mm; /* A4 width */
-  height:297mm; /* A4 full height - locked */
-  min-height:297mm;
-  max-height:297mm;
-  max-width:100%;
-  margin:0 auto;
-  padding:0 12mm 8mm 12mm; /* 12mm border except letterhead */
-  color:#000; font-family:Arial,Helvetica,sans-serif;
-  box-sizing:border-box;
-  overflow:hidden;
-  border:1px solid #e5e7eb;
-  display:flex; /* spread logic */
-  flex-direction:column;
-}
-.letterhead{width:calc(100% + 24mm);margin:0 -12mm 0 -12mm;display:block;overflow:hidden;box-sizing:border-box;flex-shrink:0} 
+.top h2{color:#fff;font-size:16px;font-weight:800}
+.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer}
+.menuBtn span{display:block;width:20px;height:2px;background:#fff;border-radius:2px}
+.side{width:260px;background:#0a1931;position:fixed;left:0;top:64px;bottom:0;z-index:9998;transition:0.3s;padding:18px 14px;display:flex;flex-direction:column;transform:translateX(-100%);overflow-y:auto}
+.side.show{transform:translateX(0)!important}
+.menu{display:flex;flex-direction:column;gap:8px}
+.menu a{color:#8ea0c0;text-decoration:none;font-size:14px;font-weight:600;padding:12px 14px;border-radius:10px;background:#0f1f3d}
+.menu a.active{background:#4338ca;color:#fff;font-weight:800}
+.settingBtn{margin-top:16px;border-top:1px solid #1e2d55;padding-top:16px}
+.settingBtn button{width:100%;background:#1e293b;color:#fff;border:1.5px dashed #475569;padding:12px;border-radius:10px;font-weight:800;cursor:pointer}
+.sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,.5);z-index:9997;display:none}
+.sideOverlay.show{display:block}
+.content{flex:1;padding:16px;max-width:1300px;width:100%;margin:0 auto;margin-top:64px}
+.card{background:#fff;border-radius:18px;border:1px solid #e5e7eb;padding:16px;margin-bottom:14px}
+.card input{padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:12px;font-weight:600;font-size:13px;background:#f8fafc;width:100%}
+.label{font-size:10px;font-weight:800;text-transform:uppercase;color:#475569;margin-bottom:5px;display:block}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.col{flex:1;min-width:140px}
+.searchWrap{position:relative;flex:1;min-width:280px}
+.suggest{position:absolute;top:105%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:14px;max-height:260px;overflow:auto;z-index:60;display:none;box-shadow:0 16px 32px #0002}
+.suggest div{padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer}
+.btnBlue{background:#1a56db;color:#fff;border:0;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer}
+.boldBtn{background:#fff !important;color:#000 !important;border:2px solid #000 !important;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;border-radius:8px}
+.boldBtn.active{background:#000 !important;color:#fff !important}
+.billPaper{background:#fff;width:210mm;max-width:100%;margin:0 auto;padding:0 12px 12px;color:#000;font-family:Arial,Helvetica,sans-serif}
+.letterhead{width:calc(100% + 24px);margin:0 -12px 0 -12px;padding:0;display:block}
 .letterhead img{width:100%;height:auto;display:block}
-
-/* CONTENT WRAPPER - SPREADS TO HALF PAGE */
-.billContent{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between; /* SPREADS WORDS TO HALF PAGE */
-  height:100%;
-  padding-top:8px;
-}
-
-.infoGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px 14px; /* more gap */
-  font-size:13.5px;
-  line-height:1.6; /* spread */
-  margin:10px 0 18px 0;
-  flex-shrink:0;
-}
-.exactTable{width:100%;border-collapse:collapse;font-size:13px;table-layout:auto;word-break:normal;flex:1}
-.exactTable th{font-weight:800;padding:10px 4px;text-align:left;border-bottom:2px solid #000;font-size:11px;white-space:nowrap;background:#f8fafc}
-.exactTable td{padding:14px 4px;vertical-align:top;font-size:13px;white-space:nowrap;border-bottom:0.5px solid #e5e7eb}
-.exactTable td:nth-child(2){white-space:normal;min-width:110px;max-width:150px;word-break:break-word;line-height:1.4}
-.exactTable tr.nephRow td{font-weight:800;text-transform:uppercase;padding:12px 0 8px;border-bottom:2px solid #000;font-size:11.5px;white-space:nowrap}
-.exactTable tr.dataRow td{height:90px; /* MAKES TABLE TALL - SPREAD HALF PAGE */ vertical-align:top; padding-top:16px}
-.exactTable tr.sub td,.exactTable tr.grand td{border-top:2px solid #000;padding:14px 4px;text-align:right;white-space:nowrap;font-size:13px;font-weight:600;background:#fcfcfc}
-.exactTable.gross td{border:none;padding:18px 4px;text-align:right;white-space:nowrap;font-weight:700;font-size:14px;border-top:2px solid #000;margin-top:10px}
-.word{display:inline-block;white-space:nowrap;padding:1px 2px;cursor:grab;line-height:1.3}
-.word.selected{outline:2px solid #1a56db;background:#dbeafe} .word.bold{font-weight:900 !important}
-.alignBox{background:#0f172a;color:#fff;border-radius:16px;padding:14px;margin-bottom:14px;display:none} .alignBox.show{display:block} .alignRow{display:grid;grid-template-columns:120px 1fr 45px;gap:8px;align-items:center;margin-bottom:8px}
-
+.infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px;font-size:13.5px;margin:6px 0 8px;line-height:1.4;font-weight:500;color:#000}
+.infoGrid b{font-weight:700}
+.exactTable{width:100%;border-collapse:collapse;font-size:13.5px;color:#000;line-height:1.3}
+.exactTable th{font-weight:700;padding:6px 4px 6px 2px;text-align:left;border-bottom:1.5px solid #000;font-size:11.5px;white-space:nowrap}
+.exactTable td{padding:6px 4px 6px 2px;vertical-align:top;font-size:13.5px;font-weight:400}
+.exactTable tr.nephRow td{font-weight:800;text-transform:uppercase;padding:7px 0 4px;border-bottom:1.5px solid #000;font-size:12.5px}
+.exactTable tr.sub td{border-top:1.5px solid #000;padding:6px 4px;font-weight:400 !important;text-align:right;font-size:13.5px}
+.exactTable tr.grand td{border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:6px 4px;font-weight:400 !important;text-align:right;font-size:13.5px}
+.exactTable.gross td{border:none;padding:8px 4px;font-weight:400 !important;font-size:13.5px;text-align:right}
+.itemLine1{white-space:nowrap;font-weight:600;line-height:1.2}
+.itemLine2{white-space:nowrap;line-height:1.2}
+.word{display:inline-block;padding:1px 2px;border-radius:3px;touch-action:none;user-select:text;cursor:grab;line-height:1.2}
+.word:active{cursor:grabbing;background:#fef3c7}
+.word.selected{outline:2px solid #1a56db;background:#dbeafe}
+.word.bold{font-weight:900 !important}
+.alignBox{background:#0f172a;color:#fff;border-radius:16px;padding:14px;margin-bottom:14px;display:none;max-height:70vh;overflow:auto}
+.alignBox.show{display:block}
+.alignRow{display:grid;grid-template-columns:135px 1fr 50px;gap:8px;align-items:center;margin-bottom:8px}
+.alignRow span{font-size:11px}
+.alignRow input[type=range]{width:100%;accent-color:#4338ca}
 @media print{
-@page{size:A4 portrait;margin:0} 
-html,body{width:210mm;height:297mm;margin:0 !important;padding:0 !important;background:#fff !important;overflow:hidden !important} 
-.noPrint{display:none!important} 
-.content{padding:0 !important;margin:0 !important;width:210mm !important;max-width:210mm !important} 
-.billPaper{width:210mm !important;height:297mm !important;min-height:297mm !important;max-height:297mm !important;padding:0 12mm 8mm 12mm !important;box-shadow:none !important;border:none !important;margin:0 !important;display:flex !important;flex-direction:column !important} 
-.billContent{flex:1 !important;display:flex !important;flex-direction:column !important;justify-content:space-between !important;height:100% !important}
-.letterhead{width:calc(100% + 24mm) !important;margin:0 -12mm 0 -12mm !important} 
-.word{background:transparent!important;outline:none!important}
+  @page{size:A4;margin:6mm}
+  html,body{background:#fff !important;margin:0 !important;padding:0 !important}
+  .noPrint{display:none!important}
+  .content{padding:0 !important;margin:0 !important;max-width:100% !important}
+  .billPaper{width:100% !important;max-width:100% !important;padding:0 8px !important;box-shadow:none !important;border:none !important}
+  .letterhead{width:100% !important;margin:0 !important}
+  .word{background:transparent!important;cursor:default!important;outline:none !important}
 }
 </style>
 </head>
 <body>
-<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
-<div class="top noPrint"><div style="display:flex;align-items:center;gap:10px"><button class="menuBtn" id="menuBtn"><span></span><span></span><span></span></button><h2>SHIJA A4 Half Spread</h2><span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div><div style="display:flex;gap:6px"><button id="boldBtn" class="btnBlue boldBtn" onclick="toggleBold()"><b>B</b></button><button class="btnBlue" onclick="window.print()">Print A4</button></div></div>
-<div class="sideOverlay" id="overlay"></div><div class="side" id="side"><div class="menu"><a href="bill.html" class="active">BILL HALF SPREAD</a></div><div style="margin-top:16px"><button onclick="openSettings()" style="width:100%;background:#1e293b;color:#fff;border:1.5px dashed #475569;padding:12px;border-radius:10px;font-weight:800">SETTINGS</button></div></div>
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<div class="top noPrint"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA Dialysis</h2><span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div>
+<div style="display:flex;gap:6px;align-items:center">
+<button id="boldBtn" class="btnBlue boldBtn" onclick="toggleBold()" title="Bold"><b>B</b></button>
+<button class="btnBlue" onclick="saveToSameStorage()" style="background:#10b981">Save</button>
+<button class="btnBlue" onclick="saveToSameStorage(); setTimeout(()=>window.print(),500)">Save & Print</button>
+<button class="btnBlue" onclick="window.print()">Print</button>
+</div></div>
+<div class="sideOverlay" id="overlay"></div>
+<div class="side noPrint" id="side">
+<div class="menu">
+<a href="index.html">HOME</a>
+<a href="total.html">TOTAL PATIENT</a>
+<a href="cmht.html">CMHT TOTAL PATIENT</a>
+<a href="cmhtkft.html">CMHT KFT REPORT</a>
+<a href="cmhtdaily.html">CMHT DAILY DIALYSIS</a>
+<a href="addcmht.html">CMHT ADD PATIENT</a>
+<a href="daily.html">DAILY DIALYSIS</a>
+<a href="discharge.html">DISCHARGE PATIENT</a>
+<a href="kft.html">KFT REPORT</a>
+<a href="add.html">ADD PATIENT</a>
+<a href="bill.html" class="active">BILL</a>
+<a href="dischargesummary.html">DISCHARGE SUMMARY</a>
+</div>
+<div class="settingBtn"><button onclick="openSettings()">ALIGNMENT SETTINGS</button></div>
+</div>
 <div class="content">
-<div class="card noPrint alignBox" id="alignPanel"><div id="alignControls"></div><div style="margin-top:12px;display:flex;gap:8px"><button class="btnBlue" style="background:#10b981" onclick="resetAll()">Reset All</button><button class="btnBlue" style="background:#334155" onclick="closeSettings()">Close</button></div></div>
-<div class="card noPrint"><div class="searchWrap"><input id="patientSearch" placeholder="Patient Name..." oninput="showPatientSuggest(this.value)" style="border:2px solid #1a56db;padding:14px"><div id="suggest" class="suggest"></div></div><div class="row"><div class="col"><span class="label">Patient Name</span><input id="pName" readonly></div><div class="col"><span class="label">UHID</span><input id="uhid"></div><div class="col"><span class="label">Amount</span><input id="amt" value="2660.00"></div></div></div>
-
+<div class="card noPrint alignBox" id="alignPanel">
+<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:12px;text-align:center">Click word + B = Bold | w20 and w21 separate</div>
+<div id="alignControls"></div>
+<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+<button class="btnBlue" style="background:#10b981" onclick="resetAll()">Reset All</button>
+<button class="btnBlue" style="background:#ef4444" onclick="clearBold()">Clear Bold</button>
+<button class="btnBlue" style="background:#334155" onclick="closeSettings()">Close</button>
+</div>
+</div>
+<div class="card noPrint"><div style="font-weight:900;margin-bottom:8px">Select Patient - Auto Bill</div><div class="searchWrap"><input id="patientSearch" placeholder="Type Patient Name..." oninput="showPatientSuggest(this.value)" style="border:2px solid #1a56db;padding:14px"><div id="suggest" class="suggest"></div></div><div class="row"><div class="col"><span class="label">Patient Name</span><input id="pName" readonly oninput="renderBill()"></div><div class="col"><span class="label">Mobile</span><input id="mobile" oninput="renderBill()"></div><div class="col"><span class="label">UHID SHRI.</span><input id="uhid" oninput="renderBill()"></div></div><div class="row"><div class="col" style="flex:2"><span class="label">Address</span><input id="address" oninput="renderBill()"></div><div class="col"><span class="label">IPNo</span><input id="ipNo" value="177214" oninput="renderBill()"></div><div class="col"><span class="label">Bill No</span><input id="billNo" value="SHIC182733" oninput="renderBill()"></div></div><div class="row" style="background:#f0f9ff;padding:12px;border-radius:14px;border:1.5px dashed #60a5fa"><div class="col"><span class="label">Bed No.</span><input id="bedNo" value="D-2208 (Dialysis)" oninput="renderBill()"></div><div class="col"><span class="label">Age/Sex</span><input id="ageSex" value="70 Year(s) / Male" oninput="renderBill()"></div><div class="col"><span class="label">Admission Date</span><input type="date" id="admDateOnly" onchange="updateBillTime()" oninput="renderBill()"></div><div class="col"><span class="label">Admission Time</span><input type="time" id="admTimeOnly" onchange="updateBillTime()" oninput="renderBill()"></div></div><div class="row" style="background:#fffbeb;padding:12px;border-radius:14px;border:1.5px dashed #f59e0b"><div class="col"><span class="label">Bill Date Auto</span><input id="billDateShow" readonly></div><div class="col"><span class="label">Bill Time +30</span><input id="billTimeShow" readonly></div><div class="col"><span class="label">Discharge</span><input type="datetime-local" id="disDateTime" oninput="renderBill()"></div><div class="col"><span class="label">Amount Rs</span><input id="amt" value="2660.00" style="border:2px solid #10b981;font-weight:900" oninput="renderBill()"></div></div></div>
 <div class="billPaper">
 <div class="letterhead"><img src="letterhead.png"></div>
-
-<div class="billContent">
-<div class="infoGrid"><div><b>IPNo</b>: 177214</div><div><b>UHID</b>: SHRI.153704</div><div><b>Patient Name</b>: Mr. LAISHANGBAM ANGOUBAMBA SINGH</div><div><b>Admission Date & Time</b>: 03/09/2026 11:17 am</div><div><b>Age/Sex</b>: 70 Year(s) / Male</div><div><b>Bill No.</b>: SHIC182733</div><div><b>Bed no.</b>: D-2208 (Dialysis)</div><div><b>Bill Date</b>: 03/09/2026</div><div><b>Doctor Name</b>: Guliver Potsangbam</div><div><b>Discharge Date & Time</b>: 03/09/2026 02:47 pm</div><div><b>PAN No./GSTIN</b>: AF / 14AAICS6068B2ZG</div><div><b>Doctor Speciality</b>: Nephrology</div><div><b>Mobile No</b>: 7005208464</div><div><b>Patient Type</b>: Credit</div><div><b>Patient Address</b>: MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur</div><div><b>Payer</b>: PMJAY</div></div>
-
-<table class="exactTable"><thead><tr><th><span class="word" id="w1">SI</span></th><th><span class="word" id="w2">Item Name</span></th><th><span class="word" id="w3">Batch</span></th><th><span class="word" id="w4">HSN</span></th><th><span class="word" id="w5">Date</span></th><th><span class="word" id="w6">Qty</span></th><th><span class="word" id="w7">Rate</span></th><th><span class="word" id="w8">GST%</span></th><th><span class="word" id="w9">Pat</span></th><th><span class="word" id="w10">Comp</span></th><th><span class="word" id="w11">Amt</span></th></tr></thead><tbody><tr class="nephRow"><td colspan="11">NEPHROLOGY PROCEDURE</td></tr><tr class="dataRow"><td><span class="word" id="w22">1</span></td><td><span class="word" id="w23">Haemodialysis Subsequent Visit PMJAY</span></td><td><span class="word" id="w24"></span></td><td><span class="word" id="w25"></span></td><td><span class="word" id="w26">11/10</span></td><td><span class="word" id="w27">1.00</span></td><td><span class="word" id="w28">2660.00</span></td><td><span class="word" id="w29"></span></td><td><span class="word" id="w30">0.00</span></td><td><span class="word" id="w31">2660.00</span></td><td><span class="word" id="w32">2660.00</span></td></tr><tr class="sub"><td colspan="5"></td><td colspan="3"><span class="word" id="w12">Sub Total :</span></td><td><span class="word" id="w13">0.00</span></td><td><span class="word" id="w14">2660.00</span></td><td><span class="word" id="w15">2660.00</span></td></tr><tr class="grand"><td colspan="5"></td><td colspan="3"><span class="word" id="w16">Grand Total :</span></td><td><span class="word" id="w17">0.00</span></td><td><span class="word" id="w18">2660.00</span></td><td><span class="word" id="w19">2660.00</span></td></tr></tbody></table>
-
-<table class="exactTable gross"><tbody><tr><td colspan="5"></td><td colspan="3"><span class="word" id="w20">Gross Bill Amount :</span></td><td></td><td colspan="2"><span class="word" id="w21">Rs 2660.00</span></td></tr></tbody></table>
-
-<div style="flex-grow:1"></div>
+<div class="infoGrid"><div><b>IPNo</b>: <span id="b_ip">177214</span></div><div><b>UHID</b>: <span id="b_uhid">SHRI.153704</span></div><div><b>Patient Name</b>: <span id="b_name">Mr. LAISHANGBAM ANGOUBAMBA SINGH</span></div><div><b>Admission Date & Time</b>: <span id="b_adm">03/09/2026 11:17 am</span></div><div><b>Age/Sex</b>: <span id="b_age">70 Year(s) / Male</span></div><div><b>Bill No.</b>: <span id="b_billNo">SHIC182733</span></div><div><b>Bed no.</b>: <span id="b_bed">D-2208 (Dialysis)</span></div><div><b>Bill Date</b>: <span id="b_billDate">03/09/2026</span></div><div><b>Doctor Name</b>: Guliver Potsangbam</div><div><b>Discharge Date & Time</b>: <span id="b_dis">03/09/2026 02:47 pm</span></div><div><b>PAN No./GSTIN</b>: AF / 14AAICS6068B2ZG</div><div><b>Doctor Speciality</b>: Nephrology</div><div><b>Mobile No</b>: <span id="b_mob">7005208464</span></div><div><b>Patient Type</b>: Credit</div><div><b>Patient Address</b>: <span id="b_addr">MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur</span></div><div><b>Payer</b>: PMJAY</div></div>
+<table class="exactTable" id="billTable">
+<thead><tr>
+<th><span class="word" id="w1">SI No.</span></th>
+<th><span class="word" id="w2">Item Name</span></th>
+<th><span class="word" id="w3">Batch No./Expiry</span></th>
+<th><span class="word" id="w4">HSN/Code</span></th>
+<th><span class="word" id="w5">Date</span></th>
+<th><span class="word" id="w6">Qty</span></th>
+<th><span class="word" id="w7">Rate</span></th>
+<th><span class="word" id="w8">GST%</span></th>
+<th><span class="word" id="w9">Patient Amt</span></th>
+<th><span class="word" id="w10">Company Amt</span></th>
+<th><span class="word" id="w11">Amount Rs</span></th>
+</tr></thead>
+<tbody>
+<tr class="nephRow"><td colspan="11">NEPHROLOGY PROCEDURE</td></tr>
+<tr class="dataRow">
+<td><span class="word" id="w22">1</span></td>
+<td><span class="word" id="w23"><div class="itemLine1">Haemodialysis Subsequent</div><div class="itemLine2">Visit PMJAY</div></span></td>
+<td><span class="word" id="w24"></span></td>
+<td><span class="word" id="w25"></span></td>
+<td><span class="word" id="w26">11/10</span></td>
+<td><span class="word" id="w27">1.00</span></td>
+<td><span class="word" id="w28">2660.00</span></td>
+<td><span class="word" id="w29"></span></td>
+<td><span class="word" id="w30">0.00</span></td>
+<td><span class="word" id="w31">2660.00</span></td>
+<td><span class="word" id="w32">2660.00</span></td>
+</tr>
+<tr class="sub"><td colspan="5"></td><td colspan="3"><span class="word" id="w12">Sub Total :</span></td><td><span class="word" id="w13">0.00</span></td><td><span class="word" id="w14">2660.00</span></td><td><span class="word" id="w15">2660.00</span></td></tr>
+<tr class="grand"><td colspan="5"></td><td colspan="3"><span class="word" id="w16">Grand Total :</span></td><td><span class="word" id="w17">0.00</span></td><td><span class="word" id="w18">2660.00</span></td><td><span class="word" id="w19">2660.00</span></td></tr>
+</tbody>
+</table>
+<table class="exactTable gross"><tbody>
+<tr><td colspan="5" style="border:none"></td><td colspan="3"><span class="word" id="w20">Gross Bill Amount :</span></td><td></td><td colspan="2"><span class="word" id="w21">Rs 2660.00</span></td></tr>
+</tbody></table>
 </div>
-
 </div>
-</div></div>
+</div>
 <script>
-function toggleMenu(){document.getElementById('side').classList.toggle('show');document.getElementById('overlay').classList.toggle('show');}
-document.getElementById('menuBtn').addEventListener('click',toggleMenu);document.getElementById('overlay').addEventListener('click',toggleMenu);
-function openSettings(){document.getElementById('alignPanel').classList.add('show');}function closeSettings(){document.getElementById('alignPanel').classList.remove('show');}
-let cfg=JSON.parse(localStorage.getItem('shija_full_all')||'null')||{};for(let i=1;i<=32;i++){if(cfg['off'+i]===undefined)cfg['off'+i]=0;if(Math.abs(cfg['off'+i])>15)cfg['off'+i]=0;}
-function applyDrag(){for(let i=1;i<=32;i++){let el=document.getElementById('w'+i);if(el)el.style.transform=`translateX(${cfg['off'+i]||0}px)`;}localStorage.setItem('shija_full_all',JSON.stringify(cfg));}
-function buildControls(){let h='';for(let i=1;i<=32;i++){h+=`<div class="alignRow"><span>w${i}</span><input type="range" min="-15" max="15" value="${cfg['off'+i]}" oninput="cfg['off'+i]=parseInt(this.value);applyDrag();this.nextElementSibling.innerText=this.value+'px'"><span>${cfg['off'+i]}px</span></div>`;}document.getElementById('alignControls').innerHTML=h;}
+function toggleMenu(){
+ var s=document.getElementById('side');
+ var o=document.getElementById('overlay');
+ s.classList.toggle('show');
+ o.classList.toggle('show');
+}
+document.addEventListener('DOMContentLoaded',function(){
+ var btn=document.getElementById('menuBtn');
+ var overlay=document.getElementById('overlay');
+ var lastTap=0;
+ function handleMenu(e){
+   var now=Date.now();
+   if(now-lastTap<400) return;
+   lastTap=now;
+   if(e){e.preventDefault(); e.stopPropagation();}
+   toggleMenu();
+ }
+ btn.addEventListener('click', handleMenu);
+ btn.addEventListener('touchend', handleMenu, {passive:false});
+ overlay.addEventListener('click', toggleMenu);
+ overlay.addEventListener('touchend', handleMenu, {passive:false});
+});
+function openSettings(){document.getElementById('alignPanel').classList.add('show');let s=document.getElementById('side');if(s.classList.contains('show'))toggleMenu();}
+function closeSettings(){document.getElementById('alignPanel').classList.remove('show');}
+let cfg = JSON.parse(localStorage.getItem('shija_full_all')||'null') || {};
+for(let i=1;i<=32;i++){ if(cfg['off'+i]===undefined) cfg['off'+i]=0; }
+function applyDrag(){
+  for(let i=1;i<=32;i++){
+    let el=document.getElementById('w'+i);
+    if(el) el.style.transform=`translateX(${cfg['off'+i]||0}px)`;
+  }
+  localStorage.setItem('shija_full_all', JSON.stringify(cfg));
+}
+function buildControls(){
+  let labels={1:'SI No',2:'Item Name',3:'Batch No',4:'HSN/Code',5:'Date',6:'Qty',7:'Rate',8:'GST%',9:'Patient Amt',10:'Company Amt',11:'Amount Rs',12:'Sub Total:',13:'Sub 0.00',14:'Sub 2660 Co',15:'Sub 2660 Amt',16:'Grand Total:',17:'Grand 0.00',18:'Grand 2660 Co',19:'Grand 2660 Amt',20:'Gross Label (separate)',21:'Gross Rs 2660 (separate)',22:'Data: 1',23:'Data: Haemodialysis',24:'Data: Batch',25:'Data: HSN',26:'Data: 11/10',27:'Data: 1.00',28:'Data: 2660 Rate',29:'Data: GST blank',30:'Data: 0.00 Pat',31:'Data: 2660 Comp',32:'Data: 2660 Amt'};
+  let html='';
+  for(let i=1;i<=32;i++){
+    html+=`<div class="alignRow"><span>${labels[i]}</span><input type="range" min="-150" max="150" value="${cfg['off'+i]}" oninput="cfg['off'+i]=parseInt(this.value);applyDrag();this.nextElementSibling.innerText=this.value+'px'"><span>${cfg['off'+i]}px</span></div>`;
+  }
+  document.getElementById('alignControls').innerHTML=html;
+}
 function resetAll(){for(let i=1;i<=32;i++)cfg['off'+i]=0;applyDrag();buildControls();}
-let dragCol=null,startX=0,startOff=0;let boldMap=JSON.parse(localStorage.getItem('shija_bold')||'{}');let selectedWords=new Set();
-function applyBold(){document.querySelectorAll('.word').forEach(w=>{if(boldMap[w.id])w.classList.add('bold');else w.classList.remove('bold');});}
-function toggleBold(){if(selectedWords.size===0){alert('Tap word');return;}selectedWords.forEach(id=>{boldMap[id]=!boldMap[id];if(!boldMap[id])delete boldMap[id];});applyBold();localStorage.setItem('shija_bold',JSON.stringify(boldMap));document.querySelectorAll('.word.selected').forEach(el=>el.classList.remove('selected'));selectedWords.clear();}
+let dragCol=null, startX=0, startOff=0;
+let boldMap = JSON.parse(localStorage.getItem('shija_bold')||'{}');
+let selectedWords = new Set();
+function applyBold(){
+  document.querySelectorAll('.word').forEach(w=>{
+    let id=w.id;
+    if(boldMap[id]) w.classList.add('bold');
+    else w.classList.remove('bold');
+  });
+  localStorage.setItem('shija_bold', JSON.stringify(boldMap));
+}
+function toggleBold(){
+  if(selectedWords.size===0){
+    let sel=window.getSelection();
+    if(sel && sel.toString().trim()!=''){
+      document.querySelectorAll('.word').forEach(w=>{
+        if(sel.containsNode(w,true)) selectedWords.add(w.id);
+      });
+    }else{
+      alert('Select a word first - tap on word');
+      return;
+    }
+  }
+  selectedWords.forEach(id=>{
+    boldMap[id]=!boldMap[id];
+    if(!boldMap[id]) delete boldMap[id];
+  });
+  applyBold();
+  document.querySelectorAll('.word').forEach(w=>w.classList.remove('selected'));
+  selectedWords.clear();
+  document.getElementById('boldBtn').classList.remove('active');
+}
+function clearBold(){boldMap={};applyBold();}
 document.querySelectorAll('.word').forEach(w=>{
- w.addEventListener('click',e=>{if(dragCol)return;e.stopPropagation();let id=w.id;if(selectedWords.has(id)){selectedWords.delete(id);w.classList.remove('selected');}else{selectedWords.add(id);w.classList.add('selected');}});
- w.addEventListener('pointerdown',e=>{let id=parseInt(w.id.replace('w',''));dragCol=id;startX=e.clientX;startOff=cfg['off'+dragCol]||0;w.setPointerCapture(e.pointerId);});
- w.addEventListener('pointermove',e=>{if(!dragCol)return;let nv=startOff+(e.clientX-startX);if(nv>15)nv=15;if(nv<-15)nv=-15;cfg['off'+dragCol]=nv;applyDrag();buildControls();});
- w.addEventListener('pointerup',()=>{dragCol=null;localStorage.setItem('shija_full_all',JSON.stringify(cfg));});
+ w.addEventListener('click', e=>{
+   if(dragCol) return;
+   e.stopPropagation();
+   let id=w.id;
+   if(selectedWords.has(id)){
+     selectedWords.delete(id);
+     w.classList.remove('selected');
+   }else{
+     selectedWords.add(id);
+     w.classList.add('selected');
+   }
+   let btn=document.getElementById('boldBtn');
+   if(selectedWords.size>0) btn.classList.add('active');
+   else btn.classList.remove('active');
+ });
+ w.addEventListener('pointerdown', e=>{
+   let id = parseInt(w.id.replace('w',''));
+   dragCol = id;
+   startX = e.clientX;
+   startOff = cfg['off'+dragCol]||0;
+   w.setPointerCapture(e.pointerId);
+ });
+ w.addEventListener('pointermove', e=>{
+   if(!dragCol) return;
+   let dx = e.clientX - startX;
+   cfg['off'+dragCol] = startOff + dx;
+   if(cfg['off'+dragCol]<-150)cfg['off'+dragCol]=-150;
+   if(cfg['off'+dragCol]>150)cfg['off'+dragCol]=150;
+   applyDrag();
+   buildControls();
+ });
+ w.addEventListener('pointerup', ()=>{dragCol=null; localStorage.setItem('shija_full_all', JSON.stringify(cfg));});
+});
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.word') && !e.target.closest('#boldBtn')){
+    document.querySelectorAll('.word.selected').forEach(el=>el.classList.remove('selected'));
+    selectedWords.clear();
+    document.getElementById('boldBtn').classList.remove('active');
+  }
 });
 applyDrag();buildControls();applyBold();
-function showPatientSuggest(q){q=q.toLowerCase().trim();let box=document.getElementById('suggest');if(!q){box.style.display='none';return;}let f=(window.allPatients||[]).filter(p=>(p.patientName||'').toLowerCase().includes(q)).slice(0,20);box.innerHTML=f.map((p,i)=>`<div onclick="pickPatient(${i})"><b>${p.patientName}</b></div>`).join('');box.style.display=f.length?'block':'none';}
-function pickPatient(i){let p=window.allPatients[i];document.getElementById('pName').value='Mr. '+p.patientName.toUpperCase();document.getElementById('uhid').value='SHRI.'+p.shriId;document.getElementById('suggest').style.display='none';}
+let allPatients=[];
+function loadPatients(){
+  if(window.allPatients && window.allPatients.length){ allPatients=[...window.allPatients]; return; }
+  let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');
+  allPatients=[...extra];
+  if(!allPatients.length)allPatients=[{patientName:'LAISHANGBAM ANGOUBAMBA SINGH',shriId:'153704',contactNo:'7005208464',address:'MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur'}];
+}
+loadPatients();
+function showPatientSuggest(q){
+  if(window.allPatients && window.allPatients.length) allPatients=[...window.allPatients];
+  q=q.toLowerCase().trim();let box=document.getElementById('suggest');if(!q){box.style.display='none';return;}let f=allPatients.filter(p=>(p.patientName||'').toLowerCase().includes(q)).slice(0,20);box.innerHTML=f.map(p=>`<div onclick="pickPatient(${allPatients.indexOf(p)})"><b>${p.patientName}</b> - ${p.shriId}</div>`).join('');box.style.display=f.length?'block':'none';
+}
+function pickPatient(i){let p=allPatients[i];document.getElementById('pName').value='Mr. '+p.patientName.toUpperCase();document.getElementById('mobile').value=p.contactNo;document.getElementById('address').value=(p.address||'').toUpperCase();document.getElementById('uhid').value='SHRI.'+p.shriId.replace(/SHRI\.?/i,'');document.getElementById('suggest').style.display='none';renderBill();}
+function updateBillTime(){let d=document.getElementById('admDateOnly').value;let t=document.getElementById('admTimeOnly').value;if(!d||!t)return;document.getElementById('billDateShow').value=d.split('-').reverse().join('/');let [h,m]=t.split(':').map(Number);let dt=new Date();dt.setHours(h,m+30);document.getElementById('billTimeShow').value=String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');renderBill();}
+function formatDateTime(ds,ts){if(!ds)return '';let [y,m,d]=ds.split('-');let dp=d+'/'+m+'/'+y;if(!ts)return dp;let [h,mm]=ts.split(':').map(Number);let ap=h>=12?'pm':'am';let h12=h%12||12;return dp+' '+h12+':'+String(mm).padStart(2,'0')+' '+ap;}
+function renderBill(){document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;document.getElementById('b_uhid').innerText=document.getElementById('uhid').value;document.getElementById('b_name').innerText=document.getElementById('pName').value;document.getElementById('b_age').innerText=document.getElementById('ageSex').value;document.getElementById('b_bed').innerText=document.getElementById('bedNo').value;document.getElementById('b_mob').innerText=document.getElementById('mobile').value;document.getElementById('b_addr').innerText=document.getElementById('address').value;document.getElementById('b_billNo').innerText=document.getElementById('billNo').value;let admD=document.getElementById('admDateOnly').value;let admT=document.getElementById('admTimeOnly').value;if(admD){document.getElementById('b_adm').innerText=formatDateTime(admD,admT);document.getElementById('b_billDate').innerText=admD.split('-').reverse().join('/');let d=parseInt(admD.split('-')[2]);let mo=parseInt(admD.split('-')[1]);document.getElementById('w26').innerText=d+'/'+mo;}let dis=document.getElementById('disDateTime').value;if(dis){let dt=new Date(dis);document.getElementById('b_dis').innerText=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+ (dt.getHours()%12||12)+':'+String(dt.getMinutes()).padStart(2,'0')+' '+(dt.getHours()>=12?'pm':'am');}let amt=parseFloat(document.getElementById('amt').value)||0;let s=amt.toFixed(2);document.getElementById('w28').innerText=s;document.getElementById('w31').innerText=s;document.getElementById('w32').innerText=s;document.getElementById('w14').innerText=s;document.getElementById('w15').innerText=s;document.getElementById('w18').innerText=s;document.getElementById('w19').innerText=s;document.getElementById('w21').innerText='Rs '+s;}
+let today=new Date().toISOString().split('T')[0];document.getElementById('admDateOnly').value=today;document.getElementById('admTimeOnly').value='11:17';document.getElementById('disDateTime').value=today+'T14:47';updateBillTime();renderBill();
 </script>
 </body>
 </html>
