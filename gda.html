@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" id="viewportMeta" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SHIJA HOSPITALS</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -16,7 +16,6 @@ button,.chip,.switch,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;us
 .menuBtn{width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,0.18);color:#fff;font-size:22px;font-weight:900}
 .hWrap{flex:1}.hTitle{font-size:13px;font-weight:900}.hSub{font-size:9px;opacity:0.8}
 .topActions{display:flex;gap:8px}
-.viewDropdown{height:44px;border-radius:12px;border:0;background:#fff;color:#0B1F4A;font-size:11px;font-weight:900;padding:0 12px}
 .btnViewList{height:44px;padding:0 14px;border-radius:12px;border:0;background:#fff;color:#0B1F4A;font-size:11px;font-weight:900}
 .app{padding-top:58px;display:flex;flex-direction:column;flex:1;width:100%}
 .rowTop{display:flex;gap:8px;margin-top:10px}
@@ -38,14 +37,25 @@ button,.chip,.switch,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;us
 .viewIconSingle svg rect{stroke:#0B1F4A;stroke-width:2.2;fill:none}
 .viewIconSingle svg line{stroke:#0B1F4A;stroke-width:2.6;stroke-linecap:round}
 .scroll{flex:1;display:flex;flex-direction:column;background:#e9eef6;padding:12px;min-height:calc(100dvh - 260px)}
-.grid{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:12px !important;width:100% !important;align-content:start !important;grid-auto-rows:250px !important;min-height:calc(100dvh - 280px) !important}
-.grid.desktopView{grid-template-columns:repeat(6,1fr) !important}
+
+/* AUTO-ADJUST GRID - FIXES ITSELF TO SCREEN */
+.grid{
+  display:grid !important;
+  grid-template-columns:repeat(auto-fill,minmax(112px,1fr)) !important;
+  gap:12px !important;
+  width:100% !important;
+  align-content:start !important;
+  grid-auto-rows:250px !important;
+  min-height:calc(100dvh - 280px) !important;
+}
+@media(min-width:400px){.grid{grid-template-columns:repeat(3,1fr) !important}}
+@media(min-width:768px){.grid{grid-template-columns:repeat(4,1fr) !important}}
+@media(min-width:1024px){.grid{grid-template-columns:repeat(6,1fr) !important}}
+
 .card{width:100% !important;height:250px !important;min-height:250px !important;max-height:250px !important;background:#fff;border-radius:20px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 8px 24px rgba(11,31,74,0.06);align-self:start !important;overflow:hidden}
 .cardTop{display:flex;gap:12px;align-items:flex-start}
 .avatarSq{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:22px;flex-shrink:0}
 .info{flex:1;min-width:0;overflow:hidden;padding-top:1px}
-
-/* GRID: Gap 16px + Switch 74x48 */
 .actions{margin-top:10px;display:flex;flex-direction:column;gap:16px !important}
 .toggleRow{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px}
 .lab{font-size:13px;font-weight:800;color:#0B1F4A}
@@ -71,13 +81,18 @@ button,.chip,.switch,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;us
 .grid.listView .card.listCard .switch.on{background:linear-gradient(135deg,#22c55e,#16a34a)}
 .grid.listView .card.listCard .switch.on:after{left:34px !important}
 
+/* NEW PAGINATION BUTTONS */
+.pages{display:flex;justify-content:space-between;align-items:center;padding:18px 0 90px;gap:12px}
+.pageBtn{height:50px;padding:0 22px;border-radius:100px;border:1.5px solid #0B1F4A;background:#fff;color:#0B1F4A;font-weight:900;font-size:13px;flex:1}
+.pageBtn:disabled{opacity:0.3}
+.pageBtn.on{background:#0B1F4A;color:#fff}
+.pageIndicator{background:#0B1F4A;color:#fff;padding:12px 18px;border-radius:100px;font-weight:900;font-size:13px;min-height:50px;display:flex;align-items:center;justify-content:center;min-width:110px}
+
 .bottom{position:fixed;bottom:0;left:0;right:0;z-index:90;background:#fff;border-top:1px solid #dde4f0;display:flex;justify-content:space-around;padding:8px 0 14px}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:8px;font-weight:700;color:#8aa0c5;cursor:pointer;min-height:44px;justify-content:center}
 .tab.active{color:#0B1F4A}
 .tab .ic{width:28px;height:28px;border-radius:10px;background:#e8eefb;display:flex;align-items:center;justify-content:center;font-size:13px}
 .tab.active .ic{background:#0B1F4A;color:#fff}
-.pages{display:flex;justify-content:center;padding:14px 0 80px}
-.pageIndicator{background:#0B1F4A;color:#fff;padding:12px 28px;border-radius:100px;font-weight:900;font-size:14px;min-height:44px;display:flex;align-items:center}
 .overlay{position:fixed;inset:0;background:rgba(11,31,74,0.55);z-index:9998;display:none}
 .overlay.show{display:block}
 .drawer{position:fixed;left:0;top:0;bottom:0;width:85%;max-width:300px;background:#fff;z-index:9999;transform:translateX(-100%);transition:.35s;pointer-events:none}
@@ -86,7 +101,6 @@ button,.chip,.switch,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;us
 .menuList{padding:8px 0;flex:1;overflow-y:auto}
 .menuItem{padding:17px 20px;font-size:13px;font-weight:800;color:#334155;border-left:4px solid transparent;cursor:pointer;min-height:50px;display:flex;align-items:center}
 .menuItem.active{background:#e8eefb;color:#0B1F4A;border-left-color:#0B1F4A}
-.drawerDropdown{margin-top:12px;width:100%;height:44px;border-radius:12px;border:0;background:#fff;color:#0B1F4A;font-size:12px;font-weight:900;padding:0 12px}
 </style>
 </head>
 <body>
@@ -95,7 +109,6 @@ button,.chip,.switch,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;us
 <div class="drawerTop">
 <div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b></div><button id="closeDrawerBtn" style="width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:22px;font-weight:900">✕</button></div>
 <div style="margin-top:12px;display:flex;gap:8px"><div style="background:rgba(255,255,255,0.18);padding:6px 12px;border-radius:100px;font-size:10px">● ONLINE</div><div style="background:#fff;color:#0B1F4A;padding:6px 12px;border-radius:100px;font-size:10px;font-weight:800" id="drawerCount">0</div></div>
-<div style="margin-top:12px"><select id="viewModeDrawer" class="drawerDropdown"><option value="mobile">MOBILE</option><option value="desktop">DESKTOP</option></select></div>
 </div>
 <div class="menuList">
 <div class="menuItem active" data-url="index.html">HOME</div>
@@ -105,19 +118,30 @@ button,.chip,.switch,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;us
 <div class="menuItem" data-url="list.html">EXCEL LIST</div>
 </div>
 </div>
-<div class="top"><button class="menuBtn" id="menuBtn">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS</div><div class="hSub">DIALYSIS MANAGEMENT</div></div><div class="topActions"><select id="viewModeTop" class="viewDropdown"><option value="mobile">MOBILE</option><option value="desktop">DESKTOP</option></select><button class="btnViewList" id="viewListBtn">VIEW LIST</button></div></div>
+
+<div class="top"><button class="menuBtn" id="menuBtn">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS</div><div class="hSub">DIALYSIS MANAGEMENT</div></div><div class="topActions"><button class="btnViewList" id="viewListBtn">VIEW LIST</button></div></div>
+
 <div class="app">
 <div style="background:linear-gradient(135deg,#0B1F4A,#12367F);padding:0 12px 12px"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:100px"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div><div class="count"><span id="cLeft">Loading...</span><span id="cRight">PENDING 0</span></div></div>
 <div class="filter"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div>
 <div class="searchBar"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><select id="filterBlock" style="border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 12px;height:44px;border-radius:100px;font-weight:800;font-size:10px;color:#0B1F4A;min-width:90px"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select><button id="toggleViewBtn" class="viewIconSingle"></button></div>
 <div class="searchMeta"><span id="searchInfo"></span><span>Scroll ↕</span></div>
-<div class="scroll" id="scroll"><div class="grid" id="grid"></div><div class="pages" id="pages"></div></div>
+<div class="scroll" id="scroll">
+<div class="grid" id="grid"></div>
+<div class="pages" id="pages">
+<button class="pageBtn" id="prevBtn">‹ PREV</button>
+<div class="pageIndicator" id="pageIndicator">PAGE 1</div>
+<button class="pageBtn on" id="nextBtn">NEXT ›</button>
+</div>
+</div>
 <div class="bottom"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:100px;font-size:8px">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
 </div>
+
 <script>
 const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
+
 (function(){
   const drawer=document.getElementById('drawer'); const overlay=document.getElementById('overlay'); const menuBtn=document.getElementById('menuBtn'); const closeBtn=document.getElementById('closeDrawerBtn'); let isOpen=false;
   function openMenu(e){if(e)e.stopPropagation();if(isOpen)return;isOpen=true;drawer.classList.add('open');overlay.classList.add('show');}
@@ -126,63 +150,63 @@ const db=firebase.firestore();
   closeBtn.addEventListener('click', closeMenu); overlay.addEventListener('click', closeMenu);
   document.querySelectorAll('.menuItem').forEach(item=>{item.addEventListener('click', function(){let url=item.getAttribute('data-url');closeMenu();setTimeout(()=>{if(url)location.href=url;},300);});});
 })();
-let isDesktopView = localStorage.getItem('gda_desktop') === '1';
-function applyDesktopView(state){
-  isDesktopView = state;
-  const gridEl = document.getElementById('grid');
-  const vpMetaEl = document.getElementById('viewportMeta');
-  const selTopEl = document.getElementById('viewModeTop');
-  const selDrawerEl = document.getElementById('viewModeDrawer');
-  if(isDesktopView){
-    if(gridEl) gridEl.classList.add('desktopView');
-    if(vpMetaEl) vpMetaEl.setAttribute('content','width=1280');
-    if(selTopEl) selTopEl.value='desktop';
-    if(selDrawerEl) selDrawerEl.value='desktop';
-    localStorage.setItem('gda_desktop','1');
-  }else{
-    if(gridEl) gridEl.classList.remove('desktopView');
-    if(vpMetaEl) vpMetaEl.setAttribute('content','width=device-width, initial-scale=1.0');
-    if(selTopEl) selTopEl.value='mobile';
-    if(selDrawerEl) selDrawerEl.value='mobile';
-    localStorage.setItem('gda_desktop','0');
-  }
-  render();
-}
-document.getElementById('viewModeTop')?.addEventListener('change', e=>applyDesktopView(e.target.value==='desktop'));
-document.getElementById('viewModeDrawer')?.addEventListener('change', e=>{applyDesktopView(e.target.value==='desktop');});
+
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 document.getElementById('fDate').value=new URLSearchParams(location.search).get('date')||getTodayIST();
+
 let allPatients=[],statusMap={},activeTimeFilter='',masterMap={},searchQuery='',isListView=false,currentPage=1;
 if(localStorage.getItem('gda_view')==='list')isListView=true;
+
 const gridIconSVG=`<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg>`;
 const listIconSVG=`<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="5.7" x2="21" y2="5.7"/><rect x="3" y="9.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="12.7" x2="21" y2="12.7"/><rect x="3" y="16.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="19.7" x2="21" y2="19.7"/></svg>`;
-function getPageSize(){if(isListView)return 10;return 18;}
+
+function getPageSize(){
+  if(isListView) return 10;
+  let w = window.innerWidth;
+  if(w < 400) return 18;
+  if(w < 768) return 18;
+  if(w < 1024) return 24;
+  return 36;
+}
+
 function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
 function formatNameParagraph(fullName){if(!fullName) return '';let words = String(fullName).trim().split(/\s+/).filter(Boolean);if(words.length <= 1) return words[0] || '';let first = words[0];let rest = words.slice(1).join(' ');return first + '<br>' + rest;}
+
 async function buildMasterMap(){masterMap={};try{let snap=await db.collection('patients').get();snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let pmjay=String(p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={shri:shri,pmjayId:pmjay,pmjayName:name,cmhtId:'',cmhtName:''};});}catch(e){}try{let snap2=await db.collection('cmht_patients').get();snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let cmht=String(p.cmhtId||p.cmht||p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={shri:shri,pmjayId:'',pmjayName:'',cmhtId:'',cmhtName:''};masterMap[shri].cmhtId=cmht;masterMap[shri].cmhtName=name;});}catch(e){}}
 function enrichPatient(p){let shriKey=String(p.shri||'').trim().toUpperCase();if(!shriKey)return p;let m=masterMap[shriKey];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;}else{if(m.cmhtName)p.name=m.cmhtName;}return p;}
-async function loadData(){try{let d=document.getElementById('fDate').value;let s=document.getElementById('fType').value;let id=d+'_'+s;document.getElementById('cLeft').innerText="Loading...";await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let patients=snap.exists?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let enriched=enrichPatient({...p});enriched.sl=i+1;return enriched;});allPatients=patients;let sSnap=await db.collection('daily_photo_opd').doc(id).get();statusMap=sSnap.exists?(sSnap.data().status||{}):{};if(allPatients.length===0){document.getElementById('grid').innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:20px;color:#0B1F4A;font-weight:700">No data for ${d} ${s}</div>`;document.getElementById('cLeft').innerText=`0 patients`;return;}applyDesktopView(isDesktopView);}catch(e){document.getElementById('cLeft').innerText="Error: "+(e.message||e);}}
+
+async function loadData(){try{let d=document.getElementById('fDate').value;let s=document.getElementById('fType').value;let id=d+'_'+s;document.getElementById('cLeft').innerText="Loading...";await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let patients=snap.exists?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let enriched=enrichPatient({...p});enriched.sl=i+1;return enriched;});allPatients=patients;let sSnap=await db.collection('daily_photo_opd').doc(id).get();statusMap=sSnap.exists?(sSnap.data().status||{}):{};if(allPatients.length===0){document.getElementById('grid').innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:20px;color:#0B1F4A;font-weight:700">No data for ${d} ${s}</div>`;document.getElementById('cLeft').innerText=`0 patients`;return;}render();}catch(e){document.getElementById('cLeft').innerText="Error: "+(e.message||e);}}
 async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await db.collection('daily_photo_opd').doc(id).set({date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()},{merge:true});}
 function toggle(sh,type){if(!statusMap[sh])statusMap[sh]={photoTaken:false,opdDone:false};if(type==='photo')statusMap[sh].photoTaken=!statusMap[sh].photoTaken;else statusMap[sh].opdDone=!statusMap[sh].opdDone;saveStatus();let st=statusMap[sh];if(st.photoTaken&&st.opdDone){let el=document.getElementById('card_'+sh);if(el){el.style.transform='scale(0.9)';el.style.opacity='0';setTimeout(render,200);}}else render();}
 function getInit(n){return (n||'A').charAt(0).toUpperCase();}
 function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#7C3AED)','linear-gradient(135deg,#3B82F6,#0EA5E9)','linear-gradient(135deg,#22C55E,#10B981)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#06B6D4,#3B82F6)'];let hash=0;for(let i=0;i<name.length;i++){hash=name.charCodeAt(i)+((hash<<5)-hash);}return colors[Math.abs(hash)%colors.length];}
 function getFiltered(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(st.photoTaken&&st.opdDone)return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}return true;});}
 function updateToggleBtn(){let btn=document.getElementById('toggleViewBtn');if(btn){btn.innerHTML=isListView?gridIconSVG:listIconSVG;}}
+
 function render(){
   let grid=document.getElementById('grid'); if(!grid) return;
   grid.classList.toggle('listView',isListView);
   let filtered=getFiltered();let done=0;allPatients.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(st&&st.photoTaken&&st.opdDone)done++;});
-  let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;let items=filtered.slice((currentPage-1)*ps,currentPage*ps);
+  let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;if(currentPage<1)currentPage=1;
+  let items=filtered.slice((currentPage-1)*ps,currentPage*ps);
   grid.innerHTML='';
   items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh]||{photoTaken:false,opdDone:false};let div=document.createElement('div');div.className=isListView?'card listCard':'card';div.id='card_'+sh;
   let displayName = formatNameParagraph(p.name);
   div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${displayName}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh}</div></div></div><div class="actions"><div class="toggleRow"><span class="lab">PHOTO</span><div class="switch ${st.photoTaken?'on':''}" data-shri="${sh}" data-type="photo"></div></div><div class="toggleRow"><span class="lab">OPD</span><div class="switch ${st.opdDone?'on':''}" data-shri="${sh}" data-type="opd"></div></div></div>`;grid.appendChild(div);});
   if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:20px;color:#0B1F4A;font-weight:700">All done</div>`;}
-  let pg=document.getElementById('pages');if(pg){pg.innerHTML=`<div class="pageIndicator">PAGE ${currentPage}</div>`;}
+  
+  // Pagination buttons
+  let prevBtn=document.getElementById('prevBtn');
+  let nextBtn=document.getElementById('nextBtn');
+  let ind=document.getElementById('pageIndicator');
+  if(ind) ind.innerText=`PAGE ${currentPage} / ${pages}`;
+  if(prevBtn) prevBtn.disabled = currentPage<=1;
+  if(nextBtn) nextBtn.disabled = currentPage>=pages;
+
   document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done`;
   document.getElementById('cRight').innerText=`PENDING ${filtered.length}`;
   document.getElementById('doneB').innerText=done;
-  document.getElementById('searchInfo').innerText=`${filtered.length} patients • Page ${currentPage}`;
+  document.getElementById('searchInfo').innerText=`${filtered.length} patients • Page ${currentPage}/${pages}`;
   document.getElementById('drawerCount').innerText=`${allPatients.length}`;
   updateToggleBtn();
   document.querySelectorAll('.switch').forEach(sw=>{
@@ -191,23 +215,29 @@ function render(){
     sw.addEventListener('touchend', handler, {passive:false});
   });
 }
-function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;render();return true;}}
-function goPrevPage(){if(currentPage>1){currentPage--;render();return true;}}
+
+function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;render();window.scrollTo({top:0,behavior:'smooth'});return true;}}
+function goPrevPage(){if(currentPage>1){currentPage--;render();window.scrollTo({top:0,behavior:'smooth'});return true;}}
 function goToCompleted(){let d=document.getElementById('fDate').value;let t=document.getElementById('fType').value;location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
 function addUniversal(el, fn){if(!el) return; el.addEventListener('click', fn); el.addEventListener('touchend', (e)=>{ e.preventDefault(); fn(e); }, {passive:false});}
+
 document.querySelectorAll('.chip').forEach(c=>{const fn=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;currentPage=1;render();};addUniversal(c, fn);});
 document.getElementById('filterBlock')?.addEventListener('change',()=>{currentPage=1;render();});
 document.getElementById('fDate')?.addEventListener('change',loadData);
 document.getElementById('fType')?.addEventListener('change',loadData);
+
 addUniversal(document.getElementById('tabSync'), ()=>location.reload());
 addUniversal(document.getElementById('viewListBtn'), goToCompleted);
 addUniversal(document.getElementById('tabDone'), goToCompleted);
 addUniversal(document.getElementById('tabHome'), ()=>location.href='index.html');
 addUniversal(document.getElementById('toggleViewBtn'), ()=>{isListView=!isListView;localStorage.setItem('gda_view',isListView?'list':'grid');currentPage=1;render();});
-addUniversal(document.getElementById('pages'), ()=>{goNextPage();});
+addUniversal(document.getElementById('prevBtn'), ()=>{goPrevPage();});
+addUniversal(document.getElementById('nextBtn'), ()=>{goNextPage();});
+
 const searchInput=document.getElementById('searchName');const clearBtn=document.getElementById('clearSearch');
 searchInput?.addEventListener('input',e=>{searchQuery=e.target.value;if(clearBtn) clearBtn.style.display=searchQuery?'flex':'none';currentPage=1;render();});
 addUniversal(clearBtn, ()=>{if(searchInput) searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
+
 (function(){
   let startX=0,isSwipe=false,threshold=70;
   const scrollEl=document.getElementById('scroll');
@@ -216,6 +246,8 @@ addUniversal(clearBtn, ()=>{if(searchInput) searchInput.value='';searchQuery='';
   scrollEl.addEventListener('touchmove',e=>{if(!startX)return;let dx=e.touches[0].clientX-startX;if(Math.abs(dx)>15){isSwipe=true;}},{passive:true});
   scrollEl.addEventListener('touchend',e=>{if(!isSwipe){startX=0;return;}let dx=e.changedTouches[0].clientX-startX;if(dx<-threshold)goNextPage();else if(dx>threshold)goPrevPage();startX=0;isSwipe=false;},{passive:true});
 })();
+
+window.addEventListener('resize',()=>{render();});
 window.addEventListener('load',()=>{setTimeout(()=>{updateToggleBtn();loadData();},400);});
 window.toggle=toggle;
 </script>
