@@ -103,6 +103,8 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .suggest{position:absolute;top:105%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:14px;max-height:260px;overflow:auto;z-index:60;display:none;box-shadow:0 16px 32px #0002}
 .suggest div{padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer}
 .btnBlue{background:#1a56db;color:#fff;border:0;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer}
+.boldBtn{background:#fff !important;color:#000 !important;border:2px solid #000 !important;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;border-radius:8px}
+.boldBtn.active{background:#000 !important;color:#fff !important}
 .billPaper{background:#fff;width:210mm;max-width:100%;margin:0 auto;padding:0 12px 12px;color:#000;font-family:Arial,Helvetica,sans-serif}
 .letterhead{width:calc(100% + 24px);margin:0 -12px 0 -12px;padding:0;display:block}
 .letterhead img{width:100%;height:auto;display:block}
@@ -117,8 +119,12 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .exactTable.gross td{border:none;padding:8px 4px;font-weight:400 !important;font-size:13.5px;text-align:right}
 .itemLine1{white-space:nowrap;font-weight:600;line-height:1.2}
 .itemLine2{white-space:nowrap;line-height:1.2}
-.word{display:inline-block;padding:1px 2px;border-radius:3px;touch-action:none;user-select:none;cursor:grab;line-height:1.2}
+.word{display:inline-block;padding:1px 2px;border-radius:3px;touch-action:none;user-select:text;cursor:grab;line-height:1.2}
 .word:active{cursor:grabbing;background:#fef3c7}
+.word.selected{outline:2px solid #1a56db;background:#dbeafe}
+.word.bold{font-weight:900 !important}
+#grossRow{cursor:grab;touch-action:none}
+#grossRow:active{cursor:grabbing}
 .alignBox{background:#0f172a;color:#fff;border-radius:16px;padding:14px;margin-bottom:14px;display:none;max-height:70vh;overflow:auto}
 .alignBox.show{display:block}
 .alignRow{display:grid;grid-template-columns:135px 1fr 50px;gap:8px;align-items:center;margin-bottom:8px}
@@ -131,7 +137,7 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
   .content{padding:0 !important;margin:0 !important;max-width:100% !important}
   .billPaper{width:100% !important;max-width:100% !important;padding:0 8px !important;box-shadow:none !important;border:none !important}
   .letterhead{width:100% !important;margin:0 !important}
-  .word{background:transparent!important;cursor:default!important}
+  .word{background:transparent!important;cursor:default!important;outline:none !important}
 }
 </style>
 </head>
@@ -140,7 +146,13 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
 </script>
-<div class="top noPrint"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA Dialysis</h2><span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div><div style="display:flex;gap:8px"><button class="btnBlue" onclick="saveToSameStorage()" style="background:#10b981">Save</button><button class="btnBlue" onclick="saveToSameStorage(); setTimeout(()=>window.print(),500)">Save & Print</button><button class="btnBlue" onclick="window.print()">Print</button></div></div>
+<div class="top noPrint"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA Dialysis</h2><span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div>
+<div style="display:flex;gap:6px;align-items:center">
+<button id="boldBtn" class="btnBlue boldBtn" onclick="toggleBold()" title="Bold"><b>B</b></button>
+<button class="btnBlue" onclick="saveToSameStorage()" style="background:#10b981">Save</button>
+<button class="btnBlue" onclick="saveToSameStorage(); setTimeout(()=>window.print(),500)">Save & Print</button>
+<button class="btnBlue" onclick="window.print()">Print</button>
+</div></div>
 <div class="sideOverlay" id="overlay"></div>
 <div class="side noPrint" id="side">
 <div class="menu">
@@ -161,9 +173,14 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 <div class="content">
 <div class="card noPrint alignBox" id="alignPanel">
-<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:12px;text-align:center">ALL movable - drag or slider</div>
+<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:12px;text-align:center">Drag to move | Click word + B = Bold | Gross Row = Full Movable</div>
 <div id="alignControls"></div>
-<div style="margin-top:12px;display:flex;gap:8px"><button class="btnBlue" style="background:#10b981" onclick="resetAll()">Reset All</button><button class="btnBlue" style="background:#334155" onclick="closeSettings()">Close</button></div>
+<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+<button class="btnBlue" style="background:#10b981" onclick="resetAll()">Reset All</button>
+<button class="btnBlue" style="background:#f59e0b" onclick="resetGross()">Reset Gross</button>
+<button class="btnBlue" style="background:#ef4444" onclick="clearBold()">Clear Bold</button>
+<button class="btnBlue" style="background:#334155" onclick="closeSettings()">Close</button>
+</div>
 </div>
 <div class="card noPrint"><div style="font-weight:900;margin-bottom:8px">Select Patient - Auto Bill</div><div class="searchWrap"><input id="patientSearch" placeholder="Type Patient Name..." oninput="showPatientSuggest(this.value)" style="border:2px solid #1a56db;padding:14px"><div id="suggest" class="suggest"></div></div><div class="row"><div class="col"><span class="label">Patient Name</span><input id="pName" readonly oninput="renderBill()"></div><div class="col"><span class="label">Mobile</span><input id="mobile" oninput="renderBill()"></div><div class="col"><span class="label">UHID SHRI.</span><input id="uhid" oninput="renderBill()"></div></div><div class="row"><div class="col" style="flex:2"><span class="label">Address</span><input id="address" oninput="renderBill()"></div><div class="col"><span class="label">IPNo</span><input id="ipNo" value="177214" oninput="renderBill()"></div><div class="col"><span class="label">Bill No</span><input id="billNo" value="SHIC182733" oninput="renderBill()"></div></div><div class="row" style="background:#f0f9ff;padding:12px;border-radius:14px;border:1.5px dashed #60a5fa"><div class="col"><span class="label">Bed No.</span><input id="bedNo" value="D-2208 (Dialysis)" oninput="renderBill()"></div><div class="col"><span class="label">Age/Sex</span><input id="ageSex" value="70 Year(s) / Male" oninput="renderBill()"></div><div class="col"><span class="label">Admission Date</span><input type="date" id="admDateOnly" onchange="updateBillTime()" oninput="renderBill()"></div><div class="col"><span class="label">Admission Time</span><input type="time" id="admTimeOnly" onchange="updateBillTime()" oninput="renderBill()"></div></div><div class="row" style="background:#fffbeb;padding:12px;border-radius:14px;border:1.5px dashed #f59e0b"><div class="col"><span class="label">Bill Date Auto</span><input id="billDateShow" readonly></div><div class="col"><span class="label">Bill Time +30</span><input id="billTimeShow" readonly></div><div class="col"><span class="label">Discharge</span><input type="datetime-local" id="disDateTime" oninput="renderBill()"></div><div class="col"><span class="label">Amount Rs</span><input id="amt" value="2660.00" style="border:2px solid #10b981;font-weight:900" oninput="renderBill()"></div></div></div>
 <div class="billPaper">
@@ -203,7 +220,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </tbody>
 </table>
 <table class="exactTable gross"><tbody>
-<tr><td colspan="5" style="border:none"></td><td colspan="3"><span class="word" id="w20">Gross Bill Amount :</span></td><td></td><td colspan="2"><span class="word" id="w21">Rs 2660.00</span></td></tr>
+<tr id="grossRow"><td colspan="5" style="border:none"></td><td colspan="3"><span class="word" id="w20">Gross Bill Amount :</span></td><td></td><td colspan="2"><span class="word" id="w21">Rs 2660.00</span></td></tr>
 </tbody></table>
 </div>
 </div>
@@ -235,21 +252,95 @@ function openSettings(){document.getElementById('alignPanel').classList.add('sho
 function closeSettings(){document.getElementById('alignPanel').classList.remove('show');}
 let cfg = JSON.parse(localStorage.getItem('shija_full_all')||'null') || {};
 for(let i=1;i<=32;i++){ if(cfg['off'+i]===undefined) cfg['off'+i]=0; }
-function applyDrag(){for(let i=1;i<=32;i++){let el=document.getElementById('w'+i);if(el) el.style.transform=`translateX(${cfg['off'+i]||0}px)`;}localStorage.setItem('shija_full_all', JSON.stringify(cfg));}
-function buildControls(){let labels={1:'SI No',2:'Item Name',3:'Batch No',4:'HSN/Code',5:'Date',6:'Qty',7:'Rate',8:'GST%',9:'Patient Amt',10:'Company Amt',11:'Amount Rs',12:'Sub Total:',13:'Sub 0.00',14:'Sub 2660 Co',15:'Sub 2660 Amt',16:'Grand Total:',17:'Grand 0.00',18:'Grand 2660 Co',19:'Grand 2660 Amt',20:'Gross Label',21:'Gross Rs',22:'Data: 1',23:'Data: Haemodialysis',24:'Data: Batch',25:'Data: HSN',26:'Data: 11/10',27:'Data: 1.00',28:'Data: 2660 Rate',29:'Data: GST blank',30:'Data: 0.00 Pat',31:'Data: 2660 Comp',32:'Data: 2660 Amt'};let html='';for(let i=1;i<=32;i++){html+=`<div class="alignRow"><span>${labels[i]}</span><input type="range" min="-80" max="80" value="${cfg['off'+i]}" oninput="cfg['off'+i]=parseInt(this.value);applyDrag();this.nextElementSibling.innerText=this.value+'px'"><span>${cfg['off'+i]}px</span></div>`;}document.getElementById('alignControls').innerHTML=html;}
-function resetAll(){for(let i=1;i<=32;i++)cfg['off'+i]=0;applyDrag();buildControls();}
+if(cfg['grossOff']===undefined) cfg['grossOff']=0;
+
+function applyDrag(){
+  for(let i=1;i<=32;i++){
+    let el=document.getElementById('w'+i);
+    if(el) el.style.transform=`translateX(${cfg['off'+i]||0}px)`;
+  }
+  let gross=document.getElementById('grossRow');
+  if(gross) gross.style.transform=`translateX(${cfg['grossOff']||0}px)`;
+  localStorage.setItem('shija_full_all', JSON.stringify(cfg));
+}
+function buildControls(){
+  let labels={1:'SI No',2:'Item Name',3:'Batch No',4:'HSN/Code',5:'Date',6:'Qty',7:'Rate',8:'GST%',9:'Patient Amt',10:'Company Amt',11:'Amount Rs',12:'Sub Total:',13:'Sub 0.00',14:'Sub 2660 Co',15:'Sub 2660 Amt',16:'Grand Total:',17:'Grand 0.00',18:'Grand 2660 Co',19:'Grand 2660 Amt',20:'Gross Label',21:'Gross Rs',22:'Data: 1',23:'Data: Haemodialysis',24:'Data: Batch',25:'Data: HSN',26:'Data: 11/10',27:'Data: 1.00',28:'Data: 2660 Rate',29:'Data: GST blank',30:'Data: 0.00 Pat',31:'Data: 2660 Comp',32:'Data: 2660 Amt'};
+  let html='';
+  for(let i=1;i<=32;i++){
+    html+=`<div class="alignRow"><span>${labels[i]}</span><input type="range" min="-80" max="80" value="${cfg['off'+i]}" oninput="cfg['off'+i]=parseInt(this.value);applyDrag();this.nextElementSibling.innerText=this.value+'px'"><span>${cfg['off'+i]}px</span></div>`;
+  }
+  html+=`<div class="alignRow" style="border-top:1px solid #334155;padding-top:8px;margin-top:8px"><span style="color:#fbbf24;font-weight:800">Gross FULL Row</span><input type="range" min="-200" max="200" value="${cfg['grossOff']}" oninput="cfg['grossOff']=parseInt(this.value);applyDrag();this.nextElementSibling.innerText=this.value+'px'"><span>${cfg['grossOff']}px</span></div>`;
+  document.getElementById('alignControls').innerHTML=html;
+}
+function resetAll(){for(let i=1;i<=32;i++)cfg['off'+i]=0;cfg['grossOff']=0;applyDrag();buildControls();}
+function resetGross(){cfg['grossOff']=0;cfg['off20']=0;cfg['off21']=0;applyDrag();buildControls();}
+
 let dragCol=null, startX=0, startOff=0;
+let boldMap = JSON.parse(localStorage.getItem('shija_bold')||'{}');
+let selectedWords = new Set();
+function applyBold(){
+  document.querySelectorAll('.word').forEach(w=>{
+    let id=w.id;
+    if(boldMap[id]) w.classList.add('bold');
+    else w.classList.remove('bold');
+  });
+  localStorage.setItem('shija_bold', JSON.stringify(boldMap));
+}
+function toggleBold(){
+  if(selectedWords.size===0){
+    let sel=window.getSelection();
+    if(sel && sel.toString().trim()!=''){
+      document.querySelectorAll('.word').forEach(w=>{
+        if(sel.containsNode(w,true)) selectedWords.add(w.id);
+      });
+    }else{
+      alert('Select a word first - tap on word');
+      return;
+    }
+  }
+  selectedWords.forEach(id=>{
+    boldMap[id]=!boldMap[id];
+    if(!boldMap[id]) delete boldMap[id];
+  });
+  applyBold();
+  document.querySelectorAll('.word').forEach(w=>w.classList.remove('selected'));
+  selectedWords.clear();
+  document.getElementById('boldBtn').classList.remove('active');
+}
+function clearBold(){boldMap={};applyBold();}
+
 document.querySelectorAll('.word').forEach(w=>{
+ w.addEventListener('click', e=>{
+   if(dragCol) return;
+   if(w.id==='w20' || w.id==='w21') return; // gross handled separately
+   e.stopPropagation();
+   let id=w.id;
+   if(selectedWords.has(id)){
+     selectedWords.delete(id);
+     w.classList.remove('selected');
+   }else{
+     selectedWords.add(id);
+     w.classList.add('selected');
+   }
+   let btn=document.getElementById('boldBtn');
+   if(selectedWords.size>0) btn.classList.add('active');
+   else btn.classList.remove('active');
+ });
  w.addEventListener('pointerdown', e=>{
    let id = parseInt(w.id.replace('w',''));
+   if(id===20 || id===21) return;
    dragCol = id;
    startX = e.clientX;
    startOff = cfg['off'+dragCol]||0;
    w.setPointerCapture(e.pointerId);
  });
  w.addEventListener('pointermove', e=>{
-   if(!dragCol) return;
+   if(!dragCol || dragCol===20 || dragCol===21) return;
    let dx = e.clientX - startX;
+   if(Math.abs(dx)>5){
+     document.querySelectorAll('.word.selected').forEach(el=>{ if(el.id!=='w20' && el.id!=='w21') el.classList.remove('selected'); });
+     selectedWords.forEach(sid=>{ if(sid==='w20'||sid==='w21') return; });
+   }
    cfg['off'+dragCol] = startOff + dx;
    if(cfg['off'+dragCol]<-80)cfg['off'+dragCol]=-80;
    if(cfg['off'+dragCol]>80)cfg['off'+dragCol]=80;
@@ -258,7 +349,58 @@ document.querySelectorAll('.word').forEach(w=>{
  });
  w.addEventListener('pointerup', ()=>{dragCol=null; localStorage.setItem('shija_full_all', JSON.stringify(cfg));});
 });
-applyDrag();buildControls();
+
+// GROSS FULL ROW DRAG
+let grossRow=document.getElementById('grossRow');
+let grossStartX=0, grossStartOff=0, grossDragging=false;
+if(grossRow){
+  grossRow.addEventListener('pointerdown', e=>{
+    grossDragging=true;
+    grossStartX=e.clientX;
+    grossStartOff=cfg['grossOff']||0;
+    grossRow.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  grossRow.addEventListener('pointermove', e=>{
+    if(!grossDragging) return;
+    let dx=e.clientX-grossStartX;
+    cfg['grossOff']=grossStartOff+dx;
+    if(cfg['grossOff']<-200) cfg['grossOff']=-200;
+    if(cfg['grossOff']>200) cfg['grossOff']=200;
+    applyDrag();
+    buildControls();
+  });
+  grossRow.addEventListener('pointerup', ()=>{
+    grossDragging=false;
+    localStorage.setItem('shija_full_all', JSON.stringify(cfg));
+  });
+  // also allow B button for gross words
+  document.getElementById('w20').addEventListener('click', e=>{
+    e.stopPropagation();
+    let id='w20';
+    if(selectedWords.has(id)){selectedWords.delete(id);e.target.classList.remove('selected');}
+    else{selectedWords.add(id);e.target.classList.add('selected');}
+    document.getElementById('boldBtn').classList.toggle('active', selectedWords.size>0);
+  });
+  document.getElementById('w21').addEventListener('click', e=>{
+    e.stopPropagation();
+    let id='w21';
+    if(selectedWords.has(id)){selectedWords.delete(id);e.target.classList.remove('selected');}
+    else{selectedWords.add(id);e.target.classList.add('selected');}
+    document.getElementById('boldBtn').classList.toggle('active', selectedWords.size>0);
+  });
+}
+
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.word') && !e.target.closest('#boldBtn') && !e.target.closest('#grossRow')){
+    document.querySelectorAll('.word.selected').forEach(el=>el.classList.remove('selected'));
+    selectedWords.clear();
+    document.getElementById('boldBtn').classList.remove('active');
+  }
+});
+
+applyDrag();buildControls();applyBold();
+
 let allPatients=[];
 function loadPatients(){
   if(window.allPatients && window.allPatients.length){ allPatients=[...window.allPatients]; return; }
