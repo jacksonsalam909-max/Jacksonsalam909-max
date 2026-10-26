@@ -76,12 +76,22 @@ body{background:#eef2f8;min-height:100dvh}
 </head>
 <body>
 <div class="overlay" id="overlay"></div>
-<div class="drawer" id="drawer"><div class="drawerTop"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b></div><button id="closeDrawerBtn" style="width:48px;height:48px;border-radius:12px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:26px;font-weight:900">✕</button></div></div><div class="menuList"><div class="menuItem" data-url="index.html">HOME → index.html</div><div class="menuItem" data-url="gda.html">PENDING LIST → gda.html</div><div class="menuItem active">COMPLETED LIST → gdacompleted.html</div></div></div>
+<div class="drawer" id="drawer">
+<div class="drawerTop">
+<div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b></div><button id="closeDrawerBtn" style="width:48px;height:48px;border-radius:12px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:26px;font-weight:900">✕</button></div>
+</div>
+<!-- ONLY 2 BUTTONS -->
+<div class="menuList">
+<div class="menuItem" data-url="index.html">HOME</div>
+<div class="menuItem" data-url="gda.html">PENDING LIST</div>
+</div>
+</div>
+
 <div class="top"><button class="menuBtn" id="menuBtn">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS</div><div class="hSub">COMPLETED</div></div><div class="topActions"><button class="btnBack" id="backBtn">BACK TO PENDING</button></div></div>
 <div class="app"><div style="background:linear-gradient(135deg,#0B1F4A 0%,#12367F 100%);padding:0 12px 12px"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:100px"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div><div class="count"><span id="cLeft">Loading...</span><span id="cRight">DONE 0</span></div></div>
 <div class="filter"><div class="chipsWrap"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall on" id="nextBtn">›</button></div></div>
 <div class="searchBar"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search completed..." autocomplete="off"><button class="clearSearch" id="clearSearch">✕</button></div><select id="filterBlock" style="border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 12px;height:42px;border-radius:100px;font-weight:800;font-size:10px;color:#0B1F4A;min-width:105px"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select><button id="toggleViewBtn" class="viewIconSingle"></button></div><div class="searchMeta"><span id="searchInfo"></span><span>Swipe ←→</span></div><div class="scroll" id="scroll"><div class="grid" id="grid"></div></div></div>
-<div class="bottom"><div class="tab" id="tabHome"><div class="ic">⌂</div>HOME → index.html</div><div class="tab active" id="tabDone"><div class="ic">✓</div>PENDING → gda.html</div><div class="tab" id="tabSync"><div class="ic">↻</div>Refresh</div></div>
+<div class="bottom"><div class="tab" id="tabHome"><div class="ic">⌂</div>HOME</div><div class="tab active" id="tabDone"><div class="ic">✓</div>PENDING</div><div class="tab" id="tabSync"><div class="ic">↻</div>Refresh</div></div>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getFirestore,doc,getDoc,setDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -109,7 +119,6 @@ function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFil
 function goPrevPage(){if(currentPage>1){currentPage--;render();window.scrollTo({top:0,behavior:'smooth'});}}
 const drawer=document.getElementById('drawer');const overlay=document.getElementById('overlay');const menuBtn=document.getElementById('menuBtn');const closeBtn=document.getElementById('closeDrawerBtn');function openMenu(){drawer.classList.add('open');overlay.classList.add('show');}function closeMenu(){drawer.classList.remove('open');overlay.classList.remove('show');}menuBtn.addEventListener('click',openMenu);closeBtn.addEventListener('click',closeMenu);overlay.addEventListener('click',closeMenu);document.querySelectorAll('.menuItem').forEach(item=>{item.addEventListener('click',function(){let url=item.getAttribute('data-url');if(!url) return;closeMenu();setTimeout(()=>{location.href=url;},200);});});
 document.getElementById('fDate').addEventListener('change',loadData);document.getElementById('fType').addEventListener('change',loadData);
-// FIXED NAVIGATION
 document.getElementById('backBtn').addEventListener('click',()=>{let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gda.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);});
 document.getElementById('tabHome').addEventListener('click',()=>{location.href='index.html';});
 document.getElementById('tabDone').addEventListener('click',()=>{let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gda.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);});
