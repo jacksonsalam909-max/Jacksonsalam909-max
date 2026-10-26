@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Bill - SHIJA</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, serverTimestamp, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -105,15 +107,21 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .btnBlue{background:#1a56db;color:#fff;border:0;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer}
 .boldBtn{background:#fff !important;color:#000 !important;border:2px solid #000 !important;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;border-radius:8px}
 .boldBtn.active{background:#000 !important;color:#fff !important}
+.exportWrap{position:relative;display:inline-block}
+.exportBtn{background:#f59e0b !important}
+.exportMenu{position:absolute;top:110%;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 10px 25px #0002;width:170px;display:none;z-index:9999;overflow:hidden}
+.exportMenu.show{display:block}
+.exportMenu button{width:100%;text-align:left;background:#fff;border:0;padding:12px 14px;font-weight:700;font-size:13px;cursor:pointer;border-bottom:1px solid #f1f5f9}
+.exportMenu button:hover{background:#f8fafc}
 .billPaper{background:#fff;width:210mm;max-width:100%;margin:0 auto;padding:0 12px 12px;color:#000;font-family:Arial,Helvetica,sans-serif}
 .letterhead{width:calc(100% + 24px);margin:0 -12px 0 -12px;padding:0;display:block}
 .letterhead img{width:100%;height:auto;display:block}
 .infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px;font-size:13.5px;margin:6px 0 8px;line-height:1.4;font-weight:500;color:#000}
 .infoGrid b{font-weight:700}
 .exactTable{width:100%;border-collapse:collapse;font-size:13.5px;color:#000;line-height:1.3}
-.exactTable th{font-weight:700;padding:6px 4px 6px 2px;text-align:left;border-bottom:1.5px solid #000;font-size:11.5px;white-space:nowrap}
+.exactTable th{font-weight:700;padding:6px 4px 6px 12px;text-align:left;border-bottom:1.5px solid #000;font-size:11.5px;white-space:nowrap}
 .exactTable td{padding:6px 4px 6px 2px;vertical-align:top;font-size:13.5px;font-weight:400}
-.exactTable tr.nephRow td{font-weight:800;text-transform:uppercase;padding:7px 0 4px;border-bottom:1.5px solid #000;font-size:12.5px}
+.exactTable tr.nephRow td{font-weight:800;text-transform:uppercase;padding:7px 0 4px 12px;border-bottom:1.5px solid #000;font-size:12.5px}
 .exactTable tr.sub td{border-top:1.5px solid #000;padding:6px 4px;font-weight:400 !important;text-align:right;font-size:13.5px}
 .exactTable tr.grand td{border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:6px 4px;font-weight:400 !important;text-align:right;font-size:13.5px}
 .exactTable.gross td{border:none;padding:8px 4px;font-weight:400 !important;font-size:13.5px;text-align:right}
@@ -147,6 +155,13 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div class="top noPrint"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA Dialysis</h2><span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div>
 <div style="display:flex;gap:6px;align-items:center">
 <button id="boldBtn" class="btnBlue boldBtn" onclick="toggleBold()" title="Bold"><b>B</b></button>
+<div class="exportWrap">
+<button class="btnBlue exportBtn" onclick="toggleExport()">Export ▼</button>
+<div class="exportMenu" id="exportMenu">
+<button onclick="exportPDF()">📄 Export as PDF</button>
+<button onclick="exportJPEG()">🖼️ Export as JPEG</button>
+</div>
+</div>
 <button class="btnBlue" onclick="saveToSameStorage()" style="background:#10b981">Save</button>
 <button class="btnBlue" onclick="saveToSameStorage(); setTimeout(()=>window.print(),500)">Save & Print</button>
 <button class="btnBlue" onclick="window.print()">Print</button>
@@ -171,7 +186,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 <div class="content">
 <div class="card noPrint alignBox" id="alignPanel">
-<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:12px;text-align:center">Click word + B = Bold | w20 and w21 separate</div>
+<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:12px;text-align:center">Header moved right + Export PDF/JPEG</div>
 <div id="alignControls"></div>
 <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
 <button class="btnBlue" style="background:#10b981" onclick="resetAll()">Reset All</button>
@@ -180,7 +195,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 </div>
 <div class="card noPrint"><div style="font-weight:900;margin-bottom:8px">Select Patient - Auto Bill</div><div class="searchWrap"><input id="patientSearch" placeholder="Type Patient Name..." oninput="showPatientSuggest(this.value)" style="border:2px solid #1a56db;padding:14px"><div id="suggest" class="suggest"></div></div><div class="row"><div class="col"><span class="label">Patient Name</span><input id="pName" readonly oninput="renderBill()"></div><div class="col"><span class="label">Mobile</span><input id="mobile" oninput="renderBill()"></div><div class="col"><span class="label">UHID SHRI.</span><input id="uhid" oninput="renderBill()"></div></div><div class="row"><div class="col" style="flex:2"><span class="label">Address</span><input id="address" oninput="renderBill()"></div><div class="col"><span class="label">IPNo</span><input id="ipNo" value="177214" oninput="renderBill()"></div><div class="col"><span class="label">Bill No</span><input id="billNo" value="SHIC182733" oninput="renderBill()"></div></div><div class="row" style="background:#f0f9ff;padding:12px;border-radius:14px;border:1.5px dashed #60a5fa"><div class="col"><span class="label">Bed No.</span><input id="bedNo" value="D-2208 (Dialysis)" oninput="renderBill()"></div><div class="col"><span class="label">Age/Sex</span><input id="ageSex" value="70 Year(s) / Male" oninput="renderBill()"></div><div class="col"><span class="label">Admission Date</span><input type="date" id="admDateOnly" onchange="updateBillTime()" oninput="renderBill()"></div><div class="col"><span class="label">Admission Time</span><input type="time" id="admTimeOnly" onchange="updateBillTime()" oninput="renderBill()"></div></div><div class="row" style="background:#fffbeb;padding:12px;border-radius:14px;border:1.5px dashed #f59e0b"><div class="col"><span class="label">Bill Date Auto</span><input id="billDateShow" readonly></div><div class="col"><span class="label">Bill Time +30</span><input id="billTimeShow" readonly></div><div class="col"><span class="label">Discharge</span><input type="datetime-local" id="disDateTime" oninput="renderBill()"></div><div class="col"><span class="label">Amount Rs</span><input id="amt" value="2660.00" style="border:2px solid #10b981;font-weight:900" oninput="renderBill()"></div></div></div>
-<div class="billPaper">
+<div class="billPaper" id="billPaper">
 <div class="letterhead"><img src="letterhead.png"></div>
 <div class="infoGrid"><div><b>IPNo</b>: <span id="b_ip">177214</span></div><div><b>UHID</b>: <span id="b_uhid">SHRI.153704</span></div><div><b>Patient Name</b>: <span id="b_name">Mr. LAISHANGBAM ANGOUBAMBA SINGH</span></div><div><b>Admission Date & Time</b>: <span id="b_adm">03/09/2026 11:17 am</span></div><div><b>Age/Sex</b>: <span id="b_age">70 Year(s) / Male</span></div><div><b>Bill No.</b>: <span id="b_billNo">SHIC182733</span></div><div><b>Bed no.</b>: <span id="b_bed">D-2208 (Dialysis)</span></div><div><b>Bill Date</b>: <span id="b_billDate">03/09/2026</span></div><div><b>Doctor Name</b>: Guliver Potsangbam</div><div><b>Discharge Date & Time</b>: <span id="b_dis">03/09/2026 02:47 pm</span></div><div><b>PAN No./GSTIN</b>: AF / 14AAICS6068B2ZG</div><div><b>Doctor Speciality</b>: Nephrology</div><div><b>Mobile No</b>: <span id="b_mob">7005208464</span></div><div><b>Patient Type</b>: Credit</div><div><b>Patient Address</b>: <span id="b_addr">MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur</span></div><div><b>Payer</b>: PMJAY</div></div>
 <table class="exactTable" id="billTable">
@@ -248,7 +263,7 @@ document.addEventListener('DOMContentLoaded',function(){
 function openSettings(){document.getElementById('alignPanel').classList.add('show');let s=document.getElementById('side');if(s.classList.contains('show'))toggleMenu();}
 function closeSettings(){document.getElementById('alignPanel').classList.remove('show');}
 let cfg = JSON.parse(localStorage.getItem('shija_full_all')||'null') || {};
-for(let i=1;i<=32;i++){ if(cfg['off'+i]===undefined) cfg['off'+i]=0; }
+for(let i=1;i<=32;i++){ if(cfg['off'+i]===undefined) cfg['off'+i]= (i>=1 && i<=11) ? 12 : 0; }
 function applyDrag(){
   for(let i=1;i<=32;i++){
     let el=document.getElementById('w'+i);
@@ -264,7 +279,7 @@ function buildControls(){
   }
   document.getElementById('alignControls').innerHTML=html;
 }
-function resetAll(){for(let i=1;i<=32;i++)cfg['off'+i]=0;applyDrag();buildControls();}
+function resetAll(){for(let i=1;i<=32;i++)cfg['off'+i]= (i>=1 && i<=11) ? 12 : 0;applyDrag();buildControls();}
 let dragCol=null, startX=0, startOff=0;
 let boldMap = JSON.parse(localStorage.getItem('shija_bold')||'{}');
 let selectedWords = new Set();
@@ -357,6 +372,37 @@ function updateBillTime(){let d=document.getElementById('admDateOnly').value;let
 function formatDateTime(ds,ts){if(!ds)return '';let [y,m,d]=ds.split('-');let dp=d+'/'+m+'/'+y;if(!ts)return dp;let [h,mm]=ts.split(':').map(Number);let ap=h>=12?'pm':'am';let h12=h%12||12;return dp+' '+h12+':'+String(mm).padStart(2,'0')+' '+ap;}
 function renderBill(){document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;document.getElementById('b_uhid').innerText=document.getElementById('uhid').value;document.getElementById('b_name').innerText=document.getElementById('pName').value;document.getElementById('b_age').innerText=document.getElementById('ageSex').value;document.getElementById('b_bed').innerText=document.getElementById('bedNo').value;document.getElementById('b_mob').innerText=document.getElementById('mobile').value;document.getElementById('b_addr').innerText=document.getElementById('address').value;document.getElementById('b_billNo').innerText=document.getElementById('billNo').value;let admD=document.getElementById('admDateOnly').value;let admT=document.getElementById('admTimeOnly').value;if(admD){document.getElementById('b_adm').innerText=formatDateTime(admD,admT);document.getElementById('b_billDate').innerText=admD.split('-').reverse().join('/');let d=parseInt(admD.split('-')[2]);let mo=parseInt(admD.split('-')[1]);document.getElementById('w26').innerText=d+'/'+mo;}let dis=document.getElementById('disDateTime').value;if(dis){let dt=new Date(dis);document.getElementById('b_dis').innerText=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+ (dt.getHours()%12||12)+':'+String(dt.getMinutes()).padStart(2,'0')+' '+(dt.getHours()>=12?'pm':'am');}let amt=parseFloat(document.getElementById('amt').value)||0;let s=amt.toFixed(2);document.getElementById('w28').innerText=s;document.getElementById('w31').innerText=s;document.getElementById('w32').innerText=s;document.getElementById('w14').innerText=s;document.getElementById('w15').innerText=s;document.getElementById('w18').innerText=s;document.getElementById('w19').innerText=s;document.getElementById('w21').innerText='Rs '+s;}
 let today=new Date().toISOString().split('T')[0];document.getElementById('admDateOnly').value=today;document.getElementById('admTimeOnly').value='11:17';document.getElementById('disDateTime').value=today+'T14:47';updateBillTime();renderBill();
+
+function toggleExport(){document.getElementById('exportMenu').classList.toggle('show');}
+document.addEventListener('click',function(e){if(!e.target.closest('.exportWrap')){document.getElementById('exportMenu').classList.remove('show');}});
+
+async function exportPDF(){
+  document.getElementById('exportMenu').classList.remove('show');
+  document.getElementById('fbStatus').innerText="Generating PDF...";
+  const el = document.getElementById('billPaper');
+  const canvas = await html2canvas(el, {scale:2, useCORS:true, backgroundColor:"#ffffff"});
+  const imgData = canvas.toDataURL('image/png');
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('p','mm','a4');
+  const pdfWidth = 210;
+  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+  let billNo = document.getElementById('billNo').value || "SHIJA_BILL";
+  pdf.save(billNo+".pdf");
+  document.getElementById('fbStatus').innerText="✓ PDF Exported";
+}
+async function exportJPEG(){
+  document.getElementById('exportMenu').classList.remove('show');
+  document.getElementById('fbStatus').innerText="Generating JPEG...";
+  const el = document.getElementById('billPaper');
+  const canvas = await html2canvas(el, {scale:2, useCORS:true, backgroundColor:"#ffffff"});
+  const link = document.createElement('a');
+  let billNo = document.getElementById('billNo').value || "SHIJA_BILL";
+  link.download = billNo+".jpg";
+  link.href = canvas.toDataURL('image/jpeg', 0.95);
+  link.click();
+  document.getElementById('fbStatus').innerText="✓ JPEG Exported";
+}
 </script>
 </body>
 </html>
