@@ -123,8 +123,6 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .word:active{cursor:grabbing;background:#fef3c7}
 .word.selected{outline:2px solid #1a56db;background:#dbeafe}
 .word.bold{font-weight:900 !important}
-#grossRow{cursor:grab;touch-action:none}
-#grossRow:active{cursor:grabbing}
 .alignBox{background:#0f172a;color:#fff;border-radius:16px;padding:14px;margin-bottom:14px;display:none;max-height:70vh;overflow:auto}
 .alignBox.show{display:block}
 .alignRow{display:grid;grid-template-columns:135px 1fr 50px;gap:8px;align-items:center;margin-bottom:8px}
@@ -173,11 +171,10 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 <div class="content">
 <div class="card noPrint alignBox" id="alignPanel">
-<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:12px;text-align:center">Drag to move | Click word + B = Bold | Gross Row = Full Movable</div>
+<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:12px;text-align:center">Click word + B = Bold | w20 and w21 separate</div>
 <div id="alignControls"></div>
 <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
 <button class="btnBlue" style="background:#10b981" onclick="resetAll()">Reset All</button>
-<button class="btnBlue" style="background:#f59e0b" onclick="resetGross()">Reset Gross</button>
 <button class="btnBlue" style="background:#ef4444" onclick="clearBold()">Clear Bold</button>
 <button class="btnBlue" style="background:#334155" onclick="closeSettings()">Close</button>
 </div>
@@ -220,7 +217,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </tbody>
 </table>
 <table class="exactTable gross"><tbody>
-<tr id="grossRow"><td colspan="5" style="border:none"></td><td colspan="3"><span class="word" id="w20">Gross Bill Amount :</span></td><td></td><td colspan="2"><span class="word" id="w21">Rs 2660.00</span></td></tr>
+<tr><td colspan="5" style="border:none"></td><td colspan="3"><span class="word" id="w20">Gross Bill Amount :</span></td><td></td><td colspan="2"><span class="word" id="w21">Rs 2660.00</span></td></tr>
 </tbody></table>
 </div>
 </div>
@@ -252,29 +249,22 @@ function openSettings(){document.getElementById('alignPanel').classList.add('sho
 function closeSettings(){document.getElementById('alignPanel').classList.remove('show');}
 let cfg = JSON.parse(localStorage.getItem('shija_full_all')||'null') || {};
 for(let i=1;i<=32;i++){ if(cfg['off'+i]===undefined) cfg['off'+i]=0; }
-if(cfg['grossOff']===undefined) cfg['grossOff']=0;
-
 function applyDrag(){
   for(let i=1;i<=32;i++){
     let el=document.getElementById('w'+i);
     if(el) el.style.transform=`translateX(${cfg['off'+i]||0}px)`;
   }
-  let gross=document.getElementById('grossRow');
-  if(gross) gross.style.transform=`translateX(${cfg['grossOff']||0}px)`;
   localStorage.setItem('shija_full_all', JSON.stringify(cfg));
 }
 function buildControls(){
-  let labels={1:'SI No',2:'Item Name',3:'Batch No',4:'HSN/Code',5:'Date',6:'Qty',7:'Rate',8:'GST%',9:'Patient Amt',10:'Company Amt',11:'Amount Rs',12:'Sub Total:',13:'Sub 0.00',14:'Sub 2660 Co',15:'Sub 2660 Amt',16:'Grand Total:',17:'Grand 0.00',18:'Grand 2660 Co',19:'Grand 2660 Amt',20:'Gross Label',21:'Gross Rs',22:'Data: 1',23:'Data: Haemodialysis',24:'Data: Batch',25:'Data: HSN',26:'Data: 11/10',27:'Data: 1.00',28:'Data: 2660 Rate',29:'Data: GST blank',30:'Data: 0.00 Pat',31:'Data: 2660 Comp',32:'Data: 2660 Amt'};
+  let labels={1:'SI No',2:'Item Name',3:'Batch No',4:'HSN/Code',5:'Date',6:'Qty',7:'Rate',8:'GST%',9:'Patient Amt',10:'Company Amt',11:'Amount Rs',12:'Sub Total:',13:'Sub 0.00',14:'Sub 2660 Co',15:'Sub 2660 Amt',16:'Grand Total:',17:'Grand 0.00',18:'Grand 2660 Co',19:'Grand 2660 Amt',20:'Gross Label (separate)',21:'Gross Rs 2660 (separate)',22:'Data: 1',23:'Data: Haemodialysis',24:'Data: Batch',25:'Data: HSN',26:'Data: 11/10',27:'Data: 1.00',28:'Data: 2660 Rate',29:'Data: GST blank',30:'Data: 0.00 Pat',31:'Data: 2660 Comp',32:'Data: 2660 Amt'};
   let html='';
   for(let i=1;i<=32;i++){
-    html+=`<div class="alignRow"><span>${labels[i]}</span><input type="range" min="-80" max="80" value="${cfg['off'+i]}" oninput="cfg['off'+i]=parseInt(this.value);applyDrag();this.nextElementSibling.innerText=this.value+'px'"><span>${cfg['off'+i]}px</span></div>`;
+    html+=`<div class="alignRow"><span>${labels[i]}</span><input type="range" min="-150" max="150" value="${cfg['off'+i]}" oninput="cfg['off'+i]=parseInt(this.value);applyDrag();this.nextElementSibling.innerText=this.value+'px'"><span>${cfg['off'+i]}px</span></div>`;
   }
-  html+=`<div class="alignRow" style="border-top:1px solid #334155;padding-top:8px;margin-top:8px"><span style="color:#fbbf24;font-weight:800">Gross FULL Row</span><input type="range" min="-200" max="200" value="${cfg['grossOff']}" oninput="cfg['grossOff']=parseInt(this.value);applyDrag();this.nextElementSibling.innerText=this.value+'px'"><span>${cfg['grossOff']}px</span></div>`;
   document.getElementById('alignControls').innerHTML=html;
 }
-function resetAll(){for(let i=1;i<=32;i++)cfg['off'+i]=0;cfg['grossOff']=0;applyDrag();buildControls();}
-function resetGross(){cfg['grossOff']=0;cfg['off20']=0;cfg['off21']=0;applyDrag();buildControls();}
-
+function resetAll(){for(let i=1;i<=32;i++)cfg['off'+i]=0;applyDrag();buildControls();}
 let dragCol=null, startX=0, startOff=0;
 let boldMap = JSON.parse(localStorage.getItem('shija_bold')||'{}');
 let selectedWords = new Set();
@@ -308,11 +298,9 @@ function toggleBold(){
   document.getElementById('boldBtn').classList.remove('active');
 }
 function clearBold(){boldMap={};applyBold();}
-
 document.querySelectorAll('.word').forEach(w=>{
  w.addEventListener('click', e=>{
    if(dragCol) return;
-   if(w.id==='w20' || w.id==='w21') return; // gross handled separately
    e.stopPropagation();
    let id=w.id;
    if(selectedWords.has(id)){
@@ -328,79 +316,30 @@ document.querySelectorAll('.word').forEach(w=>{
  });
  w.addEventListener('pointerdown', e=>{
    let id = parseInt(w.id.replace('w',''));
-   if(id===20 || id===21) return;
    dragCol = id;
    startX = e.clientX;
    startOff = cfg['off'+dragCol]||0;
    w.setPointerCapture(e.pointerId);
  });
  w.addEventListener('pointermove', e=>{
-   if(!dragCol || dragCol===20 || dragCol===21) return;
+   if(!dragCol) return;
    let dx = e.clientX - startX;
-   if(Math.abs(dx)>5){
-     document.querySelectorAll('.word.selected').forEach(el=>{ if(el.id!=='w20' && el.id!=='w21') el.classList.remove('selected'); });
-     selectedWords.forEach(sid=>{ if(sid==='w20'||sid==='w21') return; });
-   }
    cfg['off'+dragCol] = startOff + dx;
-   if(cfg['off'+dragCol]<-80)cfg['off'+dragCol]=-80;
-   if(cfg['off'+dragCol]>80)cfg['off'+dragCol]=80;
+   if(cfg['off'+dragCol]<-150)cfg['off'+dragCol]=-150;
+   if(cfg['off'+dragCol]>150)cfg['off'+dragCol]=150;
    applyDrag();
    buildControls();
  });
  w.addEventListener('pointerup', ()=>{dragCol=null; localStorage.setItem('shija_full_all', JSON.stringify(cfg));});
 });
-
-// GROSS FULL ROW DRAG
-let grossRow=document.getElementById('grossRow');
-let grossStartX=0, grossStartOff=0, grossDragging=false;
-if(grossRow){
-  grossRow.addEventListener('pointerdown', e=>{
-    grossDragging=true;
-    grossStartX=e.clientX;
-    grossStartOff=cfg['grossOff']||0;
-    grossRow.setPointerCapture(e.pointerId);
-    e.preventDefault();
-  });
-  grossRow.addEventListener('pointermove', e=>{
-    if(!grossDragging) return;
-    let dx=e.clientX-grossStartX;
-    cfg['grossOff']=grossStartOff+dx;
-    if(cfg['grossOff']<-200) cfg['grossOff']=-200;
-    if(cfg['grossOff']>200) cfg['grossOff']=200;
-    applyDrag();
-    buildControls();
-  });
-  grossRow.addEventListener('pointerup', ()=>{
-    grossDragging=false;
-    localStorage.setItem('shija_full_all', JSON.stringify(cfg));
-  });
-  // also allow B button for gross words
-  document.getElementById('w20').addEventListener('click', e=>{
-    e.stopPropagation();
-    let id='w20';
-    if(selectedWords.has(id)){selectedWords.delete(id);e.target.classList.remove('selected');}
-    else{selectedWords.add(id);e.target.classList.add('selected');}
-    document.getElementById('boldBtn').classList.toggle('active', selectedWords.size>0);
-  });
-  document.getElementById('w21').addEventListener('click', e=>{
-    e.stopPropagation();
-    let id='w21';
-    if(selectedWords.has(id)){selectedWords.delete(id);e.target.classList.remove('selected');}
-    else{selectedWords.add(id);e.target.classList.add('selected');}
-    document.getElementById('boldBtn').classList.toggle('active', selectedWords.size>0);
-  });
-}
-
 document.addEventListener('click', e=>{
-  if(!e.target.closest('.word') && !e.target.closest('#boldBtn') && !e.target.closest('#grossRow')){
+  if(!e.target.closest('.word') && !e.target.closest('#boldBtn')){
     document.querySelectorAll('.word.selected').forEach(el=>el.classList.remove('selected'));
     selectedWords.clear();
     document.getElementById('boldBtn').classList.remove('active');
   }
 });
-
 applyDrag();buildControls();applyBold();
-
 let allPatients=[];
 function loadPatients(){
   if(window.allPatients && window.allPatients.length){ allPatients=[...window.allPatients]; return; }
