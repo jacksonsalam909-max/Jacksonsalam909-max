@@ -9,7 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
-body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
+body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column;touch-action:pan-y}
 button,.chip,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;user-select:none}
 .top{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(135deg,#0B1F4A,#12367F);padding:10px 12px;color:#fff;display:flex;align-items:center;gap:12px;height:68px}
 .menuBtn{width:56px;height:56px;border-radius:14px;border:0;background:rgba(255,255,255,0.20);color:#fff;font-size:26px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -33,8 +33,9 @@ button,.chip,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;user-selec
 .searchInput{width:100%;height:60px;border:2px solid #d0d9ea;background:#f4f7fd;padding:0 20px;border-radius:100px;font-weight:700;font-size:16px;color:#0B1F4A;outline:none}
 .clearSearch{position:absolute;right:10px;width:42px;height:42px;border-radius:50%;border:0;background:#dde4f0;display:none}
 .searchMeta{padding:8px 12px;background:#e9eef6;font-size:11px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between;position:sticky;top:222px;z-index:8;height:36px;align-items:center}
-.viewIconSingle{width:62px;height:62px;min-width:62px;border-radius:100px;border:2px solid #d0d9ea;background:#f4f7fd;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.scroll{flex:1;display:flex;flex-direction:column;background:#e9eef6;padding:12px;min-height:calc(100dvh - 280px)}
+.viewIconSingle{width:62px;height:62px;min-width:62px;border-radius:100px;border:2px solid #0B1F4A;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(11,31,74,0.15)}
+.viewIconSingle svg{width:24px;height:24px;stroke:#0B1F4A;stroke-width:2.2;fill:none}
+.scroll{flex:1;display:flex;flex-direction:column;background:#e9eef6;padding:12px;min-height:calc(100dvh - 280px);touch-action:pan-y}
 .grid{display:grid !important;grid-template-columns:repeat(2,1fr) !important;gap:10px !important;width:100% !important;min-height:calc(100dvh - 280px) !important}
 @media(min-width:380px){.grid{grid-template-columns:repeat(3,1fr) !important}}
 @media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr) !important}}
@@ -46,8 +47,12 @@ button,.chip,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;user-selec
 .card .name{font-size:12px !important;font-weight:900 !important;line-height:1.2 !important;color:#0B1F4A !important;text-transform:uppercase !important;text-align:center !important;display:block !important;height:auto !important;min-height:30px !important;overflow:hidden !important}
 .card .sub{font-size:9px !important;font-weight:700 !important;color:#6f84a8 !important;text-align:center !important;margin-top:4px !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;width:100% !important}
 .actions{width:100% !important;margin-top:8px !important}
-/* WHITE COMPLETE BUTTON WITH SHADOW - NO ICON */
-.btnComplete{width:100% !important;height:40px !important;min-height:40px !important;border-radius:10px !important;font-weight:900 !important;font-size:11px !important;cursor:pointer !important;display:flex !important;align-items:center !important;justify-content:center !important;background:#ffffff !important;color:#0B1F4A !important;border:1px solid #e2e8f0 !important;box-shadow:0 4px 12px rgba(11,31,74,0.15) !important;letter-spacing:0.3px}
+.btnComplete{width:100% !important;height:40px !important;min-height:40px !important;border-radius:10px !important;font-weight:900 !important;font-size:11px !important;cursor:pointer !important;display:flex !important;align-items:center !important;justify-content:center !important;background:linear-gradient(135deg,#0B1F4A,#12367F) !important;color:#ffffff !important;border:0 !important;box-shadow:0 4px 14px rgba(11,31,74,0.32) !important;letter-spacing:0.5px !important;position:relative;overflow:hidden;user-select:none}
+.btnComplete .btnText{position:relative;z-index:2;pointer-events:none;color:#fff !important}
+.btnComplete .progressFill{position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,#FFCC00,#FFD740) !important;z-index:1;transition:width 0.05s linear}
+.btnComplete.holding{box-shadow:0 6px 20px rgba(11,31,74,0.45) !important;transform:scale(0.97)}
+.btnComplete.holding .btnText{color:#0B1F4A !important}
+.holdHint{font-size:9px;color:#0B1F4A;font-weight:800;margin-top:4px;letter-spacing:0.3px;opacity:0.75}
 .grid.listView{display:flex !important;flex-direction:column !important;gap:12px !important}
 .grid.listView .card{width:100% !important;height:120px !important;min-height:120px !important;max-height:120px !important;flex-direction:row !important;padding:18px 20px !important;border-radius:20px !important;border-left:7px solid #0B1F4A !important;text-align:left !important}
 .grid.listView .card .cardTop{flex-direction:row !important;gap:14px !important;text-align:left !important}
@@ -68,8 +73,6 @@ button,.chip,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;user-selec
 .menuList{padding:8px 0;flex:1;overflow-y:auto}
 .menuItem{padding:20px;font-size:14px;font-weight:800;color:#334155;border-left:4px solid transparent;cursor:pointer;min-height:56px;display:flex;align-items:center}
 .menuItem.active{background:#e8eefb;color:#0B1F4A;border-left-color:#0B1F4A}
-
-/* CONFIRM POPUP */
 #confirmModal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(11,31,74,0.55);backdrop-filter:blur(4px)}
 #confirmModal.show{display:flex}
 .confirmBox{background:#fff;width:90%;max-width:340px;border-radius:20px;padding:24px 20px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);animation:pop .25s ease}
@@ -79,6 +82,8 @@ button,.chip,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;user-selec
 .confirmBtns{display:flex;gap:12px}
 .btnNoSure{flex:1;height:52px;border-radius:14px;border:2px solid #d0d9ea;background:#f4f7fd;color:#4a5f85;font-weight:900;font-size:14px;cursor:pointer}
 .btnSure{flex:1;height:52px;border-radius:14px;border:0;background:#0B1F4A;color:#fff;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 6px 16px rgba(11,31,74,0.25)}
+.swipeHint{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0B1F4A;color:#fff;padding:8px 16px;border-radius:100px;font-size:11px;font-weight:800;z-index:80;opacity:0;pointer-events:none;transition:.3s}
+.swipeHint.show{opacity:1}
 </style>
 </head>
 <body>
@@ -87,25 +92,14 @@ button,.chip,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;user-selec
 <div class="drawerTop"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b></div><button id="closeDrawerBtn" style="width:48px;height:48px;border-radius:12px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:24px;font-weight:900">✕</button></div><div style="margin-top:12px;display:flex;gap:8px"><div style="background:rgba(255,255,255,0.18);padding:8px 14px;border-radius:100px;font-size:11px">● ONLINE</div><div style="background:#fff;color:#0B1F4A;padding:8px 14px;border-radius:100px;font-size:11px;font-weight:800" id="drawerCount">0</div></div></div>
 <div class="menuList"><div class="menuItem active" data-url="index.html">HOME</div><div class="menuItem" data-url="total.html">TOTAL PMJAY</div><div class="menuItem" data-url="cmht.html">TOTAL CMHT</div><div class="menuItem" data-url="searchpatient.html">SEARCH PATIENT</div><div class="menuItem" data-url="list.html">EXCEL LIST</div></div>
 </div>
-
-<!-- SURE / NOT SURE POPUP -->
-<div id="confirmModal">
-<div class="confirmBox">
-<div class="confirmTitle">Are you sure?</div>
-<div class="confirmSub" id="confirmSub">Move this patient to completed list?</div>
-<div class="confirmBtns">
-<button class="btnNoSure" id="btnNotSure">NOT SURE</button>
-<button class="btnSure" id="btnSure">SURE</button>
-</div>
-</div>
-</div>
-
+<div id="confirmModal"><div class="confirmBox"><div class="confirmTitle">Are you sure?</div><div class="confirmSub" id="confirmSub">Move this patient to completed list?</div><div class="confirmBtns"><button class="btnNoSure" id="btnNotSure">NOT SURE</button><button class="btnSure" id="btnSure">SURE</button></div></div></div>
+<div class="swipeHint" id="swipeHint">Swipe ← → to change page</div>
 <div class="top"><button class="menuBtn" id="menuBtn">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS</div><div class="hSub">DIALYSIS MANAGEMENT</div></div><div class="topActions"><button class="btnViewList" id="viewListBtn">VIEW LIST</button></div></div>
 <div class="app">
 <div style="background:linear-gradient(135deg,#0B1F4A,#12367F);padding:0 12px 14px"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:130px"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div><div class="count"><span id="cLeft">Loading...</span><span id="cRight">PENDING 0</span></div></div>
 <div class="filter"><div class="chipsWrap"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
-<div class="searchBar"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><select id="filterBlock" style="border:2px solid #d0d9ea;background:#f4f7fd;padding:0 18px;height:60px;border-radius:100px;font-weight:800;font-size:14px;color:#0B1F4A;min-width:130px"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select><button id="toggleViewBtn" class="viewIconSingle"></button></div>
-<div class="searchMeta"><span id="searchInfo"></span><span>Scroll ↕ Swipe ←→</span></div>
+<div class="searchBar"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><select id="filterBlock" style="border:2px solid #d0d9ea;background:#f4f7fd;padding:0 18px;height:60px;border-radius:100px;font-weight:800;font-size:14px;color:#0B1F4A;min-width:130px"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select><button id="toggleViewBtn" class="viewIconSingle" title="Toggle Grid/List"></button></div>
+<div class="searchMeta"><span id="searchInfo"></span><span>HOLD 1.5s • Swipe ← →</span></div>
 <div class="scroll" id="scroll"><div class="grid" id="grid"></div><div class="pagesBottom"></div></div>
 <div class="bottom"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:100px;font-size:8px">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
 </div>
@@ -124,37 +118,18 @@ function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.ge
 document.getElementById('fDate').value=new URLSearchParams(location.search).get('date')||getTodayIST();
 let allPatients=[],statusMap={},activeTimeFilter='',masterMap={},searchQuery='',isListView=false,currentPage=1,pendingShri=null;
 if(localStorage.getItem('gda_view')==='list')isListView=true;
-const gridIconSVG=`<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg>`;
-const listIconSVG=`<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="5.7" x2="21" y2="5.7"/><rect x="3" y="9.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="12.7" x2="21" y2="12.7"/><rect x="3" y="16.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="19.7" x2="21" y2="19.7"/></svg>`;
+const gridIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`;
+const listIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="4" rx="1"/><line x1="13" y1="6" x2="21" y2="6"/><rect x="3" y="10" width="7" height="4" rx="1"/><line x1="13" y1="12" x2="21" y2="12"/><rect x="3" y="16" width="7" height="4" rx="1"/><line x1="13" y1="18" x2="21" y2="18"/></svg>`;
 function getPageSize(){return isListView?10:24;}
 function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
 async function buildMasterMap(){masterMap={};try{let snap=await db.collection('patients').get();snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={pmjayName:name,cmhtName:''};});}catch(e){}try{let snap2=await db.collection('cmht_patients').get();snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={pmjayName:'',cmhtName:''};masterMap[shri].cmhtName=name;});}catch(e){}}
 function enrichPatient(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;}else{if(m.cmhtName)p.name=m.cmhtName;}return p;}
 async function loadData(){try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;document.getElementById('cLeft').innerText="Loading...";await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let patients=snap.exists?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let e=enrichPatient({...p});e.sl=i+1;return e;});allPatients=patients;let sSnap=await db.collection('daily_photo_opd').doc(id).get();statusMap=sSnap.exists?(sSnap.data().status||{}):{};if(allPatients.length===0){document.getElementById('grid').innerHTML=`<div style="text-align:center;padding:40px;background:#fff;border-radius:20px;color:#0B1F4A;font-weight:700">No data for ${d} ${s}</div>`;document.getElementById('cLeft').innerText=`0 patients`;return;}render();}catch(e){document.getElementById('cLeft').innerText="Error: "+(e.message||e);}}
 async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await db.collection('daily_photo_opd').doc(id).set({date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()},{merge:true});}
-
-// POPUP LOGIC
-function showConfirm(sh){
-  pendingShri=sh;
-  let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);
-  document.getElementById('confirmSub').innerText = p ? `Move ${p.name} (${sh}) to completed list?` : `Move ${sh} to completed?`;
-  document.getElementById('confirmModal').classList.add('show');
-}
-function hideConfirm(){
-  document.getElementById('confirmModal').classList.remove('show');
-  pendingShri=null;
-}
-async function confirmSure(){
-  if(!pendingShri) return;
-  if(!statusMap[pendingShri]) statusMap[pendingShri]={photoTaken:false,opdDone:false};
-  statusMap[pendingShri].photoTaken=true;
-  statusMap[pendingShri].opdDone=true;
-  await saveStatus();
-  let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;
-  location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);
-}
-
-function getInit(n){return (n||'A').charAt(0).toUpperCase();}
+function showConfirm(sh){pendingShri=sh;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);document.getElementById('confirmSub').innerText=p?`Move ${p.name} (${sh}) to completed list?`:`Move ${sh} to completed?`;document.getElementById('confirmModal').classList.add('show');}
+function hideConfirm(){document.getElementById('confirmModal').classList.remove('show');pendingShri=null;}
+async function confirmSure(){if(!pendingShri)return;if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};statusMap[pendingShri].photoTaken=true;statusMap[pendingShri].opdDone=true;await saveStatus();let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
+function getInit(n){return(n||'A').charAt(0).toUpperCase();}
 function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#7C3AED)','linear-gradient(135deg,#3B82F6,#0EA5E9)','linear-gradient(135deg,#22C55E,#10B981)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#06B6D4,#3B82F6)'];let h=0;for(let i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h);}return colors[Math.abs(h)%colors.length];}
 function getFiltered(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(st.photoTaken&&st.opdDone)return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}return true;});}
 function updateToggleBtn(){let b=document.getElementById('toggleViewBtn');if(b){b.innerHTML=isListView?gridIconSVG:listIconSVG;}}
@@ -167,7 +142,7 @@ function render(){
   items.forEach(p=>{
     let sh=String(p.shri||'').toUpperCase();
     let div=document.createElement('div');div.className='card';div.id='card_'+sh;
-    div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name||''}</div><div class="sub">${p.time||''} • ${sh}</div></div></div><div class="actions"><button class="btnComplete" data-shri="${sh}">COMPLETE</button></div>`;
+    div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name||''}</div><div class="sub">${p.time||''} • ${sh}</div></div></div><div class="actions"><button class="btnComplete" data-shri="${sh}"><div class="progressFill"></div><span class="btnText">COMPLETE</span></button><div class="holdHint">HOLD 1.5s</div></div>`;
     grid.appendChild(div);
   });
   if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:20px;color:#0B1F4A;font-weight:700">All done ✓</div>`;}
@@ -180,11 +155,26 @@ function render(){
   document.getElementById('searchInfo').innerText=`${filtered.length} patients • ${currentPage}/${pages}`;
   document.getElementById('drawerCount').innerText=`${allPatients.length}`;
   updateToggleBtn();
+  attachLongPress();
+}
+function attachLongPress(){
   document.querySelectorAll('.btnComplete').forEach(btn=>{
-    const h=(e)=>{e.preventDefault();e.stopPropagation();showConfirm(btn.getAttribute('data-shri'));};
-    btn.addEventListener('click',h);btn.addEventListener('touchend',h,{passive:false});
+    let timer=null,progress=0,holding=false,fill=btn.querySelector('.progressFill');
+    function start(e){if(e){e.preventDefault();e.stopPropagation();}if(holding)return;holding=true;progress=0;btn.classList.add('holding');timer=setInterval(()=>{progress+=4;if(fill)fill.style.width=progress+'%';if(progress>=100){clearInterval(timer);btn.classList.remove('holding');if(fill)fill.style.width='0%';showConfirm(btn.getAttribute('data-shri'));}},60);}
+    function end(){if(!holding)return;holding=false;clearInterval(timer);progress=0;btn.classList.remove('holding');if(fill)fill.style.width='0%';}
+    btn.addEventListener('mousedown',start);btn.addEventListener('touchstart',start,{passive:false});btn.addEventListener('mouseup',end);btn.addEventListener('mouseleave',end);btn.addEventListener('touchend',end);btn.addEventListener('touchcancel',end);
   });
 }
+let startX=0,startY=0;const scrollEl=document.getElementById('scroll');
+scrollEl.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;startY=e.touches[0].clientY;},{passive:true});
+scrollEl.addEventListener('touchend',e=>{
+  let endX=e.changedTouches[0].clientX;let endY=e.changedTouches[0].clientY;
+  let diffX=endX-startX;let diffY=endY-startY;
+  if(Math.abs(diffX)>Math.abs(diffY) && Math.abs(diffX)>80){
+    if(diffX<0)goNextPage();else goPrevPage();
+    let hint=document.getElementById('swipeHint');hint.classList.add('show');setTimeout(()=>hint.classList.remove('show'),1000);
+  }
+},{passive:true});
 function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;render();window.scrollTo({top:0,behavior:'smooth'});}}
 function goPrevPage(){if(currentPage>1){currentPage--;render();window.scrollTo({top:0,behavior:'smooth'});}}
 function goToCompleted(){let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
