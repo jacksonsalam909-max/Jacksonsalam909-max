@@ -112,15 +112,15 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .exportMenu.show{display:block}
 .exportMenu button{display:block;width:100%;text-align:left;background:#fff;border:0;padding:10px 12px;font-size:13px;cursor:pointer}
 .exportMenu button:hover{background:#f2f2f2}
-.billPaper{background:#fff;width:210mm;max-width:100%;margin:0 auto;padding:0 12px 12px;color:#000;font-family:Arial,Helvetica,sans-serif}
-.letterhead{width:calc(100% + 24px);margin:0 -12px 0 -12px;padding:0;display:block}
+.billPaper{background:#fff;width:210mm;max-width:100%;margin:0 auto;padding:0 0 12px 0;color:#000;font-family:Arial,Helvetica,sans-serif;border:1px solid #000;box-sizing:border-box}
+.letterhead{width:100%;margin:0;padding:0;display:block;box-sizing:border-box}
 .letterhead img{width:100%;height:auto;display:block}
-.infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px;font-size:13.5px;margin:6px 0 8px;line-height:1.4;font-weight:500;color:#000}
+.infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px;font-size:13.5px;margin:0;padding:8px 12px 8px 12px;line-height:1.4;font-weight:500;color:#000;box-sizing:border-box}
 .infoGrid b{font-weight:700}
-.exactTable{width:100%;border-collapse:collapse;font-size:13.5px;color:#000;line-height:1.3}
+.exactTable{width:100%;border-collapse:collapse;font-size:13.5px;color:#000;line-height:1.3;box-sizing:border-box}
 .exactTable th{font-weight:700;padding:6px 4px 6px 2px;text-align:left;border-bottom:1.5px solid #000;font-size:11.5px;white-space:nowrap}
 .exactTable td{padding:6px 4px 6px 2px;vertical-align:top;font-size:13.5px;font-weight:400}
-.exactTable tr.nephRow td{font-weight:800;text-transform:uppercase;padding:7px 0 4px;border-bottom:1.5px solid #000;font-size:12.5px}
+.exactTable tr.nephRow td{font-weight:800;text-transform:uppercase;padding:7px 0 4px 2px;border-bottom:1.5px solid #000;font-size:12.5px}
 .exactTable tr.sub td{border-top:1.5px solid #000;padding:6px 4px;font-weight:400 !important;text-align:right;font-size:13.5px}
 .exactTable tr.grand td{border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:6px 4px;font-weight:400 !important;text-align:right;font-size:13.5px}
 .exactTable.gross td{border:none;padding:8px 4px;font-weight:400 !important;font-size:13.5px;text-align:right}
@@ -140,7 +140,7 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
   html,body{background:#fff !important;margin:0 !important;padding:0 !important}
   .noPrint{display:none!important}
   .content{padding:0 !important;margin:0 !important;max-width:100% !important}
-  .billPaper{width:100% !important;max-width:100% !important;padding:0 8px !important;box-shadow:none !important;border:none !important}
+  .billPaper{width:100% !important;max-width:100% !important;padding:0 0 8px 0 !important;box-shadow:none !important;border:1px solid #000 !important;box-sizing:border-box !important}
   .letterhead{width:100% !important;margin:0 !important}
   .word{background:transparent!important;cursor:default!important;outline:none !important}
 }
@@ -157,11 +157,11 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div class="exportWrap">
 <button class="btnBlue" onclick="toggleExport()">Export ▼</button>
 <div class="exportMenu" id="exportMenu">
-<button onclick="exportPDF()">PDF</button>
-<button onclick="exportJPEG()">JPEG</button>
+<button onclick="selectExport('pdf')">PDF</button>
+<button onclick="selectExport('jpeg')">JPEG</button>
 </div>
 </div>
-<button class="btnBlue" onclick="window.print()">Print</button>
+<button class="btnBlue" id="printBtn" onclick="handlePrint()">Print</button>
 </div></div>
 <div class="sideOverlay" id="overlay"></div>
 <div class="side noPrint" id="side">
@@ -370,10 +370,28 @@ function formatDateTime(ds,ts){if(!ds)return '';let [y,m,d]=ds.split('-');let dp
 function renderBill(){document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;document.getElementById('b_uhid').innerText=document.getElementById('uhid').value;document.getElementById('b_name').innerText=document.getElementById('pName').value;document.getElementById('b_age').innerText=document.getElementById('ageSex').value;document.getElementById('b_bed').innerText=document.getElementById('bedNo').value;document.getElementById('b_mob').innerText=document.getElementById('mobile').value;document.getElementById('b_addr').innerText=document.getElementById('address').value;document.getElementById('b_billNo').innerText=document.getElementById('billNo').value;let admD=document.getElementById('admDateOnly').value;let admT=document.getElementById('admTimeOnly').value;if(admD){document.getElementById('b_adm').innerText=formatDateTime(admD,admT);document.getElementById('b_billDate').innerText=admD.split('-').reverse().join('/');let d=parseInt(admD.split('-')[2]);let mo=parseInt(admD.split('-')[1]);document.getElementById('w26').innerText=d+'/'+mo;}let dis=document.getElementById('disDateTime').value;if(dis){let dt=new Date(dis);document.getElementById('b_dis').innerText=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+ (dt.getHours()%12||12)+':'+String(dt.getMinutes()).padStart(2,'0')+' '+(dt.getHours()>=12?'pm':'am');}let amt=parseFloat(document.getElementById('amt').value)||0;let s=amt.toFixed(2);document.getElementById('w28').innerText=s;document.getElementById('w31').innerText=s;document.getElementById('w32').innerText=s;document.getElementById('w14').innerText=s;document.getElementById('w15').innerText=s;document.getElementById('w18').innerText=s;document.getElementById('w19').innerText=s;document.getElementById('w21').innerText='Rs '+s;}
 let today=new Date().toISOString().split('T')[0];document.getElementById('admDateOnly').value=today;document.getElementById('admTimeOnly').value='11:17';document.getElementById('disDateTime').value=today+'T14:47';updateBillTime();renderBill();
 
+// FIX: NO AUTO DOWNLOAD - DOWNLOAD ONLY ON PRINT
+let pendingType = null;
 function toggleExport(){document.getElementById('exportMenu').classList.toggle('show');}
 document.addEventListener('click',function(e){ if(!e.target.closest('.exportWrap')){ let m=document.getElementById('exportMenu'); if(m) m.classList.remove('show'); }});
-async function exportPDF(){
-  let menu=document.getElementById('exportMenu'); if(menu) menu.classList.remove('show');
+function selectExport(t){
+  pendingType=t;
+  document.getElementById('exportMenu').classList.remove('show');
+  document.getElementById('fbStatus').innerText = t.toUpperCase() + " selected - Now press PRINT to download";
+  document.getElementById('printBtn').style.background="#10b981";
+  document.getElementById('printBtn').innerText="Print "+t.toUpperCase();
+}
+async function handlePrint(){
+  if(pendingType==='pdf'){ await doPDF(); pendingType=null; resetPrintBtn(); return; }
+  if(pendingType==='jpeg'){ await doJPEG(); pendingType=null; resetPrintBtn(); return; }
+  window.print();
+}
+function resetPrintBtn(){
+  document.getElementById('printBtn').style.background="#1a56db";
+  document.getElementById('printBtn').innerText="Print";
+  document.getElementById('fbStatus').innerText="";
+}
+async function doPDF(){
   let el=document.getElementById('billPaper');
   let clone=el.cloneNode(true);
   clone.style.padding='42px';
@@ -395,8 +413,7 @@ async function exportPDF(){
   let name=document.getElementById('billNo').value || "SHIJA_BILL";
   pdf.save(name+".pdf");
 }
-async function exportJPEG(){
-  let menu=document.getElementById('exportMenu'); if(menu) menu.classList.remove('show');
+async function doJPEG(){
   let el=document.getElementById('billPaper');
   let clone=el.cloneNode(true);
   clone.style.padding='42px';
