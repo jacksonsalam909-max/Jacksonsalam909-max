@@ -43,7 +43,7 @@ button,.chip,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;user-selec
 .cardTop{display:flex !important;flex-direction:column !important;align-items:center !important;gap:12px !important;width:100% !important;flex:1}
 .avatarSq{width:62px !important;height:62px !important;min-width:62px !important;border-radius:14px !important;display:flex !important;align-items:center !important;justify-content:center !important;color:#fff !important;font-weight:900 !important;font-size:26px !important}
 .info{width:100% !important;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.card .name{font-size:16.5px !important;font-weight:900 !important;line-height:1.2 !important;color:#0B1F4A !important;text-transform:uppercase !important;text-align:center !important;min-height:44px !important;overflow:hidden !important;display:-webkit-box !important;-webkit-line-clamp:2 !important;-webkit-box-orient:vertical !important;word-break:break-word !important}
+.card .name{font-size:19px !important;font-weight:900 !important;line-height:1.2 !important;color:#0B1F4A !important;text-transform:uppercase !important;text-align:center !important;min-height:44px !important;overflow:hidden !important;display:-webkit-box !important;-webkit-line-clamp:2 !important;-webkit-box-orient:vertical !important;word-break:break-word !important}
 .card .sub{font-size:14px !important;font-weight:700 !important;color:#6f84a8 !important;text-align:center !important;margin-top:6px !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;width:100% !important}
 .actions{width:100% !important;margin-top:10px !important}
 .btnComplete{width:100% !important;height:50px !important;min-height:50px !important;border-radius:12px !important;font-weight:900 !important;font-size:17px !important;cursor:pointer !important;display:flex !important;align-items:center !important;justify-content:center !important;background:linear-gradient(135deg,#0B1F4A,#12367F) !important;color:#ffffff !important;border:0 !important;box-shadow:0 6px 16px rgba(11,31,74,0.30) !important;letter-spacing:0.4px !important}
@@ -51,7 +51,7 @@ button,.chip,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;user-selec
 .grid.listView .card{width:100% !important;height:150px !important;min-height:150px !important;max-height:150px !important;flex-direction:row !important;padding:18px 20px !important;border-radius:20px !important;border-left:7px solid #0B1F4A !important;text-align:left !important}
 .grid.listView .card .cardTop{flex-direction:row !important;gap:16px !important;text-align:left !important}
 .grid.listView .card .info{align-items:flex-start !important;text-align:left !important}
-.grid.listView .card .name{font-size:16.5px !important;text-align:left !important;min-height:auto !important;-webkit-line-clamp:1 !important}
+.grid.listView .card .name{font-size:19px !important;text-align:left !important;min-height:auto !important;-webkit-line-clamp:1 !important}
 .grid.listView .card .sub{font-size:14px !important;text-align:left !important}
 .grid.listView .card .avatarSq{width:68px !important;height:68px !important;font-size:28px !important}
 .grid.listView .card .actions{width:auto !important;min-width:160px;margin-left:16px;margin-top:0 !important}
@@ -78,6 +78,8 @@ button,.chip,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;user-selec
 .btnSure{flex:1;height:54px;border-radius:14px;border:0;background:#0B1F4A;color:#fff;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 6px 16px rgba(11,31,74,0.25)}
 .swipeHint{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0B1F4A;color:#fff;padding:8px 16px;border-radius:100px;font-size:11px;font-weight:800;z-index:80;opacity:0;pointer-events:none;transition:.3s}
 .swipeHint.show{opacity:1}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0B1F4A;color:#fff;padding:12px 20px;border-radius:100px;font-size:13px;font-weight:800;z-index:10001;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.25)}
+.toast.show{display:block;animation:pop .25s ease}
 </style>
 </head>
 <body>
@@ -88,6 +90,7 @@ button,.chip,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;user-selec
 </div>
 <div id="confirmModal"><div class="confirmBox"><div class="confirmTitle">Are you sure?</div><div class="confirmSub" id="confirmSub">Move this patient to completed list?</div><div class="confirmBtns"><button class="btnNoSure" id="btnNotSure">NOT SURE</button><button class="btnSure" id="btnSure">SURE</button></div></div></div>
 <div class="swipeHint" id="swipeHint">Swipe ← → to change page</div>
+<div class="toast" id="toast">Moved to Done ✓</div>
 <div class="top"><button class="menuBtn" id="menuBtn">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS</div><div class="hSub">DIALYSIS MANAGEMENT</div></div><div class="topActions"><button class="btnViewList" id="viewListBtn">VIEW LIST</button></div></div>
 <div class="app">
 <div style="background:linear-gradient(135deg,#0B1F4A,#12367F);padding:0 12px 14px"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:130px"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div><div class="count"><span id="cLeft">Loading...</span><span id="cRight">PENDING 0</span></div></div>
@@ -122,7 +125,39 @@ async function loadData(){try{let d=document.getElementById('fDate').value,s=doc
 async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await db.collection('daily_photo_opd').doc(id).set({date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()},{merge:true});}
 function showConfirm(sh){pendingShri=sh;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);document.getElementById('confirmSub').innerText=p?`Move ${p.name} (${sh}) to completed list?`:`Move ${sh} to completed?`;document.getElementById('confirmModal').classList.add('show');}
 function hideConfirm(){document.getElementById('confirmModal').classList.remove('show');pendingShri=null;}
-async function confirmSure(){if(!pendingShri)return;if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};statusMap[pendingShri].photoTaken=true;statusMap[pendingShri].opdDone=true;await saveStatus();let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
+async function confirmSure(){
+  if(!pendingShri) return;
+  let btnSureEl = document.getElementById('btnSure');
+  btnSureEl.innerText = '...';
+  btnSureEl.disabled = true;
+  try{
+    if(!statusMap[pendingShri]) statusMap[pendingShri]={photoTaken:false,opdDone:false};
+    statusMap[pendingShri].photoTaken=true;
+    statusMap[pendingShri].opdDone=true;
+    await saveStatus();
+    hideConfirm();
+    // instantly remove card from UI without page reload
+    let cardEl = document.getElementById('card_'+pendingShri);
+    if(cardEl){
+      cardEl.style.transition = '0.25s';
+      cardEl.style.transform = 'scale(0.85)';
+      cardEl.style.opacity = '0';
+      setTimeout(()=>{ render(); }, 200);
+    } else {
+      render();
+    }
+    // toast
+    let toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(()=> toast.classList.remove('show'), 1800);
+  } catch(e){
+    alert('Error: '+(e.message||e));
+  } finally {
+    btnSureEl.innerText = 'SURE';
+    btnSureEl.disabled = false;
+    pendingShri = null;
+  }
+}
 function getInit(n){return(n||'A').charAt(0).toUpperCase();}
 function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#7C3AED)','linear-gradient(135deg,#3B82F6,#0EA5E9)','linear-gradient(135deg,#22C55E,#10B981)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#06B6D4,#3B82F6)'];let h=0;for(let i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h);}return colors[Math.abs(h)%colors.length];}
 function getFiltered(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(st.photoTaken&&st.opdDone)return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}return true;});}
