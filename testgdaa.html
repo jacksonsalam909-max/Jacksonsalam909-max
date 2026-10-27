@@ -3,211 +3,131 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SHIJA HOSPITALS</title>
+<title>SHIJA HOSPITALS - COMPLETED</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;touch-action:pan-y}
-body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
-button,.chip,.switch,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;user-select:none}
-.top{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(135deg,#0B1F4A,#12367F);padding:10px 12px;color:#fff;display:flex;align-items:center;gap:12px;height:68px}
-.menuBtn{width:56px;height:56px;min-width:56px;min-height:56px;border-radius:14px;border:0;background:rgba(255,255,255,0.20);color:#fff;font-size:26px;font-weight:900;touch-action:manipulation}
-.hWrap{flex:1}.hTitle{font-size:14px;font-weight:900}.hSub{font-size:10px;opacity:0.8}
+body{background:#eef2f8;min-height:100dvh}
+button,.chip,.tab,.menuItem,.viewIconSingle,.pageBtnSmall,.btnBack{touch-action:manipulation;user-select:none}
+.top{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(135deg,#0B1F4A 0%,#12367F 100%);padding:10px 12px;color:#fff;display:flex;align-items:center;gap:12px;height:68px}
+.menuBtn{width:56px;height:56px;min-width:56px;min-height:56px;border-radius:14px;border:0;background:rgba(255,255,255,0.20);color:#fff;font-size:26px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.hWrap{flex:1;min-width:0}.hTitle{font-size:14px;font-weight:900}.hSub{font-size:10px;opacity:0.85}
 .topActions{display:flex;gap:8px}
-.btnViewList{height:60px;min-height:60px;padding:0 24px;border-radius:16px;border:0;background:#fff;color:#0B1F4A;font-size:14px;font-weight:900;touch-action:manipulation}
-.app{padding-top:68px;display:flex;flex-direction:column;flex:1;width:100%}
+.btnBack{height:60px;min-height:60px;padding:0 24px;border-radius:16px;border:0;background:#fff;color:#0B1F4A;font-size:14px;font-weight:900;cursor:pointer}
+.app{min-height:100dvh;display:flex;flex-direction:column;padding-top:68px}
 .rowTop{display:flex;gap:10px;margin-top:10px}
 .dateBox{flex:1;border-radius:16px;height:64px;min-height:64px;display:flex;align-items:center;padding:0 16px;background:#fff}
-.dateBox input,.dateBox select{border:0;width:100%;font-weight:800;font-size:16px;outline:none;background:transparent;color:#0B1F4A;height:60px;min-height:60px;touch-action:manipulation}
-.count{margin-top:12px;background:rgba(255,255,255,0.15);border-radius:14px;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:13px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,0.15)}
+.dateBox input,.dateBox select{border:0;width:100%;font-weight:800;font-size:16px;outline:none;background:transparent;color:#0B1F4A;height:60px;min-height:60px}
+.count{margin-top:12px;background:rgba(255,255,255,0.15);border-radius:14px;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,0.15)}
 .count span:last-child{background:#fff;color:#0B1F4A;padding:8px 14px;border-radius:100px;font-size:12px;font-weight:800}
-.filter{padding:10px 10px 10px 12px;display:flex;gap:10px;align-items:center;background:#fff;position:sticky;top:68px;z-index:10;border-bottom:1px solid #e2e8f0;width:100%;height:74px;justify-content:space-between}
+.filter{padding:10px 10px 10px 12px;display:flex;gap:10px;background:#fff;border-bottom:1px solid #dde4f0;position:sticky;top:68px;z-index:5;height:74px;align-items:center;justify-content:space-between}
 .chipsWrap{display:flex;gap:12px;overflow-x:auto;flex:1;align-items:center}
 .chipsWrap::-webkit-scrollbar{display:none}
-.chip{height:60px;min-height:60px;padding:0 24px;border-radius:100px;border:2px solid #d0d9ea;background:#f4f7fd;font-weight:800;font-size:15px;white-space:nowrap;color:#4a5f85;flex-shrink:0;cursor:pointer;touch-action:manipulation}
+.chip{height:60px;min-height:60px;padding:0 24px;border-radius:100px;border:2px solid #d0d9ea;background:#f4f7fd;font-weight:800;font-size:15px;white-space:nowrap;flex-shrink:0;color:#4a5f85;cursor:pointer}
 .chip.on{background:#0B1F4A;color:#fff;border-color:#0B1F4A}
 .timePager{display:flex;align-items:center;gap:10px;flex-shrink:0;background:#f4f7fd;border:1.5px solid #d0d9ea;border-radius:100px;padding:6px 8px;height:62px;min-height:62px}
-.pageBtnSmall{height:52px;min-width:52px;padding:0 18px;border-radius:100px;border:0;background:#fff;color:#0B1F4A;font-weight:900;font-size:18px;box-shadow:0 2px 6px rgba(0,0,0,0.12);touch-action:manipulation}
+.pageBtnSmall{height:52px;min-width:52px;padding:0 18px;border-radius:100px;border:0;background:#fff;color:#0B1F4A;font-weight:900;font-size:18px;box-shadow:0 2px 6px rgba(0,0,0,0.12);cursor:pointer}
 .pageBtnSmall:disabled{opacity:0.3}
 .pageBtnSmall.on{background:#0B1F4A;color:#fff}
-.pageIndicatorSmall{background:transparent;color:#0B1F4A;font-weight:900;font-size:15px;min-width:64px;text-align:center}
-.searchBar{padding:12px 12px;display:flex;gap:10px;background:#fff;border-bottom:1px solid #e2e8f0;align-items:center;position:sticky;top:142px;z-index:9;height:80px}
-.searchInputWrap{flex:1;position:relative;display:flex;align-items:center}
-.searchInput{width:100%;height:60px;min-height:60px;border:2px solid #d0d9ea;background:#f4f7fd;padding:0 20px;border-radius:100px;font-weight:700;font-size:16px;color:#0B1F4A;outline:none;touch-action:manipulation}
-.clearSearch{position:absolute;right:10px;width:42px;height:42px;border-radius:50%;border:0;background:#dde4f0;display:none;touch-action:manipulation;font-size:16px}
-.searchMeta{padding:8px 12px;background:#e9eef6;font-size:11px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between;position:sticky;top:222px;z-index:8;height:36px;align-items:center}
-.viewIconSingle{width:62px;height:62px;min-width:62px;min-height:62px;border-radius:100px;border:2px solid #d0d9ea;background:#f4f7fd;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation}
+.pageIndicatorSmall{color:#0B1F4A;font-weight:900;font-size:15px;min-width:64px;text-align:center}
+.searchBar{padding:12px 12px;display:flex;gap:10px;background:#fff;border-bottom:1px solid #dde4f0;align-items:center;position:sticky;top:142px;z-index:5;height:80px}
+.searchInputWrap{flex:1;position:relative;display:flex;align-items:center;min-width:140px}
+.searchInput{width:100%;height:60px;min-height:60px;border:2px solid #d0d9ea;background:#f4f7fd;padding:0 20px;border-radius:100px;font-weight:700;font-size:16px;color:#0B1F4A;outline:none}
+.clearSearch{position:absolute;right:10px;width:42px;height:42px;border-radius:50%;border:0;background:#dde4f0;display:none;font-size:16px}
+.searchMeta{padding:8px 12px 8px;background:#eef2f8;font-size:11px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between;position:sticky;top:222px;z-index:5;height:36px;align-items:center}
+.viewIconSingle{width:62px;height:62px;min-width:62px;min-height:62px;border-radius:100px;border:2px solid #d0d9ea;background:#f4f7fd;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 .viewIconSingle svg{width:26px;height:26px}
 .viewIconSingle svg rect{stroke:#0B1F4A;stroke-width:2.4;fill:none}
 .viewIconSingle svg line{stroke:#0B1F4A;stroke-width:2.8;stroke-linecap:round}
-.scroll{flex:1;display:flex;flex-direction:column;background:#e9eef6;padding:12px;min-height:calc(100dvh - 280px)}
-.grid{display:grid !important;grid-template-columns:repeat(auto-fill,minmax(112px,1fr)) !important;gap:12px !important;width:100% !important;align-content:start !important;grid-auto-rows:250px !important;min-height:calc(100dvh - 280px) !important}
+.scroll{padding:4px !important;background:#eef2f8 !important;min-height:calc(100dvh - 200px) !important}
+.grid{width:100%;display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(112px,1fr)) !important;align-items:stretch !important}
 @media(min-width:400px){.grid{grid-template-columns:repeat(3,1fr) !important}}
 @media(min-width:768px){.grid{grid-template-columns:repeat(4,1fr) !important}}
 @media(min-width:1024px){.grid{grid-template-columns:repeat(6,1fr) !important}}
-.card{width:100% !important;height:250px !important;min-height:250px !important;max-height:250px !important;background:#fff;border-radius:20px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 8px 24px rgba(11,31,74,0.06);align-self:start !important;overflow:hidden}
-.cardTop{display:flex;gap:12px;align-items:flex-start}
-.avatarSq{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:22px;flex-shrink:0}
-.info{flex:1;min-width:0;overflow:hidden;padding-top:1px}
-.actions{margin-top:10px;display:flex;flex-direction:column;gap:16px !important}
-.toggleRow{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px}
-.lab{font-size:13px;font-weight:800;color:#0B1F4A}
-.card .name{font-size:21px !important;font-weight:900 !important;line-height:1.15 !important;height:44px !important;overflow:hidden;display:block;color:#0B1F4A;text-transform:uppercase}
-.card .sub{font-size:14px !important;font-weight:700 !important;color:#6f84a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:6px}
-.card .switch{width:74px !important;height:48px !important;min-width:74px !important;min-height:48px !important;border-radius:100px;background:#dfe6f3;position:relative;cursor:pointer;flex-shrink:0;transition:.25s}
-.card .switch:after{content:'';width:36px !important;height:36px !important;background:#fff;border-radius:50%;position:absolute;top:6px !important;left:6px !important;transition:.25s;box-shadow:0 2px 6px rgba(0,0,0,0.18)}
-.card .switch.on{background:linear-gradient(135deg,#22c55e,#16a34a)}
-.card .switch.on:after{left:32px !important}
-.grid.listView{display:flex !important;flex-direction:column !important;width:100% !important;gap:12px !important;align-items:stretch !important;min-height:calc(100dvh - 280px) !important}
-.grid.listView .card.listCard{width:100% !important;height:150px !important;min-height:150px !important;max-height:150px !important;flex-direction:row !important;align-items:center !important;padding:18px 20px !important;border-radius:20px !important;border-left:7px solid #0B1F4A !important;align-self:stretch !important;box-sizing:border-box !important}
-.grid.listView .card.listCard .name{font-size:24px !important;font-weight:1200 !important;line-height:1.1 !important;height:auto !important}
-.grid.listView .card.listCard .sub{font-size:16px !important;font-weight:700 !important}
-.grid.listView .card.listCard .lab{font-size:18px !important;font-weight:900 !important}
-.grid.listView .card.listCard .avatarSq{width:62px !important;height:62px !important;font-size:26px !important}
-.grid.listView .card.listCard .cardTop{flex:1 !important;gap:14px !important;align-items:center !important}
-.grid.listView .card.listCard .actions{flex-direction:row !important;gap:32px !important;margin:0 0 0 16px !important}
-.grid.listView .card.listCard .toggleRow{flex-direction:column !important;gap:10px !important;min-height:auto !important}
-.grid.listView .card.listCard .switch{width:76px !important;height:48px !important;min-width:76px !important;min-height:48px !important;border-radius:100px;background:#dfe6f3;position:relative;cursor:pointer;flex-shrink:0;transition:.25s}
-.grid.listView .card.listCard .switch:after{content:'';width:36px !important;height:36px !important;background:#fff;border-radius:50%;position:absolute;top:6px !important;left:6px !important;transition:.25s;box-shadow:0 2px 6px rgba(0,0,0,0.18)}
-.grid.listView .card.listCard .switch.on{background:linear-gradient(135deg,#22c55e,#16a34a)}
-.grid.listView .card.listCard .switch.on:after{left:34px !important}
-.bottom{position:fixed;bottom:0;left:0;right:0;z-index:90;background:#fff;border-top:1px solid #dde4f0;display:flex;justify-content:space-around;padding:10px 0 16px}
+.grid.listView{grid-template-columns:1fr !important;gap:10px !important}
+.card.listCard{display:flex !important;flex-direction:row !important;justify-content:space-between !important;align-items:center !important;gap:10px !important;padding:18px 14px !important;border-radius:18px !important;width:calc(100% - 10px) !important;margin:0 auto !important;height:120px !important;min-height:120px !important;max-height:120px !important;background:#fff !important;border-left:7px solid #16a34a !important;box-shadow:0 6px 18px rgba(11,31,74,0.10) !important;box-sizing:border-box !important;overflow:hidden !important}
+.card.listCard .cardTop{flex:1 !important;display:flex !important;align-items:center !important;gap:12px !important;min-width:0 !important}
+.card.listCard .avatarSq{width:56px !important;height:56px !important;font-size:20px !important;border-radius:16px !important;color:#fff !important;font-weight:900 !important;display:flex !important;align-items:center !important;justify-content:center !important}
+.card.listCard .info{flex:1 !important;min-width:0 !important}
+.card.listCard .name{font-size:26px !important;font-weight:900 !important;color:#0B1F4A !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important}
+.card.listCard .sub{font-size:13px !important;font-weight:800 !important;color:#5a7196 !important;margin-top:3px !important}
+.card.listCard .actions{flex-shrink:0 !important;margin-left:12px !important}
+.btnUndo.list{height:58px !important;min-width:124px !important;padding:0 20px !important;font-size:13px !important;font-weight:900 !important;border-radius:14px !important;background:#0B1F4A !important;color:#fff !important;border:0 !important}
+.card.gridCard{background:#fff !important;border-radius:20px !important;padding:16px 8px 12px !important;display:flex !important;flex-direction:column !important;align-items:center !important;text-align:center !important;border-left:6px solid #16a34a !important;box-shadow:0 8px 22px rgba(11,31,74,0.10) !important;min-height:186px !important;justify-content:space-between !important;width:100% !important}
+.card.gridCard .avatarSq{width:52px !important;height:52px !important;border-radius:16px !important;font-size:18px !important;font-weight:900 !important;color:#fff !important;display:flex !important;align-items:center !important;justify-content:center !important}
+.card.gridCard .info{width:100% !important;margin-top:10px !important;flex:1 !important;display:flex !important;flex-direction:column !important;justify-content:center !important}
+.card.gridCard .name{font-size:20px !important;font-weight:900 !important;color:#0B1F4A !important;line-height:1.1 !important;text-transform:uppercase !important;display:-webkit-box !important;-webkit-line-clamp:2 !important;-webkit-box-orient:vertical !important;overflow:hidden !important}
+.card.gridCard .sub{margin-top:6px !important;font-size:10px !important;font-weight:800 !important;color:#5a7196 !important}
+.card.gridCard .actions{width:100% !important;margin-top:12px !important}
+.card.gridCard .btnUndo{height:42px !important;width:100% !important;border-radius:12px !important;background:#0B1F4A !important;color:#fff !important;font-size:11px !important;font-weight:900 !important;border:0 !important}
+.bottom{position:fixed;bottom:0;left:0;right:0;z-index:90;background:#fff;border-top:1px solid #dde4f0;display:flex;justify-content:space-around;padding:10px 0 max(16px,env(safe-area-inset-bottom))}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:9px;font-weight:700;color:#8aa0c5;cursor:pointer;min-height:48px;justify-content:center}
 .tab.active{color:#0B1F4A}
-.tab .ic{width:30px;height:30px;border-radius:10px;background:#e8eefb;display:flex;align-items:center;justify-content:center;font-size:14px}
+.tab .ic{width:30px;height:30px;border-radius:12px;background:#e8eefb;display:flex;align-items:center;justify-content:center;font-size:14px;color:#0B1F4A}
 .tab.active .ic{background:#0B1F4A;color:#fff}
-.pagesBottom{padding:20px 0 100px;display:flex;justify-content:center}
 .overlay{position:fixed;inset:0;background:rgba(11,31,74,0.55);z-index:9998;display:none}
 .overlay.show{display:block}
-.drawer{position:fixed;left:0;top:0;bottom:0;width:85%;max-width:320px;background:#fff;z-index:9999;transform:translateX(-100%);transition:.35s;pointer-events:none}
+.drawer{position:fixed;left:0;top:0;bottom:0;width:85%;max-width:320px;background:#fff;z-index:9999;transform:translateX(-100%);transition:0.35s;pointer-events:none;display:flex;flex-direction:column}
 .drawer.open{transform:translateX(0);pointer-events:auto}
 .drawerTop{background:linear-gradient(135deg,#0B1F4A,#12367F);padding:20px 16px;color:#fff}
 .menuList{padding:8px 0;flex:1;overflow-y:auto}
-.menuItem{padding:20px 20px;font-size:14px;font-weight:800;color:#334155;border-left:4px solid transparent;cursor:pointer;min-height:56px;display:flex;align-items:center}
+.menuItem{padding:20px 20px;font-size:14px;font-weight:800;color:#334155;cursor:pointer;border-left:4px solid transparent;min-height:56px;display:flex;align-items:center}
 .menuItem.active{background:#e8eefb;color:#0B1F4A;border-left-color:#0B1F4A}
 </style>
 </head>
 <body>
 <div class="overlay" id="overlay"></div>
 <div class="drawer" id="drawer">
-<div class="drawerTop">
-<div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b></div><button id="closeDrawerBtn" style="width:48px;height:48px;border-radius:12px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:24px;font-weight:900">✕</button></div>
-<div style="margin-top:12px;display:flex;gap:8px"><div style="background:rgba(255,255,255,0.18);padding:8px 14px;border-radius:100px;font-size:11px">● ONLINE</div><div style="background:#fff;color:#0B1F4A;padding:8px 14px;border-radius:100px;font-size:11px;font-weight:800" id="drawerCount">0</div></div>
+<div class="drawerTop"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b></div><button id="closeDrawerBtn" style="width:48px;height:48px;border-radius:12px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:26px;font-weight:900">✕</button></div></div>
+<div class="menuList"><div class="menuItem" data-url="index.html">HOME</div><div class="menuItem" data-url="gda.html">PENDING LIST</div></div>
 </div>
-<div class="menuList">
-<div class="menuItem active" data-url="index.html">HOME</div>
-<div class="menuItem" data-url="total.html">TOTAL PMJAY</div>
-<div class="menuItem" data-url="cmht.html">TOTAL CMHT</div>
-<div class="menuItem" data-url="searchpatient.html">SEARCH PATIENT</div>
-<div class="menuItem" data-url="list.html">EXCEL LIST</div>
-</div>
-</div>
-<div class="top"><button class="menuBtn" id="menuBtn">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS</div><div class="hSub">DIALYSIS MANAGEMENT</div></div><div class="topActions"><button class="btnViewList" id="viewListBtn">VIEW LIST</button></div></div>
-<div class="app">
-<div style="background:linear-gradient(135deg,#0B1F4A,#12367F);padding:0 12px 14px"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:130px"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div><div class="count"><span id="cLeft">Loading...</span><span id="cRight">PENDING 0</span></div></div>
-<div class="filter">
-<div class="chipsWrap" id="chipsWrap">
-<button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button>
-</div>
-<div class="timePager">
-<button class="pageBtnSmall" id="prevBtn">‹</button>
-<div class="pageIndicatorSmall" id="pageIndicator">1/1</div>
-<button class="pageBtnSmall on" id="nextBtn">›</button>
-</div>
-</div>
-<div class="searchBar"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><select id="filterBlock" style="border:2px solid #d0d9ea;background:#f4f7fd;padding:0 18px;height:60px;min-height:60px;border-radius:100px;font-weight:800;font-size:14px;color:#0B1F4A;min-width:130px"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select><button id="toggleViewBtn" class="viewIconSingle"></button></div>
-<div class="searchMeta"><span id="searchInfo"></span><span>Scroll ↕ Swipe ←→</span></div>
-<div class="scroll" id="scroll"><div class="grid" id="grid"></div><div class="pagesBottom"></div></div>
-<div class="bottom"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:100px;font-size:8px">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
-</div>
+<div class="top"><button class="menuBtn" id="menuBtn">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS</div><div class="hSub">COMPLETED</div></div><div class="topActions"><button class="btnBack" id="backBtn">BACK TO PENDING</button></div></div>
+<div class="app"><div style="background:linear-gradient(135deg,#0B1F4A 0%,#12367F 100%);padding:0 12px 14px"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:130px"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div><div class="count"><span id="cLeft">Loading...</span><span id="cRight">DONE 0</span></div></div>
+<div class="filter"><div class="chipsWrap"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall on" id="nextBtn">›</button></div></div>
+<div class="searchBar"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search completed..." autocomplete="off"><button class="clearSearch" id="clearSearch">✕</button></div><select id="filterBlock" style="border:2px solid #d0d9ea;background:#f4f7fd;padding:0 18px;height:60px;min-height:60px;border-radius:100px;font-weight:800;font-size:14px;color:#0B1F4A;min-width:130px"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select><button id="toggleViewBtn" class="viewIconSingle"></button></div><div class="searchMeta"><span id="searchInfo"></span><span>Swipe ←→</span></div><div class="scroll" id="scroll"><div class="grid" id="grid"></div></div></div>
+<div class="bottom"><div class="tab" id="tabHome"><div class="ic">⌂</div>HOME</div><div class="tab active" id="tabDone"><div class="ic">✓</div>PENDING</div><div class="tab" id="tabSync"><div class="ic">↻</div>Refresh</div></div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,doc,getDoc,setDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(cfg,"gda_completed_"+Math.random());const db=getFirestore(app);window._fb={db,doc,getDoc,setDoc};
+</script>
 <script>
-const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
-(function(){
-  const drawer=document.getElementById('drawer'); const overlay=document.getElementById('overlay'); const menuBtn=document.getElementById('menuBtn'); const closeBtn=document.getElementById('closeDrawerBtn'); let isOpen=false;
-  function openMenu(e){if(e)e.stopPropagation();if(isOpen)return;isOpen=true;drawer.classList.add('open');overlay.classList.add('show');}
-  function closeMenu(e){if(e)e.stopPropagation();if(!isOpen)return;isOpen=false;drawer.classList.remove('open');overlay.classList.remove('show');}
-  menuBtn.addEventListener('click', openMenu); menuBtn.addEventListener('touchend', openMenu, {passive:true});
-  closeBtn.addEventListener('click', closeMenu); overlay.addEventListener('click', closeMenu);
-  document.querySelectorAll('.menuItem').forEach(item=>{item.addEventListener('click', function(){let url=item.getAttribute('data-url');closeMenu();setTimeout(()=>{if(url)location.href=url;},300);});});
-})();
-function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-document.getElementById('fDate').value=new URLSearchParams(location.search).get('date')||getTodayIST();
-let allPatients=[],statusMap={},activeTimeFilter='',masterMap={},searchQuery='',isListView=false,currentPage=1;
-if(localStorage.getItem('gda_view')==='list')isListView=true;
+let params=new URLSearchParams(location.search);
+document.getElementById('fDate').value=params.get('date')||new Date().toISOString().slice(0,10);
+if(params.get('type')) document.getElementById('fType').value=params.get('type');
+let allPatients=[],statusMap={},activeTimeFilter='',currentPage=1,searchQuery='',isListView=false;
 const gridIconSVG=`<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg>`;
 const listIconSVG=`<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="5.7" x2="21" y2="5.7"/><rect x="3" y="9.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="12.7" x2="21" y2="12.7"/><rect x="3" y="16.5" width="6.5" height="6.5" rx="1.2"/><line x1="13.5" y1="19.7" x2="21" y2="19.7"/></svg>`;
-function getPageSize(){if(isListView) return 10; let w = window.innerWidth; if(w < 400) return 18; if(w < 768) return 18; if(w < 1024) return 24; return 36;}
+function getPageSize(){if(isListView) return 15; let w=window.innerWidth; if(w<400) return 18; if(w<768) return 24; return 36;}
 function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
-function formatNameParagraph(fullName){if(!fullName) return '';let words = String(fullName).trim().split(/\s+/).filter(Boolean);if(words.length <= 1) return words[0] || '';let first = words[0];let rest = words.slice(1).join(' ');return first + '<br>' + rest;}
-async function buildMasterMap(){masterMap={};try{let snap=await db.collection('patients').get();snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let pmjay=String(p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={shri:shri,pmjayId:pmjay,pmjayName:name,cmhtId:'',cmhtName:''};});}catch(e){}try{let snap2=await db.collection('cmht_patients').get();snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let cmht=String(p.cmhtId||p.cmht||p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={shri:shri,pmjayId:'',pmjayName:'',cmhtId:'',cmhtName:''};masterMap[shri].cmhtId=cmht;masterMap[shri].cmhtName=name;});}catch(e){}}
-function enrichPatient(p){let shriKey=String(p.shri||'').trim().toUpperCase();if(!shriKey)return p;let m=masterMap[shriKey];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;}else{if(m.cmhtName)p.name=m.cmhtName;}return p;}
-async function loadData(){try{let d=document.getElementById('fDate').value;let s=document.getElementById('fType').value;let id=d+'_'+s;document.getElementById('cLeft').innerText="Loading...";await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let patients=snap.exists?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let enriched=enrichPatient({...p});enriched.sl=i+1;return enriched;});allPatients=patients;let sSnap=await db.collection('daily_photo_opd').doc(id).get();statusMap=sSnap.exists?(sSnap.data().status||{}):{};if(allPatients.length===0){document.getElementById('grid').innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:20px;color:#0B1F4A;font-weight:700">No data for ${d} ${s}</div>`;document.getElementById('cLeft').innerText=`0 patients`;return;}render();}catch(e){document.getElementById('cLeft').innerText="Error: "+(e.message||e);}}
-async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await db.collection('daily_photo_opd').doc(id).set({date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()},{merge:true});}
-function toggle(sh,type){if(!statusMap[sh])statusMap[sh]={photoTaken:false,opdDone:false};if(type==='photo')statusMap[sh].photoTaken=!statusMap[sh].photoTaken;else statusMap[sh].opdDone=!statusMap[sh].opdDone;saveStatus();let st=statusMap[sh];if(st.photoTaken&&st.opdDone){let el=document.getElementById('card_'+sh);if(el){el.style.transform='scale(0.9)';el.style.opacity='0';setTimeout(render,200);}}else render();}
+async function loadData(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',id));allPatients=snap.exists()?(snap.data().patients||[]):[];let sSnap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id));statusMap=sSnap.exists()?(sSnap.data().status||{}):{};currentPage=1;render();}
+async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_photo_opd',id),{date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()});}
+function bringBack(sh){if(statusMap[sh]){statusMap[sh].photoTaken=false;statusMap[sh].opdDone=false;}saveStatus();render();}
 function getInit(n){return (n||'A').charAt(0).toUpperCase();}
-function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#7C3AED)','linear-gradient(135deg,#3B82F6,#0EA5E9)','linear-gradient(135deg,#22C55E,#10B981)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#06B6D4,#3B82F6)'];let hash=0;for(let i=0;i<name.length;i++){hash=name.charCodeAt(i)+((hash<<5)-hash);}return colors[Math.abs(hash)%colors.length];}
-function getFiltered(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(st.photoTaken&&st.opdDone)return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}return true;});}
+function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#6366F1)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#10B981,#06B6D4)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#3B82F6,#06B6D4)'];let hash=0;for(let i=0;i<name.length;i++){hash=name.charCodeAt(i)+((hash<<5)-hash);}return colors[Math.abs(hash)%colors.length];}
+function getFilteredDone(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(!(st.photoTaken&&st.opdDone))return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}return true;});}
 function updateToggleBtn(){let btn=document.getElementById('toggleViewBtn');if(btn){btn.innerHTML=isListView?gridIconSVG:listIconSVG;}}
-function render(){
-  let grid=document.getElementById('grid'); if(!grid) return;
-  grid.classList.toggle('listView',isListView);
-  let filtered=getFiltered();let done=0;allPatients.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(st&&st.photoTaken&&st.opdDone)done++;});
-  let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;if(currentPage<1)currentPage=1;
-  let items=filtered.slice((currentPage-1)*ps,currentPage*ps);
-  grid.innerHTML='';
-  items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh]||{photoTaken:false,opdDone:false};let div=document.createElement('div');div.className=isListView?'card listCard':'card';div.id='card_'+sh;
-  let displayName = formatNameParagraph(p.name);
-  div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${displayName}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh}</div></div></div><div class="actions"><div class="toggleRow"><span class="lab">PHOTO</span><div class="switch ${st.photoTaken?'on':''}" data-shri="${sh}" data-type="photo"></div></div><div class="toggleRow"><span class="lab">OPD</span><div class="switch ${st.opdDone?'on':''}" data-shri="${sh}" data-type="opd"></div></div></div>`;grid.appendChild(div);});
-  if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:20px;color:#0B1F4A;font-weight:700">All done</div>`;}
-  let prevBtn=document.getElementById('prevBtn');let nextBtn=document.getElementById('nextBtn');let ind=document.getElementById('pageIndicator');
-  if(ind) ind.innerText=`${currentPage}/${pages}`;
-  if(prevBtn) prevBtn.disabled = currentPage<=1;
-  if(nextBtn) nextBtn.disabled = currentPage>=pages;
-  document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done`;
-  document.getElementById('cRight').innerText=`PENDING ${filtered.length}`;
-  document.getElementById('doneB').innerText=done;
-  document.getElementById('searchInfo').innerText=`${filtered.length} patients • ${currentPage}/${pages}`;
-  document.getElementById('drawerCount').innerText=`${allPatients.length}`;
-  updateToggleBtn();
-  document.querySelectorAll('.switch').forEach(sw=>{
-    const handler = (e)=>{ e.preventDefault(); e.stopPropagation(); let sh=sw.getAttribute('data-shri'); let tp=sw.getAttribute('data-type'); toggle(sh,tp); };
-    sw.addEventListener('click', handler);
-    sw.addEventListener('touchend', handler, {passive:false});
-  });
-}
-function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;render();window.scrollTo({top:0,behavior:'smooth'});return true;}}
-function goPrevPage(){if(currentPage>1){currentPage--;render();window.scrollTo({top:0,behavior:'smooth'});return true;}}
-function goToCompleted(){let d=document.getElementById('fDate').value;let t=document.getElementById('fType').value;location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
-function addUniversal(el, fn){if(!el) return; el.addEventListener('click', fn); el.addEventListener('touchend', (e)=>{ e.preventDefault(); fn(e); }, {passive:false});}
-document.querySelectorAll('.chip').forEach(c=>{const fn=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;currentPage=1;render();};addUniversal(c, fn);});
-document.getElementById('filterBlock')?.addEventListener('change',()=>{currentPage=1;render();});
-document.getElementById('fDate')?.addEventListener('change',loadData);
-document.getElementById('fType')?.addEventListener('change',loadData);
-addUniversal(document.getElementById('tabSync'), ()=>location.reload());
-addUniversal(document.getElementById('viewListBtn'), goToCompleted);
-addUniversal(document.getElementById('tabDone'), goToCompleted);
-addUniversal(document.getElementById('tabHome'), ()=>location.href='index.html');
-addUniversal(document.getElementById('toggleViewBtn'), ()=>{isListView=!isListView;localStorage.setItem('gda_view',isListView?'list':'grid');currentPage=1;render();});
-addUniversal(document.getElementById('prevBtn'), ()=>{goPrevPage();});
-addUniversal(document.getElementById('nextBtn'), ()=>{goNextPage();});
+function render(){let grid=document.getElementById('grid');grid.className='grid';if(isListView)grid.classList.add('listView');grid.innerHTML='';let filtered=getFilteredDone();let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;let items=filtered.slice((currentPage-1)*ps,currentPage*ps);items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let div=document.createElement('div');if(isListView){div.className='card listCard';div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time||''} • ${p.block||'MAIN'} • ${sh} • ✓ DONE</div></div></div><div class="actions"><button class="btnUndo list" onclick="bringBack('${sh}')">UNDO</button></div>`;}else{div.className='card gridCard';div.innerHTML=`<div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name}</div><div class="sub">${p.time||''} • ${sh}</div></div><div class="actions"><button class="btnUndo" onclick="bringBack('${sh}')">UNDO</button></div>`;}grid.appendChild(div);});if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;color:#0B1F4A;font-weight:700">No completed patients yet</div>`;}let prevBtn=document.getElementById('prevBtn');let nextBtn=document.getElementById('nextBtn');let ind=document.getElementById('pageIndicator');if(ind) ind.innerText=`${currentPage}/${pages}`;if(prevBtn) prevBtn.disabled=currentPage<=1;if(nextBtn) nextBtn.disabled=currentPage>=pages;let totalDone=allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];return st&&st.photoTaken&&st.opdDone;}).length;document.getElementById('cLeft').innerText=`${totalDone} COMPLETED • Showing ${filtered.length}`;document.getElementById('cRight').innerText=`DONE ${filtered.length}`;document.getElementById('doneB').innerText=totalDone;document.getElementById('searchInfo').innerText=`${filtered.length} patients • ${currentPage}/${pages}`;updateToggleBtn();}
+function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFilteredDone().length/ps));if(currentPage<pages){currentPage++;render();window.scrollTo({top:0,behavior:'smooth'});}}
+function goPrevPage(){if(currentPage>1){currentPage--;render();window.scrollTo({top:0,behavior:'smooth'});}}
+const drawer=document.getElementById('drawer');const overlay=document.getElementById('overlay');const menuBtn=document.getElementById('menuBtn');const closeBtn=document.getElementById('closeDrawerBtn');function openMenu(){drawer.classList.add('open');overlay.classList.add('show');}function closeMenu(){drawer.classList.remove('open');overlay.classList.remove('show');}menuBtn.addEventListener('click',openMenu);closeBtn.addEventListener('click',closeMenu);overlay.addEventListener('click',closeMenu);document.querySelectorAll('.menuItem').forEach(item=>{item.addEventListener('click',function(){let url=item.getAttribute('data-url');if(!url) return;closeMenu();setTimeout(()=>{location.href=url;},200);});});
+document.getElementById('fDate').addEventListener('change',loadData);document.getElementById('fType').addEventListener('change',loadData);
+document.getElementById('backBtn').addEventListener('click',()=>{let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gda.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);});
+document.getElementById('tabHome').addEventListener('click',()=>{location.href='index.html';});
+document.getElementById('tabDone').addEventListener('click',()=>{let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gda.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);});
+document.getElementById('tabSync').addEventListener('click',()=>location.reload());
+document.getElementById('toggleViewBtn').addEventListener('click',()=>{isListView=!isListView;localStorage.setItem('gda_completed_view',isListView?'list':'grid');currentPage=1;render();});
+document.getElementById('prevBtn').addEventListener('click',goPrevPage);document.getElementById('nextBtn').addEventListener('click',goNextPage);
 const searchInput=document.getElementById('searchName');const clearBtn=document.getElementById('clearSearch');
-searchInput?.addEventListener('input',e=>{searchQuery=e.target.value;if(clearBtn) clearBtn.style.display=searchQuery?'flex':'none';currentPage=1;render();});
-addUniversal(clearBtn, ()=>{if(searchInput) searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
-(function(){
-  let startX=0,isSwipe=false,threshold=70;
-  const scrollEl=document.getElementById('scroll');
-  if(!scrollEl) return;
-  scrollEl.addEventListener('touchstart',e=>{if(e.touches.length===1){startX=e.touches[0].clientX;isSwipe=false;}},{passive:true});
-  scrollEl.addEventListener('touchmove',e=>{if(!startX)return;let dx=e.touches[0].clientX-startX;if(Math.abs(dx)>15){isSwipe=true;}},{passive:true});
-  scrollEl.addEventListener('touchend',e=>{if(!isSwipe){startX=0;return;}let dx=e.changedTouches[0].clientX-startX;if(dx<-threshold)goNextPage();else if(dx>threshold)goPrevPage();startX=0;isSwipe=false;},{passive:true});
-})();
-window.addEventListener('resize',()=>{render();});
-window.addEventListener('load',()=>{setTimeout(()=>{updateToggleBtn();loadData();},400);});
-window.toggle=toggle;
+searchInput.addEventListener('input',e=>{searchQuery=e.target.value;clearBtn.style.display=searchQuery?'flex':'none';currentPage=1;render();});
+clearBtn.addEventListener('click',()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;currentPage=1;render();}));
+document.getElementById('filterBlock').addEventListener('change',()=>{currentPage=1;render();});
+window.addEventListener('resize',()=>render());
+window.addEventListener('load',()=>{let savedView=localStorage.getItem('gda_completed_view');if(savedView)isListView=(savedView==='list');updateToggleBtn();loadData();});
+window.bringBack=bringBack;
 </script>
 </body>
 </html>
