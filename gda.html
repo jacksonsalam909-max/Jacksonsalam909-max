@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SHIJA HOSPITALS</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -11,9 +11,9 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;touch-action:pan-y}
 body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
-button,.chip,.switch,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;user-select:none}
+button,.chip,.switch,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .top{position:fixed;top:0;left:0;right:0;z-index:100;background:linear-gradient(135deg,#0B1F4A,#12367F);padding:10px 12px;color:#fff;display:flex;align-items:center;gap:12px;height:68px}
-.menuBtn{width:56px;height:56px;min-width:56px;min-height:56px;border-radius:14px;border:0;background:rgba(255,255,255,0.20);color:#fff;font-size:26px;font-weight:900;touch-action:manipulation}
+.menuBtn{width:56px;height:56px;min-width:56px;min-height:56px;border-radius:14px;border:0;background:rgba(255,255,255,0.20);color:#fff;font-size:26px;font-weight:900;touch-action:manipulation;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .hWrap{flex:1}.hTitle{font-size:14px;font-weight:900}.hSub{font-size:10px;opacity:0.8}
 .topActions{display:flex;gap:8px}
 .btnViewList{height:60px;min-height:60px;padding:0 24px;border-radius:16px;border:0;background:#fff;color:#0B1F4A;font-size:14px;font-weight:900;touch-action:manipulation}
@@ -104,7 +104,7 @@ button,.chip,.switch,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;us
 <div class="menuItem" data-url="list.html">EXCEL LIST</div>
 </div>
 </div>
-<div class="top"><button class="menuBtn" id="menuBtn">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS</div><div class="hSub">DIALYSIS MANAGEMENT</div></div><div class="topActions"><button class="btnViewList" id="viewListBtn">VIEW LIST</button></div></div>
+<div class="top"><button class="menuBtn" id="menuBtn" type="button" aria-label="Menu">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS</div><div class="hSub">DIALYSIS MANAGEMENT</div></div><div class="topActions"><button class="btnViewList" id="viewListBtn">VIEW LIST</button></div></div>
 <div class="app">
 <div style="background:linear-gradient(135deg,#0B1F4A,#12367F);padding:0 12px 14px"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:130px"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div><div class="count"><span id="cLeft">Loading...</span><span id="cRight">PENDING 0</span></div></div>
 <div class="filter">
@@ -126,14 +126,32 @@ button,.chip,.switch,.tab,.menuItem,.viewIconSingle{touch-action:manipulation;us
 const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
+
+// FIXED UNIVERSAL MENU - WORKS ON ALL DEVICES
 (function(){
-  const drawer=document.getElementById('drawer'); const overlay=document.getElementById('overlay'); const menuBtn=document.getElementById('menuBtn'); const closeBtn=document.getElementById('closeDrawerBtn'); let isOpen=false;
-  function openMenu(e){if(e)e.stopPropagation();if(isOpen)return;isOpen=true;drawer.classList.add('open');overlay.classList.add('show');}
-  function closeMenu(e){if(e)e.stopPropagation();if(!isOpen)return;isOpen=false;drawer.classList.remove('open');overlay.classList.remove('show');}
-  menuBtn.addEventListener('click', openMenu); menuBtn.addEventListener('touchend', openMenu, {passive:true});
-  closeBtn.addEventListener('click', closeMenu); overlay.addEventListener('click', closeMenu);
-  document.querySelectorAll('.menuItem').forEach(item=>{item.addEventListener('click', function(){let url=item.getAttribute('data-url');closeMenu();setTimeout(()=>{if(url)location.href=url;},300);});});
+  const drawer = document.getElementById('drawer');
+  const overlay = document.getElementById('overlay');
+  const menuBtn = document.getElementById('menuBtn');
+  const closeBtn = document.getElementById('closeDrawerBtn');
+  function openMenu(e){ if(e){e.preventDefault(); e.stopPropagation();} drawer.classList.add('open'); overlay.classList.add('show'); document.body.style.overflow='hidden'; }
+  function closeMenu(e){ if(e){e.preventDefault(); e.stopPropagation();} drawer.classList.remove('open'); overlay.classList.remove('show'); document.body.style.overflow=''; }
+  function bindUniversal(el, fn){
+    if(!el) return;
+    el.addEventListener('click', fn);
+    el.addEventListener('touchend', function(ev){ ev.preventDefault(); fn(ev); }, {passive:false});
+  }
+  bindUniversal(menuBtn, openMenu);
+  bindUniversal(closeBtn, closeMenu);
+  bindUniversal(overlay, closeMenu);
+  document.querySelectorAll('.menuItem').forEach(item=>{
+    bindUniversal(item, function(){
+      let url=item.getAttribute('data-url');
+      closeMenu();
+      setTimeout(()=>{ if(url) location.href=url; },250);
+    });
+  });
 })();
+
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 document.getElementById('fDate').value=new URLSearchParams(location.search).get('date')||getTodayIST();
 let allPatients=[],statusMap={},activeTimeFilter='',masterMap={},searchQuery='',isListView=false,currentPage=1;
