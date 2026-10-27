@@ -183,7 +183,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 <div class="content">
 <div class="card noPrint alignBox" id="alignPanel">
-<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:12px;text-align:center">Click word + B = Bold | No border | Words not cut</div>
+<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:12px;text-align:center">Export 42px all sides - Right border fixed</div>
 <div id="alignControls"></div>
 <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
 <button class="btnBlue" style="background:#10b981" onclick="resetAll()">Reset All</button>
@@ -393,18 +393,21 @@ function resetPrintBtn(){
 async function doPDF(){
   let el=document.getElementById('billPaper');
   let clone=el.cloneNode(true);
+  clone.style.width='1050px';
+  clone.style.maxWidth='1050px';
   clone.style.padding='42px';
+  clone.style.margin='0';
   clone.style.border='none';
   clone.style.boxShadow='none';
-  clone.style.width='794px';
-  clone.style.maxWidth='794px';
   clone.style.background='#fff';
+  clone.style.boxSizing='border-box';
   clone.style.position='fixed';
   clone.style.left='-9999px';
   clone.style.top='0';
   clone.style.overflow='visible';
   document.body.appendChild(clone);
-  let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:900});
+  clone.querySelectorAll('.exactTable').forEach(t=>{ t.style.width='100%'; t.style.maxWidth='100%'; t.style.tableLayout='fixed'; t.style.boxSizing='border-box'; });
+  let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:1150,width:1050});
   document.body.removeChild(clone);
   let imgData=canvas.toDataURL('image/png');
   let { jsPDF }=window.jspdf;
@@ -417,18 +420,21 @@ async function doPDF(){
 async function doJPEG(){
   let el=document.getElementById('billPaper');
   let clone=el.cloneNode(true);
+  clone.style.width='1050px';
+  clone.style.maxWidth='1050px';
   clone.style.padding='42px';
+  clone.style.margin='0';
   clone.style.border='none';
   clone.style.boxShadow='none';
-  clone.style.width='794px';
-  clone.style.maxWidth='794px';
   clone.style.background='#fff';
+  clone.style.boxSizing='border-box';
   clone.style.position='fixed';
   clone.style.left='-9999px';
   clone.style.top='0';
   clone.style.overflow='visible';
   document.body.appendChild(clone);
-  let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:900});
+  clone.querySelectorAll('.exactTable').forEach(t=>{ t.style.width='100%'; t.style.maxWidth='100%'; t.style.tableLayout='fixed'; t.style.boxSizing='border-box'; });
+  let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:1150,width:1050});
   document.body.removeChild(clone);
   let a=document.createElement('a');
   let name=document.getElementById('billNo').value || "SHIJA_BILL";
