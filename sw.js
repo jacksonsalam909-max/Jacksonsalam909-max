@@ -1,31 +1,63 @@
-const CACHE_NAME = "shija-v3";
-self.addEventListener("install", e => {
-  self.skipWaiting();
-});
+// SHIJA Hospitals - PWA Service Worker v5 - Final Fix
+const CACHE_NAME = "shija-v5";
+const FILES_TO_CACHE = [
+  "/",
+  "/login.html",
+  "/manifest.json",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/logoc.png",
+  "/shija.jpg"
+];
 
-self.addEventListener("activate", e => {
-  e.waitUntil(
-    caches.keys().then(keys => 
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
+// Install - cache files
+self.addEventListener("install", (event) => {
+  console.log("SW Install");
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(FILES_TO_CACHE);
+    }).then(() => {
+      return self.skipWaiting();
+    })
   );
-  self.clients.claim();
 });
 
-self.addEventListener("fetch", e => {
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      return cached || fetch(e.request).then(response => {
-        // cache new files for offline
-        if (e.request.method === 'GET' && response.ok) {
-          let clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+// Activate - clean old caches
+self.addEventListener("activate", (event) => {
+  console.log("SW Activate");
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+      );
+    }).then(() => {
+      return self.clients.claim();
+    })
+  );
+});
+
+// Fetch - serve from cache, fallback to network
+self.addEventListener("fetch", (event) => {
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      if (cached) {
+        return cached;
+      }
+      return fetch(event.request).then((response) => {
+        // Cache new resources
+        if (event.request.method === "GET" && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, clone);
+          });
         }
         return response;
       });
     }).catch(() => {
-      // offline fallback
-      return caches.match("index.html");
+      // Offline fallback
+      if (event.request.destination === "document") {
+        return caches.match("/login.html");
+      }
     })
   );
 });
