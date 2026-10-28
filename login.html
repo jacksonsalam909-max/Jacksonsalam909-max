@@ -1,15 +1,10 @@
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SHIJA Hospitals - Login</title>
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="/manifest.json?v=3">
 <meta name="theme-color" content="#0B1F4A">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="icon-192.png">
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-</script>
+<link rel="apple-touch-icon" href="/icon-192.png?v=3">
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=3',{scope:'/'});}</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial}
 body{min-height:100vh;display:flex;background:#f8fafc}
@@ -42,20 +37,17 @@ label{font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;display:blo
 @media(max-width:850px){body{flex-direction:column}.left{min-height:420px}.left img.bg{object-position:center}}
 </style>
 </head><body>
-
 <div class="left">
 <img class="bg" src="shija.jpg?v=2" alt="SHIJA Hospitals" onerror="this.src='shijabg.jpeg'">
 <div class="top"><div class="top-logo">Shija Hospitals</div></div>
 <div class="bottom"><p>Trusted Healthcare • Compassionate Care • 24/7 Emergency Services</p><small>Your health is our priority - Advanced care with human touch</small></div>
 </div>
-
 <div class="right">
 <div class="card">
 <div class="logo">
 <img src="logoc.png?v=2" alt="logo" onerror="this.src='logob.png'">
 <b>SHIJA Hospitals</b></div>
 <h2>Welcome Back</h2><div class="sub">Sign in to your hospital portal to continue</div>
-
 <div class="roleRow">
 <label>Login As</label>
 <select id="roleSelect" class="roleSelect" onchange="onRoleChange()">
@@ -63,49 +55,37 @@ label{font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;display:blo
 <option value="ADMIN">ADMIN</option>
 </select>
 </div>
-
 <label>Username</label>
 <div class="input"><input id="user" placeholder="Enter your username"></div>
-
 <label>Password</label>
 <div class="input"><input id="pass" type="password" placeholder="Enter your password"></div>
-
 <div class="row"><label style="margin:0;display:flex;align-items:center;gap:6px;font-weight:600"><input type="checkbox" id="rememberCheck" style="width:auto"> Remember me</label><a href="#" style="color:#dc2626;text-decoration:none;font-weight:700">Forgot password?</a></div>
-
 <button class="btn" onclick="doLogin()">Login</button>
-
-<div class="foot">Don't have an account? <b>Contact Admin</b><br><br>© 2024 SHIJA Hospitals • Secure & Protected<br><span id="hint">User: admin / admin123</span><br><small id="logoutMsg" style="color:#ef4444;font-weight:700;display:none;margin-top:8px"></small></div>
+<button id="installBtn" style="display:none;width:100%;padding:11px;border:1.5px solid #0B1F4A;border-radius:11px;background:#fff;color:#0B1F4A;font-weight:800;font-size:13px;cursor:pointer;margin-top:10px">📲 Install SHIJA App</button>
+<div class="foot">Don't have an account? <b>Contact Admin</b><br><br>© 2024 SHIJA Hospitals • Secure & Protected<br><span id="hint">User: admin / admin123</span><br><small id="logoutMsg" style="color:#ef4444;font-weight:700;display:none;margin-top:8px"></small><br><small id="pwaStatus" style="color:#0B1F4A;display:block;margin-top:6px"></small></div>
 </div>
 </div>
-
 <script>
-// If already logged in, go to dashboard (but check global logout first)
 if(localStorage.getItem('shija_logged')==='1'){
   let role = localStorage.getItem('shija_role')||'ADMIN';
-  // Don't auto redirect if there is a fresh global logout pending - let listener handle
-  if(role==='ADMIN'){ /* keep on login for 1 sec to check logout */ setTimeout(()=>{ if(localStorage.getItem('shija_logged')==='1') location.href='index.html'; },800); }
+  if(role==='ADMIN'){ setTimeout(()=>{ if(localStorage.getItem('shija_logged')==='1') location.href='index.html'; },800); }
   else { setTimeout(()=>{ if(localStorage.getItem('shija_logged')==='1') location.href='user-index.html'; },800); }
 }
-
 function onRoleChange(){
   let r=document.getElementById('roleSelect').value;
   document.getElementById('hint').textContent = r==='ADMIN' ? 'Admin: shija / shija321' : 'User: admin / admin123';
 }
-
 function doLogin(){
  let role=document.getElementById('roleSelect').value;
  let u=document.getElementById('user').value.trim();
  let p=document.getElementById('pass').value.trim();
-
- // YOUR LOGINS
  let isAdmin = (role==='ADMIN' && u==='shija' && p==='shija321');
  let isUser = (role==='USER' && u==='admin' && p==='admin123');
-
  if(isAdmin || isUser){
    localStorage.setItem('shija_logged','1');
    localStorage.setItem('shija_role', role);
-   localStorage.setItem('shija_login_time', Date.now().toString()); // For global logout + auto logout
-   localStorage.removeItem('shija_force_logout_this_device'); // clear old logout signal
+   localStorage.setItem('shija_login_time', Date.now().toString());
+   localStorage.removeItem('shija_force_logout_this_device');
    if(role==='ADMIN') location.href='index.html';
    else location.href='user-index.html';
  }else{
@@ -113,17 +93,22 @@ function doLogin(){
  }
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter') doLogin();});
-
-// Check if logged out by admin
 let urlParams = new URLSearchParams(window.location.search);
 if(urlParams.get('reason')==='global'){
   document.getElementById('logoutMsg').style.display='block';
   document.getElementById('logoutMsg').textContent='🔒 Logged out by Admin from all devices';
 }
+// PWA INSTALL LOGIC
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBtn').style.display='block';document.getElementById('pwaStatus').textContent='✅ App ready to install!';});
+document.getElementById('installBtn').addEventListener('click',async()=>{
+  if(deferredPrompt){deferredPrompt.prompt();const c=await deferredPrompt.userChoice;document.getElementById('pwaStatus').textContent='Choice: '+c.outcome;deferredPrompt=null;document.getElementById('installBtn').style.display='none';}
+});
+window.addEventListener('appinstalled',()=>{document.getElementById('pwaStatus').textContent='✅ Installed!';document.getElementById('installBtn').style.display='none';});
+// Debug icons
+fetch('/icon-192.png?v=3').then(r=>{document.getElementById('pwaStatus').textContent+=(r.ok?' ✅ Icon 192 OK':' ❌ Icon 192 FAIL '+r.status);}).catch(()=>{document.getElementById('pwaStatus').textContent+=' ❌ Icon 192 NETWORK FAIL';});
 </script>
-
 <script type="module">
-// GLOBAL LOGOUT LISTENER ON LOGIN PAGE TOO - Shows message if logged out
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
