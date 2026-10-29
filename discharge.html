@@ -7,7 +7,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui}
 body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
-.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #2d3a4f;position:sticky;top:0;z-index:100}
+.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#fff}
 .menuBtnTop{width:42px;height:36px;border-radius:10px;background:#ffffff;border:0;color:#0a1931;font-size:20px;cursor:pointer;display:grid;place-items:center;font-weight:900}
 .whiteBar{position:fixed;left:0;top:64px;bottom:0;width:270px;background:#ffffff;transform:translateX(-100%);transition:.35s;z-index:90;padding:16px 10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:4px 0 24px #0003;overflow-y:auto}
@@ -20,7 +20,7 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
 .btn{padding:7px 12px;border:0;border-radius:6px;font-weight:900;font-size:10px;cursor:pointer}
 .btnDark{background:#0a1931;color:#fff}.btnYellow{background:#facc15;color:#000}
 .input{padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:11px;background:#fff;width:100%}
-.content{max-width:1450px;margin:8px auto 0;padding:8px;width:100%}
+.content{max-width:1450px;margin:0 auto;padding:2px 8px 8px 8px;width:100%}
 .card{background:#fff;border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid #e2e8f0}
 .label{font-size:8px;font-weight:900;color:#64748b;margin-bottom:3px}
 .sheetWrap{background:#fff;border:1px solid #e2e8f0;overflow:auto;max-height:75vh;border-radius:10px}
@@ -29,7 +29,6 @@ th{position:sticky;top:0;background:#0a1931;color:#fff;padding:12px 6px;font-siz
 td{border-bottom:1px solid #f1f5f9;padding:10px 6px;height:46px;font-size:11px;font-weight:700;text-align:center;text-transform:uppercase;background:#fff}
 td.nameCol{text-align:left;padding-left:12px}
 .badge{background:#0a1931;color:#fff;padding:6px 12px;border-radius:20px;font-weight:900;font-size:10px}
-.badgeRed{background:#fee2e2;color:#991b1b;padding:6px 12px;border-radius:20px;font-weight:900;font-size:10px;border:1px solid #fecaca}
 .claimBtn{background:#facc15;color:#000;padding:6px 12px;border-radius:6px;border:0;font-weight:900;font-size:9px;cursor:pointer}
 .delBtn{background:#ef4444;color:#fff;padding:6px 8px;border-radius:6px;border:0;font-weight:900;font-size:9px;cursor:pointer}
 .shriBlue{background:#2563eb;color:#fff;padding:6px 14px;border-radius:8px;font-weight:800;font-size:11px;display:inline-block;min-width:70px;text-align:center}
@@ -55,7 +54,6 @@ td.nameCol{text-align:left;padding-left:12px}
 .gridRow{display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#64748b;margin-bottom:4px}
 .gridRow b{color:#0f172a}
 .iconBtn{width:42px;height:42px;border-radius:10px;border:2px solid #0a1931;background:#ffffff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;font-weight:900;transition:all 0.2s ease;color:#0a1931}
-.iconBtn.active{background:#ffffff;border-color:#0a1931;color:#0a1931}
 .iconBtn:active{background:#ef4444 !important;border-color:#ef4444 !important;color:#fff !important;transform:scale(0.85)}
 </style>
 </head>
@@ -69,7 +67,7 @@ let app; try{ app=initializeApp(cfg,"guard_dis_"+Math.random()); }catch(e){ app=
 const dbGuard=getFirestore(app);
 try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists()) return; let lt=snap.data().logoutTime||0; let my=parseInt(localStorage.getItem('shija_login_time')||'0'); if(lt>my && my!==0){ localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time'); location.href='login.html'; } }); }catch(e){}
 </script>
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop">☰</button> SHIJA Dialysis</div><div style="display:flex;align-items:center;gap:8px"><div class="badgeRed" id="countBadge">0 DISCHARGED</div></div></div>
+<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop">☰</button> SHIJA Dialysis</div><div style="display:flex;align-items:center;gap:8px"><a href="claim.html" style="background:#ffffff;color:#0a1931;padding:8px 18px;border-radius:20px;font-weight:900;font-size:11px;text-decoration:none">VIEW CLAIM</a></div></div>
 <div class="whiteOverlay" id="whiteOverlay"></div>
 <div class="whiteBar" id="whiteBar">
 <div>
@@ -93,7 +91,7 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 <div style="padding:10px;font-size:11px;color:#64748b;border-top:1px solid #e2e8f0"><b style="color:#0f172a">System Status</b><br>All Systems Online</div>
 </div>
 <div class="content">
-<div class="card" style="background:#ffffff;border:1.5px solid #0a1931"><div class="label" style="color:#0a1931">ADD DISCHARGE PATIENT FROM TOTAL PATIENT - ONLY PMJAY</div><div class="searchBox" style="margin-top:6px"><input type="text" id="searchTotal" class="input" placeholder="SEARCH TOTAL PMJAY PATIENT - NAME / SHRI ID / PMJAY ID..." style="border:1.5px solid #0a1931;font-size:12px;padding:12px;background:#ffffff"><div class="searchResults" id="searchResults"></div></div></div>
+<div class="card" style="background:#ffffff;border:1.5px solid #0a1931;margin-top:4px"><div class="label" style="color:#0a1931">ADD DISCHARGE PATIENT FROM TOTAL PATIENT - ONLY PMJAY</div><div class="searchBox" style="margin-top:6px"><input type="text" id="searchTotal" class="input" placeholder="SEARCH TOTAL PMJAY PATIENT - NAME / SHRI ID / PMJAY ID..." style="border:1.5px solid #0a1931;font-size:12px;padding:12px;background:#ffffff"><div class="searchResults" id="searchResults"></div></div></div>
 <div class="card">
 <div style="display:grid;grid-template-columns:130px 120px 120px 90px 110px 1fr;gap:8px;align-items:end">
 <div><div class="label">DATE</div><input type="date" id="fDate" class="input"></div>
@@ -101,7 +99,7 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 <div><div class="label">BLOCK FILTER</div><select id="fBlock" class="input"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
 <div><div class="label">PER PAGE</div><select id="perPage" class="input"><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
 <div><div class="label">ACTION</div><button class="btn btnDark" style="width:100%;padding:10px" onclick="clearFilters()">CLEAR FILTER</button></div>
-<div style="display:flex;justify-content:end;align-items:end"><button class="iconBtn active" id="viewToggleBtn" onclick="toggleView()" title="Toggle View">☰</button></div>
+<div style="display:flex;justify-content:end;align-items:end"><button class="iconBtn" id="viewToggleBtn" onclick="toggleView()" title="Toggle View">☰</button></div>
 </div>
 </div>
 <div class="card" style="padding:6px">
@@ -176,7 +174,9 @@ function render(){
   let tbody=document.getElementById('tbody'); let grid=document.getElementById('gridWrap'); tbody.innerHTML=''; grid.innerHTML='';
   let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize)); if(currentPage>totalPages) currentPage=totalPages;
   let start=(currentPage-1)*pageSize; let page=filtered.slice(start,start+pageSize);
-  document.getElementById('countBadge').innerText=`${filtered.length} DISCHARGED`; document.getElementById('badgeD').innerText=`Discharged - ${filtered.length}`; document.getElementById('pageInfo').innerText=`Page ${currentPage} of ${totalPages}`; document.getElementById('dateInfo').innerText=`${document.getElementById('fTime').value||'ALL TIME'} | ${document.getElementById('fBlock').value||'ALL BLOCK'}`;
+  let badgeD=document.getElementById('badgeD'); if(badgeD) badgeD.innerText=`Discharged - ${filtered.length}`;
+  let pageInfo=document.getElementById('pageInfo'); if(pageInfo) pageInfo.innerText=`Page ${currentPage} of ${totalPages}`;
+  let dateInfo=document.getElementById('dateInfo'); if(dateInfo) dateInfo.innerText=`${document.getElementById('fTime').value||'ALL TIME'} | ${document.getElementById('fBlock').value||'ALL BLOCK'}`;
   if(page.length===0){ tbody.innerHTML=`<tr><td colspan="7" style="padding:30px;text-align:center">NO DISCHARGED</td></tr>`; grid.innerHTML=`<div style="padding:30px;text-align:center;grid-column:1/-1">NO DISCHARGED</div>`; return; }
   page.forEach((p,i)=>{
     let pmjayShow = p.pmjayCmhtId || p.pmjayId || p.pmjay || ''; let claimTag = p.claimId ? ` <span style="background:#f1f5f9;color:#0a1931;padding:2px 6px;border-radius:10px;font-size:8px;border:1px solid #e2e8f0">${p.claimId}</span>` : '';
