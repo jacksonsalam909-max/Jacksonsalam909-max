@@ -59,6 +59,15 @@ td.idCol{background:#eff6ff;color:#1e40af;font-weight:900}
 .adminDropItem:first-child{color:#111}
 .adminDropItem.logoutAll{color:#ef4444}
 .adminDropItem:hover{background:#f5f5f5}
+
+/* CLEAR SLIDE CONFIRMATION */
+.clearWrap{position:relative;display:flex;align-items:end;margin-left:auto}
+.clearBtn{height:30px;background:#0f172a;color:#fff;font-weight:900;font-size:10px;padding:6px 12px;border-radius:6px;border:0;cursor:pointer;z-index:2;transition:all 0.25s ease}
+.clearConfirm{position:absolute;right:0;top:0;height:30px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;display:flex;align-items:center;gap:6px;padding:0 6px;transform:translateX(20px) scaleX(0);transform-origin:right;opacity:0;transition:all 0.3s ease;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1}
+.clearConfirm.open{transform:translateX(-68px) scaleX(1);opacity:1}
+.clearConfirm span{font-weight:800;font-size:10px}
+.clearYes{background:#ef4444;color:#fff;border:0;padding:4px 8px;border-radius:4px;font-weight:900;font-size:9px;cursor:pointer}
+.clearNo{background:#e2e8f0;color:#0f172a;border:0;padding:4px 8px;border-radius:4px;font-weight:900;font-size:9px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -72,8 +81,6 @@ if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 <div style="font-weight:900;font-size:13px">SHIJA DIALYSIS MANAGMENT</div>
 <div id="status" class="status saved">READY</div>
 </div>
-
-<!-- BLUE CIRCLE A LIKE IMAGE -->
 <div class="adminWrap">
 <button class="adminCircle" id="adminBtn" onclick="toggleAdmin()">A</button>
 <div class="adminDropdown" id="adminDropdown">
@@ -81,7 +88,6 @@ if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 <button class="adminDropItem logoutAll" onclick="doLogoutAll()">Logout All Devices</button>
 </div>
 </div>
-
 </div>
 
 <div class="menuOverlay" id="menuOverlay"></div>
@@ -104,7 +110,19 @@ if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 <div><label style="font-size:8px;font-weight:800">SHOW</label><br><select id="rowsPerPage" class="input"><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option></select></div>
 <div><label style="font-size:8px;font-weight:800">TIME</label><br><select id="filterTime" class="input"><option value="">ALL</option><option value="7:00 AM">7 AM</option><option value="12:00 PM">12 PM</option><option value="5:00 PM">5 PM</option><option value="9:00 PM">9 PM</option><option value="12:00 AM">12 AM</option><option value="2:00 AM">2 AM</option></select></div>
 <div><label style="font-size:8px;font-weight:800">BLOCK</label><br><select id="filterBlock" class="input"><option value="">ALL</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
-<div style="margin-left:auto;display:flex;gap:4px;align-items:end"><span id="filterCount" style="font-weight:900;font-size:10px;background:#0a1931;color:#fff;padding:6px 10px;border-radius:14px;height:30px;display:flex;align-items:center">0</span><button class="btn btnDark" onclick="clearFilters()" style="height:30px">CLEAR</button><button class="btn btnPurple" onclick="openAddPatientPage()" style="height:30px">+ ADD</button></div>
+<!-- ADD BUTTON NEXT TO BLOCK FILTER -->
+<div style="display:flex;align-items:end"><button class="btn btnPurple" onclick="openAddPatientPage()" style="height:30px">+ ADD</button></div>
+
+<!-- CLEAR IN CORNER WITH SLIDE -->
+<div class="clearWrap">
+<button class="clearBtn" id="clearBtn" onclick="toggleClearConfirm()">CLEAR</button>
+<div class="clearConfirm" id="clearConfirm">
+<span>Are you sure?</span>
+<button class="clearYes" onclick="confirmClear()">YES</button>
+<button class="clearNo" onclick="closeClearConfirm()">NO</button>
+</div>
+</div>
+
 </div>
 
 <div id="masterInfo" style="font-size:10px;font-weight:800;margin-top:6px;background:#eff6ff;padding:6px;border-radius:5px">LOADING...</div>
@@ -163,7 +181,22 @@ async function doLogoutAll(){
     location.href='login.html';
   }
 }
-document.addEventListener('click', e=>{if(!e.target.closest('.adminWrap')){document.getElementById('adminDropdown').classList.remove('open');}});
+document.addEventListener('click', e=>{if(!e.target.closest('.adminWrap')){document.getElementById('adminDropdown').classList.remove('open');} if(!e.target.closest('.clearWrap')){closeClearConfirm();}});
+
+function toggleClearConfirm(){
+  document.getElementById('clearConfirm').classList.toggle('open');
+}
+function closeClearConfirm(){
+  document.getElementById('clearConfirm').classList.remove('open');
+}
+function confirmClear(){
+  closeClearConfirm();
+  document.getElementById('filterTime').value='';
+  document.getElementById('filterBlock').value='';
+  document.getElementById('searchName').value='';
+  applyFilter();
+}
+
 function updateStatusVisibility(){let scheme=document.getElementById('fType').value;document.getElementById('thStatus').classList.toggle('hidden', scheme!=='PMJAY');}
 async function buildMasterMap(){
   masterMap={};
@@ -177,8 +210,7 @@ async function autoSaveToFirebase(){let date=document.getElementById('fDate').va
 async function onDateChange(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;let docId=date+'_'+scheme;updateStatusVisibility();setStatus('saving','LOADING...');try{let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));let patients=snap.exists()?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let enriched=enrichPatient({...p,sl:i+1});enriched.sl=i+1;if(!enriched.patientStatus)enriched.patientStatus='ENHANCEMENT';return enriched;});if(scheme==='PMJAY'){patients=patients.filter(p=>(p.patientStatus||'ENHANCEMENT')!=='DISCHARGE');}allPatients=patients;filteredPatients=[...allPatients];currentPage=1;if(patients.length===0){setStatus('blank','BLANK');}else{setStatus('saved',`${patients.length} PATIENTS`);}applyFilter();}catch(e){setStatus('saved','ERROR');}}
 async function onSchemeChange(){allPatients=[];filteredPatients=[];currentPage=1;await onDateChange();}
 function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim().replace(/\s+/g,' ').replace(/\./g,'');let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let hour=parseInt(m[1]);let min=m[2]?m[2].padStart(2,'0'):'00';let ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}if(ap){return`${hour}:${min} ${ap}`;}return`${hour}:${min}`;}
-function applyFilter(){let search=document.getElementById('searchName').value.toLowerCase().trim();let timeFilter=document.getElementById('filterTime').value;let timeFilterNorm=normalizeTime(timeFilter);let blockFilter=document.getElementById('filterBlock').value;filteredPatients=allPatients.filter(p=>{if(search&&!String(p.name||'').toLowerCase().includes(search)&&!String(p.shri||'').toLowerCase().includes(search)&&!String(p.pmjayCmhtId||'').toLowerCase().includes(search))return false;if(timeFilter){let pTimeNorm=normalizeTime(p.time);if(pTimeNorm!==timeFilterNorm)return false;}if(blockFilter&&p.block!==blockFilter)return false;return true;});document.getElementById('filterCount').innerText=`${filteredPatients.length}/${allPatients.length}`;currentPage=1;renderPagination();}
-function clearFilters(){document.getElementById('filterTime').value='';document.getElementById('filterBlock').value='';document.getElementById('searchName').value='';applyFilter();}
+function applyFilter(){let search=document.getElementById('searchName').value.toLowerCase().trim();let timeFilter=document.getElementById('filterTime').value;let timeFilterNorm=normalizeTime(timeFilter);let blockFilter=document.getElementById('filterBlock').value;filteredPatients=allPatients.filter(p=>{if(search&&!String(p.name||'').toLowerCase().includes(search)&&!String(p.shri||'').toLowerCase().includes(search)&&!String(p.pmjayCmhtId||'').toLowerCase().includes(search))return false;if(timeFilter){let pTimeNorm=normalizeTime(p.time);if(pTimeNorm!==timeFilterNorm)return false;}if(blockFilter&&p.block!==blockFilter)return false;return true;});currentPage=1;renderPagination();}
 function renderPagination(){pageSize=parseInt(document.getElementById('rowsPerPage').value)||10;let totalPages=Math.max(1,Math.ceil(filteredPatients.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;let pag=document.getElementById('pagination');pag.innerHTML='';for(let i=1;i<=totalPages;i++){let b=document.createElement('button');b.className='pageBtn'+(i===currentPage?' active':'');b.innerText=i;b.onclick=()=>{currentPage=i;renderTable();renderPagination();};pag.appendChild(b);}renderTable();renderGrid();}
 function renderTable(){let tbody=document.getElementById('tbody');tbody.innerHTML='';let start=(currentPage-1)*pageSize;let end=start+pageSize;let pagePatients=filteredPatients.slice(start,end);let scheme=document.getElementById('fType').value;let isPMJAY=scheme==='PMJAY';pagePatients.forEach((p,idx)=>{let globalIdx=allPatients.indexOf(p);let status=p.patientStatus||'ENHANCEMENT';let tr=document.createElement('tr');let statusCell=isPMJAY?`<td class="status-col"><select class="filterSelect" onchange="handleStatusChange(${globalIdx}, this.value)"><option value="ENHANCEMENT" ${status==='ENHANCEMENT'?'selected':''}>ENHANCEMENT</option><option value="DISCHARGE" ${status==='DISCHARGE'?'selected':''}>DISCHARGE</option></select></td>`:`<td class="status-col hidden"></td>`;tr.innerHTML=`<td class="slCol">${p.sl||start+idx+1}</td><td class="idCol">${p.pmjayCmhtId||''}</td><td class="nameCol">${p.name||''}</td>${statusCell}<td>${p.shri||''}</td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td><td><div class="actionCell"><button class="btnEdit" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">DEL</button></div></td>`;tbody.appendChild(tr);});if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="9" style="padding:12px;text-align:center">NO PATIENTS</td>`;tbody.appendChild(tr);}document.getElementById('pageInfo').innerText=`${document.getElementById('fDate').value} | ${document.getElementById('fType').value} | P${currentPage}/${Math.max(1,Math.ceil(filteredPatients.length/pageSize))}`;}
 function renderGrid(){let grid=document.getElementById('gridWrap');grid.innerHTML='';let start=(currentPage-1)*pageSize;let end=start+pageSize;let pagePatients=filteredPatients.slice(start,end);let scheme=document.getElementById('fType').value;let isPMJAY=scheme==='PMJAY';pagePatients.forEach((p,idx)=>{let globalIdx=allPatients.indexOf(p);let status=p.patientStatus||'ENHANCEMENT';let div=document.createElement('div');div.className='pCard';let statusDropdown=isPMJAY?`<select class="filterSelect" onchange="handleStatusChange(${globalIdx}, this.value)"><option value="ENHANCEMENT" ${status==='ENHANCEMENT'?'selected':''}>ENHANCEMENT</option><option value="DISCHARGE" ${status==='DISCHARGE'?'selected':''}>DISCHARGE</option></select>`:'';div.innerHTML=`<div class="pCardTop"><span class="pCardSL">#${p.sl||start+idx+1}</span>${statusDropdown}</div><div class="pCardName">${p.name||'NO NAME'}</div><div class="pCardMeta"><span>${p.pmjayCmhtId||'NO ID'}</span><span>SHRI:${p.shri||''}</span><span>${p.time||''}</span><span>${p.block||''}</span></div><div class="actionCell" style="margin-top:6px"><button class="btnEdit" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">DEL</button></div>`;grid.appendChild(div);});}
