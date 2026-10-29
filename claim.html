@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>SHIJA CLAIM PAGE</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f1f5f9}
+.top{height:52px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:fixed;top:0;left:0;right:0;z-index:1000}
+.btn{padding:7px 12px;border:0;border-radius:6px;font-weight:900;font-size:10px;cursor:pointer}
+.btnDark{background:#0f172a;color:#fff}.btnBlue{background:#2563eb;color:#fff}.btnRed{background:#ef4444;color:#fff}
+.input{padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:11px;background:#fff;width:100%}
+.content{max-width:1450px;margin:60px auto 0;padding:8px}
+.card{background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;border:1px solid #e2e8f0}
+.label{font-size:8px;font-weight:900;color:#64748b;margin-bottom:4px}
+.sheetWrap{background:#fff;border:1px solid #e2e8f0;overflow:auto;max-height:72vh;border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:1000px;border:none}
+th{position:sticky;top:0;background:#0a1931;color:#fff;padding:12px 6px;font-size:10px;text-align:center;z-index:2}
+td{border-bottom:1px solid #f1f5f9;padding:10px 6px;height:46px;font-size:11px;font-weight:700;text-align:center;text-transform:uppercase;background:#fff}
+td.nameCol{text-align:left;padding-left:12px}
+.badge{background:#0a1931;color:#fff;padding:6px 12px;border-radius:20px;font-weight:900;font-size:10px}
+.badgeBlue{background:#dbeafe;color:#1e40af;padding:6px 12px;border-radius:20px;font-weight:900;font-size:11px;border:1px solid #93c5fd}
+.menuBtn{font-size:22px;background:none;border:0;color:#fff;cursor:pointer}
+.menuDrawer{position:fixed;top:52px;left:-300px;width:300px;height:calc(100vh - 52px);background:#fff;z-index:9999;transition:left .25s ease;overflow:auto;border-right:1px solid #e2e8f0}
+.menuDrawer.open{left:0}
+.menuItem{display:block;width:100%;padding:14px 16px;background:#fff;border:0;border-bottom:1px solid #f1f5f9;color:#0f172a;font-weight:800;font-size:12px;text-align:left;cursor:pointer}
+.menuItem.active{background:#0a1931;color:#fff}
+.menuOverlay{position:fixed;top:52px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);display:none;z-index:9998}
+.menuOverlay.open{display:block}
+.claimTag{background:#dcfce7;color:#166534;padding:5px 12px;border-radius:20px;font-weight:900;font-size:10px;border:1px solid #86efac;cursor:pointer}
+</style>
+</head>
+<body>
+<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
+
+<div class="top"><div style="display:flex;align-items:center;gap:8px"><button class="menuBtn" id="menuBtn">☰</button><div style="font-weight:900;font-size:13px">CLAIM MANAGEMENT</div><div class="badgeBlue" id="countBadge">0 CLAIMED</div></div><div style="display:flex;gap:6px"><button class="btn btnDark" onclick="location.href='discharge.html'">BACK TO DISCHARGE</button></div></div>
+<div class="menuOverlay" id="menuOverlay"></div>
+<div class="menuDrawer" id="menuDrawer">
+<div style="font-weight:900;padding:14px;background:#0a1931;color:#fff">MENU</div>
+<button class="menuItem" onclick="location.href='index.html'">HOME</button>
+<button class="menuItem" onclick="location.href='total.html'">TOTAL PATIENT</button>
+<button class="menuItem" onclick="location.href='discharge.html'">DISCHARGE PATIENT</button>
+<button class="menuItem active">CLAIM PAGE</button>
+</div>
+
+<div class="content">
+
+<div class="card" style="background:#eff6ff;border:1px solid #93c5fd">
+<div style="display:grid;grid-template-columns:1fr 1fr 130px 120px 100px;gap:8px;align-items:end">
+<div><div class="label">SEARCH CLAIM - TYPE CLAIM ID</div><input type="text" id="claimIdFilter" class="input" placeholder="CLAIM ID e.g. 181817171717" style="border:2px solid #2563eb;padding:12px"></div>
+<div><div class="label">SEARCH PATIENT FROM CLAIM LIST - NAME / SHRI / PMJAY</div><input type="text" id="fSearch" class="input" placeholder="SEARCH PATIENT IN CLAIM LIST..." style="border:2px solid #0f172a;padding:12px"></div>
+<div><div class="label">DATE FILTER</div><input type="date" id="fDate" class="input"></div>
+<div><div class="label">BLOCK FILTER</div><select id="fBlock" class="input"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
+<div style="display:flex;gap:6px"><button class="btn btnDark" style="flex:1;padding:12px" onclick="clearFilters()">CLEAR FILTERS</button></div>
+</div>
+<div id="claimInfo" style="margin-top:10px;font-size:11px;font-weight:900;background:#fff;padding:10px;border-radius:8px;border:1px dashed #93c5fd">Loading...</div>
+</div>
+
+<div class="card" style="padding:6px">
+<div style="display:flex;gap:8px;align-items:center;padding:8px;flex-wrap:wrap">
+<div class="badge" id="badgeClaim">Claimed - 0</div>
+<div style="font-size:10px;font-weight:800" id="pageInfo">Page 1</div>
+<div style="margin-left:auto;display:flex;gap:6px"><button class="btn btnDark" onclick="changePage(-1)">PREV</button><button class="btn btnDark" onclick="changePage(1)">NEXT</button></div>
+</div>
+<div class="sheetWrap"><table><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>CLAIM ID</th><th>TIME</th><th>BLOCK</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
+</div>
+
+<div class="card">
+<div style="font-weight:900;font-size:11px;margin-bottom:8px">ALL CLAIM IDs - CLICK TO FILTER</div>
+<div id="allClaimIds" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+</div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(firebaseConfig,"claim_final_"+Math.random());
+const db=getFirestore(app);
+window._fb={db,collection,getDocs,doc,setDoc,deleteDoc};
+</script>
+
+<script>
+let allClaimed=[],filtered=[],currentPage=1,pageSize=20;
+const menuBtn=document.getElementById('menuBtn'),menuDrawer=document.getElementById('menuDrawer'),menuOverlay=document.getElementById('menuOverlay');
+menuBtn.addEventListener('click',()=>{menuDrawer.classList.toggle('open');menuOverlay.classList.toggle('open');});
+menuOverlay.addEventListener('click',()=>{menuDrawer.classList.remove('open');menuOverlay.classList.remove('open');});
+
+function getClaimIdFromURL(){ return new URLSearchParams(location.search).get('claimId')||''; }
+
+async function loadAll(){
+  try{
+    let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges'));
+    allClaimed=[];
+    snap.forEach(d=>{
+      let o=d.data(); o._id=d.id;
+      if(o.claimId && o.claimStatus==='CLAIMED') allClaimed.push(o);
+    });
+    allClaimed.sort((a,b)=> new Date(b.claimedAt||0)-new Date(a.claimedAt||0));
+  }catch(e){}
+  buildClaimIds();
+  applyFilter();
+}
+
+function buildClaimIds(){
+  let map={};
+  allClaimed.forEach(p=>{ map[p.claimId]=(map[p.claimId]||0)+1; });
+  let div=document.getElementById('allClaimIds');
+  div.innerHTML='';
+  Object.entries(map).sort((a,b)=>b[1]-a[1]).forEach(([cid,count])=>{
+    let b=document.createElement('button');
+    b.className='claimTag';
+    b.innerHTML=`${cid} (${count})`;
+    b.onclick=()=>{ document.getElementById('claimIdFilter').value=cid; applyFilter(); };
+    div.appendChild(b);
+  });
+}
+
+function applyFilter(){
+  let claimIdFilter=document.getElementById('claimIdFilter').value.trim().toUpperCase();
+  let search=document.getElementById('fSearch').value.toLowerCase().trim();
+  let date=document.getElementById('fDate').value;
+  let block=document.getElementById('fBlock').value;
+  filtered=allClaimed.filter(p=>{
+    if(claimIdFilter && (p.claimId||'').toUpperCase()!==claimIdFilter) return false;
+    if(date && p.date!==date) return false;
+    if(block && (p.block||'').toUpperCase()!==block.toUpperCase()) return false;
+    if(search){
+      let s=`${p.patientName||p.name||''} ${p.shriId||p.shri||''} ${p.pmjayCmhtId||p.pmjayId||''} ${p.claimId||''}`.toLowerCase();
+      if(!s.includes(search)) return false;
+    }
+    return true;
+  });
+  currentPage=1;
+  render();
+}
+
+function render(){
+  let tbody=document.getElementById('tbody');
+  tbody.innerHTML='';
+  let tp=Math.max(1,Math.ceil(filtered.length/pageSize));
+  if(currentPage>tp) currentPage=tp;
+  let start=(currentPage-1)*pageSize;
+  let page=filtered.slice(start,start+pageSize);
+  document.getElementById('countBadge').innerText=`${allClaimed.length} CLAIMED`;
+  document.getElementById('badgeClaim').innerText=`Claimed - ${filtered.length} / ${allClaimed.length}`;
+  document.getElementById('pageInfo').innerText=`Page ${currentPage} of ${tp}`;
+  let cid=document.getElementById('claimIdFilter').value;
+  document.getElementById('claimInfo').innerHTML=cid?`Claim ID: <b style="color:#2563eb">${cid}</b> | Patients: <b>${filtered.length}</b>`:`All Claims | Total: <b>${filtered.length}</b> | Unique Claim IDs: <b>${new Set(filtered.map(p=>p.claimId)).size}</b>`;
+
+  if(page.length===0){ tbody.innerHTML=`<tr><td colspan="8" style="padding:30px;text-align:center">NO PATIENTS IN THIS CLAIM LIST</td></tr>`; return; }
+
+  page.forEach((p,i)=>{
+    let pmjay=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';
+    let tr=document.createElement('tr');
+    tr.innerHTML=`<td>${start+i+1}</td><td class="nameCol">${p.patientName||p.name||''}</td><td>${p.shriId||p.shri||''}</td><td style="color:#2563eb;font-weight:900">${pmjay}</td><td><span class="claimTag">${p.claimId}</span></td><td>${p.time||''}</td><td>${p.block||''}</td><td><div style="display:flex;gap:4px;justify-content:center"><button class="btn btnBlue" onclick="editClaim('${p._id}')">EDIT</button><button class="btn btnRed" onclick="removeClaim('${p._id}')">DELETE</button></div></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function changePage(d){ let tp=Math.max(1,Math.ceil(filtered.length/pageSize)); currentPage+=d; if(currentPage<1) currentPage=1; if(currentPage>tp) currentPage=tp; render(); }
+function clearFilters(){ document.getElementById('claimIdFilter').value=''; document.getElementById('fSearch').value=''; document.getElementById('fDate').value=''; document.getElementById('fBlock').value=''; history.replaceState(null,'',location.pathname); applyFilter(); }
+
+async function removeClaim(id){
+  if(!confirm('DELETE / REMOVE this patient from CLAIM?')) return;
+  try{
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:'',claimStatus:'',claimedAt:''},{merge:true});
+    await window._fb.deleteDoc(window._fb.doc(window._fb.db,'claims',id));
+    loadAll();
+  }catch(e){ alert(e.message); }
+}
+async function editClaim(id){
+  let p=allClaimed.find(x=>x._id===id);
+  if(!p) return;
+  let newId=prompt('EDIT CLAIM ID:',p.claimId);
+  if(newId===null) return;
+  newId=newId.trim().toUpperCase();
+  if(!newId) return;
+  try{
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:newId,claimedAt:new Date().toISOString(),claimStatus:'CLAIMED'},{merge:true});
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...p,claimId:newId,claimedAt:new Date().toISOString(),claimStatus:'CLAIMED'},{merge:true});
+    loadAll();
+  }catch(e){ alert(e.message); }
+}
+
+document.getElementById('claimIdFilter').addEventListener('input', applyFilter);
+document.getElementById('fSearch').addEventListener('input', applyFilter);
+document.getElementById('fDate').addEventListener('change', applyFilter);
+document.getElementById('fBlock').addEventListener('change', applyFilter);
+
+window.addEventListener('load', async ()=>{
+  let cid=getClaimIdFromURL();
+  if(cid) document.getElementById('claimIdFilter').value=cid.toUpperCase();
+  await loadAll();
+});
+</script>
+</body>
+</html>
