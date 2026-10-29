@@ -48,32 +48,29 @@ td.idCol{background:#eff6ff;color:#1e40af;font-weight:900}
 .clearYes{background:#ef4444;color:#fff;border:0;padding:4px 8px;border-radius:4px;font-weight:900;font-size:9px;cursor:pointer}
 .clearNo{background:#e2e8f0;color:#0f172a;border:0;padding:4px 8px;border-radius:4px;font-weight:900;font-size:9px;cursor:pointer}
 
-/* 3 COLUMNS + BUTTONS IN SAME LINE AS NAME */
+/* 3 COLUMNS + BOTTOM ROW TIME/BLOCK + EDIT/DELETE SAME LINE */
 .gridWrap{display:none;grid-template-columns:repeat(3,1fr);gap:10px;padding:6px}
 .gridWrap.show{display:grid}
 .sheetWrap.hide{display:none}
 .pCard{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
 .pCardTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .pCardSL{background:#0a1931;color:#fff;font-weight:900;font-size:9px;padding:3px 7px;border-radius:10px}
-.pCardNameRow{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px}
-.pCardName{font-weight:900;font-size:11px;text-transform:uppercase;color:#0f172a;line-height:1.2;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pCardActionsInline{display:flex;gap:4px;flex-shrink:0}
+.pCardName{font-weight:900;font-size:11px;text-transform:uppercase;color:#0f172a;line-height:1.2;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pCardSub{font-size:9px;font-weight:700;color:#475569;background:#f8fafc;padding:4px 6px;border-radius:5px;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid #eef2f7}
-.pCardInfo{display:flex;gap:4px;flex-wrap:wrap}
-.pCardInfo span{background:#f1f5f9;color:#334155;font-weight:800;font-size:9px;padding:3px 6px;border-radius:5px;border:1px solid #e2e8f0}
+.pCardBottom{display:flex;justify-content:space-between;align-items:center;gap:4px;margin-top:4px}
+.pCardInfoLeft{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.pCardInfoLeft span{background:#f1f5f9;color:#334155;font-weight:800;font-size:8px;padding:3px 5px;border-radius:4px;border:1px solid #e2e8f0}
+.pCardActionsRight{display:flex;gap:4px;flex-shrink:0}
 .btnEdit{background:#FFD60A;color:#000;font-weight:900;font-size:8px;padding:4px 7px;border-radius:4px;border:0;cursor:pointer}
 .btnDelete{background:#EF4444;color:#fff;font-weight:900;font-size:8px;padding:4px 7px;border-radius:4px;border:0;cursor:pointer}
 
-@media (max-width:900px){
-  .gridWrap{grid-template-columns:repeat(3,1fr);gap:8px}
-}
 @media (max-width:600px){
   .gridWrap{grid-template-columns:repeat(3,1fr);gap:6px}
   .pCard{padding:8px}
   .pCardName{font-size:9px}
-  .pCardSub{font-size:8px}
-  .pCardInfo span{font-size:7px;padding:2px 4px}
-  .btnEdit,.btnDelete{font-size:7px;padding:3px 6px}
+  .pCardSub{font-size:7px}
+  .pCardInfoLeft span{font-size:6px;padding:2px 4px}
+  .btnEdit,.btnDelete{font-size:6px;padding:3px 5px}
 }
 @media (max-width:380px){
   .gridWrap{grid-template-columns:repeat(2,1fr)}
@@ -161,7 +158,23 @@ async function onSchemeChange(){allPatients=[];filteredPatients=[];currentPage=1
 function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim().replace(/\s+/g,' ').replace(/\./g,'');let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let hour=parseInt(m[1]);let min=m[2]?m[2].padStart(2,'0'):'00';let ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}if(ap){return`${hour}:${min} ${ap}`;}return`${hour}:${min}`;}
 function applyFilter(){let search=document.getElementById('searchName').value.toLowerCase().trim();let timeFilter=document.getElementById('filterTime').value;let timeFilterNorm=normalizeTime(timeFilter);let blockFilter=document.getElementById('filterBlock').value;filteredPatients=allPatients.filter(p=>{if(search&&!String(p.name||'').toLowerCase().includes(search)&&!String(p.shri||'').toLowerCase().includes(search)&&!String(p.pmjayCmhtId||'').toLowerCase().includes(search))return false;if(timeFilter){let pTimeNorm=normalizeTime(p.time);if(pTimeNorm!==timeFilterNorm)return false;}if(blockFilter&&p.block!==blockFilter)return false;return true;});currentPage=1;renderPagination();}
 function renderPagination(){pageSize=parseInt(document.getElementById('rowsPerPage').value)||10;let totalPages=Math.max(1,Math.ceil(filteredPatients.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;let pag=document.getElementById('pagination');pag.innerHTML='';for(let i=1;i<=totalPages;i++){let b=document.createElement('button');b.className='pageBtn'+(i===currentPage?' active':'');b.innerText=i;b.onclick=()=>{currentPage=i;renderTable();renderPagination();};pag.appendChild(b);}renderTable();renderGrid();}
-function renderTable(){let tbody=document.getElementById('tbody');tbody.innerHTML='';let start=(currentPage-1)*pageSize;let end=start+pageSize;let pagePatients=filteredPatients.slice(start,end);let scheme=document.getElementById('fType').value;let isPMJAY=scheme==='PMJAY';pagePatients.forEach((p,idx)=>{let globalIdx=allPatients.indexOf(p);let status=p.patientStatus||'ENHANCEMENT';let tr=document.createElement('tr');let statusCell=isPMJAY?`<td class="status-col"><select class="filterSelect" onchange="handleStatusChange(${globalIdx}, this.value)"><option value="ENHANCEMENT" ${status==='ENHANCEMENT'?'selected':''}>ENHANCEMENT</option><option value="DISCHARGE" ${status==='DISCHARGE'?'selected':''}>DISCHARGE</option></select></td>`:`<td class="status-col hidden"></td>`;tr.innerHTML=`<td class="slCol">${p.sl||start+idx+1}</td><td class="idCol">${p.pmjayCmhtId||''}</td><td class="nameCol">${p.name||''}</td>${statusCell}<td>${p.shri||''}</td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td><td><div style="display:flex;gap:3px;justify-content:center"><button class="btnEdit" style="padding:5px 8px;font-size:9px" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" style="padding:5px 8px;font-size:9px" onclick="deleteRow(${globalIdx})">DEL</button></div></td>`;tbody.appendChild(tr);});if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="9" style="padding:12px;text-align:center">NO PATIENTS</td>`;tbody.appendChild(tr);}document.getElementById('pageInfo').innerText=`${document.getElementById('fDate').value} | ${document.getElementById('fType').value} | P${currentPage}/${Math.max(1,Math.ceil(filteredPatients.length/pageSize))}`;}
+
+function renderTable(){
+  let tbody=document.getElementById('tbody');tbody.innerHTML='';
+  let start=(currentPage-1)*pageSize;let end=start+pageSize;
+  let pagePatients=filteredPatients.slice(start,end);
+  let scheme=document.getElementById('fType').value;let isPMJAY=scheme==='PMJAY';
+  pagePatients.forEach((p,idx)=>{
+    let globalIdx=allPatients.indexOf(p);
+    let status=p.patientStatus||'ENHANCEMENT';
+    let tr=document.createElement('tr');
+    let statusCell=isPMJAY?`<td class="status-col"><select class="filterSelect" onchange="handleStatusChange(${globalIdx}, this.value)"><option value="ENHANCEMENT" ${status==='ENHANCEMENT'?'selected':''}>ENHANCEMENT</option><option value="DISCHARGE" ${status==='DISCHARGE'?'selected':''}>DISCHARGE</option></select></td>`:`<td class="status-col hidden"></td>`;
+    tr.innerHTML=`<td class="slCol">${p.sl||start+idx+1}</td><td class="idCol">${p.pmjayCmhtId||''}</td><td class="nameCol">${p.name||''}</td>${statusCell}<td>${p.shri||''}</td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td><td><div style="display:flex;gap:4px;justify-content:center"><button class="btnEdit" style="padding:5px 10px;font-size:10px" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" style="padding:5px 10px;font-size:10px" onclick="deleteRow(${globalIdx})">DELETE</button></div></td>`;
+    tbody.appendChild(tr);
+  });
+  if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="9" style="padding:12px;text-align:center">NO PATIENTS</td>`;tbody.appendChild(tr);}
+  document.getElementById('pageInfo').innerText=`${document.getElementById('fDate').value} | ${document.getElementById('fType').value} | P${currentPage}/${Math.max(1,Math.ceil(filteredPatients.length/pageSize))}`;
+}
 
 function renderGrid(){
   let grid=document.getElementById('gridWrap');grid.innerHTML='';
@@ -175,15 +188,19 @@ function renderGrid(){
     let statusDropdown=isPMJAY?`<select class="filterSelect" onchange="handleStatusChange(${globalIdx}, this.value)"><option value="ENHANCEMENT" ${status==='ENHANCEMENT'?'selected':''}>ENH</option><option value="DISCHARGE" ${status==='DISCHARGE'?'selected':''}>DIS</option></select>`:`<select class="filterSelect" style="visibility:hidden"><option></option></select>`;
     div.innerHTML=`
       <div class="pCardTop"><span class="pCardSL">#${p.sl||start+idx+1}</span>${statusDropdown}</div>
-      <div class="pCardNameRow">
-        <div class="pCardName">${p.name||'NO NAME'}</div>
-        <div class="pCardActionsInline">
+      <div class="pCardName">${p.name||'NO NAME'}</div>
+      <div class="pCardSub">${p.pmjayCmhtId||'NO ID'}</div>
+      <div class="pCardBottom">
+        <div class="pCardInfoLeft">
+          <span>${p.time||''}</span>
+          <span>${p.block||''}</span>
+          <span>${p.shri||''}</span>
+        </div>
+        <div class="pCardActionsRight">
           <button class="btnEdit" onclick="openEdit(${globalIdx})">EDIT</button>
           <button class="btnDelete" onclick="deleteRow(${globalIdx})">DELETE</button>
         </div>
       </div>
-      <div class="pCardSub">${p.pmjayCmhtId||'NO ID'}</div>
-      <div class="pCardInfo"><span>SHRI: ${p.shri||''}</span><span>${p.time||''}</span><span>${p.block||''}</span></div>
     `;
     grid.appendChild(div);
   });
