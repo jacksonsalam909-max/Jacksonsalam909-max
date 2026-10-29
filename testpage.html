@@ -39,22 +39,21 @@ td.idCol{background:#eff6ff;color:#1e40af;font-weight:900}
 .viewToggle{display:flex;gap:2px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:2px;height:44px;align-items:center;flex-shrink:0}
 .viewBtn{width:38px;height:34px;border-radius:6px;border:0;background:transparent;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .viewBtn.active{background:#0a1931;color:#fff}
-/* SQUARE CARDS - AUTO FILL - 12 PER PAGE */
-.gridWrap{display:none;grid-template-columns:repeat(3, 1fr);gap:6px;padding:6px;align-content:start}
+/* 3 COLUMNS x 4 ROWS = 12 CARDS - SQUARE */
+.gridWrap{display:none;grid-template-columns:repeat(3, 1fr);grid-template-rows:repeat(4, 1fr);gap:6px;padding:6px;align-content:start}
 .gridWrap.show{display:grid !important}
 .sheetWrap.hide{display:none}
 .pCard{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,0.08);display:flex;flex-direction:column;justify-content:space-between;aspect-ratio:1 / 1;width:100%;height:auto;overflow:hidden}
 .pCardTop{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
 .pCardName{flex:1;font-weight:900;font-size:9.5px;color:#000;text-transform:uppercase;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;min-height:22px}
 .pCardEnh{flex-shrink:0}
-.statusSelectInline{background:#fff;border:1px solid #d1d5db;border-radius:6px;padding:3px 5px;font-weight:800;font-size:7.5px;min-width:80px;max-width:90px;height:22px}
+.statusSelectInline{background:#fff;border:1px solid #d1d5db;border-radius:6px;padding:3px 5px;font-weight:800;font-size:7.5px;min-width:80px;max-width:92px;height:22px}
 .pCardIdRow{font-size:8.5px;color:#374151;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .pCardIdRow b{color:#111827}
 .pCardDateRow{font-size:8.5px;color:#374151;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pCardDateRow b{color:#111827}
 .pCardActions{display:flex;gap:4px;justify-content:flex-end;margin-top:auto}
-@media(max-width:600px){.gridWrap{grid-template-columns:repeat(3, 1fr)}}
-@media(min-width:900px){.gridWrap{grid-template-columns:repeat(4, 1fr)}}
+@media(max-width:600px){.gridWrap{grid-template-columns:repeat(3, 1fr);grid-template-rows:repeat(4, 1fr)}}
 </style>
 </head>
 <body>
@@ -217,7 +216,7 @@ async function buildMasterMap(){
       masterMap[shri].cmhtId=cmht;masterMap[shri].cmhtName=name;
     });
   }catch(e){}
-  document.getElementById('masterInfo').innerHTML=`✅ MASTER: ${Object.keys(masterMap).length} | PMJAY from total.html | CMHT from cmht.html`;
+  document.getElementById('masterInfo').innerHTML=`✅ MASTER: ${Object.keys(masterMap).length}`;
   return masterMap;
 }
 function enrichPatient(p){
@@ -285,18 +284,13 @@ function renderTable(){
     let status = p.patientStatus || 'ENHANCEMENT';
     let tr=document.createElement('tr');
     tr.innerHTML=`<td class="slCol">${p.sl||start+idx+1}</td><td class="idCol">${p.pmjayCmhtId||''}</td><td class="nameCol">${p.name||''}</td>
-    <td>
-      <select class="filterSelect" onchange="handleStatusChange(${globalIdx}, this.value)">
-        <option value="ENHANCEMENT" ${status==='ENHANCEMENT'?'selected':''}>ENHANCEMENT</option>
-        <option value="DISCHARGE" ${status==='DISCHARGE'?'selected':''}>DISCHARGE</option>
-      </select>
-    </td>
+    <td><select class="filterSelect" onchange="handleStatusChange(${globalIdx}, this.value)"><option value="ENHANCEMENT" ${status==='ENHANCEMENT'?'selected':''}>ENHANCEMENT</option><option value="DISCHARGE" ${status==='DISCHARGE'?'selected':''}>DISCHARGE</option></select></td>
     <td>${p.shri||''}</td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td>
     <td><div class="actionCell"><button class="btnEdit" onclick="openEdit(${globalIdx})">Edit</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">Delete</button></div></td>`;
     tbody.appendChild(tr);
   });
   if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="9" style="padding:20px;text-align:center;background:#f8fafc">NO PATIENTS</td>`;tbody.appendChild(tr);}
-  document.getElementById('pageInfo').innerText=`${document.getElementById('fDate').value} | ${document.getElementById('fType').value} | PAGE ${currentPage} OF ${Math.max(1,Math.ceil(filteredPatients.length/pageSize))} | ${currentView==='grid'?'12 PER PAGE GRID':'LIST'}`;
+  document.getElementById('pageInfo').innerText=`${document.getElementById('fDate').value} | ${document.getElementById('fType').value} | PAGE ${currentPage} OF ${Math.max(1,Math.ceil(filteredPatients.length/pageSize))} | ${currentView==='grid'?'12 PER PAGE GRID (3x4)':'LIST'}`;
 }
 function renderGrid(){
   let grid=document.getElementById('gridWrap');grid.innerHTML='';
@@ -347,26 +341,13 @@ async function handleStatusChange(globalIdx, newStatus){
   let p = allPatients[globalIdx];
   if(!p) return;
   if(newStatus==='DISCHARGE'){
-    if(!confirm(`DISCHARGE ${p.name} ?`)) {
-      renderTable(); renderGrid(); return;
-    }
+    if(!confirm(`DISCHARGE ${p.name} ?`)) { renderTable(); renderGrid(); return; }
     p.patientStatus = 'DISCHARGE';
     let date=document.getElementById('fDate').value;
     let scheme=document.getElementById('fType').value;
-    try{
-      await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges', `${date}_${p.shri}_${Date.now()}` ), {
-        date: date,scheme: scheme,shriId: p.shri,shri: p.shri,patientName: p.name,name: p.name,pmjayCmhtId: p.pmjayCmhtId,time: p.time,block: p.block,prev: p.prev,status: 'DISCHARGE',dischargedAt: new Date().toISOString(),from: 'list.html'
-      });
-    }catch(e){}
-    allPatients.splice(globalIdx,1);
-    allPatients.forEach((x,i)=>x.sl=i+1);
-    await autoSaveToFirebase();
-    applyFilter();
-  } else {
-    p.patientStatus = 'ENHANCEMENT';
-    await autoSaveToFirebase();
-    applyFilter();
-  }
+    try{ await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges', `${date}_${p.shri}_${Date.now()}` ), {date:date,scheme:scheme,shriId:p.shri,shri:p.shri,patientName:p.name,name:p.name,pmjayCmhtId:p.pmjayCmhtId,time:p.time,block:p.block,prev:p.prev,status:'DISCHARGE',dischargedAt:new Date().toISOString(),from:'list.html'});}catch(e){}
+    allPatients.splice(globalIdx,1); allPatients.forEach((x,i)=>x.sl=i+1); await autoSaveToFirebase(); applyFilter();
+  } else { p.patientStatus = 'ENHANCEMENT'; await autoSaveToFirebase(); applyFilter(); }
 }
 function exportPDF(){if(filteredPatients.length===0){alert('No data');return;}let date=document.getElementById('fDate').value;let type=document.getElementById('fType').value;const { jsPDF }=window.jspdf;let docPdf=new jsPDF('landscape','mm','a4');docPdf.setFontSize(13);docPdf.text(`${date} ${type} - Total: ${filteredPatients.length}`,14,12);let rows=filteredPatients.map(p=>[p.sl,p.pmjayCmhtId,p.name,p.patientStatus||'ENHANCEMENT',p.shri,p.time,p.block,p.prev]);docPdf.autoTable({startY:16,head:[['SL','PMJAY/CMHT ID','PATIENT NAME','STATUS','SHRI ID','TIME','BLOCK','PREV']],body:rows,theme:'grid',styles:{fontSize:8,halign:'center'},headStyles:{fillColor:[10,25,49]}});docPdf.save(`${date}_${type}_LIST.pdf`);}
 document.getElementById('fDate').addEventListener('change', onDateChange);
@@ -379,7 +360,7 @@ document.getElementById('filterStatus').addEventListener('change', applyFilter);
 window.addEventListener('load', async ()=>{
   document.getElementById('fDate').value=getTodayIST();
   await buildMasterMap();
-  document.getElementById('menuCurrentInfo').innerText=`${document.getElementById('fDate').value} | ${document.getElementById('fType').value} | ${allPatients.length} PATIENTS`;
+  document.getElementById('menuCurrentInfo').innerText=`${document.getElementById('fDate').value} | ${document.getElementById('fType').value}`;
   setTimeout(onDateChange,200);
 });
 </script>
