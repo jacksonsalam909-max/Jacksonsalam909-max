@@ -10,7 +10,7 @@
 body{background:#f1f5f9;overscroll-behavior:none}
 .top{height:58px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:fixed;top:0;left:0;right:0;z-index:1000}
 .btn{padding:7px 11px;border:0;border-radius:8px;font-weight:900;font-size:11px;cursor:pointer;touch-action:manipulation}
-.btnGreen{background:#10b981;color:#fff}.btnDark{background:#0f172a;color:#fff}.btnPurple{background:#7c3aed;color:#fff}
+.btnDark{background:#0f172a;color:#fff}.btnPurple{background:#7c3aed;color:#fff}
 .input{padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:12px;background:#fff}
 .content{max-width:1450px;margin:66px auto 0;padding:10px}
 .card{background:#fff;border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid #e2e8f0}
@@ -46,13 +46,19 @@ td.idCol{background:#eff6ff;color:#1e40af;font-weight:900}
 .pCardMeta{font-size:10px;font-weight:700;color:#475569;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
 .pCardMeta span{background:#f1f5f9;padding:3px 7px;border-radius:6px;border:1px solid #e2e8f0}
 .pCardActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.viewToggle{display:flex;gap:4px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;padding:3px;height:44px;align-items:center}
+.viewToggle{display:flex;gap:4px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;padding:3px;height:44px;align-items:center;flex-shrink:0}
 .viewBtn{width:40px;height:36px;border-radius:8px;border:0;background:transparent;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .viewBtn.active{background:#0a1931;color:#fff}
-/* Hide status for CMHT */
 .status-col{display:table-cell}
 .status-col.hidden{display:none !important}
-#filterStatusWrap.hidden{display:none !important}
+/* ADMIN DROPDOWN */
+.adminWrap{position:relative}
+.adminBtn{background:#fff;color:#0a1931;font-weight:900;font-size:12px;padding:7px 12px;border-radius:20px;border:0;cursor:pointer;display:flex;align-items:center;gap:6px}
+.adminDropdown{position:absolute;top:42px;right:0;background:#fff;color:#0f172a;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,0.2);width:180px;display:none;z-index:2000;border:1px solid #e2e8f0;overflow:hidden}
+.adminDropdown.open{display:block}
+.adminDropItem{width:100%;padding:12px 14px;border:0;background:#fff;text-align:left;font-weight:800;font-size:12px;cursor:pointer;border-bottom:1px solid #f1f5f9}
+.adminDropItem:hover{background:#f1f5f9}
+.adminDropItem.logout{color:#ef4444}
 </style>
 </head>
 <body>
@@ -75,8 +81,17 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 <div style="font-weight:900;font-size:14px">SHIJA DIALYSIS MANAGMENT</div>
 <div id="status" class="status saved">READY</div>
 </div>
+
 <div style="display:flex;align-items:center;gap:8px">
-<button class="btn btnGreen" onclick="exportPDF()">DAILY DIALYSIS LIST</button>
+<div class="adminWrap">
+<button class="adminBtn" id="adminBtn" onclick="toggleAdmin()">ADMIN ▼</button>
+<div class="adminDropdown" id="adminDropdown">
+<div style="padding:12px 14px;font-weight:900;background:#0a1931;color:#fff;font-size:12px">SHIJA ADMIN</div>
+<button class="adminDropItem" onclick="goPage('index.html')">🏠 HOME</button>
+<button class="adminDropItem" onclick="exportPDF()">📄 EXPORT PDF</button>
+<button class="adminDropItem logout" onclick="doLogout()">🚪 LOGOUT</button>
+</div>
+</div>
 </div>
 </div>
 
@@ -100,6 +115,11 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 <div><label style="font-size:9px;font-weight:800">DATE * (TODAY DEFAULT)</label><br><input type="date" id="fDate" class="input"></div>
 <div><label style="font-size:9px;font-weight:800">SCHEME *</label><br><select id="fType" class="input" style="background:#fef3c7;border:2px solid #f59e0b;font-weight:900"><option value="PMJAY" selected>PMJAY</option><option value="CMHT">CMHT</option></select></div>
 <div><label style="font-size:9px;font-weight:800">SHOW</label><br><select id="rowsPerPage" class="input"><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option></select></div>
+<div style="margin-left:auto;display:flex;align-items:end;gap:6px;flex-wrap:wrap">
+<span id="filterCount" style="font-weight:900;font-size:11px;background:#0a1931;color:#fff;padding:8px 12px;border-radius:20px;height:36px;display:flex;align-items:center">0 PATIENTS</span>
+<button class="btn btnDark" onclick="clearFilters()" style="height:36px">CLEAR</button>
+<button class="btn btnPurple" onclick="openAddPatientPage()" style="padding:10px 18px;font-size:12px;height:36px">+ ADD PATIENT</button>
+</div>
 </div>
 
 <div class="filterRow">
@@ -115,27 +135,11 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 </select>
 </div>
 <div><label style="font-size:9px;font-weight:800">FILTER BY BLOCK</label><br><select id="filterBlock" class="input"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
-
-<!-- STATUS FILTER - ONLY FOR PMJAY -->
-<div id="filterStatusWrap"><label style="font-size:9px;font-weight:800">STATUS FILTER (PMJAY ONLY)</label><br>
-<select id="filterStatus" class="input">
-<option value="">ALL</option>
-<option value="ENHANCEMENT" selected>ENHANCEMENT</option>
-<option value="DISCHARGE">DISCHARGE</option>
-</select>
-</div>
-
-<div style="display:flex;align-items:end;">
-<button class="btn btnPurple" onclick="openAddPatientPage()" style="padding:10px 18px;font-size:12px;height:36px">+ ADD PATIENT</button>
-</div>
-<div style="margin-left:auto;display:flex;align-items:end;gap:6px;flex-wrap:wrap">
-<span id="filterCount" style="font-weight:900;font-size:11px;background:#0a1931;color:#fff;padding:8px 12px;border-radius:20px;height:36px;display:flex;align-items:center">0 PATIENTS</span>
-<button class="btn btnDark" onclick="clearFilters()" style="height:36px">CLEAR</button>
-</div>
 </div>
 
 <div id="masterInfo" style="font-size:11px;font-weight:800;margin-top:8px;background:#eff6ff;padding:8px;border-radius:6px">LOADING MASTER...</div>
 
+<!-- LONG SEARCH TAB + ONLY ICONS -->
 <div class="searchWideWrap">
 <div style="flex:1">
 <label style="font-size:9px;font-weight:900;display:block;margin-bottom:4px">SEARCH PATIENT (NAME / SHRI / PMJAY ID)</label>
@@ -163,7 +167,7 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 </div>
 </div>
 
-<div id="editModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9999"><div style="background:#fff;border-radius:14px;padding:16px;width:90%;max-width:420px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-weight:900" id="editTitle">EDIT PATIENT</span><button class="btn btnDark" onclick="closeModal()">X</button></div><div style="display:flex;flex-direction:column;gap:8px"><input id="editName" class="input" placeholder="PATIENT NAME"><input id="editShri" class="input" placeholder="SHRI ID"><input id="editId" class="input" placeholder="PMJAY/CMHT ID"><input id="editTime" class="input" placeholder="TIME - 7:00 AM"><input id="editBlock" class="input" placeholder="BLOCK - MAIN"><input id="editPrev" class="input" placeholder="PREV - 10/20/2026"><button class="btn btnGreen" style="padding:12px" onclick="saveEdit()">SAVE CHANGES</button></div></div></div>
+<div id="editModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9999"><div style="background:#fff;border-radius:14px;padding:16px;width:90%;max-width:420px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-weight:900" id="editTitle">EDIT PATIENT</span><button class="btn btnDark" onclick="closeModal()">X</button></div><div style="display:flex;flex-direction:column;gap:8px"><input id="editName" class="input" placeholder="PATIENT NAME"><input id="editShri" class="input" placeholder="SHRI ID"><input id="editId" class="input" placeholder="PMJAY/CMHT ID"><input id="editTime" class="input" placeholder="TIME - 7:00 AM"><input id="editBlock" class="input" placeholder="BLOCK - MAIN"><input id="editPrev" class="input" placeholder="PREV - 10/20/2026"><button class="btn" style="background:#10b981;color:#fff;padding:12px" onclick="saveEdit()">SAVE CHANGES</button></div></div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -186,7 +190,7 @@ function toggleMenu(){menuDrawer.classList.toggle('open');menuOverlay.classList.
 function closeMenu(){menuDrawer.classList.remove('open');menuOverlay.classList.remove('open');}
 menuBtn.addEventListener('click', toggleMenu);
 menuOverlay.addEventListener('click', closeMenu);
-function goPage(page){closeMenu();setTimeout(()=>{window.location.href=page;},150);}
+function goPage(page){closeMenu();document.getElementById('adminDropdown').classList.remove('open');setTimeout(()=>{window.location.href=page;},150);}
 function openAddPatientPage(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;window.location.href=`addlist.html?date=${date}&scheme=${scheme}&force=1`;}
 function switchView(view){
   currentView=view;
@@ -196,17 +200,25 @@ function switchView(view){
   document.getElementById('gridWrap').classList.toggle('show', view==='grid');
   renderPagination();
 }
+function toggleAdmin(){
+  document.getElementById('adminDropdown').classList.toggle('open');
+}
+function doLogout(){
+  if(confirm('LOGOUT?')){
+    localStorage.removeItem('shija_logged');
+    localStorage.removeItem('shija_login_time');
+    location.href='login.html';
+  }
+}
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.adminWrap')){
+    document.getElementById('adminDropdown').classList.remove('open');
+  }
+});
 function updateStatusVisibility(){
   let scheme=document.getElementById('fType').value;
   let isPMJAY = scheme==='PMJAY';
   document.getElementById('thStatus').classList.toggle('hidden', !isPMJAY);
-  document.getElementById('filterStatusWrap').classList.toggle('hidden', !isPMJAY);
-  // if CMHT, reset status filter
-  if(!isPMJAY){
-    document.getElementById('filterStatus').value='';
-  } else {
-    if(!document.getElementById('filterStatus').value) document.getElementById('filterStatus').value='ENHANCEMENT';
-  }
 }
 async function buildMasterMap(){
   masterMap={};
@@ -259,7 +271,6 @@ async function onDateChange(){
     let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));
     let patients=snap.exists()?(snap.data().patients||[]):[];
     patients=patients.map((p,i)=>{let enriched=enrichPatient({...p,sl:i+1});enriched.sl=i+1;if(!enriched.patientStatus)enriched.patientStatus='ENHANCEMENT';return enriched;});
-    // ONLY PMJAY should filter DISCHARGE
     if(scheme==='PMJAY'){
       patients = patients.filter(p=> (p.patientStatus||'ENHANCEMENT') !== 'DISCHARGE');
     }
@@ -275,13 +286,11 @@ function applyFilter(){
   let timeFilter=document.getElementById('filterTime').value;
   let timeFilterNorm=normalizeTime(timeFilter);
   let blockFilter=document.getElementById('filterBlock').value;
-  let statusFilter=document.getElementById('filterStatus').value;
   let scheme=document.getElementById('fType').value;
   filteredPatients=allPatients.filter(p=>{
     if(search&&!String(p.name||'').toLowerCase().includes(search)&&!String(p.shri||'').toLowerCase().includes(search)&&!String(p.pmjayCmhtId||'').toLowerCase().includes(search))return false;
     if(timeFilter){let pTimeNorm=normalizeTime(p.time);if(pTimeNorm!==timeFilterNorm)return false;}
     if(blockFilter&&p.block!==blockFilter)return false;
-    if(scheme==='PMJAY' && statusFilter && (p.patientStatus||'ENHANCEMENT')!==statusFilter) return false;
     return true;
   });
   document.getElementById('filterCount').innerText=`${filteredPatients.length} / ${allPatients.length} PATIENTS`;
@@ -290,8 +299,6 @@ function applyFilter(){
 function clearFilters(){
   document.getElementById('filterTime').value='';
   document.getElementById('filterBlock').value='';
-  let scheme=document.getElementById('fType').value;
-  if(scheme==='PMJAY') document.getElementById('filterStatus').value='ENHANCEMENT'; else document.getElementById('filterStatus').value='';
   document.getElementById('searchName').value='';
   applyFilter();
 }
@@ -379,7 +386,6 @@ document.getElementById('rowsPerPage').addEventListener('change', renderPaginati
 document.getElementById('searchName').addEventListener('input', applyFilter);
 document.getElementById('filterTime').addEventListener('change', applyFilter);
 document.getElementById('filterBlock').addEventListener('change', applyFilter);
-document.getElementById('filterStatus').addEventListener('change', applyFilter);
 window.addEventListener('load', async ()=>{
   document.getElementById('fDate').value=getTodayIST();
   await buildMasterMap();
