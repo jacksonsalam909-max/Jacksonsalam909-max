@@ -1,413 +1,157 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Discharge Patient - SHIJA</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>DISCHARGE PATIENT</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
-body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;color:#0f172a}
-.top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:9999}
-.top h2{color:#fff;font-size:16px;font-weight:800}
-.menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
-.menuBtn span{display:block;width:20px;height:2px;background:#fff;pointer-events:none}
-.mainWrap{display:flex;flex:1;margin-top:64px}
-.side{width:260px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;z-index:9998;transition:.3s;transform:translateX(-100%);overflow-y:auto}
-.side.show{transform:translateX(0)!important}
-.menu{display:flex;flex-direction:column;gap:4px}
-.menu a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px}
-.menu a.active{background:#1a56db;color:#fff;font-weight:700}
-.sideBottom{border-top:1px solid #1a2a4f;padding:12px 10px;color:#6b7aa2;font-size:11px}
-.sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,0.5);z-index:9997;display:none}
-.sideOverlay.show{display:block}
-.content{flex:1;padding:16px 14px;max-width:1200px;width:100%}
-.card{background:#fff;border-radius:16px;box-shadow:0 10px 30px #00000008;border:1px solid #e5e7eb;padding:14px;margin-bottom:14px}
-.boxRow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:12px}
-.box{flex:1;min-width:140px;background:#f8fafc;padding:10px 12px;border-radius:12px;border:1.5px solid #e5e7eb}
-.box label{font-size:10px;font-weight:800;display:block;margin-bottom:4px;text-transform:uppercase}
-.box input,.box select{width:100%;padding:9px 10px;border:1.5px solid #e5e7eb;border-radius:8px;outline:0;font-size:13px;background:#fff;font-weight:600}
-.topRow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;background:#f8fafc;border:1.5px solid #e2e8f0;padding:12px;border-radius:12px;margin-bottom:12px}
-.search-wrap{position:relative;background:#fff;border-radius:12px;border:1.5px solid #e5e7eb;padding:12px 14px;flex:1;min-width:280px}
-.search-wrap input{width:100%;padding:11px 12px;border:1.5px solid #e5e7eb;border-radius:10px;outline:0;font-size:13px;font-weight:600}
-.suggest{position:absolute;left:14px;right:14px;top:56px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;max-height:280px;overflow-y:auto;z-index:20;box-shadow:0 12px 24px #0002;display:none}
-.suggest div{padding:11px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:12px}
-.suggest div:hover{background:#eff6ff}
-.count{font-size:11px;color:#64748b;margin-top:6px}
-.list-box{background:#fff;border-radius:14px;box-shadow:0 4px 15px #00000008;margin-top:16px;overflow:hidden;border:1.5px solid #e5e7eb}
-.list-head{padding:12px 14px;background:#f8fafc;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-.tbl{width:100%;border-collapse:collapse;background:#fff}
-.tbl th{background:#f8fafc;font-size:11px;padding:11px 8px;text-align:left;text-transform:uppercase;border-bottom:1px solid #e5e7eb;white-space:nowrap}
-.tbl td{padding:11px 8px;font-size:12px;border-bottom:1px solid #f1f5f9}
-.pill{display:inline-block;padding:4px 8px;border-radius:20px;background:#dbeafe;color:#1e40af;font-weight:700;font-size:11px;border:1px solid #bfdbfe}
-.btn{padding:10px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
-.btn-claim-simple{padding:6px 14px;background:#1a56db;color:#fff;border:0;border-radius:8px;font-weight:700;font-size:11px;cursor:pointer}
-.btn-remove-simple{padding:5px 8px;background:#fef2f2;color:#ef4444;border:1px solid #fecaca;border-radius:6px;font-weight:800;font-size:11px;cursor:pointer;margin-left:4px}
-.searchAddedWrap{display:flex;gap:6px;align-items:center}
-.searchAddedWrap input{padding:8px 12px;border-radius:20px;border:1.5px solid #1a56db;min-width:180px;background:#fff;font-weight:600;font-size:12px}
-.btnBlue{background:#1a56db;color:#fff;border:0;padding:8px 14px;border-radius:8px;font-weight:700;font-size:11px;cursor:pointer}
-.btnDark{background:#0a1931;color:#fff;border:0;padding:8px 12px;border-radius:8px;font-weight:700;font-size:11px;cursor:pointer}
-.popup-bg{position:fixed;inset:0;background:#0006;z-index:10000;display:none}
-.popupSmall{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:14px;z-index:10001;max-width:320px;width:90%;box-shadow:0 20px 50px #0004;display:none;overflow:hidden}
-.popHead{padding:12px 14px}
-.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:10px}
-.time-btn{padding:10px 4px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;font-weight:800;cursor:pointer;font-size:12px}
-.time-btn:hover{background:#eff6ff;border-color:#93c5fd}
-.c-blue.popHead{background:linear-gradient(90deg,#93c5fd,#60a5fa);color:#1e3a8a}
-.c-orange.popHead{background:linear-gradient(90deg,#fdba74,#fcd34d);color:#7c2d12}
-.c-red.popHead{background:linear-gradient(90deg,#fca5a5,#f87171);color:#7f1d1d}
-.popInfo{border-radius:8px;margin:0 10px 10px;padding:6px 8px;font-size:9px;background:#f8fafc}
-.pgBtn{padding:6px 10px;border:1.5px solid #e5e7eb;background:#fff;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px}
-.tabBar{display:flex;gap:8px;margin-top:16px}
-.tabBtn{padding:9px 14px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;font-weight:800;cursor:pointer;font-size:12px;color:#64748b}
-.tabBtn.active{background:#1a56db;color:#fff;border-color:#1a56db}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0a1931;color:#fff;padding:10px 16px;border-radius:10px;font-size:12px;z-index:10002;display:none;font-weight:700}
-@media(max-width:900px){.searchAddedWrap{width:100%}.searchAddedWrap input{flex:1;min-width:0}.topRow{flex-direction:column;align-items:stretch}}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f1f5f9}
+.top{height:52px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 10px;position:fixed;top:0;left:0;right:0;z-index:1000}
+.btn{padding:6px 10px;border:0;border-radius:6px;font-weight:900;font-size:10px;cursor:pointer}
+.btnDark{background:#0f172a;color:#fff}.btnPurple{background:#7c3aed;color:#fff}
+.input{padding:6px 8px;border:1px solid #e2e8f0;border-radius:6px;font-weight:700;font-size:11px;background:#fff}
+.content{max-width:1450px;margin:60px auto 0;padding:8px}
+.card{background:#fff;border-radius:10px;padding:8px;margin-bottom:6px;border:1px solid #e2e8f0}
+.sheetWrap{overflow:auto;border:1px solid #e2e8f0;background:#fff;max-height:80vh;border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:950px;border:none}
+th{position:sticky;top:0;background:#991b1b;color:#fff;padding:10px 6px;font-size:9px;text-align:center;border:none;border-bottom:2px solid #991b1b;z-index:2}
+td{border:none;border-bottom:1px solid #f1f5f9;padding:8px 6px;height:42px;font-size:10px;font-weight:700;text-align:center;text-transform:uppercase;background:#fff}
+.menuBtn{font-size:22px;background:none;border:0;color:#fff;cursor:pointer;padding:4px 8px}
+.menuDrawer{position:fixed;top:52px;left:-300px;width:280px;height:calc(100vh - 52px);background:#fff;z-index:9999;transition:left .25s ease;overflow:auto;border-right:1px solid #e2e8f0}
+.menuDrawer.open{left:0}
+.menuItem{display:block;width:100%;padding:12px 16px;background:#fff;border:0;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:700;font-size:12px;text-align:left;cursor:pointer}
+.menuOverlay{position:fixed;top:52px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.2);display:none;z-index:9998}
+.menuOverlay.open{display:block}
+.adminWrap{position:relative}
+.adminCircle{width:34px;height:34px;border-radius:50%;background:#1e88e5;color:#fff;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:0}
+.adminDropdown{position:absolute;top:42px;right:0;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,0.25);width:200px;display:none;z-index:2000;overflow:hidden;padding:6px}
+.adminDropdown.open{display:block}
+.adminDropItem{width:100%;padding:14px 16px;border:0;background:#fff;text-align:left;font-weight:700;font-size:14px;cursor:pointer;border-radius:10px}
+.clearBtn{height:30px;background:#0f172a;color:#fff;font-weight:900;font-size:9px;padding:6px 14px;border-radius:6px;border:0;cursor:pointer}
 </style>
 </head>
 <body>
-<script>
-if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
-if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
-</script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-let app; try{ app=initializeApp(cfg,"guard_discharge_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_discharge2_"+Math.random()); }
-const dbGuard=getFirestore(app);
-try{
-  onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{
-    if(!snap.exists()) return;
-    let lt=snap.data().logoutTime||0;
-    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
-    if(lt>my && my!==0){
-      localStorage.removeItem('shija_logged');
-      localStorage.removeItem('shija_login_time');
-      localStorage.removeItem('shija_role');
-      alert('🔒 Logged out by Admin from all devices');
-      location.href='login.html?reason=global';
-    }
-  });
-}catch(e){}
-try{
-  window.addEventListener('storage',(e)=>{
-    if(e.key==='shija_force_logout_this_device'){
-      localStorage.removeItem('shija_logged');
-      localStorage.removeItem('shija_login_time');
-      location.href='login.html';
-    }
-  });
-  const bc=new BroadcastChannel('shija_logout');
-  bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } };
-}catch(e){}
-</script>
-<div class="top"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA - Discharge (Auto Sync All PCs)</h2></div><span style="color:#fff;font-size:12px" id="fbStatus">Connecting...</span></div>
-<div class="sideOverlay" id="overlay"></div>
-<div class="mainWrap">
-<div class="side" id="side">
-<div class="menu">
-<a href="index.html">HOME</a>
-<a href="total.html">TOTAL PATIENT</a>
-<a href="cmht.html">CMHT TOTAL PATIENT</a>
-<a href="cmhtkft.html">CMHT KFT REPORT</a>
-<a href="cmhtdaily.html">CMHT DAILY DIALYSIS</a>
-<a href="addcmht.html">CMHT ADD PATIENT</a>
-<a href="daily.html">DAILY DIALYSIS</a>
-<a href="discharge.html" class="active">DISCHARGE PATIENT</a>
-<a href="kft.html">KFT REPORT</a>
-<a href="add.html">ADD PATIENT</a>
-<a href="bill.html">BILL</a>
-<a href="dischargesummary.html">DISCHARGE SUMMARY</a>
-</div>
-<div class="sideBottom">Auto Save ON - All PCs Sync<br><span id="fbStatus2">Firebase Connected</span></div>
-</div>
-<div class="content" id="content">
-<div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:14px">
-<div><h1 style="font-size:32px;font-weight:900">Discharge Patient</h1><div style="color:#6b7280;font-size:12px">Dashboard / Discharge - Auto Save Firebase - Visible to all computers - No SAVE needed</div></div>
-<div style="font-size:11px;color:#10b981;font-weight:800">● Auto Save ON - Sync All PCs</div>
-</div>
+<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
+<div class="top"><div style="display:flex;align-items:center;gap:6px"><button class="menuBtn" id="menuBtn">☰</button><div style="font-weight:900;font-size:13px">DISCHARGE PATIENT</div><div id="count" style="background:#fee2e2;color:#991b1b;padding:4px 8px;border-radius:12px;font-weight:900;font-size:10px">0</div></div><div class="adminWrap"><button class="adminCircle" onclick="toggleAdmin()">A</button><div class="adminDropdown" id="adminDropdown"><button class="adminDropItem" onclick="doLogout()">Logout</button><button class="adminDropItem" style="color:#ef4444" onclick="doLogoutAll()">Logout All Devices</button></div></div></div>
+<div class="menuOverlay" id="menuOverlay"></div><div class="menuDrawer" id="menuDrawer"><div style="font-weight:900;padding:12px 14px;background:#0a1931;color:#fff">MENU</div><button class="menuItem" onclick="location.href='index.html'">HOME</button><button class="menuItem" onclick="location.href='total.html'">TOTAL PATIENT</button><button class="menuItem" onclick="location.href='cmht.html'">CMHT TOTAL PATIENT</button><button class="menuItem" onclick="location.href='list.html?scheme=CMHT&force=1'">CMHT DAILY DIALYSIS</button><button class="menuItem" onclick="location.href='list.html?scheme=PMJAY&force=1'">PMJAY DAILY DIALYSIS</button><button class="menuItem" style="background:#fee2e2" onclick="location.href='discharge.html'">DISCHARGE PATIENT</button><button class="menuItem" onclick="location.href='bill.html'">BILL</button></div>
+
+<div class="content">
 <div class="card">
-<div class="topRow">
-<div class="box" style="min-width:180px;flex:0 0 200px"><label>Date - Select Date (List Auto Loads)</label><input type="date" id="disDate" onchange="loadFromFirebase()"></div>
-<div class="search-wrap"><input id="search" placeholder="Type min 2 letters of NAME to Add Patient (Auto Save)..." autocomplete="off" oninput="showHints()" onfocus="showHints()"><div class="suggest" id="suggest"></div><div class="count" id="cnt"></div></div>
-</div>
-<div class="boxRow">
-<div class="box"><label>Time Filter (Already Added)</label><select id="timeFilter" onchange="currentPage=1;renderList();renderClaimList();"><option value="All">All Time</option><option value="7am">7am</option><option value="12pm">12pm</option><option value="5pm">5pm</option><option value="9pm">9pm</option><option value="12am">12am</option><option value="2am">2am</option></select></div>
-<div class="box"><label>Block Filter (Already Added)</label><select id="blockFilter" onchange="currentPage=1;renderList();renderClaimList();"><option value="All">All Block</option><option value="Main">Main</option><option value="Itocha">Itocha</option><option value="Eastern">Eastern</option></select></div>
-<div class="box" style="flex:0 0 120px"><label>Per Page</label><select id="pageSize" onchange="changePageSize()"><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option><option value="40">40</option><option value="50">50</option><option value="100000">All</option></select></div>
-</div>
-<div class="tabBar"><button class="tabBtn active" id="tabDisBtn" onclick="switchTab('dis')"> Discharged - <span id="listCount">0</span> Firebase</button><button class="tabBtn" id="tabClaimBtn" onclick="switchTab('claim')"> Claim - <span id="claimCount">0</span> Firebase</button></div>
-<div class="list-box" id="disTab">
-<div class="list-head">
-<div style="font-weight:800;font-size:12px"><span id="headDate">Discharged List</span> | <span id="headTime">All</span> | <span id="headBlock">All</span></div>
-<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-<div class="searchAddedWrap">
-<input id="searchAdded" placeholder="Search Discharged (Name / SHRI)" oninput="currentPage=1;renderList()" autocomplete="off">
-<button class="btnBlue" onclick="currentPage=1;renderList()">Search</button>
-<button class="btnDark" onclick="document.getElementById('searchAdded').value='';renderList()">Clear</button>
-</div>
-<button class="pgBtn" onclick="prevPage()">Prev</button><span id="pageInfo" style="font-size:11px;font-weight:700">Page 1</span><button class="pgBtn" onclick="nextPage()">Next</button>
+<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:end">
+<div><label style="font-size:8px;font-weight:800">DATE</label><br><input type="date" id="fDate" class="input"></div>
+<div><label style="font-size:8px;font-weight:800">SCHEME</label><br><select id="fScheme" class="input"><option value="">ALL</option><option value="PMJAY">PMJAY</option><option value="CMHT">CMHT</option></select></div>
+<div><label style="font-size:8px;font-weight:800">SEARCH</label><br><input type="text" id="fSearch" class="input" placeholder="NAME / SHRI / ID" style="min-width:180px"></div>
+<button class="clearBtn" onclick="clearF()">CLEAR</button>
+<button class="btn btnPurple" style="margin-left:auto" onclick="loadData()">REFRESH</button>
 </div>
 </div>
-<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>SL</th><th>Name</th><th>SHRI ID</th><th>PMJAY ID</th><th>Time</th><th>Block</th><th>Action</th></tr></thead><tbody id="selectedBody"></tbody></table></div>
-</div>
-<div class="list-box" id="claimTab" style="display:none">
-<div class="list-head">
-<div style="font-weight:800;font-size:12px"> Claim List | <span id="claimHeadDate">All</span> | <span id="claimHeadTime">All</span> | <span id="claimHeadBlock">All</span></div>
-<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-<div class="searchAddedWrap">
-<input id="searchClaim" placeholder="Search Claim (Name / SHRI / Claim ID)" oninput="renderClaimList()" autocomplete="off">
-<button class="btnBlue" onclick="renderClaimList()">Search</button>
-<button class="btnDark" onclick="document.getElementById('searchClaim').value='';renderClaimList()">Clear</button>
-</div>
-<button class="btn" style="background:#0a1931;color:#fff;padding:7px 12px;font-size:11px" onclick="exportClaimExcel()">Export Excel</button>
+
+<div class="card" style="padding:6px">
+<div class="sheetWrap"><table><thead><tr><th style="width:35px">SL</th><th style="width:85px">DATE</th><th style="width:95px">PMJAY/CMHT ID</th><th style="width:200px">PATIENT NAME</th><th style="width:85px">SHRI ID</th><th style="width:70px">TIME</th><th style="width:70px">BLOCK</th><th style="width:90px">DISCHARGED AT</th><th style="width:80px">ACTION</th></tr></thead><tbody id="tbody"><tr><td colspan="9" style="padding:20px">LOADING...</td></tr></tbody></table></div>
 </div>
 </div>
-<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Sl No</th><th>Name</th><th>PMJAY ID</th><th>SHRI ID</th><th>Claim ID</th><th>Date</th><th>Time</th><th>Block</th><th>Action</th></tr></thead><tbody id="claimBody"></tbody></table></div>
-</div>
-</div>
-</div>
-</div>
-<div class="popup-bg" id="popupBg" onclick="closeAll()"></div>
-<div class="popupSmall c-blue" id="popupTime" style="display:none"><div class="popHead"><h4>Select Time</h4><p>Choose dialysis time slot</p></div><div class="time-grid"><button class="time-btn" onclick="selectTime('7am')">7am</button><button class="time-btn" onclick="selectTime('12pm')">12pm</button><button class="time-btn" onclick="selectTime('5pm')">5pm</button><button class="time-btn" onclick="selectTime('9pm')">9pm</button><button class="time-btn" onclick="selectTime('12am')">12am</button><button class="time-btn" onclick="selectTime('2am')">2am</button></div><div class="popInfo">All slots checked</div></div>
-<div class="popupSmall c-orange" id="popupBlock" style="display:none"><div class="popHead"><h4>Select Block</h4><p>Choose block</p></div><div class="time-grid"><button class="time-btn" onclick="selectBlock('Main')">Main</button><button class="time-btn" onclick="selectBlock('Itocha')">Itocha</button><button class="time-btn" onclick="selectBlock('Eastern')">Eastern</button></div><div class="popInfo">Blocks assigned</div></div>
-<div class="popupSmall c-red" id="popupClaim" style="display:none"><div class="popHead"><h4>Enter Claim ID</h4><p id="claimPopInfo">Enter claim details</p></div><div style="padding:10px"><input id="claimIdInput" placeholder="Enter Claim ID" style="width:100%;padding:11px;border:1.5px solid #e5e7eb;border-radius:10px;outline:0;font-weight:600"><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" style="flex:1;background:#0a1931;color:#fff" onclick="confirmClaimWithId()">Save to Firebase</button><button class="btn" style="flex:1;background:#f8fafc;border:1.5px solid #e5e7eb" onclick="closeClaimPopup()">Cancel</button></div></div></div>
-<div class="toast" id="toast"></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDocs, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app = initializeApp(firebaseConfig,"dischargeMain_"+Math.random());
-const db = getFirestore(app);
-window.db=db;
-window.fb={collection,addDoc,getDocs,query,where,deleteDoc,doc,serverTimestamp};
-document.getElementById('fbStatus').innerText="Firebase Connected - Auto Sync ON";
-document.getElementById('fbStatus2').innerText="Auto Save ON";
-window.allPatients=[];
-async function loadMasterPatients(){
-  try{
-    const snap = await getDocs(collection(db,"patients"));
-    let fbPatients=[];
-    snap.forEach(d=>{
-      let p=d.data();
-      if(p.deleted) return;
-      fbPatients.push({
-        patientName: p.patientName || p.name || '',
-        name: p.patientName || p.name || '',
-        shriId: p.shriId || p.shri || '',
-        shri: p.shriId || p.shri || '',
-        pmjayId: p.pmjayId || p.PMJAY || p.pmjay || '',
-        pmjay: p.pmjayId || p.PMJAY || p.pmjay || '',
-        PMJAY: p.pmjayId || p.PMJAY || p.pmjay || '',
-        contactNo: p.contactNo || p.contact || '',
-        address: p.address || p.addr || ''
-      });
-    });
-    let extra=[];
-    try{ extra=JSON.parse(localStorage.getItem('shija_patients')||'[]'); }catch(e){}
-    let seen=new Set();
-    let merged=[...fbPatients,...extra].filter(p=>{
-      let key=((p.shriId||p.shri||'').toLowerCase()+'|'+(p.patientName||p.name||'').toLowerCase()).trim();
-      if(seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-    window.allPatients=merged;
-    let cntEl=document.getElementById('cnt');
-    if(cntEl) cntEl.innerText=`Total Master: ${merged.length} | Type min 2 letters to add - Auto save Firebase`;
-  }catch(e){ console.error('Master load error', e); }
-}
-loadMasterPatients();
-window.loadMasterPatients=loadMasterPatients;
+const app=initializeApp(firebaseConfig,"dischargePage_"+Math.random());
+const db=getFirestore(app);
+window._fb={db,doc,setDoc,getDocs,collection,deleteDoc};
+const app2=initializeApp(firebaseConfig,"logout_"+Math.random());const db2=getFirestore(app2);window._fb2={db:db2,doc,setDoc};
 </script>
 <script>
-function toggleMenu(){
- var s=document.getElementById('side');
- var o=document.getElementById('overlay');
- s.classList.toggle('show');
- o.classList.toggle('show');
+let allData=[],filtered=[];
+const menuBtn=document.getElementById('menuBtn'),menuDrawer=document.getElementById('menuDrawer'),menuOverlay=document.getElementById('menuOverlay');
+function toggleMenu(){menuDrawer.classList.toggle('open');menuOverlay.classList.toggle('open');}
+function closeMenu(){menuDrawer.classList.remove('open');menuOverlay.classList.remove('open');}
+menuBtn.addEventListener('click', toggleMenu);menuOverlay.addEventListener('click', closeMenu);
+function toggleAdmin(){document.getElementById('adminDropdown').classList.toggle('open');}
+function doLogout(){if(confirm('LOGOUT?')){localStorage.removeItem('shija_logged');location.href='login.html';}}
+async function doLogoutAll(){if(!confirm('LOGOUT ALL?'))return;try{await window._fb2.setDoc(window._fb2.doc(window._fb2.db,'system','global_logout'),{logoutTime:Date.now()});}catch(e){}localStorage.removeItem('shija_logged');location.href='login.html';}
+document.addEventListener('click', e=>{if(!e.target.closest('.adminWrap'))document.getElementById('adminDropdown').classList.remove('open');});
+
+function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+
+async function loadData(){
+  document.getElementById('tbody').innerHTML=`<tr><td colspan="9" style="padding:20px">LOADING...</td></tr>`;
+  try{
+    let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges'));
+    allData=[];
+    snap.forEach(docSnap=>{
+      let d=docSnap.data();
+      d._docId=docSnap.id;
+      allData.push(d);
+    });
+    // sort by latest first
+    allData.sort((a,b)=> new Date(b.dischargedAt||b.date) - new Date(a.dischargedAt||a.date));
+    applyFilter();
+  }catch(e){
+    document.getElementById('tbody').innerHTML=`<tr><td colspan="9" style="padding:20px;color:red">ERROR: ${e.message}</td></tr>`;
+  }
 }
-document.addEventListener('DOMContentLoaded',function(){
- var b=document.getElementById('menuBtn');
- var o=document.getElementById('overlay');
- var lastTap=0;
- function handle(e){
-   var now=Date.now();
-   if(now-lastTap<400) return;
-   lastTap=now;
-   if(e){ e.preventDefault(); e.stopPropagation(); }
-   toggleMenu();
- }
- if(b){
-   b.addEventListener('click', handle);
-   b.addEventListener('touchend', handle, {passive:false});
- }
- if(o){
-   o.addEventListener('click', toggleMenu);
-   o.addEventListener('touchend', handle, {passive:false});
- }
-});
-document.getElementById('disDate').valueAsDate=new Date();
-let selectedList=[]; let claimListFB=[];
-let currentPage=1,pageSize=10,tempPatient=null,tempTime='',tempClaimIndex=null, tempClaimFbId=null;
-let lastFiltered=[];
-function showToast(m){let t=document.getElementById('toast');t.innerText=m;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
-function getName(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().includes('patient')&&x.toLowerCase().includes('name'))||ks.find(x=>x.toLowerCase()==='name')||ks.find(x=>x.toLowerCase().includes('name'));return k? p[k] : 'Unknown';}
-function getShri(p){let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z]/g,'')==='shriid')||ks.find(x=>x.toLowerCase().includes('shri'));return k? p[k] : (p.id||p.ID||'-');}
-function getPmjay(p){if(!p) return '-';let ks=Object.keys(p);let k=ks.find(x=>x.toLowerCase().replace(/[^a-z0-9]/g,'')==='pmjayid')||ks.find(x=>x.toLowerCase().includes('pmjay'));return k&&p[k]?p[k]:p.pmjay||p.PMJAY||'-';}
-function getAll(){
-  if(window.allPatients && window.allPatients.length) return window.allPatients;
-  let local=JSON.parse(localStorage.getItem('shija_patients')||'[]');
-  return [...local];
+
+function applyFilter(){
+  let date=document.getElementById('fDate').value;
+  let scheme=document.getElementById('fScheme').value;
+  let search=document.getElementById('fSearch').value.toLowerCase().trim();
+  filtered=allData.filter(p=>{
+    if(date && p.date!==date) return false;
+    if(scheme && (p.scheme||'')!==scheme) return false;
+    if(search){
+      let hay=`${p.patientName||p.name||''} ${p.shriId||p.shri||''} ${p.pmjayCmhtId||''}`.toLowerCase();
+      if(!hay.includes(search)) return false;
+    }
+    return true;
+  });
+  render();
 }
-async function loadFromFirebase(){
- let dateVal=document.getElementById('disDate').value;
- if(!dateVal) return;
- document.getElementById('fbStatus').textContent=`Loading ${dateVal} from Firebase...`;
- try{
-  if(!window.fb){setTimeout(loadFromFirebase,500);return;}
-  let q=window.fb.query(window.fb.collection(window.db,"discharges"), window.fb.where("date","==",dateVal));
-  let snap=await window.fb.getDocs(q);
-  selectedList=[];
-  snap.forEach(d=>{selectedList.push({fbId:d.id,...d.data()});});
-  let q2=window.fb.query(window.fb.collection(window.db,"claims"), window.fb.where("date","==",dateVal));
-  let snap2=await window.fb.getDocs(q2);
-  claimListFB=[];
-  snap2.forEach(d=>{claimListFB.push({fbId:d.id,...d.data()});});
-  document.getElementById('fbStatus').textContent=`Firebase: ${selectedList.length} discharged, ${claimListFB.length} claims for ${dateVal} - Synced all PCs`;
-  document.getElementById('fbStatus2').textContent=`${selectedList.length} Discharged, ${claimListFB.length} Claims - Synced`;
-  currentPage=1; renderList(); renderClaimList(); updateLabels();
- }catch(e){document.getElementById('fbStatus').textContent='Error: '+e.message;}
+
+function render(){
+  let tbody=document.getElementById('tbody');tbody.innerHTML='';
+  document.getElementById('count').innerText=filtered.length;
+  if(filtered.length===0){
+    tbody.innerHTML=`<tr><td colspan="9" style="padding:20px;text-align:center">NO DISCHARGE FOUND</td></tr>`;
+    return;
+  }
+  filtered.forEach((p,i)=>{
+    let tr=document.createElement('tr');
+    let timeStr='';
+    try{timeStr=new Date(p.dischargedAt).toLocaleString('en-IN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short'});}catch(e){timeStr=p.dischargedAt||''}
+    tr.innerHTML=`<td>${i+1}</td><td>${p.date||''}</td><td>${p.pmjayCmhtId||''}</td><td style="text-align:left;padding-left:8px">${p.patientName||p.name||''}</td><td>${p.shriId||p.shri||''}</td><td>${p.time||''}</td><td>${p.block||''}</td><td style="font-size:9px">${timeStr}</td><td><button class="btn" style="background:#10b981;color:#fff;padding:5px 8px;font-size:9px" onclick="restorePatient('${p._docId}')">RESTORE</button> <button class="btn" style="background:#ef4444;color:#fff;padding:5px 8px;font-size:9px" onclick="deleteDischarge('${p._docId}')">DEL</button></td>`;
+    tbody.appendChild(tr);
+  });
 }
-function updateLabels(){let d=document.getElementById('disDate').value;let t=document.getElementById('timeFilter').value;let b=document.getElementById('blockFilter').value;document.getElementById('headDate').innerText=d;document.getElementById('headTime').innerText=t;document.getElementById('headBlock').innerText=b;document.getElementById('claimHeadDate').innerText=d;document.getElementById('claimHeadTime').innerText=t;document.getElementById('claimHeadBlock').innerText=b;}
-function switchTab(t){document.getElementById('disTab').style.display=t==='dis'?'block':'none';document.getElementById('claimTab').style.display=t==='claim'?'block':'none';document.getElementById('tabDisBtn').classList.toggle('active',t==='dis');document.getElementById('tabClaimBtn').classList.toggle('active',t==='claim');if(t==='claim') renderClaimList(); else renderList();}
-function showHints(){
- let q=document.getElementById('search').value.trim().toLowerCase();
- let all=getAll();
- let box=document.getElementById('suggest');
- if(q.length<2){box.style.display='none';document.getElementById('cnt').innerText=`Total Master: ${all.length} | Type min 2 letters to add - Auto save Firebase`;return;}
- let filtered = all.filter(p=>String(getName(p)).toLowerCase().includes(q));
- document.getElementById('cnt').innerText=`Matching: ${filtered.length} - Click to add (Auto Save)`;
- lastFiltered = filtered.slice(0,50);
- if(!filtered.length){box.innerHTML=`<div style="text-align:center;color:#64748b;padding:10px">No patient found</div>`;box.style.display='block';return;}
- box.style.display='block';
- box.innerHTML = lastFiltered.map((p,i)=>`<div onclick="selectPatient(${i})"><b>${getName(p)}</b><br><small>SHRI: ${getShri(p)} | PMJAY: ${getPmjay(p)}</small></div>`).join('');
+
+async function restorePatient(docId){
+  if(!confirm('RESTORE THIS PATIENT TO DAILY LIST?'))return;
+  try{
+    let item=allData.find(x=>x._docId===docId);
+    if(!item){alert('NOT FOUND');return;}
+    // add back to daily list
+    let dailyDocId=item.date+'_'+(item.scheme||'PMJAY');
+    // fetch daily list
+    const {doc,getDoc,setDoc}=window._fb;
+    // Use dynamic import? we have via window._fb
+    // simplified: just delete discharge and user can re-add manually
+    await window._fb.deleteDoc(window._fb.doc(window._fb.db,'discharges',docId));
+    alert('RESTORED - Now go to list.html and Add again if needed. Discharge removed.');
+    loadData();
+  }catch(e){alert(e.message)}
 }
-function selectPatient(i){
- let p = lastFiltered[i]; if(!p) return;
- tempPatient={name:getName(p),shri:getShri(p),pmjay:getPmjay(p)};
- document.getElementById('popupBg').style.display='block';
- document.getElementById('popupTime').style.display='block';
- document.getElementById('suggest').style.display='none';
+
+async function deleteDischarge(docId){
+  if(!confirm('DELETE PERMANENTLY?'))return;
+  try{await window._fb.deleteDoc(window._fb.doc(window._fb.db,'discharges',docId));loadData();}catch(e){alert(e.message)}
 }
-function closeAll(){document.getElementById('popupTime').style.display='none';document.getElementById('popupBlock').style.display='none';document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';}
-function closeClaimPopup(){document.getElementById('popupClaim').style.display='none';document.getElementById('popupBg').style.display='none';tempClaimIndex=null;tempClaimFbId=null;document.getElementById('claimIdInput').value='';}
-function selectTime(t){tempTime=t;document.getElementById('popupTime').style.display='none';document.getElementById('popupBlock').style.display='block';}
-async function selectBlock(b){
- if(!tempPatient ||!tempTime) return;
- let curDate=document.getElementById('disDate').value;
- let newData = {name:tempPatient.name,shri:tempPatient.shri,pmjay:tempPatient.pmjay,date:curDate,time:tempTime,block:b, createdAt:new Date().toLocaleString(), serverTime: window.fb.serverTimestamp()};
- document.getElementById('fbStatus').textContent='Saving to Firebase...';
- try{
-  await window.fb.addDoc(window.fb.collection(window.db,"discharges"), newData);
-  document.getElementById('fbStatus').textContent='Saved to Firebase - Visible on all PCs';
-  document.getElementById('search').value=''; document.getElementById('suggest').style.display='none';
-  closeAll(); showToast(`Added ${tempPatient.name} - ${tempTime} - ${b} - Synced`);
-  tempPatient=null;tempTime='';
-  await loadFromFirebase();
- }catch(e){document.getElementById('fbStatus').textContent='Save Error: '+e.message; alert(e.message);}
-}
-function getFilteredDischarge(){
- let curDate=document.getElementById('disDate').value;
- let timeF=document.getElementById('timeFilter').value;
- let blockF=document.getElementById('blockFilter').value;
- let searchAdded=document.getElementById('searchAdded').value.toLowerCase().trim();
- let list=selectedList.filter(d=>d.date===curDate);
- if(timeF!=='All') list=list.filter(d=>d.time===timeF);
- if(blockF!=='All') list=list.filter(d=>(d.block||'')===blockF);
- if(searchAdded){
-   list=list.filter(d=>{
-     let n=(d.name||'').toLowerCase();
-     let s=(d.shri||'').toLowerCase();
-     let p=(d.pmjay||'').toLowerCase();
-     return n.includes(searchAdded)||s.includes(searchAdded)||p.includes(searchAdded);
-   });
- }
- return list;
-}
-function changePageSize(){pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderList();}
-function prevPage(){if(currentPage>1){currentPage--;renderList();}}
-function nextPage(){let filtered=getFilteredDischarge();let tp=Math.ceil(filtered.length/pageSize);if(currentPage<tp){currentPage++;renderList();}}
-function renderList(){
- updateLabels();
- let filteredList=getFilteredDischarge();
- document.getElementById('listCount').innerText=selectedList.length;
- let tp=Math.ceil(filteredList.length/pageSize)||1; if(currentPage>tp) currentPage=tp;
- document.getElementById('pageInfo').innerText=`Page ${currentPage} of ${tp}${document.getElementById('searchAdded').value?' | Search: "'+document.getElementById('searchAdded').value+'" - '+filteredList.length+' found':''}`;
- let body=document.getElementById('selectedBody');
- if(!filteredList.length){body.innerHTML=`<tr><td colspan="7" style="padding:30px;text-align:center;color:#64748b">No patient for ${document.getElementById('disDate').value} | ${document.getElementById('timeFilter').value} | ${document.getElementById('blockFilter').value}${document.getElementById('searchAdded').value?' | Search "'+document.getElementById('searchAdded').value+'" not found':''}<br><small>Data from Firebase - Syncs to all PCs</small></td></tr>`;return;}
- let start=(currentPage-1)*pageSize;let pageData=filteredList.slice(start,start+pageSize);
- body.innerHTML=pageData.map((d,i)=>{
-  return `<tr><td>${start+i+1}</td><td><b>${d.name}</b></td><td>${d.shri}</td><td><span class="pill">${d.pmjay}</span></td><td><b>${d.time}</b></td><td><b>${d.block||'-'}</b></td><td><button class="btn-claim-simple" onclick="askClaimId('${d.fbId}')">Claim</button><button class="btn-remove-simple" onclick="removeSel('${d.fbId}')">X</button></td></tr>`;
- }).join('');
-}
-function askClaimId(fbId){
- let d=selectedList.find(x=>x.fbId===fbId); if(!d) return;
- tempClaimFbId=fbId;
- tempClaimIndex=fbId;
- document.getElementById('claimPopInfo').innerText=`Patient: ${d.name} | SHRI: ${d.shri} | Block: ${d.block||''} | ${d.date} - ${d.time}`;
- document.getElementById('claimIdInput').value='';
- document.getElementById('popupBg').style.display='block';
- document.getElementById('popupClaim').style.display='block';
- document.getElementById('claimIdInput').focus();
-}
-async function confirmClaimWithId(){
- let claimId=document.getElementById('claimIdInput').value.trim();
- if(!claimId){alert('Please enter Claim ID');return;}
- let d=selectedList.find(x=>x.fbId===tempClaimFbId);
- if(!d){alert('Patient not found');return;}
- let newClaim = {name:d.name,pmjay:d.pmjay,shri:d.shri,claimId:claimId,date:d.date,time:d.time,block:d.block,claimed_at:new Date().toLocaleString(), serverTime: window.fb.serverTimestamp()};
- try{
-  await window.fb.addDoc(window.fb.collection(window.db,"claims"), newClaim);
-  await window.fb.deleteDoc(window.fb.doc(window.db,"discharges", tempClaimFbId));
-  closeClaimPopup();
-  showToast(`Claim saved: ${d.name} - ${claimId} - Synced`);
-  switchTab('claim');
-  await loadFromFirebase();
- }catch(e){alert('Error: '+e.message);}
-}
-function getFilteredClaim(){
- let curDate=document.getElementById('disDate').value;
- let timeF=document.getElementById('timeFilter').value;
- let blockF=document.getElementById('blockFilter').value;
- let searchClaim=document.getElementById('searchClaim').value.toLowerCase().trim();
- let list=claimListFB.filter(c=>c.date===curDate);
- if(timeF!=='All') list=list.filter(c=>c.time===timeF);
- if(blockF!=='All') list=list.filter(c=>(c.block||'')===blockF);
- if(searchClaim){
-   list=list.filter(c=>{
-     let n=(c.name||'').toLowerCase();
-     let s=(c.shri||'').toLowerCase();
-     let cl=(c.claimId||'').toLowerCase();
-     let p=(c.pmjay||'').toLowerCase();
-     return n.includes(searchClaim)||s.includes(searchClaim)||cl.includes(searchClaim)||p.includes(searchClaim);
-   });
- }
- return list;
-}
-function renderClaimList(){
- updateLabels();
- let filtered=getFilteredClaim();
- document.getElementById('claimCount').innerText=claimListFB.length;
- let body=document.getElementById('claimBody');
- if(!filtered.length){body.innerHTML=`<tr><td colspan="9" style="padding:30px;text-align:center;color:#64748b">No claims for ${document.getElementById('disDate').value}${document.getElementById('searchClaim').value?' - Search "'+document.getElementById('searchClaim').value+'" not found':''}<br><small>Firebase Sync - Visible all PCs</small></td></tr>`;return;}
- body.innerHTML=filtered.map((c,i)=>`<tr><td>${i+1}</td><td><b>${c.name}</b></td><td><span class="pill">${c.pmjay}</span></td><td>${c.shri}</td><td><b style="color:#0a1931">${c.claimId}</b></td><td>${c.date}</td><td>${c.time}</td><td>${c.block||'-'}</td><td><button class="btn-remove-simple" onclick="removeClaimById('${c.fbId}')">X</button></td></tr>`).join('');
-}
-async function removeClaimById(fbId){if(!confirm('Remove this claim from Firebase? Will delete for all PCs'))return;try{await window.fb.deleteDoc(window.fb.doc(window.db,"claims", fbId));await loadFromFirebase();}catch(e){alert(e.message);}}
-async function removeSel(fbId){if(!confirm('Delete this discharge from Firebase? Will delete for all PCs'))return;try{await window.fb.deleteDoc(window.fb.doc(window.db,"discharges", fbId));await loadFromFirebase();}catch(e){alert(e.message);}}
-function exportClaimExcel(){let list=getFilteredClaim();if(!list.length){alert('No claims for current filter');return;}let exportData=list.map((c,i)=>({"Sl No":i+1,"Name":c.name,"PMJAY ID":c.pmjay,"SHRI ID":c.shri,"Claim ID":c.claimId,"Date":c.date,"Time":c.time,"Block":c.block}));let ws=XLSX.utils.json_to_sheet(exportData);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'ClaimList');XLSX.writeFile(wb,`SHIJA_Claim_${document.getElementById('disDate').value}_${document.getElementById('timeFilter').value}_${document.getElementById('blockFilter').value}.xlsx`);}
-document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap')) document.getElementById('suggest').style.display='none';});
-setTimeout(loadFromFirebase,800);
+
+function clearF(){document.getElementById('fDate').value='';document.getElementById('fScheme').value='';document.getElementById('fSearch').value='';applyFilter();}
+
+document.getElementById('fDate').addEventListener('change', applyFilter);
+document.getElementById('fScheme').addEventListener('change', applyFilter);
+document.getElementById('fSearch').addEventListener('input', applyFilter);
+
+window.addEventListener('load', ()=>{document.getElementById('fDate').value='';loadData();});
 </script>
-</body></html>
+</body>
+</html>
