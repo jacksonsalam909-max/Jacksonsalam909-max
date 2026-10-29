@@ -1,53 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>KFT Report - SHIJA</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',system-ui}
-body{background:#f1f3f6;display:flex;flex-direction:column;min-height:100vh;color:#0f172a}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter}
+body{background:#f6f7fb;display:flex;flex-direction:column;min-height:100vh}
 .top{height:64px;background:#0a1931;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:fixed;top:0;left:0;right:0;z-index:9999}
 .top h2{color:#fff;font-size:16px;font-weight:800}
 .menuBtn{width:44px;height:44px;border-radius:8px;border:1.5px solid #1e2d55;background:#13264d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 .menuBtn span{display:block;width:20px;height:2px;background:#fff;pointer-events:none}
 .mainWrap{display:flex;flex:1;margin-top:64px}
-.side{width:260px;background:#0a1931;display:flex;flex-direction:column;justify-content:space-between;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;z-index:9998;transition:.3s;transform:translateX(-100%);overflow-y:auto}
+.side{width:260px;background:#0a1931;padding:16px 10px;position:fixed;left:0;top:64px;bottom:0;transition:.3s;z-index:9998;overflow-y:auto;transform:translateX(-100%)}
 .side.show{transform:translateX(0)!important}
-.menu{display:flex;flex-direction:column;gap:4px}
-.menu a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px}
-.menu a.active{background:#1a56db;color:#fff;font-weight:700}
-.sideBottom{border-top:1px solid #1a2a4f;padding:12px 10px;color:#6b7aa2;font-size:11px}
+.side a{padding:12px 14px;border-radius:10px;text-decoration:none;color:#8ea0c0;font-weight:600;font-size:14px;display:block;margin-bottom:4px}
+.side a.active{background:#13264d;color:#fff}
+.content{flex:1;padding:16px}
 .sideOverlay{position:fixed;inset:0;top:64px;background:rgba(0,0,0,0.5);z-index:9997;display:none}
 .sideOverlay.show{display:block}
-.content{flex:1;padding:16px 14px;max-width:1200px;width:100%}
-.headRow{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:14px}
-.card{background:#fff;border-radius:16px;box-shadow:0 10px 30px #00000008;border:1px solid #e5e7eb;padding:14px;margin-bottom:14px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-select,input{padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;outline:0;font-weight:600;font-size:13px;background:#fff}
-.btn{padding:10px 16px;border:0;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
-.btnBlue{background:#1a56db;color:#fff;border:0;padding:9px 14px;border-radius:8px;font-weight:700;cursor:pointer}
-.btnDark{background:#0a1931;color:#fff;border:0;padding:9px 12px;border-radius:8px;font-weight:700;cursor:pointer}
-.dateBox{display:flex;gap:8px;margin-top:8px}
-.dateOpt{padding:10px 18px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;font-weight:700;cursor:pointer;font-size:13px}
-.dateOpt.active{background:#1a56db;color:#fff;border-color:#1a56db}
-.tableBox{border:1.5px solid #e5e7eb;border-radius:14px;overflow:auto;background:#fff}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:700px}
-th,td{padding:11px 10px;text-align:left}
-th{background:#f8fafc;color:#0f172a;font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #e5e7eb;white-space:nowrap}
-td{border-bottom:1px solid #f1f5f9}
-tr:hover{background:#f8fafc}
-.toggle{width:110px;padding:7px 10px;border-radius:20px;border:0;font-weight:800;cursor:pointer;font-size:11px;white-space:nowrap}
-.yes{background:#10b981;color:#fff}
-.no{background:#ef4444;color:#fff}
-.searchWrap{position:relative;flex:1;min-width:240px;display:flex;gap:6px;align-items:center}
-.searchWrap input{flex:1}
-#suggestBox{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:12px;max-height:240px;overflow:auto;z-index:10;display:none;box-shadow:0 12px 24px #0002;margin-top:6px}
-.sItem{padding:10px 12px;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;font-size:12px}
-.sItem:hover{background:#eff6ff}
-.pager{display:flex;gap:6px;align-items:center;justify-content:center;margin-top:14px;flex-wrap:wrap}
-.pgBtn{padding:7px 12px;border:1.5px solid #e5e7eb;background:#fff;border-radius:8px;cursor:pointer;font-weight:700;font-size:11px}
-.pgBtn.active{background:#1a56db;color:#fff;border-color:#1a56db}
+.filterBox{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.filterBox select,.filterBox input{padding:10px 12px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700}
+.searchAddedWrap{display:flex;gap:6px;align-items:center;margin-left:8px;border-left:1.5px solid #e2e8f0;padding-left:10px}
+.searchAddedWrap input{padding:9px 12px;border-radius:20px;border:1.5px solid #1a56db;min-width:200px;background:#f0f7ff;font-weight:600;font-size:12px}
+.btnBlue{background:#1a56db;color:#fff;border:0;padding:9px 14px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer}
+.btnDark{background:#0a1931;color:#fff;border:0;padding:9px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer}
+.tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse;min-width:800px}
+th{padding:14px 12px;font-size:12px;color:#64748b;background:#f8fafc;text-align:left}
+td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
+.sl{background:#dbeafe;width:36px;height:28px;display:grid;place-items:center;border-radius:6px;font-weight:800;color:#1e40af}
+.shri{background:#1a56db;color:#fff;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px}
+.badgeRecv{background:#dcfce7;color:#166534;padding:5px 12px;border-radius:20px;font-weight:800;font-size:11px;cursor:pointer;border:1px solid #bbf7d0}
+.badgeNot{background:#fee2e2;color:#991b1b;padding:5px 12px;border-radius:20px;font-weight:800;font-size:11px;cursor:pointer;border:1px solid #fecaca}
+.btn{padding:8px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}
+.btnExp{background:#0a1931;color:#fff}
+@media(max-width:900px){.searchAddedWrap{width:100%;margin-left:0;border-left:0;padding-left:0}}
+.pageBar{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px 14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:12px}
+.pageBar select{padding:8px 10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700}
+.pageBtns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pageBtns button{padding:8px 12px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:800;cursor:pointer}
+.pageBtns button:disabled{opacity:.4;cursor:not-allowed}
+.pageBtns button.active{background:#0a1931;color:#fff;border-color:#0a1931}
 </style>
 </head>
 <body>
@@ -87,17 +81,10 @@ try{
   bc.onmessage=(ev)=>{ if(ev.data==='logout_this_device'){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } };
 }catch(e){}
 </script>
-<div class="top">
-<div style="display:flex;align-items:center;gap:10px">
-<button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button>
-<h2>SHIJA Dialysis - KFT Auto Sync All PCs</h2>
-</div>
-<div style="color:#10b981;font-weight:700;font-size:12px" id="fbStatus">Connecting...</div>
-</div>
+<div class="top"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA - KFT REPORT</h2></div><span style="color:#10b981;font-weight:700;font-size:12px" id="fbStatus">Connecting...</span></div>
 <div class="sideOverlay" id="overlay"></div>
 <div class="mainWrap">
 <div class="side" id="side">
-<div class="menu">
 <a href="index.html">HOME</a>
 <a href="total.html">TOTAL PATIENT</a>
 <a href="cmht.html">CMHT TOTAL PATIENT</a>
@@ -111,57 +98,91 @@ try{
 <a href="bill.html">BILL</a>
 <a href="dischargesummary.html">DISCHARGE SUMMARY</a>
 </div>
-<div class="sideBottom">Auto Save ON - All PCs Sync<br><span id="fbStatus2">Firebase Connected</span></div>
-</div>
 <div class="content" id="content">
-<div class="headRow">
-<div><h1>KFT Report - Auto Save</h1><div style="color:#6b7280;font-size:12px">Dashboard / KFT - 1st and 15th - <span id="totalP">0</span> Patients | <span style="color:#10b981;font-weight:800">● Auto Save Firebase - Visible to all computers & mobile - No SAVE needed</span></div></div>
-</div>
-<div class="card">
-<div class="row">
-<div>Year: <select id="yearSel" onchange="loadFromFirebase()"></select></div>
-<div>Month: <select id="monthSel" onchange="loadFromFirebase()"><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select></div>
-<div style="margin-left:10px;color:#10b981;font-weight:700;font-size:12px" id="syncInfo">Auto Sync ON</div>
-</div>
-<div style="margin-top:12px;font-weight:800;font-size:12px;color:#0f172a">Select Reporting Date:</div>
-<div class="dateBox"><div id="d1" class="dateOpt active" onclick="setDate('1')">1st of Every Month</div><div id="d15" class="dateOpt" onclick="setDate('15')">15th of Every Month</div></div>
-<div class="row" style="margin-top:14px">
-<div class="searchWrap">
-<input id="search" placeholder="Search Added List - Name or SHRI ID..." oninput="onSearch(this.value)" autocomplete="off">
-<button class="btnBlue" onclick="curPage=1;render()">Search</button>
-<button class="btnDark" onclick="document.getElementById('search').value='';curPage=1;render()">Clear</button>
-<div id="suggestBox"></div>
-</div>
-<select id="pageSize" onchange="changePageSize()">
-<option value="10" selected>10 per page</option>
-<option value="20">20 per page</option>
-<option value="30">30 per page</option>
-<option value="40">40 per page</option>
-<option value="50">50 per page</option>
-<option value="100000">All Patients</option>
+<h1>KFT Report - Auto Save</h1><p id="info" style="color:#64748b;font-size:13px">Dashboard / KFT - 1st and 15th - Auto Sync All PCs</p>
+<div class="filterBox">
+<label style="font-size:12px;font-weight:800">Year:</label><select id="yearSel" onchange="loadFromFirebase()"></select>
+<label style="font-size:12px;font-weight:800">Month:</label><select id="monthSel" onchange="loadFromFirebase()">
+<option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option>
 </select>
+<label style="font-size:12px;font-weight:800">Date:</label><select id="daySel" onchange="setDate(this.value)"><option value="1">1st</option><option value="15">15th</option></select>
+<button class="btn btnExp" onclick="exportExcel()">Export Excel</button>
+<div class="searchAddedWrap">
+<input id="searchAdded" placeholder="Search Patient (Name / SHRI)" oninput="resetPageAndLoad()" autocomplete="off">
+<button class="btnBlue" onclick="resetPageAndLoad()">Search</button>
+<button class="btnDark" onclick="document.getElementById('searchAdded').value='';resetPageAndLoad()">Clear</button>
+</div>
+<span id="countInfo" style="font-weight:700;color:#475569"></span>
+<span id="syncInfo" style="font-weight:700;color:#10b981;font-size:11px;margin-left:auto">Auto Sync ON</span>
+</div>
+<div class="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div></div>
+<div class="pageBar">
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <label style="font-size:12px;font-weight:800">Show:</label>
+    <select id="pageSizeSel" onchange="changePageSize()">
+      <option value="10" selected>10</option>
+      <option value="20">20</option>
+      <option value="30">30</option>
+      <option value="40">40</option>
+      <option value="50">50</option>
+      <option value="all">All</option>
+    </select>
+    <span style="font-size:12px;font-weight:700;color:#475569">patients per page</span>
+  </div>
+  <div class="pageBtns" id="pageBtns"></div>
+  <span id="pageInfo" style="font-size:12px;font-weight:700;color:#475569"></span>
 </div>
 </div>
-<div class="card">
-<h3 id="titleH" style="text-align:center;color:#0f172a;margin-bottom:10px;font-size:16px;font-weight:800">KFT Report</h3>
-<div class="tableBox"><table><thead><tr><th>Sl No</th><th>Patient Name</th><th>SHRI ID</th><th>Contact</th><th id="statusHead">KFT Status - Auto Save</th></tr></thead><tbody id="tbl"></tbody></table></div>
-<div class="pager" id="pager"></div>
-<div style="text-align:center;margin-top:8px;font-size:11px;color:#64748b" id="pageInfo"></div>
 </div>
-</div>
-</div>
+<script>
+function toggleMenu(){
+ var s=document.getElementById('side');
+ var o=document.getElementById('overlay');
+ s.classList.toggle('show');
+ o.classList.toggle('show');
+}
+document.addEventListener('DOMContentLoaded',function(){
+ var btn=document.getElementById('menuBtn');
+ var overlay=document.getElementById('overlay');
+ var lastTap=0;
+ function handleMenu(e){
+   var now=Date.now();
+   if(now-lastTap<400) return;
+   lastTap=now;
+   if(e){e.preventDefault(); e.stopPropagation();}
+   toggleMenu();
+ }
+ btn.addEventListener('click', handleMenu);
+ btn.addEventListener('touchend', handleMenu, {passive:false});
+ overlay.addEventListener('click', toggleMenu);
+ overlay.addEventListener('touchend', handleMenu, {passive:false});
+ document.querySelectorAll('#side a').forEach(function(a){
+   a.addEventListener('click', function(){
+     document.getElementById('side').classList.remove('show');
+     document.getElementById('overlay').classList.remove('show');
+   });
+ });
+});
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, query, where, serverTimestamp, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const config = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app = initializeApp(config,"kftMain_"+Math.random());
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app = initializeApp(firebaseConfig,"kftMain_"+Math.random());
 const db = getFirestore(app);
 window.db = db;
 window.fb = { collection, getDocs, query, where, serverTimestamp, setDoc, doc };
+let yearSel=document.getElementById('yearSel'),now=new Date();
+for(let y=now.getFullYear()-2;y<=now.getFullYear()+1;y++){let o=document.createElement('option');o.value=y;o.textContent=y;if(y===now.getFullYear())o.selected=true;yearSel.appendChild(o);}
+document.getElementById('monthSel').value=now.getMonth();
 document.getElementById('fbStatus').innerText = "Firebase Connected - Auto Sync";
-document.getElementById('fbStatus2').innerText = "Auto Save ON";
-window.allPatients = [];
-window.patients = [];
+let allPatients=[];
+let patients=[];
+let currentPage=1;
+let pageSize=10;
+let selDate='1';
+let firebaseStatusMap={};
+
 async function loadMasterPatients(){
   try{
     const snap = await getDocs(collection(db,"patients"));
@@ -187,59 +208,66 @@ async function loadMasterPatients(){
       return true;
     });
     merged.sort((a,b)=>(a.patientName||'').localeCompare(b.patientName||''));
-    window.allPatients=merged;
-    window.patients=merged;
+    allPatients=merged;
     patients=merged;
-    document.getElementById('totalP').textContent=merged.length;
+    document.getElementById('info').textContent=`Dashboard / KFT - ${merged.length} Patients Loaded`;
     loadFromFirebase();
-  }catch(e){ console.error('Master load error', e); }
+  }catch(e){ console.error(e); }
 }
-loadMasterPatients();
-window.loadMasterPatients=loadMasterPatients;
-</script>
-<script>
-function toggleMenu(){
- var s=document.getElementById('side');
- var o=document.getElementById('overlay');
- s.classList.toggle('show');
- o.classList.toggle('show');
+
+function getFiltered(){
+  let searchQ=document.getElementById('searchAdded').value.toLowerCase().trim();
+  if(!searchQ) return patients;
+  return patients.filter(p=>{
+    return (p.patientName||'').toLowerCase().includes(searchQ) || (p.shriId||'').toLowerCase().includes(searchQ) || (p.contactNo||'').toLowerCase().includes(searchQ);
+  });
 }
-document.addEventListener('DOMContentLoaded',function(){
- var b=document.getElementById('menuBtn');
- var o=document.getElementById('overlay');
- var lastTap=0;
- function handle(e){
-   var now=Date.now();
-   if(now-lastTap<400) return;
-   lastTap=now;
-   if(e){ e.preventDefault(); e.stopPropagation(); }
-   toggleMenu();
- }
- if(b){
-   b.addEventListener('click', handle);
-   b.addEventListener('touchend', handle, {passive:false});
- }
- if(o){
-   o.addEventListener('click', toggleMenu);
-   o.addEventListener('touchend', handle, {passive:false});
- }
-});
-let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');
-let patients=[...extra];
-if(!patients.length)patients=[{patientName:'Loading from Firebase...',shriId:'',contactNo:''}];
-document.getElementById('totalP').textContent=patients.length;
-let yearSel=document.getElementById('yearSel'),now=new Date();for(let y=now.getFullYear()-2;y<=now.getFullYear()+1;y++){let o=document.createElement('option');o.value=y;o.textContent=y;if(y===now.getFullYear())o.selected=true;yearSel.appendChild(o);}document.getElementById('monthSel').value=now.getMonth();
-let selDate='1',curPage=1,pageSize=10,filteredAll=[];
-let firebaseStatusMap={};
-function setDate(d){selDate=d;document.getElementById('d1').classList.toggle('active',d==='1');document.getElementById('d15').classList.toggle('active',d==='15');loadFromFirebase();}
-async function loadFromFirebase(){
- let y=yearSel.value,m=document.getElementById('monthSel').value;
+
+function renderPageBtns(total, totalPages){
+  let wrap=document.getElementById('pageBtns');
+  let info=document.getElementById('pageInfo');
+  if(pageSize==='all' || totalPages<=1){
+    wrap.innerHTML='';
+    info.textContent = total>0 ? `Showing 1 - ${total} of ${total} patients` : '';
+    return;
+  }
+  let start=(currentPage-1)*pageSize+1;
+  let end=Math.min(currentPage*pageSize, total);
+  info.textContent=`Showing ${start} - ${end} of ${total} patients | Page ${currentPage} of ${totalPages}`;
+  let html=`<button onclick="goToPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹ Prev</button>`;
+  let s=Math.max(1, currentPage-2);
+  let e=Math.min(totalPages, s+4);
+  if(e-s<4) s=Math.max(1, e-4);
+  for(let i=s;i<=e;i++){
+    html+=`<button onclick="goToPage(${i})" class="${i===currentPage?'active':''}">${i}</button>`;
+  }
+  html+=`<button onclick="goToPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next ›</button>`;
+  wrap.innerHTML=html;
+}
+
+window.goToPage=(p)=>{
+  let filtered=getFiltered();
+  let totalPages = pageSize==='all' ? 1 : Math.max(1, Math.ceil(filtered.length/pageSize));
+  if(p<1) p=1; if(p>totalPages) p=totalPages;
+  currentPage=p;
+  renderTable();
+};
+window.changePageSize=()=>{
+  let v=document.getElementById('pageSizeSel').value;
+  pageSize = v==='all' ? 'all' : parseInt(v);
+  currentPage=1;
+  renderTable();
+};
+window.resetPageAndLoad=()=>{ currentPage=1; renderTable(); };
+window.setDate=(d)=>{ selDate=d; loadFromFirebase(); };
+
+window.loadFromFirebase=async()=>{
+ let y=document.getElementById('yearSel').value,m=document.getElementById('monthSel').value;
  document.getElementById('fbStatus').textContent=`Loading ${y}-${m}-${selDate} from Firebase...`;
  document.getElementById('syncInfo').textContent='Loading Firebase...';
  try{
-  if(!window.fb){setTimeout(loadFromFirebase,500);return;}
-  let q=window.fb.query(window.fb.collection(window.db,"kft_reports"), window.fb.where("year","==",String(y)), window.fb.where("month","==",String(m)), window.fb.where("day","==",String(selDate)));
-  let snap=await window.fb.getDocs(q);
+  let q=query(collection(db,"kft_reports"), where("year","==",String(y)), where("month","==",String(m)), where("day","==",String(selDate)));
+  let snap=await getDocs(q);
   firebaseStatusMap={};
   snap.forEach(d=>{
     let data=d.data();
@@ -249,62 +277,74 @@ async function loadFromFirebase(){
   });
   document.getElementById('fbStatus').textContent=`Firebase: ${Object.keys(firebaseStatusMap).length} statuses for ${y}-${m}-${selDate} - Auto Sync All PCs`;
   document.getElementById('syncInfo').textContent=`Firebase: ${snap.size} saved - Synced all PCs - Auto Save ON`;
-  document.getElementById('fbStatus2').textContent=`${snap.size} KFT Saved - Synced`;
-  curPage=1;render();
+  currentPage=1;
+  renderTable();
  }catch(e){
   document.getElementById('fbStatus').textContent='Error: '+e.message;
-  firebaseStatusMap={}; render();
+  firebaseStatusMap={}; renderTable();
  }
+};
+
+function renderTable(){
+ let y=document.getElementById('yearSel').value,m=document.getElementById('monthSel').value;
+ let months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+ let searchQ=document.getElementById('searchAdded').value.toLowerCase().trim();
+ document.getElementById('info').textContent=`KFT Report - ${months[m]} ${selDate}, ${y} - Click status to toggle Submitted / Not-yet - Firebase Auto Sync${searchQ?' | Search: "'+searchQ+'"':''}`;
+ let filtered=getFiltered();
+ let totalPages = pageSize==='all' ? 1 : Math.max(1, Math.ceil(filtered.length/pageSize));
+ if(currentPage>totalPages) currentPage=totalPages;
+ let pageItems = pageSize==='all' ? filtered : filtered.slice((currentPage-1)*pageSize, currentPage*pageSize);
+ let startIndex = pageSize==='all' ? 0 : (currentPage-1)*pageSize;
+ let dateKey=`${y}-${String(parseInt(m)+1).padStart(2,'0')}-${selDate}`;
+ let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Contact</th><th>KFT Status</th><th>Date</th></tr>';
+ for(let i=0;i<pageItems.length;i++){
+  let p=pageItems[i];
+  let shriKey=p.shriId||p.patientName;
+  let cur=firebaseStatusMap[shriKey] || firebaseStatusMap[p.shriId] || false;
+  let badge=cur?`<span class="badgeRecv" onclick="toggleStatus('${(p.shriId||'').replace(/'/g,"\\'")}','${(p.patientName||'').replace(/'/g,"\\'")}')">RECEIVED ✓</span>`:`<span class="badgeNot" onclick="toggleStatus('${(p.shriId||'').replace(/'/g,"\\'")}','${(p.patientName||'').replace(/'/g,"\\'")}')">NOT-RECEIVED ✗</span>`;
+  html+=`<tr><td><div class="sl">${startIndex+i+1}</div></td><td><b>${p.patientName}</b></td><td><span class="shri">${p.shriId||''}</span></td><td>${p.contactNo||'-'}</td><td>${badge}</td><td>${dateKey}</td></tr>`;
+ }
+ if(filtered.length===0) html+=`<tr><td colspan="6" style="text-align:center;padding:20px">No patient found${searchQ?' for search "'+searchQ+'"':''}</td></tr>`;
+ document.getElementById('tbl').innerHTML=html;
+ document.getElementById('countInfo').textContent=filtered.length+' / '+patients.length+' patients';
+ renderPageBtns(filtered.length, totalPages);
 }
-function onSearch(val){
- let box=document.getElementById('suggestBox');
- if(!val.trim()){box.style.display='none';curPage=1;render();return;}
- let q=val.toLowerCase();
- let matches=patients.filter(p=>(p.patientName||'').toLowerCase().includes(q)||(p.shriId||'').toLowerCase().includes(q)).slice(0,8);
- if(!matches.length){box.style.display='none';}
- else{box.innerHTML=matches.map(p=>`<div class="sItem" onclick="selectPatient('${p.shriId||''}','${(p.patientName||'').replace(/'/g,"\\'")}')"><span><b>${p.patientName}</b> - ${p.shriId||''}</span><span style="color:#64748b;font-size:11px">${p.contactNo||''}</span></div>`).join('');box.style.display='block';}
- curPage=1;render();
-}
-function selectPatient(shri,name){document.getElementById('search').value=name+' - '+shri;document.getElementById('suggestBox').style.display='none';curPage=1;render();}
-document.addEventListener('click',e=>{if(!e.target.closest('.searchWrap')) document.getElementById('suggestBox').style.display='none';});
-function changePageSize(){pageSize=parseInt(document.getElementById('pageSize').value);curPage=1;render();}
-function render(){
- let y=yearSel.value,m=document.getElementById('monthSel').value,months=["January","February","March","April","May","June","July","August","September","October","November","December"];
- let rawSearch=document.getElementById('search').value.toLowerCase().trim();
- let search=rawSearch.split(' - ')[0];
- document.getElementById('titleH').textContent=`KFT Report - ${months[m]} ${selDate}, ${y} - All ${patients.length} Patients - Firebase Auto Sync${rawSearch?' | Search: "'+rawSearch+'"':''}`;
- document.getElementById('statusHead').textContent=`KFT Status - ${months[m]} ${selDate}, ${y} - Auto Save`;
- filteredAll=patients.filter(p=>!search.trim()||(p.patientName||'').toLowerCase().includes(search.trim())||(p.shriId||'').toLowerCase().includes(search.trim()));
- let totalPages=Math.ceil(filteredAll.length/pageSize)||1;if(curPage>totalPages)curPage=totalPages;
- let start=(curPage-1)*pageSize,end=start+pageSize;let pageData=filteredAll.slice(start,end);
- document.getElementById('tbl').innerHTML=pageData.map((p,i)=>{
-   let s=p.shriId||p.patientName;
-   let v=firebaseStatusMap[s] || firebaseStatusMap[p.shriId] || false;
-   let sl=start+i+1;
-   return `<tr><td>${sl}</td><td style="font-weight:700">${p.patientName}</td><td>${p.shriId||''}</td><td>${p.contactNo||''}</td><td><button class="toggle ${v?'yes':'no'}" onclick="toggle('${s.replace(/'/g,"\\'")}','${(p.patientName||'').replace(/'/g,"\\'")}')">${v?'Submitted':'Not-yet'}</button></td></tr>`;
- }).join('')||`<tr><td colspan="5" style="text-align:center">No patients found${rawSearch?' for search "'+rawSearch+'"':''} - Clear to see all<br><small>Firebase Auto Sync - Visible all PCs</small></td></tr>`;
- let pager=document.getElementById('pager');let html=`<button class="pgBtn" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>Previous</button>`;let maxShow=5;let startP=Math.max(1,curPage-2),endP=Math.min(totalPages,startP+maxShow-1);for(let i=startP;i<=endP;i++)html+=`<button class="pgBtn ${i===curPage?'active':''}" onclick="goPage(${i})">${i}</button>`;if(endP<totalPages)html+=`<span>...</span><button class="pgBtn" onclick="goPage(${totalPages})">${totalPages}</button>`;html+=`<button class="pgBtn" onclick="goPage(${curPage+1})" ${curPage===totalPages?'disabled':''}>Next</button>`;pager.innerHTML=html;
- document.getElementById('pageInfo').textContent=`Page ${curPage} of ${totalPages} - ${filteredAll.length} of ${patients.length} Patients${rawSearch?' | Search "'+rawSearch+'" - '+filteredAll.length+' found':''} | Firebase Synced All PCs`;
-}
-function goPage(n){let totalPages=Math.ceil(filteredAll.length/pageSize)||1;if(n<1||n>totalPages)return;curPage=n;render();window.scrollTo(0,0);}
-async function toggle(shri, pname){
- let y=yearSel.value,m=document.getElementById('monthSel').value;
+
+window.toggleStatus=async(shri, pname)=>{
+ let y=document.getElementById('yearSel').value,m=document.getElementById('monthSel').value;
  let cur=firebaseStatusMap[shri]||false;
  let newVal=!cur;
  firebaseStatusMap[shri]=newVal;
- render();
+ renderTable();
  document.getElementById('fbStatus').textContent=`Saving ${shri} to Firebase...`;
  try{
   const docId = `${y}_${m}_${selDate}_${shri}`.replace(/[^a-zA-Z0-9_]/g,'_');
-  await fb.setDoc(fb.doc(db, "kft_reports", docId), {
+  await setDoc(doc(db, "kft_reports", docId), {
     year: String(y), month: String(m), day: String(selDate), shriId: shri, patientName: pname || shri,
     status: newVal? "Submitted" : "Not-yet", statusBool: newVal,
-    createdAt: fb.serverTimestamp(), localTime: new Date().toLocaleString()
+    createdAt: serverTimestamp(), localTime: new Date().toLocaleString()
   });
   document.getElementById('fbStatus').innerText = `Saved ${shri} - Synced All PCs - Auto Save`;
   document.getElementById('syncInfo').innerText = `${shri} Saved - Visible all PCs`;
  }catch(e){ document.getElementById('fbStatus').innerText = "Error: "+e.message; }
-}
-setTimeout(loadFromFirebase,800);
-window.loadFromFirebase=loadFromFirebase;
-</script></body></html>
+};
+
+window.exportExcel=()=>{
+  let y=document.getElementById('yearSel').value,m=document.getElementById('monthSel').value;
+  let months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  let dateKey=`${months[m]}_${selDate}_${y}`;
+  let filtered=getFiltered();
+  let rows=filtered.map((p,i)=>{
+    let cur=firebaseStatusMap[p.shriId]||false;
+    return {SL:i+1,Name:p.patientName,SHRI_ID:p.shriId,Contact:p.contactNo||'',KFT_Status:cur?'Received':'Not-Received',Date:dateKey};
+  });
+  let ws=XLSX.utils.json_to_sheet(rows);
+  let wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"KFT "+dateKey);
+  XLSX.writeFile(wb,`KFT_${dateKey}.xlsx`);
+};
+
+loadMasterPatients();
+</script>
+</body>
+</html>
