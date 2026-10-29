@@ -33,20 +33,24 @@ td.idCol{background:#eff6ff;color:#1e40af;font-weight:900}
 .menuOverlay{position:fixed;top:58px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.2);display:none;z-index:9998}
 .menuOverlay.open{display:block}
 .filterRow{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-top:8px}
-.searchWideWrap{margin-top:12px}
-.searchWideWrap input{width:100%;padding:12px 14px;font-size:13px;border:2.5px solid #0a1931;border-radius:10px;background:#fff;font-weight:900}
-/* SIMPLE WHITE NEXT TO PATIENT NAME */
-.filterSelect{
-  padding:6px 8px;
-  border-radius:6px;
-  font-weight:700;
-  font-size:11px;
-  border:1px solid #d1d5db;
-  background:#ffffff;
-  color:#0f172a;
-  cursor:pointer;
-  min-width:120px;
-}
+.searchWideWrap{margin-top:12px;display:flex;gap:8px;align-items:center}
+.searchWideWrap input{flex:1;padding:12px 14px;font-size:13px;border:2.5px solid #0a1931;border-radius:10px;background:#fff;font-weight:900}
+.filterSelect{padding:6px 8px;border-radius:6px;font-weight:700;font-size:11px;border:1px solid #d1d5db;background:#ffffff;color:#0f172a;cursor:pointer;min-width:120px}
+/* GRID ICON */
+.viewToggle{display:flex;gap:2px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:2px;height:44px;align-items:center;flex-shrink:0}
+.viewBtn{width:38px;height:34px;border-radius:6px;border:0;background:transparent;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.viewBtn.active{background:#0a1931;color:#fff}
+/* SIMPLE GRID VIEW */
+.gridWrap{display:none;grid-template-columns:repeat(3,1fr);gap:6px;padding:6px}
+.gridWrap.show{display:grid !important}
+.sheetWrap.hide{display:none}
+.pCard{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:8px;box-shadow:0 1px 2px rgba(0,0,0,0.06);display:flex;flex-direction:column;gap:4px}
+.pCardName{font-weight:900;font-size:10px;color:#000;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pCardId{font-size:9px;color:#555}
+.pCardFoot{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.pCardActions{display:flex;gap:4px}
+.statusSelectInline{background:#fff;border:1px solid #d1d5db;border-radius:6px;padding:3px 5px;font-weight:700;font-size:8px;min-width:90px}
+@media(max-width:600px){.gridWrap{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -132,13 +136,17 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 
 <div id="masterInfo" style="font-size:11px;font-weight:800;margin-top:8px;background:#eff6ff;padding:8px;border-radius:6px">LOADING MASTER...</div>
 <div class="searchWideWrap">
-<label style="font-size:9px;font-weight:900;display:block;margin-bottom:4px">SEARCH PATIENT (NAME / SHRI / PMJAY ID)</label>
 <input type="text" id="searchName" placeholder="SEARCH NAME / SHRI ID / PMJAY ID..." autocomplete="off">
+<div class="viewToggle">
+<button class="viewBtn active" id="btnListView" onclick="switchView('list')">☰</button>
+<button class="viewBtn" id="btnGridView" onclick="switchView('grid')">⊞</button>
+</div>
 </div>
 </div>
 
 <div class="card" style="padding:0">
-<div class="sheetWrap"><table><thead><tr><th style="width:40px">SL</th><th style="width:120px">PMJAY/CMHT ID</th><th style="width:180px">PATIENT NAME</th><th style="width:130px">STATUS</th><th style="width:90px">SHRI ID</th><th style="width:85px">TIME</th><th style="width:70px">BLOCK</th><th style="width:85px">PREV</th><th style="width:110px">ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
+<div class="sheetWrap" id="sheetWrap"><table><thead><tr><th style="width:40px">SL</th><th style="width:120px">PMJAY/CMHT ID</th><th style="width:180px">PATIENT NAME</th><th style="width:130px">STATUS</th><th style="width:90px">SHRI ID</th><th style="width:85px">TIME</th><th style="width:70px">BLOCK</th><th style="width:85px">PREV</th><th style="width:110px">ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
+<div class="gridWrap" id="gridWrap"></div>
 <div style="padding:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
 <div class="pagination" id="pagination"></div>
 <div style="display:flex;gap:6px;margin-left:auto"><button class="btn btnDark" onclick="changePage(-1)">◀ PREV</button><button class="btn btnDark" onclick="changePage(1)">NEXT ▶</button></div>
@@ -172,6 +180,13 @@ menuBtn.addEventListener('click', toggleMenu);
 menuOverlay.addEventListener('click', closeMenu);
 function goPage(page){closeMenu();setTimeout(()=>{window.location.href=page;},150);}
 function openAddPatientPage(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;window.location.href=`addlist.html?date=${date}&scheme=${scheme}&force=1`;}
+function switchView(view){
+  document.getElementById('btnListView').classList.toggle('active', view==='list');
+  document.getElementById('btnGridView').classList.toggle('active', view==='grid');
+  document.getElementById('sheetWrap').classList.toggle('hide', view==='grid');
+  document.getElementById('gridWrap').classList.toggle('show', view==='grid');
+  renderPagination();
+}
 async function buildMasterMap(){
   masterMap={};
   try{
@@ -254,6 +269,7 @@ function renderPagination(){
   let pag=document.getElementById('pagination');pag.innerHTML='';
   for(let i=1;i<=totalPages;i++){let b=document.createElement('button');b.className='pageBtn'+(i===currentPage?' active':'');b.innerText=i;b.onclick=()=>{currentPage=i;renderTable();renderPagination();};pag.appendChild(b);}
   renderTable();
+  renderGrid();
 }
 function renderTable(){
   let tbody=document.getElementById('tbody');tbody.innerHTML='';
@@ -271,11 +287,36 @@ function renderTable(){
       </select>
     </td>
     <td>${p.shri||''}</td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td>
-    <td><div class="actionCell"><button class="btnEdit" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">DEL</button></div></td>`;
+    <td><div class="actionCell"><button class="btnEdit" onclick="openEdit(${globalIdx})">Edit</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">Delete</button></div></td>`;
     tbody.appendChild(tr);
   });
   if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="9" style="padding:20px;text-align:center;background:#f8fafc">NO PATIENTS - TODAY: ${document.getElementById('fDate').value} | SCHEME: ${document.getElementById('fType').value}</td>`;tbody.appendChild(tr);}
   document.getElementById('pageInfo').innerText=`TODAY: ${document.getElementById('fDate').value} | SCHEME: ${document.getElementById('fType').value} | PAGE ${currentPage} OF ${Math.max(1,Math.ceil(filteredPatients.length/pageSize))}`;
+}
+function renderGrid(){
+  let grid=document.getElementById('gridWrap');grid.innerHTML='';
+  let start=(currentPage-1)*pageSize;let end=start+pageSize;
+  let pagePatients=filteredPatients.slice(start,end);
+  pagePatients.forEach((p,idx)=>{
+    let globalIdx=allPatients.indexOf(p);
+    let status = p.patientStatus || 'ENHANCEMENT';
+    let div=document.createElement('div');div.className='pCard';
+    div.innerHTML=`
+      <div class="pCardName">${p.name||'NO NAME'}</div>
+      <div class="pCardId">ID: ${p.pmjayCmhtId||''} | ${p.time||''}</div>
+      <div class="pCardFoot">
+        <select class="statusSelectInline" onchange="handleStatusChange(${globalIdx}, this.value)">
+          <option value="ENHANCEMENT" ${status==='ENHANCEMENT'?'selected':''}>ENHANCEMENT</option>
+          <option value="DISCHARGE" ${status==='DISCHARGE'?'selected':''}>DISCHARGE</option>
+        </select>
+        <div class="pCardActions">
+          <button class="btnEdit" onclick="openEdit(${globalIdx})">Edit</button>
+          <button class="btnDelete" onclick="deleteRow(${globalIdx})">Delete</button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(div);
+  });
 }
 function changePage(d){let totalPages=Math.max(1,Math.ceil(filteredPatients.length/pageSize));currentPage+=d;if(currentPage<1)currentPage=1;if(currentPage>totalPages)currentPage=totalPages;renderPagination();}
 function openEdit(globalIdx){editIndex=globalIdx;let p=allPatients[globalIdx];if(!p)return;document.getElementById('editTitle').innerText=`EDIT: ${p.name}`;document.getElementById('editName').value=p.name||'';document.getElementById('editShri').value=p.shri||'';document.getElementById('editId').value=p.pmjayCmhtId||'';document.getElementById('editTime').value=p.time||'';document.getElementById('editBlock').value=p.block||'';document.getElementById('editPrev').value=p.prev||'';document.getElementById('editModal').style.display='flex';}
@@ -297,7 +338,7 @@ async function handleStatusChange(globalIdx, newStatus){
   if(!p) return;
   if(newStatus==='DISCHARGE'){
     if(!confirm(`DISCHARGE ${p.name} ?\nWill move to discharge.html and disappear from this list.`)) {
-      renderTable(); return;
+      renderTable(); renderGrid(); return;
     }
     p.patientStatus = 'DISCHARGE';
     let date=document.getElementById('fDate').value;
