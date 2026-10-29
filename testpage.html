@@ -35,18 +35,21 @@ td.idCol{background:#eff6ff;color:#1e40af;font-weight:900}
 .filterRow{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-top:8px}
 .searchWideWrap{margin-top:12px}
 .searchWideWrap input{width:100%;padding:12px 14px;font-size:13px;border:2.5px solid #0a1931;border-radius:10px;background:#fff;font-weight:900}
-/* SIMPLE WHITE NEXT TO PATIENT NAME */
-.filterSelect{
-  padding:6px 8px;
-  border-radius:6px;
-  font-weight:700;
-  font-size:11px;
-  border:1px solid #d1d5db;
-  background:#ffffff;
-  color:#0f172a;
-  cursor:pointer;
-  min-width:120px;
-}
+.filterSelect{padding:6px 8px;border-radius:6px;font-weight:700;font-size:11px;border:1px solid #d1d5db;background:#ffffff;color:#0f172a;cursor:pointer;min-width:120px}
+/* GRID VIEW */
+.gridWrap{display:none;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;max-height:70vh;overflow:auto;padding:4px}
+.gridWrap.show{display:grid}
+.sheetWrap.hide{display:none}
+.pCard{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px;box-shadow:0 2px 8px #0001}
+.pCardTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pCardSL{background:#0a1931;color:#fff;font-weight:900;font-size:10px;padding:4px 8px;border-radius:20px}
+.pCardName{font-weight:900;font-size:13px;text-transform:uppercase;margin-bottom:4px}
+.pCardMeta{font-size:10px;font-weight:700;color:#475569;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.pCardMeta span{background:#f1f5f9;padding:3px 7px;border-radius:6px;border:1px solid #e2e8f0}
+.pCardActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.viewToggle{display:flex;gap:4px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:3px}
+.viewBtn{padding:6px 10px;border-radius:6px;border:0;background:transparent;font-weight:900;font-size:12px;cursor:pointer}
+.viewBtn.active{background:#0a1931;color:#fff}
 </style>
 </head>
 <body>
@@ -70,7 +73,11 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 <div id="status" class="status saved">READY</div>
 </div>
 <div style="display:flex;align-items:center;gap:8px">
-<button class="btn btnGreen" onclick="exportPDF()">DAILY DIALYSIS LIST</button>
+<div class="viewToggle">
+<button class="viewBtn active" id="btnListView" onclick="switchView('list')">☰ LIST</button>
+<button class="viewBtn" id="btnGridView" onclick="switchView('grid')">⊞ GRID</button>
+</div>
+<button class="btn btnGreen" onclick="exportPDF()">PDF</button>
 </div>
 </div>
 
@@ -81,15 +88,10 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 <button class="menuItem" onclick="goPage('total.html')">TOTAL PATIENT</button>
 <button class="menuItem" onclick="goPage('cmht.html')">CMHT TOTAL PATIENT</button>
 <button class="menuItem" onclick="goPage('searchpatient.html')">SEARCH PATIENT</button>
-<button class="menuItem" onclick="goPage('cmhtkftreport.html')">CMHT KFT REPORT</button>
 <button class="menuItem" onclick="goPage('list.html?scheme=CMHT&force=1')">CMHT DAILY DIALYSIS</button>
-<button class="menuItem" onclick="goPage('cmhtaddpatient.html')">CMHT ADD PATIENT</button>
 <button class="menuItem" onclick="goPage('list.html?scheme=PMJAY&force=1')">PMJAY DAILY DIALYSIS</button>
 <button class="menuItem" onclick="goPage('discharge.html')">DISCHARGE PATIENT</button>
-<button class="menuItem" onclick="goPage('kftreport.html')">KFT REPORT</button>
-<button class="menuItem" onclick="goPage('addlist.html')">ADD PATIENT</button>
 <button class="menuItem" onclick="goPage('bill.html')">BILL</button>
-<button class="menuItem" onclick="goPage('dischargesummary.html')">DISCHARGE SUMMARY</button>
 <div style="margin-top:16px;padding:10px;background:#f8fafc;border-radius:8px;font-size:10px;margin:10px;border:1px solid #e2e8f0"><div style="font-weight:900;margin-bottom:4px">CURRENT:</div><div id="menuCurrentInfo">DATE + SCHEME</div></div>
 </div>
 
@@ -126,7 +128,7 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 </div>
 <div style="margin-left:auto;display:flex;align-items:end;gap:6px;flex-wrap:wrap">
 <span id="filterCount" style="font-weight:900;font-size:11px;background:#0a1931;color:#fff;padding:8px 12px;border-radius:20px;height:36px;display:flex;align-items:center">0 PATIENTS</span>
-<button class="btn btnDark" onclick="clearFilters()" style="height:36px">CLEAR FILTERS</button>
+<button class="btn btnDark" onclick="clearFilters()" style="height:36px">CLEAR</button>
 </div>
 </div>
 
@@ -138,7 +140,11 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 </div>
 
 <div class="card" style="padding:0">
-<div class="sheetWrap"><table><thead><tr><th style="width:40px">SL</th><th style="width:120px">PMJAY/CMHT ID</th><th style="width:180px">PATIENT NAME</th><th style="width:130px">STATUS</th><th style="width:90px">SHRI ID</th><th style="width:85px">TIME</th><th style="width:70px">BLOCK</th><th style="width:85px">PREV</th><th style="width:110px">ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
+<!-- LIST VIEW -->
+<div class="sheetWrap" id="sheetWrap"><table><thead><tr><th style="width:40px">SL</th><th style="width:120px">PMJAY/CMHT ID</th><th style="width:180px">PATIENT NAME</th><th style="width:130px">STATUS</th><th style="width:90px">SHRI ID</th><th style="width:85px">TIME</th><th style="width:70px">BLOCK</th><th style="width:85px">PREV</th><th style="width:110px">ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
+<!-- GRID VIEW -->
+<div class="gridWrap" id="gridWrap"></div>
+
 <div style="padding:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
 <div class="pagination" id="pagination"></div>
 <div style="display:flex;gap:6px;margin-left:auto"><button class="btn btnDark" onclick="changePage(-1)">◀ PREV</button><button class="btn btnDark" onclick="changePage(1)">NEXT ▶</button></div>
@@ -156,7 +162,7 @@ const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDom
 const app=initializeApp(firebaseConfig,"listMain_"+Math.random());const db=getFirestore(app);window._fb={db,doc,setDoc,getDoc,getDocs,collection};
 </script>
 <script>
-let allPatients=[],filteredPatients=[],currentPage=1,pageSize=10,editIndex=-1;
+let allPatients=[],filteredPatients=[],currentPage=1,pageSize=10,editIndex=-1,currentView='list';
 let masterMap = {};
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 let urlParams=new URLSearchParams(window.location.search);
@@ -172,6 +178,16 @@ menuBtn.addEventListener('click', toggleMenu);
 menuOverlay.addEventListener('click', closeMenu);
 function goPage(page){closeMenu();setTimeout(()=>{window.location.href=page;},150);}
 function openAddPatientPage(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;window.location.href=`addlist.html?date=${date}&scheme=${scheme}&force=1`;}
+
+function switchView(view){
+  currentView=view;
+  document.getElementById('btnListView').classList.toggle('active', view==='list');
+  document.getElementById('btnGridView').classList.toggle('active', view==='grid');
+  document.getElementById('sheetWrap').classList.toggle('hide', view==='grid');
+  document.getElementById('gridWrap').classList.toggle('show', view==='grid');
+  renderPagination();
+}
+
 async function buildMasterMap(){
   masterMap={};
   try{
@@ -254,6 +270,7 @@ function renderPagination(){
   let pag=document.getElementById('pagination');pag.innerHTML='';
   for(let i=1;i<=totalPages;i++){let b=document.createElement('button');b.className='pageBtn'+(i===currentPage?' active':'');b.innerText=i;b.onclick=()=>{currentPage=i;renderTable();renderPagination();};pag.appendChild(b);}
   renderTable();
+  renderGrid();
 }
 function renderTable(){
   let tbody=document.getElementById('tbody');tbody.innerHTML='';
@@ -274,8 +291,27 @@ function renderTable(){
     <td><div class="actionCell"><button class="btnEdit" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">DEL</button></div></td>`;
     tbody.appendChild(tr);
   });
-  if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="9" style="padding:20px;text-align:center;background:#f8fafc">NO PATIENTS - TODAY: ${document.getElementById('fDate').value} | SCHEME: ${document.getElementById('fType').value}</td>`;tbody.appendChild(tr);}
-  document.getElementById('pageInfo').innerText=`TODAY: ${document.getElementById('fDate').value} | SCHEME: ${document.getElementById('fType').value} | PAGE ${currentPage} OF ${Math.max(1,Math.ceil(filteredPatients.length/pageSize))}`;
+  if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="9" style="padding:20px;text-align:center;background:#f8fafc">NO PATIENTS</td>`;tbody.appendChild(tr);}
+  document.getElementById('pageInfo').innerText=`TODAY: ${document.getElementById('fDate').value} | SCHEME: ${document.getElementById('fType').value} | PAGE ${currentPage} OF ${Math.max(1,Math.ceil(filteredPatients.length/pageSize))} | VIEW: ${currentView.toUpperCase()}`;
+}
+function renderGrid(){
+  let grid=document.getElementById('gridWrap');grid.innerHTML='';
+  let start=(currentPage-1)*pageSize;let end=start+pageSize;
+  let pagePatients=filteredPatients.slice(start,end);
+  pagePatients.forEach((p,idx)=>{
+    let globalIdx=allPatients.indexOf(p);
+    let status = p.patientStatus || 'ENHANCEMENT';
+    let div=document.createElement('div');
+    div.className='pCard';
+    div.innerHTML=`
+      <div class="pCardTop"><span class="pCardSL">#${p.sl||start+idx+1}</span><select class="filterSelect" onchange="handleStatusChange(${globalIdx}, this.value)" style="min-width:110px"><option value="ENHANCEMENT" ${status==='ENHANCEMENT'?'selected':''}>ENHANCEMENT</option><option value="DISCHARGE" ${status==='DISCHARGE'?'selected':''}>DISCHARGE</option></select></div>
+      <div class="pCardName">${p.name||'NO NAME'}</div>
+      <div class="pCardMeta"><span>${p.pmjayCmhtId||'NO ID'}</span><span>SHRI: ${p.shri||''}</span><span>${p.time||''}</span><span>${p.block||''}</span><span>PREV: ${p.prev||''}</span></div>
+      <div class="pCardActions"><button class="btnEdit" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">DELETE</button></div>
+    `;
+    grid.appendChild(div);
+  });
+  if(pagePatients.length===0){grid.innerHTML=`<div style="grid-column:1/-1;padding:20px;text-align:center;background:#fff;border-radius:12px">NO PATIENTS</div>`;}
 }
 function changePage(d){let totalPages=Math.max(1,Math.ceil(filteredPatients.length/pageSize));currentPage+=d;if(currentPage<1)currentPage=1;if(currentPage>totalPages)currentPage=totalPages;renderPagination();}
 function openEdit(globalIdx){editIndex=globalIdx;let p=allPatients[globalIdx];if(!p)return;document.getElementById('editTitle').innerText=`EDIT: ${p.name}`;document.getElementById('editName').value=p.name||'';document.getElementById('editShri').value=p.shri||'';document.getElementById('editId').value=p.pmjayCmhtId||'';document.getElementById('editTime').value=p.time||'';document.getElementById('editBlock').value=p.block||'';document.getElementById('editPrev').value=p.prev||'';document.getElementById('editModal').style.display='flex';}
@@ -297,33 +333,21 @@ async function handleStatusChange(globalIdx, newStatus){
   if(!p) return;
   if(newStatus==='DISCHARGE'){
     if(!confirm(`DISCHARGE ${p.name} ?\nWill move to discharge.html and disappear from this list.`)) {
-      renderTable(); return;
+      renderPagination(); return;
     }
     p.patientStatus = 'DISCHARGE';
     let date=document.getElementById('fDate').value;
     let scheme=document.getElementById('fType').value;
     try{
       await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges', `${date}_${p.shri}_${Date.now()}` ), {
-        date: date,
-        scheme: scheme,
-        shriId: p.shri,
-        shri: p.shri,
-        patientName: p.name,
-        name: p.name,
-        pmjayCmhtId: p.pmjayCmhtId,
-        time: p.time,
-        block: p.block,
-        prev: p.prev,
-        status: 'DISCHARGE',
-        dischargedAt: new Date().toISOString(),
-        from: 'list.html'
+        date: date, scheme: scheme, shriId: p.shri, shri: p.shri, patientName: p.name, name: p.name, pmjayCmhtId: p.pmjayCmhtId, time: p.time, block: p.block, prev: p.prev, status: 'DISCHARGE', dischargedAt: new Date().toISOString(), from: 'list.html'
       });
     }catch(e){}
     allPatients.splice(globalIdx,1);
     allPatients.forEach((x,i)=>x.sl=i+1);
     await autoSaveToFirebase();
     applyFilter();
-    alert(`${p.name} discharged - moved to discharge.html`);
+    alert(`${p.name} discharged`);
   } else {
     p.patientStatus = 'ENHANCEMENT';
     await autoSaveToFirebase();
