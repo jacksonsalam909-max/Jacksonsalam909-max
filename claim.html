@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>CLAIM MANAGEMENT</title>
+<script src="Patient.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
 body{background:#f1f5f9}
@@ -27,6 +28,19 @@ td.nameCol{text-align:left;padding-left:12px}
 .menuItem.active{background:#0a1931;color:#fff}
 .menuOverlay{position:fixed;top:52px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);display:none;z-index:9998}
 .menuOverlay.open{display:block}
+.searchBox{position:relative}
+.searchResults{position:absolute;top:44px;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:10px;max-height:300px;overflow:auto;z-index:500;display:none;box-shadow:0 10px 30px rgba(0,0,0,0.15)}
+.searchResults.open{display:block}
+.sItem{padding:10px 12px;border-bottom:1px solid #f8fafc;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.sItem:hover{background:#f1f5f9}
+.sName{font-weight:900;font-size:11px;color:#0f172a}
+.sMeta{font-size:9px;color:#64748b;font-weight:700}
+.modalBg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:10000}
+.modalBg.open{display:flex}
+.modal{width:92%;max-width:500px;background:#fff;border-radius:16px;padding:18px}
+.cardGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cardBtn{padding:18px 10px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-weight:900;font-size:13px;cursor:pointer;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.05)}
+.cardBtn:hover{border-color:#2563eb;background:#eff6ff}
 </style>
 </head>
 <body>
@@ -56,8 +70,16 @@ td.nameCol{text-align:left;padding-left:12px}
 <div class="content">
 
 <div class="card" style="background:#eff6ff;border:1px solid #93c5fd">
+<div class="label" style="color:#1e40af">ADD CLAIM PATIENT FROM TOTAL - SEARCH & ADD DIRECTLY TO CLAIM</div>
+<div class="searchBox" style="margin-top:6px">
+<input type="text" id="searchTotal" class="input" placeholder="SEARCH TOTAL PATIENT - NAME / SHRI ID / PMJAY ID TO ADD TO CLAIM..." style="border:2px solid #2563eb;font-size:12px;padding:12px">
+<div class="searchResults" id="searchResults"></div>
+</div>
+</div>
+
+<div class="card" style="background:#fff;border:1px solid #e2e8f0">
 <div style="display:grid;grid-template-columns:1fr 130px 120px 120px 90px;gap:8px;align-items:end">
-<div><div class="label">SEARCH PATIENT FROM CLAIM LIST - NAME / SHRI / PMJAY / CLAIM ID</div><input type="text" id="fSearch" class="input" placeholder="SEARCH PATIENT IN CLAIM LIST..." style="border:2px solid #0f172a;padding:12px"></div>
+<div><div class="label">SEARCH CLAIM LIST - NAME / SHRI / PMJAY / CLAIM ID</div><input type="text" id="fSearch" class="input" placeholder="SEARCH PATIENT IN CLAIM LIST..." style="border:2px solid #0f172a;padding:12px"></div>
 <div><div class="label">DATE FILTER</div><input type="date" id="fDate" class="input"></div>
 <div><div class="label">TIME FILTER</div><select id="fTime" class="input"><option value="">ALL TIME</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
 <div><div class="label">BLOCK FILTER</div><select id="fBlock" class="input"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
@@ -71,43 +93,65 @@ td.nameCol{text-align:left;padding-left:12px}
 <div style="font-size:10px;font-weight:800" id="pageInfo">Page 1</div>
 <div style="margin-left:auto;display:flex;gap:6px"><button class="btn btnDark" onclick="changePage(-1)">PREV</button><button class="btn btnDark" onclick="changePage(1)">NEXT</button></div>
 </div>
-<div class="sheetWrap"><table><thead><tr><th style="width:40px">SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>CLAIM ID</th><th>TIME</th><th>BLOCK</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
+<div class="sheetWrap"><table><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>CLAIM ID</th><th>TIME</th><th>BLOCK</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
 </div>
 
 </div>
+
+<!-- MODALS IN CARD FORMAT -->
+<div class="modalBg" id="claimIdModal"><div class="modal"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-weight:900">ENTER CLAIM ID</div><button class="btn btnDark" onclick="closeClaimIdModal()">X</button></div><div id="claimIdModalInfo" style="font-size:10px;font-weight:700;background:#f1f5f9;padding:8px;border-radius:6px;margin-bottom:12px"></div><div class="label">CLAIM ID</div><input type="text" id="claimIdInput" class="input" placeholder="e.g. YJCYHB or 181817..." style="padding:14px;border:2px solid #2563eb;font-size:14px" onkeydown="if(event.key==='Enter'){confirmClaimId()}"><button class="btn btnBlue" style="width:100%;padding:14px;margin-top:12px" onclick="confirmClaimId()">NEXT → DATE</button></div></div>
+
+<div class="modalBg" id="dateModal"><div class="modal"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-weight:900">SELECT DATE</div><button class="btn btnDark" onclick="closeDateModal()">X</button></div><div id="dateModalInfo" style="font-size:10px;font-weight:700;background:#f1f5f9;padding:8px;border-radius:6px;margin-bottom:12px"></div><div class="cardGrid"><div class="cardBtn" onclick="selectDate('TODAY')">TODAY</div><div class="cardBtn" onclick="selectDate('YESTERDAY')">YESTERDAY</div></div><div style="margin-top:12px"><div class="label">OR CUSTOM DATE</div><input type="date" id="customDateInput" class="input" style="padding:12px"></div><button class="btn btnBlue" style="width:100%;padding:12px;margin-top:12px" onclick="confirmCustomDate()">NEXT → TIME</button></div></div>
+
+<div class="modalBg" id="timeModal"><div class="modal"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-weight:900">SELECT TIME - CARD FORMAT</div><button class="btn btnDark" onclick="closeTimeModal()">X</button></div><div id="timeModalInfo" style="font-size:10px;font-weight:700;background:#f1f5f9;padding:8px;border-radius:6px;margin-bottom:12px"></div><div class="cardGrid"><div class="cardBtn" data-time="7:00 AM" onclick="selectTime(this)">7:00 AM</div><div class="cardBtn" data-time="12:00 PM" onclick="selectTime(this)">12:00 PM</div><div class="cardBtn" data-time="5:00 PM" onclick="selectTime(this)">5:00 PM</div><div class="cardBtn" data-time="9:00 PM" onclick="selectTime(this)">9:00 PM</div><div class="cardBtn" data-time="12:00 AM" onclick="selectTime(this)">12:00 AM</div><div class="cardBtn" data-time="2:00 AM" onclick="selectTime(this)">2:00 AM</div></div></div></div>
+
+<div class="modalBg" id="blockModal"><div class="modal"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-weight:900">SELECT BLOCK - CARD FORMAT</div><button class="btn btnDark" onclick="closeBlockModal()">X</button></div><div id="blockModalInfo" style="font-size:10px;font-weight:700;background:#f1f5f9;padding:8px;border-radius:6px;margin-bottom:12px"></div><div class="cardGrid"><div class="cardBtn" data-block="MAIN" onclick="selectBlock(this)">MAIN</div><div class="cardBtn" data-block="ITOCHA" onclick="selectBlock(this)">ITOCHA</div></div></div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig,"claim_time_filter_"+Math.random());
+const app=initializeApp(firebaseConfig,"claim_add_total_"+Math.random());
 const db=getFirestore(app);
 window._fb={db,collection,getDocs,doc,setDoc,deleteDoc};
 </script>
 
 <script>
-let allClaimed=[],filtered=[],currentPage=1,pageSize=20,urlClaimId='';
+let allClaimed=[],filtered=[],masterPatients=[],currentPage=1,pageSize=20,urlClaimId='';
+let selectedTotalPatient=null, selectedClaimId='', selectedDate='', selectedTime='', selectedBlock='';
+
 const menuBtn=document.getElementById('menuBtn'),menuDrawer=document.getElementById('menuDrawer'),menuOverlay=document.getElementById('menuOverlay');
 menuBtn.addEventListener('click',()=>{menuDrawer.classList.toggle('open');menuOverlay.classList.toggle('open');});
 menuOverlay.addEventListener('click',()=>{menuDrawer.classList.remove('open');menuOverlay.classList.remove('open');});
 
-function adminLogout(){
-  if(!confirm('ADMIN LOGOUT?')) return;
-  localStorage.removeItem('shija_logged');
-  localStorage.removeItem('shija_login_time');
-  localStorage.removeItem('shija_role');
-  location.href='login.html?logout=admin';
-}
+function adminLogout(){ if(!confirm('ADMIN LOGOUT?')) return; localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; }
+function getToday(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function getYesterday(){let d=new Date();d.setDate(d.getDate()-1);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function getClaimIdFromURL(){ return new URLSearchParams(location.search).get('claimId')||''; }
+
+async function loadMaster(){
+  masterPatients=[]; 
+  function getDeleted(){ try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]');}catch{return [];} }
+  function getEdited(){ try{return JSON.parse(localStorage.getItem('editedKeys')||'{}');}catch{return {};} }
+  let deletedLocal=getDeleted(); let editedLocal=getEdited(); let map={};
+  function addToMap(raw, overwrite){
+    let rawShri=String(raw.shri||raw.shriId||'').trim(); let rawId=String(raw.id||raw.key||'').trim(); let key=rawShri||rawId||String(raw.name||raw.patientName||'').trim();
+    if(!key) return; if(deletedLocal.includes(key) || deletedLocal.includes(rawId) || deletedLocal.includes(rawShri) || raw.deleted===true) return;
+    let edited = editedLocal[key]||editedLocal[rawId]||editedLocal[rawShri];
+    let pmjayVal = String((edited&&edited.pmjay)||raw.pmjay||raw.pmjayId||'').trim();
+    let obj={key:key,name:String((edited&&edited.name)||raw.patientName||raw.name||'').trim().toUpperCase(),shri:String((edited&&edited.shri)||rawShri||'').trim().toUpperCase(),pmjay:pmjayVal.toUpperCase(),};
+    if(!obj.shri) return; if(overwrite || !map[key]) map[key]=obj;
+  }
+  try{ if(typeof patientData!=='undefined' && Array.isArray(patientData)){ patientData.forEach(pd=>addToMap(pd,false)); } }catch(e){}
+  try{ Object.values(editedLocal).forEach(v=>addToMap(v,true)); }catch(e){}
+  try{ const snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patients")); snap.forEach(d=>{ let data=d.data(); if(data.deleted===true) return; addToMap({key:d.id, id:d.id, ...data}, true); }); }catch(e){}
+  Object.values(map).forEach(v=>{ masterPatients.push({shri:v.shri, pmjayId:v.pmjay, name:v.name}); });
+}
 
 async function loadAll(){
   try{
     let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges'));
-    allClaimed=[];
-    snap.forEach(d=>{
-      let o=d.data(); o._id=d.id;
-      if(o.claimId && o.claimStatus==='CLAIMED') allClaimed.push(o);
-    });
+    allClaimed=[]; snap.forEach(d=>{ let o=d.data(); o._id=d.id; if(o.claimId && o.claimStatus==='CLAIMED') allClaimed.push(o); });
     allClaimed.sort((a,b)=> new Date(b.claimedAt||0)-new Date(a.claimedAt||0));
   }catch(e){}
   applyFilter();
@@ -123,29 +167,20 @@ function applyFilter(){
     if(date && p.date!==date) return false;
     if(time && (p.time||'')!==time) return false;
     if(block && (p.block||'').toUpperCase()!==block.toUpperCase()) return false;
-    if(search){
-      let s=`${p.patientName||p.name||''} ${p.shriId||p.shri||''} ${p.pmjayCmhtId||p.pmjayId||''} ${p.claimId||''}`.toLowerCase();
-      if(!s.includes(search)) return false;
-    }
+    if(search){ let s=`${p.patientName||p.name||''} ${p.shriId||p.shri||''} ${p.pmjayCmhtId||p.pmjayId||''} ${p.claimId||''}`.toLowerCase(); if(!s.includes(search)) return false; }
     return true;
   });
-  currentPage=1;
-  render();
+  currentPage=1; render();
 }
 
 function render(){
-  let tbody=document.getElementById('tbody');
-  tbody.innerHTML='';
-  let tp=Math.max(1,Math.ceil(filtered.length/pageSize));
-  if(currentPage>tp) currentPage=tp;
-  let start=(currentPage-1)*pageSize;
-  let page=filtered.slice(start,start+pageSize);
+  let tbody=document.getElementById('tbody'); tbody.innerHTML='';
+  let tp=Math.max(1,Math.ceil(filtered.length/pageSize)); if(currentPage>tp) currentPage=tp;
+  let start=(currentPage-1)*pageSize; let page=filtered.slice(start,start+pageSize);
   document.getElementById('countBadge').innerText=`${allClaimed.length} CLAIMED`;
   document.getElementById('badgeClaim').innerText=`Claimed - ${filtered.length} / ${allClaimed.length}`;
-  document.getElementById('pageInfo').innerText=`Page ${currentPage} of ${tp} ${urlClaimId?' | '+urlClaimId:''} ${document.getElementById('fTime').value?' | '+document.getElementById('fTime').value:''}`;
-
+  document.getElementById('pageInfo').innerText=`Page ${currentPage} of ${tp} ${urlClaimId?'| '+urlClaimId:''}`;
   if(page.length===0){ tbody.innerHTML=`<tr><td colspan="8" style="padding:30px;text-align:center">NO CLAIMED PATIENTS</td></tr>`; return; }
-
   page.forEach((p,i)=>{
     let pmjay=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';
     let tr=document.createElement('tr');
@@ -157,22 +192,100 @@ function render(){
 function changePage(d){ let tp=Math.max(1,Math.ceil(filtered.length/pageSize)); currentPage+=d; if(currentPage<1) currentPage=1; if(currentPage>tp) currentPage=tp; render(); }
 function clearFilters(){ document.getElementById('fSearch').value=''; document.getElementById('fDate').value=''; document.getElementById('fTime').value=''; document.getElementById('fBlock').value=''; applyFilter(); }
 
+// SEARCH TOTAL TO ADD TO CLAIM
+document.getElementById('searchTotal').addEventListener('input', e=>{
+  let q=e.target.value.toLowerCase().trim();
+  let box=document.getElementById('searchResults');
+  if(q.length<2){box.classList.remove('open');return;}
+  let res=masterPatients.filter(p=> `${p.name} ${p.shri} ${p.pmjayId}`.toLowerCase().includes(q)).slice(0,15);
+  if(res.length===0){box.innerHTML=`<div class="sItem">No patient found</div>`;box.classList.add('open');return;}
+  box.innerHTML=res.map(p=>`<div class="sItem" onclick="openClaimIdPopup('${p.shri}')"><div><div class="sName">${p.name}</div><div class="sMeta">SHRI: ${p.shri} | PMJAY: ${p.pmjayId}</div></div><div class="btn btnBlue">ADD TO CLAIM</div></div>`).join('');
+  box.classList.add('open');
+});
+document.addEventListener('click', e=>{ if(!e.target.closest('.searchBox')){ document.getElementById('searchResults').classList.remove('open'); } });
+
+function openClaimIdPopup(shri){
+  selectedTotalPatient=masterPatients.find(x=>x.shri===shri); if(!selectedTotalPatient) return;
+  document.getElementById('searchResults').classList.remove('open');
+  document.getElementById('searchTotal').value='';
+  selectedClaimId=''; selectedDate=''; selectedTime=''; selectedBlock='';
+  document.getElementById('claimIdModalInfo').innerHTML=`PATIENT: ${selectedTotalPatient.name}<br>SHRI: ${selectedTotalPatient.shri} | PMJAY: <b style="color:#2563eb">${selectedTotalPatient.pmjayId}</b>`;
+  document.getElementById('claimIdInput').value=urlClaimId||'';
+  document.getElementById('claimIdModal').classList.add('open');
+  setTimeout(()=>document.getElementById('claimIdInput').focus(),100);
+}
+function closeClaimIdModal(){ document.getElementById('claimIdModal').classList.remove('open'); }
+function confirmClaimId(){
+  let val=document.getElementById('claimIdInput').value.trim().toUpperCase();
+  if(!val || val.length<2){ alert('Enter Claim ID'); return; }
+  selectedClaimId=val;
+  closeClaimIdModal();
+  document.getElementById('dateModalInfo').innerHTML=`PATIENT: ${selectedTotalPatient.name}<br>CLAIM ID: <b style="color:#2563eb">${selectedClaimId}</b>`;
+  document.getElementById('dateModal').classList.add('open');
+}
+function closeDateModal(){ document.getElementById('dateModal').classList.remove('open'); }
+function selectDate(type){
+  if(type==='TODAY') selectedDate=getToday();
+  else if(type==='YESTERDAY') selectedDate=getYesterday();
+  closeDateModal();
+  openTimePopup();
+}
+function confirmCustomDate(){
+  let cd=document.getElementById('customDateInput').value;
+  if(!cd){ alert('Select date'); return; }
+  selectedDate=cd;
+  closeDateModal();
+  openTimePopup();
+}
+function openTimePopup(){
+  document.getElementById('timeModalInfo').innerHTML=`PATIENT: ${selectedTotalPatient.name}<br>CLAIM ID: ${selectedClaimId} | DATE: ${selectedDate}`;
+  document.getElementById('timeModal').classList.add('open');
+}
+function closeTimeModal(){ document.getElementById('timeModal').classList.remove('open'); }
+function selectTime(el){
+  selectedTime=el.dataset.time;
+  closeTimeModal();
+  document.getElementById('blockModalInfo').innerHTML=`PATIENT: ${selectedTotalPatient.name}<br>CLAIM ID: ${selectedClaimId} | DATE: ${selectedDate} | TIME: ${selectedTime}`;
+  document.getElementById('blockModal').classList.add('open');
+}
+function closeBlockModal(){ document.getElementById('blockModal').classList.remove('open'); }
+function selectBlock(el){
+  selectedBlock=el.dataset.block;
+  closeBlockModal();
+  finalAddClaim();
+}
+async function finalAddClaim(){
+  if(!selectedTotalPatient||!selectedClaimId||!selectedDate||!selectedTime||!selectedBlock){ alert('Missing data'); return; }
+  let docId=`${selectedDate}_${selectedTotalPatient.shri}_${Date.now()}`;
+  try{
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',docId),{
+      date:selectedDate, scheme:'PMJAY', shriId:selectedTotalPatient.shri, shri:selectedTotalPatient.shri,
+      patientName:selectedTotalPatient.name, name:selectedTotalPatient.name,
+      pmjayCmhtId:selectedTotalPatient.pmjayId, pmjayId:selectedTotalPatient.pmjayId, pmjay:selectedTotalPatient.pmjayId,
+      time:selectedTime, block:selectedBlock, claimId:selectedClaimId, claimStatus:'CLAIMED', claimedAt:new Date().toISOString(), status:'DISCHARGE', dischargedAt:new Date().toISOString()
+    });
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',docId),{
+      date:selectedDate, scheme:'PMJAY', shriId:selectedTotalPatient.shri, shri:selectedTotalPatient.shri,
+      patientName:selectedTotalPatient.name, name:selectedTotalPatient.name,
+      pmjayCmhtId:selectedTotalPatient.pmjayId, pmjayId:selectedTotalPatient.pmjayId,
+      time:selectedTime, block:selectedBlock, claimId:selectedClaimId, claimStatus:'CLAIMED', claimedAt:new Date().toISOString()
+    });
+    alert(`Added ${selectedTotalPatient.name} to Claim ${selectedClaimId}`);
+    await loadAll();
+  }catch(e){ alert(e.message); }
+}
+
 async function removeClaim(id){
-  if(!confirm('DELETE this patient from CLAIM? Return to Discharge page after delete?')) return;
+  if(!confirm('DELETE this patient from CLAIM? Return to Discharge page?')) return;
   try{
     await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:'',claimStatus:'',claimedAt:''},{merge:true});
     await window._fb.deleteDoc(window._fb.doc(window._fb.db,'claims',id));
-    alert('Deleted from Claim. Returning to Discharge page.');
     location.href='discharge.html';
   }catch(e){ alert(e.message); }
 }
 async function editClaim(id){
-  let p=allClaimed.find(x=>x._id===id);
-  if(!p) return;
-  let newId=prompt('EDIT CLAIM ID:',p.claimId);
-  if(newId===null) return;
-  newId=newId.trim().toUpperCase();
-  if(!newId) return;
+  let p=allClaimed.find(x=>x._id===id); if(!p) return;
+  let newId=prompt('EDIT CLAIM ID:',p.claimId); if(newId===null) return; newId=newId.trim().toUpperCase(); if(!newId) return;
   try{
     await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:newId,claimedAt:new Date().toISOString(),claimStatus:'CLAIMED'},{merge:true});
     await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...p,claimId:newId,claimedAt:new Date().toISOString(),claimStatus:'CLAIMED'},{merge:true});
@@ -187,6 +300,8 @@ document.getElementById('fBlock').addEventListener('change', applyFilter);
 
 window.addEventListener('load', async ()=>{
   urlClaimId=getClaimIdFromURL();
+  if(urlClaimId) document.getElementById('claimIdInput').value=urlClaimId;
+  await loadMaster();
   await loadAll();
 });
 </script>
