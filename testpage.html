@@ -2,14 +2,13 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHIJA Dialysis</title>
+<title>SHIJA Dialysis - Fold Only</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#f1f5f9;color:#0f172a;min-height:100vh;display:flex}
-/* FOLD - MENU OPTIONS SLIDE, CARDS NO SLIDE */
-.whiteBar{width:270px;min-width:270px;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;transition:width .32s ease, min-width .32s ease;overflow:hidden;position:sticky;top:0;height:100vh;border-right:1px solid #1e293b;z-index:90}
+.whiteBar{width:270px;min-width:270px;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;position:sticky;top:0;height:100vh;border-right:1px solid #1e293b;z-index:90;transition:width .32s ease, min-width .32s ease;overflow:hidden;flex-shrink:0}
 .whiteBar.folded{width:0;min-width:0;border-right:0}
 .whiteBar.folded .sHead,.whiteBar.folded .sMenu,.whiteBar.folded .sFoot{opacity:0;pointer-events:none}
 .sHead{padding:18px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1e293b;white-space:nowrap}
@@ -17,21 +16,20 @@ body{background:#f1f5f9;color:#0f172a;min-height:100vh;display:flex}
 .sTitle b{color:#fff;font-size:16px;display:block;line-height:1}
 .sTitle span{font-size:9px;letter-spacing:1px;color:#64748b;text-transform:uppercase}
 .sMenu{flex:1;padding:12px 10px;overflow-y:auto;white-space:nowrap}
-/* MENU OPTIONS SLIDE UP/DOWN */
-.sMenu a{display:block;padding:11px 12px;border-radius:10px;text-decoration:none;color:#94a3b8;font-weight:500;font-size:13px;margin-bottom:3px;transition:transform .25s ease, background .2s, color .2s;transform:translateY(0)}
+.sMenu a{display:block;padding:11px 12px;border-radius:10px;text-decoration:none;color:#94a3b8;font-weight:500;font-size:13px;margin-bottom:3px;transition:transform .2s ease, background .2s}
 .sMenu a:hover{background:#1e293b;color:#fff;transform:translateY(-2px) translateX(4px)}
-.sMenu a:active{transform:translateY(1px)}
 .sMenu a.active{background:#1e293b;color:#fff;font-weight:600;border-left:3px solid #FF6CAB}
 .sFoot{padding:12px;border-top:1px solid #1e293b;font-size:11px;color:#64748b;white-space:nowrap}
-.whiteOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:85}
-.whiteOverlay.show{display:block}
+/* FOLD LINE LIKE YOUR PHOTO - CLICK TO FOLD */
+.foldLine{position:absolute;top:0;right:0;bottom:0;width:8px;background:#ffffff;cursor:pointer;z-index:95;display:flex;align-items:center;justify-content:center;border-left:1px solid #e2e8f0;transition:.2s}
+.foldLine:hover{background:#e2e8f0}
+.foldLine::after{content:'';width:3px;height:60px;background:#94a3b8;border-radius:10px}
 .mainWrap{flex:1;min-width:0;display:flex;flex-direction:column;background:#f1f5f9;min-height:100vh}
 .top{height:64px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:17px;color:#0f172a}
-/* 3 LINE ONLY - WHITE COLOUR - DARK BLUE BG */
-.menuBtnTop{width:42px;height:38px;border-radius:10px;background:#0f172a;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex-shrink:0;transition:.15s}
-.menuBtnTop:hover{background:#1e293b}
-.menuBtnTop span{display:block;width:18px;height:2px;background:#ffffff;border-radius:2px}
+/* 3 LINE WHITE - DARK BLUE LINES - ALWAYS ☰ */
+.menuBtnTop{width:42px;height:38px;border-radius:10px;background:#ffffff;border:1px solid #e2e8f0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex-shrink:0;box-shadow:0 1px 3px #0000000a}
+.menuBtnTop span{display:block;width:18px;height:2.5px;background:#0f172a;border-radius:2px}
 .searchWrap{flex:1;max-width:420px;margin:0 12px;position:relative}
 .search{width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;display:flex;gap:8px}
 .search input{background:transparent;border:0;outline:0;width:100%;font-size:13px}
@@ -49,9 +47,7 @@ body{background:#f1f5f9;color:#0f172a;min-height:100vh;display:flex}
 .dateBar{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid #e2e8f0;padding:8px 12px;border-radius:12px}
 .dateBar input{background:#f8fafc;border:1px solid #e2e8f0;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:600}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-/* CARDS NO SLIDE */
-.card{border-radius:18px;padding:18px;min-height:150px;text-decoration:none;color:#fff;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px #00000010;transition:none}
-.card:hover{transform:none}
+.card{border-radius:18px;padding:18px;min-height:150px;text-decoration:none;color:#fff;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px #00000010}
 .card b{font-size:13px;font-weight:800}
 .card h2{font-size:28px;font-weight:900;margin:6px 0}
 .card small{font-size:11px;opacity:.9}
@@ -72,7 +68,7 @@ body{background:#f1f5f9;color:#0f172a;min-height:100vh;display:flex}
 @media(max-width:900px){
 .whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;transform:translateX(0);transition:transform .32s ease}
 .whiteBar.folded{transform:translateX(-100%);width:270px;min-width:270px}
-.whiteBar.folded .sHead,.whiteBar.folded .sMenu,.whiteBar.folded .sFoot{opacity:1}
+.foldLine{display:none}
 .grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:600px){.grid{grid-template-columns:1fr 1fr}.content{padding:14px}}
@@ -81,7 +77,7 @@ body{background:#f1f5f9;color:#0f172a;min-height:100vh;display:flex}
 <body>
 
 <div class="whiteBar" id="whiteBar">
-<div>
+<div style="flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative">
 <div class="sHead"><div class="sLogo">S</div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE • V2.1</span></div></div>
 <div class="sMenu">
 <a href="index.html" class="active">HOME</a>
@@ -102,14 +98,14 @@ body{background:#f1f5f9;color:#0f172a;min-height:100vh;display:flex}
 <a href="dischargesummary.html">DISCHARGE SUMMARY</a>
 </div>
 </div>
-<div class="sFoot"><b style="color:#fff">System Status: Online</b><br>SHIJA Hospital</div>
+<div class="sFoot"><b style="color:#fff">System Status: Online</b></div>
+<!-- FOLD LINE LIKE YOUR PHOTO - CLICK TO FOLD -->
+<div class="foldLine" id="foldLine" onclick="toggleFold()" title="Click to fold"></div>
 </div>
-<div class="whiteOverlay" id="whiteOverlay" onclick="toggleFold()"></div>
 
 <div class="mainWrap" id="mainWrap">
 <div class="top">
-<!-- 3 LINE ONLY - WHITE COLOUR - DARK BLUE BG -->
-<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop" onclick="toggleFold()" aria-label="Menu"><span></span><span></span><span></span></button> SHIJA Dialysis</div>
+<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop" onclick="toggleFold()"><span></span><span></span><span></span></button> SHIJA Dialysis</div>
 <div class="searchWrap">
 <div class="search"><input id="globalSearch" type="search" placeholder="Search PMJAY & CMHT patients..." oninput="doGlobalSearch()"></div>
 <div class="searchResult" id="searchResult"></div>
@@ -140,16 +136,7 @@ body{background:#f1f5f9;color:#0f172a;min-height:100vh;display:flex}
 
 <script>
 function toggleFold(){
-  let bar=document.getElementById('whiteBar');
-  let overlay=document.getElementById('whiteOverlay');
-  let isFolded=bar.classList.contains('folded');
-  if(isFolded){
-    bar.classList.remove('folded');
-    overlay.classList.remove('show');
-  } else {
-    bar.classList.add('folded');
-    overlay.classList.remove('show');
-  }
+  document.getElementById('whiteBar').classList.toggle('folded');
 }
 function toggleDrop(e){e.stopPropagation();document.getElementById('adminDrop').classList.toggle('show');}
 document.addEventListener('click',(e)=>{if(!e.target.closest('.searchWrap'))document.getElementById('searchResult').classList.remove('show');if(!e.target.closest('#adminWrap'))document.getElementById('adminDrop').classList.remove('show');});
