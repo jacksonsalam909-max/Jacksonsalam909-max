@@ -2,82 +2,43 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHIJA Dialysis - Fold Only</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<title>SHIJA Dialysis - No Double Line</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#f1f5f9;color:#0f172a;min-height:100vh;display:flex}
-.whiteBar{width:270px;min-width:270px;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;position:sticky;top:0;height:100vh;border-right:1px solid #1e293b;z-index:90;transition:width .32s ease, min-width .32s ease;overflow:hidden;flex-shrink:0}
-.whiteBar.folded{width:0;min-width:0;border-right:0}
+.whiteBar{width:270px;min-width:270px;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;position:sticky;top:0;height:100vh;z-index:90;transition:width .32s ease, min-width .32s ease;overflow:hidden;flex-shrink:0;border:none;outline:none}
+.whiteBar.folded{width:0;min-width:0}
 .whiteBar.folded .sHead,.whiteBar.folded .sMenu,.whiteBar.folded .sFoot{opacity:0;pointer-events:none}
 .sHead{padding:18px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1e293b;white-space:nowrap}
-.sLogo{width:38px;height:38px;min-width:38px;background:linear-gradient(135deg,#FF6CAB,#7366FF);border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:18px}
+/* S ICON - WHITE BOX */
+.sLogo{width:38px;height:38px;min-width:38px;background:#ffffff;border-radius:10px;display:grid;place-items:center;color:#0f172a;font-weight:900;font-size:18px}
 .sTitle b{color:#fff;font-size:16px;display:block;line-height:1}
 .sTitle span{font-size:9px;letter-spacing:1px;color:#64748b;text-transform:uppercase}
 .sMenu{flex:1;padding:12px 10px;overflow-y:auto;white-space:nowrap}
-.sMenu a{display:block;padding:11px 12px;border-radius:10px;text-decoration:none;color:#94a3b8;font-weight:500;font-size:13px;margin-bottom:3px;transition:transform .2s ease, background .2s}
-.sMenu a:hover{background:#1e293b;color:#fff;transform:translateY(-2px) translateX(4px)}
+.sMenu::-webkit-scrollbar{display:none}
+.sMenu a{display:block;padding:11px 12px;border-radius:10px;text-decoration:none;color:#94a3b8;font-weight:500;font-size:13px;margin-bottom:3px}
+.sMenu a:hover{background:#1e293b;color:#fff}
 .sMenu a.active{background:#1e293b;color:#fff;font-weight:600;border-left:3px solid #FF6CAB}
 .sFoot{padding:12px;border-top:1px solid #1e293b;font-size:11px;color:#64748b;white-space:nowrap}
-/* FOLD LINE LIKE YOUR PHOTO - CLICK TO FOLD */
-.foldLine{position:absolute;top:0;right:0;bottom:0;width:8px;background:#ffffff;cursor:pointer;z-index:95;display:flex;align-items:center;justify-content:center;border-left:1px solid #e2e8f0;transition:.2s}
-.foldLine:hover{background:#e2e8f0}
-.foldLine::after{content:'';width:3px;height:60px;background:#94a3b8;border-radius:10px}
 .mainWrap{flex:1;min-width:0;display:flex;flex-direction:column;background:#f1f5f9;min-height:100vh}
 .top{height:64px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
-.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:17px;color:#0f172a}
-/* 3 LINE WHITE - DARK BLUE LINES - ALWAYS ☰ */
-.menuBtnTop{width:42px;height:38px;border-radius:10px;background:#ffffff;border:1px solid #e2e8f0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex-shrink:0;box-shadow:0 1px 3px #0000000a}
-.menuBtnTop span{display:block;width:18px;height:2.5px;background:#0f172a;border-radius:2px}
-.searchWrap{flex:1;max-width:420px;margin:0 12px;position:relative}
-.search{width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;display:flex;gap:8px}
-.search input{background:transparent;border:0;outline:0;width:100%;font-size:13px}
-.searchResult{position:absolute;top:100%;left:0;right:0;margin-top:8px;background:#fff;border-radius:12px;box-shadow:0 12px 30px #0002;border:1px solid #e2e8f0;max-height:340px;overflow-y:auto;display:none;z-index:100}
-.searchResult.show{display:block}
-.sItem{padding:10px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;display:flex;justify-content:space-between}
-.avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#FF6CAB,#7366FF);display:grid;place-items:center;color:#fff;font-weight:900;font-size:16px;cursor:pointer}
-.adminWrap{position:relative}
-.dropdown{position:absolute;top:100%;right:0;margin-top:10px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;min-width:210px;display:none;z-index:99;overflow:hidden;box-shadow:0 12px 30px #0002}
-.dropdown.show{display:block}
-.dropItem{padding:12px 14px;font-size:13px;font-weight:600;border:0;background:#fff;width:100%;text-align:left;cursor:pointer}
+.logo{display:flex;align-items:center;gap:12px;font-weight:900;font-size:17px;color:#0f172a}
+/* 3-LINE MENU - BORDERLESS - NO BORDER NO BOX */
+.menuBtnTop{width:40px;height:40px;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex-shrink:0;outline:none;box-shadow:none}
+.menuBtnTop:hover{background:#f1f5f9;border-radius:8px}
+.menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
 .content{flex:1;padding:20px 24px;max-width:1400px;width:100%;margin:0 auto}
-.head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px}
-.head h1{font-size:24px;font-weight:900}
-.dateBar{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid #e2e8f0;padding:8px 12px;border-radius:12px}
-.dateBar input{background:#f8fafc;border:1px solid #e2e8f0;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:600}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.card{border-radius:18px;padding:18px;min-height:150px;text-decoration:none;color:#fff;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px #00000010}
-.card b{font-size:13px;font-weight:800}
-.card h2{font-size:28px;font-weight:900;margin:6px 0}
-.card small{font-size:11px;opacity:.9}
+.card{border-radius:18px;padding:18px;min-height:140px;text-decoration:none;color:#fff;display:flex;flex-direction:column;justify-content:space-between}
 .c1{background:linear-gradient(135deg,#FF6CAB,#7366FF)}
 .c7{background:linear-gradient(135deg,#FFA62E,#EA4D2C)}
-.cClaim{background:linear-gradient(135deg,#0EA5E9,#6366F1)}
-.c9{background:linear-gradient(135deg,#6EE2F5,#6454F0)}
-.c2{background:linear-gradient(135deg,#B65EBA,#2E8DE1)}
-.c8{background:linear-gradient(135deg,#00FFED,#00B8BA)}
-.c4{background:linear-gradient(135deg,#7BF2E9,#B65EBA)}
-.c5{background:linear-gradient(135deg,#FF9482,#7D77FF)}
-.c6{background:linear-gradient(135deg,#FFCF1B,#FF881B)}
-.c11{background:linear-gradient(135deg,#FF9897,#F650A0)}
-.btn{padding:10px 14px;border:0;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px}.btnP{background:#0f172a;color:#fff}.btnG{background:#e2e8f0;color:#0f172a}
-.modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:100}
-.modalBox{background:#fff;border-radius:16px;padding:22px;width:90%;max-width:420px}
-.opt{padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:10px;cursor:pointer;font-weight:600;background:#f8fafc}
-@media(max-width:900px){
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;transform:translateX(0);transition:transform .32s ease}
-.whiteBar.folded{transform:translateX(-100%);width:270px;min-width:270px}
-.foldLine{display:none}
-.grid{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:600px){.grid{grid-template-columns:1fr 1fr}.content{padding:14px}}
+@media(max-width:900px){.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;transform:translateX(0);transition:transform .32s ease}.whiteBar.folded{transform:translateX(-100%);width:270px;min-width:270px}.grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
-
 <div class="whiteBar" id="whiteBar">
-<div style="flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative">
+<div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
 <div class="sHead"><div class="sLogo">S</div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE • V2.1</span></div></div>
 <div class="sMenu">
 <a href="index.html" class="active">HOME</a>
@@ -86,75 +47,27 @@ body{background:#f1f5f9;color:#0f172a;min-height:100vh;display:flex}
 <a href="claim.html">CLAIM</a>
 <a href="searchpatient.html">SEARCH PATIENT</a>
 <a href="gda.html">OFFICE ASSISTANT LIST</a>
-<a href="cmhtkft.html">CMHT KFT REPORT</a>
-<a href="list.html?scheme=CMHT&force=1">CMHT DAILY DIALYSIS</a>
-<a href="addcmht.html">CMHT ADD PATIENT</a>
-<a href="list.html?scheme=PMJAY&force=1">PMJAY DAILY DIALYSIS</a>
-<a href="list.html?scheme=PMJAY&force=1">DAILY DIALYSIS LIST</a>
-<a href="discharge.html">DISCHARGE PATIENT</a>
 <a href="kft.html">KFT REPORT</a>
+<a href="list.html">DAILY DIALYSIS LIST</a>
 <a href="add.html">ADD PATIENT</a>
 <a href="bill.html">BILL</a>
-<a href="dischargesummary.html">DISCHARGE SUMMARY</a>
 </div>
 </div>
 <div class="sFoot"><b style="color:#fff">System Status: Online</b></div>
-<!-- FOLD LINE LIKE YOUR PHOTO - CLICK TO FOLD -->
-<div class="foldLine" id="foldLine" onclick="toggleFold()" title="Click to fold"></div>
 </div>
-
-<div class="mainWrap" id="mainWrap">
+<div class="mainWrap">
 <div class="top">
-<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop" onclick="toggleFold()"><span></span><span></span><span></span></button> SHIJA Dialysis</div>
-<div class="searchWrap">
-<div class="search"><input id="globalSearch" type="search" placeholder="Search PMJAY & CMHT patients..." oninput="doGlobalSearch()"></div>
-<div class="searchResult" id="searchResult"></div>
+<div class="logo"><button type="button" class="menuBtnTop" onclick="toggleFold()"><span></span><span></span><span></span></button> SHIJA Dialysis</div>
 </div>
-<div class="adminWrap" id="adminWrap" onclick="toggleDrop(event)"><div class="avatar">A</div><div class="dropdown" id="adminDrop"><button class="dropItem" onclick="logoutNormal()">Logout</button><button class="dropItem" style="color:#ef4444" onclick="logoutNormal()">Logout All Devices</button></div></div>
-</div>
-
 <div class="content">
-<div class="head"><div><h1>Dashboard Overview</h1></div><div class="dateBar"><input type="date" id="dashDate"><button class="btn btnP" onclick="openExport()">Export Report</button></div></div>
 <div class="grid">
-<a href="total.html" class="card c1"><div><b>PMJAY Total Patient</b><h2 id="v1">513</h2><small>All time PMJAY</small></div></a>
-<a href="cmht.html" class="card c7"><div><b>CMHT Total Patient</b><h2 id="vCMHT">127</h2><small>CMHT Scheme</small></div></a>
-<a href="claim.html" class="card cClaim"><div><b>CLAIM</b><h2 style="font-size:26px;margin:6px 0">Open</h2><small>PMJAY & CMHT Claim</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 12px;border-radius:20px;font-size:11px">View Claims →</div></a>
-<a href="cmhtkft.html" class="card c9"><div><b>CMHT KFT Report</b><h2>0 Received</h2><small>15th to 30th</small></div></a>
-<a href="add.html" class="card c2"><div><b>ADD PMJAY Patient</b><small>Create PMJAY record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add PMJAY</div></a>
-<a href="addcmht.html" class="card c8"><div><b>Add CMHT Patient</b><small>Add CMHT record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add CMHT</div></a>
-<a href="kft.html" class="card c4"><div><b>PMJAY KFT REPORT</b><h2>0 Submitted</h2><small>15th to 30th</small></div></a>
-<a href="bill.html" class="card c5"><div><b>Bill</b><h2>0 Print</h2><small>Prints for selected date</small></div></a>
-<a href="discharge.html" class="card c6"><div><b>Discharge</b><h2>0</h2><small>For selected date</small></div></a>
-<a href="dischargesummary.html" class="card" style="background:linear-gradient(135deg,#FF5B94,#8441A4)"><div><b>Discharge Summary</b><h2 style="font-size:26px;margin:6px 0">Open</h2><small>Create discharge summary</small></div></a>
-<a href="list.html" class="card c11"><div><b>DAILY DIALYSIS LIST</b><h2 style="font-size:26px;margin:6px 0">Open</h2><small>Daily Dialysis List - PMJAY & CMHT</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 12px;border-radius:20px;font-size:11px">View List →</div></a>
+<a class="card c1"><div><b>PMJAY Total Patient 530</b></div></a>
+<a class="card c7"><div><b>CMHT Total Patient 127</b></div></a>
 </div>
 </div>
 </div>
-</div>
-
-<div class="modal" id="expModal"><div class="modalBox"><h3 style="font-weight:900;margin-bottom:12px">Export Report - <span id="expDateShow"></span></h3><div class="opt" onclick="exportExcel('total')"><b>PMJAY Total Patient Record</b></div><div class="opt" onclick="exportExcel('cmht_total')"><b>CMHT Total Patient Record</b></div><button class="btn btnG" style="width:100%;margin-top:10px" onclick="closeExport()">Cancel</button></div></div>
-
 <script>
-function toggleFold(){
-  document.getElementById('whiteBar').classList.toggle('folded');
-}
-function toggleDrop(e){e.stopPropagation();document.getElementById('adminDrop').classList.toggle('show');}
-document.addEventListener('click',(e)=>{if(!e.target.closest('.searchWrap'))document.getElementById('searchResult').classList.remove('show');if(!e.target.closest('#adminWrap'))document.getElementById('adminDrop').classList.remove('show');});
-function logoutNormal(){localStorage.removeItem('shija_logged');location.href='login.html';}
-function openExport(){document.getElementById('expDateShow').textContent=document.getElementById('dashDate').value;document.getElementById('expModal').style.display='grid';}
-function closeExport(){document.getElementById('expModal').style.display='none';}
-window.allForSearch=[];
-function doGlobalSearch(){let q=document.getElementById('globalSearch').value.toLowerCase().trim();let box=document.getElementById('searchResult');if(!q){box.classList.remove('show');return;}let f=window.allForSearch.filter(p=>[p.name,p.shri].join(' ').toLowerCase().includes(q)).slice(0,10);if(!f.length){box.innerHTML='<div class="sItem"><b>No patient</b></div>';box.classList.add('show');return;}let h='';f.forEach(p=>{h+=`<div class="sItem" onclick="location.href='searchpatient.html?shri=${encodeURIComponent(p.shri)}'"><div><b>${p.name}</b><br><small>${p.shri}</small></div><small>→</small></div>`;});box.innerHTML=h;box.classList.add('show');}
-</script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(config);const db=getFirestore(app);
-let today=new Date().toISOString().slice(0,10);document.getElementById('dashDate').value=today;
-async function load(){try{let snap=await getDocs(collection(db,"patients"));document.getElementById('v1').textContent=snap.size;}catch(e){}try{let csnap=await getDocs(collection(db,"cmht_patients"));document.getElementById('vCMHT').textContent=csnap.size;}catch(e){}}
-load();
-window.exportExcel=async(type)=>{closeExport();};
+function toggleFold(){document.getElementById('whiteBar').classList.toggle('folded');}
 </script>
 </body>
 </html>
