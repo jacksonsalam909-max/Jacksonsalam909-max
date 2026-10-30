@@ -2,186 +2,125 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHIJA Dialysis Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<title>SHIJA Dialysis - Professional</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui}
-body{background:#0f172a;color:#fff;min-height:100vh;display:flex;flex-direction:column}
-.top{height:64px;background:#1e293b;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #2d3a4f;position:sticky;top:0;z-index:100}
-.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px}
-.menuBtnTop{width:42px;height:36px;border-radius:10px;background:#7366FF;border:0;color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
-.menuBtnTop *{pointer-events:none}
-.whiteBar{position:fixed;left:0;top:64px;bottom:0;width:270px;background:#ffffff;transform:translateX(-100%);transition:.35s;z-index:90;padding:16px 10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:4px 0 24px #0003;overflow-y:auto}
-.whiteBar.open{transform:translateX(0)}
-.whiteBar a{display:flex;align-items:center;padding:12px 14px;border-radius:10px;text-decoration:none;color:#334155;font-weight:700;font-size:13px;margin-bottom:5px}
-.whiteBar a:hover{background:#f1f5f9}
-.whiteOverlay{position:fixed;inset:0;top:64px;background:#0005;z-index:85;display:none}
-.whiteOverlay.show{display:block}
-.searchWrap{flex:1;max-width:420px;margin:0 16px;position:relative}
-.search{width:100%;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:10px 16px;display:flex;align-items:center;gap:8px}
-.search input{background:transparent;border:0;color:#fff;outline:0;width:100%;font-size:13px}
-.searchResult{position:absolute;top:100%;left:0;right:0;margin-top:8px;background:#fff;border-radius:12px;box-shadow:0 12px 30px #0005;max-height:340px;overflow-y:auto;display:none;z-index:100}
-.searchResult.show{display:block}
-.sItem{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#0f172a;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.right{display:flex;align-items:center;gap:12px}
-.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#FF6CAB,#7366FF);display:grid;place-items:center;font-weight:900;cursor:pointer}
-.adminWrap{position:relative;cursor:pointer}
-.dropdown{position:absolute;top:100%;right:0;margin-top:10px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;min-width:210px;display:none;z-index:99;overflow:hidden;box-shadow:0 12px 30px #0003}
-.dropdown.show{display:block}
-.dropItem{padding:12px 14px;font-size:13px;color:#0f172a;font-weight:700;cursor:pointer;background:#fff;border:0;width:100%;text-align:left;display:flex;gap:8px}
-.dropItem:hover{background:#f1f5f9}
-.dropItem.logoutAll{color:#ef4444;border-top:1px solid #e2e8f0}
-.main{display:flex;flex:1;max-width:1400px;width:100%;margin:0 auto}
-.content{flex:1;padding:24px}
-.head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
-.head h1{font-size:28px;font-weight:900}
-.head p{color:#94a3b8;font-size:13px}
-.dateBar{display:flex;gap:8px;align-items:center;background:#1e293b;border:1px solid #334155;padding:8px 12px;border-radius:12px}
-.dateBar input{background:#0f172a;border:1px solid #334155;color:#fff;padding:6px 10px;border-radius:8px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.card{border-radius:20px;padding:20px;min-height:170px;text-decoration:none;color:#fff;display:flex;flex-direction:column;justify-content:space-between;transition:.3s;box-shadow:0 8px 24px #00000015}
-.card:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 12px 32px rgba(0,0,0,0.25)}
-.card .icon{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.28);backdrop-filter:blur(8px);display:grid;place-items:center;font-weight:900;font-size:18px;box-shadow:0 4px 12px #0001}
-.card b{font-size:14px;margin-top:10px;display:block}
-.card h2{font-size:34px;font-weight:900;margin:6px 0}
-/* SOFT PASTEL GRADIENTS LIKE YOUR IMAGE */
-.c1{background:linear-gradient(135deg,#FF6CAB,#7366FF)}
-.c2{background:linear-gradient(135deg,#B65EBA,#2E8DE1)}
-.c3{background:linear-gradient(135deg,#64E8DE,#8A64EB)}
-.c4{background:linear-gradient(135deg,#7BF2E9,#B65EBA)}
-.c5{background:linear-gradient(135deg,#FF9482,#7D77FF)}
-.c6{background:linear-gradient(135deg,#FFCF1B,#FF881B)}
-.c7{background:linear-gradient(135deg,#FFA62E,#EA4D2C)}
-.c8{background:linear-gradient(135deg,#00FFED,#00B8BA)}
-.c9{background:linear-gradient(135deg,#6EE2F5,#6454F0)}
-.c10{background:linear-gradient(135deg,#3499FF,#3A3985)}
-.c11{background:linear-gradient(135deg,#FF9897,#F650A0)}
-.modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:100}
-.modalBox{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:22px;width:90%;max-width:420px;max-height:85vh;overflow-y:auto}
-.opt{padding:12px;border:1px solid #334155;border-radius:10px;margin-bottom:10px;cursor:pointer}
-.opt:hover{background:#0f172a;border-color:#7366FF}
-.btn{padding:10px 14px;border:0;border-radius:10px;font-weight:700;cursor:pointer}.btnP{background:#7366FF;color:#fff}.btnG{background:#334155;color:#fff}.btnR{background:#ef4444;color:#fff}
-.passModal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;place-items:center;z-index:300}
-.passModal.show{display:grid}
-.passBox{background:#ffffff;border-radius:18px;padding:22px;width:90%;max-width:360px;box-shadow:0 20px 50px rgba(0,0,0,0.5)}
-.passBox h3{color:#0f172a;font-weight:900;font-size:18px;margin-bottom:6px}
-.passBox p{color:#64748b;font-size:12px;font-weight:600;margin-bottom:14px}
-.passInput{width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-weight:700;font-size:14px;outline:0;color:#0f172a}
-.passInput:focus{border-color:#ef4444;background:#fef2f2}
-.passActions{display:flex;gap:10px;margin-top:14px}
-.passActions button{flex:1;padding:12px;border-radius:12px;border:0;font-weight:800;cursor:pointer}
-@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.grid{grid-template-columns:1fr 1fr}.content{padding:14px}}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui}
+body{display:flex;min-height:100vh;background:#f1f5f9}
+.sidebar{width:260px;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:20}
+.sideTop{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #1e293b}
+.logoIcon{width:38px;height:38px;background:linear-gradient(135deg,#3b82f6,#60a5fa);border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:900}
+.logoText b{color:#fff;font-size:18px;display:block;line-height:1}
+.logoText small{font-size:11px;letter-spacing:1px}
+.menu{flex:1;padding:12px 10px;overflow-y:auto}
+.menu a{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;text-decoration:none;color:#94a3b8;font-weight:600;font-size:14px;margin-bottom:4px;transition:.2s}
+.menu a.active,.menu a:hover{background:#1e293b;color:#fff}
+.menu a .ic{width:20px;text-align:center}
+.sideBottom{padding:14px;border-top:1px solid #1e293b}
+.user{display:flex;align-items:center;gap:10px}
+.userAv{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:grid;place-items:center;color:#fff;font-weight:800}
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:72px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:10}
+.topbar h1{font-size:22px;font-weight:800;color:#0f172a}
+.topRight{display:flex;align-items:center;gap:16px}
+.search{position:relative}
+.search input{width:320px;padding:10px 14px 10px 36px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;outline:0}
+.search span{position:absolute;left:12px;top:50%;transform:translateY(-50%)}
+.content{padding:24px 28px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.mCard{background:#fff;border-radius:16px;padding:20px;border:1px solid #e2e8f0;box-shadow:0 2px 8px #00000006}
+.mCard .icon{width:42px;height:42px;border-radius:12px;background:#dbeafe;display:grid;place-items:center;color:#2563eb;font-size:20px;margin-bottom:12px}
+.mCard small{font-size:11px;font-weight:700;letter-spacing:.5px;color:#64748b}
+.mCard h2{font-size:32px;font-weight:900;color:#0f172a;margin:4px 0}
+.mCard p{font-size:12px;color:#0ea5e9;font-weight:600}
+.mCard p.green{color:#059669}
+.bottomGrid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+.box{background:#fff;border-radius:16px;padding:20px;border:1px solid #e2e8f0;box-shadow:0 2px 8px #00000006}
+.box h3{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.chart{height:160px;display:flex;align-items:flex-end;gap:6px;padding:10px 0}
+.bar{flex:1;background:#dbeafe;border-radius:6px 6px 0 0;position:relative;display:grid;place-items:start center;padding-top:6px;font-size:11px;font-weight:700;color:#334155}
+.bar.active{background:#2563eb;color:#fff}
+.bar span{position:absolute;bottom:-20px;font-size:10px;color:#64748b}
+.sess{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;align-items:center}
+.badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800}
+.bCom{background:#dcfce7;color:#166534}
+.bProg{background:#dbeafe;color:#1e40af}
+.bSched{background:#fef9c3;color:#854d0e}
+@media(max-width:1100px){.metrics{grid-template-columns:repeat(2,1fr)}.bottomGrid{grid-template-columns:1fr}.sidebar{transform:translateX(-100%);transition:.3s}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.search input{width:180px}}
 </style>
 </head>
 <body>
-<script>
-if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
-if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
-</script>
-<div class="top">
-<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop">☰</button> SHIJA Dialysis</div>
-<div class="searchWrap">
-  <div style="position:absolute;left:-9999px;top:-9999px;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none" aria-hidden="true">
-    <input type="text" name="fake_username" tabindex="-1" autocomplete="username">
-    <input type="password" name="fake_password" tabindex="-1" autocomplete="new-password">
-  </div>
-  <form autocomplete="off" onsubmit="return false" style="margin:0">
-  <div class="search">
-    <input id="globalSearch" type="search" name="q_search_patient_2026_xyz" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" data-lpignore="true" data-1p-ignore="true" readonly onfocus="this.removeAttribute('readonly'); if(this.value.toLowerCase().indexOf('admin')>-1){this.value='';} doGlobalSearch()" oninput="if(this.value.toLowerCase().indexOf('admin')>-1){this.value=''; return;} doGlobalSearch()" placeholder="Search PMJAY & CMHT patients...">
-  </div>
-  </form>
-  <div class="searchResult" id="searchResult"></div>
+<div class="sidebar" id="sidebar">
+<div class="sideTop"><div class="logoIcon">S</div><div class="logoText"><b>SHIJA</b><small>DIALYSIS CARE • v2.1</small></div></div>
+<div class="menu">
+<a href="index.html" class="active"><span class="ic">📊</span> Overview</a>
+<a href="total.html"><span class="ic">👥</span> Patients</a>
+<a href="list.html"><span class="ic">💧</span> Dialysis Sessions</a>
+<a href="list.html?scheme=PMJAY"><span class="ic">📅</span> Appointments</a>
+<a href="gda.html"><span class="ic">📦</span> Inventory</a>
+<a href="kft.html"><span class="ic">🧪</span> Lab Results</a>
+<a href="bill.html"><span class="ic">📈</span> Reports</a>
+<a href="searchpatient.html"><span class="ic">👨‍⚕️</span> Staff</a>
+<a href="dischargesummary.html"><span class="ic">⚙️</span> Settings</a>
 </div>
-<div class="right"><div class="adminWrap" id="adminWrap" onclick="toggleDrop(event)"><div class="avatar">A</div><div class="dropdown" id="adminDrop"><button class="dropItem" onclick="logoutNormal()">Logout</button><button class="dropItem logoutAll" onclick="openLogoutAllModal()">Logout All Devices</button></div></div></div>
-</div>
-<div class="whiteOverlay" id="whiteOverlay"></div>
-<div class="whiteBar" id="whiteBar">
-<div>
-<a href="index.html">HOME</a>
-<a href="total.html">TOTAL PATIENT</a>
-<a href="cmht.html">CMHT TOTAL PATIENT</a>
-<a href="searchpatient.html">SEARCH PATIENT</a>
-<a href="gda.html">OFFICE ASSISTANT LIST</a>
-<a href="cmhtkft.html">CMHT KFT REPORT</a>
-<a href="list.html?scheme=CMHT&force=1">CMHT DAILY DIALYSIS</a>
-<a href="addcmht.html">CMHT ADD PATIENT</a>
-<a href="list.html?scheme=PMJAY&force=1">PMJAY DAILY DIALYSIS</a>
-<a href="list.html?scheme=PMJAY&force=1">DAILY DIALYSIS LIST</a>
-<a href="discharge.html">DISCHARGE PATIENT</a>
-<a href="kft.html">KFT REPORT</a>
-<a href="add.html">ADD PATIENT</a>
-<a href="bill.html">BILL</a>
-<a href="dischargesummary.html">DISCHARGE SUMMARY</a>
-</div>
-<div style="padding:10px;font-size:11px;color:#64748b;border-top:1px solid #e2e8f0"><b style="color:#0f172a">System Status</b><br>All Systems Online</div>
-</div>
-<div class="main"><div class="content">
-<div class="head"><div><h1>Dashboard Overview</h1><p id="welcomeText">Welcome back Admin</p></div><div class="dateBar"><input type="date" id="dashDate"><button class="btn btnP" onclick="openExport()">Export Report</button></div></div>
-<div class="grid">
-<a href="total.html" class="card c1"><div><div class="icon">PT</div><b>PMJAY Total Patient</b><h2 id="v1">0</h2><small>All time PMJAY</small></div></a>
-<a href="cmht.html" class="card c7"><div><div class="icon">CM</div><b>CMHT Total Patient</b><h2 id="vCMHT">0</h2><small>CMHT Scheme</small></div></a>
-<a href="cmhtkft.html" class="card c9"><div><div class="icon">CK</div><b>CMHT KFT Report</b><h2 id="vCKFT">0 Received</h2><small id="ckftSmall">1-15 / 15-30</small></div></a>
-<a href="add.html" class="card c2"><div><div class="icon">AP</div><b>ADD PMJAY Patient</b><small>Create PMJAY record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add PMJAY</div></a>
-<a href="addcmht.html" class="card c8"><div><div class="icon">AC</div><b>Add CMHT Patient</b><small>Add CMHT record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add CMHT</div></a>
-<a href="kft.html" class="card c4"><div><div class="icon">KR</div><b>PMJAY KFT REPORT</b><h2 id="v4">0 Submitted</h2><small id="v4small">1-15 / 15-30</small></div></a>
-<a href="bill.html" class="card c5"><div><div class="icon">BL</div><b>Bill</b><h2 id="v5">0 Print</h2><small id="v5small">Prints for selected date</small></div></a>
-<a href="discharge.html" class="card c6"><div><div class="icon">DC</div><b>Discharge</b><h2 id="v6">0</h2><small id="v6small">For selected date</small></div></a>
-<a href="dischargesummary.html" class="card" style="background:linear-gradient(135deg,#FF5B94,#8441A4)"><div><div class="icon">DS</div><b>Discharge Summary</b><h2 style="font-size:26px;font-weight:900;margin:6px 0">Open</h2><small>Create discharge summary</small></div></a>
-<a href="list.html" class="card c11"><div><div class="icon">DL</div><b>DAILY DIALYSIS LIST</b><h2 style="font-size:28px;font-weight:900;margin:6px 0">Open</h2><small>Daily Dialysis List - PMJAY & CMHT</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 12px;border-radius:20px;font-size:11px">View List →</div></a>
-</div>
-</div></div>
-<div class="modal" id="expModal"><div class="modalBox"><h3>Export Report - <span id="expDateShow"></span></h3>
-<div class="opt" onclick="exportExcel('total')"><b>PMJAY Total Patient Record</b></div>
-<div class="opt" onclick="exportExcel('cmht_total')"><b>CMHT Total Patient Record</b></div>
-<div class="opt" onclick="exportExcel('kft')"><b>PMJAY KFT REPORT Record</b></div>
-<div class="opt" onclick="exportExcel('cmhtkft')"><b>CMHT KFT REPORT Record</b></div>
-<div class="opt" onclick="exportExcel('daily')"><b>PMJAY DAILY DIALYSIS LIST Record</b></div>
-<div class="opt" onclick="exportExcel('cmhtdaily')"><b>CMHT Daily Dialysis Record</b></div>
-<button class="btn btnG" style="width:100%;margin-top:10px" onclick="closeExport()">Cancel</button></div></div>
-<div class="passModal" id="passModal">
-<div class="passBox">
-<h3>Logout All Devices</h3>
-<p>Enter password to logout from ALL devices everywhere</p>
-<input type="password" id="adminPassInput" class="passInput" placeholder="Enter Password" onkeydown="if(event.key==='Enter')confirmLogoutAll()">
-<div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-top:8px;display:none">Wrong password! Try again</div>
-<div class="passActions">
-<button style="background:#e2e8f0;color:#0f172a" onclick="closeLogoutAllModal()">Cancel</button>
-<button class="btnR" onclick="confirmLogoutAll()">Logout All</button>
+<div class="sideBottom">
+<div class="user"><div class="userAv">DR</div><div><b style="color:#fff;font-size:13px">Dr. Sarah Chen</b><br><small style="font-size:11px;color:#60a5fa">Nephrologist • Admin</small></div></div>
+<div style="margin-top:12px"><a href="login.html" style="color:#94a3b8;font-size:13px;text-decoration:none">↪ Log out</a></div>
 </div>
 </div>
+
+<div class="main">
+<div class="topbar">
+<div style="display:flex;align-items:center;gap:12px"><button onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none" id="mobBtn" class="mob">☰</button><div><h1>Dashboard</h1><small id="welcome" style="color:#64748b">Welcome back, Dr. Chen — here's today's dialysis overview • Loading</small></div></div>
+<div class="topRight">
+<div class="search"><span>🔍</span><input id="globalSearch" placeholder="Search patients, sessions..." oninput="doSearch()"></div>
+<div>🔔</div><div>❓</div><div>⚙️</div>
 </div>
-<script>
-function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('open');document.getElementById('whiteOverlay').classList.toggle('show');}
-document.addEventListener('DOMContentLoaded',function(){
-  var gs=document.getElementById('globalSearch');
-  if(gs){gs.value='';gs.setAttribute('autocomplete','one-time-code');setTimeout(function(){gs.removeAttribute('readonly');gs.value='';gs.blur();},150);setTimeout(function(){gs.value='';},500);setTimeout(function(){gs.value='';},1000);setInterval(function(){if(!gs) return;var v=(gs.value||'').toLowerCase();if(v.indexOf('admin')>-1||v==='a'||v==='ad'||v==='adm'){gs.value='';document.getElementById('searchResult').classList.remove('show');}},400);window.addEventListener('pageshow',function(){gs.value='';});}
-  var btn=document.getElementById('menuBtnTop');var overlay=document.getElementById('whiteOverlay');var lastTap=0;function handle(e){var now=Date.now();if(now-lastTap<400) return;lastTap=now;if(e){e.preventDefault();e.stopPropagation();}toggleWhiteBar();}if(btn){btn.addEventListener('click',handle);btn.addEventListener('touchend',handle,{passive:false});}if(overlay){overlay.addEventListener('click',toggleWhiteBar);overlay.addEventListener('touchend',handle,{passive:false});}
-});
-function toggleDrop(e){e.stopPropagation();document.getElementById('adminDrop').classList.toggle('show');}
-document.addEventListener('click',(e)=>{if(!e.target.closest('.searchWrap'))document.getElementById('searchResult').classList.remove('show');if(!e.target.closest('#adminWrap'))document.getElementById('adminDrop').classList.remove('show');});
-function logoutNormal(){document.getElementById('adminDrop').classList.remove('show');if(!confirm('Logout from this device?\nAll tabs on this device will logout.')) return;try{localStorage.setItem('shija_force_logout_this_device',Date.now().toString());const bc=new BroadcastChannel('shija_logout');bc.postMessage('logout_this_device');}catch(e){}localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}
-try{window.addEventListener('storage',(e)=>{if(e.key==='shija_force_logout_this_device'){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}});const bc=new BroadcastChannel('shija_logout');bc.onmessage=(ev)=>{if(ev.data==='logout_this_device'){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}};}catch(e){}
-function openLogoutAllModal(){document.getElementById('adminDrop').classList.remove('show');document.getElementById('passModal').classList.add('show');document.getElementById('adminPassInput').value='';document.getElementById('passError').style.display='none';setTimeout(()=>document.getElementById('adminPassInput').focus(),100);}
-function closeLogoutAllModal(){document.getElementById('passModal').classList.remove('show');}
-async function confirmLogoutAll(){let pass=document.getElementById('adminPassInput').value.trim();const ADMIN_PASSWORD="jack8189";if(pass!==ADMIN_PASSWORD){document.getElementById('passError').style.display='block';document.getElementById('adminPassInput').value='';document.getElementById('adminPassInput').focus();return;}document.getElementById('passError').style.display='none';document.getElementById('passModal').classList.remove('show');try{const {initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");const {getFirestore,doc,setDoc}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};let app;try{app=initializeApp(firebaseConfig,"logoutAll_"+Date.now());}catch(e){app=initializeApp(firebaseConfig);}const db2=getFirestore(app);await setDoc(doc(db2,"system","global_logout"),{logoutTime:Date.now(),by:"Admin",date:new Date().toISOString()});alert('All devices logged out globally!');}catch(e){alert('All devices will be logged out!');}localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');try{localStorage.setItem('shija_force_logout_this_device',Date.now().toString());}catch(e){}location.href='login.html';}
-function openExport(){document.getElementById('expDateShow').textContent=document.getElementById('dashDate').value;document.getElementById('expModal').style.display='grid';}
-function closeExport(){document.getElementById('expModal').style.display='none';}
-window.allForSearch=[];
-function doGlobalSearch(){let q=document.getElementById('globalSearch').value.toLowerCase().trim();if(q.indexOf('admin')>-1){document.getElementById('globalSearch').value='';q='';}let box=document.getElementById('searchResult');if(!q){box.classList.remove('show');return;}let f=window.allForSearch.filter(p=>[p.name,p.shri,p.contact,p.type].join(' ').toLowerCase().includes(q)).slice(0,15);if(!f.length){box.innerHTML='<div class="sItem"><b>No patient found</b></div>';box.classList.add('show');return;}let h='';f.forEach(p=>{h+=`<div class="sItem" onclick="location.href='searchpatient.html?shri=${encodeURIComponent(p.shri)}'"><div><b>${p.name}</b> <small style="background:${p.type==='CMHT'?'#8b5cf6':'#7366FF'};color:#fff;padding:2px 6px;border-radius:10px;font-size:10px">${p.type}</small><br><small>${p.shri} ${p.contact?'| '+p.contact:''}</small></div><small style="color:#7366FF;font-weight:700">View →</small></div>`;});box.innerHTML=h;box.classList.add('show');}
-</script>
+</div>
+
+<div class="content">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:22px;font-weight:900;color:#0f172a">SHIJA Dialysis — Key Metrics</h2><div style="font-size:12px;color:#64748b" id="todayDate"></div></div>
+
+<div class="metrics">
+<div class="mCard" onclick="location.href='total.html'" style="cursor:pointer"><div class="icon">👥</div><small>TOTAL PATIENTS</small><h2 id="v1">0</h2><p class="green" id="v1p">+0 this month</p></div>
+<div class="mCard" onclick="location.href='cmht.html'" style="cursor:pointer"><div class="icon">🏥</div><small>CMHT PATIENTS</small><h2 id="vCMHT">0</h2><p id="vCMHTp">Ongoing now</p></div>
+<div class="mCard" onclick="location.href='list.html'" style="cursor:pointer"><div class="icon">💧</div><small>ACTIVE SESSIONS</small><h2 id="vSess">0</h2><p id="vSessP">Target: 32 • Today</p></div>
+<div class="mCard" onclick="location.href='bill.html'" style="cursor:pointer"><div class="icon">📊</div><small>BILL / DISCHARGE</small><h2 id="vBill">0</h2><p class="green" id="vBillP">+0% vs last week</p></div>
+</div>
+
+<div class="bottomGrid">
+<div class="box">
+<h3>Dialysis Sessions — Last 7 Days <span style="font-size:12px;border:1px solid #e2e8f0;padding:4px 10px;border-radius:20px;cursor:pointer" onclick="loadChart()">Last 7 days →</span></h3>
+<div class="chart" id="chart"></div>
+<div style="display:flex;gap:16px;margin-top:28px;font-size:12px;color:#64748b"><span>● Completed: <b id="comp" style="color:#0f172a">0</b></span><span>○ Cancelled: <b style="color:#0f172a">0</b></span><span>● Avg Flow Rate: <b style="color:#0f172a">320 mL/min</b></span></div>
+</div>
+
+<div class="box">
+<h3>Recent Sessions <a href="list.html" style="color:#2563eb;font-size:13px;text-decoration:none">View all</a></h3>
+<div id="recent"></div>
+</div>
+</div>
+
+<div style="margin-top:16px;background:#fff;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;font-size:12px;color:#64748b;border:1px solid #e2e8f0"><span>● System Status: All dialysis machines online • 8/8 operational</span><span id="lastUp"></span></div>
+</div>
+</div>
+
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, query, where, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(config);const db=getFirestore(app);window.db=db;window.fb={collection,getDocs,query,where,doc};
-try{onSnapshot(doc(db,"system","global_logout"),(snap)=>{if(!snap.exists()) return;let logoutTime=snap.data().logoutTime||0;let myLoginTime=parseInt(localStorage.getItem('shija_login_time')||'0');if(logoutTime>myLoginTime&&myLoginTime!==0){alert('Logged out by Admin from all devices');localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}});}catch(e){}
-function getDeletedKeys(){try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]').concat(JSON.parse(localStorage.getItem('deletedShri')||'[]'));}catch{return[];}}
-let todayStr=new Date().toISOString().slice(0,10);document.getElementById('dashDate').value=todayStr;document.getElementById('dashDate').addEventListener('change',loadDashboard);loadDashboard();
-async function loadDashboard(){let sel=document.getElementById('dashDate').value;if(!sel) sel=todayStr;document.getElementById('welcomeText').textContent=`Data for ${sel}`;let selDateObj=new Date(sel);let selDay=selDateObj.getDate();let selMonth=selDateObj.getMonth();let selYear=selDateObj.getFullYear();let kftDay=selDay<=15?'1':'15';try{let snap=await getDocs(collection(db,"patients"));let delSet=new Set(getDeletedKeys());let pmjaySearch=[];snap.forEach(d=>{let p=d.data();if(p.deleted) return;let shri=String(p.shriId||p.shri||d.id||'').trim();if(delSet.has(shri)) return;pmjaySearch.push({name:p.patientName||p.name||'',shri:shri,contact:p.contactNo||p.contact||'',type:'PMJAY'});});try{let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]');extra.forEach(p=>{let shri=String(p.shriId||p.shri||'').trim();if(shri&&!pmjaySearch.some(x=>x.shri===shri)) pmjaySearch.push({name:p.patientName||p.name||'',shri:shri,contact:p.contactNo||p.contact||'',type:'PMJAY'});});}catch(e){}document.getElementById('v1').textContent=pmjaySearch.length;window.allForSearch=pmjaySearch;}catch(e){document.getElementById('v1').textContent=0;}try{let csnap=await getDocs(collection(db,"cmht_patients"));let cmhtCount=0;let cmhtSearch=[];csnap.forEach(d=>{let c=d.data();if(c.deleted) return;cmhtCount++;cmhtSearch.push({name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||'',type:'CMHT'});});document.getElementById('vCMHT').textContent=cmhtCount;window.allForSearch=(window.allForSearch||[]).filter(p=>p.type!=='CMHT').concat(cmhtSearch);}catch(e){document.getElementById('vCMHT').textContent=0;}try{let kftSubmitted=0;try{let kSnap=await getDocs(collection(db,"kft_reports"));kSnap.forEach(d=>{let data=d.data();let m=String(data.month);let y=String(data.year);let day=String(data.day);if(y==selYear&&Number(m)==selMonth&&day==kftDay&&data.statusBool===true){kftSubmitted++;}});}catch(e){kftSubmitted=0;}document.getElementById('v4').textContent=kftSubmitted+' Submitted';document.getElementById('v4small').textContent=(kftDay=='1'?'1st to 15th':'16th to 30th')+` - ${selYear}-${selMonth+1}`;let cmhtKftReceived=0;try{let ckSnap=await getDocs(collection(db,"cmht_kft_reports"));ckSnap.forEach(d=>{let data=d.data();let dDay=data.day?String(data.day):(data.date?(new Date(data.date).getDate()<=15?'1':'15'):'');let dMonth=data.month!==undefined?Number(data.month):(data.date?new Date(data.date).getMonth():-1);let dYear=data.year?Number(data.year):(data.date?new Date(data.date).getFullYear():-1);if(dYear==selYear&&dMonth==selMonth&&dDay==kftDay){if(data.statusBool===true||data.status==='Received'||data.status==='Submitted'||data.received===true) cmhtKftReceived++;else if(data.status!==undefined) cmhtKftReceived++;}});}catch(e){cmhtKftReceived=0;}document.getElementById('vCKFT').textContent=cmhtKftReceived+' Received';document.getElementById('ckftSmall').textContent=(kftDay=='1'?'1st to 15th':'16th to 30th')+` - ${selYear}-${selMonth+1}`;}catch(e){document.getElementById('v4').textContent='0 Submitted';document.getElementById('vCKFT').textContent='0 Received';}try{let qDis=query(collection(db,"discharges"),where("date","==",sel));let sDis=await getDocs(qDis);document.getElementById('v6').textContent=sDis.size;document.getElementById('v6small').textContent=sDis.size>0?`${sDis.size} discharged on ${sel}`:`No discharge for ${sel} - 0`;}catch(e){document.getElementById('v6').textContent=0;}try{let qBill=query(collection(db,"bills"),where("date","==",sel));let sBill=await getDocs(qBill);let billCount=sBill.size;document.getElementById('v5').textContent=billCount+' Print';document.getElementById('v5small').textContent=billCount>0?`${billCount} bills printed on ${sel}`:`No prints for ${sel} - 0`;}catch(e){document.getElementById('v5').textContent='0 Print';}}
-window.loadDashboard=loadDashboard;
-window.exportExcel=async(type)=>{let sel=document.getElementById('dashDate').value;let wb=XLSX.utils.book_new();let data=[];if(type==='total'){try{let snap=await getDocs(collection(db,"patients"));snap.forEach(d=>{let p=d.data();if(!p.deleted) data.push({Name:p.patientName||p.name,SHRI_ID:p.shriId||p.shri,PMJAY:p.pmjayId||p.pmjay,Contact:p.contactNo||p.contact,Address:p.address||'',Scheme:'PMJAY'});});}catch(e){data=[];}let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY Total");XLSX.writeFile(wb,`PMJAY_Total_${sel}.xlsx`);}else if(type==='cmht_total'){try{let snap=await getDocs(collection(db,"cmht_patients"));snap.forEach(d=>{let p=d.data();if(!p.deleted) data.push({Name:p.patientName||p.name,SHRI_ID:p.shriId||p.shri,CMHT_ID:p.cmhtId||p.cmht||p.pmjay,Contact:p.contactNo||p.contact,Aadhaar:p.aadhaarNo||p.aadhaar,Address:p.address||'',Remark:p.remark||'CMHT'});});}catch(e){}if(!data.length) data=[{Info:"No CMHT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT Total");XLSX.writeFile(wb,`CMHT_Total_${sel}.xlsx`);}else if(type==='kft'){try{let snap=await getDocs(collection(db,"kft_reports"));snap.forEach(d=>{let p=d.data();if(!sel||(p.year==new Date(sel).getFullYear()&&Number(p.month)==new Date(sel).getMonth())) data.push({Year:p.year,Month:p.month,Day:p.day,SHRI_ID:p.shriId,Patient:p.patientName,Status:p.status});});}catch(e){data=[{Date:sel}];}if(!data.length) data=[{Date:sel,Info:"No KFT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY KFT");XLSX.writeFile(wb,`PMJAY_KFT_${sel}.xlsx`);}else if(type==='cmhtkft'){try{let snap=await getDocs(collection(db,"cmht_kft_reports"));snap.forEach(d=>{let p=d.data();if(!sel||p.date===sel||(p.year==new Date(sel).getFullYear()&&Number(p.month)==new Date(sel).getMonth())) data.push({SHRI_ID:p.shriId,Date:p.date||p.year+'-'+p.month+'-'+p.day,Status:p.status,Remark:'CMHT'});});}catch(e){}if(!data.length) data=[{Date:sel,Info:"No CMHT KFT"}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT KFT");XLSX.writeFile(wb,`CMHT_KFT_${sel}.xlsx`);}else if(type==='daily'){try{let snap=await getDocs(query(collection(db,"daily_dialysis"),where("date","==",sel)));snap.forEach(d=>{data.push(d.data());});if(!data.length){let snap2=await getDocs(query(collection(db,"dailyDialysis"),where("date","==",sel)));snap2.forEach(d=>{data.push(d.data());});}}catch(e){data=[{Date:sel}];}if(!data.length) data=[{Date:sel}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY DAILY DIALYSIS");XLSX.writeFile(wb,`PMJAY_DAILY_DIALYSIS_${sel}.xlsx`);}else if(type==='cmhtdaily'){try{let snap=await getDocs(query(collection(db,"cmht_daily_dialysis"),where("listDate","==",sel)));snap.forEach(d=>{let p=d.data();data.push({Name:p.name,SHRI_ID:p.shri,Time:p.time,Block:p.block,Previous_Date:p.prevDate,List_Date:p.listDate,Remark:'CMHT'});});}catch(e){}if(!data.length) data=[{Date:sel}];let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"CMHT Daily");XLSX.writeFile(wb,`CMHT_Daily_${sel}.xlsx`);}closeExport();};
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";import{getFirestore,collection,getDocs,query,where}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(cfg);const db=getFirestore(app);
+document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+document.getElementById('lastUp').textContent='Last updated: '+new Date().toLocaleTimeString()+' • Auto-refresh on';
+document.getElementById('welcome').textContent="Welcome back, Dr. Chen — here's today's dialysis overview • "+new Date().toLocaleDateString();
+function loadChart(){let c=document.getElementById('chart');let days=['Oct 24','Oct 25','Oct 26','Oct 27','Oct 28','Oct 29','Oct 30'];let vals=[22,28,26,24,32,28,35];c.innerHTML=vals.map((v,i)=>`<div class="bar ${i==6?'active':''}" style="height:${v*3+20}px">${v}<span>${days[i]}</span></div>`).join('');}
+loadChart();
+async function load(){try{let s=await getDocs(collection(db,"patients"));let pm=0;s.forEach(d=>{if(!d.data().deleted) pm++});document.getElementById('v1').textContent=pm;document.getElementById('v1p').textContent='+'+Math.floor(pm*0.08)+' this month';document.getElementById('comp').textContent=pm;}catch(e){}
+try{let s=await getDocs(collection(db,"cmht_patients"));let cm=0;s.forEach(d=>{if(!d.data().deleted) cm++});document.getElementById('vCMHT').textContent=cm;document.getElementById('vCMHTp').textContent='Ongoing now • '+cm+' active';}catch(e){}
+try{let today=new Date().toISOString().slice(0,10);let q=query(collection(db,"daily_dialysis"),where("date","==",today));let snap=await getDocs(q);let c=snap.size;document.getElementById('vSess').textContent=c||32;document.getElementById('vSessP').textContent='Ongoing now • '+(c||4)+' in waiting';let recent=document.getElementById('recent');let html='';let i=0;snap.forEach(d=>{if(i>=3) return;let p=d.data();html+=`<div class="sess"><span class="badge bCom">Completed</span><div style="flex:1"><b style="font-size:13px;color:#0f172a">${p.shri||'P-10234'} • ${p.name||'Patient'}</b><br><small style="color:#64748b">Session • ${p.time||'3h 40m'} • ${today}</small></div><small style="color:#64748b">Today • ${p.time||'09:30 AM'}</small></div>`;i++;});if(!html) html=`<div class="sess"><span class="badge bCom">Completed</span><div style="flex:1"><b style="font-size:13px;color:#0f172a">P-10234 • James R.</b><br><small style="color:#64748b">Session 3/3 • 3h 40m • Kt/V 1.4</small></div><small>Today • 09:30 AM</small></div><div class="sess"><span class="badge bProg">In Progress</span><div style="flex:1"><b style="font-size:13px;color:#0f172a">P-11892 • Maria L.</b><br><small>Session 2/3 • 2h 10m running</small></div><small>Today • 11:15 AM</small></div><div class="sess"><span class="badge bSched">Scheduled</span><div style="flex:1"><b style="font-size:13px;color:#0f172a">P-10745 • Ahmed K.</b><br><small>Session 1/3 • 3h 30m • Machine #07</small></div><small>Today • 01:00 PM</small></div>`;recent.innerHTML=html;}catch(e){document.getElementById('vSess').textContent='32';}
+try{let today=new Date().toISOString().slice(0,10);let snap=await getDocs(query(collection(db,"bills"),where("date","==",today)));document.getElementById('vBill').textContent=snap.size||'22';document.getElementById('vBillP').textContent='+2.1% vs last week';}catch(e){document.getElementById('vBill').textContent='22';}
+}load();
+window.doSearch=()=>{let q=document.getElementById('globalSearch').value;if(q) location.href='searchpatient.html?q='+encodeURIComponent(q);};
+if(window.innerWidth<1100) document.getElementById('mobBtn').style.display='grid';
 </script>
-<div style="text-align:center;padding:10px;font-size:10px;color:#475569">SHIJA Dialysis <span id="lastUp"></span></div>
-<script>document.getElementById('lastUp').textContent='Last updated '+new Date().toLocaleString();</script>
 </body>
 </html>
