@@ -70,13 +70,12 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .btnDel{flex:1;padding:7px 10px;border-radius:7px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:11px;cursor:pointer;min-width:52px}
 .gc1{background:linear-gradient(135deg,#8b5cf6,#6366f1)} .gc2{background:linear-gradient(135deg,#a855f7,#ec4899)} .gc3{background:linear-gradient(135deg,#7c3aed,#4f46e5)} .gc4{background:linear-gradient(135deg,#c084fc,#a855f7)} .gc5{background:linear-gradient(135deg,#8b5cf6,#06b6d4)} .gc6{background:linear-gradient(135deg,#d946ef,#8b5cf6)} .gc7{background:linear-gradient(135deg,#6366f1,#8b5cf6)} .gc8{background:linear-gradient(135deg,#a78bfa,#8b5cf6)} .gc9{background:linear-gradient(135deg,#8b5cf6,#ec4899)} .gc10{background:linear-gradient(135deg,#7dd3fc,#a78bfa)}
 .tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-top:16px;box-shadow:0 4px 16px #00000006}
-table{width:100%;border-collapse:collapse;min-width:1200px}
+table{width:100%;border-collapse:collapse;min-width:1100px}
 th{padding:14px 12px;font-size:11px;color:#64748b;background:#f8fafc;text-align:left;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
 td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-align:middle;white-space:nowrap}
 .sl{background:#f3e8ff;width:36px;height:28px;display:grid;place-items:center;border-radius:8px;font-weight:800;font-size:12px;color:#6b21a8}
 .shriTable{color:#64748b;background:#f1f5f9;padding:5px 10px;border-radius:8px;font-weight:700;font-size:11px;border:1px solid #e2e8f0;display:inline-block;min-width:80px;text-align:center}
 .cmhtTable{background:#8b5cf6;color:#fff;padding:6px 12px;border-radius:8px;font-weight:800;font-size:11px;display:inline-block;min-width:110px;text-align:center;box-shadow:0 2px 6px #8b5cf630}
-.remarkTable{background:#ede9fe;color:#5b21b6;padding:5px 10px;border-radius:20px;font-weight:800;font-size:11px;border:1px solid #ddd6fe;display:inline-block;text-align:center}
 .pager{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px}
 .pagerGrid{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;margin-top:16px;flex-wrap:wrap;gap:8px}
 .pBtn{padding:8px 14px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer;font-size:13px}
@@ -145,10 +144,10 @@ try{
 <div class="mainWrap">
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA Dialysis</div><span style="font-weight:800;color:#fff">CMHT Total</span></div>
 <div class="content">
-<div class="pageHead"><div><h1>CMHT Total Patient</h1><p id="info">Loading from Firebase...</p></div><a href="addcmht.html" class="addBtn">+ Add CMHT</a></div>
+<div class="pageHead"><div><h1>CMHT Total Patient</h1><p id="info">Loading...</p></div><a href="addcmht.html" class="addBtn">+ Add CMHT</a></div>
 
 <div class="controls">
-<input id="search" placeholder="Search name, SHRI, CMHT..." oninput="onSearch()">
+<input id="search" placeholder="Search name, SHRI, CMHT, Aadhaar..." oninput="onSearch()">
 <div class="viewToggle">
 <button class="vBtn" id="gridBtn" onclick="setView('grid')" title="Grid">⊞</button>
 <button class="vBtn active" id="tableBtn" onclick="setView('table')" title="List">☰</button>
@@ -197,43 +196,40 @@ function getInitial(name){ return (name||'P').trim().charAt(0).toUpperCase(); }
 window.renderAll=()=>{
  let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;
  let start=(currentPage-1)*pageSize;let data=filtered.slice(start,start+pageSize);
- // GRID - 3 COLS
+ // GRID - KEEP REMARK IN GRID, SHOW FULL AADHAAR
  let gridHtml='';
  data.forEach((p,idx)=>{
    let real=allPatients.indexOf(p);
    let grad=getGradient(start+idx);
-   let aadhaarShow=p.aadhaar?'XXXX-XXXX-'+p.aadhaar.slice(-4):'-';
    gridHtml+=`
    <div class="pCard">
      <div class="pCardTop ${grad}"><div class="pCardAvatar">${getInitial(p.name)}</div><span class="remarkBadge" style="z-index:1;background:#fff;color:#5b21b6">${p.remark||'CMHT'}</span></div>
      <div class="pCardBody">
        <div class="pCardNameRow"><div class="pCardName">${p.name||'Unknown'}</div><span class="cmhtBlue">${p.cmht||'No CMHT'}</span></div>
        <div class="pCardRow"><span>SHRI ID</span><b>${p.shri||'-'}</b></div>
-       <div class="pCardRow"><span>Aadhaar</span><b>${aadhaarShow}</b></div>
+       <div class="pCardRow"><span>Aadhaar</span><b style="font-size:10px">${p.aadhaar||'-'}</b></div>
        <div class="pCardActions"><button class="btnEdit" onclick="openEdit(${real})">Edit</button><button class="btnDel" onclick="deletePatient(${real})">Delete</button></div>
      </div>
    </div>`;
  });
  if(data.length===0) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">No CMHT patients</div>';
  document.getElementById('patientGrid').innerHTML=gridHtml;
- // TABLE - CMHT ID STRAIGHT COLUMN
- let html='<tr><th>SL No</th><th>Patient Name</th><th>CMHT ID</th><th>SHRI ID</th><th>Contact</th><th>Aadhaar</th><th>Address</th><th>Remark</th><th>Action</th></tr>';
+ // TABLE - REMARK REMOVED, FULL AADHAAR
+ let html='<tr><th>SL No</th><th>Patient Name</th><th>CMHT ID</th><th>SHRI ID</th><th>Contact</th><th>Aadhaar Number</th><th>Address</th><th>Action</th></tr>';
  data.forEach((p,i)=>{
    let real=allPatients.indexOf(p);
-   let aadhaarShow=p.aadhaar?'XXXX-XXXX-'+p.aadhaar.slice(-4):'-';
    html+=`<tr>
      <td><div class="sl">${start+i+1}</div></td>
      <td><b>${p.name}</b></td>
      <td><span class="cmhtTable">${p.cmht||'-'}</span></td>
      <td><span class="shriTable">${p.shri||'-'}</span></td>
      <td>${p.contact||'-'}</td>
-     <td title="${p.aadhaar}">${aadhaarShow}</td>
+     <td style="font-weight:800;letter-spacing:0.5px">${p.aadhaar||'-'}</td>
      <td>${(p.addr||'-').substring(0,30)}</td>
-     <td><span class="remarkTable">${p.remark||'CMHT'}</span></td>
      <td><div style="display:flex;gap:10px"><button class="btnEdit" onclick="openEdit(${real})">Edit</button><button class="btnDel" onclick="deletePatient(${real})">Delete</button></div></td>
    </tr>`;
  });
- if(data.length===0) html+='<tr><td colspan="9" style="text-align:center;padding:20px">No CMHT patients</td></tr>';
+ if(data.length===0) html+='<tr><td colspan="8" style="text-align:center;padding:20px">No CMHT patients</td></tr>';
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('info').textContent=filtered.length+' CMHT patients • Page '+currentPage+' of '+totalPages;
  ['','Grid'].forEach(suffix=>{
