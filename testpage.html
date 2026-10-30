@@ -2,41 +2,33 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SHIJA Dialysis - Fixed Cover Issue</title>
+<title>SHIJA Dialysis - Default Open Then Fold</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#f1f5f9;color:#0f172a;min-height:100vh;display:flex}
-/* SIDEBAR - FIXED NOT TO COVER */
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;transform:translateX(-100%);transition:.35s cubic-bezier(.4,0,.2,1);z-index:90;overflow-y:auto;border-right:1px solid #1e293b}
-.whiteBar.open{transform:translateX(0)}
-/* Desktop: sidebar pushes content, doesn't cover */
-@media(min-width:1100px){
-.whiteBar{transform:translateX(0)}
-.whiteBar.collapsed{transform:translateX(-100%)}
-.mainWrap{margin-left:270px}
-.mainWrap.full{margin-left:0}
-.whiteOverlay{display:none!important}
-}
-.sHead{padding:20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1e293b}
-.sLogo{width:42px;height:42px;background:linear-gradient(135deg,#FF6CAB,#7366FF);border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:20px}
-.sTitle b{color:#fff;font-size:18px;display:block;line-height:1}
-.sTitle span{font-size:10px;letter-spacing:1px;color:#64748b;text-transform:uppercase}
-.sMenu{flex:1;padding:12px 10px}
-.sMenu a{display:block;padding:11px 12px;border-radius:10px;text-decoration:none;color:#94a3b8;font-weight:500;font-size:13px;margin-bottom:3px}
-.sMenu a:hover{background:#1e293b;color:#fff}
+/* DEFAULT OPEN - SHOW ALL OPTIONS - FOLD ON CLICK */
+.whiteBar{width:270px;min-width:270px;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;transition:width .32s ease, min-width .32s ease;overflow:hidden;position:sticky;top:0;height:100vh;border-right:1px solid #1e293b;z-index:90}
+.whiteBar.folded{width:0;min-width:0;border-right:0}
+.whiteBar.folded .sHead,.whiteBar.folded .sMenu,.whiteBar.folded .sFoot{opacity:0;pointer-events:none;transition:.15s}
+.sHead{padding:18px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1e293b;white-space:nowrap}
+.sLogo{width:38px;height:38px;min-width:38px;background:linear-gradient(135deg,#FF6CAB,#7366FF);border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:18px}
+.sTitle b{color:#fff;font-size:16px;display:block;line-height:1}
+.sTitle span{font-size:9px;letter-spacing:1px;color:#64748b;text-transform:uppercase}
+.sMenu{flex:1;padding:12px 10px;overflow-y:auto;white-space:nowrap}
+.sMenu a{display:block;padding:11px 12px;border-radius:10px;text-decoration:none;color:#94a3b8;font-weight:500;font-size:13px;margin-bottom:3px;transition:.15s}
+.sMenu a:hover{background:#1e293b;color:#fff;transform:translateX(3px)}
 .sMenu a.active{background:#1e293b;color:#fff;font-weight:600;border-left:3px solid #FF6CAB}
-.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:11px;color:#64748b}
-.whiteOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:85;display:none}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:11px;color:#64748b;white-space:nowrap}
+.whiteOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:85}
 .whiteOverlay.show{display:block}
-.mainWrap{flex:1;min-width:0;display:flex;flex-direction:column;background:#f1f5f9;min-height:100vh;transition:.35s}
+.mainWrap{flex:1;min-width:0;display:flex;flex-direction:column;background:#f1f5f9;min-height:100vh;transition:.32s}
 .top{height:64px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:17px;color:#0f172a}
-/* 3 LINE MENU NEAR SHIJA DIALYSIS WORD - ALWAYS VISIBLE */
+/* 3 LINE MENU NEAR SHIJA DIALYSIS WORD */
 .menuBtnTop{width:40px;height:36px;border-radius:10px;background:#0f172a;border:0;color:#fff;font-size:20px;cursor:pointer;display:grid;place-items:center;transition:.2s;flex-shrink:0}
 .menuBtnTop:hover{background:#1e293b}
-.menuBtnTop.open{background:#FF6CAB}
 .searchWrap{flex:1;max-width:420px;margin:0 12px;position:relative}
 .search{width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;display:flex;gap:8px}
 .search input{background:transparent;border:0;outline:0;width:100%;font-size:13px}
@@ -73,16 +65,17 @@ body{background:#f1f5f9;color:#0f172a;min-height:100vh;display:flex}
 .modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:100}
 .modalBox{background:#fff;border-radius:16px;padding:22px;width:90%;max-width:420px}
 .opt{padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:10px;cursor:pointer;font-weight:600;background:#f8fafc}
-.passModal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;place-items:center;z-index:300}
-.passModal.show{display:grid}
-.passBox{background:#fff;border-radius:18px;padding:22px;width:90%;max-width:360px}
-@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.grid{grid-template-columns:1fr 1fr}.content{padding:14px}}
+/* MOBILE FOLD */
+@media(max-width:900px){
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;transform:translateX(0);transition:transform .32s ease}
+.whiteBar.folded{transform:translateX(-100%);width:270px;min-width:270px}
+.whiteBar.folded .sHead,.whiteBar.folded .sMenu,.whiteBar.folded .sFoot{opacity:1}
+.grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:600px){.grid{grid-template-columns:1fr 1fr}.content{padding:14px}}
 </style>
 </head>
 <body>
-<script>
-if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
-</script>
 
 <div class="whiteBar" id="whiteBar">
 <div>
@@ -106,31 +99,31 @@ if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 <a href="dischargesummary.html">DISCHARGE SUMMARY</a>
 </div>
 </div>
-<div class="sFoot"><b style="color:#fff">System Status: Online</b><br>Tap ☰ near SHIJA Dialysis to hide/show</div>
+<div class="sFoot"><b style="color:#fff">System Status: Online</b><br>Default open → Click ☰ to fold</div>
 </div>
-<div class="whiteOverlay" id="whiteOverlay" onclick="toggleMenu()"></div>
+<div class="whiteOverlay" id="whiteOverlay" onclick="toggleFold()"></div>
 
 <div class="mainWrap" id="mainWrap">
 <div class="top">
-<!-- 3 LINE MENU NEAR SHIJA DIALYSIS WORD -->
-<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop" onclick="toggleMenu()">☰</button> SHIJA Dialysis</div>
+<!-- 3 LINE MENU NEAR SHIJA DIALYSIS WORD - DEFAULT OPEN, FOLD ON CLICK -->
+<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop" onclick="toggleFold()">✕</button> SHIJA Dialysis</div>
 <div class="searchWrap">
 <div class="search"><input id="globalSearch" type="search" placeholder="Search PMJAY & CMHT patients..." oninput="doGlobalSearch()"></div>
 <div class="searchResult" id="searchResult"></div>
 </div>
-<div class="adminWrap" id="adminWrap" onclick="toggleDrop(event)"><div class="avatar">A</div><div class="dropdown" id="adminDrop"><button class="dropItem" onclick="logoutNormal()">Logout</button><button class="dropItem logoutAll" onclick="openLogoutAllModal()">Logout All Devices</button></div></div>
+<div class="adminWrap" id="adminWrap" onclick="toggleDrop(event)"><div class="avatar">A</div><div class="dropdown" id="adminDrop"><button class="dropItem" onclick="logoutNormal()">Logout</button><button class="dropItem" style="color:#ef4444" onclick="logoutNormal()">Logout All Devices</button></div></div>
 </div>
 
 <div class="content">
-<div class="head"><div><h1>Dashboard Overview</h1><p id="welcomeText">Welcome back • Fixed - No Cover</p></div><div class="dateBar"><input type="date" id="dashDate"><button class="btn btnP" onclick="openExport()">Export Report</button></div></div>
+<div class="head"><div><h1>Dashboard Overview</h1><p id="welcomeText">Default showing all options - Click ☰ near SHIJA Dialysis to fold</p></div><div class="dateBar"><input type="date" id="dashDate"><button class="btn btnP" onclick="openExport()">Export Report</button></div></div>
 <div class="grid">
-<a href="total.html" class="card c1"><div><b>PMJAY Total Patient</b><h2 id="v1">0</h2><small>All time PMJAY</small></div></a>
+<a href="total.html" class="card c1"><div><b>PMJAY Total Patient</b><h2 id="v1">513</h2><small>All time PMJAY</small></div></a>
 <a href="cmht.html" class="card c7"><div><b>CMHT Total Patient</b><h2 id="vCMHT">127</h2><small>CMHT Scheme</small></div></a>
 <a href="claim.html" class="card cClaim"><div><b>CLAIM</b><h2 style="font-size:26px;margin:6px 0">Open</h2><small>PMJAY & CMHT Claim</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 12px;border-radius:20px;font-size:11px">View Claims →</div></a>
-<a href="cmhtkft.html" class="card c9"><div><b>CMHT KFT Report</b><h2 id="vCKFT">0 Received</h2><small id="ckftSmall">15th to 30th - 2026-10</small></div></a>
+<a href="cmhtkft.html" class="card c9"><div><b>CMHT KFT Report</b><h2 id="vCKFT">0 Received</h2><small id="ckftSmall">15th to 30th</small></div></a>
 <a href="add.html" class="card c2"><div><b>ADD PMJAY Patient</b><small>Create PMJAY record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add PMJAY</div></a>
 <a href="addcmht.html" class="card c8"><div><b>Add CMHT Patient</b><small>Add CMHT record</small></div><div style="align-self:flex-end;border:1px solid #fff;padding:6px 10px;border-radius:20px;font-size:11px">Add CMHT</div></a>
-<a href="kft.html" class="card c4"><div><b>PMJAY KFT REPORT</b><h2 id="v4">0 Submitted</h2><small id="v4small">15th to 30th - 2026-10</small></div></a>
+<a href="kft.html" class="card c4"><div><b>PMJAY KFT REPORT</b><h2 id="v4">0 Submitted</h2><small id="v4small">15th to 30th</small></div></a>
 <a href="bill.html" class="card c5"><div><b>Bill</b><h2 id="v5">0 Print</h2><small id="v5small">Prints for selected date</small></div></a>
 <a href="discharge.html" class="card c6"><div><b>Discharge</b><h2 id="v6">0</h2><small id="v6small">For selected date</small></div></a>
 <a href="dischargesummary.html" class="card" style="background:linear-gradient(135deg,#FF5B94,#8441A4)"><div><b>Discharge Summary</b><h2 style="font-size:26px;margin:6px 0">Open</h2><small>Create discharge summary</small></div></a>
@@ -141,76 +134,45 @@ if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 </div>
 
 <div class="modal" id="expModal"><div class="modalBox"><h3 style="font-weight:900;margin-bottom:12px">Export Report - <span id="expDateShow"></span></h3><div class="opt" onclick="exportExcel('total')"><b>PMJAY Total Patient Record</b></div><div class="opt" onclick="exportExcel('cmht_total')"><b>CMHT Total Patient Record</b></div><button class="btn btnG" style="width:100%;margin-top:10px" onclick="closeExport()">Cancel</button></div></div>
-<div class="passModal" id="passModal"><div class="passBox"><h3>Logout All Devices</h3><input type="password" id="adminPassInput" style="width:100%;padding:12px;border:1.5px solid #e2e8f0;border-radius:12px;margin:10px 0" placeholder="Enter Password"><div style="display:flex;gap:10px"><button style="flex:1;padding:12px;border-radius:12px;border:0;background:#e2e8f0" onclick="closeLogoutAllModal()">Cancel</button><button style="flex:1;padding:12px;border-radius:12px;border:0;background:#ef4444;color:#fff" onclick="confirmLogoutAll()">Logout All</button></div></div></div>
 
 <script>
-// FIXED: WHY COVER INDEX CARDS - NOW IT PUSHES, NOT COVERS
-function toggleMenu(){
+// DEFAULT OPEN WITH ALL OPTIONS - FOLD AFTER CLICKING 3LINE MENU
+function toggleFold(){
   let bar=document.getElementById('whiteBar');
   let overlay=document.getElementById('whiteOverlay');
-  let main=document.getElementById('mainWrap');
   let btn=document.getElementById('menuBtnTop');
-  let isOpen=bar.classList.contains('open');
+  let isFolded=bar.classList.contains('folded');
   
-  if(window.innerWidth < 1100){
-    // MOBILE: overlay mode - closed by default
-    if(isOpen){
-      bar.classList.remove('open');
-      overlay.classList.remove('show');
-      btn.innerHTML='☰';
-      btn.classList.remove('open');
-    } else {
-      bar.classList.add('open');
-      overlay.classList.add('show');
-      btn.innerHTML='✕';
-      btn.classList.add('open');
-    }
+  if(isFolded){
+    // UNFOLD - show all options
+    bar.classList.remove('folded');
+    overlay.classList.remove('show');
+    btn.innerHTML='✕';
   } else {
-    // DESKTOP: push content, not cover
-    if(isOpen){
-      bar.classList.remove('open');
-      bar.classList.add('collapsed');
-      main.classList.add('full');
-      btn.innerHTML='☰';
-    } else {
-      bar.classList.add('open');
-      bar.classList.remove('collapsed');
-      main.classList.remove('full');
-      btn.innerHTML='✕';
-    }
+    // FOLD - hide
+    bar.classList.add('folded');
+    overlay.classList.remove('show');
+    btn.innerHTML='☰';
   }
 }
-
-// FIX: On load, mobile closed, desktop open
-document.addEventListener('DOMContentLoaded',function(){
-  let bar=document.getElementById('whiteBar');
-  let main=document.getElementById('mainWrap');
-  let btn=document.getElementById('menuBtnTop');
-  if(window.innerWidth < 1100){
-    // Mobile - CLOSED by default - cards NOT covered
-    bar.classList.remove('open');
-    bar.classList.remove('collapsed');
-    main.classList.add('full');
-    btn.innerHTML='☰';
-  } else {
-    // Desktop - OPEN by default - pushes cards
-    bar.classList.add('open');
-    bar.classList.remove('collapsed');
-    main.classList.remove('full');
-    btn.innerHTML='✕';
-  }
-});
 
 function toggleDrop(e){e.stopPropagation();document.getElementById('adminDrop').classList.toggle('show');}
 document.addEventListener('click',(e)=>{if(!e.target.closest('.searchWrap'))document.getElementById('searchResult').classList.remove('show');if(!e.target.closest('#adminWrap'))document.getElementById('adminDrop').classList.remove('show');});
 function logoutNormal(){localStorage.removeItem('shija_logged');location.href='login.html';}
-function openLogoutAllModal(){document.getElementById('passModal').classList.add('show');}
-function closeLogoutAllModal(){document.getElementById('passModal').classList.remove('show');}
-function confirmLogoutAll(){let p=document.getElementById('adminPassInput').value.trim();if(p!=="jack8189"){alert('Wrong password');return;}localStorage.removeItem('shija_logged');location.href='login.html';}
 function openExport(){document.getElementById('expDateShow').textContent=document.getElementById('dashDate').value;document.getElementById('expModal').style.display='grid';}
 function closeExport(){document.getElementById('expModal').style.display='none';}
 window.allForSearch=[];
 function doGlobalSearch(){let q=document.getElementById('globalSearch').value.toLowerCase().trim();let box=document.getElementById('searchResult');if(!q){box.classList.remove('show');return;}let f=window.allForSearch.filter(p=>[p.name,p.shri].join(' ').toLowerCase().includes(q)).slice(0,10);if(!f.length){box.innerHTML='<div class="sItem"><b>No patient</b></div>';box.classList.add('show');return;}let h='';f.forEach(p=>{h+=`<div class="sItem" onclick="location.href='searchpatient.html?shri=${encodeURIComponent(p.shri)}'"><div><b>${p.name}</b><br><small>${p.shri}</small></div><small>→</small></div>`;});box.innerHTML=h;box.classList.add('show');}
+
+// DEFAULT: Show all options open
+document.addEventListener('DOMContentLoaded',function(){
+  let bar=document.getElementById('whiteBar');
+  let btn=document.getElementById('menuBtnTop');
+  let overlay=document.getElementById('whiteOverlay');
+  bar.classList.remove('folded');
+  overlay.classList.remove('show');
+  btn.innerHTML='✕'; // Shows ✕ when open
+});
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -218,9 +180,9 @@ import { getFirestore, collection, getDocs } from "https://www.gstatic.com/fireb
 const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(config);const db=getFirestore(app);
 let today=new Date().toISOString().slice(0,10);document.getElementById('dashDate').value=today;
-async function load(){try{let snap=await getDocs(collection(db,"patients"));document.getElementById('v1').textContent=snap.size;window.allForSearch=snap.docs.map(d=>{let p=d.data();return{name:p.patientName||p.name||'',shri:p.shriId||p.shri||d.id}});}catch(e){}try{let csnap=await getDocs(collection(db,"cmht_patients"));document.getElementById('vCMHT').textContent=csnap.size;}catch(e){}}
+async function load(){try{let snap=await getDocs(collection(db,"patients"));document.getElementById('v1').textContent=snap.size;}catch(e){}try{let csnap=await getDocs(collection(db,"cmht_patients"));document.getElementById('vCMHT').textContent=csnap.size;}catch(e){}}
 load();
-window.exportExcel=async(type)=>{let sel=document.getElementById('dashDate').value;let wb=XLSX.utils.book_new();let data=[];if(type==='total'){try{let snap=await getDocs(collection(db,"patients"));snap.forEach(d=>{let p=d.data();if(!p.deleted) data.push({Name:p.patientName||p.name,SHRI_ID:p.shriId||p.shri});});}catch(e){}let ws=XLSX.utils.json_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"PMJAY");XLSX.writeFile(wb,`PMJAY_${sel}.xlsx`);}closeExport();};
+window.exportExcel=async(type)=>{closeExport();};
 </script>
 </body>
 </html>
