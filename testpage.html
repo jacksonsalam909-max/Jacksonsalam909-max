@@ -40,17 +40,24 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
 .badgeBlue{background:#0f172a;color:#fff;padding:6px 12px;border-radius:20px;font-weight:900;font-size:11px;border:1px solid #0f172a}
 .content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px}
-.card{background:#fff;border-radius:14px;padding:16px;border:1px solid #e2e8f0;box-shadow:0 1px 2px #00000006;margin-bottom:12px}
-.box{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:20px;width:100%;max-width:600px;margin:0 auto}
-.box label{font-size:11px;font-weight:800;color:#334155;display:block;margin:14px 0 6px;text-transform:uppercase;letter-spacing:.5px}
-.box input,.box select{width:100%;padding:12px 14px;border:1.5px solid #cbd5e1;border-radius:8px;margin:0;font-size:14px;font-weight:600;background:#fff;outline:0;transition:.2s}
+.card{background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0;box-shadow:0 1px 2px #00000006;margin-bottom:12px;width:100%}
+/* FULL PAGE BOX */
+.box{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:24px;width:100%;max-width:100%;min-height:calc(100vh - 140px)}
+.box label{font-size:11px;font-weight:800;color:#334155;display:block;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+.box input,.box select{width:100%;padding:14px 14px;border:2px solid #cbd5e1;border-radius:10px;margin:0;font-size:15px;font-weight:600;background:#fff;outline:0;transition:.2s}
 .box input:focus,.box select:focus{border-color:#0f172a;background:#eff6ff}
-.row{display:flex;gap:10px}
+.row{display:flex;gap:14px}
 .row>div{flex:1}
-.btn{width:100%;padding:14px;background:#0f172a;color:#fff;border:0;border-radius:10px;font-weight:900;cursor:pointer;margin-top:18px;font-size:14px;letter-spacing:.5px;transition:.2s}
+.btn{width:100%;padding:16px;background:#0f172a;color:#fff;border:0;border-radius:10px;font-weight:900;cursor:pointer;margin-top:22px;font-size:15px;letter-spacing:.5px}
 .btn:hover{background:#1e293b}
-.adminWrap{position:relative}
-.adminCircle{width:34px;height:34px;border-radius:50%;background:#1e88e5;color:#fff;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:0}
+/* CIRCLES - DEFAULT RED */
+.circleRow{display:flex;gap:16px;justify-content:center;padding:14px 0 18px 0;border-bottom:2px solid #f1f5f9;margin-bottom:14px;flex-wrap:wrap}
+.circleItem{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:90px}
+.circle{width:28px;height:28px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:14px;transition:.3s;border:2px solid #fff;box-shadow:0 0 0 2px #ef4444}
+.circle.green{background:#10b981;box-shadow:0 0 0 2px #10b981}
+.circle.red{background:#ef4444;box-shadow:0 0 0 2px #ef4444}
+.circleLabel{font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.5px;text-align:center}
+.circleItem.done .circleLabel{color:#065f46}
 </style>
 </head>
 <body>
@@ -77,23 +84,6 @@ try{
       location.href='login.html?reason=global';
     }
   });
-}catch(e){}
-try{
-  window.addEventListener('storage',(e)=>{
-    if(e.key==='shija_force_logout_this_device'){
-      localStorage.removeItem('shija_logged');
-      localStorage.removeItem('shija_login_time');
-      location.href='login.html';
-    }
-  });
-  const bc = new BroadcastChannel('shija_logout');
-  bc.onmessage = (ev)=>{
-    if(ev.data==='logout_this_device'){
-      localStorage.removeItem('shija_logged');
-      localStorage.removeItem('shija_login_time');
-      location.href='login.html';
-    }
-  };
 }catch(e){}
 </script>
 
@@ -124,25 +114,47 @@ try{
 
 <div class="mainWrap">
 <div class="top">
-<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA Dialysis <div class="badgeBlue">ADD PATIENT</div></div>
-<div class="adminWrap"><div class="adminCircle">A</div></div>
+<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> ADD PATIENT <div class="badgeBlue">FULL PAGE</div></div>
 </div>
 
 <div class="content">
-<div style="max-width:600px;margin:0 auto;width:100%">
-<div style="margin-bottom:12px"><h1 style="font-size:18px;font-weight:900;color:#0f172a">ADD PATIENT</h1><p id="msg" style="margin:4px 0 0;color:#64748b;font-size:12px;font-weight:600">Will show in Total Patients on all devices</p></div>
 <div class="box">
+<!-- CIRCLES ROW - DEFAULT RED -->
+<div class="circleRow">
+<div class="circleItem" id="cName"><div class="circle red" id="circleName">●</div><div class="circleLabel">PATIENT NAME</div></div>
+<div class="circleItem" id="cShri"><div class="circle red" id="circleShri">●</div><div class="circleLabel">SHRI ID</div></div>
+<div class="circleItem" id="cPmjay"><div class="circle red" id="circlePmjay">●</div><div class="circleLabel">PMJAY ID</div></div>
+</div>
+
+<h1 style="font-size:20px;font-weight:900;color:#0f172a">ADD PATIENT</h1><p id="msg" style="margin:4px 0 16px;color:#64748b;font-size:12px;font-weight:600">Will show in Total Patients on all devices</p>
+
+<div class="row">
+<div style="flex:2">
 <label>PATIENT NAME *</label>
 <input id="name" placeholder="ENTER FULL NAME">
+</div>
+<div style="flex:1">
 <label>SHRI ID (Leave empty to auto generate)</label>
 <input id="shri" placeholder="SHRI...">
+</div>
+</div>
+
+<div class="row">
+<div>
+<label>PMJAY ID *</label>
+<input id="pmjay" placeholder="PMJAY ID">
+</div>
+<div>
 <label>CONTACT NO</label>
 <input id="contact" placeholder="MOBILE NUMBER">
-<label>PMJAY ID</label>
-<input id="pmjay" placeholder="PMJAY ID">
+</div>
+</div>
+
+<div class="row">
+<div>
 <label>AADHAAR NUMBER</label>
 <input id="aadhaar" maxlength="12" placeholder="12 DIGIT AADHAAR">
-<div class="row">
+</div>
 <div>
 <label>AGE</label>
 <input id="age" type="number" placeholder="AGE">
@@ -157,19 +169,51 @@ try{
 </select>
 </div>
 </div>
+
 <label>ADDRESS</label>
-<input id="addr" placeholder="ADDRESS">
+<input id="addr" placeholder="FULL ADDRESS">
+
 <button class="btn" onclick="addPatient()">ADD PATIENT</button>
 </div>
 </div>
-</div>
-<div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis • Add Patient</div>
+<div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis • Add Patient - Full Page</div>
 </div>
 
 <script>
 function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}
 document.addEventListener('DOMContentLoaded', function(){
  document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
+ // CIRCLE LOGIC - DEFAULT RED
+ const nameInput=document.getElementById('name');
+ const shriInput=document.getElementById('shri');
+ const pmjayInput=document.getElementById('pmjay');
+ function updateCircles(){
+   let cName=document.getElementById('circleName');
+   let cShri=document.getElementById('circleShri');
+   let cPmjay=document.getElementById('circlePmjay');
+   let itemName=document.getElementById('cName');
+   let itemShri=document.getElementById('cShri');
+   let itemPmjay=document.getElementById('cPmjay');
+   if(nameInput.value.trim()){
+     cName.className='circle green'; cName.innerHTML='✓'; itemName.classList.add('done');
+   }else{
+     cName.className='circle red'; cName.innerHTML='●'; itemName.classList.remove('done');
+   }
+   if(shriInput.value.trim()){
+     cShri.className='circle green'; cShri.innerHTML='✓'; itemShri.classList.add('done');
+   }else{
+     cShri.className='circle red'; cShri.innerHTML='●'; itemShri.classList.remove('done');
+   }
+   if(pmjayInput.value.trim()){
+     cPmjay.className='circle green'; cPmjay.innerHTML='✓'; itemPmjay.classList.add('done');
+   }else{
+     cPmjay.className='circle red'; cPmjay.innerHTML='●'; itemPmjay.classList.remove('done');
+   }
+ }
+ nameInput.addEventListener('input',updateCircles);
+ shriInput.addEventListener('input',updateCircles);
+ pmjayInput.addEventListener('input',updateCircles);
+ updateCircles();
 });
 </script>
 <script type="module">
@@ -178,12 +222,6 @@ import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(firebaseConfig,"addPageApp");
 const db=getFirestore(app);
-function saveEditedLocal(key,data){
-  let m={}; try{m=JSON.parse(localStorage.getItem('editedKeys')||'{}');}catch{}
-  m[key]=data; localStorage.setItem('editedKeys',JSON.stringify(m));
-  let added=[]; try{added=JSON.parse(localStorage.getItem('addedKeys')||'[]');}catch{}
-  if(!added.includes(key)){ added.push(key); localStorage.setItem('addedKeys',JSON.stringify(added)); }
-}
 function saveEditedLocalFix(key,data){
   let m={}; try{m=JSON.parse(localStorage.getItem('editedKeys')||'{}');}catch(e){m={}}
   m[key]=data; localStorage.setItem('editedKeys',JSON.stringify(m));
@@ -208,6 +246,9 @@ window.addPatient=async()=>{
    saveEditedLocalFix(shri,data);
    document.getElementById('msg').textContent='✅ Added '+name+' ('+shri+') - Now go to Total Patients page';
    document.getElementById('name').value=''; document.getElementById('shri').value=''; document.getElementById('contact').value=''; document.getElementById('pmjay').value=''; document.getElementById('addr').value=''; document.getElementById('aadhaar').value=''; document.getElementById('age').value=''; document.getElementById('sex').value='';
+   document.getElementById('circleName').className='circle red'; document.getElementById('circleName').innerHTML='●';
+   document.getElementById('circleShri').className='circle red'; document.getElementById('circleShri').innerHTML='●';
+   document.getElementById('circlePmjay').className='circle red'; document.getElementById('circlePmjay').innerHTML='●';
  }catch(e){
    saveEditedLocalFix(shri,data);
    document.getElementById('msg').textContent='Saved locally (Firebase error: '+e.message+')';
