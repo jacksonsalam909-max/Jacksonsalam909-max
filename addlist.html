@@ -3,38 +3,83 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>ADDLIST</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;-webkit-tap-highlight-color:transparent}
-body{background:#f8fafc;overscroll-behavior:none}
-.top{height:60px;background:#0a1931;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;position:fixed;top:0;left:0;right:0;z-index:1000}
-.btn{padding:10px 14px;border:0;border-radius:8px;font-weight:900;font-size:11px;cursor:pointer;text-transform:uppercase;white-space:nowrap;touch-action:manipulation}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui;-webkit-tap-highlight-color:transparent}
+body{background:#f1f5f9;display:flex;min-height:100vh;overscroll-behavior:none}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease}
+.whiteBar.folded{width:72px!important;min-width:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important}
+.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
+.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
+.sLogo img{width:100%;height:100%;object-fit:contain}
+.sTitle b{color:#0f172a;font-size:16px;font-weight:900}
+.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
+.whiteBar.folded .sTitle{display:none}
+.whiteBar.folded .sHead{justify-content:center;padding:14px 0}
+.sMenu{flex:1;padding:8px 8px;overflow-y:auto}
+.sMenu::-webkit-scrollbar{width:0}
+.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;transition:.2s}
+.sMenu a:hover{background:#1e293b;color:#fff}
+.sMenu a.active{background:#1e293b;color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px #334155}
+.mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px;flex-shrink:0}
+.mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sMenu a:hover .mi{background:#334155}
+.sMenu a:hover .mi svg{stroke:#fff}
+.sMenu a.active .mi{background:#2563eb}
+.sMenu a.active .mi svg{stroke:#fff}
+.ml{overflow:hidden;text-overflow:ellipsis}
+.whiteBar.folded .ml{display:none}
+.whiteBar.folded .sMenu a{justify-content:center;padding:12px 0}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;overflow:hidden;white-space:nowrap}
+.whiteBar.folded .sFoot{display:none}
+.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
+.menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
+.badgeBlue{background:#0f172a;color:#fff;padding:6px 12px;border-radius:20px;font-weight:900;font-size:11px;border:1px solid #0f172a}
+.btn{padding:8px 12px;border:0;border-radius:6px;font-weight:900;font-size:10px;cursor:pointer;text-transform:uppercase;white-space:nowrap;touch-action:manipulation}
 .btnGreen{background:#10b981;color:#fff}.btnDark{background:#0f172a;color:#fff}.btnRed{background:#ef4444;color:#fff}
-.input{padding:8px 10px;border:2px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:12px;background:#fff}
-.content{margin:68px 8px 8px 8px}
-.card{background:#fff;border-radius:12px;padding:10px;border:1px solid #e2e8f0;margin-bottom:8px}
-.sheetWrap{overflow:auto;border:3px solid #000;background:#fff;height:calc(100vh - 140px);-webkit-overflow-scrolling:touch}
+.input{padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;font-weight:700;font-size:11px;background:#fff}
+.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px}
+.card{background:#fff;border-radius:14px;padding:12px;border:1px solid #e2e8f0;margin-bottom:12px;box-shadow:0 1px 2px #00000006}
+.sheetWrap{overflow:auto;border:2px solid #0f172a;background:#fff;max-height:55vh;border-radius:10px;-webkit-overflow-scrolling:touch}
+.sheetWrap2{overflow:auto;border:2px solid #f59e0b;background:#fff;max-height:50vh;border-radius:10px;display:none}
+.sheetWrap2.show{display:block}
 table{border-collapse:collapse;width:100%;min-width:1000px}
-th{position:sticky;top:0;background:#7c3aed;color:#fff;padding:10px 4px;font-size:10px;text-align:center;border:1px solid #000}
-td{border:1px solid #cbd5e1;padding:0;height:38px}
+th{position:sticky;top:0;background:#0f172a;color:#fff;padding:10px 4px;font-size:9px;text-align:center;border:none;border-bottom:2px solid #000;z-index:2}
+th.exist{background:#f59e0b;color:#000}
+td{border:none;border-bottom:1px solid #f1f5f9;padding:0;height:38px;background:#fff}
 td input{width:100%;height:100%;border:0;padding:6px 6px;font-size:11px;font-weight:700;text-transform:uppercase;outline:0;background:transparent;text-align:center}
-td input.nameInput{text-align:left}
-td input:focus{background:#dbeafe;outline:3px solid #7c3aed}
-td.slCol{background:#f1f5f9;text-align:center;font-weight:900}
+td input.nameInput{text-align:left;padding-left:8px}
+td input:focus{background:#dbeafe;outline:2px solid #0f172a}
+td.slCol{background:#f8fafc;text-align:center;font-weight:900;font-size:11px}
 td.idCol input{background:#eff6ff;color:#1e40af;font-weight:900}
-.status{font-size:11px;font-weight:900;padding:6px 12px;border-radius:20px}.status.saved{background:#dcfce7}.status.saving{background:#fef3c7}
-.menuBtn{font-size:28px;background:none;border:0;color:#fff;cursor:pointer;padding:6px 12px;touch-action:manipulation;user-select:none;line-height:1}
-.menuBtn *{pointer-events:none}
-.menuDrawer{position:fixed;top:60px;left:-320px;width:300px;height:calc(100vh - 60px);background:#ffffff;color:#0f172a;z-index:9999;transition:left 0.28s ease;overflow:auto;padding:0;border-right:1px solid #e2e8f0;box-shadow:4px 0 25px rgba(0,0,0,0.15);-webkit-overflow-scrolling:touch}
-.menuDrawer.open{left:0}
-.menuItem{display:block;width:100%;padding:16px 18px;margin:0;background:#ffffff;border:0;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:700;font-size:14px;text-align:left;cursor:pointer;text-transform:uppercase;letter-spacing:0.3px;touch-action:manipulation}
-.menuItem:active{background:#e2e8f0}
-.menuOverlay{position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(0,0,0,0.2);display:none;z-index:9998}
-.menuOverlay.open{display:block}
-.controlsRow{display:flex;gap:8px;flex-wrap:nowrap;align-items:flex-end;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
-.ctrl{flex:0 0 auto;min-width:0}.ctrlDate{width:125px}.ctrlScheme{width:95px}.ctrlExist{width:110px}
-.ctrlButtons{margin-left:auto;display:flex;gap:6px;flex:0 0 auto}
-.existBadge{font-weight:900;background:#dcfce7;color:#14532d;padding:9px 12px;border-radius:8px;display:block;text-align:center;font-size:11px;border:1.5px solid #10b981;white-space:nowrap;min-width:90px}
+td.nameCol{text-align:left;padding-left:8px;font-weight:800;font-size:11px;max-width:220px;white-space:normal}
+.status{font-size:10px;font-weight:800;padding:4px 10px;border-radius:12px}.status.saved{background:#dcfce7;color:#14532d}.status.saving{background:#fef3c7;color:#92400e}
+.filterBar{display:flex;gap:6px;flex-wrap:nowrap;align-items:end;overflow-x:auto;padding-bottom:2px}
+.filterBar::-webkit-scrollbar{height:0}
+.fGroup{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.fGroup label{font-size:7px;font-weight:800;color:#64748b;letter-spacing:.5px;text-transform:uppercase;line-height:1}
+.fInputSm{height:30px;min-width:78px;max-width:108px;padding:0 8px;border:1px solid #e2e8f0;border-radius:6px;font-weight:800;font-size:10px;background:#fff;color:#0f172a;outline:0;cursor:pointer}
+.fInputSm:focus{border-color:#0f172a}
+.fInputSm.date{min-width:108px}
+.fInputSm.scheme{background:#fef3c7;border:1.5px solid #f59e0b;min-width:76px}
+.existBadge{font-weight:900;background:#fef3c7;color:#92400e;height:30px;display:flex;align-items:center;justify-content:center;padding:0 10px;border-radius:6px;font-size:9px;border:1.5px solid #f59e0b;white-space:nowrap;min-width:86px;cursor:pointer;transition:.2s}
+.existBadge:hover{background:#f59e0b;color:#fff}
+.existBadge.active{background:#f59e0b;color:#fff}
 .backBtn, #pasteInfoBox, #btnSaveFirebaseBottom, #topSaveBtn{display:none !important}
+.btnSmall{padding:4px 8px;font-size:8px;height:22px;border-radius:4px;font-weight:900;border:0;cursor:pointer}
+.btnEditSmall{background:#FFD60A;color:#000}
+.btnDelSmall{background:#ef4444;color:#fff}
+@media (max-width:600px){
+ .content{padding:14px}
+ .filterBar{gap:4px;flex-wrap:wrap}
+ .fInputSm{min-width:68px;max-width:82px;font-size:9px;height:28px}
+ .existBadge{height:28px;min-width:68px;font-size:8px}
+ .sheetWrap{max-height:45vh}
+}
 </style>
 </head>
 <body>
@@ -63,38 +108,62 @@ try{
   });
 }catch(e){}
 </script>
+
+<div class="whiteBar" id="whiteBar">
+<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+<div class="sHead"><div class="sLogo"><img src="logoc.png" onerror="this.style.display='none'"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
+<div class="sMenu">
+<a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
+<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
+<a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
+<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
+<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="ml">OFFICE ASSISTANT</span></a>
+<a href="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
+<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="10" x2="8" y2="10"/><line x1="16" y1="14" x2="8" y2="14"/><line x1="16" y1="18" x2="8" y2="18"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
+<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
+<a href="list.html?scheme=PMJAY&force=1" class="active"><span class="mi" style="background:#2563eb"><svg viewBox="0 0 24 24" style="stroke:#fff"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4"/><path d="M16 2v4"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
+<a href="addlist.html" style="background:#1e293b;color:#fff"><span class="mi" style="background:#2563eb"><svg viewBox="0 0 24 24" style="stroke:#fff"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span><span class="ml">ADD LIST</span></a>
+<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
+<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="ml">KFT REPORT</span></a>
+<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">ADD PATIENT</span></a>
+<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="ml">BILL</span></a>
+<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
+</div>
+</div>
+<div class="sFoot">System Online • SHIJA</div>
+</div>
+
+<div class="mainWrap">
 <div class="top">
+<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> ADDLIST <div id="status" class="status saved">READY</div> <div class="badgeBlue" id="topInfo">10 ROWS</div></div>
 <div style="display:flex;align-items:center;gap:8px">
-<button class="menuBtn" id="menuBtn">☰</button>
-<div><div style="font-weight:900;font-size:13px">ADDLIST</div><div style="font-size:9px;opacity:0.9" id="topInfo">10 ROWS</div></div>
-</div>
-<div style="display:flex;align-items:center;gap:6px">
-<div id="status" class="status saved">READY</div>
-<button class="btn btnGreen" onclick="saveAll()" style="padding:11px 14px">SAVE TO BOTH</button>
+<button class="btn btnGreen" onclick="saveAll()" style="height:32px">SAVE</button>
 </div>
 </div>
-<div class="menuOverlay" id="menuOverlay"></div>
-<div class="menuDrawer" id="menuDrawer">
-<div style="font-weight:900;padding:16px 18px;border-bottom:2px solid #0a1931;font-size:14px;background:#0a1931;color:#fff">MENU</div>
-<button class="menuItem" onclick="goPage('list.html')">EXCEL LIST</button>
-<button class="menuItem" onclick="goPage('daily.html')">DAILY DIALYSIS</button>
-<button class="menuItem" onclick="goPage('total.html')">TOTAL PATIENT</button>
-<button class="menuItem" onclick="goPage('cmht.html')">CMHT TOTAL PATIENT</button>
-</div>
+
 <div class="content">
 <div class="card">
-<div class="controlsRow">
-<div class="ctrl ctrlDate"><label style="font-size:8px;font-weight:900">DATE *</label><br><input type="date" id="fDate" class="input" style="width:100%"></div>
-<div class="ctrl ctrlScheme"><label style="font-size:8px;font-weight:900">SCHEME *</label><br><select id="fType" class="input" style="width:100%;background:#fef3c7;border:2px solid #f59e0b;font-weight:900"><option value="PMJAY">PMJAY</option><option value="CMHT">CMHT</option></select></div>
-<div class="ctrl ctrlExist"><label style="font-size:8px;font-weight:900">EXISTING</label><br><span id="existingCount" class="existBadge">0 EXISTING</span></div>
-<div class="ctrl ctrlButtons">
-<button class="btn btnDark" onclick="addRows(5)" style="background:#0a1931">+ ROWS</button>
-<button class="btn btnRed" onclick="removeRows(5)">- ROWS</button>
-<button class="btn btnRed" onclick="clearAll()" style="background:#991b1b">CLEAR</button>
+<div class="filterBar">
+<div class="fGroup"><label>DATE *</label><input type="date" id="fDate" class="fInputSm date"></div>
+<div class="fGroup"><label>SCHEME *</label><select id="fType" class="fInputSm scheme"><option value="PMJAY">PMJAY</option><option value="CMHT">CMHT</option></select></div>
+<div class="fGroup"><label>EXISTING - CLICK TO VIEW/EDIT</label><span id="existingCount" class="existBadge" onclick="toggleExisting()">0 EXISTING</span></div>
+<div class="fGroup" style="margin-left:auto"><label style="opacity:0">.</label><div style="display:flex;gap:6px"><button class="btn btnDark" onclick="addRows(5)" style="height:30px;background:#0a1931">+ ROWS</button><button class="btn btnRed" onclick="removeRows(5)" style="height:30px">- ROWS</button><button class="btn btnRed" onclick="clearAll()" style="height:30px;background:#991b1b">CLEAR</button></div></div>
 </div>
 </div>
+
+<!-- EXISTING PATIENTS LIST - HIDDEN BY DEFAULT, SHOW ON CLICK -->
+<div class="card" id="existingCard" style="display:none;border:2px solid #f59e0b">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<span style="font-weight:900;font-size:12px">EXISTING PATIENTS - EDIT / DELETE HERE</span>
+<button class="btn btnDark" onclick="toggleExisting()" style="height:26px;padding:0 10px;font-size:9px">CLOSE X</button>
 </div>
-<div class="card" style="padding:0">
+<div class="sheetWrap2 show" id="existingWrap"><table><thead><tr><th class="exist" style="width:35px">SL</th><th class="exist" style="width:100px">ID</th><th class="exist" style="width:220px">PATIENT NAME</th><th class="exist" style="width:85px">SHRI</th><th class="exist" style="width:70px">TIME</th><th class="exist" style="width:70px">BLOCK</th><th class="exist" style="width:110px">ACTION</th></tr></thead><tbody id="existingTbody"></tbody></table></div>
+<div style="padding:8px;display:flex;gap:6px"><button class="btn btnGreen" onclick="saveExistingEdits()" style="height:30px">SAVE EXISTING CHANGES</button><span id="existingInfo" style="font-weight:800;font-size:10px;padding:6px"></span></div>
+</div>
+
+<div class="card" style="padding:6px">
+<div style="font-weight:900;font-size:11px;margin-bottom:6px">ADD NEW PATIENTS - PASTE SUPPORTED</div>
 <div class="sheetWrap"><table><thead><tr><th>SL.NO</th><th>PMJAY / CMHT ID</th><th>PATIENT NAME</th><th>SHRI ID</th><th>TIME</th><th>BLOCK</th><th>PREV</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
 <div style="padding:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
 <span id="countInfo" style="font-weight:900;background:#0a1931;color:#fff;padding:8px 14px;border-radius:20px;font-size:11px">0 PATIENTS - 10 ROWS</span>
@@ -102,15 +171,16 @@ try{
 </div>
 </div>
 </div>
+<div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis • Add List - Only saves to list.html</div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, getDocs, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(firebaseConfig,"addlistMain_"+Math.random());
 const db=getFirestore(app);
 window._fb={db,doc,setDoc,getDoc,getDocs,collection};
-window._fb2={db,collection,addDoc,serverTimestamp};
 </script>
 <script>
 let masterByNamePM={},masterByShriPM={},masterByNameCM={},masterByShriCM={};
@@ -120,23 +190,9 @@ let initDate=urlParams.get('date')||new Date().toISOString().split('T')[0];
 let initScheme=urlParams.get('scheme')||'PMJAY';
 document.getElementById('fDate').value=initDate;
 document.getElementById('fType').value=initScheme;
-const menuBtn=document.getElementById('menuBtn');
-const menuDrawer=document.getElementById('menuDrawer');
-const menuOverlay=document.getElementById('menuOverlay');
-function toggleMenu(){menuDrawer.classList.toggle('open');menuOverlay.classList.toggle('open');}
-function closeMenu(){menuDrawer.classList.remove('open');menuOverlay.classList.remove('open');}
-menuBtn.addEventListener('click', toggleMenu);
-menuBtn.addEventListener('touchend', (e)=>{e.preventDefault();toggleMenu();},{passive:false});
-menuOverlay.addEventListener('click', closeMenu);
-function goPage(page){
-  closeMenu();
-  setTimeout(()=>{
-    let date=document.getElementById('fDate').value;
-    let scheme=document.getElementById('fType').value;
-    if(page==='list.html' || page==='daily.html'){window.location.href=`${page}?date=${date}&scheme=${scheme}`;}
-    else{window.location.href=page;}
-  },150);
-}
+function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}
+document.addEventListener('DOMContentLoaded',()=>{document.getElementById('menuBtnTop').addEventListener('click',(e)=>{e.preventDefault();toggleWhiteBar();});});
+
 async function init(){await loadMaster();await loadExisting();addRows(10);}
 async function loadMaster(){
   try{
@@ -154,17 +210,84 @@ async function loadExisting(){
     existingPatients=snap.exists()?(snap.data().patients||[]):[];
     document.getElementById('existingCount').innerText=`${existingPatients.length} EXISTING`;
     document.getElementById('topInfo').innerText=`${date} | ${scheme} | ${existingPatients.length} EXISTING`;
-  }catch(e){ existingPatients=[]; document.getElementById('existingCount').innerText=`0 EXISTING`; }
+    renderExistingTable();
+  }catch(e){ existingPatients=[]; document.getElementById('existingCount').innerText=`0 EXISTING`; renderExistingTable();}
 }
+function toggleExisting(){
+  let card=document.getElementById('existingCard');
+  let badge=document.getElementById('existingCount');
+  if(card.style.display==='none'){
+    card.style.display='block';
+    badge.classList.add('active');
+    renderExistingTable();
+    window.scrollTo(0,0);
+  }else{
+    card.style.display='none';
+    badge.classList.remove('active');
+  }
+}
+function renderExistingTable(){
+  let tbody=document.getElementById('existingTbody');
+  tbody.innerHTML='';
+  if(existingPatients.length===0){
+    tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:12px">NO EXISTING PATIENTS FOR THIS DATE</td></tr>`;
+    return;
+  }
+  existingPatients.forEach((p,i)=>{
+    let tr=document.createElement('tr');
+    tr.innerHTML=`<td class="slCol">${p.sl||i+1}</td>
+    <td><input id="exId_${i}" value="${p.pmjayCmhtId||p.pmjayId||''}" style="width:100%;border:0;text-align:center;font-weight:800;font-size:11px"></td>
+    <td class="nameCol"><input id="exName_${i}" value="${p.name||p.patientName||''}" style="width:100%;border:0;text-align:left;font-weight:800;font-size:11px"></td>
+    <td><input id="exShri_${i}" value="${p.shri||''}" style="width:100%;border:0;text-align:center;font-weight:700;font-size:11px"></td>
+    <td><input id="exTime_${i}" value="${p.time||''}" style="width:100%;border:0;text-align:center;font-size:11px"></td>
+    <td><input id="exBlock_${i}" value="${p.block||''}" style="width:100%;border:0;text-align:center;font-size:11px"></td>
+    <td style="text-align:center"><div style="display:flex;gap:3px;justify-content:center"><button class="btnSmall btnDelSmall" onclick="deleteExisting(${i})">DELETE</button></div></td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('existingInfo').innerText=`${existingPatients.length} patients loaded - edit inline then SAVE`;
+}
+function deleteExisting(idx){
+  if(!confirm(`DELETE ${existingPatients[idx].name||'THIS PATIENT'}?`))return;
+  existingPatients.splice(idx,1);
+  existingPatients.forEach((p,i)=>p.sl=i+1);
+  renderExistingTable();
+  autoSaveExisting();
+}
+async function autoSaveExisting(){
+  let date=document.getElementById('fDate').value;
+  let scheme=document.getElementById('fType').value;
+  let docId=date+'_'+scheme;
+  try{
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId),{date,scheme,type:scheme,patients:existingPatients,count:existingPatients.length,updatedAt:new Date().toISOString()});
+    document.getElementById('existingCount').innerText=`${existingPatients.length} EXISTING`;
+    document.getElementById('topInfo').innerText=`${date} | ${scheme} | ${existingPatients.length} EXISTING`;
+    document.getElementById('existingInfo').innerText=`SAVED - ${existingPatients.length} remaining`;
+  }catch(e){alert(e.message)}
+}
+async function saveExistingEdits(){
+  let updated=[];
+  existingPatients.forEach((p,i)=>{
+    let name=document.getElementById(`exName_${i}`)?.value||p.name;
+    let shri=document.getElementById(`exShri_${i}`)?.value||p.shri;
+    let id=document.getElementById(`exId_${i}`)?.value||p.pmjayCmhtId;
+    let time=document.getElementById(`exTime_${i}`)?.value||p.time;
+    let block=document.getElementById(`exBlock_${i}`)?.value||p.block;
+    updated.push({sl:i+1,name:name.toUpperCase(),shri:shri.toUpperCase(),pmjayCmhtId:id.toUpperCase(),time:time.toUpperCase(),block:block.toUpperCase(),prev:p.prev||'',patientStatus:p.patientStatus||'ENHANCEMENT'});
+  });
+  existingPatients=updated;
+  await autoSaveExisting();
+  alert(`✅ Existing list saved - ${existingPatients.length} patients`);
+}
+
 function findId(name,shri,scheme){name=(name||'').toUpperCase().trim();shri=(shri||'').toUpperCase().trim();let byName=scheme==='PMJAY'?masterByNamePM:masterByNameCM;let byShri=scheme==='PMJAY'?masterByShriPM:masterByShriCM;if(shri&&byShri[shri])return byShri[shri];if(name&&byName[name])return byName[name];return'';}
-function addRows(n){let tbody=document.getElementById('tbody');for(let i=0;i<n;i++){let tr=document.createElement('tr');tr.innerHTML=`<td class="slCol"></td><td class="idCol"><input data-col="id" placeholder="ID"></td><td><input class="nameInput" data-col="name" placeholder="PATIENT NAME"></td><td><input data-col="shri" placeholder="SHRI"></td><td><input data-col="time" placeholder="7:00 AM"></td><td><input data-col="block" placeholder="MAIN"></td><td><input data-col="prev" placeholder="PREV"></td><td style="text-align:center"><button style="background:#ef4444;color:#fff;border:0;padding:6px 10px;border-radius:6px;font-weight:900" onclick="this.closest('tr').remove();refreshCount()">X</button></td>`;tbody.appendChild(tr);}refreshCount();attachEvents();}
+function addRows(n){let tbody=document.getElementById('tbody');for(let i=0;i<n;i++){let tr=document.createElement('tr');tr.innerHTML=`<td class="slCol"></td><td class="idCol"><input data-col="id" placeholder="ID"></td><td><input class="nameInput" data-col="name" placeholder="PATIENT NAME"></td><td><input data-col="shri" placeholder="SHRI"></td><td><input data-col="time" placeholder="7:00 AM"></td><td><input data-col="block" placeholder="MAIN"></td><td><input data-col="prev" placeholder="PREV"></td><td style="text-align:center"><button style="background:#ef4444;color:#fff;border:0;padding:6px 10px;border-radius:6px;font-weight:900;font-size:10px" onclick="this.closest('tr').remove();refreshCount()">X</button></td>`;tbody.appendChild(tr);}refreshCount();attachEvents();}
 function removeRows(n){let tbody=document.getElementById('tbody');let total=tbody.children.length;if(total<=10){alert('Minimum 10 rows');return;}let toRemove=Math.min(n,total-10);for(let i=0;i<toRemove;i++){let last=tbody.lastElementChild;if(last)last.remove();}refreshCount();}
 function refreshCount(){let c=1,added=0;let total=document.querySelectorAll('#tbody tr').length;document.querySelectorAll('#tbody tr').forEach(tr=>{let name=tr.querySelector('[data-col="name"]')?.value.trim();tr.querySelector('.slCol').innerText=name?c++:'';if(name)added++;});document.getElementById('countInfo').innerText=`${added} NEW - ${total} ROWS - ${existingPatients.length} EXISTING`;}
 function attachEvents(){document.querySelectorAll('#tbody input').forEach(el=>{el.addEventListener('focus',()=>{lastFocusedCell=el;});el.addEventListener('click',()=>{lastFocusedCell=el;});el.addEventListener('input',()=>{if(el.dataset.col==='name'||el.dataset.col==='shri')autoFillId(el);refreshCount();});});}
 function autoFillId(inp){let tr=inp.closest('tr');let name=tr.querySelector('[data-col="name"]')?.value||'';let shri=tr.querySelector('[data-col="shri"]')?.value||'';let scheme=document.getElementById('fType').value;let id=findId(name,shri,scheme);if(id){let idInput=tr.querySelector('[data-col="id"]');if(idInput&&!idInput.value)idInput.value=id;}}
 document.addEventListener('paste',(e)=>{let text=e.clipboardData.getData('text');if(!text)return;let targetCell=lastFocusedCell;if(!targetCell||!targetCell.closest('#tbody')){let firstRow=document.querySelector('#tbody tr');if(firstRow)targetCell=firstRow.querySelector('[data-col="name"]');}if(!targetCell)return;e.preventDefault();let rows=text.replace(/\r/g,'').trim().split('\n');if(rows.length===0)return;if(rows[0].toUpperCase().includes('PATIENT NAME'))rows.shift();let startCol=targetCell.dataset.col;const colOrder=['id','name','shri','time','block','prev'];let startColIndex=colOrder.indexOf(startCol);if(startColIndex===-1)startColIndex=1;let startTr=targetCell.closest('tr');let startRowIdx=Array.from(document.getElementById('tbody').children).indexOf(startTr);if(startRowIdx<0)startRowIdx=0;let needed=startRowIdx+rows.length-document.getElementById('tbody').children.length;if(needed>0)addRows(needed);let tbodyRows=document.getElementById('tbody').children;rows.forEach((r,rIdx)=>{let cols=r.includes('\t')?r.split('\t'):[r];if(cols.length===1&&r.includes(','))cols=r.split(',');let targetRow=tbodyRows[startRowIdx+rIdx];if(!targetRow)return;if(rows.length===1&&cols.length>1){cols.forEach((c,cIdx)=>{let colIdx=startColIndex+cIdx;if(colIdx>=colOrder.length)return;let colName=colOrder[colIdx];let inp=targetRow.querySelector(`[data-col="${colName}"]`);if(inp)inp.value=c.trim().toUpperCase();});}else if(cols.length>1){if(startCol==='name'){if(cols[0])targetRow.querySelector('[data-col="name"]').value=cols[0].trim().toUpperCase();if(cols[1])targetRow.querySelector('[data-col="shri"]').value=cols[1].trim().toUpperCase();if(cols[2])targetRow.querySelector('[data-col="time"]').value=cols[2].trim().toUpperCase();if(cols[3])targetRow.querySelector('[data-col="block"]').value=cols[3].trim().toUpperCase();if(cols[4])targetRow.querySelector('[data-col="prev"]').value=cols[4].trim();}}else{let val=r.trim();let inp=targetRow.querySelector(`[data-col="${startCol}"]`);if(inp)inp.value=val.toUpperCase();}});setTimeout(()=>{document.querySelectorAll('#tbody tr').forEach(tr=>{let name=tr.querySelector('[data-col="name"]')?.value||'';let shri=tr.querySelector('[data-col="shri"]')?.value||'';let scheme=document.getElementById('fType').value;let id=findId(name,shri,scheme);if(id){let idInput=tr.querySelector('[data-col="id"]');if(idInput)idInput.value=id;}});refreshCount();},50);});
 function setStatus(t,m){document.getElementById('status').className='status '+t;document.getElementById('status').innerText=m;}
-function clearAll(){if(!confirm('Clear all?'))return;document.getElementById('tbody').innerHTML='';addRows(10);}
+function clearAll(){if(!confirm('Clear all new rows?'))return;document.getElementById('tbody').innerHTML='';addRows(10);}
 async function saveAll(){
   let added=[];
   document.querySelectorAll('#tbody tr').forEach(tr=>{
@@ -177,7 +300,8 @@ async function saveAll(){
       shri:tr.querySelector('[data-col="shri"]')?.value.trim().toUpperCase(),
       time:tr.querySelector('[data-col="time"]')?.value.trim().toUpperCase(),
       block:tr.querySelector('[data-col="block"]')?.value.trim().toUpperCase(),
-      prev:tr.querySelector('[data-col="prev"]')?.value.trim()
+      prev:tr.querySelector('[data-col="prev"]')?.value.trim(),
+      patientStatus:'ENHANCEMENT'
     });
   });
   if(added.length===0){alert('No patients');return;}
@@ -186,30 +310,11 @@ async function saveAll(){
   let docId=date+'_'+scheme;
   let merged=[...existingPatients,...added];
   merged.forEach((p,i)=>p.sl=i+1);
-  setStatus('saving',`SAVING ${added.length} TO BOTH...`);
+  setStatus('saving',`SAVING ${added.length}...`);
   try{
-    // 1. Save to LIST collection - for list.html
+    // ONLY SAVE TO DAILY_DIALYSIS_LISTS = list.html
     await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId),{date,scheme,type:scheme,patients:merged,count:merged.length,updatedAt:new Date().toISOString()});
-    // 2. ALSO Save to DAILY collection - for daily.html (only PMJAY)
-    if(scheme==='PMJAY'){
-      for(let p of added){
-        try{
-          await window._fb2.addDoc(window._fb2.collection(window._fb2.db,"daily_dialysis"),{
-            date: date,
-            name: p.name,
-            shriId: p.shri || 'N/A',
-            time: (p.time||'7:00 AM').toLowerCase().replace(' ','').replace(':00','') || '7am',
-            pmjayId: p.pmjayCmhtId || 'N/A',
-            block: p.block || 'Main',
-            prevDate: p.prev || '',
-            createdAt: new Date().toISOString(),
-            from: 'addlist.html',
-            serverTime: window._fb2.serverTimestamp()
-          });
-        }catch(e){ console.log('daily save error',e); }
-      }
-    }
-    alert(`✅ Saved ${added.length} new!\n- ${merged.length} total in LIST (list.html)\n- ${added.length} added to DAILY (daily.html) - PMJAY only`);
+    alert(`✅ Saved ${added.length} new!\nTotal ${merged.length} in list.html\n(Not saved to daily.html)`);
     window.location.href=`list.html?date=${date}&scheme=${scheme}`;
   }catch(e){alert(e.message); setStatus('saved','ERROR');}
 }
