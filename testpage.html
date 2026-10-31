@@ -46,7 +46,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .btnDark{background:#0f172a;color:#fff}
 .btnYellow{background:#facc15;color:#000}
 .input{padding:10px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-weight:700;font-size:12px;background:#fff;width:100%;outline:0}
-.input:focus{border-color:#0f172a}
+.input:focus{border-color:#2563eb;background:#eff6ff}
 .sheetWrap{background:#fff;border:1.5px solid #e2e8f0;overflow:auto;max-height:75vh;border-radius:12px}
 table{border-collapse:collapse;width:100%;min-width:800px}
 th{position:sticky;top:0;background:#0f172a;color:#fff;padding:12px 8px;font-size:10px;text-align:center;z-index:2;font-weight:800}
@@ -56,6 +56,7 @@ td.nameCol{text-align:left;padding-left:12px}
 .claimBtn{background:#facc15;color:#000;padding:6px 12px;border-radius:6px;border:0;font-weight:900;font-size:9px;cursor:pointer}
 .delBtn{background:#ef4444;color:#fff;padding:6px 8px;border-radius:6px;border:0;font-weight:900;font-size:9px;cursor:pointer}
 .shriBlue{background:#2563eb;color:#fff;padding:6px 14px;border-radius:8px;font-weight:800;font-size:11px;display:inline-block;min-width:70px;text-align:center}
+/* SEARCH BOX - NO BLACK BORDER */
 .searchBox{position:relative}
 .searchResults{position:absolute;top:46px;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:10px;max-height:300px;overflow:auto;z-index:500;display:none;box-shadow:0 10px 30px rgba(0,0,0,0.15)}
 .searchResults.open{display:block}
@@ -72,9 +73,10 @@ td.nameCol{text-align:left;padding-left:12px}
 .blockGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .blockCard{padding:20px 10px;border:2px solid #facc15;border-radius:12px;background:#fffef2;font-weight:900;font-size:13px;cursor:pointer;text-align:center;color:#000}
 .blockCard:hover{background:#facc15}
-.gridWrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;max-height:75vh;overflow:auto;padding:6px}
-.gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px}
-.gridName{font-weight:900;font-size:13px;color:#0a1931;margin-bottom:6px;text-transform:uppercase}
+/* GRID 3 COLUMNS x 4 ROWS = 12 */
+.gridWrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-height:none;overflow:visible;padding:6px}
+.gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between}
+.gridName{font-weight:900;font-size:13px;color:#0a1931;margin-bottom:6px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gridRow{display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#64748b;margin-bottom:4px}
 .gridRow b{color:#0f172a}
 .iconBtn{width:36px;height:36px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:900;color:#0f172a;transition:.2s}
@@ -83,6 +85,8 @@ td.nameCol{text-align:left;padding-left:12px}
 .filterBox2{display:flex;flex-direction:column;gap:12px}
 .filterRow1{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
 .filterRow2{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid #f1f5f9;padding-top:12px}
+@media(max-width:900px){.gridWrap{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.gridWrap{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -124,8 +128,13 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc};
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY</div></div><div><a href="claim.html" style="background:#0f172a;color:#fff;padding:8px 16px;border-radius:20px;font-weight:900;font-size:11px;text-decoration:none">VIEW CLAIM</a></div></div>
 
 <div class="content">
-
-<div class="card" style="border:1.5px solid #0f172a"><div class="label" style="color:#0a1931">ADD DISCHARGE PATIENT FROM TOTAL PATIENT - ONLY PMJAY</div><div class="searchBox" style="margin-top:8px"><input type="text" id="searchTotal" class="input" placeholder="SEARCH TOTAL PMJAY PATIENT - NAME / SHRI ID / PMJAY ID..." style="border:1.5px solid #0a1931;padding:12px;border-radius:10px"><div class="searchResults" id="searchResults"></div></div></div>
+<div class="card" style="border:1.5px solid #e2e8f0;background:#fff">
+<div class="label" style="color:#64748b;font-weight:800">ADD DISCHARGE PATIENT FROM TOTAL PATIENT - ONLY PMJAY</div>
+<div class="searchBox" style="margin-top:8px">
+<input type="text" id="searchTotal" class="input" placeholder="SEARCH TOTAL PMJAY PATIENT - NAME / SHRI ID / PMJAY ID..." style="border:1.5px solid #e2e8f0;padding:12px;border-radius:10px;background:#f8fafc;font-weight:600">
+<div class="searchResults" id="searchResults"></div>
+</div>
+</div>
 
 <div class="card">
 <div class="filterBox2">
@@ -133,12 +142,12 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc};
 <div><div class="label">DATE</div><input type="date" id="fDate" class="input"></div>
 <div><div class="label">TIME FILTER</div><select id="fTime" class="input"><option value="">ALL TIME</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
 <div><div class="label">BLOCK FILTER</div><select id="fBlock" class="input"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
-<div><div class="label">PER PAGE</div><select id="perPage" class="input"><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
+<div><div class="label">PER PAGE</div><select id="perPage" class="input"><option value="12" selected>12 (3x4 Grid)</option><option value="10">10</option><option value="20">20</option><option value="50">50</option></select></div>
 <div><div class="label">ACTION</div><button class="btn btnDark" style="width:100%;padding:10px" onclick="clearFilters()">CLEAR FILTER</button></div>
 </div>
 <div class="filterRow2">
-<div style="display:flex;gap:8px;align-items:center;flex:1">
-<input type="text" id="fSearch" class="input" placeholder="Search Discharged..." style="flex:1;max-width:500px;min-width:200px;border-radius:20px">
+<div style="display:flex;gap:8px;align-items:center;flex:1;flex-wrap:wrap">
+<input type="text" id="fSearch" class="input" placeholder="Search Discharged..." style="flex:1;max-width:380px;min-width:200px;border-radius:20px">
 <div class="badge" id="badgeD">Discharged - 0</div>
 <span id="dateInfo" style="font-size:10px;font-weight:800">TIME | BLOCK</span>
 </div>
@@ -156,7 +165,7 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc};
 </div>
 
 </div>
-<div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis • Discharge Patient</div>
+<div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis • Discharge Patient • 3x4 Grid</div>
 </div>
 
 <div class="modalBg" id="timeModal"><div class="modal"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-weight:900">SELECT TIME</div><button class="btn btnDark" onclick="closeTimeModal()">X</button></div><div id="timeModalInfo" style="font-size:10px;font-weight:700;background:#f1f5f9;padding:8px;border-radius:6px;margin-bottom:14px;border:1px solid #e2e8f0"></div><div class="timeGrid"><div class="timeCard" data-time="7:00 AM" onclick="selectTime(this)">7:00 AM</div><div class="timeCard" data-time="12:00 PM" onclick="selectTime(this)">12:00 PM</div><div class="timeCard" data-time="5:00 PM" onclick="selectTime(this)">5:00 PM</div><div class="timeCard" data-time="9:00 PM" onclick="selectTime(this)">9:00 PM</div><div class="timeCard" data-time="12:00 AM" onclick="selectTime(this)">12:00 AM</div><div class="timeCard" data-time="2:00 AM" onclick="selectTime(this)">2:00 AM</div></div></div></div>
@@ -166,15 +175,24 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc};
 <script>
 function toggleWhiteBar(){ document.getElementById('whiteBar').classList.toggle('folded'); }
 document.getElementById('menuBtnTop').addEventListener('click',toggleWhiteBar);
-let allDischarge=[],filtered=[],masterPatients=[],selectedPatient=null,selectedTime='',selectedBlock='',currentPage=1,pageSize=10,selectedClaimDischargeId=null,isGrid=false;
+let allDischarge=[],filtered=[],masterPatients=[],selectedPatient=null,selectedTime='',selectedBlock='',currentPage=1,pageSize=12,selectedClaimDischargeId=null,isGrid=false;
 function getToday(){let d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');}
 function toggleView(){
   isGrid=!isGrid;
   let tableWrap=document.getElementById('tableWrap');
   let gridWrap=document.getElementById('gridWrap');
   let btn=document.getElementById('viewToggleBtn');
-  if(isGrid){ tableWrap.style.display='none'; gridWrap.style.display='grid'; btn.classList.add('active'); }
-  else { tableWrap.style.display='block'; gridWrap.style.display='none'; btn.classList.remove('active'); }
+  if(isGrid){
+    tableWrap.style.display='none'; gridWrap.style.display='grid';
+    btn.classList.add('active');
+    pageSize=12;
+    document.getElementById('perPage').value="12";
+  }else{
+    tableWrap.style.display='block'; gridWrap.style.display='none';
+    btn.classList.remove('active');
+    pageSize=parseInt(document.getElementById('perPage').value)||10;
+  }
+  currentPage=1;
   render();
 }
 async function loadMaster(){
@@ -192,7 +210,7 @@ async function loadMaster(){
 async function loadAll(){ try{ let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges')); allDischarge=[]; snap.forEach(d=>{ let o=d.data(); o._id=d.id; allDischarge.push(o); }); allDischarge.sort((a,b)=> new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0)); }catch(e){} applyFilter(); }
 function applyFilter(){
   let date=document.getElementById('fDate').value; let time=document.getElementById('fTime').value; let block=document.getElementById('fBlock').value; let search=document.getElementById('fSearch').value.toLowerCase().trim();
-  pageSize=parseInt(document.getElementById('perPage').value)||10;
+  pageSize=parseInt(document.getElementById('perPage').value)||12;
   filtered=allDischarge.filter(p=>{
     if(date && p.date!==date) return false;
     if(time && (p.time||'')!==time) return false;
@@ -206,7 +224,7 @@ function render(){
   let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize)); if(currentPage>totalPages) currentPage=totalPages;
   let start=(currentPage-1)*pageSize; let page=filtered.slice(start,start+pageSize);
   document.getElementById('badgeD').innerText="Discharged - "+filtered.length;
-  document.getElementById('pageInfo').innerText="Page "+currentPage+" of "+totalPages;
+  document.getElementById('pageInfo').innerText="Page "+currentPage+" of "+totalPages+" | "+pageSize+" per page (3x4="+Math.ceil(page.length/3)+" rows)";
   document.getElementById('dateInfo').innerText=(document.getElementById('fTime').value||'ALL TIME')+" | "+(document.getElementById('fBlock').value||'ALL BLOCK');
   if(page.length===0){ tbody.innerHTML='<tr><td colspan="7" style="padding:30px;text-align:center">NO DISCHARGED</td></tr>'; grid.innerHTML='<div style="padding:30px;text-align:center;grid-column:1/-1">NO DISCHARGED</div>'; return; }
   page.forEach((p,i)=>{
@@ -217,7 +235,7 @@ function render(){
     tr.innerHTML='<td>'+(start+i+1)+'</td><td class="nameCol">'+nameVal+claimTag+'</td><td><span class="shriBlue">'+shriVal+'</span></td><td style="color:#0a1931;font-weight:900">'+pmjayShow+'</td><td>'+(p.time||'')+'</td><td>'+(p.block||'')+'</td><td><div style="display:flex;gap:4px;justify-content:center"><button class="claimBtn" onclick="goClaim(\''+p._id+'\')">'+btnTxt+'</button><button class="delBtn" onclick="delDischarge(\''+p._id+'\')">X</button></div></td>';
     tbody.appendChild(tr);
     let gc=document.createElement('div'); gc.className='gridCard';
-    gc.innerHTML='<div class="gridName">'+nameVal+claimTag+'</div><div class="gridRow"><span>SHRI ID</span><b><span class="shriBlue">'+shriVal+'</span></b></div><div class="gridRow"><span>PMJAY ID</span><b style="color:#0a1931;background:#fff;padding:2px 6px;border-radius:4px;border:1px solid #e2e8f0">'+(pmjayShow||'NO PMJAY')+'</b></div><div class="gridRow"><span>TIME</span><b>'+(p.time||'')+'</b></div><div class="gridRow"><span>BLOCK</span><b>'+(p.block||'')+'</b></div><div style="display:flex;gap:6px;margin-top:10px"><button class="claimBtn" style="flex:1;padding:10px" onclick="goClaim(\''+p._id+'\')">'+(p.claimId?'EDIT CLAIM':'ADD TO CLAIM')+'</button><button class="delBtn" style="padding:10px" onclick="delDischarge(\''+p._id+'\')">DELETE</button></div>';
+    gc.innerHTML='<div><div class="gridName">'+nameVal+claimTag+'</div><div class="gridRow"><span>SHRI ID</span><b><span class="shriBlue">'+shriVal+'</span></b></div><div class="gridRow"><span>PMJAY ID</span><b style="color:#0a1931;background:#fff;padding:2px 6px;border-radius:4px;border:1px solid #e2e8f0;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(pmjayShow||'NO PMJAY')+'</b></div><div class="gridRow"><span>TIME</span><b>'+(p.time||'')+'</b></div><div class="gridRow"><span>BLOCK</span><b>'+(p.block||'')+'</b></div></div><div style="display:flex;gap:6px;margin-top:10px"><button class="claimBtn" style="flex:1;padding:10px" onclick="goClaim(\''+p._id+'\')">'+(p.claimId?'EDIT CLAIM':'ADD TO CLAIM')+'</button><button class="delBtn" style="padding:10px" onclick="delDischarge(\''+p._id+'\')">DELETE</button></div>';
     grid.appendChild(gc);
   });
 }
