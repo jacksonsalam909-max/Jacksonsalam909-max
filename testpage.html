@@ -2,99 +2,101 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA - NO SPACE FIXED</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<title>SHIJA - Responsive - Buttons Below Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
+:root{--bg:#f8fafc;--card:#fff;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--accent:#2563eb;--green:#10b981}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',system-ui;background:#f1f5f9;display:flex;min-height:100vh}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease}
-.whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important}
-.sHead{padding:14px 12px;display:flex;align-items:center;gap:10px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
-.sLogo{width:38px;min-width:38px;height:38px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:2px;border:1px solid #e2e8f0;flex-shrink:0}
-.sLogo img{width:100%;height:100%;object-fit:contain!important;display:block}
-.sTitle b{color:#0f172a;font-size:15px;font-weight:900;display:block;line-height:1}
-.sTitle span{font-size:8px;color:#64748b;text-transform:uppercase;font-weight:700;display:block;margin-top:1px}
+html,body{width:100%;height:100%}
+body{font-family:'Inter',system-ui;background:var(--bg);display:flex;min-height:100vh;color:var(--text);overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:clamp(200px,18vw,260px);min-width:68px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;transition:width .25s ease}
+.whiteBar.folded{width:68px!important;min-width:68px!important}
+.mainWrap{flex:1;margin-left:clamp(200px,18vw,260px);transition:margin-left .25s ease;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;width:calc(100% - clamp(200px,18vw,260px))}
+.whiteBar.folded ~ .mainWrap{margin-left:68px!important;width:calc(100% - 68px)!important}
+.sHead{padding:clamp(10px,1vw,14px) 12px;display:flex;align-items:center;gap:10px;background:#fff;border-bottom:1px solid var(--border)}
+.sLogo{width:clamp(32px,3vw,40px);height:clamp(32px,3vw,40px);min-width:clamp(32px,3vw,40px);background:#fff;border-radius:10px;display:grid;place-items:center;border:1px solid var(--border);overflow:hidden;padding:3px}
+.sLogo img{width:100%;height:100%;object-fit:contain;display:block}
+.sTitle b{color:var(--text);font-size:clamp(12px,1.1vw,15px);font-weight:800;line-height:1;display:block}
+.sTitle span{font-size:7px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;display:block}
 .whiteBar.folded .sTitle{display:none}
-.whiteBar.folded .sHead{justify-content:center;padding:12px 0}
-.sMenu{flex:1;padding:6px 6px;overflow-y:auto}
-.sMenu a{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;text-decoration:none;color:#94a3b8;font-size:11.5px;font-weight:500;margin-bottom:1px;white-space:nowrap;overflow:hidden}
+.whiteBar.folded .sHead{justify-content:center}
+.sMenu{flex:1;padding:6px;overflow-y:auto}
+.sMenu a{display:flex;align-items:center;gap:8px;padding:9px 8px;border-radius:8px;text-decoration:none;color:#94a3b8;font-size:clamp(10px,0.9vw,12px);font-weight:500;margin-bottom:1px;white-space:nowrap;overflow:hidden}
 .sMenu a:hover{background:#1e293b;color:#fff}
-.sMenu a.active{background:#1e293b;color:#fff;font-weight:600}
-.mi{width:28px;min-width:28px;height:28px;display:grid;place-items:center;background:#1e293b;border-radius:6px;flex-shrink:0}
-.mi svg{width:14px;height:14px;stroke:#94a3b8;stroke-width:1.8;fill:none}
-.sMenu a.active .mi{background:#2563eb}
+.sMenu a.active{background:#fff;color:#0f172a;font-weight:700}
+.sMenu a.active .mi{background:#0f172a}
 .sMenu a.active .mi svg{stroke:#fff}
+.mi{width:24px;height:24px;min-width:24px;display:grid;place-items:center;background:#1e293b;border-radius:6px}
+.mi svg{width:12px;height:12px;stroke:#94a3b8;stroke-width:1.8;fill:none}
 .ml{overflow:hidden;text-overflow:ellipsis}
 .whiteBar.folded .ml{display:none!important}
-.whiteBar.folded .sMenu a{justify-content:center;padding:10px 0}
-.sFoot{padding:10px;border-top:1px solid #1e293b;font-size:9px;color:#64748b;text-align:center}
-.whiteBar.folded .sFoot .footFull{display:none}
-.whiteBar:not(.folded) .sFoot .footFold{display:none}
-.top{height:54px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
-.logo{display:flex;align-items:center;gap:8px;font-weight:900;font-size:14px;color:#0f172a}
-.menuBtnTop{width:36px;height:32px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
-.menuBtnTop span{display:block;width:20px;height:2px;background:#0f172a;border-radius:2px}
-.badgeBlue{background:#f59e0b;color:#000;padding:4px 8px;border-radius:12px;font-weight:900;font-size:9px}
-.content{flex:1;padding:8px;background:#f1f5f9}
-.cardPro{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:10px;margin-bottom:8px}
-.label{font-size:7px;font-weight:800;color:#475569;margin-bottom:3px;display:block;text-transform:uppercase}
-.inputPro{padding:8px 9px;border:1.5px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:10px;background:#f8fafc;width:100%;outline:0}
-.row{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}.col{flex:1;min-width:110px}
-.smallFilter{width:90px!important;height:30px!important;border-radius:14px!important;border:1.5px solid #10b981!important;background:#f0fdf4!important;font-weight:800!important;font-size:8px!important}
-.searchBox{position:relative;width:100%}.searchList{position:absolute;top:105%;left:0;right:0;background:#fff;border:1.5px solid #2563eb;border-radius:8px;max-height:260px;overflow:auto;z-index:999;display:none;box-shadow:0 8px 16px rgba(0,0,0,.12)}
-.timeBox{border:1.5px solid #10b981;background:#f0fdf4;border-radius:8px;padding:6px;display:flex;gap:5px;align-items:end;flex-wrap:wrap}
-.timeInput{width:64px!important;text-align:center;font-family:monospace;font-size:10px!important;height:30px!important}
-.vitalGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:5px;margin-top:3px}
-.vitalCard{position:relative;border:1.5px solid #e2e8f0;border-radius:8px;padding:7px 8px;background:#fff;display:flex;align-items:center;gap:6px}
-.vIcon{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
-.vContent{flex:1}.vLabel{font-size:6px;font-weight:800;color:#64748b;display:block;text-transform:uppercase}
-.vContent input{border:0;background:transparent;font-weight:800;font-size:11px;width:100%;outline:0;margin-top:1px;color:#0f172a}
-.vUnit{font-size:7px;font-weight:700;color:#94a3b8;margin-right:16px}
+.whiteBar.folded .sMenu a{justify-content:center}
+.sFoot{padding:8px;border-top:1px solid #1e293b;font-size:8px;color:#475569;text-align:center}
+.top{height:clamp(48px,4vw,56px);background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(8px,1vw,16px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+.menuBtnTop{width:32px;height:28px;background:transparent;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.menuBtnTop span{display:block;width:16px;height:2px;background:var(--text);border-radius:2px}
+.logo{font-weight:800;font-size:clamp(11px,1vw,14px);display:flex;align-items:center;gap:8px}
+.content{padding:clamp(6px,0.8vw,12px);flex:1;width:100%}
+.proCard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:clamp(8px,0.8vw,12px);box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.label{font-size:7px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;display:block}
+.inputPro{width:100%;padding:clamp(6px,0.6vw,9px) 10px;border:1px solid var(--border);border-radius:8px;font-size:clamp(10px,0.9vw,12px);font-weight:600;background:#fff;outline:0}
+.inputPro:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+.row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.col{flex:1;min-width:100px}
+.searchBox{position:relative;width:100%}.searchList{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:8px;max-height:240px;overflow:auto;z-index:50;display:none;box-shadow:0 8px 20px rgba(0,0,0,.1)}
+.btn{padding:clamp(5px,0.5vw,7px) clamp(10px,1vw,14px);border-radius:20px;border:0;font-weight:700;font-size:clamp(9px,0.8vw,11px);cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btnDark{background:var(--text);color:#fff}.btnGreen{background:var(--green);color:#fff}.btnLight{background:#fff;border:1px solid var(--border);color:var(--text)}
+.timeBox{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:end}
+.timeInput{width:64px!important;text-align:center}
+.vitalGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;margin-top:4px}
+.vitalCard{border:1px solid var(--border);border-radius:8px;padding:7px 8px;background:#fff;display:flex;align-items:center;gap:6px;position:relative}
+.vIcon{width:22px;height:22px;border-radius:5px;display:grid;place-items:center;font-size:11px;flex-shrink:0}
+.vContent{flex:1;min-width:0}.vLabel{font-size:6px;font-weight:700;color:var(--muted);text-transform:uppercase;display:block}
+.vContent input{border:0;background:transparent;font-weight:700;font-size:clamp(10px,0.9vw,12px);width:100%;outline:0;color:var(--text)}
+.vUnit{font-size:8px;color:var(--muted);font-weight:600;margin-right:14px}
 .vStepper{position:absolute;right:2px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:1px}
-.vStepBtn{width:16px;height:11px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:3px;font-size:7px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.preBox .vitalCard{border-left:3px solid #ef4444}
-.postBox .vitalCard{border-left:3px solid #10b981}
-.topControls{background:#0f172a;border-radius:10px;padding:8px 10px;margin-bottom:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.btnExport{background:#fff;color:#0f172a;border:0;padding:6px 12px;border-radius:16px;font-weight:800;font-size:9px;cursor:pointer;white-space:nowrap}
-.btnExport.green{background:#22c55e;color:#fff}
-.btnExport.yellow{background:#f59e0b;color:#000}
-.fullSearchWrap{background:#fff;border-radius:10px;border:1.5px solid #2563eb;padding:8px;margin-bottom:8px}
-.fullSearchWrap .inputPro{border:2px solid #2563eb;background:#eff6ff;font-size:12px;padding:10px;font-weight:800}
-/* FIXED - NO SPACE LAYOUT */
-.mainLayout{display:flex;gap:8px;align-items:flex-start}
-.leftForm{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
-.rightPapers{flex:0 0 400px;max-width:400px;position:sticky;top:62px;display:flex;justify-content:flex-start;align-items:flex-start}
-.previewBox{background:#e2e8f0;border-radius:10px;padding:6px;border:1px solid #cbd5e1;width:100%}
-.paper{background:#fff;color:#000;border:1.5px solid #000;--fs:9px;overflow:hidden;width:100%;box-shadow:0 4px 12px rgba(0,0,0,0.12);border-radius:3px}
-.letterhead{margin:0;padding:0;line-height:0;display:block;font-size:0;border:0}
-.letterhead img{width:100%;display:block;margin:0;padding:0;vertical-align:top;border:0}
-.disTitle{text-align:center;font-weight:800;font-size:calc(var(--fs) + 4px);padding:4px 0;border:2px solid #000;margin:0 6px;background:#fff;width:calc(100% - 12px)}
+.vStepBtn{width:14px;height:10px;border:1px solid var(--border);background:#f8fafc;border-radius:3px;font-size:7px;font-weight:800;cursor:pointer;display:grid;place-items:center}
+.preBox .vitalCard{border-left:2px solid #ef4444}.postBox .vitalCard{border-left:2px solid #10b981}
+.fullSearch{background:#fff;border:1px solid #2563eb;border-radius:10px;padding:8px;margin-bottom:8px;box-shadow:0 0 0 2px rgba(37,99,235,.06);width:100%}
+.fullSearch .inputPro{border:1px solid #bfdbfe;background:#eff6ff;font-size:clamp(11px,1vw,13px);padding:10px;font-weight:700}
+/* MAIN LAYOUT - Responsive minimize/maximize */
+.layout{display:flex;gap:clamp(6px,0.8vw,10px);align-items:flex-start;width:100%}
+.left{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.right{flex:0 0 clamp(300px,32vw,400px);width:clamp(300px,32vw,400px);position:sticky;top:64px;display:flex;flex-direction:column;gap:8px}
+.previewWrap{background:#e2e8f0;border-radius:10px;padding:6px;border:1px solid #cbd5e1;width:100%}
+.paper{background:#fff;color:#000;border:1px solid #111827;width:100%;border-radius:3px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.12);--fs:clamp(7px,0.7vw,9px)}
+.letterhead img{width:100%;display:block}
+.disTitle{text-align:center;font-weight:800;font-size:calc(var(--fs) + 4px);padding:4px 0;border:2px solid #000;margin:4px 6px 0;background:#fff;width:calc(100% - 12px)}
 .infoTable{width:100%;border-collapse:collapse;font-size:var(--fs);margin:3px 0}
-.infoTable td{padding:1px 2px;vertical-align:top;line-height:1.25;white-space:nowrap;font-size:8px}
-.infoTable td:first-child{padding-left:8px!important}
-.infoTable td span{white-space:normal}
-.section{padding:6px 10px 8px 12px;font-size:8px;line-height:1.45;border-top:2px solid #000}
-.pageLabel{font-size:7px;font-weight:800;color:#fff;background:#0f172a;padding:3px 8px;border-radius:8px;display:inline-block;margin-bottom:4px}
+.infoTable td{padding:1px 3px;line-height:1.25;white-space:nowrap;font-size:clamp(7px,0.6vw,8.5px)}
+.infoTable td:first-child{padding-left:8px}
+.section{padding:6px 10px 8px 12px;font-size:clamp(7px,0.65vw,8.5px);line-height:1.45;border-top:2px solid #000}
+.badgePreview{font-size:7px;font-weight:700;background:#0f172a;color:#fff;padding:3px 8px;border-radius:8px;display:inline-block;margin-bottom:4px}
+.actionsBelow{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.actionsRow{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 @media(max-width:900px){
-  .mainLayout{flex-direction:column}
-  .leftForm{max-width:100%}
-  .rightPapers{position:static;max-width:100%;flex:1}
+  .layout{flex-direction:column}
+  .right{position:static;width:100%;flex:1;max-width:100%}
+  .left{max-width:100%}
+  .whiteBar{width:200px;min-width:200px}
+  .mainWrap{margin-left:200px;width:calc(100% - 200px)}
+}
+@media(max-width:600px){
+  .whiteBar{width:68px!important;min-width:68px!important}
+  .whiteBar .sTitle,.whiteBar .ml,.whiteBar .footFull{display:none!important}
+  .whiteBar .sHead{justify-content:center}
+  .whiteBar .sMenu a{justify-content:center}
+  .mainWrap{margin-left:68px!important;width:calc(100% - 68px)!important}
+  .right{width:100%!important;flex:1!important}
 }
 </style>
-<script>
-if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
-if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
-function toggleWhiteBar(){var bar=document.getElementById('whiteBar');if(!bar)return;bar.classList.toggle('folded');try{localStorage.setItem('shija_menu_folded',bar.classList.contains('folded')?'1':'0')}catch(e){} }
-</script>
+<script>function toggleWhiteBar(){var b=document.getElementById('whiteBar');b.classList.toggle('folded');try{localStorage.setItem('shija_menu_folded',b.classList.contains('folded')?'1':'0')}catch(e){}}</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig,"dischargeSummaryMain_"+Math.random());const db=getFirestore(app);window.db=db;window.fbTools={collection,getDocs};
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(cfg,"pro_"+Math.random());const db=getFirestore(app);window.db=db;window.fbTools={collection,getDocs};
 </script>
 </head>
 <body>
@@ -102,30 +104,25 @@ const app=initializeApp(firebaseConfig,"dischargeSummaryMain_"+Math.random());co
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 <div class="sHead"><div class="sLogo"><img src="logoc.png" alt="SHIJA"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
 <div class="sMenu">
-<a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
-<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
-<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
-<a href="dischargesummary.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
-</div></div><div class="sFoot"><span class="footFull">NO SPACE • FIXED LOGO</span><span class="footFold">☰</span></div></div>
+<a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">Home</span></a>
+<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">Total Patients</span></a>
+<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span><span class="ml">Discharge</span></a>
+<a href="dischargesummary.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">Discharge Summary</span></a>
+</div></div><div class="sFoot"><span class="footFull">© 2026 Shija • Responsive</span><span class="footFold">SH</span></div></div>
+
 <div class="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> DISCHARGE SUMMARY <div class="badgeBlue">NO SPACE</div></div></div>
+<div class="top"><div class="logo"><button class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> Discharge Summary</div></div>
 <div class="content">
-<div class="topControls">
-<b style="color:#fff;font-size:10px">ALL BUTTONS:</b>
-<select id="exportType" style="background:#fff;color:#0f172a;border:0;padding:5px 8px;border-radius:14px;font-weight:800;font-size:9px"><option value="jpeg" selected>JPEG</option><option value="pdf">PDF</option></select>
-<button onclick="doExport()" class="btnExport green">⬇ EXPORT</button>
-<button onclick="window.print()" class="btnExport">🖨 PRINT</button>
-<select id="schemeSelect" style="background:#f0fdf4;color:#0f172a;border:1.5px solid #10b981;padding:5px 8px;border-radius:14px;font-weight:800;font-size:9px" onchange="changeScheme()"><option value="PMJAY">PMJAY</option><option value="CMHT">CMHT</option></select>
-<span id="countBadge" style="font-size:8px;background:#1e293b;color:#fff;padding:4px 8px;border-radius:10px;margin-left:auto">Loading...</span>
+
+<div class="fullSearch">
+<div class="label" style="color:#2563eb">Search Patient • Full Width • Responsive</div>
+<div class="searchBox"><input id="searchInput" class="inputPro" placeholder="Type SHRI ID / Name / IP - Full width, scales with screen" oninput="doSearch(this.value)" onfocus="doSearch(this.value)"><div id="searchList" class="searchList"></div></div>
+<div id="debugInfo" style="font-size:8px;color:#64748b;margin-top:4px"></div>
 </div>
-<div class="fullSearchWrap">
-<div class="label" style="color:#2563eb">SEARCH PATIENT - FULL WIDTH</div>
-<div class="searchBox"><input id="searchInput" class="inputPro" placeholder="Type SHRI ID / Name / IP No. - Full width search shows all patients..." oninput="doSearch(this.value)" onfocus="doSearch(this.value)"><div id="searchList" class="searchList"></div></div>
-<div id="debugInfo" style="font-size:7px;color:#64748b;margin-top:3px"></div>
-</div>
-<div class="mainLayout">
-<div class="leftForm">
-<div class="cardPro">
+
+<div class="layout">
+<div class="left">
+<div class="proCard">
 <div class="row"><div class="col"><span class="label">UHID</span><input id="shriId" class="inputPro" value="SHRI.334269"></div><div class="col"><span class="label">IP No</span><input id="ipNo" class="inputPro" value="185693"></div></div>
 <div class="row"><div class="col"><span class="label">Patient Name</span><input id="patName" class="inputPro" value="Mrs. ARAMBAM ASHALATA DEVI"></div></div>
 <div class="row"><div class="col"><span class="label">Age</span><input type="number" id="ageInput" class="inputPro" value="71"></div><div class="col"><span class="label">Sex</span><select id="sexInput" class="inputPro"><option>Male</option><option selected>Female</option></select></div></div>
@@ -136,38 +133,39 @@ const app=initializeApp(firebaseConfig,"dischargeSummaryMain_"+Math.random());co
 <div><span class="label">AM/PM</span><select id="admAmPm" class="inputPro timeInput" style="background:#0f172a;color:#fff"><option>AM</option><option selected>PM</option></select></div>
 </div>
 </div>
-<div class="cardPro">
-<h3 style="font-size:9px;font-weight:800;margin-bottom:4px;color:#ef4444">● PRE DIALYSIS</h3>
+<div class="proCard">
+<h3 style="font-size:9px;font-weight:800;color:#ef4444;margin-bottom:4px">● PRE DIALYSIS</h3>
 <div class="vitalGrid preBox">
 <div class="vitalCard"><div class="vIcon" style="background:#fee2e2">🩸</div><div class="vContent"><span class="vLabel">BP</span><input id="bp" value="150/70"></div><span class="vUnit">mmHg</span></div>
 <div class="vitalCard"><div class="vIcon" style="background:#fef3c7">💓</div><div class="vContent"><span class="vLabel">Pulse</span><input type="number" id="pr" value="86"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('pr',1)">▲</button><button class="vStepBtn" onclick="stepVital('pr',-1)">▼</button></div><span class="vUnit">bpm</span></div>
 <div class="vitalCard"><div class="vIcon" style="background:#dbeafe">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" id="spo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('spo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('spo2',-1)">▼</button></div><span class="vUnit">%</span></div>
 <div class="vitalCard"><div class="vIcon" style="background:#ffedd5">🌡️</div><div class="vContent"><span class="vLabel">Temp</span><input type="number" id="temp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('temp',1)">▲</button><button class="vStepBtn" onclick="stepVital('temp',-1)">▼</button></div><span class="vUnit">°F</span></div>
 </div>
-<h3 style="font-size:9px;font-weight:800;margin:8px 0 4px;color:#10b981">● POST DIALYSIS</h3>
+<h3 style="font-size:9px;font-weight:800;color:#10b981;margin:10px 0 4px">● POST DIALYSIS</h3>
 <div class="vitalGrid postBox">
 <div class="vitalCard"><div class="vIcon" style="background:#dcfce7">🩸</div><div class="vContent"><span class="vLabel">BP</span><input id="postBp" value="160/80"></div><span class="vUnit">mmHg</span></div>
 <div class="vitalCard"><div class="vIcon" style="background:#d1fae5">💓</div><div class="vContent"><span class="vLabel">Pulse</span><input type="number" id="postPr" value="84"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postPr',1)">▲</button><button class="vStepBtn" onclick="stepVital('postPr',-1)">▼</button></div><span class="vUnit">bpm</span></div>
 <div class="vitalCard"><div class="vIcon" style="background:#e0e7ff">🫁</div><div class="vContent"><span class="vLabel">SpO2</span><input type="number" id="postSpo2" value="99"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postSpo2',1)">▲</button><button class="vStepBtn" onclick="stepVital('postSpo2',-1)">▼</button></div><span class="vUnit">%</span></div>
 <div class="vitalCard"><div class="vIcon" style="background:#fef9c3">🌡️</div><div class="vContent"><span class="vLabel">Temp</span><input type="number" id="postTemp" value="98"></div><div class="vStepper"><button class="vStepBtn" onclick="stepVital('postTemp',1)">▲</button><button class="vStepBtn" onclick="stepVital('postTemp',-1)">▼</button></div><span class="vUnit">°F</span></div>
 </div>
-<div class="row" style="border:1.5px solid #dc2626;border-radius:8px;padding:6px;margin-top:8px;background:#fffbeb">
-<div class="col"><span class="label">Advice Date</span><input type="date" id="adviceDate" class="inputPro" value="2026-10-22"></div>
-<div class="col"><span class="label">Advice Time</span><select id="adviceTime" class="inputPro" style="background:#fff1f2;border:1.5px solid #f43f5e;font-size:9px"><option>7am morning</option><option selected>12pm noon</option><option>5pm evening</option><option>9pm night</option><option>12am midnight</option><option>2am morning</option></select></div>
-<div class="col"><span class="label">Times/week</span><select id="freq" class="inputPro" style="border:1.5px solid #dc2626;background:#fef2f2"><option>One</option><option>Two</option><option selected>Three</option><option>Four</option></select></div>
+<div class="row" style="border:1px solid #fecaca;background:#fff7f7;border-radius:8px;padding:6px;margin-top:8px">
+<div class="col"><span class="label">Advice Date</span><input type="date" id="adviceDate" class="inputPro"></div>
+<div class="col"><span class="label">Advice Time</span><select id="adviceTime" class="inputPro"><option>7am morning</option><option selected>12pm noon</option><option>5pm evening</option><option>9pm night</option><option>12am midnight</option><option>2am morning</option></select></div>
+<div class="col"><span class="label">Times/week</span><select id="freq" class="inputPro"><option>One</option><option>Two</option><option selected>Three</option><option>Four</option></select></div>
 </div>
 </div>
 </div>
-<div class="rightPapers">
-<div class="previewBox">
-<div class="pageLabel">📄 PREVIEW - ONE PAGE - NO SPACE - FIXED</div>
+
+<div class="right">
+<div class="previewWrap">
+<span class="badgePreview">📄 PREVIEW • Responsive • Scales with window</span>
 <div class="paper" id="paper">
 <div class="letterhead"><img src="finalopo.png?v=20" alt="SHIJA"></div>
 <div class="disTitle">Discharge Summary</div>
 <table class="infoTable">
 <tr><td><b>IP No.</b></td><td>: <span id="b_ip">185693</span></td><td><b>UHID NO</b></td><td>: <span id="b_shri">SHRI.334269</span></td></tr>
 <tr><td><b>Patient Name</b></td><td>: <span id="b_name">Mrs. ARAMBAM ASHALATA DEVI</span></td><td><b>Age/Sex</b></td><td>: <span id="b_age">71 Year(s) /Female</span></td></tr>
-<tr><td><b>Admission DateTime</b></td><td>: <span id="b_adm">21/10/2026 02:47 PM</span></td><td><b>Doctor Name</b></td><td>: <span id="b_doc">Dr. Guliver Potsangbam</span></td></tr>
+<tr><td><b>Admission DateTime</b></td><td>: <span id="b_adm">21/10/2026 02:47 PM</span></td><td><b>Doctor</b></td><td>: <span>Dr. Guliver Potsangbam</span></td></tr>
 <tr><td><b>Discharge DateTime</b></td><td>: <span id="b_dis">21/10/2026</span></td><td></td><td></td></tr>
 </table>
 <div class="section">
@@ -175,50 +173,73 @@ const app=initializeApp(firebaseConfig,"dischargeSummaryMain_"+Math.random());co
 <div><b>Chief Complain:</b> Patient admitted for Haemodialysis</div>
 <div style="margin-top:4px"><b>Vitals:</b></div>
 <div>B.P : <span id="b_bp">150/70 mmHg</span><br>PR : <span id="b_pr">86 bpm</span><br>SpO2 : <span id="b_spo2">99 %@RA</span><br>Temp. : <span id="b_temp">98 degree F</span></div>
-<div style="margin-top:6px"><b>Procedure:</b></div>
-<div><b>Treatment / Medication:</b> Haemodialysis</div>
 <div style="margin-top:6px"><b>Post Dialysis Vitals:</b></div>
 <div>B.P : <span id="b_pbp">160/80 mmHg</span><br>PR : <span id="b_ppr">84 bpm</span><br>SpO2 : <span id="b_pspo2">99 %@RA</span><br>Temp. : <span id="b_ptemp">98 degree F</span></div>
 <div style="margin-top:10px"><b>Advice:</b> Next Haemodialysis on <span id="b_advDate">22/10/26</span> at <span id="b_advTime">12pm noon</span>.</div>
-<div style="margin-top:1px">Patient needs dialysis <span id="b_freq">three</span> times in a week</div>
+<div style="margin-top:2px">Patient needs dialysis <span id="b_freq">three</span> times in a week</div>
 <div style="margin-top:40px;line-height:1.3">Dr.Guliver Potsangbam<br>Nephrology<br>Consultant Nephrologist<br>Reg No.:MNP-00240<br>MD,DM (Nephrology)</div>
 </div>
 </div>
 </div>
+
+<!-- ALL BUTTONS BELOW PREVIEW -->
+<div class="actionsBelow">
+<div class="label" style="color:#0f172a;font-size:9px">⚙️ ACTIONS BELOW PREVIEW • Responsive</div>
+<div class="actionsRow">
+<select id="exportType" class="btnLight" style="padding:6px 10px;border-radius:20px;font-weight:700;font-size:10px"><option value="jpeg">JPEG</option><option value="pdf">PDF</option></select>
+<button class="btn btnGreen" onclick="doExport()">⬇ EXPORT</button>
+<button class="btn btnDark" onclick="window.print()">🖨 PRINT</button>
+</div>
+<div class="actionsRow">
+<select id="schemeSelect" onchange="changeScheme()" style="padding:6px 10px;border-radius:20px;border:1px solid #10b981;background:#f0fdf4;font-weight:700;font-size:10px;flex:1"><option value="PMJAY">PMJAY Filter</option><option value="CMHT">CMHT Filter</option></select>
+<span id="countBadge" style="font-size:9px;font-weight:700;background:#f1f5f9;padding:6px 10px;border-radius:20px;border:1px solid #e2e8f0;flex:1;text-align:center">Loading...</span>
+</div>
+</div>
+
 </div>
 </div>
 </div>
 </div>
+
 <script>
 let allPMJAY=[], allCMHT=[], scheme='PMJAY', lastFiltered=[];
-function stepVital(id, delta){let el=document.getElementById(id);let v=parseInt(el.value)||0;v+=delta;if(v<0)v=0;if(id.includes('spo2')&&v>100)v=100;if(id==='admHour'){if(v>12)v=12;if(v<1)v=1;}if(id==='admMin'){if(v>59)v=59;if(v<0)v=0;}el.value=v;render();}
+function stepVital(id,d){let el=document.getElementById(id);let v=parseInt(el.value)||0;v+=d;if(v<0)v=0;if(id.includes('spo2')&&v>100)v=100;el.value=v;render();}
 function clampHour12(){let el=document.getElementById('admHour');let v=parseInt(el.value);if(isNaN(v))return;if(v>12)v=12;if(v<1)v=1;el.value=String(v).padStart(2,'0');}
 function clampMin60(){let el=document.getElementById('admMin');let v=parseInt(el.value);if(isNaN(v))return;if(v>59)v=59;if(v<0)v=0;el.value=String(v).padStart(2,'0');}
-async function loadFirebaseAll(){const {collection,getDocs}=window.fbTools;allPMJAY=[];allCMHT=[];const tryCollections=async(names,targetArray)=>{for(let name of names){try{let snap=await getDocs(collection(window.db,name));if(!snap.empty){snap.forEach(d=>{let c=d.data();targetArray.push({shri:c.shriId||c.shri||c.UHID||c.uhid||c.id||'',ip:c.pmjayId||c.pmjay||c.cmhtId||c.cmht||c.ipNo||c.IPNO||c.ip||'',name:c.patientName||c.name||c.patient_name||c.Name||''});});if(targetArray.length>0)return name;}}catch(e){}}return null;};await tryCollections(["pmjay_patients","PMJAY_patients","pmjay","PMJAY","patients"],allPMJAY);await tryCollections(["cmht_patients","CMHT_patients","cmht","CMHT"],allCMHT);document.getElementById('debugInfo').innerText=`PMJAY:${allPMJAY.length} | CMHT:${allCMHT.length}`;document.getElementById('countBadge').innerText=getCombined().length+' Patients';}
+async function loadFirebaseAll(){const {collection,getDocs}=window.fbTools;allPMJAY=[];allCMHT=[];const tryCol=async(names,tar)=>{for(let n of names){try{let s=await getDocs(collection(window.db,n));if(!s.empty){s.forEach(d=>{let c=d.data();tar.push({shri:c.shriId||c.shri||c.UHID||c.id||'',ip:c.pmjayId||c.pmjay||c.cmhtId||c.ip||'',name:c.patientName||c.name||''});});if(tar.length>0)return;}}catch(e){}}};await tryCol(["pmjay_patients","PMJAY_patients","pmjay","PMJAY","patients"],allPMJAY);await tryCol(["cmht_patients","CMHT_patients","cmht","CMHT"],allCMHT);document.getElementById('debugInfo').innerText=`PMJAY:${allPMJAY.length} | CMHT:${allCMHT.length}`;document.getElementById('countBadge').innerText=getCombined().length+' Patients';}
 function changeScheme(){scheme=document.getElementById('schemeSelect').value;document.getElementById('countBadge').innerText=getCombined().length+' Patients';render();}
 function getCombined(){return scheme=='PMJAY'?allPMJAY:allCMHT;}
-function doSearch(q){let list=document.getElementById('searchList');let combined=getCombined();if(!q||q.length==0){let all=combined.slice(0,20);lastFiltered=all;list.innerHTML=all.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:8px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:10px"><b style="color:#1e3a8a">${p.shri||'No-ID'}</b> - ${p.name||''}</div>`).join('');list.style.display='block';return;}q=q.toLowerCase();let f=combined.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,20);lastFiltered=f;if(f.length==0){list.innerHTML='<div style="padding:8px;font-size:10px">No patient</div>';list.style.display='block';return;}list.innerHTML=f.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:8px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:10px;font-weight:600"><b style="color:#1e3a8a">${p.shri}</b> - ${p.name.slice(0,40)}</div>`).join('');list.style.display='block';}
+function doSearch(q){let l=document.getElementById('searchList');let c=getCombined();if(!q){let a=c.slice(0,20);lastFiltered=a;l.innerHTML=a.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:9px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:11px"><b style="color:#2563eb">${p.shri}</b> - ${p.name}</div>`).join('');l.style.display='block';return;}q=q.toLowerCase();let f=c.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,20);lastFiltered=f;l.innerHTML=f.length?f.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:9px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:11px;font-weight:600"><b style="color:#2563eb">${p.shri}</b> - ${p.name.slice(0,35)}</div>`).join(''):'<div style="padding:8px;font-size:11px">No patient</div>';l.style.display='block';}
 function selectPatByIdx(i){let p=lastFiltered[i];if(!p)return;document.getElementById('shriId').value=p.shri;document.getElementById('ipNo').value=p.ip;document.getElementById('patName').value=p.name;document.getElementById('searchList').style.display='none';document.getElementById('searchInput').value=p.shri+' - '+p.name;render();}
-function getAdmDateTime(){let d=document.getElementById('admDate').value;if(!d)return null;let h=parseInt(document.getElementById('admHour').value)||1;let m=parseInt(document.getElementById('admMin').value)||0;if(h>12)h=12;if(h<1)h=1;if(m>59)m=59;if(m<0)m=0;let ap=document.getElementById('admAmPm').value;let h24=h%12+(ap=='PM'?12:0);let dt=new Date(d+'T00:00:00');dt.setHours(h24,m,0,0);return dt;}
+function getAdmDT(){let d=document.getElementById('admDate').value;if(!d)return null;let h=parseInt(document.getElementById('admHour').value)||1;let m=parseInt(document.getElementById('admMin').value)||0;h=Math.min(12,Math.max(1,h));m=Math.min(59,Math.max(0,m));let ap=document.getElementById('admAmPm').value;let h24=h%12+(ap=='PM'?12:0);let dt=new Date(d+'T00:00:00');dt.setHours(h24,m,0,0);return dt;}
 function DMY(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+dt.getFullYear();}
 function SHORT(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+String(dt.getFullYear()).slice(-2);}
 function T12(dt){let h=dt.getHours(),m=dt.getMinutes(),ap=h>=12?'PM':'AM',h12=h%12||12;return String(h12).padStart(2,'0')+":"+String(m).padStart(2,'0')+" "+ap;}
 function render(){
-  document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;
-  document.getElementById('b_shri').innerText=document.getElementById('shriId').value;
-  document.getElementById('b_name').innerText=document.getElementById('patName').value;
-  document.getElementById('b_age').innerText=(document.getElementById('ageInput').value||'--')+' Year(s) /'+document.getElementById('sexInput').value;
-  let adm=getAdmDateTime();if(adm){document.getElementById('b_adm').innerText=DMY(adm)+' '+T12(adm);let dis=new Date(adm.getTime()+4*3600000);document.getElementById('b_dis').innerText=DMY(dis);}
-  document.getElementById('b_bp').innerText=document.getElementById('bp').value+' mmHg';document.getElementById('b_pr').innerText=document.getElementById('pr').value+' bpm';document.getElementById('b_spo2').innerText=document.getElementById('spo2').value+' %@RA';document.getElementById('b_temp').innerText=document.getElementById('temp').value+' degree F';
-  document.getElementById('b_pbp').innerText=document.getElementById('postBp').value+' mmHg';document.getElementById('b_ppr').innerText=document.getElementById('postPr').value+' bpm';document.getElementById('b_pspo2').innerText=document.getElementById('postSpo2').value+' %@RA';document.getElementById('b_ptemp').innerText=document.getElementById('postTemp').value+' degree F';
-  let adv=document.getElementById('adviceDate').value;if(adv)document.getElementById('b_advDate').innerText=SHORT(new Date(adv));
-  document.getElementById('b_advTime').innerText=document.getElementById('adviceTime').value;
-  document.getElementById('b_freq').innerText=document.getElementById('freq').value;
+document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;
+document.getElementById('b_shri').innerText=document.getElementById('shriId').value;
+document.getElementById('b_name').innerText=document.getElementById('patName').value;
+document.getElementById('b_age').innerText=(document.getElementById('ageInput').value||'--')+' Year(s) /'+document.getElementById('sexInput').value;
+let adm=getAdmDT();if(adm){document.getElementById('b_adm').innerText=DMY(adm)+' '+T12(adm);let dis=new Date(adm.getTime()+4*3600000);document.getElementById('b_dis').innerText=DMY(dis);}
+document.getElementById('b_bp').innerText=document.getElementById('bp').value+' mmHg';document.getElementById('b_pr').innerText=document.getElementById('pr').value+' bpm';document.getElementById('b_spo2').innerText=document.getElementById('spo2').value+' %@RA';document.getElementById('b_temp').innerText=document.getElementById('temp').value+' degree F';
+document.getElementById('b_pbp').innerText=document.getElementById('postBp').value+' mmHg';document.getElementById('b_ppr').innerText=document.getElementById('postPr').value+' bpm';document.getElementById('b_pspo2').innerText=document.getElementById('postSpo2').value+' %@RA';document.getElementById('b_ptemp').innerText=document.getElementById('postTemp').value+' degree F';
+let adv=document.getElementById('adviceDate').value;if(adv)document.getElementById('b_advDate').innerText=SHORT(new Date(adv));
+document.getElementById('b_advTime').innerText=document.getElementById('adviceTime').value;
+document.getElementById('b_freq').innerText=document.getElementById('freq').value;
 }
 function doExport(){let t=document.getElementById('exportType').value;if(t==='pdf')exportPDF();else exportJPG();}
-async function exportJPG(){let paper=document.getElementById('paper');let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff'});let link=document.createElement('a');let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');link.download=name+'.jpg';link.href=canvas.toDataURL('image/jpeg',0.95);link.click();}
-async function exportPDF(){let paper=document.getElementById('paper');let canvas=await html2canvas(paper,{scale:3,useCORS:true,backgroundColor:'#fff'});let imgData=canvas.toDataURL('image/jpeg',0.95);const {jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');let w=pdf.internal.pageSize.getWidth();let h=canvas.height*w/canvas.width;pdf.addImage(imgData,'JPEG',0,0,w,h);let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');pdf.save(name+'.pdf');}
-setTimeout(()=>{document.querySelectorAll('input, select').forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render);});let today=new Date().toISOString().split('T')[0];if(!document.getElementById('admDate').value)document.getElementById('admDate').value=today;if(!document.getElementById('adviceDate').value)document.getElementById('adviceDate').value=new Date(Date.now()+3*86400000).toISOString().split('T')[0];document.getElementById('admHour').addEventListener('input',function(){let v=parseInt(this.value);if(v>12)this.value=12;});document.getElementById('admHour').addEventListener('blur',clampHour12);document.getElementById('admMin').addEventListener('input',function(){let v=parseInt(this.value);if(v>59)this.value=59;});document.getElementById('admMin').addEventListener('blur',clampMin60);loadFirebaseAll();render();var bar=document.getElementById('whiteBar');if(bar){bar.classList.remove('folded');}},300);
+async function exportJPG(){let p=document.getElementById('paper');let c=await html2canvas(p,{scale:3,useCORS:true,backgroundColor:'#fff'});let a=document.createElement('a');a.download=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_')+'.jpg';a.href=c.toDataURL('image/jpeg',0.95);a.click();}
+async function exportPDF(){let p=document.getElementById('paper');let c=await html2canvas(p,{scale:3,useCORS:true,backgroundColor:'#fff'});let img=c.toDataURL('image/jpeg',0.95);const {jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');let w=pdf.internal.pageSize.getWidth();let h=c.height*w/c.width;pdf.addImage(img,'JPEG',0,0,w,h);pdf.save((document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_')+'.pdf');}
+setTimeout(()=>{
+document.querySelectorAll('input,select').forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render);});
+let today=new Date().toISOString().split('T')[0];
+if(!document.getElementById('admDate').value)document.getElementById('admDate').value=today;
+if(!document.getElementById('adviceDate').value)document.getElementById('adviceDate').value=new Date(Date.now()+3*86400000).toISOString().split('T')[0];
+document.getElementById('admHour').addEventListener('blur',clampHour12);
+document.getElementById('admMin').addEventListener('blur',clampMin60);
+loadFirebaseAll();render();
+var bar=document.getElementById('whiteBar');if(bar)bar.classList.remove('folded');
+},300);
 document.addEventListener('click',e=>{if(!e.target.closest('.searchBox'))document.getElementById('searchList').style.display='none'});
 </script>
 </body>
