@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA - No Space + Dropdown</title>
+<title>SHIJA - Final Zero Gap</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -39,7 +39,6 @@ body{font-family:'Inter',system-ui;background:#f8fafc;display:flex;min-height:10
 .content{padding:10px;flex:1;width:100%;max-width:900px;margin:0 auto}
 .btn{padding:10px 18px;border-radius:20px;border:0;font-weight:700;font-size:11px;cursor:pointer;white-space:nowrap}
 .btnGreen{background:#0f172a;color:#fff}
-.btnBlue{background:#2563eb;color:#fff}
 .inputPro{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:11px;font-weight:600;background:#fff;outline:0}
 .topSearchRow{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .searchShort{flex:1;min-width:180px;max-width:350px;position:relative}
@@ -54,20 +53,11 @@ body{font-family:'Inter',system-ui;background:#f8fafc;display:flex;min-height:10
   font-size:13.5px;line-height:1.45;padding:0;margin:0 auto;
   display:flex;flex-direction:column;position:relative;
 }
-/* NO SPACE BETWEEN LOGO AND BORDER */
-.letterheadPng{width:100%;display:block;line-height:0;margin:0!important;padding:0!important;border:none;font-size:0}
-.letterheadPng img{width:100%;height:auto;display:block;margin:0!important;padding:0!important;border:none;vertical-align:top}
+/* ZERO GAP FIX */
+.letterheadPng{width:100%;display:block;line-height:0;margin:0!important;padding:0!important;border:none;font-size:0;overflow:hidden;margin-bottom:-18px!important}
+.letterheadPng img{width:100%;height:auto;display:block;margin:0!important;padding:0!important;border:none;vertical-align:top;margin-bottom:-12px!important}
 .disTitle{
-  width:96%;
-  margin:0 auto!important; /* NO SPACE - VERY CLOSE */
-  border:1.8px solid #000;
-  border-top:1.8px solid #000;
-  text-align:center;
-  font-weight:800;
-  font-size:15px;
-  padding:6px 0;
-  background:#fff;
-  line-height:1.2;
+  width:96%;margin:0 auto!important;border:1.8px solid #000;text-align:center;font-weight:800;font-size:15px;padding:6px 0;background:#fff;line-height:1.2;position:relative;z-index:2
 }
 .infoSection{padding:6px 12px 5px;margin:0;border:none;border-bottom:1.2px solid #000;margin-top:0}
 .infoTable{width:100%;border-collapse:collapse;font-size:12.5px;line-height:1.4}
@@ -95,7 +85,7 @@ body{font-family:'Inter',system-ui;background:#f8fafc;display:flex;min-height:10
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(cfg,"finalDropdown_"+Math.random());const db=getFirestore(app);window.db=db;window.fbTools={collection,getDocs};
+const app=initializeApp(cfg,"finalZeroGap_"+Math.random());const db=getFirestore(app);window.db=db;window.fbTools={collection,getDocs};
 </script>
 </head>
 <body>
@@ -112,21 +102,17 @@ const app=initializeApp(cfg,"finalDropdown_"+Math.random());const db=getFirestor
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> DISCHARGE SUMMARY</div></div>
 <div class="content">
 
-<!-- MENU + SEARCH + SCHEME FILTER + FORMAT DROPDOWN + PRINT -->
 <div class="topSearchRow">
 <div class="searchShort"><div class="searchBox"><input id="searchInput" class="inputPro" placeholder="Search Name / SHRI No" oninput="doSearch(this.value)" onfocus="doSearch(this.value)"><div id="searchList" class="searchList"></div></div></div>
-
 <select id="schemeFilter" class="selectPro" onchange="doSearch(document.getElementById('searchInput').value)">
 <option value="all">Filter: All Schemes</option>
 <option value="pmjay">PMJAY Only</option>
 <option value="cmht">CMHT Only</option>
 </select>
-
 <select id="formatSelect" class="selectPro">
 <option value="jpeg">JPEG A4</option>
 <option value="pdf">PDF A4</option>
 </select>
-
 <button class="btn btnGreen" onclick="handlePrint()">🖨 PRINT</button>
 </div>
 
@@ -138,8 +124,8 @@ const app=initializeApp(cfg,"finalDropdown_"+Math.random());const db=getFirestor
 <table class="infoTable">
 <tr><td>IP No.</td><td>: <span id="b_ip" class="editableOnly" contenteditable="true">185693</span></td><td>UHID NO</td><td>: <span id="b_shri" class="editableOnly" contenteditable="true">SHRI.334269</span></td></tr>
 <tr><td>Patient Name</td><td>: <span id="b_name" class="editableOnly" contenteditable="true">[Patient Name]</span></td><td>Age/Sex</td><td>: <span id="b_age" class="editableOnly" contenteditable="true">71 Year(s) /Female</span></td></tr>
-<tr><td>Admission DateTime</td><td>: <span id="b_adm" class="editableOnly" contenteditable="true">21/10/2026 02:47 PM</span></td><td>Doctor Name</td><td>: Dr. Guliver Potsangbam (Nephrology)</td></tr>
-<tr><td>Discharge DateTime</td><td>: <span id="b_dis" class="autoLocked">21/10/2026</span></td><td></td><td></td></tr>
+<tr><td>Admission DateTime</td><td>: <span id="b_adm" class="editableOnly" contenteditable="true">31/10/2026 10:45 PM</span></td><td>Doctor Name</td><td>: Dr. Guliver Potsangbam (Nephrology)</td></tr>
+<tr><td>Discharge DateTime</td><td>: <span id="b_dis" class="autoLocked">01/11/2026</span></td><td></td><td></td></tr>
 </table>
 </div>
 <div class="contentArea">
@@ -157,7 +143,7 @@ const app=initializeApp(cfg,"finalDropdown_"+Math.random());const db=getFirestor
 <div class="line">PR : <span class="editableOnly" contenteditable="true">84</span> bpm</div>
 <div class="line">SpO2 : <span class="editableOnly" contenteditable="true">99</span> %@RA</div>
 <div class="line">Temp. : <span class="editableOnly" contenteditable="true">98</span> degree F</div>
-<div class="line" style="margin-top:10px"><b>Advice:</b> Next Haemodialysis on <span id="b_advDate" class="editableOnly" contenteditable="true">22/10/26</span> at <span id="b_advTime" class="editableOnly" contenteditable="true">12 noon</span>.</div>
+<div class="line" style="margin-top:10px"><b>Advice:</b> Next Haemodialysis on <span id="b_advDate" class="editableOnly" contenteditable="true">02/11/26</span> at <span id="b_advTime" class="editableOnly" contenteditable="true">12 noon</span>.</div>
 <div class="line">Patient needs dialysis <span id="b_freq" class="editableOnly" contenteditable="true">three</span> times in a week</div>
 <div class="line" style="margin-top:32px">Dr.Guliver Potsangbam<br>Nephrology<br>Consultant Nephrologist<br>Reg No.:MNP-00240<br>MD,DM (Nephrology)</div>
 </div>
