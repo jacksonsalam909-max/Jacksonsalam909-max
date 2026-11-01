@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Bill - SHIJA - Folded</title>
+<title>Bill - SHIJA Fixed</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -19,33 +19,11 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig,"billMainApp");
 const db = getFirestore(app);
-window.db = db;
-window.saveToSameStorage = async function(){
-  const billNo = document.getElementById('billNo').value || "SHIC"+Date.now();
-  const payload = {
-    block: document.getElementById('bedNo').value,
-    name: document.getElementById('pName').value,
-    shriId: document.getElementById('uhid').value,
-    uhid: document.getElementById('uhid').value,
-    pmjayId: document.getElementById('schemeSelect').value,
-    date: document.getElementById('admDateOnly').value,
-    time: document.getElementById('admTimeOnly').value,
-    localTime: document.getElementById('billTimeShow').value,
-    billNo: billNo,
-    ipNo: document.getElementById('ipNo').value,
-    mobile: document.getElementById('mobile').value,
-    address: document.getElementById('address').value,
-    amount: document.getElementById('amt').value,
-    bedNo: document.getElementById('bedNo').value,
-    ageSex: document.getElementById('ageSex').value,
-    createdAt: serverTimestamp(),
-    type: "BILL"
-  };
-  try{
-    document.getElementById('fbStatus').innerText="Saving...";
-    await setDoc(doc(db, "bills", billNo), payload);
-    document.getElementById('fbStatus').innerText="✓ Saved "+billNo;
-  }catch(e){ document.getElementById('fbStatus').innerText="Error: "+e.message; alert(e.message); }
+window.db=db;
+window.saveToSameStorage=async function(){
+  const billNo=document.getElementById('billNo').value||"SHIC"+Date.now();
+  const payload={block:document.getElementById('bedNo').value,name:document.getElementById('pName').value,shriId:document.getElementById('uhid').value,uhid:document.getElementById('uhid').value,pmjayId:document.getElementById('schemeSelect').value,date:document.getElementById('admDateOnly').value,time:document.getElementById('admTimeOnly').value,localTime:document.getElementById('billTimeShow').value,billNo,ipNo:document.getElementById('ipNo').value,mobile:document.getElementById('mobile').value,address:document.getElementById('address').value,amount:document.getElementById('amt').value,bedNo:document.getElementById('bedNo').value,ageSex:document.getElementById('ageSex').value,createdAt:serverTimestamp(),type:"BILL"};
+  try{document.getElementById('fbStatus').innerText="Saving...";await setDoc(doc(db,"bills",billNo),payload);document.getElementById('fbStatus').innerText="✓ Saved "+billNo;}catch(e){document.getElementById('fbStatus').innerText="Error: "+e.message;}
 }
 window.allPMJAY=[];window.allCMHT=[];
 async function loadMasterPatients(){
@@ -54,13 +32,10 @@ async function loadMasterPatients(){
     let cmhtSnap=await getDocs(collection(db,"cmht_patients")).catch(()=>null);
     let allSnap=await getDocs(collection(db,"patients")).catch(()=>null);
     let fbPMJAY=[], fbCMHT=[];
-    if(pmjaySnap) pmjaySnap.forEach(d=>{let p=d.data(); if(!p.deleted) fbPMJAY.push({...p, _scheme:'PMJAY'});});
-    if(cmhtSnap) cmhtSnap.forEach(d=>{let p=d.data(); if(!p.deleted) fbCMHT.push({...p, _scheme:'CMHT'});});
-    if(allSnap && fbPMJAY.length==0 && fbCMHT.length==0){
-      allSnap.forEach(d=>{let p=d.data(); if(!p.deleted) fbPMJAY.push({...p, _scheme:'PMJAY'});});
-    }
-    window.allPMJAY=fbPMJAY; window.allCMHT=fbCMHT;
-    window.allPatients=[...fbPMJAY,...fbCMHT];
+    if(pmjaySnap) pmjaySnap.forEach(d=>{let p=d.data(); if(!p.deleted) fbPMJAY.push({...p,_scheme:'PMJAY'});});
+    if(cmhtSnap) cmhtSnap.forEach(d=>{let p=d.data(); if(!p.deleted) fbCMHT.push({...p,_scheme:'CMHT'});});
+    if(allSnap && fbPMJAY.length==0 && fbCMHT.length==0){allSnap.forEach(d=>{let p=d.data(); if(!p.deleted) fbPMJAY.push({...p,_scheme:'PMJAY'});});}
+    window.allPMJAY=fbPMJAY; window.allCMHT=fbCMHT; window.allPatients=[...fbPMJAY,...fbCMHT];
   }catch(e){}
 }
 loadMasterPatients();
@@ -96,17 +71,15 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
 .content{flex:1;padding:12px;width:100%;max-width:1300px;margin:0 auto}
-.btn{padding:10px 18px;border-radius:20px;border:0;font-weight:700;font-size:11px;cursor:pointer;white-space:nowrap}
-.btnGreen{background:#0f172a;color:#fff}
-.btnBlue{background:#1a56db;color:#fff;border:0;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer}
+.btnBlue{background:#1a56db;color:#fff;border:0;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer;white-space:nowrap}
 .card{background:#fff;border-radius:18px;border:1px solid #e5e7eb;padding:16px;margin-bottom:14px}
 .card input{padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:12px;font-weight:600;font-size:13px;background:#f8fafc;width:100%}
 .label{font-size:10px;font-weight:800;text-transform:uppercase;color:#475569;margin-bottom:5px;display:block}
 .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
 .col{flex:1;min-width:140px}
 .searchWrap{position:relative;flex:1;min-width:220px}
-.suggest{position:absolute;top:105%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:14px;max-height:260px;overflow:auto;z-index:60;display:none;box-shadow:0 16px 32px #0002}
-.suggest div{padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer}
+.suggest{position:absolute;top:105%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:14px;max-height:260px;overflow:auto;z-index:80;display:none;box-shadow:0 16px 32px #0002}
+.suggest div{padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:12px}
 .boldBtn{background:#fff !important;color:#000 !important;border:2px solid #000 !important;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;border-radius:8px}
 .boldBtn.active{background:#000 !important;color:#fff !important}
 .exportWrap{position:relative;display:inline-block}
@@ -114,37 +87,44 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .exportMenu.show{display:block}
 .exportMenu button{display:block;width:100%;text-align:left;background:#fff;border:0;padding:10px 12px;font-size:13px;cursor:pointer}
 .exportMenu button:hover{background:#f2f2f2}
-.topSearchRow{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.searchShort{flex:1;min-width:200px;max-width:380px;position:relative}
-.searchShort .inputPro{border:1.5px solid #2563eb;background:#eff6ff;font-size:12px;padding:10px 12px;font-weight:700;border-radius:20px;width:100%;outline:0}
-.selectPro{padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:20px;font-size:11px;font-weight:700;background:#fff;cursor:pointer;outline:0}
-.billPaper{background:#fff;width:210mm;max-width:100%;margin:0 auto;padding:0 0 12px 0;color:#000;font-family:Arial,Helvetica,sans-serif;border:none;box-sizing:border-box;overflow:visible}
+
+/* TOP SEARCH + ICON DROPDOWN */
+.topSearchRow{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:relative}
+.searchShort{flex:1;min-width:200px;max-width:480px;position:relative;display:flex;align-items:center;gap:6px}
+.inputPro{flex:1;border:1.5px solid #2563eb;background:#eff6ff;font-size:12px;padding:10px 12px;font-weight:700;border-radius:20px;outline:0}
+.iconBtn{width:36px;height:36px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;display:grid;place-items:center;cursor:pointer;flex-shrink:0;transition:.2s}
+.iconBtn:hover{background:#f1f5f9}
+.iconBtn svg{width:18px;height:18px;stroke:#0f172a;stroke-width:2;fill:none}
+.filterDrop{position:absolute;top:calc(100% + 8px);left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 12px 24px rgba(0,0,0,.12);padding:12px;display:none;z-index:70;animation:slideDown .22s ease}
+.filterDrop.open{display:block}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.filterDrop .row{margin-top:0}
+
+.previewWrap{background:#e2e8f0;border-radius:12px;padding:10px;border:1px solid #cbd5e1;width:100%;overflow:auto;display:flex;justify-content:center}
+.billPaper{background:#fff;width:210mm;min-width:210mm;max-width:210mm;margin:0 auto;padding:0 0 12px 0;color:#000;font-family:Arial,Helvetica,sans-serif;border:1px solid #000;box-sizing:border-box;overflow:hidden;flex-shrink:0}
 .letterhead{width:100%;margin:0;padding:0;display:block;box-sizing:border-box}
 .letterhead img{width:100%;height:auto;display:block}
-.infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px;font-size:13.5px;margin:0;padding:8px 12px;line-height:1.4;font-weight:500;color:#000;box-sizing:border-box}
+.infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px;font-size:13.5px;margin:0;padding:8px 12px;line-height:1.4;font-weight:500;color:#000;box-sizing:border-box;width:100%}
 .infoGrid b{font-weight:700}
-.exactTable{width:100%;border-collapse:collapse;font-size:13.5px;color:#000;line-height:1.3;box-sizing:border-box}
-.exactTable th{font-weight:700;padding:6px 4px 6px 2px;text-align:left;border-bottom:1.5px solid #000;font-size:11.5px;white-space:nowrap}
-.exactTable td{padding:6px 4px 6px 2px;vertical-align:top;font-size:13.5px;font-weight:400}
+.exactTable{width:100%;border-collapse:collapse;font-size:13.5px;color:#000;line-height:1.3;box-sizing:border-box;table-layout:fixed}
+.exactTable th{font-weight:700;padding:6px 4px 6px 2px;text-align:left;border-bottom:1.5px solid #000;font-size:11.5px;white-space:nowrap;overflow:hidden}
+.exactTable td{padding:6px 4px 6px 2px;vertical-align:top;font-size:13.5px;font-weight:400;overflow:hidden;word-break:break-word}
 .exactTable tr.nephRow td{font-weight:800;text-transform:uppercase;padding:7px 0 4px 2px;border-bottom:1.5px solid #000;font-size:12.5px}
-.exactTable tr.sub td{border-top:1.5px solid #000;padding:6px 4px;font-weight:400 !important;text-align:right;font-size:13.5px}
-.exactTable tr.grand td{border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:6px 4px;font-weight:400 !important;text-align:right;font-size:13.5px}
+.exactTable tr.sub td,.exactTable tr.grand td{white-space:nowrap;text-align:right}
 .exactTable.gross td{border:none;padding:8px 4px;font-weight:400 !important;font-size:13.5px;text-align:right}
 .itemLine1{white-space:nowrap;font-weight:600;line-height:1.2}
 .itemLine2{white-space:nowrap;line-height:1.2}
-.word{display:inline-block;padding:1px 2px;border-radius:3px;touch-action:none;user-select:text;cursor:grab;line-height:1.2;overflow:visible}
+.word{display:inline-block;padding:1px 2px;border-radius:3px;touch-action:none;user-select:text;cursor:grab;line-height:1.2;white-space:nowrap;max-width:100%}
 .word:active{cursor:grabbing;background:#fef3c7}
 .word.selected{outline:2px solid #1a56db;background:#dbeafe}
 .word.bold{font-weight:900 !important}
-/* EDITABLE FIELDS - 11 items */
-.editableOnly{background:#fffde7;border-bottom:1px dashed #2563eb;cursor:text;padding:0 2px;min-width:18px;display:inline-block;font-weight:700}
+.editableOnly{background:#fffde7;border-bottom:1px dashed #2563eb;cursor:text;padding:0 2px;min-width:18px;display:inline-block;font-weight:700;white-space:nowrap}
 .editableOnly:focus{background:#fff3cd;outline:none}
-.autoLocked{background:#f0f9ff;border-bottom:1px dashed #888;font-weight:700;padding:0 2px;display:inline-block}
+.autoLocked{background:#f0f9ff;border-bottom:1px dashed #888;font-weight:700;padding:0 2px;display:inline-block;white-space:nowrap}
 .alignBox{background:#0f172a;color:#fff;border-radius:16px;padding:14px;margin-bottom:14px;display:none;max-height:70vh;overflow:auto}
 .alignBox.show{display:block}
 .alignRow{display:grid;grid-template-columns:135px 1fr 50px;gap:8px;align-items:center;margin-bottom:8px}
 .alignRow span{font-size:11px}
-.alignRow input[type=range]{width:100%;accent-color:#4338ca}
 .foldedBox{display:none}
 .foldedBox.open{display:block}
 @media print{
@@ -154,7 +134,8 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
   .whiteBar{display:none!important}
   .mainWrap{margin:0!important;width:100%!important}
   .content{padding:0 !important;margin:0 !important;max-width:100% !important}
-  .billPaper{width:100% !important;max-width:100% !important;padding:0 0 8px 0 !important;box-shadow:none !important;border:none !important}
+  .previewWrap{background:#fff!important;border:none!important;padding:0!important}
+  .billPaper{width:210mm!important;min-width:210mm!important;max-width:210mm!important;border:none!important;box-shadow:none!important}
   .word{background:transparent!important;cursor:default!important;outline:none !important}
   .editableOnly,.autoLocked{background:transparent!important;border:none!important}
 }
@@ -162,7 +143,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 <script>function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}</script>
 </head>
 <body>
-
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 <div class="sHead"><div class="sLogo"><img src="logoc.png" onerror="this.src='finalopo.png'"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
@@ -170,13 +150,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 <a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
 <a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
 <a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
-<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="ml">CLAIM</span></a>
-<a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
-<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="ml">OFFICE ASSISTANT LIST</span></a>
-<a href="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
-<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
-<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
-<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">PMJAY DAILY DIALYSIS</span></a>
 <a href="bill.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="ml">BILL</span></a>
 <a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
 </div>
@@ -185,48 +158,51 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 </div>
 
 <div class="mainWrap">
-<div class="top noPrint">
-<div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> SHIJA Dialysis <span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div>
-</div>
-
+<div class="top noPrint"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> SHIJA Dialysis <span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div></div>
 <div class="content">
-<!-- TOP ROW - ONLY SEARCH VISIBLE BY DEFAULT + B + EXPORT + PRINT -->
+
+<!-- SEARCH BAR + ICONS - FILTER IS ICON DROPDOWN -->
 <div class="topSearchRow noPrint">
-<div class="searchShort"><div class="searchWrap"><input id="patientSearch" class="inputPro" placeholder="Search Patient Name / SHRI..." oninput="showPatientSuggest(this.value)" onfocus="showPatientSuggest(this.value)"><div id="suggest" class="suggest"></div></div></div>
-<select id="schemeSelect" class="selectPro" onchange="filterScheme()"><option value="all">All Schemes</option><option value="PMJAY">PMJAY</option><option value="CMHT">CMHT</option></select>
-<button id="boldBtn" class="btnBlue boldBtn" onclick="toggleBold()" title="Bold"><b>B</b></button>
+<div class="searchShort">
+<input id="patientSearch" class="inputPro" placeholder="Search Patient / SHRI..." oninput="showPatientSuggest(this.value)" onfocus="showPatientSuggest(this.value)">
+<!-- FILTER ICON - NO WORDS -->
+<button class="iconBtn" onclick="toggleFilter()" title="Filter"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></button>
+<div id="suggest" class="suggest"></div>
+<!-- SLIDE DOWN FROM SEARCH BAR -->
+<div class="filterDrop" id="filterDrop">
+<div class="row">
+<div class="col"><span class="label">Scheme</span>
+<select id="schemeSelect" class="card" style="padding:8px;border-radius:10px" onchange="filterScheme()"><option value="all">All Schemes</option><option value="PMJAY">PMJAY</option><option value="CMHT">CMHT</option></select>
+</div>
+<div class="col"><span class="label">Actions</span>
+<div style="display:flex;gap:6px">
+<button class="btnBlue" style="background:#0f172a" onclick="toggleAllBtns()">☰ More</button>
+<button class="btnBlue" style="background:#334155" onclick="openSettings()">⚙ Align</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<button id="boldBtn" class="boldBtn" onclick="toggleBold()" title="Bold"><b>B</b></button>
 <div class="exportWrap">
 <button class="btnBlue" onclick="toggleExport()">Export ▼</button>
-<div class="exportMenu" id="exportMenu">
-<button onclick="selectExport('pdf')">PDF</button>
-<button onclick="selectExport('jpeg')">JPEG</button>
-</div>
+<div class="exportMenu" id="exportMenu"><button onclick="selectExport('pdf')">PDF</button><button onclick="selectExport('jpeg')">JPEG</button></div>
 </div>
 <button class="btnBlue" id="printBtn" onclick="handlePrint()">Print</button>
-<button class="btn btnGreen" onclick="toggleAllBtns()">☰ All Fields</button>
 </div>
 
-<!-- FOLDED - HIDDEN BY DEFAULT -->
 <div class="card noPrint foldedBox" id="allFieldsBox">
-<div style="font-weight:900;margin-bottom:8px">All Fields (Hidden by default)</div>
 <div class="row"><div class="col"><span class="label">Patient Name</span><input id="pName" oninput="renderBill()"></div><div class="col"><span class="label">Mobile</span><input id="mobile" oninput="renderBill()"></div><div class="col"><span class="label">UHID SHRI.</span><input id="uhid" oninput="renderBill()"></div></div>
 <div class="row"><div class="col" style="flex:2"><span class="label">Address</span><input id="address" oninput="renderBill()"></div><div class="col"><span class="label">IPNo</span><input id="ipNo" value="177214" oninput="renderBill()"></div><div class="col"><span class="label">Bill No</span><input id="billNo" value="SHIC182733" oninput="renderBill()"></div></div>
 <div class="row" style="background:#f0f9ff;padding:12px;border-radius:14px;border:1.5px dashed #60a5fa"><div class="col"><span class="label">Bed No.</span><input id="bedNo" value="D-2208 (Dialysis)" oninput="renderBill()"></div><div class="col"><span class="label">Age/Sex</span><input id="ageSex" value="70 Year(s) / Male" oninput="renderBill()"></div><div class="col"><span class="label">Admission Date</span><input type="date" id="admDateOnly" onchange="updateBillTime()" oninput="renderBill()"></div><div class="col"><span class="label">Admission Time</span><input type="time" id="admTimeOnly" onchange="updateBillTime()" oninput="renderBill()"></div></div>
 <div class="row" style="background:#fffbeb;padding:12px;border-radius:14px;border:1.5px dashed #f59e0b"><div class="col"><span class="label">Bill Date Auto</span><input id="billDateShow" readonly></div><div class="col"><span class="label">Bill Time +30</span><input id="billTimeShow" readonly></div><div class="col"><span class="label">Discharge (+4hr)</span><input type="datetime-local" id="disDateTime" oninput="renderBill()"></div><div class="col"><span class="label">Amount Rs</span><input id="amt" value="2660.00" style="border:2px solid #10b981;font-weight:900" oninput="renderBill()"></div></div>
-<div style="margin-top:10px;display:flex;gap:8px"><button class="btnBlue" style="background:#10b981" onclick="saveToSameStorage()">Save Bill</button><button class="btnBlue" style="background:#334155" onclick="toggleAllBtns()">Hide</button><button class="btnBlue" style="background:#0f172a" onclick="openSettings()">Alignment</button></div>
+<div style="margin-top:10px;display:flex;gap:8px"><button class="btnBlue" style="background:#10b981" onclick="saveToSameStorage()">Save Bill</button><button class="btnBlue" style="background:#334155" onclick="toggleAllBtns()">Hide</button></div>
 </div>
 
-<div class="card noPrint alignBox" id="alignPanel">
-<div style="background:#1e293b;padding:10px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:12px;text-align:center">Alignment - Drag words in bill also</div>
-<div id="alignControls"></div>
-<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-<button class="btnBlue" style="background:#10b981" onclick="resetAll()">Reset All</button>
-<button class="btnBlue" style="background:#ef4444" onclick="clearBold()">Clear Bold</button>
-<button class="btnBlue" style="background:#334155" onclick="closeSettings()">Close</button>
-</div>
-</div>
+<div class="card noPrint alignBox" id="alignPanel"><div id="alignControls"></div><div style="margin-top:12px;display:flex;gap:8px"><button class="btnBlue" style="background:#10b981" onclick="resetAll()">Reset</button><button class="btnBlue" style="background:#ef4444" onclick="clearBold()">Clear Bold</button><button class="btnBlue" style="background:#334155" onclick="closeSettings()">Close</button></div></div>
 
-<div class="billPaper" id="billPaper">
+<!-- PREVIEW FIXED - NOT SPREAD -->
+<div class="previewWrap"><div class="billPaper" id="billPaper">
 <div class="letterhead"><img src="letterhead.png" onerror="this.src='finalopo.png'"></div>
 <div class="infoGrid">
 <div><b>IPNo</b>: <span id="b_ip" class="editableOnly" contenteditable="true">177214</span></div>
@@ -246,185 +222,75 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 <div><b>Patient Address</b>: <span id="b_addr" class="editableOnly" contenteditable="true">MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur</span></div>
 <div><b>Payer</b>: <span id="b_payer" class="editableOnly" contenteditable="true">PMJAY</span></div>
 </div>
-<table class="exactTable" id="billTable">
-<thead><tr>
-<th><span class="word" id="w1">SI No.</span></th>
-<th><span class="word" id="w2">Item Name</span></th>
-<th><span class="word" id="w3">Batch No./Expiry</span></th>
-<th><span class="word" id="w4">HSN/Code</span></th>
-<th><span class="word" id="w5">Date</span></th>
-<th><span class="word" id="w6">Qty</span></th>
-<th><span class="word" id="w7">Rate</span></th>
-<th><span class="word" id="w8">GST%</span></th>
-<th><span class="word" id="w9">Patient Amt</span></th>
-<th><span class="word" id="w10">Company Amt</span></th>
-<th><span class="word" id="w11">Amount Rs</span></th>
-</tr></thead>
-<tbody>
-<tr class="nephRow"><td colspan="11">NEPHROLOGY PROCEDURE</td></tr>
-<tr class="dataRow">
-<td><span class="word" id="w22">1</span></td>
-<td><span class="word" id="w23"><div class="itemLine1">Haemodialysis Subsequent</div><div class="itemLine2">Visit PMJAY</div></span></td>
-<td><span class="word" id="w24"></span></td>
-<td><span class="word" id="w25"></span></td>
-<td><span class="word" id="w26">11/10</span></td>
-<td><span class="word" id="w27">1.00</span></td>
-<td><span class="word" id="w28">2660.00</span></td>
-<td><span class="word" id="w29"></span></td>
-<td><span class="word" id="w30">0.00</span></td>
-<td><span class="word" id="w31">2660.00</span></td>
-<td><span class="word" id="w32">2660.00</span></td>
-</tr>
-<tr class="sub"><td colspan="5"></td><td colspan="3"><span class="word" id="w12">Sub Total :</span></td><td><span class="word" id="w13">0.00</span></td><td><span class="word" id="w14">2660.00</span></td><td><span class="word" id="w15">2660.00</span></td></tr>
-<tr class="grand"><td colspan="5"></td><td colspan="3"><span class="word" id="w16">Grand Total :</span></td><td><span class="word" id="w17">0.00</span></td><td><span class="word" id="w18">2660.00</span></td><td><span class="word" id="w19">2660.00</span></td></tr>
-</tbody>
-</table>
-<table class="exactTable gross"><tbody>
-<tr><td colspan="5" style="border:none"></td><td colspan="3"><span class="word" id="w20">Gross Bill Amount :</span></td><td></td><td colspan="2"><span class="word" id="w21">Rs 2660.00</span></td></tr>
-</tbody></table>
+<table class="exactTable"><thead><tr><th><span class="word" id="w1">SI No.</span></th><th><span class="word" id="w2">Item Name</span></th><th><span class="word" id="w3">Batch No.</span></th><th><span class="word" id="w4">HSN/Code</span></th><th><span class="word" id="w5">Date</span></th><th><span class="word" id="w6">Qty</span></th><th><span class="word" id="w7">Rate</span></th><th><span class="word" id="w8">GST%</span></th><th><span class="word" id="w9">Patient Amt</span></th><th><span class="word" id="w10">Company Amt</span></th><th><span class="word" id="w11">Amount Rs</span></th></tr></thead><tbody><tr class="nephRow"><td colspan="11">NEPHROLOGY PROCEDURE</td></tr><tr class="dataRow"><td><span class="word" id="w22">1</span></td><td><span class="word" id="w23"><div class="itemLine1">Haemodialysis Subsequent</div><div class="itemLine2">Visit PMJAY</div></span></td><td><span class="word" id="w24"></span></td><td><span class="word" id="w25"></span></td><td><span class="word" id="w26">11/10</span></td><td><span class="word" id="w27">1.00</span></td><td><span class="word" id="w28">2660.00</span></td><td><span class="word" id="w29"></span></td><td><span class="word" id="w30">0.00</span></td><td><span class="word" id="w31">2660.00</span></td><td><span class="word" id="w32">2660.00</span></td></tr><tr class="sub"><td colspan="5"></td><td colspan="3"><span class="word" id="w12">Sub Total :</span></td><td><span class="word" id="w13">0.00</span></td><td><span class="word" id="w14">2660.00</span></td><td><span class="word" id="w15">2660.00</span></td></tr><tr class="grand"><td colspan="5"></td><td colspan="3"><span class="word" id="w16">Grand Total :</span></td><td><span class="word" id="w17">0.00</span></td><td><span class="word" id="w18">2660.00</span></td><td><span class="word" id="w19">2660.00</span></td></tr></tbody></table>
+<table class="exactTable gross"><tbody><tr><td colspan="5" style="border:none"></td><td colspan="3"><span class="word" id="w20">Gross Bill Amount :</span></td><td></td><td colspan="2"><span class="word" id="w21">Rs 2660.00</span></td></tr></tbody></table>
+</div></div>
 </div>
 </div>
-</div>
-
 <script>
-function toggleAllBtns(){ document.getElementById('allFieldsBox').classList.toggle('open'); }
-function filterScheme(){ let v=document.getElementById('schemeSelect').value; document.getElementById('b_payer').innerText = (v==='all'?'PMJAY':v); renderBill(); showPatientSuggest(document.getElementById('patientSearch').value); }
-
-let cfg = JSON.parse(localStorage.getItem('shija_full_all')||'null') || {};
-for(let i=1;i<=32;i++){ if(cfg['off'+i]===undefined) cfg['off'+i]=0; }
-function applyDrag(){ for(let i=1;i<=32;i++){ let el=document.getElementById('w'+i); if(el) el.style.transform=`translateX(${cfg['off'+i]||0}px)`; } localStorage.setItem('shija_full_all', JSON.stringify(cfg)); }
-function buildControls(){
-  let labels={1:'SI No',2:'Item Name',3:'Batch No',4:'HSN/Code',5:'Date',6:'Qty',7:'Rate',8:'GST%',9:'Patient Amt',10:'Company Amt',11:'Amount Rs',12:'Sub Total:',13:'Sub 0.00',14:'Sub 2660 Co',15:'Sub 2660 Amt',16:'Grand Total:',17:'Grand 0.00',18:'Grand 2660 Co',19:'Grand 2660 Amt',20:'Gross Label',21:'Gross Rs',22:'Data: 1',23:'Data: Haemodialysis',24:'Data: Batch',25:'Data: HSN',26:'Data: 11/10',27:'Data: 1.00',28:'Data: 2660 Rate',29:'Data: GST',30:'Data: 0.00 Pat',31:'Data: 2660 Comp',32:'Data: 2660 Amt'};
-  let html=''; for(let i=1;i<=32;i++){ html+=`<div class="alignRow"><span>${labels[i]}</span><input type="range" min="-150" max="150" value="${cfg['off'+i]}" oninput="cfg['off'+i]=parseInt(this.value);applyDrag();this.nextElementSibling.innerText=this.value+'px'"><span>${cfg['off'+i]}px</span></div>`; }
-  document.getElementById('alignControls').innerHTML=html;
-}
+function toggleFilter(){document.getElementById('filterDrop').classList.toggle('open');}
+function toggleAllBtns(){document.getElementById('allFieldsBox').classList.toggle('open');}
+function filterScheme(){let v=document.getElementById('schemeSelect').value;document.getElementById('b_payer').innerText=(v==='all'?'PMJAY':v);renderBill();showPatientSuggest(document.getElementById('patientSearch').value);document.getElementById('filterDrop').classList.remove('open');}
+let cfg=JSON.parse(localStorage.getItem('shija_full_all')||'null')||{};for(let i=1;i<=32;i++){if(cfg['off'+i]===undefined)cfg['off'+i]=0;}
+function applyDrag(){for(let i=1;i<=32;i++){let el=document.getElementById('w'+i);if(el)el.style.transform=`translateX(${cfg['off'+i]||0}px)`;}localStorage.setItem('shija_full_all',JSON.stringify(cfg));}
+function buildControls(){let labels={1:'SI No',2:'Item Name',3:'Batch No',4:'HSN/Code',5:'Date',6:'Qty',7:'Rate',8:'GST%',9:'Patient Amt',10:'Company Amt',11:'Amount Rs',12:'Sub Total:',13:'Sub 0.00',14:'Sub 2660 Co',15:'Sub 2660 Amt',16:'Grand Total:',17:'Grand 0.00',18:'Grand 2660 Co',19:'Grand 2660 Amt',20:'Gross Label',21:'Gross Rs',22:'Data: 1',23:'Data: Haemodialysis',24:'Data: Batch',25:'Data: HSN',26:'Data: 11/10',27:'Data: 1.00',28:'Data: 2660 Rate',29:'Data: GST',30:'Data: 0.00 Pat',31:'Data: 2660 Comp',32:'Data: 2660 Amt'};let html='';for(let i=1;i<=32;i++){html+=`<div class="alignRow"><span>${labels[i]}</span><input type="range" min="-150" max="150" value="${cfg['off'+i]}" oninput="cfg['off'+i]=parseInt(this.value);applyDrag();this.nextElementSibling.innerText=this.value+'px'"><span>${cfg['off'+i]}px</span></div>`;}document.getElementById('alignControls').innerHTML=html;}
 function resetAll(){for(let i=1;i<=32;i++)cfg['off'+i]=0;applyDrag();buildControls();}
 function openSettings(){document.getElementById('alignPanel').classList.add('show');}
 function closeSettings(){document.getElementById('alignPanel').classList.remove('show');}
-let dragCol=null, startX=0, startOff=0;
-let boldMap = JSON.parse(localStorage.getItem('shija_bold')||'{}');
-let selectedWords = new Set();
-function applyBold(){ document.querySelectorAll('.word').forEach(w=>{ let id=w.id; if(boldMap[id]) w.classList.add('bold'); else w.classList.remove('bold'); }); localStorage.setItem('shija_bold', JSON.stringify(boldMap)); }
-function toggleBold(){
-  if(selectedWords.size===0){ let sel=window.getSelection(); if(sel && sel.toString().trim()!=''){ document.querySelectorAll('.word').forEach(w=>{ if(sel.containsNode(w,true)) selectedWords.add(w.id); }); }else{ alert('Tap a word in bill to select for bold'); return; } }
-  selectedWords.forEach(id=>{ boldMap[id]=!boldMap[id]; if(!boldMap[id]) delete boldMap[id]; }); applyBold();
-  document.querySelectorAll('.word').forEach(w=>w.classList.remove('selected')); selectedWords.clear(); document.getElementById('boldBtn').classList.remove('active');
-}
+let dragCol=null,startX=0,startOff=0;let boldMap=JSON.parse(localStorage.getItem('shija_bold')||'{}');let selectedWords=new Set();
+function applyBold(){document.querySelectorAll('.word').forEach(w=>{let id=w.id;if(boldMap[id])w.classList.add('bold');else w.classList.remove('bold');});localStorage.setItem('shija_bold',JSON.stringify(boldMap));}
+function toggleBold(){if(selectedWords.size===0){let sel=window.getSelection();if(sel&&sel.toString().trim()!=''){document.querySelectorAll('.word').forEach(w=>{if(sel.containsNode(w,true))selectedWords.add(w.id);});}else{alert('Tap a word in bill to select for bold');return;}}selectedWords.forEach(id=>{boldMap[id]=!boldMap[id];if(!boldMap[id])delete boldMap[id];});applyBold();document.querySelectorAll('.word').forEach(w=>w.classList.remove('selected'));selectedWords.clear();document.getElementById('boldBtn').classList.remove('active');}
 function clearBold(){boldMap={};applyBold();}
 document.querySelectorAll('.word').forEach(w=>{
- w.addEventListener('click', e=>{
-   if(dragCol) return; e.stopPropagation(); let id=w.id; if(selectedWords.has(id)){ selectedWords.delete(id); w.classList.remove('selected'); }else{ selectedWords.add(id); w.classList.add('selected'); }
-   let btn=document.getElementById('boldBtn'); if(selectedWords.size>0) btn.classList.add('active'); else btn.classList.remove('active');
- });
- w.addEventListener('pointerdown', e=>{ let id = parseInt(w.id.replace('w','')); dragCol = id; startX = e.clientX; startOff = cfg['off'+dragCol]||0; w.setPointerCapture(e.pointerId); });
- w.addEventListener('pointermove', e=>{ if(!dragCol) return; let dx = e.clientX - startX; cfg['off'+dragCol] = startOff + dx; if(cfg['off'+dragCol]<-150)cfg['off'+dragCol]=-150; if(cfg['off'+dragCol]>150)cfg['off'+dragCol]=150; applyDrag(); buildControls(); });
- w.addEventListener('pointerup', ()=>{dragCol=null; localStorage.setItem('shija_full_all', JSON.stringify(cfg));});
+ w.addEventListener('click',e=>{if(dragCol)return;e.stopPropagation();let id=w.id;if(selectedWords.has(id)){selectedWords.delete(id);w.classList.remove('selected');}else{selectedWords.add(id);w.classList.add('selected');}let btn=document.getElementById('boldBtn');if(selectedWords.size>0)btn.classList.add('active');else btn.classList.remove('active');});
+ w.addEventListener('pointerdown',e=>{let id=parseInt(w.id.replace('w',''));dragCol=id;startX=e.clientX;startOff=cfg['off'+dragCol]||0;w.setPointerCapture(e.pointerId);});
+ w.addEventListener('pointermove',e=>{if(!dragCol)return;let dx=e.clientX-startX;cfg['off'+dragCol]=startOff+dx;if(cfg['off'+dragCol]<-150)cfg['off'+dragCol]=-150;if(cfg['off'+dragCol]>150)cfg['off'+dragCol]=150;applyDrag();buildControls();});
+ w.addEventListener('pointerup',()=>{dragCol=null;localStorage.setItem('shija_full_all',JSON.stringify(cfg));});
 });
-document.addEventListener('click', e=>{ if(!e.target.closest('.word') && !e.target.closest('#boldBtn')){ document.querySelectorAll('.word.selected').forEach(el=>el.classList.remove('selected')); selectedWords.clear(); document.getElementById('boldBtn').classList.remove('active'); } });
+document.addEventListener('click',e=>{if(!e.target.closest('.word')&&!e.target.closest('#boldBtn')){document.querySelectorAll('.word.selected').forEach(el=>el.classList.remove('selected'));selectedWords.clear();document.getElementById('boldBtn').classList.remove('active');}});
 applyDrag();buildControls();applyBold();
-
-function getCombinedPatients(){ let scheme=document.getElementById('schemeSelect').value; if(scheme==='PMJAY') return window.allPMJAY||[]; if(scheme==='CMHT') return window.allCMHT||[]; return window.allPatients||[]; }
+function getCombinedPatients(){let scheme=document.getElementById('schemeSelect').value;if(scheme==='PMJAY')return window.allPMJAY||[];if(scheme==='CMHT')return window.allCMHT||[];return window.allPatients||[];}
 function showPatientSuggest(q){
-  let all = getCombinedPatients();
-  q=(q||'').toLowerCase().trim(); let box=document.getElementById('suggest'); if(!q){ let a=all.slice(0,15); box.innerHTML=a.map(p=>`<div onclick="pickPatientByShri('${(p.shriId||p.shri||'').replace(/'/g,'')}','${(p._scheme||'PMJAY')}')"><b>${(p.patientName||p.name||'')}</b> - ${p.shriId||p.shri||''} [${p._scheme||''}]</div>`).join(''); box.style.display='block'; return; }
-  let f=all.filter(p=>{ let n=(p.patientName||p.name||'').toLowerCase(); let s=(p.shriId||p.shri||'').toLowerCase(); return n.includes(q)||s.includes(q); }).slice(0,20);
-  box.innerHTML=f.map(p=>`<div onclick="pickPatientByShri('${(p.shriId||p.shri||'').replace(/'/g,'')}','${(p._scheme||'PMJAY')}')"><b>${(p.patientName||p.name||'')}</b> - ${p.shriId||p.shri||''} [${p._scheme||''}]</div>`).join(''); box.style.display=f.length?'block':'none';
+  let all=getCombinedPatients();q=(q||'').toLowerCase().trim();let box=document.getElementById('suggest');
+  if(!q){let a=all.slice(0,15);box.innerHTML=a.map(p=>`<div onclick="pickPatientByShri('${(p.shriId||p.shri||'').replace(/'/g,'')}','${(p._scheme||'PMJAY')}')"><b>${(p.patientName||p.name||'')}</b> - ${p.shriId||p.shri||''} [${p._scheme||''}]</div>`).join('');box.style.display='block';return;}
+  let f=all.filter(p=>{let n=(p.patientName||p.name||'').toLowerCase();let s=(p.shriId||p.shri||'').toLowerCase();return n.includes(q)||s.includes(q);}).slice(0,20);
+  box.innerHTML=f.map(p=>`<div onclick="pickPatientByShri('${(p.shriId||p.shri||'').replace(/'/g,'')}','${(p._scheme||'PMJAY')}')"><b>${(p.patientName||p.name||'')}</b> - ${p.shriId||p.shri||''} [${p._scheme||''}]</div>`).join('');box.style.display=f.length?'block':'none';
 }
-function pickPatientByShri(shri, scheme){
-  let all=getCombinedPatients(); let p=all.find(x=>(x.shriId||x.shri||'')===shri) || all.find(x=>(x.shriId||'').toLowerCase().includes(shri.toLowerCase()));
-  if(!p) return;
-  let name = (p.patientName||p.name||'').toUpperCase();
-  document.getElementById('pName').value='Mr. '+name;
-  document.getElementById('mobile').value=p.contactNo||p.contact||p.mobile||'';
-  document.getElementById('address').value=(p.address||p.addr||'').toUpperCase();
-  document.getElementById('uhid').value='SHRI.'+(p.shriId||p.shri||'').replace(/SHRI\.?/i,'');
-  document.getElementById('ipNo').value=p.ipNo||p.pmjayId||p.pmjay||document.getElementById('ipNo').value;
-  document.getElementById('ageSex').value=p.age? (p.age+' Year(s) / '+(p.sex||p.gender||'Male')) : document.getElementById('ageSex').value;
-  let sc = p._scheme || scheme || document.getElementById('schemeSelect').value;
-  if(sc && sc!=='all'){ document.getElementById('schemeSelect').value=sc; }
-  document.getElementById('b_payer').innerText = (sc && sc!=='all') ? sc : 'PMJAY';
-  document.getElementById('suggest').style.display='none';
-  document.getElementById('patientSearch').value= (p.shriId||'')+' - '+name;
-  updateBillTime();
-  renderBill();
+function pickPatientByShri(shri,scheme){
+  let all=getCombinedPatients();let p=all.find(x=>(x.shriId||x.shri||'')===shri)||all.find(x=>(x.shriId||'').toLowerCase().includes(shri.toLowerCase()));if(!p)return;
+  let name=(p.patientName||p.name||'').toUpperCase();
+  document.getElementById('pName').value='Mr. '+name;document.getElementById('mobile').value=p.contactNo||p.contact||p.mobile||'';document.getElementById('address').value=(p.address||p.addr||'').toUpperCase();document.getElementById('uhid').value='SHRI.'+(p.shriId||p.shri||'').replace(/SHRI\.?/i,'');document.getElementById('ipNo').value=p.ipNo||p.pmjayId||p.pmjay||document.getElementById('ipNo').value;document.getElementById('ageSex').value=p.age?(p.age+' Year(s) / '+(p.sex||p.gender||'Male')):document.getElementById('ageSex').value;
+  let sc=p._scheme||scheme||document.getElementById('schemeSelect').value;if(sc&&sc!=='all'){document.getElementById('schemeSelect').value=sc;}document.getElementById('b_payer').innerText=(sc&&sc!=='all')?sc:'PMJAY';document.getElementById('suggest').style.display='none';document.getElementById('patientSearch').value=(p.shriId||'')+' - '+name;updateBillTime();renderBill();
 }
-function formatDateTime(ds,ts){ if(!ds) return ''; let [y,m,d]=ds.split('-'); let dp=d+'/'+m+'/'+y; if(!ts) return dp; let [h,mm]=ts.split(':').map(Number); let ap=h>=12?'pm':'am'; let h12=h%12||12; return dp+' '+h12+':'+String(mm).padStart(2,'0')+' '+ap; }
-function updateBillTime(){
-  let d=document.getElementById('admDateOnly').value; let t=document.getElementById('admTimeOnly').value; if(!d||!t) return;
-  document.getElementById('billDateShow').value=d.split('-').reverse().join('/');
-  let [h,m]=t.split(':').map(Number);
-  let admDate=new Date(d+'T'+t);
-  let disDate=new Date(admDate.getTime()+4*60*60*1000); // +4 hours
-  let disStr=disDate.toISOString().slice(0,16);
-  document.getElementById('disDateTime').value=disStr;
-  let billTime=new Date(admDate.getTime()+30*60000);
-  document.getElementById('billTimeShow').value=String(billTime.getHours()).padStart(2,'0')+':'+String(billTime.getMinutes()).padStart(2,'0');
-  renderBill();
-}
+function formatDateTime(ds,ts){if(!ds)return'';let[y,m,d]=ds.split('-');let dp=d+'/'+m+'/'+y;if(!ts)return dp;let[h,mm]=ts.split(':').map(Number);let ap=h>=12?'pm':'am';let h12=h%12||12;return dp+' '+h12+':'+String(mm).padStart(2,'0')+' '+ap;}
+function updateBillTime(){let d=document.getElementById('admDateOnly').value;let t=document.getElementById('admTimeOnly').value;if(!d||!t)return;document.getElementById('billDateShow').value=d.split('-').reverse().join('/');let admDate=new Date(d+'T'+t);let disDate=new Date(admDate.getTime()+4*60*60*1000);document.getElementById('disDateTime').value=disDate.toISOString().slice(0,16);let billTime=new Date(admDate.getTime()+30*60000);document.getElementById('billTimeShow').value=String(billTime.getHours()).padStart(2,'0')+':'+String(billTime.getMinutes()).padStart(2,'0');renderBill();}
 function renderBill(){
-  let ip=document.getElementById('ipNo').value; let uhid=document.getElementById('uhid').value;
-  let name=document.getElementById('pName').value; let age=document.getElementById('ageSex').value;
-  let bed=document.getElementById('bedNo').value; let mob=document.getElementById('mobile').value;
-  let addr=document.getElementById('address').value; let billNo=document.getElementById('billNo').value;
-  if(ip) document.getElementById('b_ip').innerText=ip;
-  if(uhid) document.getElementById('b_uhid').innerText=uhid;
-  if(name) document.getElementById('b_name').innerText=name;
-  if(age) document.getElementById('b_age').innerText=age;
-  document.getElementById('b_bed').innerText=bed;
-  if(mob) document.getElementById('b_mob').innerText=mob;
-  if(addr) document.getElementById('b_addr').innerText=addr;
-  if(billNo) document.getElementById('b_billNo').innerText=billNo;
-  let admD=document.getElementById('admDateOnly').value; let admT=document.getElementById('admTimeOnly').value;
-  if(admD){
-    document.getElementById('b_adm').innerText=formatDateTime(admD,admT);
-    document.getElementById('b_billDate').innerText=admD.split('-').reverse().join('/'); // same as admission
-    let d=parseInt(admD.split('-')[2]); let mo=parseInt(admD.split('-')[1]); document.getElementById('w26').innerText=d+'/'+mo;
-  }
-  let dis=document.getElementById('disDateTime').value;
-  if(dis){ let dt=new Date(dis); document.getElementById('b_dis').innerText=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+ (dt.getHours()%12||12)+':'+String(dt.getMinutes()).padStart(2,'0')+' '+(dt.getHours()>=12?'pm':'am'); }
-  let amt=parseFloat(document.getElementById('amt').value)||0; let s=amt.toFixed(2);
-  document.getElementById('w28').innerText=s; document.getElementById('w31').innerText=s; document.getElementById('w32').innerText=s; document.getElementById('w14').innerText=s; document.getElementById('w15').innerText=s; document.getElementById('w18').innerText=s; document.getElementById('w19').innerText=s; document.getElementById('w21').innerText='Rs '+s;
-  // payer already set via schemeSelect, but if user edited keep? auto-update
-  let scheme=document.getElementById('schemeSelect').value;
-  if(scheme!=='all'){ document.getElementById('b_payer').innerText=scheme; }
+  let ip=document.getElementById('ipNo').value;let uhid=document.getElementById('uhid').value;let name=document.getElementById('pName').value;let age=document.getElementById('ageSex').value;let bed=document.getElementById('bedNo').value;let mob=document.getElementById('mobile').value;let addr=document.getElementById('address').value;let billNo=document.getElementById('billNo').value;
+  if(ip)document.getElementById('b_ip').innerText=ip;if(uhid)document.getElementById('b_uhid').innerText=uhid;if(name)document.getElementById('b_name').innerText=name;if(age)document.getElementById('b_age').innerText=age;document.getElementById('b_bed').innerText=bed;if(mob)document.getElementById('b_mob').innerText=mob;if(addr)document.getElementById('b_addr').innerText=addr;if(billNo)document.getElementById('b_billNo').innerText=billNo;
+  let admD=document.getElementById('admDateOnly').value;let admT=document.getElementById('admTimeOnly').value;if(admD){document.getElementById('b_adm').innerText=formatDateTime(admD,admT);document.getElementById('b_billDate').innerText=admD.split('-').reverse().join('/');let d=parseInt(admD.split('-')[2]);let mo=parseInt(admD.split('-')[1]);document.getElementById('w26').innerText=d+'/'+mo;}
+  let dis=document.getElementById('disDateTime').value;if(dis){let dt=new Date(dis);document.getElementById('b_dis').innerText=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+(dt.getHours()%12||12)+':'+String(dt.getMinutes()).padStart(2,'0')+' '+(dt.getHours()>=12?'pm':'am');}
+  let amt=parseFloat(document.getElementById('amt').value)||0;let s=amt.toFixed(2);document.getElementById('w28').innerText=s;document.getElementById('w31').innerText=s;document.getElementById('w32').innerText=s;document.getElementById('w14').innerText=s;document.getElementById('w15').innerText=s;document.getElementById('w18').innerText=s;document.getElementById('w19').innerText=s;document.getElementById('w21').innerText='Rs '+s;
+  let scheme=document.getElementById('schemeSelect').value;if(scheme!=='all'){document.getElementById('b_payer').innerText=scheme;}
 }
-let today=new Date().toISOString().split('T')[0]; document.getElementById('admDateOnly').value=today; document.getElementById('admTimeOnly').value='11:17'; updateBillTime(); renderBill();
-document.addEventListener('click',e=>{ if(!e.target.closest('.searchWrap')) document.getElementById('suggest').style.display='none'; });
-
-// sync editable spans back to inputs
-document.querySelectorAll('#billPaper .editableOnly').forEach(el=>{
-  el.addEventListener('blur',()=>{
-    let id=el.id;
-    if(id==='b_ip') document.getElementById('ipNo').value=el.innerText;
-    if(id==='b_uhid') document.getElementById('uhid').value=el.innerText;
-    if(id==='b_name') document.getElementById('pName').value=el.innerText;
-    if(id==='b_age') document.getElementById('ageSex').value=el.innerText;
-    if(id==='b_mob') document.getElementById('mobile').value=el.innerText;
-    if(id==='b_addr') document.getElementById('address').value=el.innerText;
-    if(id==='b_billNo') document.getElementById('billNo').value=el.innerText;
-    if(id==='b_payer'){ /* payer editable */ }
-  });
-});
-
-let pendingType = null;
-function toggleExport(){document.getElementById('exportMenu').classList.toggle('show');}
-document.addEventListener('click',function(e){ if(!e.target.closest('.exportWrap')){ let m=document.getElementById('exportMenu'); if(m) m.classList.remove('show'); }});
-function selectExport(t){ pendingType=t; document.getElementById('exportMenu').classList.remove('show'); document.getElementById('fbStatus').innerText = t.toUpperCase() + " selected - Now press PRINT"; document.getElementById('printBtn').style.background="#10b981"; document.getElementById('printBtn').innerText="Print "+t.toUpperCase(); }
-async function handlePrint(){ if(pendingType==='pdf'){ await doPDF(); pendingType=null; resetPrintBtn(); return; } if(pendingType==='jpeg'){ await doJPEG(); pendingType=null; resetPrintBtn(); return; } window.print(); }
-function resetPrintBtn(){ document.getElementById('printBtn').style.background="#1a56db"; document.getElementById('printBtn').innerText="Print"; document.getElementById('fbStatus').innerText=""; }
+let today=new Date().toISOString().split('T')[0];document.getElementById('admDateOnly').value=today;document.getElementById('admTimeOnly').value='11:17';updateBillTime();renderBill();
+document.addEventListener('click',e=>{if(!e.target.closest('.searchWrap')&&!e.target.closest('#filterDrop')&&!e.target.closest('.iconBtn')){document.getElementById('suggest').style.display='none';}});
+document.addEventListener('click',function(e){if(!e.target.closest('.exportWrap')){let m=document.getElementById('exportMenu');if(m)m.classList.remove('show');}if(!e.target.closest('.searchShort')){let f=document.getElementById('filterDrop');if(f&&!e.target.closest('.iconBtn'))f.classList.remove('open');}});
+document.querySelectorAll('#billPaper .editableOnly').forEach(el=>{el.addEventListener('blur',()=>{let id=el.id;if(id==='b_ip')document.getElementById('ipNo').value=el.innerText;if(id==='b_uhid')document.getElementById('uhid').value=el.innerText;if(id==='b_name')document.getElementById('pName').value=el.innerText;if(id==='b_age')document.getElementById('ageSex').value=el.innerText;if(id==='b_mob')document.getElementById('mobile').value=el.innerText;if(id==='b_addr')document.getElementById('address').value=el.innerText;if(id==='b_billNo')document.getElementById('billNo').value=el.innerText;});});
+let pendingType=null;function toggleExport(){document.getElementById('exportMenu').classList.toggle('show');}
+function selectExport(t){pendingType=t;document.getElementById('exportMenu').classList.remove('show');document.getElementById('fbStatus').innerText=t.toUpperCase()+" selected - Now press PRINT";document.getElementById('printBtn').style.background="#10b981";document.getElementById('printBtn').innerText="Print "+t.toUpperCase();}
+async function handlePrint(){if(pendingType==='pdf'){await doPDF();pendingType=null;resetPrintBtn();return;}if(pendingType==='jpeg'){await doJPEG();pendingType=null;resetPrintBtn();return;}window.print();}
+function resetPrintBtn(){document.getElementById('printBtn').style.background="#1a56db";document.getElementById('printBtn').innerText="Print";document.getElementById('fbStatus').innerText="";}
 async function doPDF(){
-  let el=document.getElementById('billPaper'); let clone=el.cloneNode(true); clone.style.width='1050px'; clone.style.maxWidth='1050px'; clone.style.padding='42px'; clone.style.margin='0'; clone.style.border='none'; clone.style.boxShadow='none'; clone.style.background='#fff'; clone.style.boxSizing='border-box'; clone.style.position='fixed'; clone.style.left='-9999px'; clone.style.top='0'; clone.style.overflow='visible'; document.body.appendChild(clone);
-  clone.querySelectorAll('.exactTable').forEach(t=>{ t.style.width='100%'; t.style.maxWidth='100%'; t.style.tableLayout='fixed'; t.style.boxSizing='border-box'; });
-  clone.querySelectorAll('.editableOnly,.autoLocked').forEach(e=>{e.style.background='transparent'; e.style.border='none';});
-  let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:1150,width:1050}); document.body.removeChild(clone);
-  let imgData=canvas.toDataURL('image/png'); let { jsPDF }=window.jspdf; let pdf=new jsPDF('p','mm','a4'); let w=210; let h=(canvas.height * w)/canvas.width; pdf.addImage(imgData,'PNG',0,0,w,h); let name=document.getElementById('billNo').value || "SHIJA_BILL"; pdf.save(name+".pdf");
+  let el=document.getElementById('billPaper');let clone=el.cloneNode(true);clone.style.width='1050px';clone.style.minWidth='1050px';clone.style.maxWidth='1050px';clone.style.padding='42px';clone.style.margin='0';clone.style.border='none';clone.style.boxShadow='none';clone.style.background='#fff';clone.style.boxSizing='border-box';clone.style.position='fixed';clone.style.left='-9999px';clone.style.top='0';clone.style.overflow='visible';document.body.appendChild(clone);
+  clone.querySelectorAll('.exactTable').forEach(t=>{t.style.width='100%';t.style.maxWidth='100%';t.style.tableLayout='fixed';t.style.boxSizing='border-box';});clone.querySelectorAll('.editableOnly,.autoLocked').forEach(e=>{e.style.background='transparent';e.style.border='none';});
+  let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:1150,width:1050});document.body.removeChild(clone);
+  let imgData=canvas.toDataURL('image/png');let{jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');let w=210;let h=(canvas.height*w)/canvas.width;pdf.addImage(imgData,'PNG',0,0,w,h);let name=document.getElementById('billNo').value||"SHIJA_BILL";pdf.save(name+".pdf");
 }
 async function doJPEG(){
-  let el=document.getElementById('billPaper'); let clone=el.cloneNode(true); clone.style.width='1050px'; clone.style.maxWidth='1050px'; clone.style.padding='42px'; clone.style.margin='0'; clone.style.border='none'; clone.style.boxShadow='none'; clone.style.background='#fff'; clone.style.boxSizing='border-box'; clone.style.position='fixed'; clone.style.left='-9999px'; clone.style.top='0'; clone.style.overflow='visible'; document.body.appendChild(clone);
-  clone.querySelectorAll('.exactTable').forEach(t=>{ t.style.width='100%'; t.style.maxWidth='100%'; t.style.tableLayout='fixed'; t.style.boxSizing='border-box'; });
-  clone.querySelectorAll('.editableOnly,.autoLocked').forEach(e=>{e.style.background='transparent'; e.style.border='none';});
-  let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:1150,width:1050}); document.body.removeChild(clone);
-  let a=document.createElement('a'); let name=document.getElementById('billNo').value || "SHIJA_BILL"; a.download=name+".jpg"; a.href=canvas.toDataURL('image/jpeg',1.0); a.click();
+  let el=document.getElementById('billPaper');let clone=el.cloneNode(true);clone.style.width='1050px';clone.style.minWidth='1050px';clone.style.maxWidth='1050px';clone.style.padding='42px';clone.style.margin='0';clone.style.border='none';clone.style.boxShadow='none';clone.style.background='#fff';clone.style.boxSizing='border-box';clone.style.position='fixed';clone.style.left='-9999px';clone.style.top='0';clone.style.overflow='visible';document.body.appendChild(clone);
+  clone.querySelectorAll('.exactTable').forEach(t=>{t.style.width='100%';t.style.maxWidth='100%';t.style.tableLayout='fixed';t.style.boxSizing='border-box';});clone.querySelectorAll('.editableOnly,.autoLocked').forEach(e=>{e.style.background='transparent';e.style.border='none';});
+  let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:1150,width:1050});document.body.removeChild(clone);
+  let a=document.createElement('a');let name=document.getElementById('billNo').value||"SHIJA_BILL";a.download=name+".jpg";a.href=canvas.toDataURL('image/jpeg',1.0);a.click();
 }
 </script>
 </body>
