@@ -40,13 +40,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
 .badgeBlue{background:#0f172a;color:#fff;padding:6px 12px;border-radius:20px;font-weight:900;font-size:11px;border:1px solid #0f172a}
-.adminWrap{position:relative}
-.adminAvatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#06b6d4);display:grid;place-items:center;font-weight:900;color:#fff;cursor:pointer;font-size:16px}
-.adminDropdown{position:absolute;top:42px;right:0;width:180px;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.2);overflow:hidden;display:none;z-index:10001;border:1px solid #e2e8f0}
-.adminDropdown.open{display:block}
-.adminDropItem{padding:12px 14px;font-size:12px;font-weight:700;color:#0f172a;cursor:pointer;border:0;background:#fff;width:100%;text-align:left}
-.adminDropItem:hover{background:#f1f5f9}
-.adminDropItem.red{color:#dc2626}
 .content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px}
 .card{background:#fff;border-radius:14px;padding:12px;margin-bottom:12px;border:1px solid #e2e8f0;box-shadow:0 1px 2px #00000006}
 .label{font-size:10px;font-weight:800;color:#64748b;margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
@@ -89,7 +82,6 @@ td.nameCol{text-align:left;padding-left:12px}
 .pBtn{padding:8px 14px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer;font-size:13px}
 .pBtn:disabled{opacity:.4}
 .hidden{display:none!important}
-/* PROFESSIONAL ADD - ALL DROPDOWNS */
 .inlineBar{display:none;background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:0;margin-top:12px;box-shadow:0 8px 24px rgba(15,23,42,0.06);overflow:hidden;animation:slideDown .22s ease}
 .inlineBar.show{display:block}
 @keyframes slideDown{0%{transform:translateY(-6px);opacity:0}100%{transform:translateY(0);opacity:1}}
@@ -113,7 +105,6 @@ td.nameCol{text-align:left;padding-left:12px}
 </style>
 </head>
 <body>
-<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
 
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
@@ -142,7 +133,6 @@ td.nameCol{text-align:left;padding-left:12px}
 <div class="mainWrap">
 <div class="top">
 <div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> CLAIM <div class="badgeBlue" id="countBadge">0 CLAIMED</div></div>
-<div class="adminWrap"><div class="adminAvatar" onclick="toggleAdminMenu()">A</div><div class="adminDropdown" id="adminDropdown"><button class="adminDropItem" onclick="adminLogout()">Logout</button><button class="adminDropItem red" onclick="logoutAllDevices()">Logout All Devices</button></div></div>
 </div>
 
 <div class="content">
@@ -151,7 +141,6 @@ td.nameCol{text-align:left;padding-left:12px}
 <div class="label" style="color:#0f172a">ADD CLAIM PATIENT FROM TOTAL</div>
 <div class="searchBox" style="margin-top:6px"><input type="text" id="searchTotal" class="input" placeholder="SEARCH TOTAL PATIENT TO ADD..." style="border:1.5px solid #0f172a;padding:12px;background:#fff"><div class="searchResults" id="searchResults"></div></div>
 
-<!-- PROFESSIONAL DROPDOWN DESIGN - ALL DROPDOWNS -->
 <div class="inlineBar" id="inlineBar">
 <div class="inlineBarHead"><b id="selPatientHead">Add Claim</b><span>Select options from dropdown</span></div>
 <div class="inlineBarBody">
@@ -193,9 +182,6 @@ const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDom
 const app=initializeApp(firebaseConfig,"claim_dropdown_"+Math.random());
 const db=getFirestore(app);
 window._fb={db,collection,getDocs,doc,setDoc,deleteDoc};
-let guardApp; try{ guardApp=initializeApp(firebaseConfig,"guard_"+Math.random()); }catch{ guardApp=initializeApp(firebaseConfig,"guard2_"+Math.random()); }
-const dbGuard=getFirestore(guardApp);
-try{ onSnapshot(doc(dbGuard,"system","global_logout"),(s)=>{ if(!s.exists()) return; let lt=s.data().logoutTime||0; let my=parseInt(localStorage.getItem('shija_login_time')||'0'); if(lt>my&&my!==0){ localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time'); location.href='login.html'; } }); }catch{}
 </script>
 <script>
 let allClaimed=[],filtered=[],masterPatients=[],currentPage=1,pageSize=12,urlClaimId='';
@@ -203,11 +189,6 @@ let selectedTotalPatient=null;
 let currentView='table';
 function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}
 document.addEventListener('DOMContentLoaded',function(){document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();})});
-function toggleAdminMenu(){ document.getElementById('adminDropdown').classList.toggle('open'); }
-function closeAdminMenu(){ document.getElementById('adminDropdown').classList.remove('open'); }
-document.addEventListener('click', e=>{ if(!e.target.closest('.adminWrap')) closeAdminMenu(); if(!e.target.closest('.searchBox')){ document.getElementById('searchResults').classList.remove('open'); } });
-function adminLogout(){ if(!confirm('Logout?')) return; localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time'); location.href='login.html'; }
-async function logoutAllDevices(){ if(!confirm('Logout All Devices?')) return; try{ await window._fb.setDoc(window._fb.doc(window._fb.db,'system','global_logout'),{logoutTime:Date.now(),by:'admin'},{merge:true}); localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time'); location.href='login.html'; }catch(e){ alert(e.message); } }
 function getClaimIdFromURL(){ return new URLSearchParams(location.search).get('claimId')||''; }
 window.setView=(v)=>{
  currentView=v;
