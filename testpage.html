@@ -60,36 +60,41 @@ body{background:#f1f5f9;display:flex}
 .filterBtn{padding:8px 16px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;font-weight:800;font-size:12px;cursor:pointer}
 .filterBtn.active{background:#0f172a;color:#fff;border-color:#0f172a}
 .previewWrap{background:#e2e8f0;border-radius:12px;padding:10px;border:1px solid #cbd5e1;width:100%;overflow:auto}
-.paper{background:#fff;color:#000;border:1px solid #000;width:210mm;min-height:297mm;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;font-size:13.5px;line-height:1.45;padding:0;margin:0 auto;display:flex;flex-direction:column;position:relative}
+.paper{background:#fff;color:#000;border:1px solid #000;width:210mm;min-height:297mm;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;padding:0;margin:0 auto;display:flex;flex-direction:column;position:relative;font-size:13.5px}
 .letterheadPng{width:100%;display:block;line-height:0;margin:0!important;padding:0!important;border:none;font-size:0;overflow:hidden;background:#fff}
 .letterheadPng img{width:100%;height:auto;display:block;margin:0 0 -8px 0!important;padding:0!important;border:none;vertical-align:bottom}
-.disTitle{width:96%;margin:0 auto 0 auto!important;border:1.8px solid #000;text-align:center;font-weight:800;font-size:15px;padding:5px 0;background:#fff;line-height:1.2}
-.infoSection{padding:4px 12px 4px;margin:0;border:none;border-bottom:1.2px solid #000}
-.infoTable{width:100%;border-collapse:collapse;font-size:12.5px;line-height:1.35}
+.disTitle{width:96%;margin:0 auto!important;border:1.8px solid #000;text-align:center;font-weight:800;font-size:15px;padding:5px 0;background:#fff;line-height:1.2}
+.infoSection{padding:4px 12px;margin:0;border:none;border-bottom:1.2px solid #000}
+.infoTable{width:100%;border-collapse:collapse;line-height:1.35}
 .infoTable td{padding:1px 2px;vertical-align:top;white-space:nowrap}
-.infoTable td:first-child{width:110px;font-weight:700}
-.infoTable td:nth-child(2){width:auto;white-space:nowrap}
-.infoTable td:nth-child(3){width:90px;font-weight:700;padding-left:12px}
-.infoTable td:nth-child(4){width:auto}
-.contentArea{padding:8px 18px;flex:1;font-size:13.5px;line-height:1.5}
+.infoTable td:first-child{width:auto;font-weight:700;padding-right:4px}
+.infoTable td:nth-child(2){width:32%;text-align:left}
+.infoTable td:nth-child(3){width:auto;font-weight:700;padding-left:10px;padding-right:4px}
+.infoTable td:nth-child(4){width:32%;text-align:left}
+.contentArea{padding:8px 18px;flex:1;line-height:1.5}
 .line{margin-bottom:2px;white-space:pre-wrap;word-break:break-word}
 .editableOnly{background:#fffde7;border-bottom:1px dashed #2563eb;cursor:text;padding:0 2px;min-width:18px;display:inline-block;font-weight:600}
 .editableOnly:focus{background:#fff3cd;outline:none}
 .autoLocked{background:#f5f5f5;border-bottom:1px dashed #888;font-weight:600;padding:0 2px}
 .footer{position:absolute;bottom:10px;right:14px;font-size:9px;color:#000}
 .exportClean .editableOnly,.exportClean .autoLocked{background:transparent!important;border:none!important;padding:0!important}
-@media(max-width:600px){.topSearchRow{flex-direction:column;align-items:stretch}.searchShort{max-width:100%;width:100%}.rightActions{width:100%;justify-content:space-between}}
 </style>
 <script>
 function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}
 function toggleInputCard(){ let card=document.getElementById('inputCard'); let btn=document.getElementById('detailsBtn'); card.classList.toggle('hidden'); btn.innerText=card.classList.contains('hidden')?'▼ Details':'▲ Hide Details'; }
+let baseSize=13.5;
 let currentFontSize=13.5;
 function changeFontSize(type){
-  let paper=document.getElementById('paper');
   if(type==='dec') currentFontSize=Math.max(9, currentFontSize-1);
   if(type==='inc') currentFontSize=Math.min(22, currentFontSize+1);
-  if(type==='normal') currentFontSize=13.5;
+  if(type==='normal') currentFontSize=baseSize;
+  let paper=document.getElementById('paper');
   paper.style.fontSize=currentFontSize+'px';
+  // scale all inner texts proportionally - makes ALL words increase/decrease
+  document.querySelectorAll('.infoTable').forEach(el=> el.style.fontSize=(currentFontSize-1)+'px');
+  document.querySelectorAll('.contentArea').forEach(el=> el.style.fontSize=currentFontSize+'px');
+  document.querySelectorAll('.disTitle').forEach(el=> el.style.fontSize=(currentFontSize+1.5)+'px');
+  document.querySelectorAll('.footer').forEach(el=> el.style.fontSize=(currentFontSize-4)+'px');
   document.querySelectorAll('.fontBtn').forEach(b=>b.classList.remove('active'));
   document.getElementById(type==='dec'?'fontDec':type==='inc'?'fontInc':'fontNormal').classList.add('active');
 }
@@ -107,21 +112,21 @@ const app=initializeApp(cfg,"closer_"+Math.random());const db=getFirestore(app);
 <div class="sHead"><div class="sLogo"><img src="logoc.png" onerror="this.src='finalopo.png'"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
 <div class="sMenu">
 <a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
-<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
-<a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
-<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
+<a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
+<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">CLAIM</span></a>
 <a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
-<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="ml">OFFICE ASSISTANT LIST</span></a>
+<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></span><span class="ml">OFFICE ASSISTANT LIST</span></a>
 <a href="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
-<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
-<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
-<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">PMJAY DAILY DIALYSIS</span></a>
-<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
-<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
-<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="ml">KFT REPORT</span></a>
-<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">ADD PATIENT</span></a>
-<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="ml">BILL</span></a>
-<a href="dischargesummary.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
+<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
+<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
+<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">PMJAY DAILY DIALYSIS</span></a>
+<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
+<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
+<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT REPORT</span></a>
+<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT</span></a>
+<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span><span class="ml">BILL</span></a>
+<a href="dischargesummary.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
 </div>
 </div>
 <div class="sFoot">System Online • SHIJA Hospital</div>
@@ -177,7 +182,16 @@ const app=initializeApp(cfg,"closer_"+Math.random());const db=getFirestore(app);
 <div class="row">
 <div class="col"><span class="label">Diagnosis</span><input id="diagnosisInput" value="Chronic Kidney Disease on MHD" oninput="updateVitals()"></div>
 <div class="col"><span class="label">Chief Complain</span><input id="complainInput" value="Patient admitted for Haemodialysis" oninput="updateVitals()"></div>
-<div class="col"><span class="label">Time</span><input id="advTimeInput" value="12 noon" oninput="updateVitals()"></div>
+<div class="col"><span class="label">Time Slot</span>
+<select id="advTimeInput" onchange="updateVitals()">
+<option value="7 morning">7 morning</option>
+<option value="12 noon" selected>12 noon</option>
+<option value="5 evening">5 evening</option>
+<option value="9 night">9 night</option>
+<option value="12 morning">12 morning</option>
+<option value="2 morning">2 morning</option>
+</select>
+</div>
 <div class="col"><span class="label">Frequency</span><input id="freqInput" value="three" oninput="updateVitals()"></div>
 </div>
 </div>
@@ -186,10 +200,10 @@ const app=initializeApp(cfg,"closer_"+Math.random());const db=getFirestore(app);
 <div class="letterheadPng"><img src="finalopo.png" alt="Shija" onerror="this.src='Letterhead.png'"></div>
 <div class="disTitle">Discharge Summary</div>
 <div class="infoSection"><table class="infoTable">
-<tr><td>IP No.</td><td>: <span id="b_ip" class="editableOnly" contenteditable="true">185693</span></td><td>UHID NO</td><td>: <span id="b_shri" class="editableOnly" contenteditable="true">SHRI.334269</span></td></tr>
-<tr><td>Patient Name</td><td>: <span id="b_name" class="editableOnly" contenteditable="true">[Patient Name]</span></td><td>Age/Sex</td><td>: <span id="b_age" class="editableOnly" contenteditable="true">71 Year(s) /Female</span></td></tr>
-<tr><td>Admission DateTime</td><td>: <span id="b_adm" class="editableOnly" contenteditable="true">31/10/2026 10:45 PM</span></td><td>Doctor Name</td><td>: Dr. Guliver Potsangbam (Nephrology)</td></tr>
-<tr><td>Discharge DateTime</td><td>: <span id="b_dis" class="autoLocked">01/11/2026</span></td><td></td><td></td></tr>
+<tr><td>IP No. :</td><td><span id="b_ip" class="editableOnly" contenteditable="true">185693</span></td><td>UHID NO :</td><td><span id="b_shri" class="editableOnly" contenteditable="true">SHRI.334269</span></td></tr>
+<tr><td>Patient Name :</td><td><span id="b_name" class="editableOnly" contenteditable="true">[Patient Name]</span></td><td>Age/Sex :</td><td><span id="b_age" class="editableOnly" contenteditable="true">71 Year(s) /Female</span></td></tr>
+<tr><td>Admission DateTime :</td><td><span id="b_adm" class="editableOnly" contenteditable="true">31/10/2026 10:45 PM</span></td><td>Doctor Name :</td><td>Dr. Guliver Potsangbam (Nephrology)</td></tr>
+<tr><td>Discharge DateTime :</td><td><span id="b_dis" class="autoLocked">01/11/2026</span></td><td></td><td></td></tr>
 </table></div>
 <div class="contentArea">
 <div class="line"><b>Diagnosis:</b> <span id="b_diagnosis">Chronic Kidney Disease on MHD</span></div>
@@ -232,7 +246,7 @@ async function loadFirebaseAll(){
   await tryCol(["pmjay_patients","PMJAY_patients","pmjay","PMJAY","patients","total_patients"],allPMJAY);
   await tryCol(["cmht_patients","CMHT_patients","cmht","CMHT"],allCMHT);
 }
-function getCombined(){let scheme='all'; return [...allPMJAY,...allCMHT];}
+function getCombined(){return [...allPMJAY,...allCMHT];}
 function setSchemeFilter(s){
   document.getElementById('btnPMJAY').classList.toggle('active', s==='pmjay');
   document.getElementById('btnCMHT').classList.toggle('active', s==='cmht');
