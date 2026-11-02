@@ -116,7 +116,7 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 .moreBtn{width:38px;height:38px;background:#1e293b;color:#fff;border:1.5px solid #334155;border-radius:10px;font-weight:900;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .moreMenu{position:absolute;top:115%;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:12px;min-width:160px;display:none;z-index:10000;box-shadow:0 12px 28px rgba(0,0,0,.18);padding:6px;flex-direction:column;gap:6px}
 .moreMenu.show{display:flex}
-.moreMenu .btnBlue{width:100%;justify-content:flex-start}
+.moreMenu .btnBlue{width:100%}
 .moreMenu .boldBtn{width:100%;border-radius:10px}
 .billPaper{background:#fff;width:210mm;max-width:100%;margin:0 auto;padding:0 0 12px 0;color:#000;font-family:Arial,Helvetica,sans-serif;border:none;box-sizing:border-box;overflow:visible}
 .letterhead{width:100%;margin:0;padding:0;display:block;box-sizing:border-box}
@@ -157,7 +157,12 @@ body{background:#eef2f7;display:flex;flex-direction:column;min-height:100vh}
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
 </script>
-<div class="top noPrint"><div style="display:flex;align-items:center;gap:10px"><button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button><h2>SHIJA Dialysis</h2><span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div>
+<div class="top noPrint">
+<div style="display:flex;align-items:center;gap:10px">
+<button type="button" class="menuBtn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+<h2>SHIJA Dialysis</h2>
+<span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span>
+</div>
 <div style="display:flex;gap:8px;align-items:center">
 <div class="exportWrap">
 <button class="btnBlue" onclick="toggleExport()">Export ▼</button>
@@ -167,13 +172,14 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 </div>
 <div class="moreWrap">
-<button class="moreBtn" id="moreBtn" onclick="toggleMore()" title="More actions">⋮</button>
+<button class="moreBtn" id="moreBtn" onclick="toggleMore()">⋮</button>
 <div class="moreMenu" id="moreMenu">
-<button id="boldBtn" class="btnBlue boldBtn" onclick="toggleBold(); toggleMore();" title="Bold"><b>B</b> &nbsp; Bold</button>
+<button id="boldBtn" class="btnBlue boldBtn" onclick="toggleBold(); toggleMore();"><b>B</b> &nbsp; Bold</button>
 <button class="btnBlue" id="printBtn" onclick="handlePrint(); toggleMore();">Print</button>
 </div>
 </div>
-</div></div>
+</div>
+</div>
 <div class="sideOverlay" id="overlay"></div>
 <div class="side noPrint" id="side">
 <div class="menu">
@@ -380,7 +386,6 @@ function updateBillTime(){let d=document.getElementById('admDateOnly').value;let
 function formatDateTime(ds,ts){if(!ds)return '';let [y,m,d]=ds.split('-');let dp=d+'/'+m+'/'+y;if(!ts)return dp;let [h,mm]=ts.split(':').map(Number);let ap=h>=12?'pm':'am';let h12=h%12||12;return dp+' '+h12+':'+String(mm).padStart(2,'0')+' '+ap;}
 function renderBill(){document.getElementById('b_ip').innerText=document.getElementById('ipNo').value;document.getElementById('b_uhid').innerText=document.getElementById('uhid').value;document.getElementById('b_name').innerText=document.getElementById('pName').value;document.getElementById('b_age').innerText=document.getElementById('ageSex').value;document.getElementById('b_bed').innerText=document.getElementById('bedNo').value;document.getElementById('b_mob').innerText=document.getElementById('mobile').value;document.getElementById('b_addr').innerText=document.getElementById('address').value;document.getElementById('b_billNo').innerText=document.getElementById('billNo').value;let admD=document.getElementById('admDateOnly').value;let admT=document.getElementById('admTimeOnly').value;if(admD){document.getElementById('b_adm').innerText=formatDateTime(admD,admT);document.getElementById('b_billDate').innerText=admD.split('-').reverse().join('/');let d=parseInt(admD.split('-')[2]);let mo=parseInt(admD.split('-')[1]);document.getElementById('w26').innerText=d+'/'+mo;}let dis=document.getElementById('disDateTime').value;if(dis){let dt=new Date(dis);document.getElementById('b_dis').innerText=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+ (dt.getHours()%12||12)+':'+String(dt.getMinutes()).padStart(2,'0')+' '+(dt.getHours()>=12?'pm':'am');}let amt=parseFloat(document.getElementById('amt').value)||0;let s=amt.toFixed(2);document.getElementById('w28').innerText=s;document.getElementById('w31').innerText=s;document.getElementById('w32').innerText=s;document.getElementById('w14').innerText=s;document.getElementById('w15').innerText=s;document.getElementById('w18').innerText=s;document.getElementById('w19').innerText=s;document.getElementById('w21').innerText='Rs '+s;}
 let today=new Date().toISOString().split('T')[0];document.getElementById('admDateOnly').value=today;document.getElementById('admTimeOnly').value='11:17';document.getElementById('disDateTime').value=today+'T14:47';updateBillTime();renderBill();
-
 let pendingType = null;
 function toggleExport(){document.getElementById('exportMenu').classList.toggle('show');document.getElementById('moreMenu').classList.remove('show');}
 function toggleMore(){document.getElementById('moreMenu').classList.toggle('show');document.getElementById('exportMenu').classList.remove('show');}
