@@ -70,18 +70,17 @@ body{background:#f1f5f9;display:flex}
 .infoSection{padding:4px 12px;margin:0;border:none;border-bottom:1.2px solid #000;overflow:hidden}
 .infoTable{width:100%;border-collapse:collapse;line-height:1.35}
 .infoTable td{padding:1px 2px;vertical-align:top;white-space:nowrap;font-size:12.5px;overflow:hidden}
-.kv{display:flex;align-items:center;gap:4px;white-space:nowrap;cursor:ew-resize;position:relative;left:0;user-select:none;touch-action:none}
-.kv.dragging{cursor:grabbing;z-index:10;background:#fffde7;border:1px dashed #2563eb;border-radius:4px;padding:0 2px}
-.kv b{font-weight:700;white-space:nowrap}
-.kv span{white-space:nowrap}
+/* SAME STYLE FOR ALL WORDS - NOT MOVABLE */
+.kv{display:flex;align-items:center;gap:4px;white-space:nowrap;position:relative;left:0;user-select:text;font-weight:500}
+.kv b{font-weight:500;white-space:nowrap}
+.kv span{white-space:nowrap;font-weight:500}
 .contentArea{padding:8px 18px;flex:1;line-height:1.45}
 .line{margin-bottom:2px;white-space:pre-wrap;word-break:break-word}
-.editableOnly{background:#fffde7;border-bottom:1px dashed #2563eb;cursor:text;padding:0 1px;display:inline-block;font-weight:600;margin:0}
+.editableOnly{background:#fffde7;border-bottom:1px dashed #2563eb;cursor:text;padding:0 1px;display:inline-block;font-weight:500;margin:0}
 .editableOnly:focus{background:#fff3cd;outline:none}
-.autoLocked{background:#f5f5f5;border-bottom:1px dashed #888;font-weight:600;padding:0 1px}
+.autoLocked{background:#f5f5f5;border-bottom:1px dashed #888;font-weight:500;padding:0 1px}
 .footer{position:absolute;bottom:10px;right:14px;font-size:9px;color:#000}
 .exportClean .editableOnly,.exportClean .autoLocked{background:transparent!important;border:none!important;padding:0!important}
-.exportClean .kv{left:0!important;cursor:default!important;background:transparent!important;border:none!important}
 </style>
 <script>
 function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}
@@ -109,60 +108,6 @@ function changeVal(id, delta){
   el.value=v;
   updateVitals();
 }
-let dragEl=null, startX=0, startLeft=0;
-function initDrag(){
-  document.querySelectorAll('.kv.movable').forEach(el=>{
-    el.addEventListener('mousedown', startDrag);
-    el.addEventListener('touchstart', startDragTouch, {passive:false});
-  });
-}
-function startDrag(e){
-  if(e.target.closest('.editableOnly')) return;
-  dragEl=e.currentTarget;
-  dragEl.classList.add('dragging');
-  startX=e.clientX;
-  startLeft=parseInt(dragEl.style.left||0)||0;
-  document.addEventListener('mousemove', onDrag);
-  document.addEventListener('mouseup', endDrag);
-  e.preventDefault();
-}
-function startDragTouch(e){
-  if(e.target.closest('.editableOnly')) return;
-  dragEl=e.currentTarget;
-  dragEl.classList.add('dragging');
-  startX=e.touches[0].clientX;
-  startLeft=parseInt(dragEl.style.left||0)||0;
-  document.addEventListener('touchmove', onDragTouch, {passive:false});
-  document.addEventListener('touchend', endDrag);
-  e.preventDefault();
-}
-function onDrag(e){
-  if(!dragEl) return;
-  let dx=e.clientX-startX;
-  let newLeft=startLeft+dx;
-  if(newLeft<-80) newLeft=-80;
-  if(newLeft>120) newLeft=120;
-  dragEl.style.left=newLeft+'px';
-}
-function onDragTouch(e){
-  if(!dragEl) return;
-  let dx=e.touches[0].clientX-startX;
-  let newLeft=startLeft+dx;
-  if(newLeft<-80) newLeft=-80;
-  if(newLeft>120) newLeft=120;
-  dragEl.style.left=newLeft+'px';
-  e.preventDefault();
-}
-function endDrag(){
-  if(dragEl) dragEl.classList.remove('dragging');
-  dragEl=null;
-  document.removeEventListener('mousemove', onDrag);
-  document.removeEventListener('mouseup', endDrag);
-  document.removeEventListener('touchmove', onDragTouch);
-  document.removeEventListener('touchend', endDrag);
-}
-document.addEventListener('DOMContentLoaded', initDrag);
-setTimeout(initDrag, 800);
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -254,10 +199,10 @@ const app=initializeApp(cfg,"closer_"+Math.random());const db=getFirestore(app);
 <div class="letterheadPng"><img src="finalopo.png" alt="Shija" onerror="this.src='Letterhead.png'"></div>
 <div class="disTitle">Discharge Summary</div>
 <div class="infoSection"><table class="infoTable">
-<tr><td><div class="kv movable" style="left:0px"><b>IP No. :</b><span id="b_ip" class="editableOnly" contenteditable="true">185693</span></div></td><td><div class="kv movable" style="left:0px"><b>UHID NO :</b><span id="b_shri" class="editableOnly" contenteditable="true">SHRI.334269</span></div></td></tr>
-<tr><td><div class="kv movable" style="left:0px"><b>Patient Name :</b><span id="b_name" class="editableOnly" contenteditable="true">[Patient Name]</span></div></td><td><div class="kv movable" style="left:0px"><b>Age/Sex :</b><span id="b_age" class="editableOnly" contenteditable="true">71 Year(s) /Female</span></div></td></tr>
-<tr><td><div class="kv movable" style="left:0px"><b>Admission DateTime :</b><span id="b_adm" class="editableOnly" contenteditable="true">02/11/2026 03:20 PM</span></div></td><td><div class="kv movable" style="left:0px"><b>Doctor Name :</b><span>Dr. Guliver Potsangbam (Nephrology)</span></div></td></tr>
-<tr><td><div class="kv movable" style="left:0px"><b>Discharge DateTime :</b><span id="b_dis" class="autoLocked">02/11/2026</span></div></td><td></td></tr>
+<tr><td><div class="kv"><b>IP No. :</b><span id="b_ip" class="editableOnly" contenteditable="true">185693</span></div></td><td><div class="kv"><b>UHID NO :</b><span id="b_shri" class="editableOnly" contenteditable="true">SHRI.334269</span></div></td></tr>
+<tr><td><div class="kv"><b>Patient Name :</b><span id="b_name" class="editableOnly" contenteditable="true">[Patient Name]</span></div></td><td><div class="kv"><b>Age/Sex :</b><span id="b_age" class="editableOnly" contenteditable="true">71 Year(s) /Female</span></div></td></tr>
+<tr><td><div class="kv"><b>Admission DateTime :</b><span id="b_adm" class="editableOnly" contenteditable="true">02/11/2026 03:51 PM</span></div></td><td><div class="kv"><b>Doctor Name :</b><span>Dr. Guliver Potsangbam (Nephrology)</span></div></td></tr>
+<tr><td><div class="kv"><b>Discharge DateTime :</b><span id="b_dis" class="editableOnly" contenteditable="true">02/11/2026 07:51 PM</span></div></td><td></td></tr>
 </table></div>
 <div class="contentArea">
 <div class="line"><b>Diagnosis:</b> <span id="b_diagnosis">Chronic Kidney Disease on MHD</span></div>
@@ -307,7 +252,7 @@ function setSchemeFilter(s){
   document.getElementById('btnALL').classList.toggle('active', s==='all');
 }
 function doSearch(q){let l=document.getElementById('searchList');let c=getCombined();if(!q){let a=c.slice(0,20);lastFiltered=a;l.innerHTML=a.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:8px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:11px"><b style="color:#2563eb">${p.shri}</b> - ${p.name}</div>`).join('');l.style.display='block';return;}q=q.toLowerCase();let f=c.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,20);lastFiltered=f;l.innerHTML=f.length?f.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:8px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:11px"><b style="color:#2563eb">${p.shri}</b> - ${p.name.slice(0,35)}</div>`).join(''):'<div style="padding:8px;font-size:11px">No patient</div>';l.style.display='block';}
-function selectPatByIdx(i){let p=lastFiltered[i];if(!p)return;document.getElementById('shriId').value=p.shri;document.getElementById('b_shri').innerText=p.shri;document.getElementById('b_ip').innerText=p.ip||'185693';document.getElementById('ipInput').value=p.ip||'185693';document.getElementById('b_name').innerText=p.name;if(p.age) {document.getElementById('ageNum').value=parseInt(p.age)||71; if(p.sex){ document.getElementById('sexSelect').value=p.sex; } updateAgeSex();}document.getElementById('searchList').style.display='none';document.getElementById('searchInput').value=p.shri+' - '+p.name;autoDates(); setTimeout(initDrag,200);}
+function selectPatByIdx(i){let p=lastFiltered[i];if(!p)return;document.getElementById('shriId').value=p.shri;document.getElementById('b_shri').innerText=p.shri;document.getElementById('b_ip').innerText=p.ip||'185693';document.getElementById('ipInput').value=p.ip||'185693';document.getElementById('b_name').innerText=p.name;if(p.age) {document.getElementById('ageNum').value=parseInt(p.age)||71; if(p.sex){ document.getElementById('sexSelect').value=p.sex; } updateAgeSex();}document.getElementById('searchList').style.display='none';document.getElementById('searchInput').value=p.shri+' - '+p.name;autoDates();}
 function updateVitals(){
   document.getElementById('b_bpPre').innerText=document.getElementById('bpPre').value;
   document.getElementById('b_prPre').innerText=document.getElementById('prPre').value;
@@ -325,12 +270,21 @@ function updateVitals(){
   document.getElementById('b_ip').innerText=document.getElementById('ipInput').value;
 }
 function updateAgeSex(){ let age=document.getElementById('ageNum').value; let sex=document.getElementById('sexSelect').value; document.getElementById('b_age').innerText=age+' Year(s) /'+sex; }
-function autoDates(){let now=new Date();let dis=new Date(now.getTime()+4*3600000);function fmt(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+dt.getFullYear()+" "+String(dt.getHours()%12||12).padStart(2,'0')+":"+String(dt.getMinutes()).padStart(2,'0')+" "+(dt.getHours()>=12?'PM':'AM');}function fmtD(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+dt.getFullYear();}document.getElementById('b_adm').innerText=fmt(now);document.getElementById('b_dis').innerText=fmtD(dis);let next=new Date(now.getTime()+2*86400000);document.getElementById('b_advDate').innerText=String(next.getDate()).padStart(2,'0')+"/"+String(next.getMonth()+1).padStart(2,'0')+"/"+String(next.getFullYear()).slice(-2); document.getElementById('advDateInput').value=document.getElementById('b_advDate').innerText;}
+function autoDates(){
+  let now=new Date();
+  let dis=new Date(now.getTime()+4*3600000);
+  function fmt(dt){return String(dt.getDate()).padStart(2,'0')+"/"+String(dt.getMonth()+1).padStart(2,'0')+"/"+dt.getFullYear()+" "+String(dt.getHours()%12||12).padStart(2,'0')+":"+String(dt.getMinutes()).padStart(2,'0')+" "+(dt.getHours()>=12?'PM':'AM');}
+  document.getElementById('b_adm').innerText=fmt(now);
+  document.getElementById('b_dis').innerText=fmt(dis);
+  let next=new Date(now.getTime()+2*86400000);
+  document.getElementById('b_advDate').innerText=String(next.getDate()).padStart(2,'0')+"/"+String(next.getMonth()+1).padStart(2,'0')+"/"+String(next.getFullYear()).slice(-2);
+  document.getElementById('advDateInput').value=document.getElementById('b_advDate').innerText;
+}
 function getCleanClone(){let paper=document.getElementById('paper');let clone=paper.cloneNode(true);clone.classList.add('exportClean');clone.style.boxShadow='none';clone.style.width='210mm';clone.style.minHeight='297mm';clone.querySelectorAll('.editableOnly,.autoLocked').forEach(el=>{el.style.background='transparent';el.style.border='none';el.style.padding='0';el.style.margin='0';});let wrapper=document.createElement('div');wrapper.style.position='absolute';wrapper.style.left='-9999px';wrapper.style.top='0';wrapper.style.width='210mm';wrapper.style.minHeight='297mm';wrapper.style.background='#fff';wrapper.appendChild(clone);document.body.appendChild(wrapper);return {clone,wrapper};}
 async function exportJPEG(){let {clone,wrapper}=getCleanClone();let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false});document.body.removeChild(wrapper);let link=document.createElement('a');let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');link.download=name+'_SHIJA_A4.jpg';link.href=canvas.toDataURL('image/jpeg',0.95);link.click();}
 async function exportPDF(){let {clone,wrapper}=getCleanClone();let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false});document.body.removeChild(wrapper);let imgData=canvas.toDataURL('image/jpeg',0.95);const {jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');pdf.addImage(imgData,'JPEG',0,0,210,297);let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');pdf.save(name+'_SHIJA_A4.pdf');}
 function handlePrint(){let fmt=document.getElementById('formatSelect').value;if(fmt==='pdf') exportPDF(); else exportJPEG();}
-setTimeout(()=>{loadFirebaseAll();autoDates();initDrag();},600);
+setTimeout(()=>{loadFirebaseAll();autoDates();},600);
 document.addEventListener('click',e=>{if(!e.target.closest('.searchBox')) document.getElementById('searchList').style.display='none'});
 </script>
 </body>
