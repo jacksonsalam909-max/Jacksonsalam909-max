@@ -9,94 +9,18 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, serverTimestamp, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig = {
-  apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",
-  authDomain: "discharge-b9528.firebaseapp.com",
-  projectId: "discharge-b9528",
-  storageBucket: "discharge-b9528.firebasestorage.app",
-  messagingSenderId: "1076050472607",
-  appId: "1:1076050472607:web:736e0688a41462460efcaa",
-  measurementId: "G-RXBJ1FD2E4"
-};
+const firebaseConfig = { apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE", authDomain: "discharge-b9528.firebaseapp.com", projectId: "discharge-b9528", storageBucket: "discharge-b9528.firebasestorage.app", messagingSenderId: "1076050472607", appId: "1:1076050472607:web:736e0688a41462460efcaa", measurementId: "G-RXBJ1FD2E4" };
 const app = initializeApp(firebaseConfig,"billMainApp");
 const db = getFirestore(app);
 window.db = db;
 window.saveToSameStorage = async function(){
   const billNo = document.getElementById('billNo').value || "SHIC"+Date.now();
-  const payload = {
-    block: document.getElementById('bedNo').value,
-    name: document.getElementById('pName').value,
-    shriId: document.getElementById('uhid').value,
-    uhid: document.getElementById('uhid').value,
-    pmjayId: document.getElementById('schemeFilter').value,
-    date: document.getElementById('admDateOnly').value,
-    prevDate: document.getElementById('admDateOnly').value,
-    time: document.getElementById('admTimeOnly').value,
-    localTime: document.getElementById('billTimeShow').value,
-    billNo: billNo,
-    ipNo: document.getElementById('ipNo').value,
-    mobile: document.getElementById('mobile').value,
-    address: document.getElementById('address').value,
-    amount: document.getElementById('amt').value,
-    bedNo: document.getElementById('bedNo').value,
-    ageSex: document.getElementById('ageSex').value,
-    scheme: document.getElementById('schemeFilter').value,
-    createdAt: serverTimestamp(),
-    type: "BILL"
-  };
-  try{
-    document.getElementById('fbStatus').innerText="Saving...";
-    await setDoc(doc(db, "bills", billNo), payload);
-    document.getElementById('fbStatus').innerText="✓ Saved in bills/"+billNo;
-  }catch(e){ document.getElementById('fbStatus').innerText="Error: "+e.message; alert(e.message); }
+  const payload = { block: document.getElementById('bedNo').value, name: document.getElementById('pName').value, shriId: document.getElementById('uhid').value, uhid: document.getElementById('uhid').value, pmjayId: document.getElementById('schemeFilter').value, date: document.getElementById('admDateOnly').value, prevDate: document.getElementById('admDateOnly').value, time: document.getElementById('admTimeOnly').value, localTime: document.getElementById('billTimeShow').value, billNo: billNo, ipNo: document.getElementById('ipNo').value, mobile: document.getElementById('mobile').value, address: document.getElementById('address').value, amount: document.getElementById('amt').value, bedNo: document.getElementById('bedNo').value, ageSex: document.getElementById('ageSex').value, scheme: document.getElementById('schemeFilter').value, createdAt: serverTimestamp(), type: "BILL" };
+  try{ document.getElementById('fbStatus').innerText="Saving..."; await setDoc(doc(db, "bills", billNo), payload); document.getElementById('fbStatus').innerText="✓ Saved in bills/"+billNo; }catch(e){ document.getElementById('fbStatus').innerText="Error: "+e.message; alert(e.message); }
 }
 window.allPatients = [];
-async function loadMasterPatients(){
-  try{
-    const snap = await getDocs(collection(db,"patients"));
-    let fbPatients=[];
-    snap.forEach(d=>{
-      let p=d.data();
-      if(p.deleted) return;
-      fbPatients.push({
-        patientName: p.patientName || p.name || '',
-        shriId: p.shriId || p.shri || '',
-        pmjayId: p.pmjayId || p.PMJAY || p.pmjay || '',
-        contactNo: p.contactNo || p.contact || '',
-        address: p.address || p.addr || '',
-        scheme: 'PMJAY',
-        source: 'total.html'
-      });
-    });
-    const snap2 = await getDocs(collection(db,"cmht_patients"));
-    snap2.forEach(d=>{
-      let p=d.data();
-      if(p.deleted) return;
-      fbPatients.push({
-        patientName: p.patientName || p.name || '',
-        shriId: p.shriId || p.shri || '',
-        pmjayId: p.pmjayId || p.PMJAY || p.pmjay || '',
-        contactNo: p.contactNo || p.contact || '',
-        address: p.address || p.addr || '',
-        scheme: 'CMHT',
-        source: 'cmht.html'
-      });
-    });
-    let extra=[];
-    try{ extra=JSON.parse(localStorage.getItem('shija_patients')||'[]'); }catch(e){}
-    extra.forEach(p=>{ if(!p.scheme) p.scheme='PMJAY'; if(!p.source) p.source='total.html'; });
-    let seen=new Set();
-    let merged=[...fbPatients,...extra].filter(p=>{
-      let key=((p.shriId||'').toLowerCase()+'|'+(p.patientName||'').toLowerCase()).trim();
-      if(seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-    window.allPatients=merged;
-  }catch(e){ console.log(e); }
-}
-loadMasterPatients();
-window.loadMasterPatients=loadMasterPatients;
+async function loadMasterPatients(){ try{ const snap = await getDocs(collection(db,"patients")); let fbPatients=[]; snap.forEach(d=>{ let p=d.data(); if(p.deleted) return; fbPatients.push({ patientName: p.patientName || p.name || '', shriId: p.shriId || p.shri || '', pmjayId: p.pmjayId || p.PMJAY || p.pmjay || '', contactNo: p.contactNo || p.contact || '', address: p.address || p.addr || '', scheme: 'PMJAY', source: 'total.html' }); }); const snap2 = await getDocs(collection(db,"cmht_patients")); snap2.forEach(d=>{ let p=d.data(); if(p.deleted) return; fbPatients.push({ patientName: p.patientName || p.name || '', shriId: p.shriId || p.shri || '', pmjayId: p.pmjayId || p.PMJAY || p.pmjay || '', contactNo: p.contactNo || p.contact || '', address: p.address || p.addr || '', scheme: 'CMHT', source: 'cmht.html' }); }); let extra=[]; try{ extra=JSON.parse(localStorage.getItem('shija_patients')||'[]'); }catch(e){} extra.forEach(p=>{ if(!p.scheme) p.scheme='PMJAY'; if(!p.source) p.source='total.html'; }); let seen=new Set(); let merged=[...fbPatients,...extra].filter(p=>{ let key=((p.shriId||'').toLowerCase()+'|'+(p.patientName||'').toLowerCase()).trim(); if(seen.has(key)) return false; seen.add(key); return true; }); window.allPatients=merged; }catch(e){ console.log(e); } }
+loadMasterPatients(); window.loadMasterPatients=loadMasterPatients;
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
@@ -113,7 +37,6 @@ body{background:#f1f5f9;display:flex}
 .whiteBar.folded .sTitle{display:none}
 .whiteBar.folded .sHead{justify-content:center;padding:14px 0}
 .sMenu{flex:1;padding:8px 8px;overflow-y:auto}
-.sMenu::-webkit-scrollbar{width:0}
 .sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;transition:.2s}
 .sMenu a:hover{background:#1e293b;color:#fff}
 .sMenu a.active{background:#1e293b;color:#fff;font-weight:600}
@@ -124,7 +47,7 @@ body{background:#f1f5f9;display:flex}
 .ml{overflow:hidden;text-overflow:ellipsis}
 .whiteBar.folded .ml{display:none}
 .whiteBar.folded .sMenu a{justify-content:center;padding:12px 0}
-.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;overflow:hidden;white-space:nowrap}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b}
 .whiteBar.folded .sFoot{display:none}
 .top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20;gap:12px}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;white-space:nowrap}
@@ -158,19 +81,7 @@ body{background:#f1f5f9;display:flex}
 .letterhead img{width:100%;height:auto;display:block}
 .infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px;font-size:13.5px;margin:0;padding:8px 12px;line-height:1.4;font-weight:500;color:#000;box-sizing:border-box}
 .infoGrid b{font-weight:700}
-/* EDITABLE + MOVABLE - TRANSPARENT NO WHITE BG */
-.word{
-  display:inline-block;
-  padding:1px 4px;
-  cursor:grab;
-  touch-action:none;
-  line-height:1.2;
-  white-space:nowrap;
-  background:transparent !important;
-  border:1px dashed transparent !important;
-  border-radius:4px;
-  min-width:20px;
-}
+.word{display:inline-block;padding:1px 4px;cursor:grab;touch-action:none;line-height:1.2;white-space:nowrap;background:transparent !important;border:1px dashed transparent !important;border-radius:4px;min-width:20px}
 .word:hover{border-color:#60a5fa !important;background:#eff6ff !important}
 .word:focus{border-color:#2563eb !important;background:#fff !important;outline:none;box-shadow:0 0 0 2px #dbeafe}
 .word:active{cursor:grabbing}
@@ -182,14 +93,7 @@ body{background:#f1f5f9;display:flex}
 .exactTable tr.sub td{border-top:1.5px solid #000;padding:6px 4px;text-align:right}
 .exactTable tr.grand td{border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:6px 4px;text-align:right}
 .exactTable.gross td{border:none;padding:8px 4px;text-align:right}
-@media print{
-  @page{size:A4;margin:6mm}
-  html,body{background:#fff!important;margin:0!important;padding:0!important}
-  .noPrint{display:none!important}
-  .content{padding:0!important;margin:0!important;max-width:100%!important}
-  .billPaper{width:100%!important;padding:0!important;box-shadow:none!important;border:none!important}
-  .word{border:none!important;background:transparent!important;box-shadow:none!important}
-}
+@media print{@page{size:A4;margin:6mm}html,body{background:#fff!important;margin:0!important;padding:0!important}.noPrint{display:none!important}.content{padding:0!important;margin:0!important;max-width:100%!important}.billPaper{width:100%!important;padding:0!important;box-shadow:none!important;border:none!important}.word{border:none!important;background:transparent!important;box-shadow:none!important}}
 </style>
 </head>
 <body>
@@ -289,8 +193,6 @@ function toggleExport(){document.getElementById('exportMenu').classList.toggle('
 function toggleInputCard(){ let card=document.getElementById('inputCard'); let btn=document.getElementById('detailsBtn'); card.classList.toggle('hidden'); btn.innerText=card.classList.contains('hidden')?'▼ Details':'▲ Hide Details'; }
 function setScheme(scheme){ document.getElementById('schemeFilter').value=scheme; document.getElementById('payerShow').value=scheme; document.getElementById('btnPMJAY').classList.toggle('active', scheme==='PMJAY'); document.getElementById('btnCMHT').classList.toggle('active', scheme==='CMHT'); let itemInput=document.getElementById('itemNameInput'); if(scheme==='CMHT'){ itemInput.value='Haemodialysis Subsequent Visit CMHT'; }else{ itemInput.value='Haemodialysis Subsequent Visit PMJAY'; } document.getElementById('w26').innerText=itemInput.value; document.getElementById('w12').innerText=scheme; document.getElementById('patientSearch').value=''; document.getElementById('suggest').classList.remove('show'); updateBillFromInputs(); }
 document.addEventListener('DOMContentLoaded',function(){ document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();}); document.addEventListener('click',function(e){ if(!e.target.closest('.exportWrap')){ let m1=document.getElementById('exportMenu'); if(m1) m1.classList.remove('show'); } }); });
-
-// EDITABLE + MOVABLE - NO WHITE BG
 let cfg = JSON.parse(localStorage.getItem('shija_bill_positions')||'{}');
 function applyDrag(){ document.querySelectorAll('.word').forEach(el=>{ let id=el.id; if(cfg[id]!==undefined){ el.style.transform='translateX('+cfg[id]+'px)'; } }); }
 function resetPositions(){ cfg={}; localStorage.removeItem('shija_bill_positions'); document.querySelectorAll('.word').forEach(el=>{ el.style.transform='translateX(0px)'; }); }
@@ -312,10 +214,7 @@ document.querySelectorAll('.word').forEach(el=>{
   });
   el.addEventListener('pointerup', e=>{
     if(dragId){
-      if(isDragging){
-        localStorage.setItem('shija_bill_positions', JSON.stringify(cfg));
-        e.preventDefault();
-      }
+      if(isDragging){ localStorage.setItem('shija_bill_positions', JSON.stringify(cfg)); e.preventDefault(); }
       document.querySelectorAll('.word.dragging').forEach(s=>s.classList.remove('dragging'));
       dragId=null; isDragging=false;
     }
@@ -323,7 +222,6 @@ document.querySelectorAll('.word').forEach(el=>{
   el.addEventListener('pointercancel', e=>{ dragId=null; isDragging=false; });
 });
 applyDrag();
-
 let allPatients=[];
 function loadPatients(){ if(window.allPatients && window.allPatients.length){ allPatients=[...window.allPatients]; return; } let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]'); allPatients=[...extra]; }
 loadPatients();
@@ -334,7 +232,16 @@ function showPatientSuggest(q){
   let f=allPatients.filter(p=>{ let matchScheme = (p.scheme||'PMJAY')===currentScheme; let matchName = (p.patientName||'').toLowerCase().includes(q) || (p.shriId||'').toLowerCase().includes(q); return matchScheme && matchName; }).slice(0,20);
   if(f.length===0){ box.innerHTML='<div style="padding:12px;color:#64748b">No '+currentScheme+' patient found</div>'; }else{ box.innerHTML=f.map(p=>`<div onclick="pickPatient(${allPatients.indexOf(p)})"><b>${p.patientName}</b> - ${p.shriId} <small style="background:#0f172a;color:#fff;padding:2px 6px;border-radius:10px;margin-left:6px">${p.scheme}</small></div>`).join(''); } box.classList.add('show');
 }
-function pickPatient(i){ let p=allPatients[i]; document.getElementById('pName').value='Mr. '+p.patientName.toUpperCase(); document.getElementById('mobile').value=p.contactNo; document.getElementById('address').value=(p.address||'').toUpperCase(); document.getElementById('uhid').value='SHRI.'+p.shriId.replace(/SHRI\.?/i,''); setScheme(p.scheme||'PMJAY'); document.getElementById('suggest').classList.remove('show'); updateBillFromInputs(); let card=document.getElementById('inputCard'); if(card.classList.contains('hidden')){ toggleInputCard(); } }
+function pickPatient(i){
+  let p=allPatients[i];
+  document.getElementById('pName').value='Mr. '+p.patientName.toUpperCase();
+  document.getElementById('mobile').value=p.contactNo;
+  document.getElementById('address').value=(p.address||'').toUpperCase();
+  document.getElementById('uhid').value='SHRI.'+p.shriId.replace(/SHRI\.?/i,'');
+  setScheme(p.scheme||'PMJAY');
+  document.getElementById('suggest').classList.remove('show');
+  updateBillFromInputs();
+}
 function updateAdmissionLogic(){ let d=document.getElementById('admDateOnly').value; let t=document.getElementById('admTimeOnly').value; if(!d||!t) return; document.getElementById('billDateShow').value=d.split('-').reverse().join('/'); document.getElementById('w8').innerText=d.split('-').reverse().join('/'); let admFormatted=formatDateTime(d,t); document.getElementById('w4').innerText=admFormatted; let dd=d.split('-')[2]; let mm=d.split('-')[1]; document.getElementById('w27').innerText=dd+'/'+mm; let [y,m,day]=d.split('-').map(Number); let [h,mi]=t.split(':').map(Number); let dt=new Date(y,m-1,day,h,mi); dt.setHours(dt.getHours()+4); let disStr=dt.toISOString().slice(0,16); document.getElementById('disDateTime').value=disStr; let disFormatted=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+ (dt.getHours()%12||12)+':'+String(dt.getMinutes()).padStart(2,'0')+' '+(dt.getHours()>=12?'pm':'am'); document.getElementById('w9').innerText=disFormatted; }
 function updateBillFromInputs(){ document.getElementById('w1').innerText=document.getElementById('ipNo').value; document.getElementById('w2').innerText=document.getElementById('uhid').value; document.getElementById('w3').innerText=document.getElementById('pName').value; document.getElementById('w5').innerText=document.getElementById('ageSex').value; document.getElementById('w7').innerText=document.getElementById('bedNo').value; document.getElementById('w10').innerText=document.getElementById('mobile').value; document.getElementById('w11').innerText=document.getElementById('address').value; document.getElementById('w6').innerText=document.getElementById('billNo').value; document.getElementById('w12').innerText=document.getElementById('schemeFilter').value; document.getElementById('w26').innerText=document.getElementById('itemNameInput').value; let dis=document.getElementById('disDateTime').value; if(dis){ let dt=new Date(dis); document.getElementById('w9').innerText=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+ (dt.getHours()%12||12)+':'+String(dt.getMinutes()).padStart(2,'0')+' '+(dt.getHours()>=12?'pm':'am'); } }
 function formatDateTime(ds,ts){if(!ds)return '';let [y,m,d]=ds.split('-');let dp=d+'/'+m+'/'+y;if(!ts)return dp;let [h,mm]=ts.split(':').map(Number);let ap=h>=12?'pm':'am';let h12=h%12||12;return dp+' '+h12+':'+String(mm).padStart(2,'0')+' '+ap;}
