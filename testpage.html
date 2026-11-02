@@ -58,12 +58,15 @@ body{background:#f1f5f9;display:flex}
 .filterRow{display:flex;gap:8px;align-items:center;background:#f0f9ff;padding:12px;border-radius:14px;border:1.5px dashed #60a5fa;margin-bottom:12px;flex-wrap:wrap}
 .filterBtn{padding:8px 16px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;font-weight:800;font-size:12px;cursor:pointer}
 .filterBtn.active{background:#0f172a;color:#fff;border-color:#0f172a}
+.numWrap{display:flex;align-items:center;gap:4px;background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:12px;padding:2px}
+.numWrap input{border:none!important;background:transparent!important;text-align:center;flex:1;padding:9px 2px!important}
+.arrowBtn{width:28px;height:28px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-weight:900;font-size:14px;cursor:pointer;display:grid;place-items:center;line-height:1}
+.arrowBtn:active{background:#0f172a;color:#fff}
 .previewWrap{background:#e2e8f0;border-radius:12px;padding:16px;border:1px solid #cbd5e1;width:100%;overflow:auto}
-/* ONLY BORDER SPACE INCREASED - NO CHANGE IN WORD SPACING */
 .paper{background:#fff;color:#000;border:1.2px solid #000;width:210mm;min-height:297mm;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;padding:12px;margin:0 auto;display:flex;flex-direction:column;position:relative;font-size:13.5px}
-.letterheadPng{width:100%;display:block;line-height:0;margin:0!important;padding:0 0 2px 0!important;border:none;font-size:0;overflow:hidden;background:#fff}
-.letterheadPng img{width:100%;height:auto;display:block;margin:0!important;padding:0!important;border:none;vertical-align:bottom}
-.disTitle{width:96%;margin:2px auto 4px auto!important;border:1.8px solid #000;text-align:center;font-weight:800;font-size:15px;padding:5px 0;background:#fff;line-height:1.2}
+.letterheadPng{width:100%;display:block;line-height:0;margin:0!important;padding:0!important;border:none;font-size:0;overflow:hidden;background:#fff}
+.letterheadPng img{width:100%;height:auto;display:block;margin:0 0 -10px 0!important;padding:0!important;border:none;vertical-align:top}
+.disTitle{width:96%;margin:0 auto 4px auto!important;border:1.8px solid #000;text-align:center;font-weight:800;font-size:15px;padding:5px 0;background:#fff;line-height:1.2}
 .infoSection{padding:4px 12px;margin:0;border:none;border-bottom:1.2px solid #000;overflow:hidden}
 .infoTable{width:100%;border-collapse:collapse;line-height:1.35}
 .infoTable td{padding:1px 2px;vertical-align:top;white-space:nowrap;font-size:12.5px;overflow:hidden}
@@ -95,6 +98,16 @@ function changeFontSize(type){
   document.querySelectorAll('.disTitle').forEach(el=> el.style.fontSize=(currentFontSize+1.5)+'px');
   document.querySelectorAll('.fontBtn').forEach(b=>b.classList.remove('active'));
   document.getElementById(type==='dec'?'fontDec':type==='inc'?'fontInc':'fontNormal').classList.add('active');
+}
+function changeVal(id, delta){
+  let el=document.getElementById(id);
+  let v=parseInt(el.value)||0;
+  v+=delta;
+  if(id.includes('spo2')){ if(v<0) v=0; if(v>100) v=100; }
+  if(id.includes('pr')){ if(v<0) v=0; if(v>200) v=200; }
+  if(id.includes('temp')){ if(v<90) v=90; if(v>110) v=110; }
+  el.value=v;
+  updateVitals();
 }
 let dragEl=null, startX=0, startLeft=0;
 function initDrag(){
@@ -213,15 +226,15 @@ const app=initializeApp(cfg,"closer_"+Math.random());const db=getFirestore(app);
 </div>
 <div class="row">
 <div class="col"><span class="label">BP - Pre Dialysis</span><input id="bpPre" value="150/70" oninput="updateVitals()"></div>
-<div class="col"><span class="label">PR - Pre (bpm)</span><input id="prPre" value="86" oninput="updateVitals()"></div>
-<div class="col"><span class="label">SPO2 - Pre (%)</span><input id="spo2Pre" value="99" oninput="updateVitals()"></div>
-<div class="col"><span class="label">TEMP - Pre (F)</span><input id="tempPre" value="98" oninput="updateVitals()"></div>
+<div class="col"><span class="label">PR - Pre (bpm) ▲▼</span><div class="numWrap"><button class="arrowBtn" onclick="changeVal('prPre',-1)">▼</button><input id="prPre" value="86" oninput="updateVitals()"><button class="arrowBtn" onclick="changeVal('prPre',1)">▲</button></div></div>
+<div class="col"><span class="label">SPO2 - Pre (%) ▲▼</span><div class="numWrap"><button class="arrowBtn" onclick="changeVal('spo2Pre',-1)">▼</button><input id="spo2Pre" value="99" oninput="updateVitals()"><button class="arrowBtn" onclick="changeVal('spo2Pre',1)">▲</button></div></div>
+<div class="col"><span class="label">TEMP - Pre (F) ▲▼</span><div class="numWrap"><button class="arrowBtn" onclick="changeVal('tempPre',-1)">▼</button><input id="tempPre" value="98" oninput="updateVitals()"><button class="arrowBtn" onclick="changeVal('tempPre',1)">▲</button></div></div>
 </div>
 <div class="row">
 <div class="col"><span class="label">BP - Post Dialysis</span><input id="bpPost" value="160/80" oninput="updateVitals()"></div>
-<div class="col"><span class="label">PR - Post (bpm)</span><input id="prPost" value="84" oninput="updateVitals()"></div>
-<div class="col"><span class="label">SPO2 - Post (%)</span><input id="spo2Post" value="99" oninput="updateVitals()"></div>
-<div class="col"><span class="label">TEMP - Post (F)</span><input id="tempPost" value="98" oninput="updateVitals()"></div>
+<div class="col"><span class="label">PR - Post (bpm) ▲▼</span><div class="numWrap"><button class="arrowBtn" onclick="changeVal('prPost',-1)">▼</button><input id="prPost" value="84" oninput="updateVitals()"><button class="arrowBtn" onclick="changeVal('prPost',1)">▲</button></div></div>
+<div class="col"><span class="label">SPO2 - Post (%) ▲▼</span><div class="numWrap"><button class="arrowBtn" onclick="changeVal('spo2Post',-1)">▼</button><input id="spo2Post" value="99" oninput="updateVitals()"><button class="arrowBtn" onclick="changeVal('spo2Post',1)">▲</button></div></div>
+<div class="col"><span class="label">TEMP - Post (F) ▲▼</span><div class="numWrap"><button class="arrowBtn" onclick="changeVal('tempPost',-1)">▼</button><input id="tempPost" value="98" oninput="updateVitals()"><button class="arrowBtn" onclick="changeVal('tempPost',1)">▲</button></div></div>
 </div>
 <div class="row">
 <div class="col"><span class="label">Age</span><input id="ageNum" value="71" oninput="updateAgeSex()"></div>
