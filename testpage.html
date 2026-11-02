@@ -15,7 +15,8 @@ body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
 .hWrap{flex:1;min-width:0}.hTitle{font-size:12px;font-weight:900;white-space:nowrap}.hSub{font-size:9px;opacity:0.8;white-space:nowrap}
 .topTypeBox{background:#fff;border-radius:10px;height:36px;display:flex;align-items:center;padding:0 10px;min-width:90px}
 .topTypeBox select{border:0;width:100%;font-weight:800;font-size:13px;outline:none;background:transparent;color:#0B1F4A;height:34px}
-.app{padding-top:56px;display:flex;flex-direction:column;flex:1;width:100%}
+.app{padding-top:56px;display:flex;flex-direction:column;flex:1;width:100%;margin-left:72px;transition:margin-left .3s}
+.app.full{margin-left:0}
 .headerDark{background:#0B1F4A;padding:0 12px 10px}
 .rowTop{display:flex;gap:8px;margin-top:8px}
 .dateBox{flex:1;border-radius:10px;height:42px;display:flex;align-items:center;padding:0 12px;background:#fff;min-width:0}
@@ -64,19 +65,26 @@ body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
 .tab .ic{width:24px;height:24px;border-radius:8px;background:#e8eefb;display:flex;align-items:center;justify-content:center;font-size:13px}
 .tab.active{color:#0B1F4A}.tab.active .ic{background:#0B1F4A;color:#fff}
 .pagesBottom{padding:20px 0 70px}
-/* MENU LIKE INDEX.HTML - DEFAULT FOLDED IN */
+/* ICON BAR VISIBLE WHEN FOLDED */
 .overlay{position:fixed;inset:0;background:rgba(11,31,74,0.55);z-index:9998;display:none}.overlay.show{display:block}
-.drawer{position:fixed;left:0;top:0;bottom:0;width:85%;max-width:300px;background:#fff;z-index:9999;transform:translateX(-100%);transition:.3s;pointer-events:none;display:flex;flex-direction:column}.drawer.open{transform:translateX(0);pointer-events:auto}
-.drawerTop{background:#0B1F4A;padding:16px;color:#fff;flex-shrink:0}
+.drawer{position:fixed;left:0;top:0;bottom:0;width:300px;background:#fff;z-index:9999;transform:translateX(-100%);transition:transform .32s,width .32s;pointer-events:none;display:flex;flex-direction:column}
+.drawer.open{transform:translateX(0);pointer-events:auto}
+.drawer.folded{transform:translateX(0);width:72px;pointer-events:auto}
+.drawer.folded .menuText{display:none}
+.drawer.folded .drawerTop b,.drawer.folded .drawerTop .subTxt,.drawer.folded #drawerCount{display:none}
+.drawer.folded .menuItem{justify-content:center;padding:14px 0}
+.drawer.folded .sFoot{display:none}
+.drawerTop{background:#0B1F4A;padding:16px;color:#fff;flex-shrink:0;overflow:hidden}
 .menuList{padding:8px 0;flex:1;overflow-y:auto}
-.menuItem{padding:14px 16px;font-size:12px;font-weight:700;color:#334155;border-left:3px solid transparent;cursor:pointer;min-height:44px;display:flex;align-items:center;gap:10px}
+.menuList::-webkit-scrollbar{width:0}
+.menuItem{padding:14px 16px;font-size:12px;font-weight:700;color:#334155;border-left:3px solid transparent;cursor:pointer;min-height:44px;display:flex;align-items:center;gap:10px;white-space:nowrap;overflow:hidden}
 .menuItem:hover{background:#f1f5f9}
 .menuItem.active{background:#e8eefb;color:#0B1F4A;border-left-color:#0B1F4A;font-weight:900}
-.mi{width:28px;min-width:28px;height:28px;display:grid;place-items:center;background:#f1f5f9;border-radius:7px;flex-shrink:0}
-.mi svg{width:14px;height:14px;stroke:#64748b;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.mi{width:32px;min-width:32px;height:32px;display:grid;place-items:center;background:#f1f5f9;border-radius:8px;flex-shrink:0}
+.mi svg{width:16px;height:16px;stroke:#64748b;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .menuItem.active .mi{background:#0B1F4A}
 .menuItem.active .mi svg{stroke:#fff}
-.sFoot{padding:10px;border-top:1px solid #e2e8f0;font-size:9px;color:#64748b;text-align:center;flex-shrink:0}
+.sFoot{padding:10px;border-top:1px solid #e2e8f0;font-size:9px;color:#64748b;text-align:center;flex-shrink:0;white-space:nowrap;overflow:hidden}
 #confirmModal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(11,31,74,0.55)}.confirmBox{background:#fff;width:86%;max-width:320px;border-radius:16px;padding:20px 16px;text-align:center}
 .confirmTitle{font-size:16px;font-weight:900;color:#0B1F4A;margin-bottom:6px}.confirmSub{font-size:12px;font-weight:600;color:#6f84a8;margin-bottom:16px}
 .confirmBtns{display:flex;gap:8px}.btnNoSure{flex:1;height:40px;border-radius:10px;border:1.5px solid #d0d9ea;background:#f4f7fd;color:#4a5f85;font-weight:800;font-size:12px}.btnSure{flex:1;height:40px;border-radius:10px;border:0;background:#0B1F4A;color:#fff;font-weight:800;font-size:12px}
@@ -84,41 +92,42 @@ body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
 .toast.show{display:block}
 .swipeHint{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:#0B1F4A;color:#fff;padding:6px 12px;border-radius:100px;font-size:10px;font-weight:800;z-index:80;opacity:0;pointer-events:none;transition:.3s}
 .swipeHint.show{opacity:1}
+@media(max-width:700px){.app{margin-left:0}.drawer.folded{transform:translateX(-100%);width:300px}}
 </style>
 </head>
 <body>
 <div class="overlay" id="overlay"></div>
-<div class="drawer" id="drawer">
-<div class="drawerTop"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b><div style="font-size:9px;opacity:0.8">DIALYSIS MANAGEMENT</div></div><button id="closeDrawerBtn" style="width:36px;height:36px;border-radius:8px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:18px;font-weight:900">✕</button></div><div style="margin-top:10px;display:flex;gap:6px"><div style="background:rgba(255,255,255,0.18);padding:5px 10px;border-radius:100px;font-size:10px">● ONLINE</div><div style="background:#fff;color:#0B1F4A;padding:5px 10px;border-radius:100px;font-size:10px;font-weight:800" id="drawerCount">0</div></div></div>
+<div class="drawer folded" id="drawer">
+<div class="drawerTop"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA</b><div class="subTxt" style="font-size:9px;opacity:0.8">DIALYSIS MANAGEMENT</div></div><button id="closeDrawerBtn" style="width:36px;height:36px;border-radius:8px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:18px;font-weight:900">✕</button></div><div style="margin-top:10px;display:flex;gap:6px"><div class="subTxt" style="background:rgba(255,255,255,0.18);padding:5px 10px;border-radius:100px;font-size:10px">● ONLINE</div><div style="background:#fff;color:#0B1F4A;padding:5px 10px;border-radius:100px;font-size:10px;font-weight:800" id="drawerCount">0</div></div></div>
 <div class="menuList">
-<div class="menuItem" data-url="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span> HOME</div>
-<div class="menuItem" data-url="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span> TOTAL PMJAY PATIENT</div>
-<div class="menuItem" data-url="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span> CMHT TOTAL PATIENT</div>
-<div class="menuItem" data-url="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span> CLAIM</div>
-<div class="menuItem" data-url="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span> SEARCH PATIENT</div>
-<div class="menuItem active" data-url="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></span> OFFICE ASSISTANT</div>
-<div class="menuItem" data-url="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span> CMHT KFT REPORT</div>
-<div class="menuItem" data-url="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span> CMHT DAILY DIALYSIS</div>
-<div class="menuItem" data-url="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span> CMHT ADD PATIENT</div>
-<div class="menuItem" data-url="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span> DAILY DIALYSIS LIST</div>
-<div class="menuItem" data-url="addlist.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span> ADD LIST</div>
-<div class="menuItem" data-url="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span> DISCHARGE PATIENT</div>
-<div class="menuItem" data-url="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span> KFT REPORT</div>
-<div class="menuItem" data-url="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span> ADD PATIENT FOR PMJAY</div>
-<div class="menuItem" data-url="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span> BILL</div>
-<div class="menuItem" data-url="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span> DISCHARGE SUMMARY</div>
+<div class="menuItem" data-url="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="menuText"> HOME</span></div>
+<div class="menuItem" data-url="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="menuText"> TOTAL PMJAY PATIENT</span></div>
+<div class="menuItem" data-url="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="menuText"> CMHT TOTAL PATIENT</span></div>
+<div class="menuItem" data-url="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="menuText"> CLAIM</span></div>
+<div class="menuItem" data-url="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="menuText"> SEARCH PATIENT</span></div>
+<div class="menuItem active" data-url="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></span><span class="menuText"> OFFICE ASSISTANT</span></div>
+<div class="menuItem" data-url="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="menuText"> CMHT KFT REPORT</span></div>
+<div class="menuItem" data-url="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="menuText"> CMHT DAILY DIALYSIS</span></div>
+<div class="menuItem" data-url="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="menuText"> CMHT ADD PATIENT</span></div>
+<div class="menuItem" data-url="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="menuText"> DAILY DIALYSIS LIST</span></div>
+<div class="menuItem" data-url="addlist.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span><span class="menuText"> ADD LIST</span></div>
+<div class="menuItem" data-url="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span><span class="menuText"> DISCHARGE PATIENT</span></div>
+<div class="menuItem" data-url="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="menuText"> KFT REPORT</span></div>
+<div class="menuItem" data-url="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="menuText"> ADD PATIENT FOR PMJAY</span></div>
+<div class="menuItem" data-url="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span><span class="menuText"> BILL</span></div>
+<div class="menuItem" data-url="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="menuText"> DISCHARGE SUMMARY</span></div>
 </div>
-<div class="sFoot">System Online • SHIJA</div>
+<div class="sFoot">SHIJA</div>
 </div>
 <div id="confirmModal"><div class="confirmBox"><div class="confirmTitle" id="confirmTitle">Are you sure?</div><div class="confirmSub" id="confirmSub">Complete this?</div><div class="confirmBtns"><button class="btnNoSure" id="btnNotSure">NOT SURE</button><button class="btnSure" id="btnSure">SURE</button></div></div></div>
 <div class="swipeHint" id="swipeHint">Swipe ← → to change page</div>
 <div class="toast" id="toast">Moved to Done ✓</div>
 <div class="top"><button class="menuBtn" id="menuBtn">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS - OFFICE ASSISTANT</div><div class="hSub">DIALYSIS MANAGEMENT</div></div><div class="topTypeBox"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div>
-<div class="app">
+<div class="app" id="appWrap">
 <div class="headerDark"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:130px"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div></div><div class="count"><span id="cLeft">Loading...</span><span id="cRight">PENDING 0</span></div></div>
 <div class="filter"><div class="chipsWrap"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div><button id="toggleViewBtn" class="viewIconSingle"></button></div>
 <div class="searchBar"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
-<div class="searchMeta"><span id="searchInfo"></span><span>OPD + PHOTO - RED to GREEN</span></div>
+<div class="searchMeta"><span id="searchInfo"></span><span>OPD + PHOTO</span></div>
 <div class="scroll" id="scroll"><div class="grid" id="grid"></div><div class="pagesBottom"></div></div>
 <div class="bottom"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:100px;font-size:10px;font-weight:800">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
 </div>
@@ -126,15 +135,15 @@ body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
 const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
 (function(){
-  const drawer=document.getElementById('drawer'),overlay=document.getElementById('overlay'),menuBtn=document.getElementById('menuBtn'),closeBtn=document.getElementById('closeDrawerBtn');
-  function openMenu(e){if(e){e.preventDefault();e.stopPropagation();}drawer.classList.add('open');overlay.classList.add('show');document.body.style.overflow='hidden';}
-  function closeMenu(e){if(e){e.preventDefault();e.stopPropagation();}drawer.classList.remove('open');overlay.classList.remove('show');document.body.style.overflow='';}
+  const drawer=document.getElementById('drawer'),overlay=document.getElementById('overlay'),menuBtn=document.getElementById('menuBtn'),closeBtn=document.getElementById('closeDrawerBtn'),app=document.getElementById('appWrap');
+  function openMenu(e){if(e){e.preventDefault();e.stopPropagation();}drawer.classList.remove('folded');drawer.classList.add('open');overlay.classList.add('show');document.body.style.overflow='hidden';if(window.innerWidth>700) app.style.marginLeft='300px';}
+  function closeMenu(e){if(e){e.preventDefault();e.stopPropagation();}drawer.classList.remove('open');drawer.classList.add('folded');overlay.classList.remove('show');document.body.style.overflow='';if(window.innerWidth>700) app.style.marginLeft='72px';else app.style.marginLeft='0';}
+  function toggleMenu(e){if(drawer.classList.contains('folded')) openMenu(e); else closeMenu(e);}
   function bindUniversal(el,fn){if(!el)return;el.addEventListener('click',fn);el.addEventListener('touchend',ev=>{ev.preventDefault();fn(ev);},{passive:false});}
-  bindUniversal(menuBtn,openMenu);bindUniversal(closeBtn,closeMenu);bindUniversal(overlay,closeMenu);
+  bindUniversal(menuBtn,toggleMenu);bindUniversal(closeBtn,closeMenu);bindUniversal(overlay,closeMenu);
   document.querySelectorAll('.menuItem').forEach(item=>{bindUniversal(item,()=>{let url=item.getAttribute('data-url');closeMenu();setTimeout(()=>{if(url)location.href=url;},200);});});
-  // MENU DEFAULT FOLDED IN (CLOSED) - LIKE INDEX.HTML
-  drawer.classList.remove('open');
-  overlay.classList.remove('show');
+  // DEFAULT FOLDED IN WITH ICONS VISIBLE
+  closeMenu();
 })();
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 document.getElementById('fDate').value=new URLSearchParams(location.search).get('date')||getTodayIST();
@@ -155,11 +164,11 @@ function showConfirm(sh,type){
   let isDone = type==='photo' ? st.photoTaken : st.opdDone;
   let typeTxt = type==='photo' ? 'PHOTO' : 'OPD';
   if(isDone){
-    document.getElementById('confirmTitle').innerText = 'Undo '+typeTxt+'?';
-    document.getElementById('confirmSub').innerText = `Are you sure to turn ${typeTxt} back to RED for ${p ? p.name : sh}?`;
+    document.getElementById('confirmTitle').innerText = typeTxt+' COMPLETE - Are you sure?';
+    document.getElementById('confirmSub').innerText = `SURE = stay GREEN COMPLETE, NOT SURE = turn back to RED ${typeTxt} for ${p ? p.name : sh}`;
   }else{
     document.getElementById('confirmTitle').innerText = typeTxt+' - Are you sure?';
-    document.getElementById('confirmSub').innerText = p ? `Mark ${typeTxt} as done for ${p.name} (${sh})?` : `Mark ${typeTxt} for ${sh}?`;
+    document.getElementById('confirmSub').innerText = p ? `Mark ${typeTxt} as done for ${p.name} (${sh})? SURE = GREEN, NOT SURE = RED` : `Mark ${typeTxt} for ${sh}?`;
   }
   document.getElementById('confirmModal').style.display='flex';
 }
@@ -170,20 +179,29 @@ async function confirmSure(){
   try{
     if(!statusMap[pendingShri]) statusMap[pendingShri]={photoTaken:false,opdDone:false};
     let st = statusMap[pendingShri];
-    // TOGGLE: if already done -> turn back to RED, else turn GREEN
-    if(pendingType==='photo'){
-      st.photoTaken = !st.photoTaken;
-    }else{
-      st.opdDone = !st.opdDone;
+    let isDone = pendingType==='photo' ? st.photoTaken : st.opdDone;
+    if(!isDone){
+      if(pendingType==='photo') st.photoTaken=true; else st.opdDone=true;
     }
-    await saveStatus();
-    hideConfirm();
-    render();
-    if(st.photoTaken && st.opdDone){
-      let toast=document.getElementById('toast');toast.innerText='Moved to Done ✓';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1500);
-    }
+    await saveStatus();hideConfirm();render();
+    if(st.photoTaken && st.opdDone){let toast=document.getElementById('toast');toast.innerText='Moved to Done ✓';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1500);}
   }catch(e){alert('Error: '+(e.message||e));}
   finally{btn.innerText='SURE';btn.disabled=false;}
+}
+async function confirmNotSure(){
+  if(!pendingShri || !pendingType) return;
+  let btn=document.getElementById('btnNotSure');btn.innerText='...';btn.disabled=true;
+  try{
+    if(!statusMap[pendingShri]) statusMap[pendingShri]={photoTaken:false,opdDone:false};
+    let st = statusMap[pendingShri];
+    let isDone = pendingType==='photo' ? st.photoTaken : st.opdDone;
+    if(isDone){
+      if(pendingType==='photo') st.photoTaken=false; else st.opdDone=false;
+      await saveStatus();
+    }
+    hideConfirm();render();
+  }catch(e){alert('Error: '+(e.message||e));}
+  finally{btn.innerText='NOT SURE';btn.disabled=false;}
 }
 function getInit(n){return(n||'A').charAt(0).toUpperCase();}
 function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#7C3AED)','linear-gradient(135deg,#3B82F6,#0EA5E9)','linear-gradient(135deg,#22C55E,#10B981)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#06B6D4,#3B82F6)'];let h=0;for(let i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h);}return colors[Math.abs(h)%colors.length];}
@@ -260,7 +278,7 @@ addUniversal(document.getElementById('toggleViewBtn'),()=>{isListView=!isListVie
 addUniversal(document.getElementById('prevBtn'),()=>goPrevPage());
 addUniversal(document.getElementById('nextBtn'),()=>goNextPage());
 addUniversal(document.getElementById('btnSure'),()=>confirmSure());
-addUniversal(document.getElementById('btnNotSure'),()=>hideConfirm());
+addUniversal(document.getElementById('btnNotSure'),()=>confirmNotSure());
 document.getElementById('confirmModal')?.addEventListener('click',e=>{if(e.target.id==='confirmModal')hideConfirm();});
 const searchInput=document.getElementById('searchName');const clearBtn=document.getElementById('clearSearch');
 searchInput?.addEventListener('input',e=>{searchQuery=e.target.value;if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';currentPage=1;render();});
