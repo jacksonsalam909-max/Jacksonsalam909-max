@@ -10,9 +10,9 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#f1f5f9;display:flex;min-height:100vh}
-/* FIXED SIDEBAR - SAME MOBILE & DESKTOP */
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease}
-.whiteBar.folded{width:72px!important;min-width:72px!important}
+/* DESKTOP DEFAULT - 270px open, 72px icons only */
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease,transform .32s ease}
+.whiteBar.folded{width:72px!important;min-width:72px!important;transform:translateX(0)}
 .mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#e9eef6}
 .whiteBar.folded ~ .mainWrap{margin-left:72px!important}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
@@ -32,7 +32,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .sMenu a.active .mi{background:#fff}
 .sMenu a.active .mi svg{stroke:#2563eb}
-.ml{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:opacity .2s}
+.ml{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .whiteBar.folded .ml{display:none!important}
 .whiteBar.folded .sMenu a{justify-content:center;padding:11px 0}
 .whiteBar.folded .mi{display:flex!important}
@@ -98,6 +98,16 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;color:#8aa0c5;cursor:pointer}
 .tab .ic{width:24px;height:24px;border-radius:8px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:13px}
 .tab.active{color:#0f172a}.tab.active .ic{background:#0f172a;color:#fff}
+/* MOBILE ONLY - Fold along with icon (hide fully) */
+@media(max-width:700px){
+  .whiteBar{width:270px!important;min-width:270px!important;transform:translateX(0)}
+  .whiteBar.folded{width:270px!important;min-width:270px!important;transform:translateX(-100%)!important}
+  .mainWrap{margin-left:0!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important}
+  .whiteBar.folded ~ .mainWrap .bottomBar{left:0!important}
+  .bottomBar{left:0!important}
+  .grid{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
@@ -144,7 +154,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 <script>
 const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
-// FIXED FOLD - ICONS ALWAYS VISIBLE ON SIDE
 function toggleWhiteBar(){
   let bar=document.getElementById('whiteBar');
   bar.classList.toggle('folded');
@@ -153,9 +162,13 @@ function toggleWhiteBar(){
 document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
 (function(){
   let bar=document.getElementById('whiteBar');
-  // Default open on desktop, folded on mobile? No - same for both: open by default
-  if(localStorage.getItem('sidebar_fold')==='1'){bar.classList.add('folded');}
-  else{bar.classList.remove('folded');}
+  // Desktop: open by default, Mobile: folded (hidden) by default
+  if(window.innerWidth<=700){
+    bar.classList.add('folded');
+  }else{
+    if(localStorage.getItem('sidebar_fold')==='1'){bar.classList.add('folded');}
+    else{bar.classList.remove('folded');}
+  }
 })();
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function formatDisplayDMY(s){if(!s)return'';let p=s.split('-');return `${p[2]}-${p[1]}-${p[0]}`;}
