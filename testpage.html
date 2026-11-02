@@ -58,6 +58,8 @@ body{background:#f1f5f9;display:flex}
 .filterRow{display:flex;gap:8px;align-items:center;background:#f0f9ff;padding:12px;border-radius:14px;border:1.5px dashed #60a5fa;margin-bottom:12px;flex-wrap:wrap}
 .filterBtn{padding:8px 16px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;font-weight:800;font-size:12px;cursor:pointer}
 .filterBtn.active{background:#0f172a;color:#fff;border-color:#0f172a}
+.resetBtn{padding:8px 14px;border-radius:20px;border:1.5px solid #ef4444;background:#fff;color:#ef4444;font-weight:800;font-size:11px;cursor:pointer;margin-left:auto}
+.resetBtn:hover{background:#ef4444;color:#fff}
 .numWrap{display:flex;align-items:center;gap:4px;background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:12px;padding:2px}
 .numWrap input{border:none!important;background:transparent!important;text-align:center;flex:1;padding:9px 2px!important}
 .arrowBtn{width:28px;height:28px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-weight:900;font-size:14px;cursor:pointer;display:grid;place-items:center;line-height:1}
@@ -70,17 +72,18 @@ body{background:#f1f5f9;display:flex}
 .infoSection{padding:4px 12px;margin:0;border:none;border-bottom:1.2px solid #000;overflow:hidden}
 .infoTable{width:100%;border-collapse:collapse;line-height:1.35}
 .infoTable td{padding:1px 2px;vertical-align:top;white-space:nowrap;font-size:12.5px;overflow:hidden}
-/* SAME STYLE FOR ALL WORDS - NOT MOVABLE */
-.kv{display:flex;align-items:center;gap:4px;white-space:nowrap;position:relative;left:0;user-select:text;font-weight:500}
+.kv{display:flex;align-items:center;gap:4px;white-space:nowrap;position:relative;left:0;font-weight:500}
 .kv b{font-weight:500;white-space:nowrap}
 .kv span{white-space:nowrap;font-weight:500}
 .contentArea{padding:8px 18px;flex:1;line-height:1.45}
 .line{margin-bottom:2px;white-space:pre-wrap;word-break:break-word}
-.editableOnly{background:#fffde7;border-bottom:1px dashed #2563eb;cursor:text;padding:0 1px;display:inline-block;font-weight:500;margin:0}
-.editableOnly:focus{background:#fff3cd;outline:none}
-.autoLocked{background:#f5f5f5;border-bottom:1px dashed #888;font-weight:500;padding:0 1px}
+.editableOnly{background:#fffde7;border-bottom:1px dashed #2563eb;cursor:text;padding:0 1px;display:inline-block;font-weight:500;margin:0;position:relative;left:0;cursor:ew-resize;touch-action:none;user-select:text}
+.editableOnly.dragging{cursor:grabbing;background:#fef08a;border:1px dashed #2563eb;border-radius:3px;z-index:10}
+.editableOnly:focus{background:#fff3cd;outline:none;cursor:text}
+.autoLocked{background:#f5f5f5;border-bottom:1px dashed #888;font-weight:500;padding:0 1px;position:relative;left:0;cursor:ew-resize;touch-action:none}
+.autoLocked.dragging{background:#fef08a;border:1px dashed #888;border-radius:3px;z-index:10}
 .footer{position:absolute;bottom:10px;right:14px;font-size:9px;color:#000}
-.exportClean .editableOnly,.exportClean .autoLocked{background:transparent!important;border:none!important;padding:0!important}
+.exportClean .editableOnly,.exportClean .autoLocked{background:transparent!important;border:none!important;padding:0!important;left:0!important}
 </style>
 <script>
 function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}
@@ -108,6 +111,78 @@ function changeVal(id, delta){
   el.value=v;
   updateVitals();
 }
+function resetPositions(){
+  document.querySelectorAll('.editableOnly, .autoLocked').forEach(el=>{
+    el.style.left='0px';
+  });
+}
+/* MOVABLE ONLY EDITABLE WORDS HORIZONTALLY */
+let dragEl=null, startX=0, startLeft=0, hasMoved=false;
+function initEditableDrag(){
+  document.querySelectorAll('.editableOnly, .autoLocked').forEach(el=>{
+    el.addEventListener('mousedown', startEditDrag);
+    el.addEventListener('touchstart', startEditDragTouch, {passive:false});
+  });
+}
+function startEditDrag(e){
+  if(document.activeElement===e.currentTarget) return;
+  dragEl=e.currentTarget;
+  hasMoved=false;
+  startX=e.clientX;
+  startLeft=parseInt(dragEl.style.left||0)||0;
+  document.addEventListener('mousemove', onEditDrag);
+  document.addEventListener('mouseup', endEditDrag);
+  e.preventDefault();
+}
+function startEditDragTouch(e){
+  dragEl=e.currentTarget;
+  hasMoved=false;
+  startX=e.touches[0].clientX;
+  startLeft=parseInt(dragEl.style.left||0)||0;
+  document.addEventListener('touchmove', onEditDragTouch, {passive:false});
+  document.addEventListener('touchend', endEditDrag);
+}
+function onEditDrag(e){
+  if(!dragEl) return;
+  let dx=e.clientX-startX;
+  if(Math.abs(dx)>2) hasMoved=true;
+  if(hasMoved){
+    dragEl.classList.add('dragging');
+    let newLeft=startLeft+dx;
+    if(newLeft<-100) newLeft=-100;
+    if(newLeft>150) newLeft=150;
+    dragEl.style.left=newLeft+'px';
+  }
+}
+function onEditDragTouch(e){
+  if(!dragEl) return;
+  let dx=e.touches[0].clientX-startX;
+  if(Math.abs(dx)>2) hasMoved=true;
+  if(hasMoved){
+    dragEl.classList.add('dragging');
+    let newLeft=startLeft+dx;
+    if(newLeft<-100) newLeft=-100;
+    if(newLeft>150) newLeft=150;
+    dragEl.style.left=newLeft+'px';
+    e.preventDefault();
+  }
+}
+function endEditDrag(){
+  if(dragEl){
+    dragEl.classList.remove('dragging');
+    if(!hasMoved){
+      dragEl.focus();
+    }
+  }
+  dragEl=null;
+  hasMoved=false;
+  document.removeEventListener('mousemove', onEditDrag);
+  document.removeEventListener('mouseup', endEditDrag);
+  document.removeEventListener('touchmove', onEditDragTouch);
+  document.removeEventListener('touchend', endEditDrag);
+}
+document.addEventListener('DOMContentLoaded', initEditableDrag);
+setTimeout(initEditableDrag, 800);
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -168,6 +243,7 @@ const app=initializeApp(cfg,"closer_"+Math.random());const db=getFirestore(app);
 <button class="filterBtn active" id="btnPMJAY" onclick="setSchemeFilter('pmjay')">PMJAY</button>
 <button class="filterBtn" id="btnCMHT" onclick="setSchemeFilter('cmht')">CMHT</button>
 <button class="filterBtn" id="btnALL" onclick="setSchemeFilter('all')">ALL</button>
+<button class="resetBtn" onclick="resetPositions()">↺ RESET POSITIONS</button>
 </div>
 <div class="row">
 <div class="col"><span class="label">BP - Pre Dialysis</span><input id="bpPre" value="150/70" oninput="updateVitals()"></div>
@@ -216,7 +292,7 @@ const app=initializeApp(cfg,"closer_"+Math.random());const db=getFirestore(app);
 <div class="line" style="margin-top:6px"><b>Post Dialysis Vitals:</b></div>
 <div class="line"><div class="kv"><b>B.P :</b><span id="b_bpPost" class="editableOnly" contenteditable="true">160/80</span><span>mmHg</span></div></div>
 <div class="line"><div class="kv"><b>PR :</b><span id="b_prPost" class="editableOnly" contenteditable="true">84</span><span>bpm</span></div></div>
-<div class="line"><div class="kv"><b>SpO2 :</b><span id="b_spo2Post" class="editableOnly" contenteditable="true">99</span><span>%@RA</span></div></div>
+<div class="line"><div class="kv"><b>SpO2 :</b><span id="b_spo2Post" class="editableOnly" contenteditable="true">100</span><span>%@RA</span></div></div>
 <div class="line"><div class="kv"><b>Temp. :</b><span id="b_tempPost" class="editableOnly" contenteditable="true">98</span><span>degree F</span></div></div>
 <div class="line" style="margin-top:8px"><b>Advice:</b> Next Haemodialysis on <span id="b_advDate" class="editableOnly" contenteditable="true">04/11/26</span> at <span id="b_advTime" class="editableOnly" contenteditable="true">12 noon</span>.</div>
 <div class="line">Patient needs dialysis <span id="b_freq" class="editableOnly" contenteditable="true">three</span> times in a week</div>
@@ -252,7 +328,7 @@ function setSchemeFilter(s){
   document.getElementById('btnALL').classList.toggle('active', s==='all');
 }
 function doSearch(q){let l=document.getElementById('searchList');let c=getCombined();if(!q){let a=c.slice(0,20);lastFiltered=a;l.innerHTML=a.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:8px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:11px"><b style="color:#2563eb">${p.shri}</b> - ${p.name}</div>`).join('');l.style.display='block';return;}q=q.toLowerCase();let f=c.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,20);lastFiltered=f;l.innerHTML=f.length?f.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:8px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:11px"><b style="color:#2563eb">${p.shri}</b> - ${p.name.slice(0,35)}</div>`).join(''):'<div style="padding:8px;font-size:11px">No patient</div>';l.style.display='block';}
-function selectPatByIdx(i){let p=lastFiltered[i];if(!p)return;document.getElementById('shriId').value=p.shri;document.getElementById('b_shri').innerText=p.shri;document.getElementById('b_ip').innerText=p.ip||'185693';document.getElementById('ipInput').value=p.ip||'185693';document.getElementById('b_name').innerText=p.name;if(p.age) {document.getElementById('ageNum').value=parseInt(p.age)||71; if(p.sex){ document.getElementById('sexSelect').value=p.sex; } updateAgeSex();}document.getElementById('searchList').style.display='none';document.getElementById('searchInput').value=p.shri+' - '+p.name;autoDates();}
+function selectPatByIdx(i){let p=lastFiltered[i];if(!p)return;document.getElementById('shriId').value=p.shri;document.getElementById('b_shri').innerText=p.shri;document.getElementById('b_ip').innerText=p.ip||'185693';document.getElementById('ipInput').value=p.ip||'185693';document.getElementById('b_name').innerText=p.name;if(p.age) {document.getElementById('ageNum').value=parseInt(p.age)||71; if(p.sex){ document.getElementById('sexSelect').value=p.sex; } updateAgeSex();}document.getElementById('searchList').style.display='none';document.getElementById('searchInput').value=p.shri+' - '+p.name;autoDates(); setTimeout(initEditableDrag,200);}
 function updateVitals(){
   document.getElementById('b_bpPre').innerText=document.getElementById('bpPre').value;
   document.getElementById('b_prPre').innerText=document.getElementById('prPre').value;
@@ -284,7 +360,7 @@ function getCleanClone(){let paper=document.getElementById('paper');let clone=pa
 async function exportJPEG(){let {clone,wrapper}=getCleanClone();let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false});document.body.removeChild(wrapper);let link=document.createElement('a');let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');link.download=name+'_SHIJA_A4.jpg';link.href=canvas.toDataURL('image/jpeg',0.95);link.click();}
 async function exportPDF(){let {clone,wrapper}=getCleanClone();let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false});document.body.removeChild(wrapper);let imgData=canvas.toDataURL('image/jpeg',0.95);const {jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');pdf.addImage(imgData,'JPEG',0,0,210,297);let name=(document.getElementById('shriId').value||'discharge').replace(/[^a-zA-Z0-9]/g,'_');pdf.save(name+'_SHIJA_A4.pdf');}
 function handlePrint(){let fmt=document.getElementById('formatSelect').value;if(fmt==='pdf') exportPDF(); else exportJPEG();}
-setTimeout(()=>{loadFirebaseAll();autoDates();},600);
+setTimeout(()=>{loadFirebaseAll();autoDates();initEditableDrag();},600);
 document.addEventListener('click',e=>{if(!e.target.closest('.searchBox')) document.getElementById('searchList').style.display='none'});
 </script>
 </body>
