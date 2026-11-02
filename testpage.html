@@ -1,285 +1,259 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Total Patients - SHIJA</title>
-<script src="Patient.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OFFICE ASSISTANT - SHIJA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#f1f5f9;display:flex;min-height:100vh}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease}
-.whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important}
-.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
-.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
-.sLogo img{width:100%;height:100%;object-fit:contain}
-.sTitle b{color:#0f172a;font-size:16px;font-weight:900}
-.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
-.whiteBar.folded .sTitle{display:none}
-.whiteBar.folded .sHead{justify-content:center;padding:14px 0}
-.sMenu{flex:1;padding:8px 8px;overflow-y:auto}
-.sMenu::-webkit-scrollbar{width:0}
-.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;transition:.2s}
-.sMenu a:hover{background:#1e293b;color:#fff}
-.sMenu a.active{background:#1e293b;color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px #334155}
-.mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px;flex-shrink:0}
-.mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.sMenu a:hover .mi{background:#334155}
-.sMenu a:hover .mi svg{stroke:#fff}
-.sMenu a.active .mi{background:#2563eb}
-.sMenu a.active .mi svg{stroke:#fff}
-.ml{overflow:hidden;text-overflow:ellipsis}
-.whiteBar.folded .ml{display:none}
-.whiteBar.folded .sMenu a{justify-content:center;padding:12px 0}
-.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;overflow:hidden;white-space:nowrap}
-.whiteBar.folded .sFoot{display:none}
-.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
-.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
-.menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
-.menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
-.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px}
-.pageHead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:18px}
-.pageHead h1{font-size:26px;font-weight:900;color:#0f172a}
-.pageHead p{color:#64748b;font-size:13px;font-weight:600;margin-top:4px}
-.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#fff;border:1.5px solid #e2e8f0;padding:12px;border-radius:16px;box-shadow:0 4px 12px #00000006}
-.controls input{flex:1;min-width:180px;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;font-size:13px;outline:0;background:#f8fafc}
-.controls input:focus{border-color:#2563eb;background:#fff}
-.viewToggle{display:flex;background:#f1f5f9;border-radius:10px;padding:3px;border:1px solid #e2e8f0}
-.vBtn{width:42px;height:36px;border-radius:8px;border:0;background:transparent;font-weight:700;font-size:18px;cursor:pointer;transition:.2s;display:grid;place-items:center}
-.vBtn.active{background:#0f172a;color:#fff;box-shadow:0 2px 8px #0002}
-.pSelect{padding:10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700;background:#fff}
-.patientGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
-.pCard{border-radius:14px;padding:0;overflow:hidden;background:#fff;border:1px solid #e2e8f0;box-shadow:0 2px 10px #00000006;transition:.22s}
-.pCard:hover{transform:translateY(-3px);box-shadow:0 10px 20px #00000010}
-.pCardTop{height:52px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;color:#fff;position:relative}
-.pCardTop::after{content:'';position:absolute;right:-15px;top:-15px;width:60px;height:60px;background:rgba(255,255,255,.18);border-radius:50%}
-.pCardAvatar{width:30px;height:30px;background:rgba(255,255,255,.92);border-radius:8px;display:grid;place-items:center;font-weight:900;color:#0f172a;font-size:12px;box-shadow:0 2px 6px #0002;z-index:1}
-.pCardBody{padding:10px 12px}
-.pCardNameRow{display:flex;align-items:center;gap:6px}
-.pCardName{font-weight:800;font-size:13px;color:#0f172a;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pmjayBlue{background:#2563eb;color:#fff;padding:3px 8px;border-radius:20px;font-weight:800;font-size:9.5px;white-space:nowrap;box-shadow:0 2px 6px #2563eb30}
-.shri{font-size:10px;color:#64748b;background:#f1f5f9;padding:3px 8px;border-radius:20px;font-weight:700;border:1px solid #e2e8f0;display:inline-flex;margin-top:4px}
-.pCardRow{display:flex;justify-content:space-between;margin-top:4px;font-size:11px}
-.pCardRow span{color:#64748b;font-weight:600;font-size:10px}
-.pCardRow b{color:#0f172a;font-weight:700;font-size:11px}
-.pCardActions{display:flex;gap:8px;margin-top:8px}
-.btnEdit{flex:1;padding:7px 10px;border-radius:7px;border:0;background:#facc15;font-weight:800;font-size:11px;cursor:pointer;color:#000;min-width:52px}
-.btnDel{flex:1;padding:7px 10px;border-radius:7px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:11px;cursor:pointer;min-width:52px}
-.gc1{background:linear-gradient(135deg,#C850C0,#4158D0)} .gc2{background:linear-gradient(135deg,#FF5E3A,#FF2A68)} .gc3{background:linear-gradient(135deg,#38BDF8,#2563EB)} .gc4{background:linear-gradient(135deg,#6366F1,#4F46E5)} .gc5{background:linear-gradient(135deg,#22D3EE,#06B6D4)} .gc6{background:linear-gradient(135deg,#FBBF24,#F97316)} .gc7{background:linear-gradient(135deg,#E879F9,#A855F7)} .gc8{background:linear-gradient(135deg,#34D399,#059669)} .gc9{background:linear-gradient(135deg,#F9A8D4,#F472B6)} .gc10{background:linear-gradient(135deg,#7DD3FC,#A78BFA)}
-.tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-top:16px;box-shadow:0 4px 16px #00000006}
-table{width:100%;border-collapse:collapse;min-width:1100px}
-th{padding:14px 12px;font-size:11px;color:#64748b;background:#f8fafc;text-align:left;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-align:middle;white-space:nowrap}
-.sl{background:#f1f5f9;width:36px;height:28px;display:grid;place-items:center;border-radius:8px;font-weight:800;font-size:12px}
-.shriTable{color:#64748b;background:#f1f5f9;padding:5px 10px;border-radius:8px;font-weight:700;font-size:11px;border:1px solid #e2e8f0;display:inline-block;min-width:80px;text-align:center}
-.pmjayTable{background:#2563eb;color:#fff;padding:6px 12px;border-radius:8px;font-weight:800;font-size:11px;display:inline-block;min-width:110px;text-align:center;box-shadow:0 2px 6px #2563eb30}
-.pager{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px}
-.pagerGrid{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;margin-top:16px;flex-wrap:wrap;gap:8px}
-.pBtn{padding:8px 14px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer;font-size:13px}
-.pBtn:disabled{opacity:.4}
-.modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:10000}.modal.show{display:grid}
-.modalBox{background:#fff;border-radius:18px;padding:20px;width:90%;max-width:420px;box-shadow:0 20px 40px #0003}.modalBox input{width:100%;padding:11px;border:1.5px solid #cbd5e1;border-radius:10px;margin:6px 0;font-size:13px}
-.mBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}.save{background:#2563eb;color:#fff;padding:9px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}.cancel{background:#f1f5f9;padding:9px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}
-.hidden{display:none!important}
-.addBtn{background:#2563eb;color:#fff;padding:10px 18px;border-radius:10px;border:0;font-weight:800;font-size:13px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px #2563eb30}
-.addBtn:hover{background:#1d4ed8}
-.star{color:#ef4444;font-weight:900;margin-left:4px;font-size:16px}
-@media(max-width:1200px){.patientGrid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:900px){.patientGrid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.patientGrid{grid-template-columns:repeat(2,1fr);gap:8px}.content{padding:14px}.controls{flex-direction:column;align-items:stretch}}
-@media(max-width:400px){.patientGrid{grid-template-columns:1fr}}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:#e9eef6;min-height:100dvh;display:flex;flex-direction:column}
+.top{position:fixed;top:0;left:0;right:0;z-index:100;background:#0B1F4A;padding:8px 12px;color:#fff;display:flex;align-items:center;gap:10px;height:56px;justify-content:space-between}
+.menuBtn{width:40px;height:40px;min-width:40px;border-radius:10px;border:0;background:rgba(255,255,255,0.18);color:#fff;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.hWrap{flex:1;min-width:0}.hTitle{font-size:12px;font-weight:900;white-space:nowrap}.hSub{font-size:9px;opacity:0.8;white-space:nowrap}
+.topTypeBox{background:#fff;border-radius:10px;height:36px;display:flex;align-items:center;padding:0 10px;min-width:90px}
+.topTypeBox select{border:0;width:100%;font-weight:800;font-size:13px;outline:none;background:transparent;color:#0B1F4A;height:34px}
+.app{padding-top:56px;display:flex;flex-direction:column;flex:1;width:100%}
+.headerDark{background:#0B1F4A;padding:0 12px 10px}
+.rowTop{display:flex;gap:8px;margin-top:8px}
+.dateBox{flex:1;border-radius:10px;height:42px;display:flex;align-items:center;padding:0 12px;background:#fff;min-width:0}
+.dateBox input,.dateBox select{border:0;width:100%;font-weight:700;font-size:14px;outline:none;background:transparent;color:#0B1F4A;height:40px;min-width:0}
+.count{margin-top:8px;background:rgba(255,255,255,0.15);border-radius:10px;height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:12px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,0.15)}
+.count span:last-child{background:#fff;color:#0B1F4A;padding:5px 10px;border-radius:100px;font-size:11px;font-weight:800}
+.filter{padding:8px 12px;display:flex;gap:8px;align-items:center;background:#fff;position:sticky;top:56px;z-index:10;border-bottom:1px solid #e2e8f0;height:54px}
+.chipsWrap{display:flex;gap:8px;overflow-x:auto;flex:1;align-items:center;min-width:0}.chipsWrap::-webkit-scrollbar{display:none}
+.chip{height:34px;padding:0 14px;border-radius:100px;border:1.5px solid #d0d9ea;background:#f4f7fd;font-weight:800;font-size:13px;white-space:nowrap;color:#4a5f85;flex-shrink:0;cursor:pointer}
+.chip.on{background:#0B1F4A;color:#fff;border-color:#0B1F4A}
+.searchBar{padding:8px 12px;display:flex;gap:8px;background:#fff;border-bottom:1px solid #e2e8f0;align-items:center;position:sticky;top:110px;z-index:9;height:56px}
+.searchInputWrap{flex:1;position:relative;display:flex;align-items:center;min-width:0}
+.searchInput{width:100%;height:38px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 14px;border-radius:100px;font-weight:600;font-size:13px;color:#0B1F4A;outline:none;min-width:0}
+.clearSearch{position:absolute;right:6px;width:28px;height:28px;border-radius:50%;border:0;background:#dde4f0;display:none;align-items:center;justify-content:center}
+.searchMeta{padding:6px 12px;background:#e9eef6;font-size:10px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between;position:sticky;top:166px;z-index:8;height:28px;align-items:center}
+.timePager{display:flex;align-items:center;gap:4px;flex-shrink:0;background:#f4f7fd;border:1.5px solid #d0d9ea;border-radius:100px;padding:3px 4px;height:38px;min-width:92px;justify-content:space-between}
+.pageBtnSmall{height:30px;min-width:28px;padding:0 8px;border-radius:100px;border:0;background:#fff;color:#0B1F4A;font-weight:900;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.12);flex-shrink:0}
+.pageIndicatorSmall{color:#0B1F4A;font-weight:900;font-size:12px;min-width:32px;text-align:center;flex-shrink:0}
+.viewIconSingle{width:38px;height:38px;min-width:38px;border-radius:100px;border:1.5px solid #0B1F4A;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.viewIconSingle svg{width:18px;height:18px;stroke:#0B1F4A;stroke-width:2;fill:none}
+.scroll{flex:1;display:flex;flex-direction:column;background:#e9eef6;padding:8px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%;align-content:start}
+@media(min-width:600px){.grid{grid-template-columns:repeat(3,1fr) !important}}
+@media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr) !important}}
+@media(min-width:1200px){.grid{grid-template-columns:repeat(5,1fr) !important}}
+.card{width:100%;height:178px;min-height:178px;background:#fff;border-radius:14px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;box-shadow:0 4px 12px rgba(11,31,74,0.06);border:1px solid #e8eefb;border-left:4px solid #22c55e;overflow:hidden}
+.cardTop{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;flex:1}
+.avatarSq{width:42px;height:42px;min-width:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:18px}
+.info{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.card .name{font-size:12px;font-weight:900;line-height:1.2;color:#0B1F4A;text-transform:uppercase;text-align:center;min-height:28px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+.card .sub{font-size:10px;font-weight:700;color:#6f84a8;text-align:center;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+.actions{width:100%;margin-top:6px;display:flex;gap:6px}
+.btnAct{flex:1;height:32px;min-height:32px;border-radius:8px;font-weight:800;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border:0;letter-spacing:0.3px;transition:.2s}
+.btnRed{background:#ef4444;color:#fff}
+.btnGreen{background:#22c55e!important;color:#fff!important}
+.grid.listView{display:flex !important;flex-direction:column !important;gap:8px}
+.grid.listView .card{height:80px;min-height:80px;flex-direction:row;padding:8px 12px;border-radius:12px;border-left:5px solid #0B1F4A;text-align:left}
+.grid.listView .card .cardTop{flex-direction:row;gap:10px;text-align:left}
+.grid.listView .card .info{align-items:flex-start;text-align:left}
+.grid.listView .card .name{text-align:left;min-height:auto;-webkit-line-clamp:1;font-size:13px}
+.grid.listView .card .sub{text-align:left;font-size:10px}
+.grid.listView .card .avatarSq{width:40px;height:40px;font-size:16px}
+.grid.listView .card .actions{width:auto;min-width:160px;margin-left:8px;margin-top:0}
+.bottom{position:fixed;bottom:0;left:0;right:0;z-index:90;background:#fff;border-top:1px solid #dde4f0;display:flex;justify-content:space-around;padding:2px 0 4px;height:52px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;font-weight:700;color:#8aa0c5;cursor:pointer;min-height:44px;justify-content:center}
+.tab .ic{width:24px;height:24px;border-radius:8px;background:#e8eefb;display:flex;align-items:center;justify-content:center;font-size:13px}
+.tab.active{color:#0B1F4A}.tab.active .ic{background:#0B1F4A;color:#fff}
+.pagesBottom{padding:20px 0 70px}
+.overlay{position:fixed;inset:0;background:rgba(11,31,74,0.55);z-index:9998;display:none}.overlay.show{display:block}
+.drawer{position:fixed;left:0;top:0;bottom:0;width:85%;max-width:300px;background:#fff;z-index:9999;transform:translateX(-100%);transition:.3s;pointer-events:none;display:flex;flex-direction:column}.drawer.open{transform:translateX(0);pointer-events:auto}
+.drawerTop{background:#0B1F4A;padding:16px;color:#fff;flex-shrink:0}
+.menuList{padding:8px 0;flex:1;overflow-y:auto}
+.menuItem{padding:14px 16px;font-size:12px;font-weight:700;color:#334155;border-left:3px solid transparent;cursor:pointer;min-height:44px;display:flex;align-items:center;gap:10px}
+.menuItem:hover{background:#f1f5f9}
+.menuItem.active{background:#e8eefb;color:#0B1F4A;border-left-color:#0B1F4A;font-weight:900}
+.mi{width:28px;min-width:28px;height:28px;display:grid;place-items:center;background:#f1f5f9;border-radius:7px;flex-shrink:0}
+.mi svg{width:14px;height:14px;stroke:#64748b;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.menuItem.active .mi{background:#0B1F4A}
+.menuItem.active .mi svg{stroke:#fff}
+.sFoot{padding:10px;border-top:1px solid #e2e8f0;font-size:9px;color:#64748b;text-align:center;flex-shrink:0}
+#confirmModal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(11,31,74,0.55)}.confirmBox{background:#fff;width:86%;max-width:320px;border-radius:16px;padding:20px 16px;text-align:center}
+.confirmTitle{font-size:16px;font-weight:900;color:#0B1F4A;margin-bottom:6px}.confirmSub{font-size:12px;font-weight:600;color:#6f84a8;margin-bottom:16px}
+.confirmBtns{display:flex;gap:8px}.btnNoSure{flex:1;height:40px;border-radius:10px;border:1.5px solid #d0d9ea;background:#f4f7fd;color:#4a5f85;font-weight:800;font-size:12px}.btnSure{flex:1;height:40px;border-radius:10px;border:0;background:#0B1F4A;color:#fff;font-weight:800;font-size:12px}
+.toast{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:#0B1F4A;color:#fff;padding:10px 16px;border-radius:100px;font-size:12px;font-weight:800;z-index:10001;display:none}
+.toast.show{display:block}
+.swipeHint{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:#0B1F4A;color:#fff;padding:6px 12px;border-radius:100px;font-size:10px;font-weight:800;z-index:80;opacity:0;pointer-events:none;transition:.3s}
+.swipeHint.show{opacity:1}
 </style>
 </head>
 <body>
-<div class="whiteBar" id="whiteBar">
-<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
-<div class="sHead"><div class="sLogo"><img src="logoc.png" onerror="this.style.display='none'"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
-<div class="sMenu" id="sMenu">
-<a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
-<a href="total.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
-<a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
-<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">CLAIM</span></a>
-<a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
-<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></span><span class="ml">OFFICE ASSISTANT</span></a>
-<a href="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
-<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
-<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
-<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
-<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
-<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT REPORT</span></a>
-<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT</span></a>
-<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span><span class="ml">BILL</span></a>
-<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
-</div>
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+<div class="drawerTop"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SHIJA HOSPITALS</b><div style="font-size:9px;opacity:0.8">DIALYSIS MANAGEMENT</div></div><button id="closeDrawerBtn" style="width:36px;height:36px;border-radius:8px;border:0;background:rgba(255,255,255,0.22);color:#fff;font-size:18px;font-weight:900">✕</button></div><div style="margin-top:10px;display:flex;gap:6px"><div style="background:rgba(255,255,255,0.18);padding:5px 10px;border-radius:100px;font-size:10px">● ONLINE</div><div style="background:#fff;color:#0B1F4A;padding:5px 10px;border-radius:100px;font-size:10px;font-weight:800" id="drawerCount">0</div></div></div>
+<div class="menuList">
+<div class="menuItem" data-url="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span> HOME</div>
+<div class="menuItem" data-url="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span> TOTAL PMJAY PATIENT</div>
+<div class="menuItem" data-url="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span> CMHT TOTAL PATIENT</div>
+<div class="menuItem" data-url="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span> CLAIM</div>
+<div class="menuItem" data-url="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span> SEARCH PATIENT</div>
+<div class="menuItem active" data-url="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></span> OFFICE ASSISTANT</div>
+<div class="menuItem" data-url="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span> CMHT KFT REPORT</div>
+<div class="menuItem" data-url="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span> CMHT DAILY DIALYSIS</div>
+<div class="menuItem" data-url="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span> CMHT ADD PATIENT</div>
+<div class="menuItem" data-url="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span> DAILY DIALYSIS LIST</div>
+<div class="menuItem" data-url="addlist.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span> ADD LIST</div>
+<div class="menuItem" data-url="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span> DISCHARGE PATIENT</div>
+<div class="menuItem" data-url="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span> KFT REPORT</div>
+<div class="menuItem" data-url="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span> ADD PATIENT FOR PMJAY</div>
+<div class="menuItem" data-url="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span> BILL</div>
+<div class="menuItem" data-url="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span> DISCHARGE SUMMARY</div>
 </div>
 <div class="sFoot">System Online • SHIJA</div>
 </div>
-
-<div class="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA Dialysis</div><span style="font-weight:800;color:#0f172a">Total Patients</span></div>
-<div class="content">
-<div class="pageHead"><div><h1>PMJAY Total Patients</h1><p id="info">Loading...</p></div><div><a href="add.html" class="addBtn">+ Add Patient</a></div></div>
-<div class="controls">
-<input id="search" placeholder="Search name, SHRI ID, PMJAY..." oninput="onSearch()">
-<div class="viewToggle">
-<button class="vBtn" id="gridBtn" onclick="setView('grid')" title="Grid View">⊞</button>
-<button class="vBtn active" id="tableBtn" onclick="setView('table')" title="List View">☰</button>
+<div id="confirmModal"><div class="confirmBox"><div class="confirmTitle" id="confirmTitle">Are you sure?</div><div class="confirmSub" id="confirmSub">Complete this?</div><div class="confirmBtns"><button class="btnNoSure" id="btnNotSure">NOT SURE</button><button class="btnSure" id="btnSure">SURE</button></div></div></div>
+<div class="swipeHint" id="swipeHint">Swipe ← → to change page</div>
+<div class="toast" id="toast">Moved to Done ✓</div>
+<div class="top"><button class="menuBtn" id="menuBtn">☰</button><div class="hWrap"><div class="hTitle">SHIJA HOSPITALS - OFFICE ASSISTANT</div><div class="hSub">DIALYSIS MANAGEMENT</div></div><div class="topTypeBox"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div>
+<div class="app">
+<div class="headerDark"><div class="rowTop"><div class="dateBox"><input type="date" id="fDate"></div><div class="dateBox" style="max-width:130px"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div></div><div class="count"><span id="cLeft">Loading...</span><span id="cRight">PENDING 0</span></div></div>
+<div class="filter"><div class="chipsWrap"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div><button id="toggleViewBtn" class="viewIconSingle"></button></div>
+<div class="searchBar"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
+<div class="searchMeta"><span id="searchInfo"></span><span>Swipe ← → • OPD + PHOTO</span></div>
+<div class="scroll" id="scroll"><div class="grid" id="grid"></div><div class="pagesBottom"></div></div>
+<div class="bottom"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:100px;font-size:10px;font-weight:800">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
 </div>
-<select id="pageSize" class="pSelect" onchange="changePageSize()"><option value="12" selected>12 / page</option><option value="24">24 / page</option><option value="48">48 / page</option></select>
-</div>
-
-<div class="patientGrid hidden" id="patientGrid"></div>
-<div class="pagerGrid hidden" id="pagerGrid"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtnGrid" onclick="prevPage()">←</button><button class="pBtn" id="nextBtnGrid" onclick="nextPage()">→</button></div><div id="pageInfoGrid" style="font-weight:700;font-size:12px"></div><div id="pageNumsGrid" style="display:flex;gap:6px"></div></div>
-
-<div class="tableWrap" id="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">←</button><button class="pBtn" id="nextBtn" onclick="nextPage()">→</button></div><div id="pageInfo" style="font-weight:700;font-size:12px"></div><div id="pageNums" style="display:flex;gap:6px"></div></div></div>
-</div>
-<div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis Management</div>
-</div>
-
-<div class="modal" id="editModal"><div class="modalBox"><h3 style="font-weight:900;margin-bottom:10px">Edit Patient</h3><input id="eName" placeholder="Name"><input id="eShri" placeholder="SHRI ID"><input id="eContact" placeholder="Contact"><input id="ePmjay" placeholder="PMJAY ID"><input id="eAddr" placeholder="Address"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" onclick="saveEdit()">Save Permanent</button></div></div></div>
-
 <script>
-function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}
-document.addEventListener('DOMContentLoaded',function(){document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();})});
-let currentView='table';
-window.setView=(v)=>{
- currentView=v;
- document.getElementById('gridBtn').classList.toggle('active',v==='grid');
- document.getElementById('tableBtn').classList.toggle('active',v==='table');
- document.getElementById('patientGrid').classList.toggle('hidden',v!=='grid');
- document.getElementById('pagerGrid').classList.toggle('hidden',v!=='grid');
- document.getElementById('tableWrap').classList.toggle('hidden',v!=='table');
- renderAll();
-};
-</script>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app = initializeApp(firebaseConfig,"totalMain_"+Math.random());
-const db = getFirestore(app);
-let allPatients=[],filtered=[],currentPage=1,pageSize=12,editIndex=-1;
-let dischargedSet = new Set(); // SHRI IDs discharged TODAY
-
-function getToday(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0'); }
-function getKey(p){ return String(p.key||p.shri||p.id||p.name).trim(); }
-function getDeleted(){ try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]');}catch{return [];} }
-function getEdited(){ try{return JSON.parse(localStorage.getItem('editedKeys')||'{}');}catch{return {};} }
-function addDeleted(key){ let l=getDeleted(); if(!l.includes(key)){l.push(key); localStorage.setItem('deletedKeys',JSON.stringify(l));} }
-function saveEditedLocal(key,data){ let m=getEdited(); m[key]=data; localStorage.setItem('editedKeys',JSON.stringify(m)); }
-window.closeEdit=()=>document.getElementById('editModal').classList.remove('show');
-window.openEdit=(idx)=>{editIndex=idx;let p=allPatients[idx];document.getElementById('eName').value=p.name;document.getElementById('eShri').value=p.shri;document.getElementById('eContact').value=p.contact;document.getElementById('ePmjay').value=p.pmjay;document.getElementById('eAddr').value=p.addr;document.getElementById('editModal').classList.add('show');};
-window.onSearch=()=>{currentPage=1;applyFilter();};
-window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderAll();};
-window.applyFilter=()=>{let q=document.getElementById('search').value.toLowerCase();filtered=allPatients.filter(p=>!p.deleted && [p.name,p.shri,p.pmjay,p.contact].join(' ').toLowerCase().includes(q));renderAll();};
-function getGradient(i){ const g=['gc1','gc2','gc3','gc4','gc5','gc6','gc7','gc8','gc9','gc10']; return g[i%10]; }
-function getInitial(name){ return (name||'P').trim().charAt(0).toUpperCase(); }
-
-async function fetchDischargeToday(){
-  dischargedSet = new Set();
-  let today = getToday(); // YYYY-MM-DD same as discharge.html uses
+const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
+(function(){
+  const drawer=document.getElementById('drawer'),overlay=document.getElementById('overlay'),menuBtn=document.getElementById('menuBtn'),closeBtn=document.getElementById('closeDrawerBtn');
+  function openMenu(e){if(e){e.preventDefault();e.stopPropagation();}drawer.classList.add('open');overlay.classList.add('show');document.body.style.overflow='hidden';}
+  function closeMenu(e){if(e){e.preventDefault();e.stopPropagation();}drawer.classList.remove('open');overlay.classList.remove('show');document.body.style.overflow='';}
+  function bindUniversal(el,fn){if(!el)return;el.addEventListener('click',fn);el.addEventListener('touchend',ev=>{ev.preventDefault();fn(ev);},{passive:false});}
+  bindUniversal(menuBtn,openMenu);bindUniversal(closeBtn,closeMenu);bindUniversal(overlay,closeMenu);
+  document.querySelectorAll('.menuItem').forEach(item=>{bindUniversal(item,()=>{let url=item.getAttribute('data-url');closeMenu();setTimeout(()=>{if(url)location.href=url;},200);});});
+  // DEFAULT FOLDED - drawer closed on load (as you asked)
+  closeMenu();
+})();
+function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+document.getElementById('fDate').value=new URLSearchParams(location.search).get('date')||getTodayIST();
+let allPatients=[],statusMap={},activeTimeFilter='',masterMap={},searchQuery='',isListView=false,currentPage=1,pendingShri=null,pendingType=null;
+if(localStorage.getItem('gda_view')==='list')isListView=true;
+const gridIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`;
+const listIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="4" rx="1"/><line x1="13" y1="6" x2="21" y2="6"/><rect x="3" y="10" width="7" height="4" rx="1"/><line x1="13" y1="12" x2="21" y2="12"/><rect x="3" y="16" width="7" height="4" rx="1"/><line x1="13" y1="18" x2="21" y2="18"/></svg>`;
+function getPageSize(){return isListView?10:20;}
+function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
+async function buildMasterMap(){masterMap={};try{let snap=await db.collection('patients').get();snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={pmjayName:name,cmhtName:''};});}catch(e){}try{let snap2=await db.collection('cmht_patients').get();snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={pmjayName:'',cmhtName:''};masterMap[shri].cmhtName=name;});}catch(e){}}
+function enrichPatient(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;}else{if(m.cmhtName)p.name=m.cmhtName;}return p;}
+async function loadData(){try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;document.getElementById('cLeft').innerText="Loading...";await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let patients=snap.exists?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let e=enrichPatient({...p});e.sl=i+1;return e;});allPatients=patients;let sSnap=await db.collection('daily_photo_opd').doc(id).get();statusMap=sSnap.exists?(sSnap.data().status||{}):{};render();}catch(e){document.getElementById('cLeft').innerText="Error: "+(e.message||e);}}
+async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await db.collection('daily_photo_opd').doc(id).set({date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()},{merge:true});}
+function showConfirm(sh,type){
+  pendingShri=sh; pendingType=type;
+  let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);
+  let typeTxt = type==='photo' ? 'PHOTO' : 'OPD';
+  document.getElementById('confirmTitle').innerText = typeTxt + ' - Are you sure?';
+  document.getElementById('confirmSub').innerText = p ? `Mark ${typeTxt} as done for ${p.name} (${sh})?` : `Mark ${typeTxt} for ${sh}?`;
+  document.getElementById('confirmModal').style.display='flex';
+}
+function hideConfirm(){document.getElementById('confirmModal').style.display='none';pendingShri=null;pendingType=null;}
+async function confirmSure(){
+  if(!pendingShri || !pendingType) return;
+  let btn=document.getElementById('btnSure');btn.innerText='...';btn.disabled=true;
   try{
-    let snap = await getDocs(collection(db,'discharges'));
-    snap.forEach(d=>{
-      let data = d.data();
-      if(data.date !== today) return; // ONLY TODAY
-      let shri = String(data.shriId || data.shri || '').trim().toUpperCase();
-      let key = String(data._id || d.id || '').toUpperCase();
-      let name = String(data.patientName || data.name || '').trim().toUpperCase();
-      if(shri) dischargedSet.add(shri);
-      if(data.shriId) dischargedSet.add(String(data.shriId).toUpperCase());
-      if(data.shri) dischargedSet.add(String(data.shri).toUpperCase());
-      // Also add name for fallback matching
-      if(name) dischargedSet.add(name);
-    });
-  }catch(e){ console.log("discharge fetch error", e); }
+    if(!statusMap[pendingShri]) statusMap[pendingShri]={photoTaken:false,opdDone:false};
+    if(pendingType==='photo') statusMap[pendingShri].photoTaken=true;
+    if(pendingType==='opd') statusMap[pendingShri].opdDone=true;
+    await saveStatus();
+    hideConfirm();
+    render();
+    let st = statusMap[pendingShri];
+    if(st.photoTaken && st.opdDone){
+      let toast=document.getElementById('toast');toast.innerText='Moved to Done ✓';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1500);
+    }
+  }catch(e){alert('Error: '+(e.message||e));}
+  finally{btn.innerText='SURE';btn.disabled=false;}
 }
-
-function isDischargedToday(p){
-  if(dischargedSet.size===0) return false;
-  let shri = String(p.shri||'').trim().toUpperCase();
-  let name = String(p.name||'').trim().toUpperCase();
-  let key = String(p.key||'').trim().toUpperCase();
-  return dischargedSet.has(shri) || dischargedSet.has(key) || dischargedSet.has(name);
+function getInit(n){return(n||'A').charAt(0).toUpperCase();}
+function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#7C3AED)','linear-gradient(135deg,#3B82F6,#0EA5E9)','linear-gradient(135deg,#22C55E,#10B981)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#EF4444,#EC4899)','linear-gradient(135deg,#06B6D4,#3B82F6)'];let h=0;for(let i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h);}return colors[Math.abs(h)%colors.length];}
+function getFiltered(){
+  let tn=normalizeTime(activeTimeFilter);
+  let bf=document.getElementById('filterBlock').value;
+  let sq=searchQuery.toLowerCase().trim();
+  return allPatients.filter(p=>{
+    let sh=String(p.shri||'').toUpperCase();if(!sh)return false;
+    if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;
+    if(bf&&p.block!==bf)return false;
+    let st=statusMap[sh]||{photoTaken:false,opdDone:false};
+    if(st.photoTaken&&st.opdDone) return false; // BOTH DONE -> disappears, goes to gdacompleted.html
+    if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}
+    return true;
+  });
 }
-
-window.renderAll=()=>{
- let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));
- if(currentPage>totalPages) currentPage=totalPages;
- let start=(currentPage-1)*pageSize;
- let data=filtered.slice(start,start+pageSize);
- let gridHtml='';
- data.forEach((p,idx)=>{
-   let realIdx=allPatients.indexOf(p);
-   let grad=getGradient(start+idx);
-   let star = isDischargedToday(p) ? `<span class="star">*</span>` : ``;
-   gridHtml+=`
- <div class="pCard">
-   <div class="pCardTop ${grad}"><div class="pCardAvatar">${getInitial(p.name)}</div></div>
-   <div class="pCardBody">
-     <div class="pCardNameRow"><div class="pCardName">${p.name||'Unknown'}${star}</div><span class="pmjayBlue">${p.pmjay||'No PMJAY'}</span></div>
-     <div class="pCardRow"><span>SHRI ID</span><b>${p.shri||'-'}</b></div>
-     <div class="pCardRow"><span>Contact</span><b>${p.contact||'-'}</b></div>
-     <div class="pCardActions"><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button><button class="btnDel" onclick="deletePatient(${realIdx})">Delete</button></div>
-   </div>
- </div>`;
- });
- if(data.length===0) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">No patients</div>';
- document.getElementById('patientGrid').innerHTML=gridHtml;
- let html='<tr><th>SL No</th><th>Patient</th><th>PMJAY ID</th><th>SHRI ID</th><th>Contact</th><th>Address</th><th>Action</th></tr>';
- data.forEach((p)=>{
-   let realIdx=allPatients.indexOf(p);
-   let star = isDischargedToday(p) ? `<span class="star">*</span>` : ``;
-   html+=`<tr>
-     <td><div class="sl">${start+filtered.indexOf(p)+1}</div></td>
-     <td><b>${p.name}${star}</b></td>
-     <td><span class="pmjayTable">${p.pmjay||'-'}</span></td>
-     <td><span class="shriTable">${p.shri||'No ID'}</span></td>
-     <td>${p.contact||'-'}</td>
-     <td>${(p.addr||'-').substring(0,24)}</td>
-     <td><div style="display:flex;gap:10px"><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button><button class="btnDel" onclick="deletePatient(${realIdx})">Delete</button></div></td>
-   </tr>`;
- });
- if(data.length===0) html+='<tr><td colspan="7" style="text-align:center;padding:20px">No patients</td></tr>';
- document.getElementById('tbl').innerHTML=html;
- let dischargedTodayCount = filtered.filter(isDischargedToday).length;
- document.getElementById('info').textContent=filtered.length+' patients • '+dischargedTodayCount+' discharged today ('+getToday()+') • Page '+currentPage+' of '+totalPages;
- ['','Grid'].forEach(suffix=>{
-   let pInfo=document.getElementById('pageInfo'+suffix);
-   let prevBtn=document.getElementById('prevBtn'+suffix);
-   let nextBtn=document.getElementById('nextBtn'+suffix);
-   let numsEl=document.getElementById('pageNums'+suffix);
-   if(pInfo) pInfo.textContent='Page '+currentPage+' of '+totalPages;
-   if(prevBtn) prevBtn.disabled=currentPage<=1;
-   if(nextBtn) nextBtn.disabled=currentPage>=totalPages;
-   if(numsEl){ let nums=''; for(let i=1;i<=Math.min(totalPages,8);i++){ nums+=`<button class="pBtn" style="${i===currentPage?'background:#0f172a;color:#fff':''}" onclick="goPage(${i})">${i}</button>`; } numsEl.innerHTML=nums; }
- });
-};
-window.prevPage=()=>{if(currentPage>1){currentPage--;renderAll();}};
-window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(currentPage<totalPages){currentPage++;renderAll();}};
-window.goPage=(n)=>{currentPage=n;renderAll();};
-window.deletePatient=async(idx)=>{let p=allPatients[idx];if(!confirm('DELETE '+p.name+'?')) return;let key=getKey(p);addDeleted(key);try{await setDoc(doc(db,"patients",key),{deleted:true},{merge:true});}catch(e){}p.deleted=true;applyFilter();};
-window.saveEdit=async()=>{let p=allPatients[editIndex];let oldKey=getKey(p);let newShri=document.getElementById('eShri').value.trim();let updated={patientName:document.getElementById('eName').value.trim(),name:document.getElementById('eName').value.trim(),shriId:newShri,shri:newShri,contactNo:document.getElementById('eContact').value.trim(),contact:document.getElementById('eContact').value.trim(),pmjayId:document.getElementById('ePmjay').value.trim(),pmjay:document.getElementById('ePmjay').value.trim(),address:document.getElementById('eAddr').value.trim(),addr:document.getElementById('eAddr').value.trim(),deleted:false};saveEditedLocal(oldKey,updated);p.name=updated.name;p.shri=updated.shri;p.contact=updated.contact;p.pmjay=updated.pmjay;p.addr=updated.addr;closeEdit();applyFilter();try{await setDoc(doc(db,"patients",oldKey),updated,{merge:true});}catch(e){}};
-async function init(){
- let deletedLocal=getDeleted(); let editedLocal=getEdited(); let map={};
- function addToMap(raw, overwrite){
-   let rawShri=String(raw.shri||raw.shriId||'').trim(); let rawId=String(raw.id||raw.key||'').trim(); let key=rawShri||rawId||String(raw.name||'').trim(); if(!key) return;
-   let isDel = deletedLocal.includes(key) || deletedLocal.includes(rawId) || deletedLocal.includes(rawShri) || raw.deleted===true;
-   let edited = editedLocal[key]||editedLocal[rawId]||editedLocal[rawShri];
-   let obj={ key:key, id:rawId||key, name:String((edited&&edited.name)||raw.patientName||raw.name||'').trim(), shri:String((edited&&edited.shri)||rawShri||'').trim(), contact:String((edited&&edited.contact)||raw.contact||raw.contactNo||'').trim(), pmjay:String((edited&&edited.pmjay)||raw.pmjay||raw.pmjayId||'').trim(), addr:String((edited&&edited.addr)||raw.addr||raw.address||'').trim(), deleted:isDel };
-   if(overwrite ||!map[key]) map[key]=obj; else if(obj.name) map[key]=obj;
- }
- (typeof patientData!=='undefined'?patientData:[]).forEach(pd=>addToMap(pd,false));
- Object.values(editedLocal).forEach(v=>addToMap(v,true));
- try{ const snap=await getDocs(collection(db,"patients")); snap.forEach(d=>{ let data=d.data(); if(data.deleted===true){ if(map[d.id]) map[d.id].deleted=true; return;} addToMap({key:d.id, id:d.id,...data}, true); }); }catch(e){}
- allPatients=Object.values(map); allPatients.sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase()));
- await fetchDischargeToday();
- applyFilter();
+function updateToggleBtn(){let b=document.getElementById('toggleViewBtn');if(b){b.innerHTML=isListView?gridIconSVG:listIconSVG;}}
+function render(){
+  let grid=document.getElementById('grid');if(!grid)return;
+  grid.classList.toggle('listView',isListView);
+  let filtered=getFiltered();let done=0;
+  allPatients.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(st&&st.photoTaken&&st.opdDone)done++;});
+  let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;if(currentPage<1)currentPage=1;
+  let items=filtered.slice((currentPage-1)*ps,currentPage*ps);grid.innerHTML='';
+  items.forEach(p=>{
+    let sh=String(p.shri||'').toUpperCase();
+    let st=statusMap[sh]||{photoTaken:false,opdDone:false};
+    let photoClass = st.photoTaken ? 'btnAct btnGreen' : 'btnAct btnRed';
+    let opdClass = st.opdDone ? 'btnAct btnGreen' : 'btnAct btnRed';
+    let photoTxt = st.photoTaken ? 'COMPLETE' : 'PHOTO';
+    let opdTxt = st.opdDone ? 'COMPLETE' : 'OPD';
+    let div=document.createElement('div');div.className='card';div.id='card_'+sh;
+    div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name||''}</div><div class="sub">${p.time||''} • ${sh}</div></div></div><div class="actions"><button class="${photoClass}" data-shri="${sh}" data-type="photo">${photoTxt}</button><button class="${opdClass}" data-shri="${sh}" data-type="opd">${opdTxt}</button></div>`;
+    grid.appendChild(div);
+  });
+  if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:30px;background:#fff;border-radius:14px;color:#0B1F4A;font-weight:700;font-size:13px">All done ✓ - Check DONE tab</div>`;}
+  document.getElementById('pageIndicator').innerText=`${currentPage}/${pages}`;
+  document.getElementById('prevBtn').disabled=currentPage<=1;
+  document.getElementById('nextBtn').disabled=currentPage>=pages;
+  document.getElementById('cLeft').innerText=`${allPatients.length} • ${done} done`;
+  document.getElementById('cRight').innerText=`PENDING ${filtered.length}`;
+  document.getElementById('doneB').innerText=done;
+  document.getElementById('searchInfo').innerText=`${filtered.length} patients • ${currentPage}/${pages}`;
+  document.getElementById('drawerCount').innerText=`${allPatients.length}`;
+  updateToggleBtn();
+  document.querySelectorAll('.btnAct').forEach(btn=>{
+    const h=(e)=>{e.preventDefault();e.stopPropagation();showConfirm(btn.getAttribute('data-shri'), btn.getAttribute('data-type'));};
+    btn.addEventListener('click',h);btn.addEventListener('touchend',h,{passive:false});
+  });
 }
-init();
+let startX=0,startY=0;const scrollEl=document.getElementById('scroll');
+scrollEl.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;startY=e.touches[0].clientY;},{passive:true});
+scrollEl.addEventListener('touchend',e=>{
+  let endX=e.changedTouches[0].clientX;let endY=e.changedTouches[0].clientY;
+  let diffX=endX-startX;let diffY=endY-startY;
+  if(Math.abs(diffX)>Math.abs(diffY) && Math.abs(diffX)>70){
+    if(diffX<0)goNextPage();else goPrevPage();
+    let hint=document.getElementById('swipeHint');hint.classList.add('show');setTimeout(()=>hint.classList.remove('show'),900);
+  }
+},{passive:true});
+function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;render();window.scrollTo({top:0,behavior:'smooth'});}}
+function goPrevPage(){if(currentPage>1){currentPage--;render();window.scrollTo({top:0,behavior:'smooth'});}}
+function goToCompleted(){let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
+function addUniversal(el,fn){if(!el)return;el.addEventListener('click',fn);el.addEventListener('touchend',e=>{e.preventDefault();fn(e);},{passive:false});}
+document.querySelectorAll('.chip').forEach(c=>{addUniversal(c,()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;currentPage=1;render();});});
+document.getElementById('filterBlock')?.addEventListener('change',()=>{currentPage=1;render();});
+document.getElementById('fDate')?.addEventListener('change',loadData);
+document.getElementById('fType')?.addEventListener('change',loadData);
+addUniversal(document.getElementById('tabSync'),()=>location.reload());
+addUniversal(document.getElementById('tabDone'),goToCompleted);
+addUniversal(document.getElementById('tabHome'),()=>location.href='index.html');
+addUniversal(document.getElementById('toggleViewBtn'),()=>{isListView=!isListView;localStorage.setItem('gda_view',isListView?'list':'grid');currentPage=1;render();});
+addUniversal(document.getElementById('prevBtn'),()=>goPrevPage());
+addUniversal(document.getElementById('nextBtn'),()=>goNextPage());
+addUniversal(document.getElementById('btnSure'),()=>confirmSure());
+addUniversal(document.getElementById('btnNotSure'),()=>hideConfirm());
+document.getElementById('confirmModal')?.addEventListener('click',e=>{if(e.target.id==='confirmModal')hideConfirm();});
+const searchInput=document.getElementById('searchName');const clearBtn=document.getElementById('clearSearch');
+searchInput?.addEventListener('input',e=>{searchQuery=e.target.value;if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';currentPage=1;render();});
+addUniversal(clearBtn,()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
+window.addEventListener('resize',()=>render());
+window.addEventListener('load',()=>{setTimeout(()=>{updateToggleBtn();loadData();},300);});
 </script>
 </body>
 </html>
