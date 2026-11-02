@@ -59,8 +59,9 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .pCardBody{padding:10px 12px}
 .pCardNameRow{display:flex;align-items:center;gap:6px}
 .pCardName{font-weight:800;font-size:13px;color:#0f172a;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pmjayBlue{background:#2563eb;color:#fff;padding:3px 8px;border-radius:20px;font-weight:800;font-size:9.5px;white-space:nowrap;box-shadow:0 2px 6px #2563eb30}
-.shri{font-size:10px;color:#64748b;background:#f1f5f9;padding:3px 8px;border-radius:20px;font-weight:700;border:1px solid #e2e8f0;display:inline-flex;margin-top:4px}
+/* SHRI ID NOW BLUE, PMJAY ID LIKE SHRI ID DESIGN */
+.shri{background:#2563eb;color:#fff;padding:3px 8px;border-radius:20px;font-weight:800;font-size:9.5px;white-space:nowrap;box-shadow:0 2px 6px #2563eb30;display:inline-flex;margin-top:4px}
+.pmjayBlue{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;padding:3px 8px;border-radius:20px;font-weight:700;font-size:9.5px;white-space:nowrap}
 .pCardRow{display:flex;justify-content:space-between;margin-top:4px;font-size:11px}
 .pCardRow span{color:#64748b;font-weight:600;font-size:10px}
 .pCardRow b{color:#0f172a;font-weight:700;font-size:11px}
@@ -73,8 +74,8 @@ table{width:100%;border-collapse:collapse;min-width:1100px}
 th{padding:14px 12px;font-size:11px;color:#64748b;background:#f8fafc;text-align:left;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
 td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-align:middle;white-space:nowrap}
 .sl{background:#f1f5f9;width:36px;height:28px;display:grid;place-items:center;border-radius:8px;font-weight:800;font-size:12px}
-.shriTable{color:#64748b;background:#f1f5f9;padding:5px 10px;border-radius:8px;font-weight:700;font-size:11px;border:1px solid #e2e8f0;display:inline-block;min-width:80px;text-align:center}
-.pmjayTable{background:#2563eb;color:#fff;padding:6px 12px;border-radius:8px;font-weight:800;font-size:11px;display:inline-block;min-width:110px;text-align:center;box-shadow:0 2px 6px #2563eb30}
+.shriTable{background:#2563eb;color:#fff;padding:5px 10px;border-radius:8px;font-weight:800;font-size:11px;display:inline-block;min-width:80px;text-align:center;box-shadow:0 2px 6px #2563eb30}
+.pmjayTable{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;padding:6px 12px;border-radius:8px;font-weight:700;font-size:11px;display:inline-block;min-width:110px;text-align:center}
 .pager{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px}
 .pagerGrid{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;margin-top:16px;flex-wrap:wrap;gap:8px}
 .pBtn{padding:8px 14px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer;font-size:13px}
@@ -85,7 +86,6 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-ali
 .hidden{display:none!important}
 .addBtn{background:#2563eb;color:#fff;padding:10px 18px;border-radius:10px;border:0;font-weight:800;font-size:13px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px #2563eb30}
 .addBtn:hover{background:#1d4ed8}
-.star{color:#ef4444;font-weight:900;margin-left:3px}
 @media(max-width:1200px){.patientGrid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){.patientGrid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.patientGrid{grid-template-columns:repeat(2,1fr);gap:8px}.content{padding:14px}.controls{flex-direction:column;align-items:stretch}}
@@ -162,8 +162,6 @@ const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDom
 const app = initializeApp(firebaseConfig,"totalMain_"+Math.random());
 const db = getFirestore(app);
 let allPatients=[],filtered=[],currentPage=1,pageSize=12,editIndex=-1;
-let dischargedSet = new Set(); // Will hold keys of discharged patients for TODAY
-
 function getKey(p){ return String(p.key||p.shri||p.id||p.name).trim(); }
 function getDeleted(){ try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]');}catch{return [];} }
 function getEdited(){ try{return JSON.parse(localStorage.getItem('editedKeys')||'{}');}catch{return {};} }
@@ -176,145 +174,31 @@ window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize')
 window.applyFilter=()=>{let q=document.getElementById('search').value.toLowerCase();filtered=allPatients.filter(p=>!p.deleted && [p.name,p.shri,p.pmjay,p.contact].join(' ').toLowerCase().includes(q));renderAll();};
 function getGradient(i){ const g=['gc1','gc2','gc3','gc4','gc5','gc6','gc7','gc8','gc9','gc10']; return g[i%10]; }
 function getInitial(name){ return (name||'P').trim().charAt(0).toUpperCase(); }
-
-// --- DATE HELPERS ---
-function getTodayStrings(){
-  let now = new Date();
-  let yyyy = now.getFullYear();
-  let mm = String(now.getMonth()+1).padStart(2,'0');
-  let dd = String(now.getDate()).padStart(2,'0');
-  return {
-    iso: `${yyyy}-${mm}-${dd}`, // 2026-05-13
-    dmy: `${dd}/${mm}/${yyyy}`, // 13/05/2026
-    dmyDash: `${dd}-${mm}-${yyyy}`, // 13-05-2026
-    yyyymmdd: `${yyyy}${mm}${dd}`
-  };
-}
-function isTodayDateStr(dateStr){
-  if(!dateStr) return false;
-  let today = getTodayStrings();
-  let s = String(dateStr).trim();
-  return s===today.iso || s===today.dmy || s===today.dmyDash || s===today.yyyymmdd || s.includes(today.iso);
-}
-function normalizeKey(k){ return String(k||'').trim().toLowerCase(); }
-
-// --- FETCH DISCHARGE LIST FOR TODAY ---
-async function fetchDischargeToday(){
-  dischargedSet = new Set();
-  let today = getTodayStrings();
-  // 1) Try localStorage keys (common in your discharge.html)
-  const localKeys = ["dischargeList","discharges","todayDischarges","dischargePatients","dailyDischarge","dischargeData"];
-  for(let lk of localKeys){
-    try{
-      let raw = localStorage.getItem(lk);
-      if(!raw) continue;
-      let arr = JSON.parse(raw);
-      if(!Array.isArray(arr)) arr = [arr];
-      arr.forEach(item=>{
-        if(!item) return;
-        let d = item.date || item.dischargeDate || item.day || item.createdAt || "";
-        let shouldInclude = !d || isTodayDateStr(d); // if no date, assume today OR check date
-        // If item has date, only include if date is today. If you store only today's list, include all
-        if(item.date && !isTodayDateStr(item.date) && item.dischargeDate && !isTodayDateStr(item.dischargeDate)) {
-          // If local list has date field but not today, skip unless array is meant to be only today
-          // We will still include if array size small and no date filter - to be safe, check both
-          if(arr.length>20) return; // likely historical, skip
-        }
-        let k1 = item.key || item.shri || item.shriId || item.id || item.patientKey || item.name || "";
-        let k2 = item.shri || "";
-        let k3 = item.id || "";
-        if(k1) dischargedSet.add(normalizeKey(k1));
-        if(k2) dischargedSet.add(normalizeKey(k2));
-        if(k3) dischargedSet.add(normalizeKey(k3));
-        if(item.name) dischargedSet.add(normalizeKey(item.name));
-      });
-    }catch(e){}
-  }
-
-  // 2) Try Firebase collections - common names
-  const collectionsToTry = ["discharges","discharge","discharge_list","discharge_patients","daily_discharge","dischargePatients","dialysis_discharge"];
-  for(let colName of collectionsToTry){
-    try{
-      let snap = await getDocs(collection(db,colName));
-      snap.forEach(d=>{
-        let data = d.data();
-        let dateField = data.date || data.dischargeDate || data.day || data.createdDate || d.id || "";
-        if(!isTodayDateStr(dateField)){
-          // Also check if doc itself contains today's date in any field
-          let hasToday = false;
-          for(let v of Object.values(data)){
-            if(isTodayDateStr(v)) hasToday = true;
-          }
-          // If collection stores one doc per day with array inside, check
-          if(!hasToday && !isTodayDateStr(d.id)){
-            // If this collection is for history, skip non-today docs unless they are today
-            // But if doc id is today, include
-            if(colName==="discharges" && data.patients){
-              // Might be daily doc
-            } else {
-              // To avoid old data, only include if date matches or if no date field (assume today list)
-              if(dateField && String(dateField).length>4) return;
-            }
-          }
-        }
-        // Extract patient keys from this discharge doc
-        if(data.patients && Array.isArray(data.patients)){
-          data.patients.forEach(p=>{
-            if(typeof p==="string") dischargedSet.add(normalizeKey(p));
-            else {
-              let k = p.key||p.shri||p.id||p.name||"";
-              if(k) dischargedSet.add(normalizeKey(k));
-            }
-          });
-        }
-        let k = data.key||data.shri||data.shriId||data.patientKey||data.id||data.patientId||data.name||"";
-        if(k) dischargedSet.add(normalizeKey(k));
-        // Also try d.id as key
-        dischargedSet.add(normalizeKey(d.id));
-        if(data.shri) dischargedSet.add(normalizeKey(data.shri));
-        if(data.shriId) dischargedSet.add(normalizeKey(data.shriId));
-      });
-    }catch(e){}
-  }
-  console.log("Discharged today:", Array.from(dischargedSet));
-}
-
-function isDischargedToday(p){
-  if(dischargedSet.size===0) return false;
-  let candidates = [p.key,p.shri,p.id,p.name].map(normalizeKey).filter(Boolean);
-  return candidates.some(c=>dischargedSet.has(c));
-}
-
 window.renderAll=()=>{
  let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));
  if(currentPage>totalPages) currentPage=totalPages;
  let start=(currentPage-1)*pageSize;
  let data=filtered.slice(start,start+pageSize);
  let gridHtml='';
- data.forEach((p,idx)=>{
-   let realIdx=allPatients.indexOf(p);
-   let grad=getGradient(start+idx);
-   let star = isDischargedToday(p) ? `<span class="star">*</span>` : ``;
-   gridHtml+=`
+ data.forEach((p,idx)=>{let realIdx=allPatients.indexOf(p);let grad=getGradient(start+idx);gridHtml+=`
  <div class="pCard">
    <div class="pCardTop ${grad}"><div class="pCardAvatar">${getInitial(p.name)}</div></div>
    <div class="pCardBody">
-     <div class="pCardNameRow"><div class="pCardName">${p.name||'Unknown'}${star}</div><span class="pmjayBlue">${p.pmjay||'No PMJAY'}</span></div>
+     <div class="pCardNameRow"><div class="pCardName">${p.name||'Unknown'}</div><span class="pmjayBlue">${p.pmjay||'No PMJAY'}</span></div>
      <div class="pCardRow"><span>SHRI ID</span><b>${p.shri||'-'}</b></div>
      <div class="pCardRow"><span>Contact</span><b>${p.contact||'-'}</b></div>
+     <div style="margin-top:4px"><span class="shri">${p.shri||'No SHRI'}</span></div>
      <div class="pCardActions"><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button><button class="btnDel" onclick="deletePatient(${realIdx})">Delete</button></div>
    </div>
- </div>`;
- });
+ </div>`;});
  if(data.length===0) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">No patients</div>';
  document.getElementById('patientGrid').innerHTML=gridHtml;
  let html='<tr><th>SL No</th><th>Patient</th><th>PMJAY ID</th><th>SHRI ID</th><th>Contact</th><th>Address</th><th>Action</th></tr>';
  data.forEach((p)=>{
    let realIdx=allPatients.indexOf(p);
-   let star = isDischargedToday(p) ? `<span class="star">*</span>` : ``;
    html+=`<tr>
      <td><div class="sl">${start+filtered.indexOf(p)+1}</div></td>
-     <td><b>${p.name}${star}</b></td>
+     <td><b>${p.name}</b></td>
      <td><span class="pmjayTable">${p.pmjay||'-'}</span></td>
      <td><span class="shriTable">${p.shri||'No ID'}</span></td>
      <td>${p.contact||'-'}</td>
@@ -324,8 +208,7 @@ window.renderAll=()=>{
  });
  if(data.length===0) html+='<tr><td colspan="7" style="text-align:center;padding:20px">No patients</td></tr>';
  document.getElementById('tbl').innerHTML=html;
- let dischargedCount = filtered.filter(isDischargedToday).length;
- document.getElementById('info').textContent=filtered.length+' patients • '+dischargedCount+' discharged today • Page '+currentPage+' of '+totalPages;
+ document.getElementById('info').textContent=filtered.length+' patients • Page '+currentPage+' of '+totalPages;
  ['','Grid'].forEach(suffix=>{
    let pInfo=document.getElementById('pageInfo'+suffix);
    let prevBtn=document.getElementById('prevBtn'+suffix);
@@ -354,9 +237,7 @@ async function init(){
  (typeof patientData!=='undefined'?patientData:[]).forEach(pd=>addToMap(pd,false));
  Object.values(editedLocal).forEach(v=>addToMap(v,true));
  try{ const snap=await getDocs(collection(db,"patients")); snap.forEach(d=>{ let data=d.data(); if(data.deleted===true){ if(map[d.id]) map[d.id].deleted=true; return;} addToMap({key:d.id, id:d.id,...data}, true); }); }catch(e){}
- allPatients=Object.values(map); allPatients.sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase()));
- await fetchDischargeToday();
- applyFilter();
+ allPatients=Object.values(map); allPatients.sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase())); applyFilter();
 }
 init();
 </script>
