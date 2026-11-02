@@ -10,25 +10,34 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#f1f5f9;display:flex;min-height:100vh}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:transform .32s ease}
-.whiteBar.folded{transform:translateX(-100%)}
+/* FIXED SIDEBAR - SAME MOBILE & DESKTOP */
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease}
+.whiteBar.folded{width:72px!important;min-width:72px!important}
 .mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#e9eef6}
-.whiteBar.folded ~ .mainWrap{margin-left:0!important}
-.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0}
-.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important}
+.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
+.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0;flex-shrink:0}
 .sLogo img{width:100%;height:100%;object-fit:contain}
-.sTitle b{color:#0f172a;font-size:16px;font-weight:900}
+.sTitle{overflow:hidden;white-space:nowrap}
+.sTitle b{color:#0f172a;font-size:16px;font-weight:900;display:block}
 .sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
-.sMenu{flex:1;padding:8px;overflow-y:auto}
+.whiteBar.folded .sTitle{display:none}
+.whiteBar.folded .sHead{justify-content:center;padding:14px 0}
+.sMenu{flex:1;padding:8px;overflow-y:auto;overflow-x:hidden}
 .sMenu::-webkit-scrollbar{width:0}
 .sMenu a{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:10px;text-decoration:none;color:#94a3b8;font-size:12.5px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden}
 .sMenu a:hover{background:#1e293b;color:#fff}
 .sMenu a.active{background:#2563eb;color:#fff;font-weight:700}
-.mi{width:32px;min-width:32px;height:32px;display:grid;place-items:center;background:#1e293b;border-radius:8px;flex-shrink:0}
-.mi svg{width:16px;height:16px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.mi{width:36px;min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:#1e293b;border-radius:10px;flex-shrink:0}
+.mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .sMenu a.active .mi{background:#fff}
 .sMenu a.active .mi svg{stroke:#2563eb}
-.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b}
+.ml{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:opacity .2s}
+.whiteBar.folded .ml{display:none!important}
+.whiteBar.folded .sMenu a{justify-content:center;padding:11px 0}
+.whiteBar.folded .mi{display:flex!important}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;white-space:nowrap;overflow:hidden}
+.whiteBar.folded .sFoot{display:none}
 .top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
 .menuBtnTop{width:40px;height:36px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
@@ -79,8 +88,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .grid.listView .card .avatarSq{width:40px;height:40px;font-size:16px}
 .grid.listView .card .actions{width:auto;min-width:160px;margin-left:8px;margin-top:0}
 .bottomBar{position:fixed;bottom:0;left:270px;right:0;z-index:20;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:space-around;padding:6px 0;transition:left .32s}
-.whiteBar.folded ~ .mainWrap .bottomBar{left:0}
-@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.mainWrap{margin-left:0!important}.whiteBar{width:270px!important}.bottomBar{left:0!important}}
+.whiteBar.folded ~ .mainWrap .bottomBar{left:72px}
 .pagesBottom{padding:20px 0 70px}
 #confirmModal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.55)}.confirmBox{background:#fff;width:86%;max-width:320px;border-radius:16px;padding:20px 16px;text-align:center}
 .confirmTitle{font-size:15px;font-weight:900;color:#0f172a;margin-bottom:6px}.confirmSub{font-size:12px;font-weight:600;color:#6f84a8;margin-bottom:16px}
@@ -93,7 +101,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 </style>
 </head>
 <body>
-<div class="whiteBar folded" id="whiteBar">
+<div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 <div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
 <div class="sMenu">
@@ -136,9 +144,19 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 <script>
 const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
-function toggleWhiteBar(){let bar=document.getElementById('whiteBar');bar.classList.toggle('folded');}
+// FIXED FOLD - ICONS ALWAYS VISIBLE ON SIDE
+function toggleWhiteBar(){
+  let bar=document.getElementById('whiteBar');
+  bar.classList.toggle('folded');
+  localStorage.setItem('sidebar_fold', bar.classList.contains('folded') ? '1' : '0');
+}
 document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
-(function(){let bar=document.getElementById('whiteBar');bar.classList.add('folded');})();
+(function(){
+  let bar=document.getElementById('whiteBar');
+  // Default open on desktop, folded on mobile? No - same for both: open by default
+  if(localStorage.getItem('sidebar_fold')==='1'){bar.classList.add('folded');}
+  else{bar.classList.remove('folded');}
+})();
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function formatDisplayDMY(s){if(!s)return'';let p=s.split('-');return `${p[2]}-${p[1]}-${p[0]}`;}
 function addDays(s, days){let d=new Date(s+'T00:00:00');d.setDate(d.getDate()+days);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
