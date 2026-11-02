@@ -11,16 +11,26 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',sans-serif}
 body{
  min-height:100vh;color:#fff;
- background: linear-gradient(rgba(15,23,42,0.85), rgba(15,23,42,0.88)), url('square.png');
- background-size: cover;
- background-position: center;
- background-attachment: fixed;
- background-repeat: no-repeat;
+ background:#0f172a;
+ position:relative;
  display:flex;
+}
+body::before{
+ content:'';
+ position:fixed;
+ top:50%;
+ left:55%;
+ transform:translate(-50%,-50%);
+ width:340px;
+ height:340px;
+ background:url('square.png') no-repeat center / contain;
+ opacity:0.18;
+ pointer-events:none;
+ z-index:1;
 }
 .whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:transparent}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:transparent;position:relative;z-index:2}
 .whiteBar.folded ~ .mainWrap{margin-left:72px!important}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
@@ -46,9 +56,9 @@ body{
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
 .menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
-.main{max-width:1100px;margin:0 auto;padding:24px 16px;width:100%}
+.main{max-width:1100px;margin:0 auto;padding:24px 16px;width:100%;position:relative;z-index:2}
 .pageHead{margin-bottom:18px}
-.pageHead h1{font-size:30px;font-weight:900;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.pageHead h1{font-size:30px;font-weight:900;color:#fff}
 .pageHead p{color:#cbd5e1;font-size:13px;margin-top:6px}
 .searchTab{background:#ffffff;border-radius:16px;padding:14px;border:1px solid #e2e8f0;margin-bottom:16px;position:relative}
 .searchTab .searchRow{display:flex;gap:10px;align-items:center}
@@ -112,26 +122,26 @@ body{
 <div class="main">
 <div class="pageHead"><h1>Patient Details</h1><p id="subtitle">Search any patient by Name, SHRI ID, PMJAY/CMHT ID</p></div>
 <div class="searchTab">
-<div class="searchRow"><input type="text" id="patientSearch" placeholder="Search patient - Name / SHRI ID / PMJAY / CMHT / Contact..." oninput="doSearch()" onfocus="doSearch()" autocomplete="off"><button class="searchBtn" onclick="doSearch()">SEARCH</button></div>
+<div class="searchRow"><input type="text" id="patientSearch" placeholder="Search patient..." oninput="doSearch()" onfocus="doSearch()" autocomplete="off"><button class="searchBtn" onclick="doSearch()">SEARCH</button></div>
 <div class="searchResults" id="searchResults"></div>
-<div style="margin-top:8px;font-size:10px;font-weight:700;color:#64748b"><span id="searchCount">All PMJAY + CMHT patients loaded</span> • Type to filter</div>
+<div style="margin-top:8px;font-size:10px;font-weight:700;color:#64748b"><span id="searchCount">All patients loaded</span></div>
 </div>
-<div id="loading" style="background:#ffffff;border-radius:20px;padding:28px;border:1px solid #e2e8f0;text-align:center;color:#64748b;font-weight:700">Loading patient details...</div>
+<div id="loading" style="background:#ffffff;border-radius:20px;padding:28px;border:1px solid #e2e8f0;text-align:center;color:#64748b;font-weight:700">Loading...</div>
 <div id="card" class="card">
 <div class="cardHeader" id="cardTop" style="background:#2563eb"></div>
 <div class="cardBody"><div class="cardTitle"><h2>Patient Information</h2><span id="remarkBadge" class="remark remark-PMJAY">PMJAY</span></div>
 <div class="grid">
 <div class="field"><div class="label">Patient Name</div><div class="value" id="pName">-</div></div>
-<div class="field"><div class="label">Remark / Scheme</div><div class="value" id="pRemark">-</div></div>
-<div class="field"><div class="label">SHRI ID / IPD No</div><div class="value" id="pId">-</div></div>
-<div class="field"><div class="label">PMJAY / CMHT Card ID</div><div class="value" id="pSchemeId">-</div></div>
+<div class="field"><div class="label">Remark</div><div class="value" id="pRemark">-</div></div>
+<div class="field"><div class="label">SHRI ID</div><div class="value" id="pId">-</div></div>
+<div class="field"><div class="label">PMJAY / CMHT ID</div><div class="value" id="pSchemeId">-</div></div>
 <div class="field"><div class="label">Age</div><div class="value" id="pAge">-</div></div>
-<div class="field"><div class="label">Sex / Gender</div><div class="value" id="pSex">-</div></div>
-<div class="field"><div class="label">Contact Number</div><div class="value" id="pPhone">-</div></div>
-<div class="field"><div class="label">Aadhaar Number</div><div class="value" id="pAadhaar">-</div></div>
+<div class="field"><div class="label">Sex</div><div class="value" id="pSex">-</div></div>
+<div class="field"><div class="label">Contact</div><div class="value" id="pPhone">-</div></div>
+<div class="field"><div class="label">Aadhaar</div><div class="value" id="pAadhaar">-</div></div>
 <div class="field full"><div class="label">Address</div><div class="value" id="pAddress">-</div></div>
 </div></div>
-<div class="footerBar"><span style="font-size:11px;color:#64748b;font-weight:700" id="fTime"></span><button class="btn btnDark" onclick="location.href='index.html'">Back to Home</button></div>
+<div class="footerBar"><span style="font-size:11px;color:#64748b;font-weight:700" id="fTime"></span><button class="btn btnDark" onclick="location.href='index.html'">Back</button></div>
 </div>
 <p id="notFound" style="display:none;text-align:center;margin-top:20px;background:#fff;padding:18px;border-radius:14px;color:#64748b;font-weight:600">No record found</p>
 </div>
@@ -152,39 +162,22 @@ function showPatient(found){
   document.getElementById('pPhone').innerText = found.contactNo || found.contact || '-';
   document.getElementById('pAadhaar').innerText = found.aadhaarNo || found.aadhaar || 'Not Provided';
   document.getElementById('pAddress').innerText = found.address || 'Not Provided';
-  document.getElementById('pAge').innerText = found.age || found.patientAge || '-';
+  document.getElementById('pAge').innerText = found.age || '-';
   document.getElementById('pSex').innerText = found.gender || found.sex || '-';
-  if(found._source==='cmht.html'){
-    document.getElementById('pRemark').innerText='CMHT';
-    document.getElementById('remarkBadge').innerText='CMHT';
-    document.getElementById('remarkBadge').className='remark remark-CMHT';
-    document.getElementById('cardTop').style.background='#10b981';
-  }else{
-    document.getElementById('pRemark').innerText='PMJAY';
-    document.getElementById('remarkBadge').innerText='PMJAY';
-    document.getElementById('remarkBadge').className='remark remark-PMJAY';
-    document.getElementById('cardTop').style.background='#2563eb';
-  }
+  document.getElementById('pRemark').innerText = found._source==='cmht.html'?'CMHT':'PMJAY';
+  document.getElementById('remarkBadge').innerText = found._source==='cmht.html'?'CMHT':'PMJAY';
   document.getElementById('card').style.display='block';
 }
 function doSearch(){
   let q = document.getElementById('patientSearch').value.toLowerCase().trim();
   let box = document.getElementById('searchResults');
-  let countEl = document.getElementById('searchCount');
-  if(!q){box.classList.remove('show');countEl.innerText = `${allPatients.length} patients loaded`;return;}
-  let filtered = allPatients.filter(p=>`${p.patientName||p.name||''} ${p.shriId||p.shri||''} ${p.pmjayId||p.pmjay||''} ${p.cmhtId||p.cmht||''}`.toLowerCase().includes(q)).slice(0,20);
-  countEl.innerText = `${filtered.length} found / ${allPatients.length} total`;
-  if(filtered.length===0){box.innerHTML=`<div class="sItem"><b>No patient</b></div>`;box.classList.add('show');return;}
-  let html=''; filtered.forEach(p=>{let name=p.patientName||p.name||'Unknown';let shri=p.shriId||p.shri||'';let type=p._source==='cmht.html'?'CMHT':'PMJAY';let color=type==='CMHT'?'#10b981':'#2563eb';html+=`<div class="sItem" onclick="selectPatient('${shri}')"><div><b>${name}</b> <small style="background:${color};color:#fff;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:6px">${type}</small><br><small>${shri} | ${p.pmjayId||p.cmhtId||''}</small></div><small style="color:${color};font-weight:800">VIEW →</small></div>`;}); box.innerHTML=html; box.classList.add('show');
+  if(!q){box.classList.remove('show');return;}
+  let filtered = allPatients.filter(p=>`${p.patientName||p.name||''} ${p.shriId||p.shri||''} ${p.pmjayId||p.pmjay||''}`.toLowerCase().includes(q)).slice(0,20);
+  let html=''; filtered.forEach(p=>{let name=p.patientName||p.name||'Unknown';let shri=p.shriId||p.shri||'';html+=`<div class="sItem" onclick="selectPatient('${shri}')"><div><b>${name}</b><br><small>${shri}</small></div></div>`;}); box.innerHTML=html; box.classList.add('show');
 }
-function selectPatient(shri){document.getElementById('searchResults').classList.remove('show');document.getElementById('patientSearch').value=shri;let found=allPatients.find(p=>String(p.shriId||p.shri||'').toLowerCase()===shri.toLowerCase());if(found)showPatient(found);history.replaceState(null,'',`?shri=${encodeURIComponent(shri)}`);}
+function selectPatient(shri){document.getElementById('searchResults').classList.remove('show');let found=allPatients.find(p=>String(p.shriId||p.shri||'').toLowerCase()===shri.toLowerCase());if(found)showPatient(found);}
 document.addEventListener('click',(e)=>{if(!e.target.closest('.searchTab')){document.getElementById('searchResults').classList.remove('show');}});
-async function loadPatient(){
-  const params = new URLSearchParams(location.search);
-  const shriParam = (params.get('shri')||'').trim();
-  let all=[]; try{let s=await db.collection("patients").get();s.forEach(d=>{if(!d.data().deleted)all.push({...d.data(),_docId:d.id,_source:'total.html'})})}catch(e){} try{let s=await db.collection("cmht_patients").get();s.forEach(d=>{if(!d.data().deleted)all.push({...d.data(),_docId:d.id,_source:'cmht.html'})})}catch(e){} allPatients=all; document.getElementById('searchCount').innerText=`${all.length} patients loaded`; document.getElementById('loading').style.display='none';
-  if(!shriParam)return; let q=shriParam.toLowerCase(); let found=all.find(p=>String(p.shriId||p.shri||'').toLowerCase()===q); if(found)showPatient(found);
-}
+async function loadPatient(){let all=[]; try{let s=await db.collection("patients").get();s.forEach(d=>{if(!d.data().deleted)all.push({...d.data(),_source:'total.html'})})}catch(e){} try{let s=await db.collection("cmht_patients").get();s.forEach(d=>{if(!d.data().deleted)all.push({...d.data(),_source:'cmht.html'})})}catch(e){} allPatients=all; document.getElementById('loading').style.display='none';}
 loadPatient();
 </script>
 </body>
