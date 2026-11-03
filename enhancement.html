@@ -147,11 +147,34 @@ async function loadData(){try{let d=document.getElementById('fDate').value,s=doc
 async function saveEnhancement(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await db.collection('daily_enhancement').doc(id).set({date:d,scheme:s,status:enhancementMap,updatedAt:new Date().toISOString()},{merge:true});}
 function showConfirm(sh){pendingShri=sh;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let name=p?p.name:sh;document.getElementById('confirmTitle').innerText='UNDO?';document.getElementById('confirmSub').innerText='Move '+name+' back to DONE LIST (gdacompleted.html)?';document.getElementById('confirmModal').style.display='flex';}
 function hideConfirm(){document.getElementById('confirmModal').style.display='none';pendingShri=null;}
-async function confirmSure(){if(!pendingShri)return;let btn=document.getElementById('btnSure');btn.innerText='...';btn.disabled=true;try{
-if(enhancementMap[pendingShri]){delete enhancementMap[pendingShri];}
-await saveEnhancement();hideConfirm();render();
-let toast=document.getElementById('toast');toast.innerText='Returned to DONE → gdacompleted.html';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1500);
-}catch(e){alert('Error: '+(e.message||e));}finally{btn.innerText='SURE';btn.disabled=false;}}
+
+// FIXED: UNDO -> GO TO gdacompleted.html + DISAPPEAR FROM enhancement.html
+async function confirmSure(){
+  if(!pendingShri)return;
+  let btn=document.getElementById('btnSure');
+  btn.innerText='...';btn.disabled=true;
+  try{
+    let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;
+    // Remove from enhancement
+    if(enhancementMap[pendingShri]){
+      delete enhancementMap[pendingShri];
+    }
+    await saveEnhancement();
+    hideConfirm();
+    // Disappear from enhancement.html immediately
+    render();
+    let toast=document.getElementById('toast');
+    toast.innerText='Returned to DONE List ✓ → gdacompleted.html';
+    toast.classList.add('show');
+    // Go to Done List
+    setTimeout(()=>{
+      toast.classList.remove('show');
+      location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);
+    },800);
+  }catch(e){alert('Error: '+(e.message||e));}
+  finally{btn.innerText='SURE';btn.disabled=false;}
+}
+
 function getInit(n){return(n||'A').charAt(0).toUpperCase();}
 function getCol(name){const colors=['linear-gradient(135deg,#f59e0b,#f97316)','linear-gradient(135deg,#8B5CF6,#7C3AED)','linear-gradient(135deg,#22C55E,#10B981)'];let h=0;for(let i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h);}return colors[Math.abs(h)%colors.length];}
 function getFiltered(){let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(bf&&p.block!==bf)return false;let enh=enhancementMap[sh];if(!enh||!enh.enhanced)return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}return true;});}
