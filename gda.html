@@ -114,6 +114,8 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
 </script>
+<!-- ANTI-ADMIN TRAP -->
+<div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 <div id="overlay"></div>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
@@ -153,7 +155,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 <div class="content">
 <div class="topFilters">
-<div class="searchRow"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
+<div class="searchRow"><div class="searchInputWrap"><input type="search" id="searchName" name="shija_gda_q_9271" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
 <div class="row3"><div class="dateBoxNew"><button class="dateArrowBox" id="datePrev">‹</button><div class="dateMiddle" id="dateCenter"><span id="dateDisplay">03-11-2026</span><div class="calBox" id="calIcon"></div></div><button class="dateArrowBox right" id="dateNext">›</button></div><div class="dateBox2"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div><div class="dateBox2"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div>
 <input type="date" id="fDate" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
 <div class="hint">Click middle date /  for all dates</div>
@@ -236,7 +238,7 @@ async function confirmSure(){if(!pendingShri||!pendingType)return;let btn=docume
 async function confirmNotSure(){if(!pendingShri||!pendingType)return;let btn=document.getElementById('btnNotSure');btn.innerText='...';btn.disabled=true;try{if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};let st=statusMap[pendingShri];let isDone=pendingType==='photo'?st.photoTaken:st.opdDone;if(isDone){if(pendingType==='photo')st.photoTaken=false;else st.opdDone=false;await saveStatus();}hideConfirm();render();}catch(e){alert('Error: '+(e.message||e));}finally{btn.innerText='NOT SURE';btn.disabled=false;}}
 function getInit(n){return(n||'A').charAt(0).toUpperCase();}
 function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#7C3AED)','linear-gradient(135deg,#3B82F6,#0EA5E9)','linear-gradient(135deg,#22C55E,#10B981)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#EF4444,#EC4899)'];let h=0;for(let i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h);}return colors[Math.abs(h)%colors.length];}
-function getFiltered(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(st.photoTaken&&st.opdDone)return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}return true;});}
+function getFiltered(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim(); if(sq.includes('admin')){ document.getElementById('searchName').value=''; searchQuery=''; sq=''; } return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(st.photoTaken&&st.opdDone)return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}return true;});}
 function updateToggleBtn(){let b=document.getElementById('toggleViewBtn');if(b){b.innerHTML=isListView?listIconSVG:gridIconSVG;}}
 function render(){let grid=document.getElementById('grid');if(!grid)return;grid.classList.toggle('listView',isListView);let filtered=getFiltered();let done=0;allPatients.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(st&&st.photoTaken&&st.opdDone)done++;});let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;if(currentPage<1)currentPage=1;let items=filtered.slice((currentPage-1)*ps,currentPage*ps);grid.innerHTML='';items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh]||{photoTaken:false,opdDone:false};let photoClass=st.photoTaken?'btnAct btnGreen':'btnAct btnRed';let opdClass=st.opdDone?'btnAct btnGreen':'btnAct btnRed';let photoTxt=st.photoTaken?'COMPLETE':'PHOTO';let opdTxt=st.opdDone?'COMPLETE':'OPD';let div=document.createElement('div');div.className='card';div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name||''}</div><div class="sub">${p.time||''} • ${sh}</div></div></div><div class="actions"><button class="${photoClass}" data-shri="${sh}" data-type="photo">${photoTxt}</button><button class="${opdClass}" data-shri="${sh}" data-type="opd">${opdTxt}</button></div>`;grid.appendChild(div);});if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:30px;background:#fff;border-radius:14px;color:#0f172a;font-weight:700">All done ✓ - Check DONE tab</div>`;}document.getElementById('pageIndicator').innerText=`${currentPage}/${pages}`;document.getElementById('prevBtn').disabled=currentPage<=1;document.getElementById('nextBtn').disabled=currentPage>=pages;document.getElementById('doneB').innerText=done;document.getElementById('searchInfo').innerText=`${filtered.length} patients • ${currentPage}/${pages}`;document.getElementById('doneMeta').innerText=`${done} done • ${filtered.length} pending`;updateToggleBtn();document.querySelectorAll('.btnAct').forEach(btn=>{const h=(e)=>{e.preventDefault();e.stopPropagation();showConfirm(btn.getAttribute('data-shri'),btn.getAttribute('data-type'));};btn.addEventListener('click',h);btn.addEventListener('touchend',h,{passive:false});});}
 let startX=0;const scrollEl=document.getElementById('scroll');scrollEl.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;},{passive:true});scrollEl.addEventListener('touchend',e=>{let diff=e.changedTouches[0].clientX-startX;if(Math.abs(diff)>70){if(diff<0)goNextPage();else goPrevPage();}},{passive:true});
@@ -257,7 +259,10 @@ addUniversal(document.getElementById('btnSure'),()=>confirmSure());
 addUniversal(document.getElementById('btnNotSure'),()=>confirmNotSure());
 document.getElementById('confirmModal')?.addEventListener('click',e=>{if(e.target.id==='confirmModal')hideConfirm();});
 const searchInput=document.getElementById('searchName');const clearBtn=document.getElementById('clearSearch');
-searchInput?.addEventListener('input',e=>{searchQuery=e.target.value;if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';currentPage=1;render();});
+searchInput?.addEventListener('input',e=>{
+ let v=e.target.value;
+ if(v.toLowerCase().includes('admin')){ e.target.value=''; searchQuery=''; if(clearBtn)clearBtn.style.display='none'; currentPage=1;render(); return; }
+ searchQuery=v;if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';currentPage=1;render();});
 addUniversal(clearBtn,()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
 
 const ADMIN_PASSWORD="jack8189";
@@ -295,6 +300,11 @@ document.addEventListener('DOMContentLoaded',()=>{
       localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html';
     }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
   });
+  // ANTI-ADMIN
+  function killAdmin(){ let s=document.getElementById('searchName'); if(s && s.value.toLowerCase().includes('admin')){ s.value=''; searchQuery=''; if(clearBtn) clearBtn.style.display='none'; } }
+  setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);
+  let el=document.getElementById('searchName'); if(el){ el.addEventListener('focus',killAdmin); }
+  let iv=0; let timer=setInterval(()=>{ killAdmin(); iv++; if(iv>50) clearInterval(timer); },100);
 });
 
 window.addEventListener('load',()=>{setTimeout(()=>{updateToggleBtn();loadData();},300);});
