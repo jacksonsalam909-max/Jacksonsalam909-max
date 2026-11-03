@@ -154,7 +154,42 @@ async function savePhotoStatus(){let d=document.getElementById('fDate').value,s=
 async function saveEnhancement(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await db.collection('daily_enhancement').doc(id).set({date:d,scheme:s,status:enhancementMap,updatedAt:new Date().toISOString()},{merge:true});}
 function showConfirm(sh,action){pendingShri=sh;pendingAction=action;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let name=p?p.name:sh;if(action==='undo'){document.getElementById('confirmTitle').innerText='UNDO?';document.getElementById('confirmSub').innerText='Move '+name+' back to PENDING (gda.html)?';}else{document.getElementById('confirmTitle').innerText='ENHANCEMENT?';document.getElementById('confirmSub').innerText='Move '+name+' to ENHANCEMENT LIST?';}document.getElementById('confirmModal').style.display='flex';}
 function hideConfirm(){document.getElementById('confirmModal').style.display='none';pendingShri=null;pendingAction=null;}
-async function confirmSure(){if(!pendingShri||!pendingAction)return;let btn=document.getElementById('btnSure');btn.innerText='...';btn.disabled=true;try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value;if(pendingAction==='undo'){if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};statusMap[pendingShri].photoTaken=false;statusMap[pendingShri].opdDone=false;await savePhotoStatus();hideConfirm();render();let toast=document.getElementById('toast');toast.innerText='Moved to Pending → gda.html';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1500);}else if(pendingAction==='enhancement'){if(!enhancementMap[pendingShri])enhancementMap[pendingShri]={enhanced:true};else enhancementMap[pendingShri].enhanced=true;await saveEnhancement();hideConfirm();render();let toast=document.getElementById('toast');toast.innerText='Moved to Enhancement ★';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1500);}}catch(e){alert('Error: '+(e.message||e));}finally{btn.innerText='SURE';btn.disabled=false;}}
+
+// FIXED - NO REDIRECT FOR ENHANCEMENT CARD BUTTON
+async function confirmSure(){
+  if(!pendingShri||!pendingAction)return;
+  let btn=document.getElementById('btnSure');
+  btn.innerText='...';btn.disabled=true;
+  try{
+    let d=document.getElementById('fDate').value,s=document.getElementById('fType').value;
+    if(pendingAction==='undo'){
+      if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};
+      statusMap[pendingShri].photoTaken=false;
+      statusMap[pendingShri].opdDone=false;
+      await savePhotoStatus();
+      hideConfirm();
+      render();
+      let toast=document.getElementById('toast');
+      toast.innerText='Moved to Pending → gda.html';
+      toast.classList.add('show');
+      setTimeout(()=>toast.classList.remove('show'),1500);
+    } else if(pendingAction==='enhancement'){
+      // ONLY SAVE, DO NOT REDIRECT - STAY IN SAME PAGE
+      if(!enhancementMap[pendingShri])enhancementMap[pendingShri]={enhanced:true};
+      else enhancementMap[pendingShri].enhanced=true;
+      await saveEnhancement();
+      hideConfirm();
+      render();
+      let toast=document.getElementById('toast');
+      toast.innerText='Moved to Enhancement ★';
+      toast.classList.add('show');
+      setTimeout(()=>toast.classList.remove('show'),1500);
+      // NO location.href here - stays in gdacompleted.html
+    }
+  }catch(e){alert('Error: '+(e.message||e));}
+  finally{btn.innerText='SURE';btn.disabled=false;}
+}
+
 function getInit(n){return(n||'A').charAt(0).toUpperCase();}
 function getCol(name){const colors=['linear-gradient(135deg,#22C55E,#16A34A)','linear-gradient(135deg,#3B82F6,#0EA5E9)','linear-gradient(135deg,#8B5CF6,#7C3AED)'];let h=0;for(let i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h);}return colors[Math.abs(h)%colors.length];}
 function getFiltered(){let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(!(st.photoTaken&&st.opdDone))return false;let enh=enhancementMap[sh];if(enh&&enh.enhanced)return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}return true;});}
