@@ -62,6 +62,11 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
 </script>
+<!-- FAKE TRAP FOR CHROME - STOPS ADMIN AUTOFILL -->
+<form autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0">
+  <input type="text" name="fake-username" autocomplete="username" tabindex="-1">
+  <input type="password" name="fake-password" autocomplete="current-password" tabindex="-1">
+</form>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -130,7 +135,7 @@ try{
 <div class="box">
 <h1 style="font-size:20px;font-weight:900;color:#0f172a">ADD PATIENT FOR CMHT</h1><p id="msgTop" style="margin:4px 0 16px;color:#64748b;font-size:12px;font-weight:600">Will show in CMHT Total Patients on all devices</p>
 
-<div class="row"><div style="flex:2"><label>PATIENT NAME *</label><input id="pName" placeholder="ENTER FULL NAME"></div><div style="flex:1"><label>SHRI ID *</label><input id="shriId" placeholder="SHRI..."></div></div>
+<div class="row"><div style="flex:2"><label>PATIENT NAME *</label><input id="pName" placeholder="ENTER FULL NAME"></div><div style="flex:1"><label>SHRI ID *</label><input id="shriId" name="shri_x_9271_noautofill" type="search" placeholder="SHRI..." autocomplete="off" data-lpignore="true" data-form-type="other" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')"></div></div>
 <div class="row"><div><label>CMHT ID *</label><input id="cmhtId" placeholder="CMHT ID"></div><div><label>CONTACT NUMBER</label><input id="contact" placeholder="MOBILE NUMBER"></div></div>
 <div class="row"><div><label>AADHAAR NUMBER</label><input id="aadhaar" maxlength="12" placeholder="12 DIGIT AADHAAR"></div><div><label>AGE</label><input id="age" type="number" placeholder="AGE"></div><div><label>SEX</label><select id="sex"><option value=""></option><option value="MALE">MALE</option><option value="FEMALE">FEMALE</option><option value="OTHER">OTHER</option></select></div></div>
 <label>ADDRESS</label><textarea id="address" placeholder="FULL ADDRESS"></textarea>
@@ -164,8 +169,16 @@ function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('
 document.addEventListener('DOMContentLoaded', function(){
  document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
  const n=document.getElementById('pName'), s=document.getElementById('shriId'), p=document.getElementById('cmhtId'), c=document.getElementById('statusCircle');
- function upd(){ if(n.value.trim() && s.value.trim() && p.value.trim()){ c.className='ledLight green'; } else { c.className='ledLight red'; } }
+ function upd(){ 
+  // FIX: IF CHROME FILLED ADMIN WORD, CLEAR IT
+  if(s.value.toLowerCase().includes('admin')){ s.value=''; }
+  if(n.value.trim() && s.value.trim() && p.value.trim()){ c.className='ledLight green'; } else { c.className='ledLight red'; } 
+ }
  n.addEventListener('input',upd); s.addEventListener('input',upd); p.addEventListener('input',upd);
+ // EXTRA CLEAR AFTER LOAD - STOPS ADMIN WORD
+ setTimeout(()=>{ if(s.value.toLowerCase().includes('admin')){ s.value=''; upd(); } },200);
+ setTimeout(()=>{ if(s.value.toLowerCase().includes('admin')){ s.value=''; upd(); } },800);
+ s.addEventListener('focus',function(){ if(this.value.toLowerCase().includes('admin')){ this.value=''; upd(); } });
 
  const adminBtn=document.getElementById('adminBtn');
  const adminDropdown=document.getElementById('adminDropdown');
@@ -213,6 +226,7 @@ function showStatus(msg,type){ let s=document.getElementById('status'); s.textCo
 window.savePatient = async () => {
  let name=document.getElementById('pName').value.trim();
  let shri=document.getElementById('shriId').value.trim();
+ if(shri.toLowerCase().includes('admin')){ shri=''; document.getElementById('shriId').value=''; showStatus('SHRI ID cannot contain admin','err'); return; }
  let contact=document.getElementById('contact').value.trim();
  let cmht=document.getElementById('cmhtId').value.trim();
  let aadhaar=document.getElementById('aadhaar').value.trim();
