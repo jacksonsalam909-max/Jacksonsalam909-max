@@ -116,6 +116,8 @@ try{
   });
 }catch(e){}
 </script>
+<!-- ANTI-ADMIN TRAP -->
+<div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
@@ -158,7 +160,7 @@ try{
 <div class="pageHead"><div><h1>CMHT Total Patient</h1><p id="info">Loading...</p></div><a href="addcmht.html" class="addBtn">+ Add CMHT</a></div>
 
 <div class="controls">
-<input id="search" placeholder="Search name, SHRI, CMHT, Aadhaar..." oninput="onSearch()">
+<input id="search" name="shija_cmht_q_9271" type="search" autocomplete="new-password" data-lpignore="true" spellcheck="false" placeholder="Search name, SHRI, CMHT, Aadhaar..." oninput="onSearch()">
 <div class="viewToggle">
 <button class="vBtn" id="gridBtn" onclick="setView('grid')" title="Grid">⊞</button>
 <button class="vBtn active" id="tableBtn" onclick="setView('table')" title="List">☰</button>
@@ -201,6 +203,11 @@ document.getElementById('btnLogout')?.addEventListener('click',()=>{ if(confirm(
 document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none'; });
 document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
 document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
+// ANTI-ADMIN KILLER
+function killAdmin(){ let s=document.getElementById('search'); if(s && s.value.toLowerCase().includes('admin')) s.value=''; }
+setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);
+let el=document.getElementById('search'); if(el){ el.addEventListener('input',killAdmin); el.addEventListener('focus',killAdmin); }
+let iv=0; let timer=setInterval(()=>{ killAdmin(); iv++; if(iv>50) clearInterval(timer); },100);
 });
 let currentView='table';
 window.setView=(v)=>{
@@ -222,9 +229,9 @@ const app2=initializeApp(firebaseConfig,"cmhtMain_"+Math.random());const db2=get
 let allPatients=[],filtered=[],currentPage=1,pageSize=12,editIndex=-1;
 window.closeEdit=()=>document.getElementById('editModal').classList.remove('show');
 window.openEdit=(idx)=>{let p=allPatients[idx];editIndex=idx;document.getElementById('eName').value=p.name;document.getElementById('eShri').value=p.shri;document.getElementById('eCmht').value=p.cmht;document.getElementById('eContact').value=p.contact;document.getElementById('eAadhaar').value=p.aadhaar;document.getElementById('eAddr').value=p.addr;document.getElementById('eRemark').value=p.remark||'CMHT';document.getElementById('editModal').classList.add('show');};
-window.onSearch=()=>{currentPage=1;applyFilter();};
+window.onSearch=()=>{ let el=document.getElementById('search'); if(el.value.toLowerCase().includes('admin')){ el.value=''; } currentPage=1;applyFilter();};
 window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderAll();};
-window.applyFilter=()=>{let q=document.getElementById('search').value.toLowerCase();filtered=allPatients.filter(p=>[p.name,p.shri,p.cmht,p.contact,p.aadhaar,p.addr,p.remark].join(' ').toLowerCase().includes(q));renderAll();};
+window.applyFilter=()=>{let q=document.getElementById('search').value.toLowerCase(); if(q.includes('admin')){ document.getElementById('search').value=''; q=''; } filtered=allPatients.filter(p=>[p.name,p.shri,p.cmht,p.contact,p.aadhaar,p.addr,p.remark].join(' ').toLowerCase().includes(q));renderAll();};
 function getGradient(i){ const g=['gc1','gc2','gc3','gc4','gc5','gc6','gc7','gc8','gc9','gc10']; return g[i%10]; }
 function getInitial(name){ return (name||'P').trim().charAt(0).toUpperCase(); }
 window.renderAll=()=>{
