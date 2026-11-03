@@ -90,6 +90,10 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 </style>
 </head>
 <body>
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
 <div id="overlay"></div>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
@@ -103,7 +107,17 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 <div class="sFoot">Enhancement • SHIJA</div>
 </div>
 <div class="mainWrap" id="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA - ENHANCEMENT LIST</div></div>
+<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA - ENHANCEMENT LIST</div>
+<div style="display:flex;align-items:center;gap:8px">
+  <div id="adminMenuWrap" style="position:relative">
+    <button id="adminBtn" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
+    <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
+      <button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button>
+      <button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button>
+    </div>
+  </div>
+</div>
+</div>
 <div class="content">
 <div class="topFilters">
 <div class="searchRow"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
@@ -115,6 +129,20 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 </div>
 <div class="bottomBar"><div class="tab" id="tabPending"><div class="ic">‹</div>Pending</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done</div><div class="tab active" id="tabEnhance"><div class="ic">★</div>Enhance <span id="doneB" style="background:#f59e0b;color:#fff;padding:2px 6px;border-radius:100px;font-size:10px;font-weight:800">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
 </div>
+
+<div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
+  <div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
+    <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter admin password</div>
+    <input type="password" id="adminPassInput" placeholder="Password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
+    <div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div>
+    <div style="display:flex;gap:8px">
+      <button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:12px;cursor:pointer">Cancel</button>
+      <button id="confirmLogoutAll" style="flex:1;height:38px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer">Logout All</button>
+    </div>
+  </div>
+</div>
+
 <div id="confirmModal"><div class="confirmBox"><div class="confirmTitle" id="confirmTitle">Are you sure?</div><div class="confirmSub" id="confirmSub"></div><div class="confirmBtns"><button class="btnNoSure" id="btnNotSure">CANCEL</button><button class="btnSure" id="btnSure">SURE</button></div></div></div>
 <div class="toast" id="toast"></div>
 <script>
@@ -147,7 +175,6 @@ async function loadData(){try{let d=document.getElementById('fDate').value,s=doc
 function showConfirm(sh){pendingShri=sh;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let name=p?p.name:sh;document.getElementById('confirmTitle').innerText='UNDO?';document.getElementById('confirmSub').innerText='Move '+name+' back to DONE LIST?';document.getElementById('confirmModal').style.display='flex';}
 function hideConfirm(){document.getElementById('confirmModal').style.display='none';pendingShri=null;}
 
-// NO REDIRECT - ONLY SELECTED PATIENT DISAPPEARS
 async function confirmSure(){
   if(!pendingShri)return;
   let btn=document.getElementById('btnSure');
@@ -157,7 +184,6 @@ async function confirmSure(){
   let id=d+'_'+s;
   let shriToDelete=pendingShri;
   try{
-    // Delete only this SHRI from Firestore
     let docRef=db.collection('daily_enhancement').doc(id);
     let docSnap=await docRef.get();
     if(docSnap.exists){
@@ -165,20 +191,14 @@ async function confirmSure(){
         [`status.${shriToDelete}`]: firebase.firestore.FieldValue.delete()
       });
     }
-    // Delete locally
     if(enhancementMap[shriToDelete]) delete enhancementMap[shriToDelete];
-    
     hideConfirm();
     render();
-    
     let toast=document.getElementById('toast');
     toast.innerText='Returned to DONE List ✓';
     toast.classList.add('show');
     setTimeout(()=>toast.classList.remove('show'),1500);
-    // NO location.href - stays in same page
-    
   }catch(e){
-    console.error(e);
     alert('Error: '+(e.message||e));
   }finally{
     btn.innerText='SURE';btn.disabled=false;
@@ -207,6 +227,44 @@ document.getElementById('confirmModal')?.addEventListener('click',e=>{if(e.targe
 const searchInput=document.getElementById('searchName');const clearBtn=document.getElementById('clearSearch');
 searchInput?.addEventListener('input',e=>{searchQuery=e.target.value;if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';currentPage=1;render();});
 addUniversal(clearBtn,()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
+
+const ADMIN_PASSWORD="jack8189";
+const adminApp=initializeApp(firebaseConfig,"enhancement_admin_"+Math.random());
+const adminDb=adminApp.firestore();
+try{
+  adminDb.collection("system").doc("global_logout").onSnapshot((snap)=>{
+    if(!snap.exists) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      location.href='login.html';
+    }
+  });
+}catch(e){}
+document.addEventListener('DOMContentLoaded',()=>{
+  const adminBtn=document.getElementById('adminBtn');
+  const adminDropdown=document.getElementById('adminDropdown');
+  adminBtn?.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
+  document.addEventListener('click',(e)=>{ if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none'; });
+  document.getElementById('btnLogout')?.addEventListener('click',()=>{ if(confirm('Logout from this device?')){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } });
+  document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none'; });
+  document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
+  document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
+  document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
+    let pass=document.getElementById('adminPassInput').value.trim();
+    if(pass!==ADMIN_PASSWORD){ document.getElementById('passError').style.display='block'; return; }
+    document.getElementById('passError').style.display='none';
+    let btn=document.getElementById('confirmLogoutAll'); btn.innerText='...'; btn.disabled=true;
+    try{
+      await adminDb.collection("system").doc("global_logout").set({ logoutTime: Date.now(), timestamp: firebase.firestore.FieldValue.serverTimestamp(), triggeredBy:'admin' },{merge:true});
+      alert('All devices logged out!');
+      localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html';
+    }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
+  });
+});
+
 window.addEventListener('load',()=>{setTimeout(()=>{updateToggleBtn();loadData();},300);});
 </script>
 </body>
