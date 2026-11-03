@@ -109,12 +109,21 @@ try{ onSnapshot(doc(db,"system","global_logout"),(snap)=>{ if(!snap.exists()) re
 </div>
 
 <div class="content">
+<!-- FAKE FIELDS TO TRAP CHROME AUTOFILL - ADMIN WILL GO HERE, NOT IN SHRI ID -->
+<input type="text" style="display:none" aria-hidden="true">
+<input type="password" style="display:none" aria-hidden="true">
 <div class="box">
 <h1 style="font-size:20px;font-weight:900;color:#0f172a">ADD PATIENT FOR PMJAY</h1><p id="msg" style="margin:4px 0 16px;color:#64748b;font-size:12px;font-weight:600">Will show in Total Patients on all devices</p>
-<div class="row"><div style="flex:2"><label>PATIENT NAME *</label><input id="name" placeholder="ENTER FULL NAME"></div><div style="flex:1"><label>SHRI ID</label><input id="shri" placeholder="SHRI..."></div></div>
-<div class="row"><div><label>PMJAY ID *</label><input id="pmjay" placeholder="PMJAY ID"></div><div><label>CONTACT NO</label><input id="contact" placeholder="MOBILE NUMBER"></div></div>
-<div class="row"><div><label>AADHAAR NUMBER</label><input id="aadhaar" maxlength="12" placeholder="12 DIGIT AADHAAR"></div><div><label>AGE</label><input id="age" type="number" placeholder="AGE"></div><div><label>SEX</label><select id="sex"><option value=""></option><option value="MALE">MALE</option><option value="FEMALE">FEMALE</option><option value="OTHER">OTHER</option></select></div></div>
-<label>ADDRESS</label><input id="addr" placeholder="FULL ADDRESS">
+
+<div class="row"><div style="flex:2"><label>PATIENT NAME *</label><input id="name" autocomplete="off" placeholder="ENTER FULL NAME"></div>
+<div style="flex:1"><label>SHRI ID</label>
+<!-- FIXED: NO AUTOFILL + TRAP ADMIN -->
+<input id="shri" type="text" autocomplete="new-password" data-lpignore="true" data-form-type="other" name="shri-id-field-xyz" readonly onfocus="this.removeAttribute('readonly')" placeholder="SHRI...">
+</div></div>
+
+<div class="row"><div><label>PMJAY ID *</label><input id="pmjay" autocomplete="off" placeholder="PMJAY ID"></div><div><label>CONTACT NO</label><input id="contact" autocomplete="off" placeholder="MOBILE NUMBER"></div></div>
+<div class="row"><div><label>AADHAAR NUMBER</label><input id="aadhaar" autocomplete="off" maxlength="12" placeholder="12 DIGIT AADHAAR"></div><div><label>AGE</label><input id="age" autocomplete="off" type="number" placeholder="AGE"></div><div><label>SEX</label><select id="sex"><option value=""></option><option value="MALE">MALE</option><option value="FEMALE">FEMALE</option><option value="OTHER">OTHER</option></select></div></div>
+<label>ADDRESS</label><input id="addr" autocomplete="off" placeholder="FULL ADDRESS">
 <div class="addRow"><button class="btn" onclick="addPatient()">ADD PATIENT</button><div class="ledLight red" id="statusCircle"></div></div>
 </div>
 </div>
@@ -139,8 +148,26 @@ function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('
 document.addEventListener('DOMContentLoaded', function(){
  document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
  const n=document.getElementById('name'), s=document.getElementById('shri'), p=document.getElementById('pmjay'), c=document.getElementById('statusCircle');
+ 
  function upd(){ if(n.value.trim() && s.value.trim() && p.value.trim()){ c.className='ledLight green'; } else { c.className='ledLight red'; } }
  n.addEventListener('input',upd); s.addEventListener('input',upd); p.addEventListener('input',upd);
+
+ // --- ANTI-AUTOFILL: FORCE CLEAR admin FROM SHRI ID ---
+ function clearAdmin(){
+   let shri = document.getElementById('shri');
+   if(shri && shri.value.toLowerCase() === 'admin'){
+     shri.value = '';
+   }
+ }
+ // Clear multiple times (Chrome fills after 100-300ms)
+ setTimeout(clearAdmin, 50);
+ setTimeout(clearAdmin, 200);
+ setTimeout(clearAdmin, 500);
+ setTimeout(clearAdmin, 1000);
+ 
+ document.getElementById('shri').addEventListener('animationstart', function(e){
+   if(e.animationName === 'onAutoFillStart'){ this.value=''; }
+ });
 
  const adminBtn=document.getElementById('adminBtn');
  const adminDropdown=document.getElementById('adminDropdown');
@@ -194,7 +221,7 @@ window.addPatient=async()=>{
  let age=document.getElementById('age').value.trim();
  let sex=document.getElementById('sex').value.trim();
  if(!name){ alert('Enter Name'); return; }
- if(!shri){ shri='SHRI'+Date.now().toString().slice(-6); }
+ if(!shri || shri.toLowerCase()==='admin'){ shri='SHRI'+Date.now().toString().slice(-6); }
  let data={ patientName:name,name:name, shriId:shri,shri:shri, contactNo:contact,contact:contact, pmjayId:pmjay,pmjay:pmjay, address:addr,addr:addr, aadhaarNo:aadhaar,aadhaar:aadhaar, age:age, sex:sex, key:shri,deleted:false, createdAt:new Date().toISOString() };
  document.getElementById('msg').textContent='Saving '+shri+'...';
  try{ await setDoc(doc(db,"patients",shri),data,{merge:true}); document.getElementById('msg').textContent='✅ Added '+name; document.getElementById('name').value=''; document.getElementById('shri').value=''; document.getElementById('contact').value=''; document.getElementById('pmjay').value=''; document.getElementById('addr').value=''; document.getElementById('aadhaar').value=''; document.getElementById('age').value=''; document.getElementById('sex').value=''; document.getElementById('statusCircle').className='ledLight red'; }catch(e){ document.getElementById('msg').textContent='Saved locally'; }
