@@ -88,13 +88,36 @@ td.nameCol{text-align:left;padding-left:12px}
 <script>function toggleWhiteBar(){var bar=document.getElementById('whiteBar');if(!bar)return;bar.classList.toggle('folded');try{localStorage.setItem('shija_menu_folded',bar.classList.contains('folded')?'1':'0')}catch(e){} }</script>
 </head>
 <body>
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(firebaseConfig,"app_"+Math.random());
 const db=getFirestore(app);
 window._fb={db,collection,getDocs,doc,setDoc,deleteDoc};
+
+const guardApp=initializeApp(firebaseConfig,"discharge_guard_"+Math.random());
+const guardDb=getFirestore(guardApp);
+try{
+  onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{
+    if(!snap.exists()) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      localStorage.removeItem('shija_role');
+      alert('🔒 Logged out by Admin');
+      location.href='login.html?reason=global';
+    }
+  });
+}catch(e){}
+window._fb.serverTimestamp=serverTimestamp;
+window._fb.guardDb=guardDb;
 </script>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
@@ -118,7 +141,18 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc};
 <a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
 </div></div><div class="sFoot"><span class="footFull">SHIJA • DEFAULT UNFOLD</span><span class="footFold">Click ☰</span></div></div>
 <div class="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()" title="3LINE MENU"><span></span><span></span><span></span></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY</div></div><div><a href="claim.html" style="background:#0f172a;color:#fff;padding:8px 16px;border-radius:20px;font-weight:900;font-size:11px;text-decoration:none">VIEW CLAIM</a></div></div>
+<div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()" title="3LINE MENU"><span></span><span></span><span></span></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY</div></div>
+<div style="display:flex;align-items:center;gap:8px">
+<a href="claim.html" style="background:#0f172a;color:#fff;padding:8px 16px;border-radius:20px;font-weight:900;font-size:11px;text-decoration:none">VIEW CLAIM</a>
+  <div id="adminMenuWrap" style="position:relative">
+    <button id="adminBtn" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
+    <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
+      <button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button>
+      <button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button>
+    </div>
+  </div>
+</div>
+</div>
 <div class="content">
 <div class="card">
 <div class="label" style="margin-bottom:8px">ADD DISCHARGE PATIENT - ONLY PMJAY</div>
@@ -172,6 +206,20 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc};
 </div>
 </div>
 </div>
+
+<div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
+  <div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
+    <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter admin password</div>
+    <input type="password" id="adminPassInput" placeholder="Password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
+    <div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div>
+    <div style="display:flex;gap:8px">
+      <button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:12px;cursor:pointer">Cancel</button>
+      <button id="confirmLogoutAll" style="flex:1;height:38px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer">Logout All</button>
+    </div>
+  </div>
+</div>
+
 <script>
 var allDischarge=[],filtered=[],masterPatients=[],selectedPatient=null,currentPage=1,pageSize=12,isGrid=false;
 function getToday(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');}
@@ -251,6 +299,36 @@ function closeClaimInline(id){document.getElementById('fold-'+id).classList.remo
 function openClaimInlineGrid(id){var fold=document.getElementById('gfold-'+id);if(fold)fold.classList.toggle('show');}
 async function saveClaimInline(id){var claimId=document.getElementById('input-'+id).value.trim().toUpperCase();if(!claimId)return;var data=allDischarge.find(function(x){return x._id===id;});try{await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...data,claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});document.getElementById('fold-'+id).classList.remove('show');location.href='claim.html?claimId='+encodeURIComponent(claimId);}catch(e){alert(e.message);}}
 async function saveClaimInlineGrid(id){var claimId=document.getElementById('ginput-'+id).value.trim().toUpperCase();if(!claimId)return;var data=allDischarge.find(function(x){return x._id===id;});try{await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...data,claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});location.href='claim.html?claimId='+encodeURIComponent(claimId);}catch(e){alert(e.message);}}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const ADMIN_PASSWORD="jack8189";
+const adminApp=initializeApp(cfg,"discharge_admin2_"+Math.random());
+const adminDb=getFirestore(adminApp);
+document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
+  let pass=document.getElementById('adminPassInput').value.trim();
+  if(pass!==ADMIN_PASSWORD){ document.getElementById('passError').style.display='block'; return; }
+  document.getElementById('passError').style.display='none';
+  let btn=document.getElementById('confirmLogoutAll'); btn.innerText='...'; btn.disabled=true;
+  try{
+    await setDoc(doc(adminDb,"system","global_logout"),{ logoutTime: Date.now(), timestamp: serverTimestamp(), triggeredBy:'admin' },{merge:true});
+    alert('All devices logged out!');
+    localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html';
+  }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
+});
+document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{ if(e.key==='Enter') document.getElementById('confirmLogoutAll').click(); });
+document.addEventListener('DOMContentLoaded',()=>{
+  const adminBtn=document.getElementById('adminBtn');
+  const adminDropdown=document.getElementById('adminDropdown');
+  adminBtn?.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
+  document.addEventListener('click',(e)=>{ if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none'; });
+  document.getElementById('btnLogout')?.addEventListener('click',()=>{ if(confirm('Logout from this device?')){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); localStorage.removeItem('shija_role'); location.href='login.html'; } });
+  document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none'; });
+  document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
+  document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
+});
 window.addEventListener('load',function(){var fDate=document.getElementById('fDate');if(fDate)fDate.value=getToday();var bar=document.getElementById('whiteBar');if(bar){bar.classList.remove('folded');try{localStorage.setItem('shija_menu_folded','0');}catch(e){}}setupSearch();setTimeout(function(){loadMaster().then(function(){loadAll();setView('list');});},800);var fTime=document.getElementById('fTime');if(fTime)fTime.addEventListener('change',applyFilter);var fBlock=document.getElementById('fBlock');if(fBlock)fBlock.addEventListener('change',applyFilter);var perPage=document.getElementById('perPage');if(perPage)perPage.addEventListener('change',applyFilter);var fSearch=document.getElementById('fSearch');if(fSearch)fSearch.addEventListener('input',applyFilter);if(fDate)fDate.addEventListener('change',applyFilter);});
 </script>
 </body>
