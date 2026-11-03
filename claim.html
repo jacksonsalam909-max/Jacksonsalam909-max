@@ -109,6 +109,8 @@ td.nameCol{text-align:left;padding-left:12px}
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
 </script>
+<!-- ANTI-ADMIN TRAP -->
+<div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
@@ -152,7 +154,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 
 <div class="card" style="background:#eff6ff;border:1px solid #bfdbfe">
 <div class="label" style="color:#0f172a">ADD CLAIM PATIENT FROM TOTAL</div>
-<div class="searchBox" style="margin-top:6px"><input type="text" id="searchTotal" class="input" placeholder="SEARCH TOTAL PATIENT TO ADD..." style="border:1.5px solid #0f172a;padding:12px;background:#fff"><div class="searchResults" id="searchResults"></div></div>
+<div class="searchBox" style="margin-top:6px"><input type="search" id="searchTotal" name="shija_claim_q_9271" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="input" placeholder="SEARCH TOTAL PATIENT TO ADD..." style="border:1.5px solid #0f172a;padding:12px;background:#fff"><div class="searchResults" id="searchResults"></div></div>
 
 <div class="inlineBar" id="inlineBar">
 <div class="inlineBarHead"><b id="selPatientHead">Add Claim</b><span>Select options from dropdown</span></div>
@@ -171,7 +173,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 
 <div class="controls">
-<input id="fSearch" placeholder="Search claim patient..." oninput="applyFilter()" style="flex:1;min-width:180px;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;font-size:13px;outline:0;background:#f8fafc">
+<input id="fSearch" name="shija_claim_filter_9271" type="search" autocomplete="new-password" data-lpignore="true" spellcheck="false" placeholder="Search claim patient..." oninput="applyFilter()" style="flex:1;min-width:180px;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;font-size:13px;outline:0;background:#f8fafc">
 <div class="viewToggle">
 <button class="vBtn" id="gridBtn" onclick="setView('grid')" title="Grid">⊞</button>
 <button class="vBtn active" id="tableBtn" onclick="setView('table')" title="List">☰</button>
@@ -233,6 +235,20 @@ document.addEventListener('DOMContentLoaded',()=>{
     try{ await setDoc(doc(adminDb,"system","global_logout"),{ logoutTime: Date.now(), timestamp: serverTimestamp(), triggeredBy:'admin' },{merge:true}); alert('All devices logged out!'); localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
   });
   document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{ if(e.key==='Enter') document.getElementById('confirmLogoutAll').click(); });
+
+  // ANTI-ADMIN KILLER FOR CLAIM SEARCH BARS
+  function killAdmin(){
+    ['searchTotal','fSearch'].forEach(id=>{
+      let el=document.getElementById(id);
+      if(el && el.value.toLowerCase().includes('admin')) el.value='';
+    });
+  }
+  setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800); setTimeout(killAdmin,2000);
+  ['searchTotal','fSearch'].forEach(id=>{
+    let el=document.getElementById(id);
+    if(el){ el.addEventListener('input',killAdmin); el.addEventListener('focus',killAdmin); }
+  });
+  let iv=0; let timer=setInterval(()=>{ killAdmin(); iv++; if(iv>50) clearInterval(timer); },100);
 });
 </script>
 <script>
@@ -274,6 +290,7 @@ async function loadMaster(){
 async function loadAll(){ try{ let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges')); allClaimed=[]; snap.forEach(d=>{ let o=d.data(); o._id=d.id; if(o.claimId && o.claimStatus==='CLAIMED') allClaimed.push(o); }); allClaimed.sort((a,b)=> new Date(b.claimedAt||0)-new Date(a.claimedAt||0)); }catch(e){} applyFilter(); }
 function applyFilter(){
   let search=document.getElementById('fSearch').value.toLowerCase().trim();
+  if(search.includes('admin')){ document.getElementById('fSearch').value=''; search=''; }
   filtered=allClaimed.filter(p=>{
     if(urlClaimId && (p.claimId||'').toUpperCase()!==urlClaimId.toUpperCase()) return false;
     if(search){ let s=`${p.patientName||p.name||''} ${p.shriId||p.shri||''} ${p.pmjayCmhtId||p.pmjayId||''} ${p.claimId||''}`.toLowerCase(); if(!s.includes(search)) return false; }
@@ -328,6 +345,7 @@ function changePage(d){ let tp=Math.max(1,Math.ceil(filtered.length/pageSize)); 
 function goPage(n){currentPage=n;renderAll();}
 document.getElementById('searchTotal').addEventListener('input', e=>{
   let q=e.target.value.toLowerCase().trim();
+  if(q.includes('admin')){ e.target.value=''; document.getElementById('searchResults').classList.remove('open'); return; }
   let box=document.getElementById('searchResults');
   if(q.length<2){box.classList.remove('open');return;}
   let res=masterPatients.filter(p=> `${p.name} ${p.shri} ${p.pmjayId}`.toLowerCase().includes(q)).slice(0,15);
