@@ -28,7 +28,8 @@ body{min-height:100vh;display:grid;place-items:center;position:relative;overflow
 .row{display:flex;justify-content:space-between;align-items:center;margin:18px 0 22px}
 .check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#475569}
 .check input{width:16px;height:16px;accent-color:#2563eb}
-.link{font-size:13px;font-weight:600;color:#2563eb;text-decoration:none}
+.link{font-size:13px;font-weight:600;color:#2563eb;text-decoration:none;cursor:pointer}
+.link:hover{text-decoration:underline}
 .btn{width:100%;height:52px;background:#2563eb;color:#fff;border:0;border-radius:14px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 8px 20px #2563eb30;transition:.2s}
 .btn:hover{background:#1d4ed8;transform:translateY(-1px)}
 .error{display:none;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:11px 14px;border-radius:12px;font-size:13px;font-weight:600;margin-bottom:8px}
@@ -36,21 +37,23 @@ body{min-height:100vh;display:grid;place-items:center;position:relative;overflow
 .bottom b{color:#2563eb;cursor:pointer}
 .footer{text-align:center;margin-top:18px;font-size:11px;color:#94a3b8}
 .trap{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0}
+.popup{position:fixed;inset:0;background:rgba(15,23,42,0.6);display:none;place-items:center;z-index:9999}
+.popupBox{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:340px;text-align:center;box-shadow:0 20px 40px #0003}
+.popupBox h3{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:8px}
+.popupBox p{font-size:14px;color:#475569;font-weight:600;margin-bottom:16px}
+.popupBox button{width:100%;height:44px;background:#2563eb;color:#fff;border:0;border-radius:10px;font-weight:700;cursor:pointer}
 </style>
 </head>
 <body>
 
-<!-- FAKE INPUTS TO TRICK CHROME -->
 <div class="trap"><form autocomplete="on"><input type="text" name="username" autocomplete="username"><input type="password" name="password" autocomplete="current-password"></form></div>
 
-<!-- YOUR NEWLOGIN.JPG -->
 <div class="bg"><img src="newlogin.jpg" alt="SHIJA" onerror="this.src='newlogin.png'"></div>
 
 <div class="card">
   <div class="head">
     <div class="logoWrap">
-      <!-- LOGOC.PNG - YOUR LOGO -->
-      <div class="logoIcon"><img src="logoc.png" alt="SHIJA Logo"></div>
+      <div class="logoIcon"><img src="Logoc.png" alt="SHIJA Logo" onerror="this.onerror=null;this.src='logoc.png'"></div>
       <div class="logoText">SHIJA</div>
     </div>
     <div class="subLogo">Dialysis Care</div>
@@ -62,10 +65,10 @@ body{min-height:100vh;display:grid;place-items:center;position:relative;overflow
 
   <form id="realLoginForm" autocomplete="off" onsubmit="return false">
     <div class="field">
-      <label>Email address</label>
+      <label>Username</label>
       <div class="inputBox">
-        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        <input id="shija_email_x9271" type="text" placeholder="you@clinic.com" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" readonly onfocus="this.removeAttribute('readonly')">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <input id="shija_user_x9271" type="text" placeholder="Enter your username" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" readonly onfocus="this.removeAttribute('readonly')">
       </div>
     </div>
 
@@ -80,19 +83,28 @@ body{min-height:100vh;display:grid;place-items:center;position:relative;overflow
 
     <div class="row">
       <label class="check"><input type="checkbox" id="remember"> Remember me</label>
-      <a class="link" href="#" onclick="alert('Contact Admin - jack8189');return false;">Forgot password?</a>
+      <a class="link" onclick="showPopup('Contact Admin - Jacky','Please contact Jacky for password reset')">Forgot password?</a>
     </div>
 
     <button id="loginBtn" class="btn" type="button" onclick="doLogin()">Sign in</button>
   </form>
 
-  <div class="bottom">Don't have an account? <b onclick="alert('Contact Admin')">"Contact Admin"</b></div>
+  <div class="bottom">Don't have an account? <b onclick="showPopup('Contact Admin','9233287710')">Contact Admin</b></div>
   <div class="footer">SHIJA Dialysis • Manual Login Required</div>
+</div>
+
+<!-- POPUP -->
+<div id="popup" class="popup" onclick="if(event.target.id==='popup') hidePopup()">
+  <div class="popupBox">
+    <h3 id="popupTitle">Contact</h3>
+    <p id="popupMsg">9233287710</p>
+    <button onclick="hidePopup()">OK</button>
+  </div>
 </div>
 
 <script>
 function clearAll(){
-  let u=document.getElementById('shija_email_x9271');
+  let u=document.getElementById('shija_user_x9271');
   let p=document.getElementById('shija_pass_x9271');
   if(u){ u.value=''; u.setAttribute('readonly','readonly'); }
   if(p){ p.value=''; p.setAttribute('readonly','readonly'); }
@@ -102,14 +114,21 @@ function togglePass(){
   p.type = p.type==='password' ? 'text' : 'password';
   p.focus();
 }
+function showPopup(title,msg){
+  document.getElementById('popupTitle').textContent=title;
+  document.getElementById('popupMsg').textContent=msg;
+  document.getElementById('popup').style.display='grid';
+}
+function hidePopup(){ document.getElementById('popup').style.display='none'; }
+
 function doLogin(){
-  let uEl=document.getElementById('shija_email_x9271');
+  let uEl=document.getElementById('shija_user_x9271');
   let pEl=document.getElementById('shija_pass_x9271');
   uEl.removeAttribute('readonly'); pEl.removeAttribute('readonly');
   let u=uEl.value.trim(); let p=pEl.value.trim();
   let err=document.getElementById('errBox');
   let btn=document.getElementById('loginBtn');
-  if(!u || !p){ err.textContent='Please enter email and password manually'; err.style.display='block'; return; }
+  if(!u || !p){ err.textContent='Please enter username and password manually'; err.style.display='block'; return; }
   err.style.display='none'; btn.textContent='Signing in...'; btn.disabled=true;
   setTimeout(()=>{
     if(p==='jack8189' || u.toLowerCase().includes('shija')){
@@ -118,7 +137,7 @@ function doLogin(){
       uEl.value=''; pEl.value='';
       location.href='index.html';
     }else{
-      err.textContent='Invalid - please type manually'; err.style.display='block';
+      err.textContent='Invalid username or password'; err.style.display='block';
       btn.textContent='Sign in'; btn.disabled=false; pEl.value='';
     }
   },600);
@@ -129,7 +148,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 window.addEventListener('load',clearAll);
 window.addEventListener('pageshow',clearAll);
-document.addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); if(e.key==='Escape') hidePopup(); });
 </script>
 </body>
 </html>
