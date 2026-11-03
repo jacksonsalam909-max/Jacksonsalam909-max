@@ -41,7 +41,6 @@ body{background:#f1f5f9;display:flex}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
 .searchWrap{flex:1;max-width:420px;margin:0 16px;position:relative}
 .search{width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:8px}
-.search span{color:#94a3b8}
 .search input{background:transparent;border:0;outline:0;width:100%;font-size:13px}
 .searchResult{position:absolute;top:100%;left:0;right:0;margin-top:8px;background:#fff;border-radius:12px;box-shadow:0 12px 30px #0002;border:1px solid #e2e8f0;max-height:340px;overflow-y:auto;display:none;z-index:100}
 .searchResult.show{display:block}
@@ -102,17 +101,18 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div class="top">
 <div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA Dialysis</div>
 <div class="searchWrap">
-  <div class="search"><span>🔍</span><input id="globalSearch" type="text" placeholder="Search patients..."></div>
+  <!-- FIXED: value="" autocomplete off + no admin -->
+  <div class="search"><input id="globalSearch" type="text" placeholder="Search patients..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
   <div class="searchResult" id="searchResult"></div>
 </div>
 
 <div style="display:flex;align-items:center;">
-  <div id="accountMenuWrap" style="position:relative">
-    <!-- REMOVED ADMIN WORD - NOW PROFILE ICON -->
-    <button id="accountBtn" style="height:38px;padding:0 12px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;color:#0f172a;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px">👤 ▾</button>
-    <div id="accountDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
-      <button id="btnLogout" style="width:100%;height:32px;border:1px solid #f1f5f9;border-radius:8px;background:#fff;color:#333;font-weight:600;font-size:11px;cursor:pointer;margin-bottom:4px">Logout</button>
-      <button id="btnLogoutAll" style="width:100%;height:32px;border:1px solid #f1f5f9;border-radius:8px;background:#fff;color:#333;font-weight:600;font-size:11px;cursor:pointer">Logout all devices</button>
+  <div id="adminMenuWrap" style="position:relative">
+    <!-- ADMIN BUTTON KEPT AS YOU WANT -->
+    <button id="adminBtn" style="height:38px;padding:0 14px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:12px;cursor:pointer">Admin ▾</button>
+    <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
+      <button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button>
+      <button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button>
     </div>
   </div>
 </div>
@@ -120,7 +120,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 
 <div class="main"><div class="content">
-<div class="head"><div><h1>Dashboard Overview</h1><p id="welcomeText">Welcome back • SHIJA Care</p></div><div class="dateBar"><input type="date" id="dashDate"><button class="btn btnP" onclick="document.getElementById('expModal').style.display='grid'">Export Report</button></div></div>
+<div class="head"><div><h1>Dashboard Overview</h1><p id="welcomeText">Welcome back • Dark Sidebar Pro</p></div><div class="dateBar"><input type="date" id="dashDate"><button class="btn btnP" onclick="document.getElementById('expModal').style.display='grid'">Export Report</button></div></div>
 
 <div class="grid">
 <a href="total.html" class="card c1"><div><div class="icon">PT</div><b>PMJAY Total Patient</b><h2 id="v1">0</h2><small>All time PMJAY</small></div></a>
@@ -137,7 +137,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 
 </div>
-<div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis • Professional</div>
+<div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis • Dark Sidebar Pro</div>
 </div>
 </div>
 
@@ -146,8 +146,8 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
   <div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
     <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
-    <div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter password to confirm</div>
-    <input type="password" id="accountPassInput" placeholder="Password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
+    <div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter admin password</div>
+    <input type="password" id="adminPassInput" placeholder="Password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
     <div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div>
     <div style="display:flex;gap:8px">
       <button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:12px;cursor:pointer">Cancel</button>
@@ -162,14 +162,31 @@ function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('
 function doGlobalSearch(){let q=(document.getElementById('globalSearch').value||'').toLowerCase().trim();let box=document.getElementById('searchResult');if(!q){box.classList.remove('show');return;}let f=window.allForSearch.filter(p=>[p.name,p.shri,p.contact,p.type].join(' ').toLowerCase().includes(q)).slice(0,15);if(!f.length){box.innerHTML='<div class="sItem"><b>No patient</b></div>';box.classList.add('show');return;}let h='';f.forEach(p=>{h+=`<div class="sItem" onclick="location.href='searchpatient.html?shri=${p.shri}'"><div><b>${p.name}</b> <small>${p.shri}</small></div></div>`;});box.innerHTML=h;box.classList.add('show');}
 document.addEventListener('DOMContentLoaded',function(){
 document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
-let gs=document.getElementById('globalSearch');if(gs){gs.addEventListener('input',doGlobalSearch);gs.addEventListener('focus',doGlobalSearch);}
-document.addEventListener('click',function(e){if(!e.target.closest('.searchWrap') && !e.target.closest('#accountMenuWrap')){document.getElementById('searchResult').classList.remove('show');}});
 
-// ACCOUNT MENU - NO ADMIN WORD
-const accountBtn=document.getElementById('accountBtn');
-const accountDropdown=document.getElementById('accountDropdown');
-accountBtn.addEventListener('click',(e)=>{e.stopPropagation(); accountDropdown.style.display = accountDropdown.style.display==='none' || accountDropdown.style.display==='' ? 'block':'none';});
-document.addEventListener('click',(e)=>{ if(!e.target.closest('#accountMenuWrap')) accountDropdown.style.display='none'; });
+// --- FIX: FORCE CLEAR admin FROM INSIDE SEARCH BAR ---
+let gs=document.getElementById('globalSearch');
+if(gs){
+  gs.value=''; // clear instantly
+  gs.setAttribute('autocomplete','off');
+  gs.setAttribute('autocorrect','off');
+  gs.setAttribute('autocapitalize','off');
+  gs.setAttribute('spellcheck','false');
+  // Clear again after 100ms (browser autofill delay)
+  setTimeout(()=>{ gs.value=''; document.getElementById('searchResult').classList.remove('show'); }, 100);
+  setTimeout(()=>{ gs.value=''; }, 500);
+  gs.addEventListener('input',doGlobalSearch);
+  gs.addEventListener('focus',function(){
+    if(this.value.toLowerCase()==='admin'){ this.value=''; document.getElementById('searchResult').classList.remove('show'); }
+    doGlobalSearch();
+  });
+}
+document.addEventListener('click',function(e){if(!e.target.closest('.searchWrap') && !e.target.closest('#adminMenuWrap')){document.getElementById('searchResult').classList.remove('show');}});
+
+// ADMIN MENU - KEPT
+const adminBtn=document.getElementById('adminBtn');
+const adminDropdown=document.getElementById('adminDropdown');
+adminBtn.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
+document.addEventListener('click',(e)=>{ if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none'; });
 document.getElementById('btnLogout').addEventListener('click',()=>{
   if(confirm('Logout from this device?')){
     localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); localStorage.removeItem('shija_role');
@@ -177,10 +194,10 @@ document.getElementById('btnLogout').addEventListener('click',()=>{
   }
 });
 document.getElementById('btnLogoutAll').addEventListener('click',()=>{
-  accountDropdown.style.display='none';
+  adminDropdown.style.display='none';
   document.getElementById('logoutAllModal').style.display='flex';
-  document.getElementById('accountPassInput').value=''; document.getElementById('passError').style.display='none';
-  setTimeout(()=>document.getElementById('accountPassInput').focus(),100);
+  document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none';
+  setTimeout(()=>document.getElementById('adminPassInput').focus(),100);
 });
 document.getElementById('cancelLogoutAll').addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
 document.getElementById('logoutAllModal').addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
@@ -195,22 +212,24 @@ let todayStr=new Date().toISOString().slice(0,10);let dd=document.getElementById
 async function loadDashboard(){let sel=document.getElementById('dashDate').value||todayStr;try{let snap=await getDocs(collection(db,"patients"));document.getElementById('v1').textContent=snap.size;window.allForSearch=[];snap.forEach(d=>{let p=d.data();window.allForSearch.push({name:p.patientName||p.name||'',shri:p.shriId||p.shri||d.id,contact:p.contactNo||'',type:'PMJAY'})});let csnap=await getDocs(collection(db,"cmht_patients"));document.getElementById('vCMHT').textContent=csnap.size;csnap.forEach(d=>{let p=d.data();window.allForSearch.push({name:p.patientName||p.name||'',shri:p.shriId||p.shri||d.id,contact:p.contactNo||'',type:'CMHT'})})}catch(e){}}loadDashboard();
 window.exportExcel=async(type)=>{let sel=document.getElementById('dashDate').value;let wb=XLSX.utils.book_new();let ws=XLSX.utils.json_to_sheet([{Date:sel}]);XLSX.utils.book_append_sheet(wb,ws,"Export");XLSX.writeFile(wb,`${type}_${sel}.xlsx`);document.getElementById('expModal').style.display='none';};
 
-const PASS="jack8189";
-const app2=initializeApp(config,"idx_"+Math.random());
-const db2=getFirestore(app2);
+// ADMIN PASSWORD jack8189
+const ADMIN_PASSWORD="jack8189";
+const adminApp2=initializeApp(config,"admin_idx_"+Math.random());
+const adminDb=getFirestore(adminApp2);
 document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
-  let pass=document.getElementById('accountPassInput').value.trim();
-  if(pass!==PASS){ document.getElementById('passError').style.display='block'; return; }
+  let pass=document.getElementById('adminPassInput').value.trim();
+  if(pass!==ADMIN_PASSWORD){ document.getElementById('passError').style.display='block'; return; }
   document.getElementById('passError').style.display='none';
   let btn=document.getElementById('confirmLogoutAll'); btn.innerText='...'; btn.disabled=true;
   try{
-    await setDoc(doc(db2,"system","global_logout"),{ logoutTime: Date.now(), timestamp: serverTimestamp(), triggeredBy:'user' },{merge:true});
+    await setDoc(doc(adminDb,"system","global_logout"),{ logoutTime: Date.now(), timestamp: serverTimestamp(), triggeredBy:'admin' },{merge:true});
     alert('All devices logged out!');
     localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html';
   }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
 });
-document.getElementById('accountPassInput')?.addEventListener('keydown',(e)=>{ if(e.key==='Enter') document.getElementById('confirmLogoutAll').click(); });
+document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{ if(e.key==='Enter') document.getElementById('confirmLogoutAll').click(); });
 
+// GLOBAL LISTENER
 try{
   onSnapshot(doc(db,"system","global_logout"),(snap)=>{
     if(!snap.exists()) return;
@@ -218,7 +237,7 @@ try{
     let my=parseInt(localStorage.getItem('shija_login_time')||'0');
     if(lt>my && my!==0){
       localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); localStorage.removeItem('shija_role');
-      alert(' Logged out'); location.href='login.html?reason=global';
+      alert('🔒 Logged out by admin'); location.href='login.html?reason=global';
     }
   });
 }catch(e){}
