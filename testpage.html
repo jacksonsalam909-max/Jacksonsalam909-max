@@ -124,7 +124,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 <div class="sFoot">System Online • SHIJA Hospital</div>
 </div>
 <div class="mainWrap" id="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA - DONE LIST</div><div style="display:flex;gap:6px"><button id="backPending" style="padding:8px 14px;border-radius:10px;border:0;background:#0f172a;color:#fff;font-weight:800;font-size:12px">← PENDING</button><button id="goEnhancement" style="padding:8px 14px;border-radius:10px;border:0;background:#f59e0b;color:#fff;font-weight:800;font-size:12px">★ ENHANCEMENT</button></div></div>
+<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA - DONE LIST</div></div>
 <div class="content">
 <div class="topFilters">
 <div class="searchRow"><div class="searchInputWrap"><input type="text" id="searchName" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
@@ -168,19 +168,7 @@ async function savePhotoStatus(){let d=document.getElementById('fDate').value,s=
 async function saveEnhancement(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await db.collection('daily_enhancement').doc(id).set({date:d,scheme:s,status:enhancementMap,updatedAt:new Date().toISOString()},{merge:true});}
 function showConfirm(sh,action){pendingShri=sh;pendingAction=action;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let name=p?p.name:sh;if(action==='undo'){document.getElementById('confirmTitle').innerText='UNDO?';document.getElementById('confirmSub').innerText='Move '+name+' back to PENDING (gda.html)?';}else{document.getElementById('confirmTitle').innerText='ENHANCEMENT?';document.getElementById('confirmSub').innerText='Move '+name+' to ENHANCEMENT LIST (enhancement.html)?';}document.getElementById('confirmModal').style.display='flex';}
 function hideConfirm(){document.getElementById('confirmModal').style.display='none';pendingShri=null;pendingAction=null;}
-async function confirmSure(){if(!pendingShri||!pendingAction)return;let btn=document.getElementById('btnSure');btn.innerText='...';btn.disabled=true;try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value;if(pendingAction==='undo'){
-// UNDO -> gda.html
-if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};
-statusMap[pendingShri].photoTaken=false;statusMap[pendingShri].opdDone=false;
-await savePhotoStatus();hideConfirm();render();
-let toast=document.getElementById('toast');toast.innerText='Moved to Pending → gda.html';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1500);
-}else if(pendingAction==='enhancement'){
-// ENHANCEMENT -> enhancement.html
-if(!enhancementMap[pendingShri])enhancementMap[pendingShri]={enhanced:true};else enhancementMap[pendingShri].enhanced=true;
-await saveEnhancement();hideConfirm();render();
-let toast=document.getElementById('toast');toast.innerText='Moved to Enhancement ★ → enhancement.html';toast.classList.add('show');
-setTimeout(()=>{toast.classList.remove('show');location.href='enhancement.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(s);},800);
-}}catch(e){alert('Error: '+(e.message||e));}finally{btn.innerText='SURE';btn.disabled=false;}}
+async function confirmSure(){if(!pendingShri||!pendingAction)return;let btn=document.getElementById('btnSure');btn.innerText='...';btn.disabled=true;try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value;if(pendingAction==='undo'){if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};statusMap[pendingShri].photoTaken=false;statusMap[pendingShri].opdDone=false;await savePhotoStatus();hideConfirm();render();let toast=document.getElementById('toast');toast.innerText='Moved to Pending → gda.html';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1500);}else if(pendingAction==='enhancement'){if(!enhancementMap[pendingShri])enhancementMap[pendingShri]={enhanced:true};else enhancementMap[pendingShri].enhanced=true;await saveEnhancement();hideConfirm();render();let toast=document.getElementById('toast');toast.innerText='Moved to Enhancement → enhancement.html';toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');location.href='enhancement.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(s);},800);}}catch(e){alert('Error: '+(e.message||e));}finally{btn.innerText='SURE';btn.disabled=false;}}
 function getInit(n){return(n||'A').charAt(0).toUpperCase();}
 function getCol(name){const colors=['linear-gradient(135deg,#22C55E,#16A34A)','linear-gradient(135deg,#3B82F6,#0EA5E9)','linear-gradient(135deg,#8B5CF6,#7C3AED)'];let h=0;for(let i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h);}return colors[Math.abs(h)%colors.length];}
 function getFiltered(){let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(!(st.photoTaken&&st.opdDone))return false;let enh=enhancementMap[sh];if(enh&&enh.enhanced)return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}return true;});}
@@ -193,8 +181,6 @@ document.getElementById('filterBlock')?.addEventListener('change',()=>{currentPa
 document.getElementById('fType')?.addEventListener('change',loadData);
 addUniversal(document.getElementById('tabSync'),()=>location.reload());
 addUniversal(document.getElementById('tabPending'),goToPending);
-addUniversal(document.getElementById('backPending'),goToPending);
-addUniversal(document.getElementById('goEnhancement'),goToEnhancement);
 addUniversal(document.getElementById('tabEnhance'),goToEnhancement);
 addUniversal(document.getElementById('toggleViewBtn'),()=>{isListView=!isListView;localStorage.setItem('gda_view',isListView?'list':'grid');currentPage=1;render();});
 addUniversal(document.getElementById('prevBtn'),()=>{currentPage--;if(currentPage<1)currentPage=1;render();});
