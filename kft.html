@@ -88,7 +88,8 @@ let app; try{ app=initializeApp(cfg,"guard_kft_"+Math.random()); }catch(e){ app=
 const dbGuard=getFirestore(app);
 try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists()) return; let lt=snap.data().logoutTime||0; let my=parseInt(localStorage.getItem('shija_login_time')||'0'); if(lt>my && my!==0){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); localStorage.removeItem('shija_role'); alert('🔒 Logged out'); location.href='login.html?reason=global'; } }); }catch(e){}
 </script>
-
+<!-- ANTI-ADMIN TRAP -->
+<div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 <div class="sHead"><div class="sLogo"><img src="logoc.png" id="logoImg" alt="SHIJA" onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'"><b id="logoFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center">S</b></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
@@ -144,7 +145,7 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 </div>
 
 <div class="filterRow2">
-<input id="searchAdded" class="searchInput" placeholder="Search Patient (Name / SHRI)" oninput="resetPageAndLoad()" autocomplete="off">
+<input id="searchAdded" name="shija_kft_q_9271" type="search" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="searchInput" placeholder="Search Patient (Name / SHRI)" oninput="resetPageAndLoad()">
 <button class="btnBlue" onclick="resetPageAndLoad()">Search</button>
 <div class="viewIcons">
 <button class="btnViewIcon active" id="btnList" onclick="setView('list')" title="List View"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg></button>
@@ -201,6 +202,11 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none'; });
   document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
   document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
+  // ANTI-ADMIN
+  function killAdmin(){ let s=document.getElementById('searchAdded'); if(s && s.value.toLowerCase().includes('admin')){ s.value=''; resetPageAndLoad(); } }
+  setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);
+  let el=document.getElementById('searchAdded'); if(el){ el.addEventListener('input',killAdmin); el.addEventListener('focus',killAdmin); }
+  let iv=0; let timer=setInterval(()=>{ killAdmin(); iv++; if(iv>50) clearInterval(timer); },100);
 });
 let viewMode='list';
 window.setView=(mode)=>{
@@ -265,6 +271,7 @@ async function loadMasterPatients(){
 
 function getFiltered(){
   let searchQ=document.getElementById('searchAdded').value.toLowerCase().trim();
+  if(searchQ.includes('admin')){ document.getElementById('searchAdded').value=''; searchQ=''; }
   if(!searchQ) return patients;
   return patients.filter(p=>{
     return (p.patientName||'').toLowerCase().includes(searchQ) || (p.shriId||'').toLowerCase().includes(searchQ) || (p.contactNo||'').toLowerCase().includes(searchQ);
@@ -285,7 +292,7 @@ function renderPageBtns(total, totalPages){
 
 window.goToPage=(p)=>{ let filtered=getFiltered(); let totalPages = pageSize==='all' ? 1 : Math.max(1, Math.ceil(filtered.length/pageSize)); if(p<1) p=1; if(p>totalPages) p=totalPages; currentPage=p; renderTable(); };
 window.changePageSize=()=>{ let v=document.getElementById('pageSizeSel').value; pageSize = v==='all' ? 'all' : parseInt(v); currentPage=1; renderTable(); };
-window.resetPageAndLoad=()=>{ currentPage=1; renderTable(); };
+window.resetPageAndLoad=()=>{ let el=document.getElementById('searchAdded'); if(el && el.value.toLowerCase().includes('admin')){ el.value=''; } currentPage=1; renderTable(); };
 window.setDate=(d)=>{ selDate=d; loadFromFirebase(); };
 
 window.loadFromFirebase=async()=>{
