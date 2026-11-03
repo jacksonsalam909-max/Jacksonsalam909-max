@@ -206,6 +206,8 @@ window._fbAdmin={db,doc,setDoc,serverTimestamp};
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
 </script>
+<!-- ANTI-ADMIN TRAP -->
+<div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 <div class="sHead"><div class="sLogo"><img src="logoc.png" onerror="this.src='finalopo.png'"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
@@ -251,7 +253,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div class="content">
 <div class="topSearchRow">
 <div class="searchLeft">
-<div class="searchShort"><div class="searchBox"><input id="searchInput" class="inputPro" placeholder="Search Name / SHRI No" oninput="doSearch(this.value)" onfocus="doSearch(this.value)"><div id="searchList" class="searchList"></div></div></div>
+<div class="searchShort"><div class="searchBox"><input id="searchInput" name="shija_ds_q_9271" type="search" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="inputPro" placeholder="Search Name / SHRI No" oninput="doSearch(this.value)" onfocus="doSearch(this.value)"><div id="searchList" class="searchList"></div></div></div>
 <button class="btnOutline" id="detailsBtn" onclick="toggleInputCard()" style="height:38px">▼ Details</button>
 </div>
 <div class="rightActions">
@@ -364,7 +366,10 @@ function setSchemeFilter(s){
   document.getElementById('btnCMHT').classList.toggle('active', s==='cmht');
   document.getElementById('btnALL').classList.toggle('active', s==='all');
 }
-function doSearch(q){let l=document.getElementById('searchList');let c=getCombined();if(!q){let a=c.slice(0,20);lastFiltered=a;l.innerHTML=a.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:8px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:11px"><b style="color:#2563eb">${p.shri}</b> - ${p.name}</div>`).join('');l.style.display='block';return;}q=q.toLowerCase();let f=c.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,20);lastFiltered=f;l.innerHTML=f.length?f.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:8px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:11px"><b style="color:#2563eb">${p.shri}</b> - ${p.name.slice(0,35)}</div>`).join(''):'<div style="padding:8px;font-size:11px">No patient</div>';l.style.display='block';}
+function doSearch(q){
+ let el=document.getElementById('searchInput');
+ if(q.toLowerCase().includes('admin')){ el.value=''; q=''; document.getElementById('searchList').style.display='none'; return; }
+ let l=document.getElementById('searchList');let c=getCombined();if(!q){let a=c.slice(0,20);lastFiltered=a;l.innerHTML=a.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:8px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:11px"><b style="color:#2563eb">${p.shri}</b> - ${p.name}</div>`).join('');l.style.display='block';return;}q=q.toLowerCase();let f=c.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,20);lastFiltered=f;l.innerHTML=f.length?f.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:8px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:11px"><b style="color:#2563eb">${p.shri}</b> - ${p.name.slice(0,35)}</div>`).join(''):'<div style="padding:8px;font-size:11px">No patient</div>';l.style.display='block';}
 function selectPatByIdx(i){let p=lastFiltered[i];if(!p)return;document.getElementById('shriId').value=p.shri;document.getElementById('b_shri').innerText=p.shri;document.getElementById('b_ip').innerText=p.ip||'185693';document.getElementById('ipInput').value=p.ip||'185693';document.getElementById('b_name').innerText=p.name;if(p.age) {document.getElementById('ageNum').value=parseInt(p.age)||71; if(p.sex){ document.getElementById('sexSelect').value=p.sex; } updateAgeSex();}document.getElementById('searchList').style.display='none';document.getElementById('searchInput').value=p.shri+' - '+p.name;autoDates(); setTimeout(initEditableDrag,200);}
 function updateVitals(){
   document.getElementById('b_bpPre').innerText=document.getElementById('bpPre').value;
@@ -422,6 +427,11 @@ document.addEventListener('DOMContentLoaded',()=>{
     }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
   });
   document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{ if(e.key==='Enter') document.getElementById('confirmLogoutAll').click(); });
+  // ANTI-ADMIN
+  function killAdmin(){ let s=document.getElementById('searchInput'); if(s && s.value.toLowerCase().includes('admin')){ s.value=''; document.getElementById('searchList').style.display='none'; } }
+  setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);
+  let el=document.getElementById('searchInput'); if(el){ el.addEventListener('input',killAdmin); el.addEventListener('focus',killAdmin); }
+  let iv=0; let timer=setInterval(()=>{ killAdmin(); iv++; if(iv>50) clearInterval(timer); },100);
 });
 </script>
 </body>
