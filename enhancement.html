@@ -147,7 +147,7 @@ async function loadData(){try{let d=document.getElementById('fDate').value,s=doc
 function showConfirm(sh){pendingShri=sh;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let name=p?p.name:sh;document.getElementById('confirmTitle').innerText='UNDO?';document.getElementById('confirmSub').innerText='Move '+name+' back to DONE LIST?';document.getElementById('confirmModal').style.display='flex';}
 function hideConfirm(){document.getElementById('confirmModal').style.display='none';pendingShri=null;}
 
-// *** FIXED CORE LOGIC - DELETE WITH FieldValue.delete() + REDIRECT ***
+// NO REDIRECT - ONLY SELECTED PATIENT DISAPPEARS
 async function confirmSure(){
   if(!pendingShri)return;
   let btn=document.getElementById('btnSure');
@@ -157,7 +157,7 @@ async function confirmSure(){
   let id=d+'_'+s;
   let shriToDelete=pendingShri;
   try{
-    // 1. Delete from Firestore properly using FieldValue.delete()
+    // Delete only this SHRI from Firestore
     let docRef=db.collection('daily_enhancement').doc(id);
     let docSnap=await docRef.get();
     if(docSnap.exists){
@@ -165,36 +165,21 @@ async function confirmSure(){
         [`status.${shriToDelete}`]: firebase.firestore.FieldValue.delete()
       });
     }
-    // 2. Delete locally too
+    // Delete locally
     if(enhancementMap[shriToDelete]) delete enhancementMap[shriToDelete];
     
-    // 3. Hide modal + update UI to disappear immediately
     hideConfirm();
-    // Remove card from DOM instantly
-    document.querySelectorAll('.card').forEach(c=>{
-      let b=c.querySelector(`[data-shri="${shriToDelete}"]`);
-      if(b) c.style.display='none';
-    });
     render();
     
     let toast=document.getElementById('toast');
-    toast.innerText='Returned to DONE ✓';
+    toast.innerText='Returned to DONE List ✓';
     toast.classList.add('show');
-    
-    // 4. Go to gdacompleted.html (DONE LIST)
-    setTimeout(()=>{
-      toast.classList.remove('show');
-      window.location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(s);
-    },700);
+    setTimeout(()=>toast.classList.remove('show'),1500);
+    // NO location.href - stays in same page
     
   }catch(e){
     console.error(e);
-    // Fallback - still try to go to done list even if delete failed, but force local delete
-    if(enhancementMap[shriToDelete]) delete enhancementMap[shriToDelete];
-    hideConfirm();
-    render();
-    alert('Undo done, moving to DONE LIST. If still appears, check Firestore rules.');
-    window.location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(s);
+    alert('Error: '+(e.message||e));
   }finally{
     btn.innerText='SURE';btn.disabled=false;
   }
