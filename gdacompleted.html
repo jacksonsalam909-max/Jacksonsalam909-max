@@ -157,7 +157,7 @@ function closeMob(){
 </div>
 <div class="content">
 <div class="topFilters">
-<div class="searchRow"><div class="searchInputWrap"><input type="search" id="searchName" autocomplete="off" value="" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
+<div class="searchRow"><div class="searchInputWrap"><input type="text" id="searchName" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
 <div class="row3"><div class="dateBoxNew"><button class="dateArrowBox" id="datePrev">‹</button><div class="dateMiddle" id="dateCenter"><span id="dateDisplay">03-11-2026</span><div class="calBox" id="calIcon"></div></div><button class="dateArrowBox right" id="dateNext">›</button></div><div class="dateBox2"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div><div class="dateBox2"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div><button id="toggleViewBtn" class="viewIconSingle"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button></div>
 <input type="date" id="fDate" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
 <div class="searchMeta"><span id="searchInfo"></span><span id="doneMeta">DONE LIST</span></div>
@@ -227,6 +227,15 @@ function getCol(name){const colors=['linear-gradient(135deg,#22C55E,#16A34A)','l
 function getFiltered(){
   let bf=document.getElementById('filterBlock').value;
   let sq=searchQuery.toLowerCase().trim();
+  // AUTO REMOVE admin WORD IF TYPED
+  if(sq.includes('admin')){
+    sq='';
+    searchQuery='';
+    let inp=document.getElementById('searchName');
+    if(inp) inp.value='';
+    let clr=document.getElementById('clearSearch');
+    if(clr) clr.style.display='none';
+  }
   return allPatients.filter(p=>{
     let sh=String(p.shri||'').toUpperCase();
     if(!sh)return false;
@@ -259,13 +268,36 @@ addUniversal(document.getElementById('nextBtn'),()=>{currentPage++;render();});
 addUniversal(document.getElementById('btnSure'),()=>confirmSure());
 addUniversal(document.getElementById('btnNotSure'),()=>hideConfirm());
 document.getElementById('confirmModal')?.addEventListener('click',e=>{if(e.target.id==='confirmModal')hideConfirm();});
-const searchInput=document.getElementById('searchName');const clearBtn=document.getElementById('clearSearch');
+
+const searchInput=document.getElementById('searchName');
+const clearBtn=document.getElementById('clearSearch');
+
+function forceClearSearchIfAdmin(){
+  let v = searchInput.value || '';
+  if(v.toLowerCase().includes('admin')){
+    searchInput.value='';
+    searchQuery='';
+    clearBtn.style.display='none';
+    currentPage=1;
+    render();
+    return true;
+  }
+  return false;
+}
+
 searchInput?.addEventListener('input',e=>{
+  if(forceClearSearchIfAdmin()) return;
   searchQuery=e.target.value;
   if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';
   currentPage=1;render();
 });
+
+searchInput?.addEventListener('change',e=>{
+  forceClearSearchIfAdmin();
+});
+
 addUniversal(clearBtn,()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
+
 const ADMIN_PASSWORD="jack8189";
 try{
   db.collection("system").doc("global_logout").onSnapshot((snap)=>{
@@ -277,11 +309,13 @@ try{
     }
   });
 }catch(e){}
+
 document.addEventListener('DOMContentLoaded',()=>{
-  // FORCE CLEAR SEARCH BAR - THIS REMOVES admin WORD FROM SEARCH
-  const sIn = document.getElementById('searchName');
-  if(sIn){ sIn.value=''; sIn.setAttribute('autocomplete','off'); }
-  searchQuery=''; 
+  // IMMEDIATELY CLEAR SEARCH BAR
+  if(searchInput){ searchInput.value=''; searchInput.setAttribute('autocomplete','off'); }
+  searchQuery='';
+  if(clearBtn) clearBtn.style.display='none';
+
   const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');
   adminBtn?.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
   document.addEventListener('click',(e)=>{ if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none'; });
@@ -300,12 +334,34 @@ document.addEventListener('DOMContentLoaded',()=>{
     }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
   });
 });
+
 window.addEventListener('load',()=>{
-  // CLEAR AGAIN ON LOAD - ENSURE SEARCH BAR IS EMPTY
-  const sIn = document.getElementById('searchName');
-  if(sIn){ sIn.value=''; }
+  // CLEAR AGAIN AFTER CHROME AUTOFILL
+  if(searchInput){ searchInput.value=''; }
   searchQuery='';
+  if(clearBtn) clearBtn.style.display='none';
+  
+  // CHECK EVERY 500ms FOR FIRST 5 SECONDS - IF CHROME FILLS admin, CLEAR IT
+  let checks=0;
+  let intv=setInterval(()=>{
+    checks++;
+    if(searchInput && searchInput.value.toLowerCase().includes('admin')){
+      searchInput.value='';
+      searchQuery='';
+      if(clearBtn) clearBtn.style.display='none';
+      render();
+    }
+    if(checks>10) clearInterval(intv);
+  },500);
+
   setTimeout(()=>{updateToggleBtn();loadData();},300);
+});
+
+// ALSO CLEAR ON PAGESHOW (BACK BUTTON CACHE)
+window.addEventListener('pageshow',()=>{
+  if(searchInput){ searchInput.value=''; }
+  searchQuery='';
+  if(clearBtn) clearBtn.style.display='none';
 });
 </script>
 </body>
