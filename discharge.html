@@ -8,11 +8,11 @@
 <script src="Patient.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#f1f5f9;display:flex;min-height:100vh}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease,min-width .32s ease}
+body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease,min-width .32s ease, transform .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important;max-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0;border:1px solid #e2e8f0}
 .sLogo img{width:100%;height:100%;object-fit:contain;display:block}
@@ -39,7 +39,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;outline:none!important;box-shadow:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;z-index:999}
 .menuBtnTop span{display:block;width:22px;height:2.6px;background:#0f172a;border-radius:2px}
 .badgeBlue{background:#f59e0b;color:#000;padding:6px 12px;border-radius:20px;font-weight:900;font-size:11px;border:1px solid #f59e0b}
-.content{flex:1;padding:20px 24px;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(60,37,235,0.08) 1px, transparent 0);background-size:22px 22px}
+.content{flex:1;padding:20px 24px;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(60,37,235,0.08) 1px, transparent 0);background-size:22px 22px;max-width:100%}
 .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;border:1.5px solid #e2e8f0}
 .label{font-size:10px;font-weight:900;color:#64748b;margin-bottom:4px;text-transform:uppercase}
 .btn{padding:8px 14px;border:0;border-radius:8px;font-weight:800;font-size:11px;cursor:pointer}
@@ -82,12 +82,40 @@ td.nameCol{text-align:left;padding-left:12px}
 .claimFold.show{display:flex}
 @keyframes foldIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
 .claimFold input{width:100px;padding:6px 6px;border:1.5px solid #3c25eb;border-radius:5px;font-weight:800;font-size:9px;background:#eff6ff;outline:0;text-transform:uppercase}
-@media(max-width:900px){.gridWrap{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.gridWrap{grid-template-columns:1fr}}
+
+/* === MOBILE ONLY FIX === */
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
+  .content{padding:12px}
+  .gridWrap{grid-template-columns:repeat(2,1fr)}
+  .filterRow1{flex-wrap:wrap}
+}
+@media(max-width:600px){
+  .gridWrap{grid-template-columns:1fr}
+  .filterRow2{flex-direction:column;align-items:stretch}
+}
 </style>
-<script>function toggleWhiteBar(){var bar=document.getElementById('whiteBar');if(!bar)return;bar.classList.toggle('folded');try{localStorage.setItem('shija_menu_folded',bar.classList.contains('folded')?'1':'0')}catch(e){} }</script>
+<script>function toggleWhiteBar(){
+  if(window.innerWidth<=900){
+    document.getElementById('whiteBar').classList.toggle('mOpen');
+    document.getElementById('mobOverlay').classList.toggle('show');
+  }else{
+    var bar=document.getElementById('whiteBar');if(!bar)return;bar.classList.toggle('folded');try{localStorage.setItem('shija_menu_folded',bar.classList.contains('folded')?'1':'0')}catch(e){}
+  }
+}
+function closeMob(){
+  document.getElementById('whiteBar').classList.remove('mOpen');
+  document.getElementById('mobOverlay').classList.remove('show');
+}
+</script>
 </head>
 <body>
+<div id="mobOverlay" onclick="closeMob()"></div>
 <script>
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
@@ -118,7 +146,6 @@ try{
 window._fb.serverTimestamp=serverTimestamp;
 window._fb.guardDb=guardDb;
 </script>
-<!-- ANTI-ADMIN TRAP -->
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 
 <div class="whiteBar" id="whiteBar">
