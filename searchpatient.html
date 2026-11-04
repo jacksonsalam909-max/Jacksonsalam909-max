@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Search Patient - SHIJA Dialysis</title>
 <script src="Patient.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-html,body{background:#ffffff!important;background-color:#ffffff!important}
+html,body{background:#ffffff!important;background-color:#ffffff!important;overflow-x:hidden}
 body{display:flex;min-height:100vh}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#ffffff!important}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#ffffff!important;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
 .sLogo img{width:100%;height:100%;object-fit:contain}
@@ -40,7 +41,7 @@ body{display:flex;min-height:100vh}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
 .menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
-.content{flex:1;padding:20px 24px;position:relative;background:#ffffff!important;min-height:100vh}
+.content{flex:1;padding:20px 24px;position:relative;background:#ffffff!important;min-height:100vh;max-width:100%}
 .bgLogo{position:absolute!important;top:175px!important;left:50%!important;transform:translateX(-50%)!important;width:420px!important;height:420px!important;max-width:85vw;max-height:85vw;pointer-events:none;z-index:1!important;display:grid;place-items:center}
 .bgLogo img{width:100%;height:100%;object-fit:contain;opacity:0.20!important;filter: drop-shadow(0 12px 24px rgba(15,23,42,0.15)) drop-shadow(0 4px 12px rgba(15,23,42,0.12)) drop-shadow(0 1px 3px rgba(15,23,42,0.10))!important}
 .pageHead{position:relative;z-index:10;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:18px}
@@ -101,19 +102,32 @@ tr:hover{background:#f8fafc!important}
 .detailCard.full{grid-column:1/-1}
 .detailCard span{display:block;font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
 .detailCard b{display:block;font-size:14px;font-weight:800;color:#0f172a;word-break:break-word}
-@media(max-width:1200px){.patientGrid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:900px){.patientGrid{grid-template-columns:repeat(2,1fr)}}
+
+/* === MOBILE ONLY FIX === */
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
+  .content{padding:12px}
+  .patientGrid{grid-template-columns:repeat(2,1fr)}
+}
 @media(max-width:600px){
   .patientGrid{grid-template-columns:repeat(2,1fr);gap:8px}
-  .content{padding:14px}
   .controls{flex-direction:column;align-items:stretch}
   .bgLogo{top:165px!important;width:360px!important;height:360px!important;left:50%!important;transform:translateX(-50%)!important}
   .detailGrid{grid-template-columns:1fr}
+  .searchWrap{min-width:100%}
 }
-@media(max-width:400px){.patientGrid{grid-template-columns:1fr}}
+@media(max-width:400px){
+  .patientGrid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
+<div id="mobOverlay" onclick="closeMob()"></div>
 <script>
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
@@ -126,7 +140,6 @@ const guardApp=initializeApp(cfg,"search_guard_"+Math.random());
 const guardDb=getFirestore(guardApp);
 try{ onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{ if(!snap.exists()) return; let lt=snap.data().logoutTime||0; let my=parseInt(localStorage.getItem('shija_login_time')||'0'); if(lt>my && my!==0){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); localStorage.removeItem('shija_role'); alert('🔒 Logged out'); location.href='login.html?reason=global'; } }); }catch(e){}
 </script>
-<!-- ANTI-ADMIN TRAP -->
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
@@ -232,7 +245,18 @@ try{ onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{ if(!snap.exists(
 </div>
 
 <script>
-function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}
+function toggleWhiteBar(){
+  if(window.innerWidth<=900){
+    document.getElementById('whiteBar').classList.toggle('mOpen');
+    document.getElementById('mobOverlay').classList.toggle('show');
+  }else{
+    document.getElementById('whiteBar').classList.toggle('folded');
+  }
+}
+function closeMob(){
+  document.getElementById('whiteBar').classList.remove('mOpen');
+  document.getElementById('mobOverlay').classList.remove('show');
+}
 document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
   const adminBtn=document.getElementById('adminBtn');
@@ -243,7 +267,6 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none'; });
   document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
   document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
-  // ANTI-ADMIN
   function killAdmin(){ let s=document.getElementById('search'); if(s && s.value.toLowerCase().includes('admin')){ s.value=''; onSearch(); } }
   setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);
   let el=document.getElementById('search'); if(el){ el.addEventListener('focus',killAdmin); el.addEventListener('input',killAdmin); }
