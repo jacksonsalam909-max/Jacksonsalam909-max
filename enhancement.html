@@ -99,12 +99,12 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 @media(max-width:400px){
   .grid{grid-template-columns:1fr}
 }
-
-/* === HOVER HIGHLIGHT + POP-UP - ADDED === */
 .topFilters{transition:all .25s ease}
 .topFilters:hover{box-shadow:0 10px 24px rgba(15,23,42,0.08);transform:translateY(-1px);border-color:#cbd5e1}
-.card{transition:all .25s ease}
-.card:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 14px 28px rgba(0,0,0,0.12);border-color:#f59e0b;border-left-width:6px}
+.card{transition:all .28s ease}
+.card:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 16px 32px rgba(0,0,0,0.14)!important;border-color:#f59e0b!important;border-left-width:6px}
+.card:hover .avatarSq{transform:scale(1.12) rotate(3deg)}
+.card:hover .name{color:#f59e0b!important}
 .sMenu a{transition:all .22s ease}
 .sMenu a:hover{transform:translateX(3px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
 .btnAct, .pageBtnSmall, .viewIconSingle, .dateArrowBox{transition:all .22s ease}
@@ -170,7 +170,11 @@ function closeMob(){
 </div>
 <div class="content">
 <div class="topFilters">
-<div class="searchRow"><div class="searchInputWrap"><input type="text" id="searchName" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
+<div class="searchRow"><div class="searchInputWrap">
+<form autocomplete="off" onsubmit="return false" style="display:flex;flex:1;width:100%">
+<input type="text" id="searchName" name="shija_enh_q_9271_xyz" autocomplete="off" data-lpignore="true" data-form-type="other" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')" onblur="if(this.value.toLowerCase().includes('admin')){this.value='';}" value="" class="searchInput" placeholder="Search name or SHRI...">
+</form>
+<button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
 <div class="row3"><div class="dateBoxNew"><button class="dateArrowBox" id="datePrev">‹</button><div class="dateMiddle" id="dateCenter"><span id="dateDisplay">03-11-2026</span><div class="calBox" id="calIcon"></div></div><button class="dateArrowBox right" id="dateNext">›</button></div><div class="dateBox2"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div><div class="dateBox2"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div><button id="toggleViewBtn" class="viewIconSingle"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button></div>
 <input type="date" id="fDate" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
 <div class="searchMeta"><span id="searchInfo"></span><span id="doneMeta">ENHANCEMENT LIST</span></div>
@@ -183,7 +187,7 @@ function closeMob(){
   <div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
     <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
     <div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter admin password</div>
-    <input type="password" id="adminPassInput" placeholder="Password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
+    <input type="password" id="adminPassInput" placeholder="Password" autocomplete="new-password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
     <div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div>
     <div style="display:flex;gap:8px">
       <button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:12px;cursor:pointer">Cancel</button>
@@ -270,21 +274,29 @@ document.getElementById('confirmModal')?.addEventListener('click',e=>{if(e.targe
 const searchInput=document.getElementById('searchName');
 const clearBtn=document.getElementById('clearSearch');
 
-function forceClearIfAdmin(){
-  let v=searchInput.value||'';
-  if(v.toLowerCase().includes('admin')){
-    searchInput.value=''; searchQuery=''; clearBtn.style.display='none'; currentPage=1; render(); return true;
+function killAdminAll(){
+  let v = (searchInput.value||'').toLowerCase();
+  if(v.includes('admin')){
+    searchInput.value='';
+    searchQuery='';
+    if(clearBtn) clearBtn.style.display='none';
+    currentPage=1; render();
+    return true;
   }
   return false;
 }
 
 searchInput?.addEventListener('input',e=>{
-  if(forceClearIfAdmin()) return;
+  if(killAdminAll()) return;
   searchQuery=e.target.value;
   if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';
   currentPage=1;render();
 });
-searchInput?.addEventListener('change',e=>{ forceClearIfAdmin(); });
+searchInput?.addEventListener('animationstart',e=>{
+  if(e.animationName==='onAutoFillStart'){
+    setTimeout(killAdminAll,10);
+  }
+});
 addUniversal(clearBtn,()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
 
 const ADMIN_PASSWORD="jack8189";
@@ -301,6 +313,7 @@ try{
 document.addEventListener('DOMContentLoaded',()=>{
   if(searchInput){ searchInput.value=''; searchInput.setAttribute('autocomplete','off'); }
   searchQuery=''; if(clearBtn) clearBtn.style.display='none';
+  [50,150,400,800,1500].forEach(t=>setTimeout(killAdminAll,t));
   const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');
   adminBtn?.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
   document.addEventListener('click',(e)=>{ if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none'; });
@@ -322,16 +335,12 @@ document.addEventListener('DOMContentLoaded',()=>{
 window.addEventListener('load',()=>{
   if(searchInput){ searchInput.value=''; }
   searchQuery=''; if(clearBtn) clearBtn.style.display='none';
-  let checks=0; let intv=setInterval(()=>{
-    checks++; if(searchInput && searchInput.value.toLowerCase().includes('admin')){
-      searchInput.value=''; searchQuery=''; if(clearBtn) clearBtn.style.display='none'; render();
-    }
-    if(checks>10) clearInterval(intv);
-  },500);
+  setTimeout(killAdminAll,50);
+  let checks=0; let intv=setInterval(()=>{ checks++; killAdminAll(); if(checks>20) clearInterval(intv); },250);
   setTimeout(()=>{updateToggleBtn();loadData();},300);
 });
 window.addEventListener('pageshow',()=>{
-  if(searchInput){ searchInput.value=''; } searchQuery=''; if(clearBtn) clearBtn.style.display='none';
+  if(searchInput){ searchInput.value=''; } searchQuery=''; if(clearBtn) clearBtn.style.display='none'; killAdminAll();
 });
 </script>
 </body>
