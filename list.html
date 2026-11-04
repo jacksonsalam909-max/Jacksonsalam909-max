@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>SHIJA DIALYSIS MANAGMENT</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#f1f5f9;display:flex;min-height:100vh}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease}
+body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
 .sLogo img{width:100%;height:100%;object-fit:contain}
@@ -41,7 +42,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .btn{padding:6px 10px;border:0;border-radius:6px;font-weight:900;font-size:10px;cursor:pointer}
 .btnDark{background:#0f172a;color:#fff}.btnPurple{background:#7c3aed;color:#fff}
 .input{padding:6px 8px;border:1px solid #e2e8f0;border-radius:6px;font-weight:700;font-size:11px;background:#fff}
-.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px}
+.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px;max-width:100%}
 .card{background:#fff;border-radius:14px;padding:12px;margin-bottom:12px;border:1px solid #e2e8f0;box-shadow:0 1px 2px #00000006}
 .sheetWrap{overflow:auto;border:1px solid #e2e8f0;background:#fff;max-height:75vh;border-radius:12px}
 .sheetWrap.hide{display:none!important}
@@ -88,28 +89,37 @@ td .btnEdit, td .btnDelete{flex:none!important;min-width:auto!important;height:2
 td .btnEdit{background:#FFD60A;color:#000;font-weight:900;border:0;cursor:pointer}
 td .btnDelete{background:#EF4444;color:#fff;font-weight:900;border:0;cursor:pointer}
 .gridStatus{padding:5px 6px;border-radius:5px;font-weight:800;font-size:10px;border:1px solid #d1d5db;background:#fff;color:#0f172a;cursor:pointer;min-width:95px;max-width:108px;white-space:nowrap}
-@media (max-width:1100px){.filterBar{flex-wrap:wrap} .fInputSm{min-width:72px;max-width:90px}}
-@media (max-width:600px){
+
+/* === MOBILE ONLY FIX === */
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
+  .content{padding:12px}
+  .filterBar{flex-wrap:wrap}
+}
+@media(max-width:600px){
   .gridWrap{grid-template-columns:repeat(2,1fr);gap:8px}
   .pCard{padding:8px;min-height:120px}
   .pCardName{font-size:10px;max-width:58%}
   .pCardSub{font-size:8px;padding:3px 5px}
   .pCardInfo span{font-size:8px;padding:3px 5px}
   .gridStatus{font-size:8px;min-width:85px;max-width:95px}
-  .content{padding:14px}
-  .filterBar{gap:4px}
   .fInputSm{min-width:68px;max-width:82px;font-size:9px;height:28px}
   .clearBtn,.addBtn{height:28px;min-width:68px;font-size:8px}
+  .searchRow{flex-direction:column;align-items:stretch}
 }
 </style>
 </head>
 <body>
+<div id="mobOverlay" onclick="closeMob()"></div>
 <script>
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
 </script>
-
-<!-- ANTI-AUTOFILL TRAP FOR ADMIN -->
 <form autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0" aria-hidden="true">
   <input type="text" name="fake-username" autocomplete="username" tabindex="-1">
   <input type="password" name="fake-password" autocomplete="current-password" tabindex="-1">
@@ -222,24 +232,31 @@ document.getElementById('fDate').value=getTodayIST();
 let urlParams=new URLSearchParams(window.location.search);
 if(urlParams.get('date')&&urlParams.get('force')==='1'){document.getElementById('fDate').value=urlParams.get('date');}
 if(urlParams.get('scheme')){document.getElementById('fType').value=urlParams.get('scheme');}
-function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}
+function toggleWhiteBar(){
+  if(window.innerWidth<=900){
+    document.getElementById('whiteBar').classList.toggle('mOpen');
+    document.getElementById('mobOverlay').classList.toggle('show');
+  }else{
+    document.getElementById('whiteBar').classList.toggle('folded');
+  }
+}
+function closeMob(){
+  document.getElementById('whiteBar').classList.remove('mOpen');
+  document.getElementById('mobOverlay').classList.remove('show');
+}
 document.addEventListener('DOMContentLoaded',function(){
  document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
  let scheme=urlParams.get('scheme')||document.getElementById('fType').value;
  document.querySelectorAll('.sMenu a').forEach(a=>a.classList.remove('active'));
  if(scheme==='CMHT'){ let el=document.getElementById('cmhtLink'); if(el) el.classList.add('active'); } else { let el=document.getElementById('pmjayLink'); if(el) el.classList.add('active'); }
  switchView('grid');
-
- // FIX ADMIN AUTOFILL BUG
  let s=document.getElementById('searchName');
  if(s){
    s.value='';
    s.setAttribute('autocomplete','off');
-   // Kill admin autofill after load
    [50,150,400,800,1500].forEach(t=>setTimeout(()=>{ if(s.value.toLowerCase().includes('admin')){ s.value=''; applyFilter(); } },t));
    s.addEventListener('animationstart', (e)=>{ if(e.animationName==='onAutoFillStart'){ setTimeout(()=>{ s.value=''; applyFilter(); },10); } });
  }
-
   const adminBtn=document.getElementById('adminBtn');
   const adminDropdown=document.getElementById('adminDropdown');
   adminBtn?.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
@@ -290,7 +307,6 @@ function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim().re
 function applyFilter(){
  let searchInput=document.getElementById('searchName');
  let search=(searchInput?searchInput.value:'').toLowerCase().trim();
- // FIX: if search contains admin (autofill bug), clear it
  if(search.includes('admin')){ search=''; if(searchInput) searchInput.value=''; }
  let timeFilter=document.getElementById('filterTime').value;
  let timeFilterNorm=normalizeTime(timeFilter);
