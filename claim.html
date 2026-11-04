@@ -127,7 +127,8 @@ td.nameCol{text-align:left;padding-left:12px}
 .sheetWrap tr, .patientGrid .pCard, .searchResults .sItem{transition:all .22s ease}
 .sheetWrap tbody tr:hover td{background:#eef4ff!important}
 .sheetWrap tbody tr:hover{box-shadow:0 6px 16px rgba(37,99,235,0.12);transform:translateY(-1px)}
-.pCard:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(0,0,0,0.12);border-color:#2563eb}
+.pCard{transition:all .28s ease}
+.pCard:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 14px 28px rgba(0,0,0,0.12);border-color:#2563eb}
 .sMenu a{transition:all .22s ease}
 .sMenu a:hover{transform:translateX(3px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
 .btn, .btnDark, .btnRed, .btnAdd, .btnCancel, .pBtn, .vBtn, .btnEditText, .btnDelText{transition:all .20s ease}
@@ -136,6 +137,9 @@ td.nameCol{text-align:left;padding-left:12px}
 .sItem:hover{transform:translateX(2px);background:#eef4ff!important}
 .inlineBar{transition:all .25s ease}
 .inlineBar:hover{box-shadow:0 16px 32px rgba(15,23,42,0.10);transform:translateY(-1px)}
+#tbl tbody tr{transition:all .22s ease}
+#tbl tbody tr:hover td{background:#eef4ff!important}
+#tbl tbody tr:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(37,99,235,0.12)}
 </style>
 </head>
 <body>
@@ -144,7 +148,6 @@ td.nameCol{text-align:left;padding-left:12px}
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
 </script>
-<div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
@@ -188,14 +191,14 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 
 <div class="card" style="background:#eff6ff;border:1px solid #bfdbfe">
 <div class="label" style="color:#0f172a">ADD CLAIM PATIENT FROM TOTAL</div>
-<div class="searchBox" style="margin-top:6px"><input type="search" id="searchTotal" name="shija_claim_q_9271" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="input" placeholder="SEARCH TOTAL PATIENT TO ADD..." style="border:1.5px solid #0f172a;padding:12px;background:#fff"><div class="searchResults" id="searchResults"></div></div>
+<div class="searchBox" style="margin-top:6px"><input type="search" id="searchTotal" name="shija_claim_q_9271" autocomplete="off" data-lpignore="true" spellcheck="false" class="input" placeholder="SEARCH TOTAL PATIENT TO ADD..." style="border:1.5px solid #0f172a;padding:12px;background:#fff"><div class="searchResults" id="searchResults"></div></div>
 
 <div class="inlineBar" id="inlineBar">
 <div class="inlineBarHead"><b id="selPatientHead">Add Claim</b><span>Select options from dropdown</span></div>
 <div class="inlineBarBody">
 <div class="formGrid">
 <div class="formGroup"><label>Patient</label><div class="fInput patientBox" id="selPatientLabel">-</div></div>
-<div class="formGroup"><label>Claim ID</label><input id="inlineClaimId" class="fInput" placeholder="Enter Claim ID"></div>
+<div class="formGroup"><label>Claim ID</label><input id="inlineClaimId" type="text" inputmode="text" name="shija_claim_id_noauto" autocomplete="off" data-lpignore="true" data-form-type="other" spellcheck="false" class="fInput" placeholder="Enter Claim ID"></div>
 <div class="formGroup"><label>Date</label><input id="inlineDate" class="fInput select" type="date"></div>
 <div class="formGroup"><label>Time Slot</label><select id="inlineTime" class="fInput select"><option value="">Select Time</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
 <div class="formGroup"><label>Block</label><select id="inlineBlock" class="fInput select"><option value="">Select Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
@@ -207,7 +210,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 
 <div class="controls">
-<input id="fSearch" name="shija_claim_filter_9271" type="search" autocomplete="new-password" data-lpignore="true" spellcheck="false" placeholder="Search claim patient..." oninput="applyFilter()" style="flex:1;min-width:180px;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;font-size:13px;outline:0;background:#f8fafc">
+<input id="fSearch" name="shija_claim_filter_9271" type="search" autocomplete="off" data-lpignore="true" spellcheck="false" placeholder="Search claim patient..." oninput="applyFilter()" style="flex:1;min-width:180px;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;font-size:13px;outline:0;background:#f8fafc">
 <div class="viewToggle">
 <button class="vBtn" id="gridBtn" onclick="setView('grid')" title="Grid">⊞</button>
 <button class="vBtn active" id="tableBtn" onclick="setView('table')" title="List">☰</button>
@@ -228,7 +231,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
   <div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
     <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
     <div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter admin password</div>
-    <input type="password" id="adminPassInput" placeholder="Password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
+    <input type="password" id="adminPassInput" placeholder="Password" autocomplete="new-password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
     <div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div>
     <div style="display:flex;gap:8px">
       <button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:12px;cursor:pointer">Cancel</button>
