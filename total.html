@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Total Patients - SHIJA</title>
 <script src="Patient.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#f1f5f9;display:flex;min-height:100vh}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease}
+body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
 .sLogo img{width:100%;height:100%;object-fit:contain}
@@ -39,7 +40,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
 .menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
-.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px}
+.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px;max-width:100%}
 .pageHead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:18px}
 .pageHead h1{font-size:26px;font-weight:900;color:#0f172a}
 .pageHead p{color:#64748b;font-size:13px;font-weight:600;margin-top:4px}
@@ -85,13 +86,29 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-ali
 .hidden{display:none!important}
 .addBtn{background:#2563eb;color:#fff;padding:10px 18px;border-radius:10px;border:0;font-weight:800;font-size:13px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px #2563eb30}
 .addBtn:hover{background:#1d4ed8}
-@media(max-width:1200px){.patientGrid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:900px){.patientGrid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.patientGrid{grid-template-columns:repeat(2,1fr);gap:8px}.content{padding:14px}.controls{flex-direction:column;align-items:stretch}}
-@media(max-width:400px){.patientGrid{grid-template-columns:1fr}}
+
+/* === MOBILE ONLY FIX === */
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
+  .content{padding:12px}
+  .patientGrid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:600px){
+  .patientGrid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .controls{flex-direction:column;align-items:stretch}
+}
+@media(max-width:400px){
+  .patientGrid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
+<div id="mobOverlay" onclick="closeMob()"></div>
 <script>
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 </script>
@@ -173,15 +190,23 @@ if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 </div>
 
 <script>
-// SAME AS INDEX.HTML - WITH FOLD MEMORY FIX
 function toggleWhiteBar(){
-  let bar=document.getElementById('whiteBar');
-  bar.classList.toggle('folded');
-  localStorage.setItem('whiteBarFolded', bar.classList.contains('folded') ? 'true' : 'false');
+  if(window.innerWidth<=900){
+    document.getElementById('whiteBar').classList.toggle('mOpen');
+    document.getElementById('mobOverlay').classList.toggle('show');
+  }else{
+    let bar=document.getElementById('whiteBar');
+    bar.classList.toggle('folded');
+    localStorage.setItem('whiteBarFolded', bar.classList.contains('folded') ? 'true' : 'false');
+  }
+}
+function closeMob(){
+  document.getElementById('whiteBar').classList.remove('mOpen');
+  document.getElementById('mobOverlay').classList.remove('show');
 }
 document.addEventListener('DOMContentLoaded',function(){
   let saved = localStorage.getItem('whiteBarFolded');
-  if(saved === 'true'){ document.getElementById('whiteBar').classList.add('folded'); }
+  if(saved === 'true' && window.innerWidth>900){ document.getElementById('whiteBar').classList.add('folded'); }
   document.getElementById('menuBtnTop').addEventListener('click',function(e){ e.preventDefault(); toggleWhiteBar(); });
   
   const adminBtn=document.getElementById('adminBtn');
@@ -266,7 +291,6 @@ async function init(){
 }
 init();
 
-// ADMIN LOGOUT ALL - SAME AS INDEX.HTML
 const ADMIN_PASSWORD="jack8189";
 const adminApp2=initializeApp(firebaseConfig,"admin_total_"+Math.random());
 const adminDb=getFirestore(adminApp2);
