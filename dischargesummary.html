@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>SHIJA - Discharge Summary</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#f1f5f9;display:flex}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease}
+body{background:#f1f5f9;display:flex;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#f1f5f9}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#f1f5f9;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
 .sLogo img{width:100%;height:100%;object-fit:contain}
@@ -30,7 +31,7 @@ body{background:#f1f5f9;display:flex}
 .whiteBar.folded .sMenu a{justify-content:center;padding:12px 0}
 .sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b}
 .whiteBar.folded .sFoot{display:none}
-.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
+.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20;gap:10px}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px}
 .menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
@@ -81,9 +82,39 @@ body{background:#f1f5f9;display:flex}
 .autoLocked{background:#f5f5f5;border-bottom:1px dashed #888;font-weight:500;padding:0 1px;position:relative;left:0;cursor:ew-resize;touch-action:none}
 .footer{position:absolute;bottom:10px;right:14px;font-size:9px;color:#000}
 .exportClean .editableOnly,.exportClean .autoLocked{background:transparent!important;border:none!important;padding:0!important;left:0!important}
+
+/* === MOBILE ONLY FIX === */
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
+  .top{flex-wrap:wrap;height:auto;padding:10px;gap:8px}
+  .content{padding:10px}
+  .topSearchRow{flex-direction:column;align-items:stretch}
+  .searchLeft{flex-direction:column;min-width:100%}
+  .searchShort{max-width:100%;width:100%}
+  .previewWrap{padding:8px}
+  .paper{width:100%;min-height:auto;transform-origin:top left}
+  .col{min-width:100%}
+  .row{flex-direction:column}
+}
 </style>
 <script>
-function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}
+function toggleWhiteBar(){
+  if(window.innerWidth<=900){
+    document.getElementById('whiteBar').classList.toggle('mOpen');
+    document.getElementById('mobOverlay').classList.toggle('show');
+  }else{
+    document.getElementById('whiteBar').classList.toggle('folded');
+  }
+}
+function closeMob(){
+  document.getElementById('whiteBar').classList.remove('mOpen');
+  document.getElementById('mobOverlay').classList.remove('show');
+}
 function toggleInputCard(){ let card=document.getElementById('inputCard'); let btn=document.getElementById('detailsBtn'); card.classList.toggle('hidden'); btn.innerText=card.classList.contains('hidden')?'▼ Details':'▲ Hide Details'; }
 let baseSize=13.5; let currentFontSize=13.5;
 function changeFontSize(type){
@@ -202,11 +233,11 @@ window._fbAdmin={db,doc,setDoc,serverTimestamp};
 </script>
 </head>
 <body>
+<div id="mobOverlay" onclick="closeMob()"></div>
 <script>
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
 </script>
-<!-- ANTI-ADMIN TRAP -->
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
@@ -427,7 +458,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
   });
   document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{ if(e.key==='Enter') document.getElementById('confirmLogoutAll').click(); });
-  // ANTI-ADMIN
   function killAdmin(){ let s=document.getElementById('searchInput'); if(s && s.value.toLowerCase().includes('admin')){ s.value=''; document.getElementById('searchList').style.display='none'; } }
   setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);
   let el=document.getElementById('searchInput'); if(el){ el.addEventListener('input',killAdmin); el.addEventListener('focus',killAdmin); }
