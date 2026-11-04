@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>CMHT KFT Report - SHIJA</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#f1f5f9;display:flex;min-height:100vh}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease}
+body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0;border:1px solid #e2e8f0}
 .sLogo img{width:100%;height:100%;object-fit:contain;display:block}
@@ -38,7 +38,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
 .badgeBlue{background:#06b6d4;color:#fff;padding:6px 12px;border-radius:20px;font-weight:900;font-size:11px;border:1px solid #06b6d4}
-.content{flex:1;padding:20px 24px;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px}
+.content{flex:1;padding:20px 24px;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px;max-width:100%}
 .filterBox{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px;margin:14px 0;display:flex;flex-direction:column;gap:12px}
 .filterRow1{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .filterRow1 select{padding:10px 12px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700;font-size:13px;background:#fff;outline:0}
@@ -72,10 +72,28 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9}
 .pageBtns button{padding:8px 12px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:800;cursor:pointer}
 .pageBtns button:disabled{opacity:.4;cursor:not-allowed}
 .pageBtns button.active{background:#0a1931;color:#fff;border-color:#0a1931}
-@media(max-width:700px){.filterRow2{flex-direction:column;align-items:stretch}.viewIcons{margin-left:0;justify-content:flex-end;width:100%}.searchInput{max-width:100%}}
+
+/* === MOBILE ONLY FIX === */
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
+  .content{padding:12px}
+  .filterBox{padding:12px}
+}
+@media(max-width:700px){
+  .filterRow2{flex-direction:column;align-items:stretch}
+  .viewIcons{margin-left:0;justify-content:flex-end;width:100%}
+  .searchInput{max-width:100%}
+  .gridWrap{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
+<div id="mobOverlay" onclick="closeMob()"></div>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -85,7 +103,6 @@ let app; try{ app=initializeApp(cfg,"guard_cmhtkft_"+Math.random()); }catch(e){ 
 const dbGuard=getFirestore(app);
 try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists()) return; let lt=snap.data().logoutTime||0; let my=parseInt(localStorage.getItem('shija_login_time')||'0'); if(lt>my && my!==0){ localStorage.removeItem('shija_logged'); location.href='login.html'; } }); }catch(e){}
 </script>
-<!-- ANTI-ADMIN TRAP -->
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 
 <div class="whiteBar" id="whiteBar">
@@ -172,7 +189,18 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 </div>
 
 <script>
-function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}
+function toggleWhiteBar(){
+  if(window.innerWidth<=900){
+    document.getElementById('whiteBar').classList.toggle('mOpen');
+    document.getElementById('mobOverlay').classList.toggle('show');
+  }else{
+    document.getElementById('whiteBar').classList.toggle('folded');
+  }
+}
+function closeMob(){
+  document.getElementById('whiteBar').classList.remove('mOpen');
+  document.getElementById('mobOverlay').classList.remove('show');
+}
 document.addEventListener('DOMContentLoaded',function(){ 
 document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
 const adminBtn=document.getElementById('adminBtn');
@@ -183,7 +211,6 @@ document.getElementById('btnLogout')?.addEventListener('click',()=>{ if(confirm(
 document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none'; });
 document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
 document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
-// ANTI-ADMIN
 function killAdmin(){ let s=document.getElementById('searchAdded'); if(s && s.value.toLowerCase().includes('admin')) s.value=''; }
 setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);
 let el=document.getElementById('searchAdded'); if(el){ el.addEventListener('input',killAdmin); el.addEventListener('focus',killAdmin); }
