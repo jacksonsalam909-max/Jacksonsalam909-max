@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Bill - SHIJA</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -24,11 +24,11 @@ loadMasterPatients(); window.loadMasterPatients=loadMasterPatients;
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#f1f5f9;display:flex}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease}
+body{background:#f1f5f9;display:flex;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#f1f5f9}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#f1f5f9;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
 .sLogo img{width:100%;height:100%;object-fit:contain}
@@ -66,7 +66,7 @@ body{background:#f1f5f9;display:flex}
 .exportMenu{position:absolute;top:110%;right:0;background:#fff;border:1px solid #ccc;border-radius:10px;width:130px;display:none;z-index:9999;box-shadow:0 12px 24px #0002;overflow:hidden}
 .exportMenu.show{display:block}
 .exportMenu button{display:block;width:100%;text-align:left;background:#fff;border:0;padding:10px 12px;font-size:13px;cursor:pointer;font-weight:600}
-.content{flex:1;padding:20px 24px}
+.content{flex:1;padding:20px 24px;max-width:100%}
 .card{background:#fff;border-radius:18px;border:1px solid #e5e7eb;padding:16px;margin-bottom:14px;transition:all .3s}
 .card.hidden{display:none}
 .card input{padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:12px;font-weight:600;font-size:13px;background:#f8fafc;width:100%}
@@ -94,14 +94,33 @@ body{background:#f1f5f9;display:flex}
 .exactTable tr.grand td{border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:6px 4px;text-align:right}
 .exactTable.gross td{border:none;padding:8px 4px;text-align:right}
 @media print{@page{size:A4;margin:6mm}html,body{background:#fff!important;margin:0!important;padding:0!important}.noPrint{display:none!important}.content{padding:0!important;margin:0!important;max-width:100%!important}.billPaper{width:100%!important;padding:0!important;box-shadow:none!important;border:none!important}.word{border:none!important;background:transparent!important;box-shadow:none!important}}
+
+/* === MOBILE ONLY FIX === */
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
+  .top{flex-wrap:wrap;height:auto;padding:10px;gap:8px}
+  .searchWrap{order:3;max-width:100%;width:100%}
+  .content{padding:10px}
+  .card{padding:12px}
+  .col{min-width:100%}
+  .billPaper{width:100%;overflow-x:auto}
+  .infoGrid{grid-template-columns:1fr}
+  .exactTable{display:block;overflow-x:auto;white-space:nowrap}
+  .filterRow{padding:10px}
+}
 </style>
 </head>
 <body>
+<div id="mobOverlay" onclick="closeMob()"></div>
 <script>
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
 </script>
-<!-- ANTI-ADMIN TRAP -->
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
@@ -130,7 +149,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div class="mainWrap">
 <div class="top noPrint">
 <div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA Dialysis <span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div>
-<div class="searchWrap"><div class="search"><input id="patientSearch" name="shija_q_9271_xyz" type="search" autocomplete="new-password" data-lpignore="true" spellcheck="false" placeholder="Search patients... Type Name" oninput="showPatientSuggest(this.value)"><div id="suggest" class="suggest"></div></div></div>
+<div class="searchWrap"><div class="search"><input id="patientSearch" name="shija_q_9271_xyz" type="search" autocomplete="new-password" data-lpignore="true" spellcheck="false" placeholder="Search patients..." oninput="showPatientSuggest(this.value)"><div id="suggest" class="suggest"></div></div></div>
 <div class="topActions">
 <div class="exportWrap">
 <button class="btnBlue" onclick="toggleExport()">Export ▼</button>
@@ -215,13 +234,23 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 
 <script>
-function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}
+function toggleWhiteBar(){
+  if(window.innerWidth<=900){
+    document.getElementById('whiteBar').classList.toggle('mOpen');
+    document.getElementById('mobOverlay').classList.toggle('show');
+  }else{
+    document.getElementById('whiteBar').classList.toggle('folded');
+  }
+}
+function closeMob(){
+  document.getElementById('whiteBar').classList.remove('mOpen');
+  document.getElementById('mobOverlay').classList.remove('show');
+}
 function toggleExport(){document.getElementById('exportMenu').classList.toggle('show');}
 function toggleInputCard(){ let card=document.getElementById('inputCard'); let btn=document.getElementById('detailsBtn'); card.classList.toggle('hidden'); btn.innerText=card.classList.contains('hidden')?'▼ Details':'▲ Hide Details'; }
 function setScheme(scheme){ document.getElementById('schemeFilter').value=scheme; document.getElementById('payerShow').value=scheme; document.getElementById('btnPMJAY').classList.toggle('active', scheme==='PMJAY'); document.getElementById('btnCMHT').classList.toggle('active', scheme==='CMHT'); let itemInput=document.getElementById('itemNameInput'); if(scheme==='CMHT'){ itemInput.value='Haemodialysis Subsequent Visit CMHT'; }else{ itemInput.value='Haemodialysis Subsequent Visit PMJAY'; } document.getElementById('w26').innerText=itemInput.value; document.getElementById('w12').innerText=scheme; document.getElementById('patientSearch').value=''; document.getElementById('suggest').classList.remove('show'); updateBillFromInputs(); }
 document.addEventListener('DOMContentLoaded',function(){ 
 document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();}); 
-// FIX ADMIN WORD - AUTO CLEAR
 let s=document.getElementById('patientSearch');
 function killAdmin(){ if(s && s.value.toLowerCase().includes('admin')){ s.value=''; } }
 setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800); setTimeout(killAdmin,2000);
