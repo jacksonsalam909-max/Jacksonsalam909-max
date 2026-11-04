@@ -91,13 +91,16 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
   .mainWrap{margin-left:0!important;width:100%!important}
   .bottomBar{left:0!important}
   .content{padding:10px}
-  .row3{flex-wrap:wrap}
+  .row3{flex-wrap:wrap!important}
   .grid{grid-template-columns:repeat(2,1fr)}
   .searchRow{flex-direction:column;align-items:stretch}
   .timePager{justify-content:center}
+  .dateBoxNew{flex:1 1 100%!important;min-width:100%!important;width:100%!important}
+  .dateBox2{flex:1 1 48%!important;min-width:48%!important;width:48%!important}
 }
 @media(max-width:400px){
   .grid{grid-template-columns:1fr}
+  .dateBox2{flex:1 1 100%!important;min-width:100%!important;width:100%!important}
 }
 .topFilters{transition:all .25s ease}
 .topFilters:hover{box-shadow:0 10px 24px rgba(15,23,42,0.08);transform:translateY(-1px);border-color:#cbd5e1}
@@ -172,7 +175,7 @@ function closeMob(){
 <div class="topFilters">
 <div class="searchRow"><div class="searchInputWrap">
 <form autocomplete="off" onsubmit="return false" style="display:flex;flex:1;width:100%">
-<input type="text" id="searchName" name="shija_enh_q_9271_xyz" autocomplete="off" data-lpignore="true" data-form-type="other" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')" onblur="if(this.value.toLowerCase().includes('admin')){this.value='';}" value="" class="searchInput" placeholder="Search name or SHRI...">
+<input type="search" id="searchName" name="shija_enh_q_9271_xyz" autocomplete="off" data-lpignore="true" data-form-type="other" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')" value="" class="searchInput" placeholder="Search name or SHRI...">
 </form>
 <button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
 <div class="row3"><div class="dateBoxNew"><button class="dateArrowBox" id="datePrev">‹</button><div class="dateMiddle" id="dateCenter"><span id="dateDisplay">03-11-2026</span><div class="calBox" id="calIcon"></div></div><button class="dateArrowBox right" id="dateNext">›</button></div><div class="dateBox2"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div><div class="dateBox2"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div><button id="toggleViewBtn" class="viewIconSingle"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button></div>
@@ -241,11 +244,7 @@ function getCol(name){const colors=['linear-gradient(135deg,#f59e0b,#f97316)','l
 function getFiltered(){
   let bf=document.getElementById('filterBlock').value;
   let sq=searchQuery.toLowerCase().trim();
-  if(sq.includes('admin')){
-    sq=''; searchQuery='';
-    let inp=document.getElementById('searchName'); if(inp) inp.value='';
-    let clr=document.getElementById('clearSearch'); if(clr) clr.style.display='none';
-  }
+  if(sq.includes('admin')){ sq=''; searchQuery=''; let inp=document.getElementById('searchName'); if(inp) inp.value=''; let clr=document.getElementById('clearSearch'); if(clr) clr.style.display='none'; }
   return allPatients.filter(p=>{
     let sh=String(p.shri||'').toUpperCase();if(!sh)return false;
     if(bf&&p.block!==bf)return false;
@@ -270,35 +269,17 @@ addUniversal(document.getElementById('nextBtn'),()=>{currentPage++;render();});
 addUniversal(document.getElementById('btnSure'),()=>confirmSure());
 addUniversal(document.getElementById('btnNotSure'),()=>hideConfirm());
 document.getElementById('confirmModal')?.addEventListener('click',e=>{if(e.target.id==='confirmModal')hideConfirm();});
-
 const searchInput=document.getElementById('searchName');
 const clearBtn=document.getElementById('clearSearch');
-
 function killAdminAll(){
   let v = (searchInput.value||'').toLowerCase();
   if(v.includes('admin')){
-    searchInput.value='';
-    searchQuery='';
-    if(clearBtn) clearBtn.style.display='none';
-    currentPage=1; render();
-    return true;
+    searchInput.value=''; searchQuery=''; if(clearBtn) clearBtn.style.display='none'; currentPage=1; render(); return true;
   }
   return false;
 }
-
-searchInput?.addEventListener('input',e=>{
-  if(killAdminAll()) return;
-  searchQuery=e.target.value;
-  if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';
-  currentPage=1;render();
-});
-searchInput?.addEventListener('animationstart',e=>{
-  if(e.animationName==='onAutoFillStart'){
-    setTimeout(killAdminAll,10);
-  }
-});
+searchInput?.addEventListener('input',e=>{ if(killAdminAll()) return; searchQuery=e.target.value; if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none'; currentPage=1;render(); });
 addUniversal(clearBtn,()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
-
 const ADMIN_PASSWORD="jack8189";
 try{
   db.collection("system").doc("global_logout").onSnapshot((snap)=>{
@@ -311,9 +292,10 @@ try{
   });
 }catch(e){}
 document.addEventListener('DOMContentLoaded',()=>{
-  if(searchInput){ searchInput.value=''; searchInput.setAttribute('autocomplete','off'); }
+  if(searchInput){ searchInput.value=''; }
   searchQuery=''; if(clearBtn) clearBtn.style.display='none';
-  [50,150,400,800,1500].forEach(t=>setTimeout(killAdminAll,t));
+  setTimeout(killAdminAll,50); setTimeout(killAdminAll,300); setTimeout(killAdminAll,800);
+  let iv=0; let timer=setInterval(()=>{ killAdminAll(); iv++; if(iv>30) clearInterval(timer); },200);
   const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');
   adminBtn?.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
   document.addEventListener('click',(e)=>{ if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none'; });
@@ -333,14 +315,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 });
 window.addEventListener('load',()=>{
-  if(searchInput){ searchInput.value=''; }
+  if(searchInput) searchInput.value='';
   searchQuery=''; if(clearBtn) clearBtn.style.display='none';
-  setTimeout(killAdminAll,50);
-  let checks=0; let intv=setInterval(()=>{ checks++; killAdminAll(); if(checks>20) clearInterval(intv); },250);
   setTimeout(()=>{updateToggleBtn();loadData();},300);
 });
 window.addEventListener('pageshow',()=>{
-  if(searchInput){ searchInput.value=''; } searchQuery=''; if(clearBtn) clearBtn.style.display='none'; killAdminAll();
+  if(searchInput) searchInput.value='';
+  searchQuery=''; if(clearBtn) clearBtn.style.display='none';
 });
 </script>
 </body>
