@@ -101,13 +101,11 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 }
 </style>
 <script>
-// UNIVERSAL - WORKS ON BOTH DESKTOP AND MOBILE
 function toggleWhiteBar(){
   var bar=document.getElementById('whiteBar');
   var over=document.getElementById('overlay');
   if(!bar) return;
   if(window.innerWidth<=900){
-    // MOBILE: slide
     if(bar.classList.contains('mOpen')){
       bar.classList.remove('mOpen');
       over.classList.remove('show');
@@ -117,7 +115,6 @@ function toggleWhiteBar(){
       over.classList.add('show');
     }
   }else{
-    // DESKTOP: fold
     bar.classList.remove('mOpen');
     over.classList.remove('show');
     bar.classList.toggle('folded');
@@ -227,7 +224,25 @@ async function confirmSure(){
 }
 function getInit(n){return(n||'A').charAt(0).toUpperCase();}
 function getCol(name){const colors=['linear-gradient(135deg,#22C55E,#16A34A)','linear-gradient(135deg,#3B82F6,#0EA5E9)','linear-gradient(135deg,#8B5CF6,#7C3AED)'];let h=0;for(let i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h);}return colors[Math.abs(h)%colors.length];}
-function getFiltered(){let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim(); if(sq.includes('admin')){ document.getElementById('searchName').value=''; searchQuery=''; sq=''; } return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(!(st.photoTaken&&st.opdDone))return false;let enh=enhancementMap[sh];if(enh&&enh.enhanced)return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}return true;});}
+function getFiltered(){
+  let bf=document.getElementById('filterBlock').value;
+  let sq=searchQuery.toLowerCase().trim();
+  return allPatients.filter(p=>{
+    let sh=String(p.shri||'').toUpperCase();
+    if(!sh)return false;
+    if(bf&&p.block!==bf)return false;
+    let st=statusMap[sh]||{photoTaken:false,opdDone:false};
+    if(!(st.photoTaken&&st.opdDone))return false;
+    let enh=enhancementMap[sh];
+    if(enh&&enh.enhanced)return false;
+    if(sq){
+      let nameL=String(p.name||'').toLowerCase();
+      let shriL=sh.toLowerCase();
+      if(!nameL.includes(sq)&&!shriL.includes(sq))return false;
+    }
+    return true;
+  });
+}
 function updateToggleBtn(){let b=document.getElementById('toggleViewBtn');if(b){b.innerHTML=isListView?listIconSVG:gridIconSVG;}}
 function render(){let grid=document.getElementById('grid');if(!grid)return;grid.classList.toggle('listView',isListView);let filtered=getFiltered();let totalDone=0;allPatients.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(st&&st.photoTaken&&st.opdDone)totalDone++;});let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;if(currentPage<1)currentPage=1;let items=filtered.slice((currentPage-1)*ps,currentPage*ps);grid.innerHTML='';items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let div=document.createElement('div');div.className='card';div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name||''}</div><div class="sub">${p.time||''} • ${sh}</div></div></div><div class="actions"><button class="btnAct btnRed" data-shri="${sh}" data-action="undo">UNDO</button><button class="btnAct btnOrange" data-shri="${sh}" data-action="enhancement">ENHANCEMENT</button></div>`;grid.appendChild(div);});if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:30px;background:#fff;border-radius:14px;color:#0f172a;font-weight:700">No done patients</div>`;}document.getElementById('pageIndicator').innerText=`${currentPage}/${pages}`;document.getElementById('prevBtn').disabled=currentPage<=1;document.getElementById('nextBtn').disabled=currentPage>=pages;document.getElementById('doneB').innerText=filtered.length;document.getElementById('searchInfo').innerText=`${filtered.length} done • ${currentPage}/${pages}`;document.getElementById('doneMeta').innerText=`DONE ${filtered.length}`;updateToggleBtn();document.querySelectorAll('.btnAct').forEach(btn=>{const h=(e)=>{e.preventDefault();e.stopPropagation();showConfirm(btn.getAttribute('data-shri'),btn.getAttribute('data-action'));};btn.addEventListener('click',h);btn.addEventListener('touchend',h,{passive:false});});}
 function goToPending(){let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gda.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
@@ -245,7 +260,11 @@ addUniversal(document.getElementById('btnSure'),()=>confirmSure());
 addUniversal(document.getElementById('btnNotSure'),()=>hideConfirm());
 document.getElementById('confirmModal')?.addEventListener('click',e=>{if(e.target.id==='confirmModal')hideConfirm();});
 const searchInput=document.getElementById('searchName');const clearBtn=document.getElementById('clearSearch');
-searchInput?.addEventListener('input',e=>{let v=e.target.value;if(v.toLowerCase().includes('admin')){ e.target.value=''; searchQuery=''; if(clearBtn)clearBtn.style.display='none'; currentPage=1;render(); return; } searchQuery=v;if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';currentPage=1;render();});
+searchInput?.addEventListener('input',e=>{
+  searchQuery=e.target.value;
+  if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';
+  currentPage=1;render();
+});
 addUniversal(clearBtn,()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
 const ADMIN_PASSWORD="jack8189";
 let adminDb=db;
