@@ -146,9 +146,9 @@ function closeMob(){
 <div class="mainWrap" id="mainWrap">
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> SHIJA - DONE LIST</div>
 <div style="display:flex;align-items:center;gap:8px">
-  <div id="adminMenuWrap" style="position:relative">
-    <button id="adminBtn" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
-    <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
+  <div id="sysMenuWrap" style="position:relative">
+    <button id="sysBtn" style="height:38px;width:38px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:900;font-size:16px;cursor:pointer">⋮</button>
+    <div id="sysDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
       <button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button>
       <button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button>
     </div>
@@ -157,7 +157,7 @@ function closeMob(){
 </div>
 <div class="content">
 <div class="topFilters">
-<div class="searchRow"><div class="searchInputWrap"><input type="search" id="searchName" name="shija_done_q_9271" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
+<div class="searchRow"><div class="searchInputWrap"><input type="search" id="searchName" autocomplete="off" spellcheck="false" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
 <div class="row3"><div class="dateBoxNew"><button class="dateArrowBox" id="datePrev">‹</button><div class="dateMiddle" id="dateCenter"><span id="dateDisplay">03-11-2026</span><div class="calBox" id="calIcon"></div></div><button class="dateArrowBox right" id="dateNext">›</button></div><div class="dateBox2"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div><div class="dateBox2"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div><button id="toggleViewBtn" class="viewIconSingle"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button></div>
 <input type="date" id="fDate" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
 <div class="searchMeta"><span id="searchInfo"></span><span id="doneMeta">DONE LIST</span></div>
@@ -169,8 +169,8 @@ function closeMob(){
 <div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
   <div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
     <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
-    <div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter admin password</div>
-    <input type="password" id="adminPassInput" placeholder="Password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
+    <div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter password</div>
+    <input type="password" id="sysPassInput" placeholder="Password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
     <div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div>
     <div style="display:flex;gap:8px">
       <button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:12px;cursor:pointer">Cancel</button>
@@ -244,7 +244,7 @@ function getFiltered(){
   });
 }
 function updateToggleBtn(){let b=document.getElementById('toggleViewBtn');if(b){b.innerHTML=isListView?listIconSVG:gridIconSVG;}}
-function render(){let grid=document.getElementById('grid');if(!grid)return;grid.classList.toggle('listView',isListView);let filtered=getFiltered();let totalDone=0;allPatients.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(st&&st.photoTaken&&st.opdDone)totalDone++;});let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;if(currentPage<1)currentPage=1;let items=filtered.slice((currentPage-1)*ps,currentPage*ps);grid.innerHTML='';items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let div=document.createElement('div');div.className='card';div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name||''}</div><div class="sub">${p.time||''} • ${sh}</div></div></div><div class="actions"><button class="btnAct btnRed" data-shri="${sh}" data-action="undo">UNDO</button><button class="btnAct btnOrange" data-shri="${sh}" data-action="enhancement">ENHANCEMENT</button></div>`;grid.appendChild(div);});if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:30px;background:#fff;border-radius:14px;color:#0f172a;font-weight:700">No done patients</div>`;}document.getElementById('pageIndicator').innerText=`${currentPage}/${pages}`;document.getElementById('prevBtn').disabled=currentPage<=1;document.getElementById('nextBtn').disabled=currentPage>=pages;document.getElementById('doneB').innerText=filtered.length;document.getElementById('searchInfo').innerText=`${filtered.length} done • ${currentPage}/${pages}`;document.getElementById('doneMeta').innerText=`DONE ${filtered.length}`;updateToggleBtn();document.querySelectorAll('.btnAct').forEach(btn=>{const h=(e)=>{e.preventDefault();e.stopPropagation();showConfirm(btn.getAttribute('data-shri'),btn.getAttribute('data-action'));};btn.addEventListener('click',h);btn.addEventListener('touchend',h,{passive:false});});}
+function render(){let grid=document.getElementById('grid');if(!grid)return;grid.classList.toggle('listView',isListView);let filtered=getFiltered();let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;if(currentPage<1)currentPage=1;let items=filtered.slice((currentPage-1)*ps,currentPage*ps);grid.innerHTML='';items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let div=document.createElement('div');div.className='card';div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name||''}</div><div class="sub">${p.time||''} • ${sh}</div></div></div><div class="actions"><button class="btnAct btnRed" data-shri="${sh}" data-action="undo">UNDO</button><button class="btnAct btnOrange" data-shri="${sh}" data-action="enhancement">ENHANCEMENT</button></div>`;grid.appendChild(div);});if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:30px;background:#fff;border-radius:14px;color:#0f172a;font-weight:700">No done patients</div>`;}document.getElementById('pageIndicator').innerText=`${currentPage}/${pages}`;document.getElementById('prevBtn').disabled=currentPage<=1;document.getElementById('nextBtn').disabled=currentPage>=pages;document.getElementById('doneB').innerText=filtered.length;document.getElementById('searchInfo').innerText=`${filtered.length} done • ${currentPage}/${pages}`;document.getElementById('doneMeta').innerText=`DONE ${filtered.length}`;updateToggleBtn();document.querySelectorAll('.btnAct').forEach(btn=>{const h=(e)=>{e.preventDefault();e.stopPropagation();showConfirm(btn.getAttribute('data-shri'),btn.getAttribute('data-action'));};btn.addEventListener('click',h);btn.addEventListener('touchend',h,{passive:false});});}
 function goToPending(){let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gda.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
 function goToEnhancement(){let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='enhancement.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
 function addUniversal(el,fn){if(!el)return;el.addEventListener('click',fn);el.addEventListener('touchend',e=>{e.preventDefault();fn(e);},{passive:false});}
@@ -266,8 +266,7 @@ searchInput?.addEventListener('input',e=>{
   currentPage=1;render();
 });
 addUniversal(clearBtn,()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
-const ADMIN_PASSWORD="jack8189";
-let adminDb=db;
+const _passCheck="jack8189";
 try{
   db.collection("system").doc("global_logout").onSnapshot((snap)=>{
     if(!snap.exists) return;
@@ -279,20 +278,20 @@ try{
   });
 }catch(e){}
 document.addEventListener('DOMContentLoaded',()=>{
-  const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');
-  adminBtn?.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
-  document.addEventListener('click',(e)=>{ if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none'; });
+  const sysBtn=document.getElementById('sysBtn');const sysDropdown=document.getElementById('sysDropdown');
+  sysBtn?.addEventListener('click',(e)=>{e.stopPropagation(); sysDropdown.style.display = sysDropdown.style.display==='none' || sysDropdown.style.display==='' ? 'block':'none';});
+  document.addEventListener('click',(e)=>{ if(!e.target.closest('#sysMenuWrap')) sysDropdown.style.display='none'; });
   document.getElementById('btnLogout')?.addEventListener('click',()=>{ if(confirm('Logout?')){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } });
-  document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none'; });
+  document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ sysDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; document.getElementById('sysPassInput').value=''; document.getElementById('passError').style.display='none'; });
   document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
   document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
   document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
-    let pass=document.getElementById('adminPassInput').value.trim();
-    if(pass!==ADMIN_PASSWORD){ document.getElementById('passError').style.display='block'; return; }
+    let pass=document.getElementById('sysPassInput').value.trim();
+    if(pass!==_passCheck){ document.getElementById('passError').style.display='block'; return; }
     document.getElementById('passError').style.display='none';
     let btn=document.getElementById('confirmLogoutAll'); btn.innerText='...'; btn.disabled=true;
     try{
-      await db.collection("system").doc("global_logout").set({ logoutTime: Date.now(), timestamp: firebase.firestore.FieldValue.serverTimestamp(), triggeredBy:'admin' },{merge:true});
+      await db.collection("system").doc("global_logout").set({ logoutTime: Date.now(), timestamp: firebase.firestore.FieldValue.serverTimestamp(), triggeredBy:'sys' },{merge:true});
       alert('All devices logged out!');localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html';
     }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
   });
