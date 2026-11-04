@@ -2,28 +2,44 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Add Patient - SHIJA</title>
+<title>Bill - SHIJA</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, serverTimestamp, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = { apiKey: "AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE", authDomain: "discharge-b9528.firebaseapp.com", projectId: "discharge-b9528", storageBucket: "discharge-b9528.firebasestorage.app", messagingSenderId: "1076050472607", appId: "1:1076050472607:web:736e0688a41462460efcaa", measurementId: "G-RXBJ1FD2E4" };
+const app = initializeApp(firebaseConfig,"billMainApp");
+const db = getFirestore(app);
+window.db = db;
+window.saveToSameStorage = async function(){
+  const billNo = document.getElementById('billNo').value || "SHIC"+Date.now();
+  const payload = { block: document.getElementById('bedNo').value, name: document.getElementById('pName').value, shriId: document.getElementById('uhid').value, uhid: document.getElementById('uhid').value, pmjayId: document.getElementById('schemeFilter').value, date: document.getElementById('admDateOnly').value, prevDate: document.getElementById('admDateOnly').value, time: document.getElementById('admTimeOnly').value, localTime: document.getElementById('billTimeShow')?.value, billNo: billNo, ipNo: document.getElementById('ipNo').value, mobile: document.getElementById('mobile').value, address: document.getElementById('address').value, amount: document.getElementById('amt').value, bedNo: document.getElementById('bedNo').value, ageSex: document.getElementById('ageSex').value, scheme: document.getElementById('schemeFilter').value, createdAt: serverTimestamp(), type: "BILL" };
+  try{ document.getElementById('fbStatus').innerText="Saving..."; await setDoc(doc(db, "bills", billNo), payload); document.getElementById('fbStatus').innerText="✓ Saved in bills/"+billNo; }catch(e){ document.getElementById('fbStatus').innerText="Error: "+e.message; alert(e.message); }
+}
+window.allPatients = [];
+async function loadMasterPatients(){ try{ const snap = await getDocs(collection(db,"patients")); let fbPatients=[]; snap.forEach(d=>{ let p=d.data(); if(p.deleted) return; fbPatients.push({ patientName: p.patientName || p.name || '', shriId: p.shriId || p.shri || '', pmjayId: p.pmjayId || p.PMJAY || p.pmjay || '', contactNo: p.contactNo || p.contact || '', address: p.address || p.addr || '', scheme: 'PMJAY', source: 'total.html' }); }); const snap2 = await getDocs(collection(db,"cmht_patients")); snap2.forEach(d=>{ let p=d.data(); if(p.deleted) return; fbPatients.push({ patientName: p.patientName || p.name || '', shriId: p.shriId || p.shri || '', pmjayId: p.pmjayId || p.PMJAY || p.pmjay || '', contactNo: p.contactNo || p.contact || '', address: p.address || p.addr || '', scheme: 'CMHT', source: 'cmht.html' }); }); let extra=[]; try{ extra=JSON.parse(localStorage.getItem('shija_patients')||'[]'); }catch(e){} extra.forEach(p=>{ if(!p.scheme) p.scheme='PMJAY'; if(!p.source) p.source='total.html'; }); let seen=new Set(); let merged=[...fbPatients,...extra].filter(p=>{ let key=((p.shriId||'').toLowerCase()+'|'+(p.patientName||'').toLowerCase()).trim(); if(seen.has(key)) return false; seen.add(key); return true; }); window.allPatients=merged; try{ onSnapshot(doc(db,"system","global_logout"),(snap)=>{ if(!snap.exists()) return; let lt=snap.data().logoutTime||0; let my=parseInt(localStorage.getItem('shija_login_time')||'0'); if(lt>my && my!==0){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); localStorage.removeItem('shija_role'); alert('🔒 Logged out'); location.href='login.html?reason=global'; } }); }catch(e){} }catch(e){ console.log(e); } }
+loadMasterPatients(); window.loadMasterPatients=loadMasterPatients;
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
+body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#f1f5f9;width:calc(100% - 270px)}
 .whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
-.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0;border:1px solid #e2e8f0}
-.sLogo img{width:100%;height:100%;object-fit:contain;display:block}
-.sLogo b{color:#0f172a;font-size:18px;font-weight:900}
-.sTitle b{color:#0f172a;font-size:16px;font-weight:900;display:block;line-height:1}
-.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700;display:block;margin-top:2px}
+.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
+.sLogo img{width:100%;height:100%;object-fit:contain}
+.sTitle b{color:#0f172a;font-size:16px;font-weight:900}
+.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
 .whiteBar.folded .sTitle{display:none}
 .whiteBar.folded .sHead{justify-content:center;padding:14px 0}
 .sMenu{flex:1;padding:8px 8px;overflow-y:auto}
-.sMenu::-webkit-scrollbar{width:0}
 .sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;transition:.2s}
 .sMenu a:hover{background:#1e293b;color:#fff}
-.sMenu a.active{background:#1e293b;color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px #334155}
+.sMenu a.active{background:#1e293b;color:#fff;font-weight:600}
 .mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px;flex-shrink:0}
 .mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .sMenu a.active .mi{background:#2563eb}
@@ -31,26 +47,53 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .ml{overflow:hidden;text-overflow:ellipsis}
 .whiteBar.folded .ml{display:none}
 .whiteBar.folded .sMenu a{justify-content:center;padding:12px 0}
-.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;overflow:hidden;white-space:nowrap}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b}
 .whiteBar.folded .sFoot{display:none}
-.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
-.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
+.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;white-space:nowrap}
 .menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
-.badgeBlue{background:#f59e0b;color:#000;padding:6px 12px;border-radius:20px;font-weight:900;font-size:11px;border:1px solid #f59e0b}
-.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px;max-width:100%}
-.box{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:24px;width:100%;max-width:100%;min-height:calc(100vh - 140px)}
-.box label{font-size:11px;font-weight:800;color:#334155;display:block;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.5px}
-.box input,.box select{width:100%;padding:14px 14px;border:2px solid #cbd5e1;border-radius:10px;margin:0;font-size:15px;font-weight:600;background:#fff;outline:0;transition:.2s}
-.box input:focus,.box select:focus{border-color:#0f172a;background:#eff6ff}
-.row{display:flex;gap:14px}
-.row>div{flex:1}
-.btn{flex:1;padding:16px;background:#0f172a;color:#fff;border:0;border-radius:10px;font-weight:900;cursor:pointer;font-size:15px;letter-spacing:.5px}
-.btn:hover{background:#1e293b}
-.addRow{display:flex;gap:12px;align-items:center;margin-top:22px}
-.ledLight{width:14px;min-width:14px;height:14px;border-radius:50%;background:#ef4444;box-shadow:0 0 0 3px #fecaca, 0 0 10px #ef4444;transition:.3s;flex-shrink:0}
-.ledLight.green{background:#10b981;box-shadow:0 0 0 3px #a7f3d0, 0 0 12px #10b981}
-.ledLight.red{background:#ef4444;box-shadow:0 0 0 3px #fecaca, 0 0 10px #ef4444}
+.searchWrap{flex:1;max-width:420px;position:relative}
+.search{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;display:flex;align-items:center}
+.search input{background:transparent;border:0;outline:0;width:100%;font-size:13px;font-weight:600}
+.suggest{position:absolute;top:105%;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;max-height:260px;overflow:auto;z-index:60;display:none;box-shadow:0 16px 32px #0002}
+.suggest.show{display:block}
+.suggest div{padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer}
+.topActions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.btnBlue{background:#2563eb;color:#fff;border:0;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
+.btnOutline{background:#fff;color:#0f172a;border:1.5px solid #e2e8f0;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
+.exportWrap{position:relative;display:inline-block}
+.exportMenu{position:absolute;top:110%;right:0;background:#fff;border:1px solid #ccc;border-radius:10px;width:130px;display:none;z-index:9999;box-shadow:0 12px 24px #0002;overflow:hidden}
+.exportMenu.show{display:block}
+.exportMenu button{display:block;width:100%;text-align:left;background:#fff;border:0;padding:10px 12px;font-size:13px;cursor:pointer;font-weight:600}
+.content{flex:1;padding:20px 24px;max-width:100%}
+.card{background:#fff;border-radius:18px;border:1px solid #e5e7eb;padding:16px;margin-bottom:14px;transition:all .3s}
+.card.hidden{display:none}
+.card input{padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:12px;font-weight:600;font-size:13px;background:#f8fafc;width:100%}
+.label{font-size:10px;font-weight:800;text-transform:uppercase;color:#475569;margin-bottom:5px;display:block}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.col{flex:1;min-width:140px}
+.filterRow{display:flex;gap:8px;align-items:center;background:#f0f9ff;padding:12px;border-radius:14px;border:1.5px dashed #60a5fa;margin-bottom:12px;flex-wrap:wrap}
+.filterBtn{padding:8px 16px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;font-weight:800;font-size:12px;cursor:pointer}
+.filterBtn.active{background:#0f172a;color:#fff;border-color:#0f172a}
+.billPaper{background:#fff;width:210mm;max-width:100%;margin:0 auto;padding:0 0 12px 0;color:#000;font-family:Arial,Helvetica,sans-serif;border:none;box-sizing:border-box;overflow:visible}
+.letterhead{width:100%;margin:0;padding:0;display:block}
+.letterhead img{width:100%;height:auto;display:block}
+.infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px;font-size:13.5px;margin:0;padding:8px 12px;line-height:1.4;font-weight:500;color:#000;box-sizing:border-box}
+.infoGrid b{font-weight:700}
+.word{display:inline-block;padding:1px 4px;cursor:grab;touch-action:none;line-height:1.2;white-space:nowrap;background:transparent !important;border:1px dashed transparent !important;border-radius:4px;min-width:20px}
+.word:hover{border-color:#60a5fa !important;background:#eff6ff !important}
+.word:focus{border-color:#2563eb !important;background:#fff !important;outline:none;box-shadow:0 0 0 2px #dbeafe}
+.word:active{cursor:grabbing}
+.word.dragging{background:transparent !important;opacity:0.85}
+.exactTable{width:100%;border-collapse:collapse;font-size:13.5px;color:#000;line-height:1.3;box-sizing:border-box;table-layout:fixed}
+.exactTable th{font-weight:700;padding:6px 4px 6px 2px;text-align:left;border-bottom:1.5px solid #000;font-size:11.5px;white-space:nowrap}
+.exactTable td{padding:6px 4px 6px 2px;vertical-align:top;font-size:13.5px;font-weight:400;overflow:visible}
+.exactTable tr.nephRow td{font-weight:800;text-transform:uppercase;padding:7px 0 4px 2px;border-bottom:1.5px solid #000;font-size:12.5px}
+.exactTable tr.sub td{border-top:1.5px solid #000;padding:6px 4px;text-align:right}
+.exactTable tr.grand td{border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:6px 4px;text-align:right}
+.exactTable.gross td{border:none;padding:8px 4px;text-align:right}
+@media print{@page{size:A4;margin:6mm}html,body{background:#fff!important;margin:0!important;padding:0!important}.noPrint{display:none!important}.content{padding:0!important;margin:0!important;max-width:100%!important}.billPaper{width:100%!important;padding:0!important;box-shadow:none!important;border:none!important}.word{border:none!important;background:transparent!important;box-shadow:none!important}}
 
 /* === MOBILE ONLY FIX === */
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
@@ -60,15 +103,15 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
   .whiteBar.mOpen{transform:translateX(0)}
   .mainWrap{margin-left:0!important;width:100%!important}
   .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
-  .content{padding:12px}
-  .box{padding:16px;border-radius:12px;min-height:auto}
-  .row{flex-direction:column;gap:0}
-  .top{padding:0 12px;height:60px}
-  .top .logo{font-size:14px}
-}
-@media(max-width:480px){
-  .box input,.box select{padding:12px;font-size:16px}
-  .btn{padding:14px;font-size:14px}
+  .top{flex-wrap:wrap;height:auto;padding:10px;gap:8px}
+  .searchWrap{order:3;max-width:100%;width:100%}
+  .content{padding:10px}
+  .card{padding:12px}
+  .col{min-width:100%}
+  .billPaper{width:100%;overflow-x:auto}
+  .infoGrid{grid-template-columns:1fr}
+  .exactTable{display:block;overflow-x:auto;white-space:nowrap}
+  .filterRow{padding:10px}
 }
 </style>
 </head>
@@ -78,74 +121,103 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
 </script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-let app; try{ app=initializeApp(cfg,"guard_add_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_add2_"+Math.random()); }
-const db= getFirestore(app);
-try{ onSnapshot(doc(db,"system","global_logout"),(snap)=>{ if(!snap.exists()) return; let lt=snap.data().logoutTime||0; let my=parseInt(localStorage.getItem('shija_login_time')||'0'); if(lt>my && my!==0){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); localStorage.removeItem('shija_role'); alert('🔒 Logged out'); location.href='login.html?reason=global'; } }); }catch(e){}
-</script>
-
+<div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
-<div class="sHead"><div class="sLogo"><img src="logoc.png" id="logoImg" alt="SHIJA" onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'"><b id="logoFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center">S</b></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
+<div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
 <div class="sMenu">
 <a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
-<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
-<a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
-<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
+<a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
+<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="ml">CLAIM</span></a>
 <a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
-<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></span><span class="ml">OFFICE ASSISTANT</span></a>
+<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="ml">OFFICE ASSISTANT LIST</span></a>
 <a href="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
-<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
-<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
-<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
-<a href="addlist.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span><span class="ml">ADD LIST</span></a>
-<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
-<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT REPORT</span></a>
-<a href="add.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/></svg></span><span class="ml">ADD PATIENT FOR PMJAY</span></a>
-<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span><span class="ml">BILL</span></a>
-<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
+<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
+<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
+<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">PMJAY DAILY DIALYSIS</span></a>
+<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
+<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
+<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></span><span class="ml">KFT REPORT</span></a>
+<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">ADD PATIENT</span></a>
+<a href="bill.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="ml">BILL</span></a>
+<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
 </div>
 </div>
-<div class="sFoot">System Online • SHIJA</div>
+<div class="sFoot">System Online • SHIJA Hospital</div>
 </div>
-
 <div class="mainWrap">
-<div class="top">
-<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> ADD PATIENT <div class="badgeBlue">PMJAY</div></div>
-
-<div style="display:flex;align-items:center;">
-  <div id="adminMenuWrap" style="position:relative">
-    <button id="adminBtn" style="height:38px;padding:0 14px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:12px;cursor:pointer">Admin ▾</button>
-    <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
-      <button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button>
-      <button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button>
-    </div>
+<div class="top noPrint">
+<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA Dialysis <span id="fbStatus" style="color:#10b981;font-size:11px;margin-left:10px"></span></div>
+<div class="searchWrap"><div class="search"><input id="patientSearch" name="shija_q_9271_xyz" type="search" autocomplete="new-password" data-lpignore="true" spellcheck="false" placeholder="Search patients..." oninput="showPatientSuggest(this.value)"><div id="suggest" class="suggest"></div></div></div>
+<div class="topActions">
+<div class="exportWrap">
+<button class="btnBlue" onclick="toggleExport()">Export ▼</button>
+<div class="exportMenu" id="exportMenu">
+<button onclick="selectExport('pdf')">PDF</button>
+<button onclick="selectExport('jpeg')">JPEG</button>
+</div>
+</div>
+<button class="btnBlue" id="printBtn" onclick="handlePrint()">Print</button>
+<button class="btnOutline" id="detailsBtn" onclick="toggleInputCard()">▼ Details</button>
+<div id="adminMenuWrap" style="position:relative">
+  <button id="adminBtn" style="height:38px;padding:0 10px;border-radius:6px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
+  <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
+    <button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button>
+    <button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button>
   </div>
 </div>
-
 </div>
-
+</div>
 <div class="content">
-<input type="text" style="display:none" aria-hidden="true">
-<input type="password" style="display:none" aria-hidden="true">
-<div class="box">
-<h1 style="font-size:20px;font-weight:900;color:#0f172a">ADD PATIENT FOR PMJAY</h1><p id="msg" style="margin:4px 0 16px;color:#64748b;font-size:12px;font-weight:600">Will show in Total Patients on all devices</p>
-
-<div class="row"><div style="flex:2"><label>PATIENT NAME *</label><input id="name" autocomplete="off" placeholder="ENTER FULL NAME"></div>
-<div style="flex:1"><label>SHRI ID</label>
-<input id="shri" type="text" autocomplete="new-password" data-lpignore="true" data-form-type="other" name="shri-id-field-xyz" readonly onfocus="this.removeAttribute('readonly')" placeholder="SHRI...">
-</div></div>
-
-<div class="row"><div><label>PMJAY ID *</label><input id="pmjay" autocomplete="off" placeholder="PMJAY ID"></div><div><label>CONTACT NO</label><input id="contact" autocomplete="off" placeholder="MOBILE NUMBER"></div></div>
-<div class="row"><div><label>AADHAAR NUMBER</label><input id="aadhaar" autocomplete="off" maxlength="12" placeholder="12 DIGIT AADHAAR"></div><div><label>AGE</label><input id="age" autocomplete="off" type="number" placeholder="AGE"></div><div><label>SEX</label><select id="sex"><option value=""></option><option value="MALE">MALE</option><option value="FEMALE">FEMALE</option><option value="OTHER">OTHER</option></select></div></div>
-<label>ADDRESS</label><input id="addr" autocomplete="off" placeholder="FULL ADDRESS">
-<div class="addRow"><button class="btn" onclick="addPatient()">ADD PATIENT</button><div class="ledLight red" id="statusCircle"></div></div>
+<div class="card noPrint hidden" id="inputCard">
+<div class="filterRow">
+<span style="font-weight:900;font-size:12px">FILTER SCHEME:</span>
+<button class="filterBtn active" id="btnPMJAY" onclick="setScheme('PMJAY')">PMJAY</button>
+<button class="filterBtn" id="btnCMHT" onclick="setScheme('CMHT')">CMHT</button>
+<input type="hidden" id="schemeFilter" value="PMJAY">
+</div>
+<div style="font-weight:900;margin-bottom:8px">Patient Details - All Editable</div>
+<div class="row"><div class="col"><span class="label">1. IP No.</span><input id="ipNo" value="177214" oninput="updateBillFromInputs()"></div><div class="col"><span class="label">2. Patient Name</span><input id="pName" value="Mr. LAISHANGBAM ANGOUBAMBA SINGH" oninput="updateBillFromInputs()"></div><div class="col"><span class="label">3. Age/Sex</span><input id="ageSex" value="70 Year(s) / Male" oninput="updateBillFromInputs()"></div></div>
+<div class="row"><div class="col"><span class="label">4. Bed No.</span><input id="bedNo" value="D-2208 (Dialysis)" oninput="updateBillFromInputs()"></div><div class="col"><span class="label">5. Mobile No</span><input id="mobile" value="7005208464" oninput="updateBillFromInputs()"></div><div class="col"><span class="label">6. Patient Address</span><input id="address" value="MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur" oninput="updateBillFromInputs()"></div></div>
+<div class="row"><div class="col"><span class="label">7. UHID / SHRI ID</span><input id="uhid" value="SHRI.153704" oninput="updateBillFromInputs()"></div><div class="col"><span class="label">8. Admission Date</span><input type="date" id="admDateOnly" onchange="updateAdmissionLogic()"></div><div class="col"><span class="label">Admission Time</span><input type="time" id="admTimeOnly" onchange="updateAdmissionLogic()"></div></div>
+<div class="row"><div class="col"><span class="label">9. Bill No</span><input id="billNo" value="SHIC182733" oninput="updateBillFromInputs()"></div><div class="col"><span class="label">10. Bill Date - Auto = Admission</span><input id="billDateShow" readonly></div><div class="col"><span class="label">11. Discharge - Auto +4 Hours</span><input type="datetime-local" id="disDateTime" oninput="updateBillFromInputs()"></div></div>
+<div class="row" style="background:#fffbeb;padding:12px;border-radius:14px;border:1.5px dashed #f59e0b"><div class="col"><span class="label">12. Payer - Auto PMJAY/CMHT</span><input id="payerShow" value="PMJAY" readonly style="font-weight:900;background:#fff"></div><div class="col"><span class="label">Amount Rs</span><input id="amt" value="2660.00" style="border:2px solid #10b981;font-weight:900" oninput="updateBillFromInputs()"></div><div class="col"><span class="label">Item Name</span><input id="itemNameInput" value="Haemodialysis Subsequent Visit PMJAY" oninput="updateBillFromInputs()"></div></div>
+<div style="margin-top:10px"><button class="btnBlue" style="background:#ef4444" onclick="resetPositions()">Reset Positions</button><span style="font-size:11px;color:#64748b;margin-left:10px">All editable - drag to move left/right</span></div>
+</div>
+<div class="billPaper" id="billPaper">
+<div class="letterhead"><img src="letterhead.png"></div>
+<div class="infoGrid">
+<div><b>IPNo</b>: <span class="word" id="w1" contenteditable="true">177214</span></div>
+<div><b>UHID</b>: <span class="word" id="w2" contenteditable="true">SHRI.153704</span></div>
+<div><b>Patient Name</b>: <span class="word" id="w3" contenteditable="true">Mr. LAISHANGBAM ANGOUBAMBA SINGH</span></div>
+<div><b>Admission Date & Time</b>: <span class="word" id="w4" contenteditable="true">02/11/2026 11:17 am</span></div>
+<div><b>Age/Sex</b>: <span class="word" id="w5" contenteditable="true">70 Year(s) / Male</span></div>
+<div><b>Bill No.</b>: <span class="word" id="w6" contenteditable="true">SHIC182733</span></div>
+<div><b>Bed no.</b>: <span class="word" id="w7" contenteditable="true">D-2208 (Dialysis)</span></div>
+<div><b>Bill Date</b>: <span class="word" id="w8" contenteditable="true">02/11/2026</span></div>
+<div><b>Doctor Name</b>: Guliver Potsangbam</div>
+<div><b>Discharge Date & Time</b>: <span class="word" id="w9" contenteditable="true">02/11/2026 2:47 pm</span></div>
+<div><b>PAN No./GSTIN</b>: AF / 14AAICS6068B2ZG</div>
+<div><b>Doctor Speciality</b>: Nephrology</div>
+<div><b>Mobile No</b>: <span class="word" id="w10" contenteditable="true">7005208464</span></div>
+<div><b>Patient Type</b>: Credit</div>
+<div><b>Patient Address</b>: <span class="word" id="w11" contenteditable="true">MOIRANG LAISHANGBAM LEIKAI Bishnupur 795133 Manipur</span></div>
+<div><b>Payer</b>: <span class="word" id="w12" contenteditable="true">PMJAY</span></div>
+</div>
+<table class="exactTable">
+<thead><tr><th style="width:6%"><span class="word" id="w13" contenteditable="true">SI No.</span></th><th style="width:22%"><span class="word" id="w14" contenteditable="true">Item Name</span></th><th style="width:12%"><span class="word" id="w15" contenteditable="true">Batch No./Expiry</span></th><th style="width:8%"><span class="word" id="w16" contenteditable="true">HSN/Code</span></th><th style="width:6%"><span class="word" id="w17" contenteditable="true">Date</span></th><th style="width:6%"><span class="word" id="w18" contenteditable="true">Qty</span></th><th style="width:8%"><span class="word" id="w19" contenteditable="true">Rate</span></th><th style="width:6%"><span class="word" id="w20" contenteditable="true">GST%</span></th><th style="width:8%"><span class="word" id="w21" contenteditable="true">Patient Amt</span></th><th style="width:8%"><span class="word" id="w22" contenteditable="true">Company Amt</span></th><th style="width:10%"><span class="word" id="w23" contenteditable="true">Amount Rs</span></th></tr></thead>
+<tbody>
+<tr class="nephRow"><td colspan="11"><span class="word" id="w24" contenteditable="true">NEPHROLOGY PROCEDURE</span></td></tr>
+<tr class="dataRow"><td><span class="word" id="w25" contenteditable="true">1</span></td><td><span class="word" id="w26" contenteditable="true">Haemodialysis Subsequent Visit PMJAY</span></td><td></td><td></td><td><span class="word" id="w27" contenteditable="true">11/10</span></td><td><span class="word" id="w28" contenteditable="true">1.00</span></td><td><span class="word" id="w29" contenteditable="true">2660.00</span></td><td></td><td><span class="word" id="w30" contenteditable="true">0.00</span></td><td><span class="word" id="w31" contenteditable="true">2660.00</span></td><td><span class="word" id="w32" contenteditable="true">2660.00</span></td></tr>
+<tr class="sub"><td colspan="5"></td><td colspan="3"><span class="word" id="w33" contenteditable="true">Sub Total :</span></td><td><span class="word" id="w34" contenteditable="true">0.00</span></td><td><span class="word" id="w35" contenteditable="true">2660.00</span></td><td><span class="word" id="w36" contenteditable="true">2660.00</span></td></tr>
+<tr class="grand"><td colspan="5"></td><td colspan="3"><span class="word" id="w37" contenteditable="true">Grand Total :</span></td><td><span class="word" id="w38" contenteditable="true">0.00</span></td><td><span class="word" id="w39" contenteditable="true">2660.00</span></td><td><span class="word" id="w40" contenteditable="true">2660.00</span></td></tr>
+</tbody>
+</table>
+<table class="exactTable gross"><tbody><tr><td colspan="5"></td><td colspan="3"><span class="word" id="w41" contenteditable="true">Gross Bill Amount :</span></td><td></td><td colspan="2"><span class="word" id="w42" contenteditable="true">Rs 2660.00</span></td></tr></tbody></table>
 </div>
 </div>
-<div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis • PMJAY Add Patient</div>
+</div>
 </div>
 
 <div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
@@ -174,53 +246,41 @@ function closeMob(){
   document.getElementById('whiteBar').classList.remove('mOpen');
   document.getElementById('mobOverlay').classList.remove('show');
 }
-document.addEventListener('DOMContentLoaded', function(){
- document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
- const n=document.getElementById('name'), s=document.getElementById('shri'), p=document.getElementById('pmjay'), c=document.getElementById('statusCircle');
- 
- function upd(){ if(n.value.trim() && s.value.trim() && p.value.trim()){ c.className='ledLight green'; } else { c.className='ledLight red'; } }
- n.addEventListener('input',upd); s.addEventListener('input',upd); p.addEventListener('input',upd);
-
- function clearAdmin(){
-   let shri = document.getElementById('shri');
-   if(shri && shri.value.toLowerCase() === 'admin'){
-     shri.value = '';
-   }
- }
- setTimeout(clearAdmin, 50);
- setTimeout(clearAdmin, 200);
- setTimeout(clearAdmin, 500);
- setTimeout(clearAdmin, 1000);
- 
- document.getElementById('shri').addEventListener('animationstart', function(e){
-   if(e.animationName === 'onAutoFillStart'){ this.value=''; }
- });
-
- const adminBtn=document.getElementById('adminBtn');
- const adminDropdown=document.getElementById('adminDropdown');
- adminBtn.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
- document.addEventListener('click',()=>{ adminDropdown.style.display='none'; });
- document.getElementById('btnLogout').addEventListener('click',()=>{
-   if(confirm('Logout from this device?')){
-     localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); localStorage.removeItem('shija_role');
-     location.href='login.html';
-   }
- });
- document.getElementById('btnLogoutAll').addEventListener('click',()=>{
-   adminDropdown.style.display='none';
-   document.getElementById('logoutAllModal').style.display='flex';
-   document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none';
-   setTimeout(()=>document.getElementById('adminPassInput').focus(),100);
- });
- document.getElementById('cancelLogoutAll').addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
- document.getElementById('logoutAllModal').addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
+function toggleExport(){document.getElementById('exportMenu').classList.toggle('show');}
+function toggleInputCard(){ let card=document.getElementById('inputCard'); let btn=document.getElementById('detailsBtn'); card.classList.toggle('hidden'); btn.innerText=card.classList.contains('hidden')?'▼ Details':'▲ Hide Details'; }
+function setScheme(scheme){ document.getElementById('schemeFilter').value=scheme; document.getElementById('payerShow').value=scheme; document.getElementById('btnPMJAY').classList.toggle('active', scheme==='PMJAY'); document.getElementById('btnCMHT').classList.toggle('active', scheme==='CMHT'); let itemInput=document.getElementById('itemNameInput'); if(scheme==='CMHT'){ itemInput.value='Haemodialysis Subsequent Visit CMHT'; }else{ itemInput.value='Haemodialysis Subsequent Visit PMJAY'; } document.getElementById('w26').innerText=itemInput.value; document.getElementById('w12').innerText=scheme; document.getElementById('patientSearch').value=''; document.getElementById('suggest').classList.remove('show'); updateBillFromInputs(); }
+document.addEventListener('DOMContentLoaded',function(){ 
+document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();}); 
+let s=document.getElementById('patientSearch');
+function killAdmin(){ if(s && s.value.toLowerCase().includes('admin')){ s.value=''; } }
+setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800); setTimeout(killAdmin,2000);
+s.addEventListener('input',killAdmin); s.addEventListener('focus',killAdmin); s.addEventListener('animationstart',killAdmin);
+let iv=0; let timer=setInterval(()=>{ killAdmin(); iv++; if(iv>50) clearInterval(timer); },100);
+document.addEventListener('click',function(e){ if(!e.target.closest('.exportWrap') && !e.target.closest('#adminMenuWrap')){ let m1=document.getElementById('exportMenu'); if(m1) m1.classList.remove('show'); document.getElementById('adminDropdown').style.display='none'; } });
+const adminBtn=document.getElementById('adminBtn');
+const adminDropdown=document.getElementById('adminDropdown');
+adminBtn.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
+document.getElementById('btnLogout').addEventListener('click',()=>{
+  if(confirm('Logout from this device?')){
+    localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); localStorage.removeItem('shija_role');
+    location.href='login.html';
+  }
+});
+document.getElementById('btnLogoutAll').addEventListener('click',()=>{
+  adminDropdown.style.display='none';
+  document.getElementById('logoutAllModal').style.display='flex';
+  document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none';
+  setTimeout(()=>document.getElementById('adminPassInput').focus(),100);
+});
+document.getElementById('cancelLogoutAll').addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
+document.getElementById('logoutAllModal').addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
 });
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-let adminApp; try{ adminApp=initializeApp(firebaseConfig,"admin_add_"+Math.random()); }catch(e){ adminApp=initializeApp(firebaseConfig,"admin_add2_"+Math.random()); }
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const adminApp=initializeApp(cfg,"bill_admin_"+Math.random());
 const adminDb=getFirestore(adminApp);
 const ADMIN_PASSWORD="jack8189";
 document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
@@ -235,24 +295,68 @@ document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
   }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
 });
 document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{ if(e.key==='Enter') document.getElementById('confirmLogoutAll').click(); });
-
-const app2=initializeApp(firebaseConfig,"addPageApp");
-const db=getFirestore(app2);
-window.addPatient=async()=>{
- let name=document.getElementById('name').value.trim();
- let shri=document.getElementById('shri').value.trim();
- let contact=document.getElementById('contact').value.trim();
- let pmjay=document.getElementById('pmjay').value.trim();
- let addr=document.getElementById('addr').value.trim();
- let aadhaar=document.getElementById('aadhaar').value.trim();
- let age=document.getElementById('age').value.trim();
- let sex=document.getElementById('sex').value.trim();
- if(!name){ alert('Enter Name'); return; }
- if(!shri || shri.toLowerCase()==='admin'){ shri='SHRI'+Date.now().toString().slice(-6); }
- let data={ patientName:name,name:name, shriId:shri,shri:shri, contactNo:contact,contact:contact, pmjayId:pmjay,pmjay:pmjay, address:addr,addr:addr, aadhaarNo:aadhaar,aadhaar:aadhaar, age:age, sex:sex, key:shri,deleted:false, createdAt:new Date().toISOString() };
- document.getElementById('msg').textContent='Saving '+shri+'...';
- try{ await setDoc(doc(db,"patients",shri),data,{merge:true}); document.getElementById('msg').textContent='✅ Added '+name; document.getElementById('name').value=''; document.getElementById('shri').value=''; document.getElementById('contact').value=''; document.getElementById('pmjay').value=''; document.getElementById('addr').value=''; document.getElementById('aadhaar').value=''; document.getElementById('age').value=''; document.getElementById('sex').value=''; document.getElementById('statusCircle').className='ledLight red'; }catch(e){ document.getElementById('msg').textContent='Saved locally'; }
-};
+</script>
+<script>
+let cfgPos = JSON.parse(localStorage.getItem('shija_bill_positions')||'{}');
+function applyDrag(){ document.querySelectorAll('.word').forEach(el=>{ let id=el.id; if(cfgPos[id]!==undefined){ el.style.transform='translateX('+cfgPos[id]+'px)'; } }); }
+function resetPositions(){ cfgPos={}; localStorage.removeItem('shija_bill_positions'); document.querySelectorAll('.word').forEach(el=>{ el.style.transform='translateX(0px)'; }); }
+let dragId=null, startX=0, startOff=0, isDragging=false;
+document.querySelectorAll('.word').forEach(el=>{
+  el.addEventListener('pointerdown', e=>{
+    if(document.activeElement===el) return;
+    dragId=el.id; startX=e.clientX; startOff=cfgPos[dragId]||0; isDragging=false;
+    el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener('pointermove', e=>{
+    if(dragId!==el.id) return; if(dragId===null) return;
+    let dx=e.clientX-startX;
+    if(Math.abs(dx)>4) isDragging=true;
+    if(!isDragging) return;
+    el.classList.add('dragging');
+    let newOff=startOff+dx; if(newOff<-150) newOff=-150; if(newOff>150) newOff=150;
+    cfgPos[dragId]=newOff; el.style.transform='translateX('+newOff+'px)';
+  });
+  el.addEventListener('pointerup', e=>{
+    if(dragId){
+      if(isDragging){ localStorage.setItem('shija_bill_positions', JSON.stringify(cfgPos)); e.preventDefault(); }
+      document.querySelectorAll('.word.dragging').forEach(s=>s.classList.remove('dragging'));
+      dragId=null; isDragging=false;
+    }
+  });
+  el.addEventListener('pointercancel', e=>{ dragId=null; isDragging=false; });
+});
+applyDrag();
+let allPatients=[];
+function loadPatients(){ if(window.allPatients && window.allPatients.length){ allPatients=[...window.allPatients]; return; } let extra=JSON.parse(localStorage.getItem('shija_patients')||'[]'); allPatients=[...extra]; }
+loadPatients();
+function showPatientSuggest(q){
+  if(q && q.toLowerCase().includes('admin')){ document.getElementById('patientSearch').value=''; document.getElementById('suggest').classList.remove('show'); return; }
+  if(window.allPatients && window.allPatients.length) allPatients=[...window.allPatients];
+  let currentScheme=document.getElementById('schemeFilter').value || 'PMJAY';
+  q=q.toLowerCase().trim(); let box=document.getElementById('suggest'); if(!q){box.classList.remove('show');return;}
+  let f=allPatients.filter(p=>{ let matchScheme = (p.scheme||'PMJAY')===currentScheme; let matchName = (p.patientName||'').toLowerCase().includes(q) || (p.shriId||'').toLowerCase().includes(q); return matchScheme && matchName; }).slice(0,20);
+  if(f.length===0){ box.innerHTML='<div style="padding:12px;color:#64748b">No '+currentScheme+' patient found</div>'; }else{ box.innerHTML=f.map(p=>`<div onclick="pickPatient(${allPatients.indexOf(p)})"><b>${p.patientName}</b> - ${p.shriId} <small style="background:#0f172a;color:#fff;padding:2px 6px;border-radius:10px;margin-left:6px">${p.scheme}</small></div>`).join(''); } box.classList.add('show');
+}
+function pickPatient(i){
+  let p=allPatients[i];
+  document.getElementById('pName').value='Mr. '+p.patientName.toUpperCase();
+  document.getElementById('mobile').value=p.contactNo;
+  document.getElementById('address').value=(p.address||'').toUpperCase();
+  document.getElementById('uhid').value='SHRI.'+p.shriId.replace(/SHRI\.?/i,'');
+  setScheme(p.scheme||'PMJAY');
+  document.getElementById('suggest').classList.remove('show');
+  updateBillFromInputs();
+}
+function updateAdmissionLogic(){ let d=document.getElementById('admDateOnly').value; let t=document.getElementById('admTimeOnly').value; if(!d||!t) return; document.getElementById('billDateShow').value=d.split('-').reverse().join('/'); document.getElementById('w8').innerText=d.split('-').reverse().join('/'); let admFormatted=formatDateTime(d,t); document.getElementById('w4').innerText=admFormatted; let dd=d.split('-')[2]; let mm=d.split('-')[1]; document.getElementById('w27').innerText=dd+'/'+mm; let [y,m,day]=d.split('-').map(Number); let [h,mi]=t.split(':').map(Number); let dt=new Date(y,m-1,day,h,mi); dt.setHours(dt.getHours()+4); let disStr=dt.toISOString().slice(0,16); document.getElementById('disDateTime').value=disStr; let disFormatted=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+ (dt.getHours()%12||12)+':'+String(dt.getMinutes()).padStart(2,'0')+' '+(dt.getHours()>=12?'pm':'am'); document.getElementById('w9').innerText=disFormatted; }
+function updateBillFromInputs(){ document.getElementById('w1').innerText=document.getElementById('ipNo').value; document.getElementById('w2').innerText=document.getElementById('uhid').value; document.getElementById('w3').innerText=document.getElementById('pName').value; document.getElementById('w5').innerText=document.getElementById('ageSex').value; document.getElementById('w7').innerText=document.getElementById('bedNo').value; document.getElementById('w10').innerText=document.getElementById('mobile').value; document.getElementById('w11').innerText=document.getElementById('address').value; document.getElementById('w6').innerText=document.getElementById('billNo').value; document.getElementById('w12').innerText=document.getElementById('schemeFilter').value; document.getElementById('w26').innerText=document.getElementById('itemNameInput').value; let dis=document.getElementById('disDateTime').value; if(dis){ let dt=new Date(dis); document.getElementById('w9').innerText=String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear()+' '+ (dt.getHours()%12||12)+':'+String(dt.getMinutes()).padStart(2,'0')+' '+(dt.getHours()>=12?'pm':'am'); } }
+function formatDateTime(ds,ts){if(!ds)return '';let [y,m,d]=ds.split('-');let dp=d+'/'+m+'/'+y;if(!ts)return dp;let [h,mm]=ts.split(':').map(Number);let ap=h>=12?'pm':'am';let h12=h%12||12;return dp+' '+h12+':'+String(mm).padStart(2,'0')+' '+ap;}
+let today=new Date().toISOString().split('T')[0];document.getElementById('admDateOnly').value=today;document.getElementById('admTimeOnly').value='11:17';document.getElementById('disDateTime').value=today+'T15:17';updateAdmissionLogic();updateBillFromInputs();
+let pendingType = null;
+function selectExport(t){ pendingType=t; document.getElementById('exportMenu').classList.remove('show'); document.getElementById('fbStatus').innerText = t.toUpperCase() + " selected - Now press PRINT"; let pb=document.getElementById('printBtn'); pb.style.background="#10b981"; pb.innerText="Print "+t.toUpperCase(); }
+async function handlePrint(){ if(pendingType==='pdf'){ await doPDF(); pendingType=null; resetPrintBtn(); return; } if(pendingType==='jpeg'){ await doJPEG(); pendingType=null; resetPrintBtn(); return; } window.print(); }
+function resetPrintBtn(){ let pb=document.getElementById('printBtn'); pb.style.background="#2563eb"; pb.innerText="Print"; document.getElementById('fbStatus').innerText=""; }
+async function doPDF(){ let el=document.getElementById('billPaper'); let clone=el.cloneNode(true); clone.style.width='1050px'; clone.style.maxWidth='1050px'; clone.style.padding='42px'; clone.style.margin='0'; clone.style.border='none'; clone.style.boxShadow='none'; clone.style.background='#fff'; clone.style.boxSizing='border-box'; clone.style.position='fixed'; clone.style.left='-9999px'; clone.style.top='0'; clone.style.overflow='visible'; document.body.appendChild(clone); clone.querySelectorAll('.exactTable').forEach(t=>{ t.style.width='100%'; t.style.maxWidth='100%'; t.style.tableLayout='fixed'; t.style.boxSizing='border-box'; }); let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:1150,width:1050}); document.body.removeChild(clone); let imgData=canvas.toDataURL('image/png'); let { jsPDF }=window.jspdf; let pdf=new jsPDF('p','mm','a4'); let w=210; let h=(canvas.height * w)/canvas.width; pdf.addImage(imgData,'PNG',0,0,w,h); let name=document.getElementById('billNo').value || "SHIJA_BILL"; pdf.save(name+".pdf"); }
+async function doJPEG(){ let el=document.getElementById('billPaper'); let clone=el.cloneNode(true); clone.style.width='1050px'; clone.style.maxWidth='1050px'; clone.style.padding='42px'; clone.style.margin='0'; clone.style.border='none'; clone.style.boxShadow='none'; clone.style.background='#fff'; clone.style.boxSizing='border-box'; clone.style.position='fixed'; clone.style.left='-9999px'; clone.style.top='0'; clone.style.overflow='visible'; document.body.appendChild(clone); clone.querySelectorAll('.exactTable').forEach(t=>{ t.style.width='100%'; t.style.maxWidth='100%'; t.style.tableLayout='fixed'; t.style.boxSizing='border-box'; }); let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:"#ffffff",windowWidth:1150,width:1050}); document.body.removeChild(clone); let a=document.createElement('a'); let name=document.getElementById('billNo').value || "SHIJA_BILL"; a.download=name+".jpg"; a.href=canvas.toDataURL('image/jpeg',1.0); a.click(); }
 </script>
 </body>
 </html>
