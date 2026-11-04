@@ -2,18 +2,18 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>DONE - SHIJA</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#f1f5f9;display:flex;min-height:100vh}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease,transform .32s ease;transform:translateX(0)}
+body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:91;overflow:hidden;transition:width .32s ease,transform .32s ease;transform:translateX(0)}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#e9eef6}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#e9eef6;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0;flex-shrink:0}
 .sLogo img{width:100%;height:100%;object-fit:contain}
@@ -31,7 +31,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
 .menuBtnTop{width:44px;height:40px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;z-index:100}
 .menuBtnTop span{display:block;width:18px;height:2.5px;background:#0f172a;border-radius:2px}
-.content{flex:1;padding:12px;background:#e9eef6;display:flex;flex-direction:column;gap:10px}
+.content{flex:1;padding:12px;background:#e9eef6;display:flex;flex-direction:column;gap:10px;max-width:100%}
 .topFilters{background:#fff;border-radius:12px;padding:12px;border:1px solid #e2e8f0;display:flex;flex-direction:column;gap:10px}
 .searchRow{display:flex;gap:8px;align-items:center}.searchInputWrap{flex:1;position:relative;display:flex;align-items:center}
 .searchInput{width:100%;height:42px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 16px;border-radius:10px;font-weight:600;font-size:14px;color:#0f172a;outline:none}
@@ -82,16 +82,26 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;color:#8aa0c5;cursor:pointer}
 .tab .ic{width:24px;height:24px;border-radius:8px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:13px}
 .tab.active{color:#0f172a}.tab.active .ic{background:#22c55e;color:#fff}
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:80;display:none}
-@media(max-width:700px){
-  .whiteBar{width:270px!important;min-width:270px!important;transform:translateX(0);z-index:91}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:90;display:none}
+#overlay.show{display:block}
+
+@media(max-width:900px){
+  .whiteBar{width:270px!important;min-width:270px!important;transform:translateX(-100%)}
+  .whiteBar.mOpen{transform:translateX(0)}
   .whiteBar.folded{width:270px!important;min-width:270px!important;transform:translateX(-100%)!important}
-  .mainWrap{margin-left:0!important}
-  .whiteBar.folded ~ .mainWrap{margin-left:0!important}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
   .whiteBar.folded ~ .mainWrap .bottomBar{left:0!important}
   .bottomBar{left:0!important}
+  .content{padding:10px}
+  .row3{flex-wrap:wrap}
+}
+@media(max-width:700px){
   .grid{grid-template-columns:repeat(2,1fr)}
-  #overlay.show{display:block}
+  .searchRow{flex-direction:column;align-items:stretch}
+}
+@media(max-width:400px){
+  .grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -100,9 +110,8 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
 </script>
-<!-- ANTI-ADMIN TRAP -->
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
-<div id="overlay"></div>
+<div id="overlay" onclick="closeMob()"></div>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 <div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
@@ -157,9 +166,19 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <script>
 const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
-function toggleWhiteBar(){let bar=document.getElementById('whiteBar');let overlay=document.getElementById('overlay');let isFolded=bar.classList.contains('folded');if(window.innerWidth<=700){if(isFolded){bar.classList.remove('folded');overlay.classList.add('show');}else{bar.classList.add('folded');overlay.classList.remove('show');}}else{bar.classList.toggle('folded');}}
+function toggleWhiteBar(){
+  if(window.innerWidth<=900){
+    document.getElementById('whiteBar').classList.toggle('mOpen');
+    document.getElementById('overlay').classList.toggle('show');
+  }else{
+    document.getElementById('whiteBar').classList.toggle('folded');
+  }
+}
+function closeMob(){
+  document.getElementById('whiteBar').classList.remove('mOpen');
+  document.getElementById('overlay').classList.remove('show');
+}
 document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
-document.getElementById('overlay').addEventListener('click',function(){toggleWhiteBar();});
 (function(){let bar=document.getElementById('whiteBar');if(window.innerWidth<=700){bar.classList.add('folded');}else{bar.classList.remove('folded');}})();
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function formatDisplayDMY(s){if(!s)return'';let p=s.split('-');return `${p[2]}-${p[1]}-${p[0]}`;}
@@ -278,7 +297,6 @@ document.addEventListener('DOMContentLoaded',()=>{
       localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html';
     }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
   });
-  // ANTI-ADMIN
   function killAdmin(){ let s=document.getElementById('searchName'); if(s && s.value.toLowerCase().includes('admin')){ s.value=''; searchQuery=''; if(clearBtn) clearBtn.style.display='none'; } }
   setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);
   let el=document.getElementById('searchName'); if(el){ el.addEventListener('focus',killAdmin); }
