@@ -85,6 +85,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .tab.active{color:#0f172a}.tab.active .ic{background:#22c55e;color:#fff}
 #overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:900;display:none}
 #overlay.show{display:block}
+/* DESKTOP - NO CHANGE */
 @media(max-width:900px){
   .whiteBar{transform:translateX(-100%)!important}
   .whiteBar.mOpen{transform:translateX(0)!important}
@@ -92,14 +93,17 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
   .mainWrap{margin-left:0!important;width:100%!important}
   .bottomBar{left:0!important}
   .content{padding:10px}
-  .row3{flex-wrap:wrap}
+  .row3{flex-wrap:wrap!important}
   .grid{grid-template-columns:repeat(2,1fr)}
   .searchRow{flex-direction:column;align-items:stretch}
+  /* MOBILE ONLY FIX - DATE NO OVERLAP */
+  .dateBoxNew{flex:1 1 100%!important;min-width:100%!important;width:100%!important}
+  .dateBox2{flex:1 1 48%!important;min-width:48%!important;width:48%!important}
 }
 @media(max-width:400px){
   .grid{grid-template-columns:1fr}
+  .dateBox2{flex:1 1 100%!important;min-width:100%!important;width:100%!important}
 }
-/* === HOVER HIGHLIGHT + POP-UP - ADDED === */
 .topFilters{transition:all .25s ease}
 .topFilters:hover{box-shadow:0 10px 24px rgba(15,23,42,0.08);transform:translateY(-1px);border-color:#2563eb}
 .card{transition:all .28s ease}
@@ -170,7 +174,7 @@ function closeMob(){
 </div>
 <div class="content">
 <div class="topFilters">
-<div class="searchRow"><div class="searchInputWrap"><input type="text" id="searchName" name="shija_done_q_9271" autocomplete="off" data-lpignore="true" spellcheck="false" value="" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
+<div class="searchRow"><div class="searchInputWrap"><input type="search" id="searchName" name="shija_done_q_9271_xyz" autocomplete="off" data-lpignore="true" data-form-type="other" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')" value="" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
 <div class="row3"><div class="dateBoxNew"><button class="dateArrowBox" id="datePrev">‹</button><div class="dateMiddle" id="dateCenter"><span id="dateDisplay">03-11-2026</span><div class="calBox" id="calIcon"></div></div><button class="dateArrowBox right" id="dateNext">›</button></div><div class="dateBox2"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div><div class="dateBox2"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div><button id="toggleViewBtn" class="viewIconSingle"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button></div>
 <input type="date" id="fDate" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
 <div class="searchMeta"><span id="searchInfo"></span><span id="doneMeta">DONE LIST</span></div>
@@ -240,14 +244,7 @@ function getCol(name){const colors=['linear-gradient(135deg,#22C55E,#16A34A)','l
 function getFiltered(){
   let bf=document.getElementById('filterBlock').value;
   let sq=searchQuery.toLowerCase().trim();
-  if(sq.includes('admin')){
-    sq='';
-    searchQuery='';
-    let inp=document.getElementById('searchName');
-    if(inp) inp.value='';
-    let clr=document.getElementById('clearSearch');
-    if(clr) clr.style.display='none';
-  }
+  if(sq.includes('admin')){ sq=''; searchQuery=''; let inp=document.getElementById('searchName'); if(inp) inp.value=''; let clr=document.getElementById('clearSearch'); if(clr) clr.style.display='none'; }
   return allPatients.filter(p=>{
     let sh=String(p.shri||'').toUpperCase();
     if(!sh)return false;
@@ -280,36 +277,17 @@ addUniversal(document.getElementById('nextBtn'),()=>{currentPage++;render();});
 addUniversal(document.getElementById('btnSure'),()=>confirmSure());
 addUniversal(document.getElementById('btnNotSure'),()=>hideConfirm());
 document.getElementById('confirmModal')?.addEventListener('click',e=>{if(e.target.id==='confirmModal')hideConfirm();});
-
 const searchInput=document.getElementById('searchName');
 const clearBtn=document.getElementById('clearSearch');
-
-function forceClearSearchIfAdmin(){
-  let v = searchInput.value || '';
-  if(v.toLowerCase().includes('admin')){
-    searchInput.value='';
-    searchQuery='';
-    clearBtn.style.display='none';
-    currentPage=1;
-    render();
-    return true;
+function killAdmin(){
+  if((searchInput.value||'').toLowerCase().includes('admin')){
+    searchInput.value=''; searchQuery=''; if(clearBtn) clearBtn.style.display='none'; currentPage=1; render(); return true;
   }
   return false;
 }
-
-searchInput?.addEventListener('input',e=>{
-  if(forceClearSearchIfAdmin()) return;
-  searchQuery=e.target.value;
-  if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';
-  currentPage=1;render();
-});
-
-searchInput?.addEventListener('change',e=>{
-  forceClearSearchIfAdmin();
-});
-
+searchInput?.addEventListener('input',e=>{ if(killAdmin()) return; searchQuery=e.target.value; if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none'; currentPage=1;render(); });
+searchInput?.addEventListener('focus',killAdmin);
 addUniversal(clearBtn,()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
-
 const ADMIN_PASSWORD="jack8189";
 try{
   db.collection("system").doc("global_logout").onSnapshot((snap)=>{
@@ -321,11 +299,11 @@ try{
     }
   });
 }catch(e){}
-
 document.addEventListener('DOMContentLoaded',()=>{
-  if(searchInput){ searchInput.value=''; searchInput.setAttribute('autocomplete','off'); }
+  if(searchInput) searchInput.value='';
   searchQuery='';
-  if(clearBtn) clearBtn.style.display='none';
+  setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);
+  let iv=0; let timer=setInterval(()=>{ killAdmin(); iv++; if(iv>30) clearInterval(timer); },200);
   const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');
   adminBtn?.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
   document.addEventListener('click',(e)=>{ if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none'; });
@@ -344,27 +322,14 @@ document.addEventListener('DOMContentLoaded',()=>{
     }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
   });
 });
-
 window.addEventListener('load',()=>{
-  if(searchInput){ searchInput.value=''; }
+  if(searchInput) searchInput.value='';
   searchQuery='';
   if(clearBtn) clearBtn.style.display='none';
-  let checks=0;
-  let intv=setInterval(()=>{
-    checks++;
-    if(searchInput && searchInput.value.toLowerCase().includes('admin')){
-      searchInput.value='';
-      searchQuery='';
-      if(clearBtn) clearBtn.style.display='none';
-      render();
-    }
-    if(checks>10) clearInterval(intv);
-  },500);
   setTimeout(()=>{updateToggleBtn();loadData();},300);
 });
-
 window.addEventListener('pageshow',()=>{
-  if(searchInput){ searchInput.value=''; }
+  if(searchInput) searchInput.value='';
   searchQuery='';
   if(clearBtn) clearBtn.style.display='none';
 });
