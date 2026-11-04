@@ -12,6 +12,7 @@
 body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:91;overflow:hidden;transition:width .32s ease,transform .32s ease;transform:translateX(0)}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
+.whiteBar.mOpen{transform:translateX(0)!important}
 .mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#e9eef6;width:calc(100% - 270px)}
 .whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
@@ -101,7 +102,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 
 @media(max-width:900px){
   .whiteBar{width:270px!important;min-width:270px!important;transform:translateX(-100%)}
-  .whiteBar.mOpen{transform:translateX(0)}
+  .whiteBar.mOpen{transform:translateX(0)!important}
   .whiteBar.folded{width:270px!important;min-width:270px!important;transform:translateX(-100%)!important}
   .mainWrap{margin-left:0!important;width:100%!important}
   .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
@@ -194,12 +195,21 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <script>
 const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
+
 function toggleWhiteBar(){
+  const bar = document.getElementById('whiteBar');
+  const overlay = document.getElementById('overlay');
   if(window.innerWidth<=900){
-    document.getElementById('whiteBar').classList.toggle('mOpen');
-    document.getElementById('overlay').classList.toggle('show');
+    if(bar.classList.contains('mOpen')){
+      bar.classList.remove('mOpen');
+      overlay.classList.remove('show');
+    }else{
+      bar.classList.remove('folded');
+      bar.classList.add('mOpen');
+      overlay.classList.add('show');
+    }
   }else{
-    document.getElementById('whiteBar').classList.toggle('folded');
+    bar.classList.toggle('folded');
   }
 }
 function closeMob(){
@@ -207,11 +217,11 @@ function closeMob(){
   document.getElementById('overlay').classList.remove('show');
 }
 document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
+
 (function(){
   let bar=document.getElementById('whiteBar');
-  if(window.innerWidth<=700){
-    bar.classList.add('folded');
-  }else{
+  if(window.innerWidth<=900){
+    bar.classList.remove('mOpen');
     bar.classList.remove('folded');
   }
 })();
