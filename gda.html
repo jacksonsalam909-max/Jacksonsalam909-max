@@ -10,9 +10,8 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:91;overflow:hidden;transition:width .32s ease,transform .32s ease;transform:translateX(0)}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:91;overflow:hidden;transition:transform .32s ease,width .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.whiteBar.mOpen{transform:translateX(0)!important}
 .mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#e9eef6;width:calc(100% - 270px)}
 .whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
@@ -101,16 +100,12 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 #overlay.show{display:block}
 
 @media(max-width:900px){
-  .whiteBar{width:270px!important;min-width:270px!important;transform:translateX(-100%)}
+  .whiteBar{transform:translateX(-100%)!important}
   .whiteBar.mOpen{transform:translateX(0)!important}
-  .whiteBar.folded{width:270px!important;min-width:270px!important;transform:translateX(-100%)!important}
+  .whiteBar.folded{transform:translateX(-100%)!important;width:270px!important;min-width:270px!important}
   .mainWrap{margin-left:0!important;width:100%!important}
-  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
-  .whiteBar.folded ~ .mainWrap .bottomBar{left:0!important}
   .bottomBar{left:0!important}
   .content{padding:10px}
-}
-@media(max-width:700px){
   .grid{grid-template-columns:repeat(2,1fr)}
   .searchRow{flex-direction:column;align-items:stretch}
   .row3{flex-wrap:wrap}
@@ -121,10 +116,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 </style>
 </head>
 <body>
-<script>
-if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
-if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
-</script>
+<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'};if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}</script>
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 <div id="overlay" onclick="closeMob()"></div>
 <div class="whiteBar" id="whiteBar">
@@ -176,7 +168,6 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 <div class="bottomBar"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:100px;font-size:10px;font-weight:800">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
 </div>
-
 <div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
   <div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
     <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
@@ -189,25 +180,20 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
     </div>
   </div>
 </div>
-
 <div id="confirmModal"><div class="confirmBox"><div class="confirmTitle" id="confirmTitle">Are you sure?</div><div class="confirmSub" id="confirmSub">Complete?</div><div class="confirmBtns"><button class="btnNoSure" id="btnNotSure">NOT SURE</button><button class="btnSure" id="btnSure">SURE</button></div></div></div>
 <div class="toast" id="toast">Moved to Done ✓</div>
 <script>
 const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
 
+/* MENU - FIXED - WORKS ON ALL */
 function toggleWhiteBar(){
-  const bar = document.getElementById('whiteBar');
-  const overlay = document.getElementById('overlay');
+  const bar=document.getElementById('whiteBar');
+  const over=document.getElementById('overlay');
   if(window.innerWidth<=900){
-    if(bar.classList.contains('mOpen')){
-      bar.classList.remove('mOpen');
-      overlay.classList.remove('show');
-    }else{
-      bar.classList.remove('folded');
-      bar.classList.add('mOpen');
-      overlay.classList.add('show');
-    }
+    const isOpen=bar.classList.contains('mOpen');
+    if(isOpen){ bar.classList.remove('mOpen'); over.classList.remove('show'); }
+    else { bar.classList.add('mOpen'); over.classList.add('show'); }
   }else{
     bar.classList.toggle('folded');
   }
@@ -216,15 +202,9 @@ function closeMob(){
   document.getElementById('whiteBar').classList.remove('mOpen');
   document.getElementById('overlay').classList.remove('show');
 }
-document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
+document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();e.stopPropagation();toggleWhiteBar();});
+document.getElementById('overlay').addEventListener('click',closeMob);
 
-(function(){
-  let bar=document.getElementById('whiteBar');
-  if(window.innerWidth<=900){
-    bar.classList.remove('mOpen');
-    bar.classList.remove('folded');
-  }
-})();
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function formatDisplayDMY(s){if(!s)return'';let p=s.split('-');return `${p[2]}-${p[1]}-${p[0]}`;}
 function addDays(s, days){let d=new Date(s+'T00:00:00');d.setDate(d.getDate()+days);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
@@ -273,17 +253,13 @@ addUniversal(document.getElementById('btnSure'),()=>confirmSure());
 addUniversal(document.getElementById('btnNotSure'),()=>confirmNotSure());
 document.getElementById('confirmModal')?.addEventListener('click',e=>{if(e.target.id==='confirmModal')hideConfirm();});
 const searchInput=document.getElementById('searchName');const clearBtn=document.getElementById('clearSearch');
-searchInput?.addEventListener('input',e=>{
- let v=e.target.value;
- if(v.toLowerCase().includes('admin')){ e.target.value=''; searchQuery=''; if(clearBtn)clearBtn.style.display='none'; currentPage=1;render(); return; }
- searchQuery=v;if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';currentPage=1;render();});
+searchInput?.addEventListener('input',e=>{let v=e.target.value;if(v.toLowerCase().includes('admin')){ e.target.value=''; searchQuery=''; if(clearBtn)clearBtn.style.display='none'; currentPage=1;render(); return; } searchQuery=v;if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';currentPage=1;render();});
 addUniversal(clearBtn,()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
-
 const ADMIN_PASSWORD="jack8189";
-const adminApp=initializeApp(firebaseConfig,"gda_admin_"+Math.random());
-const adminDb=adminApp.firestore();
+let adminDb=null;
 try{
-  adminDb.collection("system").doc("global_logout").onSnapshot((snap)=>{
+  adminDb=db;
+  db.collection("system").doc("global_logout").onSnapshot((snap)=>{
     if(!snap.exists) return;
     let lt=snap.data().logoutTime||0;
     let my=parseInt(localStorage.getItem('shija_login_time')||'0');
@@ -309,17 +285,12 @@ document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('passError').style.display='none';
     let btn=document.getElementById('confirmLogoutAll'); btn.innerText='...'; btn.disabled=true;
     try{
-      await adminDb.collection("system").doc("global_logout").set({ logoutTime: Date.now(), timestamp: firebase.firestore.FieldValue.serverTimestamp(), triggeredBy:'admin' },{merge:true});
+      await db.collection("system").doc("global_logout").set({ logoutTime: Date.now(), timestamp: firebase.firestore.FieldValue.serverTimestamp(), triggeredBy:'admin' },{merge:true});
       alert('All devices logged out!');
       localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html';
     }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
   });
-  function killAdmin(){ let s=document.getElementById('searchName'); if(s && s.value.toLowerCase().includes('admin')){ s.value=''; searchQuery=''; if(clearBtn) clearBtn.style.display='none'; } }
-  setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);
-  let el=document.getElementById('searchName'); if(el){ el.addEventListener('focus',killAdmin); }
-  let iv=0; let timer=setInterval(()=>{ killAdmin(); iv++; if(iv>50) clearInterval(timer); },100);
 });
-
 window.addEventListener('load',()=>{setTimeout(()=>{updateToggleBtn();loadData();},300);});
 </script>
 </body>
