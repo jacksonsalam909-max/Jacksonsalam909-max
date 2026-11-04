@@ -10,7 +10,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:91;overflow:hidden;transition:width .32s ease,transform .32s ease;transform:translateX(0)}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:999;overflow:hidden;transition:transform .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
 .whiteBar.mOpen{transform:translateX(0)!important}
 .mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#e9eef6;width:calc(100% - 270px)}
@@ -28,7 +28,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .sMenu a.active .mi{background:#fff}.sMenu a.active .mi svg{stroke:#2563eb}
 .ml{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whiteBar.folded .ml{display:none!important}.whiteBar.folded .sMenu a{justify-content:center;padding:11px 0}
 .sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;white-space:nowrap;overflow:hidden}.whiteBar.folded .sFoot{display:none}
-.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
+.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:50}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
 .menuBtnTop{width:44px;height:40px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;z-index:100}
 .menuBtnTop span{display:block;width:18px;height:2.5px;background:#0f172a;border-radius:2px}
@@ -83,7 +83,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;color:#8aa0c5;cursor:pointer}
 .tab .ic{width:24px;height:24px;border-radius:8px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:13px}
 .tab.active{color:#0f172a}.tab.active .ic{background:#22c55e;color:#fff}
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:90;display:none}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:900;display:none}
 #overlay.show{display:block}
 @media(max-width:900px){
   .whiteBar{transform:translateX(-100%)!important}
@@ -100,11 +100,32 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
   .grid{grid-template-columns:1fr}
 }
 </style>
+<script>
+// MENU - DEFINED EARLY - ALWAYS WORKS
+function toggleWhiteBar(){
+  var bar=document.getElementById('whiteBar');
+  var over=document.getElementById('overlay');
+  if(!bar) return;
+  if(bar.classList.contains('mOpen')){
+    bar.classList.remove('mOpen');
+    over.classList.remove('show');
+  }else{
+    bar.classList.add('mOpen');
+    over.classList.add('show');
+  }
+}
+function closeMob(){
+  var bar=document.getElementById('whiteBar');
+  var over=document.getElementById('overlay');
+  if(bar) bar.classList.remove('mOpen');
+  if(over) over.classList.remove('show');
+}
+</script>
 </head>
 <body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'};if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}</script>
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
-<div id="overlay"></div>
+<div id="overlay" onclick="closeMob()"></div>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 <div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
@@ -118,7 +139,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 <div class="sFoot">System Online • SHIJA Hospital</div>
 </div>
 <div class="mainWrap" id="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA - DONE LIST</div>
+<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> SHIJA - DONE LIST</div>
 <div style="display:flex;align-items:center;gap:8px">
   <div id="adminMenuWrap" style="position:relative">
     <button id="adminBtn" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
@@ -157,20 +178,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 <script>
 const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
-
-function toggleWhiteBar(){
-  const bar=document.getElementById('whiteBar');
-  const over=document.getElementById('overlay');
-  if(window.innerWidth<=900){
-    if(bar.classList.contains('mOpen')){ bar.classList.remove('mOpen'); over.classList.remove('show'); }
-    else { bar.classList.add('mOpen'); over.classList.add('show'); }
-  }else{
-    bar.classList.toggle('folded');
-  }
-}
-function closeMob(){ document.getElementById('whiteBar').classList.remove('mOpen'); document.getElementById('overlay').classList.remove('show'); }
-document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();e.stopPropagation();toggleWhiteBar();});
-document.getElementById('overlay').addEventListener('click',closeMob);
 
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function formatDisplayDMY(s){if(!s)return'';let p=s.split('-');return `${p[2]}-${p[1]}-${p[0]}`;}
