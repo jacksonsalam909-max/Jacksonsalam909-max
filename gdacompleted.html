@@ -10,11 +10,11 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:999;overflow:hidden;transition:transform .32s ease}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:999;overflow:hidden;transition:transform .32s ease,width .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
 .whiteBar.mOpen{transform:translateX(0)!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#e9eef6;width:calc(100% - 270px)}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease,width .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#e9eef6;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)!important}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0;flex-shrink:0}
 .sLogo img{width:100%;height:100%;object-fit:contain}
@@ -72,7 +72,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .grid.listView .card .sub{text-align:left;font-size:10px}
 .grid.listView .card .avatarSq{width:40px;height:40px;font-size:16px}
 .grid.listView .card .actions{width:auto;min-width:160px;margin-left:8px;margin-top:0}
-.bottomBar{position:fixed;bottom:0;left:270px;right:0;z-index:20;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:space-around;padding:6px 0;transition:left .32s}
+.bottomBar{position:fixed;bottom:0;left:270px;right:0;z-index:20;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:space-around;padding:6px 0;transition:left .32s,width .32s}
 .whiteBar.folded ~ .mainWrap .bottomBar{left:72px}
 .pagesBottom{padding:20px 0 70px}
 #confirmModal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.55)}.confirmBox{background:#fff;width:86%;max-width:320px;border-radius:16px;padding:20px 16px;text-align:center}
@@ -88,7 +88,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 @media(max-width:900px){
   .whiteBar{transform:translateX(-100%)!important}
   .whiteBar.mOpen{transform:translateX(0)!important}
-  .whiteBar.folded{transform:translateX(-100%)!important;width:270px!important;min-width:270px!important}
+  .whiteBar.folded{transform:translateX(-100%)!important}
   .mainWrap{margin-left:0!important;width:100%!important}
   .bottomBar{left:0!important}
   .content{padding:10px}
@@ -101,16 +101,26 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 }
 </style>
 <script>
+// UNIVERSAL - WORKS ON BOTH DESKTOP AND MOBILE
 function toggleWhiteBar(){
   var bar=document.getElementById('whiteBar');
   var over=document.getElementById('overlay');
   if(!bar) return;
-  if(bar.classList.contains('mOpen')){
+  if(window.innerWidth<=900){
+    // MOBILE: slide
+    if(bar.classList.contains('mOpen')){
+      bar.classList.remove('mOpen');
+      over.classList.remove('show');
+    }else{
+      bar.classList.remove('folded');
+      bar.classList.add('mOpen');
+      over.classList.add('show');
+    }
+  }else{
+    // DESKTOP: fold
     bar.classList.remove('mOpen');
     over.classList.remove('show');
-  }else{
-    bar.classList.add('mOpen');
-    over.classList.add('show');
+    bar.classList.toggle('folded');
   }
 }
 function closeMob(){
@@ -123,7 +133,6 @@ function closeMob(){
 </head>
 <body>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'};if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}</script>
-<div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 <div id="overlay" onclick="closeMob()"></div>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
@@ -138,7 +147,7 @@ function closeMob(){
 <div class="sFoot">System Online • SHIJA Hospital</div>
 </div>
 <div class="mainWrap" id="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> SHIJA - DONE LIST</div>
+<div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> SHIJA - DONE LIST</div>
 <div style="display:flex;align-items:center;gap:8px">
   <div id="adminMenuWrap" style="position:relative">
     <button id="adminBtn" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
