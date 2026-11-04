@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Add Patient - SHIJA</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#f1f5f9;display:flex;min-height:100vh}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease}
+body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0;border:1px solid #e2e8f0}
 .sLogo img{width:100%;height:100%;object-fit:contain;display:block}
@@ -38,7 +38,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
 .badgeBlue{background:#f59e0b;color:#000;padding:6px 12px;border-radius:20px;font-weight:900;font-size:11px;border:1px solid #f59e0b}
-.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px}
+.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px;max-width:100%}
 .box{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:24px;width:100%;max-width:100%;min-height:calc(100vh - 140px)}
 .box label{font-size:11px;font-weight:800;color:#334155;display:block;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.5px}
 .box input,.box select{width:100%;padding:14px 14px;border:2px solid #cbd5e1;border-radius:10px;margin:0;font-size:15px;font-weight:600;background:#fff;outline:0;transition:.2s}
@@ -51,9 +51,29 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .ledLight{width:14px;min-width:14px;height:14px;border-radius:50%;background:#ef4444;box-shadow:0 0 0 3px #fecaca, 0 0 10px #ef4444;transition:.3s;flex-shrink:0}
 .ledLight.green{background:#10b981;box-shadow:0 0 0 3px #a7f3d0, 0 0 12px #10b981}
 .ledLight.red{background:#ef4444;box-shadow:0 0 0 3px #fecaca, 0 0 10px #ef4444}
+
+/* === MOBILE ONLY FIX === */
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
+  .content{padding:12px}
+  .box{padding:16px;border-radius:12px;min-height:auto}
+  .row{flex-direction:column;gap:0}
+  .top{padding:0 12px;height:60px}
+  .top .logo{font-size:14px}
+}
+@media(max-width:480px){
+  .box input,.box select{padding:12px;font-size:16px}
+  .btn{padding:14px;font-size:14px}
+}
 </style>
 </head>
 <body>
+<div id="mobOverlay" onclick="closeMob()"></div>
 <script>
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
@@ -94,7 +114,7 @@ try{ onSnapshot(doc(db,"system","global_logout"),(snap)=>{ if(!snap.exists()) re
 
 <div class="mainWrap">
 <div class="top">
-<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> ADD PATIENT FOR PMJAY <div class="badgeBlue">PMJAY</div></div>
+<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> ADD PATIENT <div class="badgeBlue">PMJAY</div></div>
 
 <div style="display:flex;align-items:center;">
   <div id="adminMenuWrap" style="position:relative">
@@ -109,7 +129,6 @@ try{ onSnapshot(doc(db,"system","global_logout"),(snap)=>{ if(!snap.exists()) re
 </div>
 
 <div class="content">
-<!-- FAKE FIELDS TO TRAP CHROME AUTOFILL - ADMIN WILL GO HERE, NOT IN SHRI ID -->
 <input type="text" style="display:none" aria-hidden="true">
 <input type="password" style="display:none" aria-hidden="true">
 <div class="box">
@@ -117,7 +136,6 @@ try{ onSnapshot(doc(db,"system","global_logout"),(snap)=>{ if(!snap.exists()) re
 
 <div class="row"><div style="flex:2"><label>PATIENT NAME *</label><input id="name" autocomplete="off" placeholder="ENTER FULL NAME"></div>
 <div style="flex:1"><label>SHRI ID</label>
-<!-- FIXED: NO AUTOFILL + TRAP ADMIN -->
 <input id="shri" type="text" autocomplete="new-password" data-lpignore="true" data-form-type="other" name="shri-id-field-xyz" readonly onfocus="this.removeAttribute('readonly')" placeholder="SHRI...">
 </div></div>
 
@@ -144,7 +162,18 @@ try{ onSnapshot(doc(db,"system","global_logout"),(snap)=>{ if(!snap.exists()) re
 </div>
 
 <script>
-function toggleWhiteBar(){document.getElementById('whiteBar').classList.toggle('folded');}
+function toggleWhiteBar(){
+  if(window.innerWidth<=900){
+    document.getElementById('whiteBar').classList.toggle('mOpen');
+    document.getElementById('mobOverlay').classList.toggle('show');
+  }else{
+    document.getElementById('whiteBar').classList.toggle('folded');
+  }
+}
+function closeMob(){
+  document.getElementById('whiteBar').classList.remove('mOpen');
+  document.getElementById('mobOverlay').classList.remove('show');
+}
 document.addEventListener('DOMContentLoaded', function(){
  document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
  const n=document.getElementById('name'), s=document.getElementById('shri'), p=document.getElementById('pmjay'), c=document.getElementById('statusCircle');
@@ -152,14 +181,12 @@ document.addEventListener('DOMContentLoaded', function(){
  function upd(){ if(n.value.trim() && s.value.trim() && p.value.trim()){ c.className='ledLight green'; } else { c.className='ledLight red'; } }
  n.addEventListener('input',upd); s.addEventListener('input',upd); p.addEventListener('input',upd);
 
- // --- ANTI-AUTOFILL: FORCE CLEAR admin FROM SHRI ID ---
  function clearAdmin(){
    let shri = document.getElementById('shri');
    if(shri && shri.value.toLowerCase() === 'admin'){
      shri.value = '';
    }
  }
- // Clear multiple times (Chrome fills after 100-300ms)
  setTimeout(clearAdmin, 50);
  setTimeout(clearAdmin, 200);
  setTimeout(clearAdmin, 500);
