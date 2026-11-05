@@ -111,7 +111,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .searchInput:hover, .dateBox2:hover, .dateBoxNew:hover{border-color:#22c55e!important;background:#f0fdf4!important;transform:translateY(-1px);box-shadow:0 4px 12px rgba(34,197,94,0.15)}
 .tab:hover{transform:translateY(-2px)}
 .tab:hover .ic{transform:scale(1.1)}
-/* === MOBILE ONLY - DESKTOP 3-COLUMNS UNCHANGED === */
 @media(max-width:900px){
   .whiteBar{transform:translateX(-100%)!important}
   .whiteBar.mOpen{transform:translateX(0)!important}
@@ -233,7 +232,11 @@ let allPatients=[],statusMap={},activeTimeFilter='',masterMap={},searchQuery='',
 if(localStorage.getItem('gda_view')==='list')isListView=true;
 const gridIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`;
 const listIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="4" rx="1"/><line x1="13" y1="6" x2="21" y2="6"/><rect x="3" y="10" width="7" height="4" rx="1"/><line x1="13" y1="12" x2="21" y2="12"/><rect x="3" y="16" width="7" height="4" rx="1"/><line x1="13" y1="18" x2="21" y2="18"/></svg>`;
-function getPageSize(){return isListView?10:20;}
+function getPageSize(){
+  if(isListView) return 10;
+  if(window.innerWidth > 900) return 12; // DESKTOP 3 cols x 4 rows
+  return 20; // mobile
+}
 function normalizeTime(t){let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
 async function buildMasterMap(){masterMap={};try{let snap=await db.collection('patients').get();snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={pmjayName:name,cmhtName:''};});}catch(e){}try{let snap2=await db.collection('cmht_patients').get();snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={pmjayName:'',cmhtName:''};masterMap[shri].cmhtName=name;});}catch(e){}}
 function enrichPatient(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;}else{if(m.cmhtName)p.name=m.cmhtName;}return p;}
@@ -329,6 +332,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 });
 window.addEventListener('load',()=>{setTimeout(()=>{updateToggleBtn();loadData();},300);});
+window.addEventListener('resize',()=>{ render(); });
 </script>
 </body>
 </html>
