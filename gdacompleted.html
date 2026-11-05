@@ -85,7 +85,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .tab.active{color:#0f172a}.tab.active .ic{background:#22c55e;color:#fff}
 #overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:900;display:none}
 #overlay.show{display:block}
-/* DESKTOP - NO CHANGE */
 @media(max-width:900px){
   .whiteBar{transform:translateX(-100%)!important}
   .whiteBar.mOpen{transform:translateX(0)!important}
@@ -94,15 +93,15 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
   .bottomBar{left:0!important}
   .content{padding:10px}
   .row3{flex-wrap:wrap!important}
-  .grid{grid-template-columns:repeat(2,1fr)}
+  .grid{grid-template-columns:repeat(2, minmax(0, 1fr))!important}
   .searchRow{flex-direction:column;align-items:stretch}
-  /* MOBILE ONLY FIX - DATE NO OVERLAP */
   .dateBoxNew{flex:1 1 100%!important;min-width:100%!important;width:100%!important}
   .dateBox2{flex:1 1 48%!important;min-width:48%!important;width:48%!important}
 }
 @media(max-width:400px){
-  .grid{grid-template-columns:1fr}
-  .dateBox2{flex:1 1 100%!important;min-width:100%!important;width:100%!important}
+  .grid{grid-template-columns:repeat(2, minmax(0, 1fr))!important;gap:6px!important}
+  .card{height:165px!important;min-height:165px!important;padding:8px 6px!important}
+  .dateBox2{flex:1 1 48%!important;min-width:48%!important;width:48%!important}
 }
 .topFilters{transition:all .25s ease}
 .topFilters:hover{box-shadow:0 10px 24px rgba(15,23,42,0.08);transform:translateY(-1px);border-color:#2563eb}
@@ -215,7 +214,11 @@ let allPatients=[],statusMap={},enhancementMap={},masterMap={},searchQuery='',is
 if(localStorage.getItem('gda_view')==='list')isListView=true;
 const gridIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`;
 const listIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="4" rx="1"/><line x1="13" y1="6" x2="21" y2="6"/><rect x="3" y="10" width="7" height="4" rx="1"/><line x1="13" y1="12" x2="21" y2="12"/><rect x="3" y="16" width="7" height="4" rx="1"/><line x1="13" y1="18" x2="21" y2="18"/></svg>`;
-function getPageSize(){return isListView?10:20;}
+function getPageSize(){
+  if(isListView) return 10;
+  if(window.innerWidth > 900) return 12; // DESKTOP 3 cols x 4 rows = 12
+  return 4; // MOBILE grid 2 cols x 2 rows = 4
+}
 async function buildMasterMap(){masterMap={};try{let snap=await db.collection('patients').get();snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={pmjayName:name,cmhtName:''};});}catch(e){}try{let snap2=await db.collection('cmht_patients').get();snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={pmjayName:'',cmhtName:''};masterMap[shri].cmhtName=name;});}catch(e){}}
 function enrichPatient(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;}else{if(m.cmhtName)p.name=m.cmhtName;}return p;}
 async function loadData(){try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;document.getElementById('doneMeta').innerText="Loading...";await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let patients=snap.exists?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let e=enrichPatient({...p});e.sl=i+1;return e;});allPatients=patients;let sSnap=await db.collection('daily_photo_opd').doc(id).get();statusMap=sSnap.exists?(sSnap.data().status||{}):{};let eSnap=await db.collection('daily_enhancement').doc(id).get();enhancementMap=eSnap.exists?(eSnap.data().status||{}):{};render();}catch(e){document.getElementById('doneMeta').innerText="Error: "+(e.message||e);}}
@@ -333,6 +336,7 @@ window.addEventListener('pageshow',()=>{
   searchQuery='';
   if(clearBtn) clearBtn.style.display='none';
 });
+window.addEventListener('resize',()=>{ render(); });
 </script>
 </body>
 </html>
