@@ -37,11 +37,12 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .searchRow{display:flex;gap:8px;align-items:center}.searchInputWrap{flex:1;position:relative;display:flex;align-items:center}
 .searchInput{width:100%;height:42px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 16px;border-radius:10px;font-weight:600;font-size:14px;color:#0f172a;outline:none}
 .clearSearch{position:absolute;right:6px;width:28px;height:28px;border-radius:50%;border:0;background:#dde4f0;display:none;align-items:center;justify-content:center}
-.timePager{display:flex;align-items:center;gap:4px;background:#f4f7fd;border:1.5px solid #d0d9ea;border-radius:100px;padding:3px 4px;height:42px;min-width:92px;justify-content:space-between}
+.timePager{display:flex;align-items:center;gap:4px;background:#f4f7fd;border:1.5px solid #d0d9ea;border-radius:100px;padding:3px 4px;height:44px;min-width:110px;justify-content:space-between;flex-shrink:0}
 .pageBtnSmall{height:30px;min-width:28px;padding:0 8px;border-radius:100px;border:0;background:#fff;color:#0f172a;font-weight:900;font-size:14px}
 .pageIndicatorSmall{color:#0f172a;font-weight:900;font-size:12px;min-width:32px;text-align:center}
 .row3{display:flex;gap:6px;align-items:center}
-.dateBoxNew{display:flex;align-items:center;border:1.5px solid #cbd5e1;border-radius:8px;overflow:hidden;height:44px;background:#fff;flex:1.6}
+.datePageRow{display:flex;gap:8px;align-items:center;width:100%;flex-wrap:nowrap}
+.dateBoxNew{display:flex;align-items:center;border:1.5px solid #cbd5e1;border-radius:8px;overflow:hidden;height:44px;background:#fff;flex:1;min-width:0}
 .dateArrowBox{width:42px;min-width:42px;height:100%;border:0;background:#f8fafc;border-right:1.5px solid #cbd5e1;color:#64748b;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .dateArrowBox.right{border-right:0;border-left:1.5px solid #cbd5e1}
 .dateMiddle{flex:1;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:pointer;background:#fff}
@@ -49,6 +50,9 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .calBox{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
 .dateBox2{flex:1;border-radius:8px;height:44px;display:flex;align-items:center;padding:0 8px;background:#f8fafc;border:1.5px solid #d0d9ea}
 .dateBox2 select{border:0;width:100%;font-weight:700;font-size:13px;outline:none;background:transparent;color:#0f172a;height:40px}
+.chipsWrap{display:flex;gap:6px;overflow-x:auto;align-items:center;padding:2px 0;flex:1}.chipsWrap::-webkit-scrollbar{display:none}
+.chip{height:34px;padding:0 14px;border-radius:100px;border:1.5px solid #d0d9ea;background:#f4f7fd;font-weight:800;font-size:12px;white-space:nowrap;color:#4a5f85;flex-shrink:0;cursor:pointer}
+.chip.on{background:#0f172a;color:#fff;border-color:#0f172a}
 .viewIconSingle{width:36px;height:36px;min-width:36px;border-radius:100px;border:1.5px solid #0f172a;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .viewIconSingle svg{width:16px;height:16px;stroke:#0f172a;stroke-width:2;fill:none}
 .searchMeta{padding:0 2px;font-size:10px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between}
@@ -91,17 +95,13 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
   .mainWrap{margin-left:0!important;width:100%!important}
   .bottomBar{left:0!important}
   .content{padding:10px}
-  .row3{flex-wrap:wrap!important}
   .grid{grid-template-columns:repeat(2, minmax(0, 1fr))!important}
-  .searchRow{flex-direction:column;align-items:stretch}
-  .timePager{justify-content:center}
-  .dateBoxNew{flex:1 1 100%!important;min-width:100%!important;width:100%!important}
-  .dateBox2{flex:1 1 48%!important;min-width:48%!important;width:48%!important}
+  .dateBox2{flex:1 1 48%!important;min-width:0!important}
 }
 @media(max-width:400px){
   .grid{grid-template-columns:repeat(2, minmax(0, 1fr))!important;gap:6px!important}
   .card{height:165px!important;min-height:165px!important;padding:8px 6px!important}
-  .dateBox2{flex:1 1 48%!important;min-width:48%!important;width:48%!important}
+  .timePager{min-width:100px!important}
 }
 .topFilters{transition:all .25s ease}
 .topFilters:hover{box-shadow:0 10px 24px rgba(15,23,42,0.08);transform:translateY(-1px);border-color:#cbd5e1}
@@ -111,9 +111,9 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .card:hover .name{color:#f59e0b!important}
 .sMenu a{transition:all .22s ease}
 .sMenu a:hover{transform:translateX(3px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
-.btnAct, .pageBtnSmall, .viewIconSingle, .dateArrowBox{transition:all .22s ease}
+.btnAct, .pageBtnSmall, .viewIconSingle, .dateArrowBox, .chip{transition:all .22s ease}
 .btnAct:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(0,0,0,0.18)}
-.pageBtnSmall:hover, .viewIconSingle:hover, .dateArrowBox:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,0.10);border-color:#f59e0b}
+.pageBtnSmall:hover, .viewIconSingle:hover, .dateArrowBox:hover, .chip:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,0.10);border-color:#f59e0b}
 .searchInput:hover, .dateBox2:hover, .dateBoxNew:hover{border-color:#f59e0b!important;background:#fff8ec!important;transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,158,11,0.15)}
 .tab:hover{transform:translateY(-2px)}
 .tab:hover .ic{transform:scale(1.1)}
@@ -178,8 +178,10 @@ function closeMob(){
 <form autocomplete="off" onsubmit="return false" style="display:flex;flex:1;width:100%">
 <input type="search" id="searchName" name="shija_enh_q_9271_xyz" autocomplete="off" data-lpignore="true" data-form-type="other" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')" value="" class="searchInput" placeholder="Search name or SHRI...">
 </form>
-<button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
-<div class="row3"><div class="dateBoxNew"><button class="dateArrowBox" id="datePrev">‹</button><div class="dateMiddle" id="dateCenter"><span id="dateDisplay">03-11-2026</span><div class="calBox" id="calIcon"></div></div><button class="dateArrowBox right" id="dateNext">›</button></div><div class="dateBox2"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div><div class="dateBox2"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div><button id="toggleViewBtn" class="viewIconSingle"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button></div>
+<button class="clearSearch" id="clearSearch">✕</button></div></div>
+<div class="datePageRow"><div class="dateBoxNew"><button class="dateArrowBox" id="datePrev">‹</button><div class="dateMiddle" id="dateCenter"><span id="dateDisplay">03-11-2026</span><div class="calBox" id="calIcon"></div></div><button class="dateArrowBox right" id="dateNext">›</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
+<div class="row3"><div class="dateBox2"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div><div class="dateBox2"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div>
+<div style="display:flex;gap:8px;align-items:center"><div class="chipsWrap"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div><button id="toggleViewBtn" class="viewIconSingle"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button></div>
 <input type="date" id="fDate" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
 <div class="searchMeta"><span id="searchInfo"></span><span id="doneMeta">ENHANCEMENT LIST</span></div>
 </div>
@@ -215,11 +217,12 @@ document.getElementById('dateNext').addEventListener('click',function(){fDateEl.
 document.getElementById('dateCenter').addEventListener('click',function(e){e.preventDefault();openCalendar();});
 document.getElementById('calIcon').addEventListener('click',function(e){e.preventDefault();e.stopPropagation();openCalendar();});
 fDateEl.addEventListener('change',function(){updateDateDisplay();loadData();});
-let allPatients=[],statusMap={},enhancementMap={},masterMap={},searchQuery='',isListView=false,currentPage=1,pendingShri=null;
+let allPatients=[],statusMap={},enhancementMap={},masterMap={},searchQuery='',isListView=false,currentPage=1,pendingShri=null,activeTimeFilter='';
 if(localStorage.getItem('gda_view')==='list')isListView=true;
 const gridIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`;
 const listIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="4" rx="1"/><line x1="13" y1="6" x2="21" y2="6"/><rect x="3" y="10" width="7" height="4" rx="1"/><line x1="13" y1="12" x2="21" y2="12"/><rect x="3" y="16" width="7" height="4" rx="1"/><line x1="13" y1="18" x2="21" y2="18"/></svg>`;
-function getPageSize(){if(isListView) return 10;if(window.innerWidth > 900) return 12;return 4;}
+function getPageSize(){if(isListView) return 10;if(window.innerWidth > 900) return 12;return 20;}
+function normalizeTime(t){let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
 async function buildMasterMap(){masterMap={};try{let snap=await db.collection('patients').get();snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();let age=p.age||'';let gender=p.gender||'';if(!shri)return;masterMap[shri]={pmjayName:name,cmhtName:'',age,gender};});}catch(e){}try{let snap2=await db.collection('cmht_patients').get();snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();let age=p.age||'';let gender=p.gender||'';if(!shri)return;if(!masterMap[shri])masterMap[shri]={pmjayName:'',cmhtName:'',age,gender};masterMap[shri].cmhtName=name;});}catch(e){}}
 function enrichPatient(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;}else{if(m.cmhtName)p.name=m.cmhtName;}p.age=m.age||'';p.gender=m.gender||'';return p;}
 async function loadData(){try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;document.getElementById('doneMeta').innerText="Loading...";await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let patients=snap.exists?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let e=enrichPatient({...p});e.sl=i+1;return e;});allPatients=patients;let sSnap=await db.collection('daily_photo_opd').doc(id).get();statusMap=sSnap.exists?(sSnap.data().status||{}):{};let eSnap=await db.collection('daily_enhancement').doc(id).get();enhancementMap=eSnap.exists?(eSnap.data().status||{}):{};render();}catch(e){document.getElementById('doneMeta').innerText="Error: "+(e.message||e);}}
@@ -243,12 +246,14 @@ async function confirmSure(){
 function getInit(n){return(n||'A').charAt(0).toUpperCase();}
 function getCol(name){const colors=['linear-gradient(135deg,#f59e0b,#f97316)','linear-gradient(135deg,#8B5CF6,#7C3AED)'];let h=0;for(let i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h);}return colors[Math.abs(h)%colors.length];}
 function getFiltered(){
+  let tn=normalizeTime(activeTimeFilter);
   let bf=document.getElementById('filterBlock').value;
   let sq=searchQuery.toLowerCase().trim();
   if(sq.includes('admin')){ sq=''; searchQuery=''; let inp=document.getElementById('searchName'); if(inp) inp.value=''; let clr=document.getElementById('clearSearch'); if(clr) clr.style.display='none'; }
   return allPatients.filter(p=>{
     let sh=String(p.shri||'').toUpperCase();if(!sh)return false;
     if(bf&&p.block!==bf)return false;
+    if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;
     let enh=enhancementMap[sh];if(!enh||!enh.enhanced)return false;
     if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}
     return true;
@@ -259,6 +264,7 @@ function render(){let grid=document.getElementById('grid');if(!grid)return;grid.
 function goToDone(){let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
 function goToPending(){let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gda.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
 function addUniversal(el,fn){if(!el)return;el.addEventListener('click',fn);el.addEventListener('touchend',e=>{e.preventDefault();fn(e);},{passive:false});}
+document.querySelectorAll('.chip').forEach(c=>{addUniversal(c,()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;currentPage=1;render();});});
 document.getElementById('filterBlock')?.addEventListener('change',()=>{currentPage=1;render();});
 document.getElementById('fType')?.addEventListener('change',loadData);
 addUniversal(document.getElementById('tabSync'),()=>location.reload());
