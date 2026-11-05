@@ -54,7 +54,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .searchMeta{padding:0 2px;font-size:10px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between}
 .scroll{flex:1;display:flex;flex-direction:column}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.card{width:100%;height:178px;min-height:178px;background:#fff;border-radius:14px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;box-shadow:0 4px 12px rgba(15,23,42,0.06);border:1px solid #e2e8f0;border-left:4px solid #22c55e;overflow:hidden}
+.card{width:100%;height:178px;min-height:178px;background:#fff;border-radius:14px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;box-shadow:0 4px 12px rgba(15,23,42,0.06);border:1px solid #e2e8f0;overflow:hidden}
 .cardTop{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;flex:1}
 .avatarSq{width:42px;height:42px;min-width:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:18px}
 .info{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
@@ -65,7 +65,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .btnRed{background:#ef4444;color:#fff}
 .btnOrange{background:#f59e0b;color:#fff}
 .grid.listView{display:flex !important;flex-direction:column !important;gap:8px}
-.grid.listView .card{height:80px;min-height:80px;flex-direction:row;padding:8px 12px;border-radius:12px;border-left:5px solid #0f172a;text-align:left}
+.grid.listView .card{height:80px;min-height:80px;flex-direction:row;padding:8px 12px;border-radius:12px;text-align:left}
 .grid.listView .card .cardTop{flex-direction:row;gap:10px;text-align:left}
 .grid.listView .card .info{align-items:flex-start;text-align:left}
 .grid.listView .card .name{text-align:left;min-height:auto;-webkit-line-clamp:1;font-size:13px}
@@ -216,8 +216,8 @@ const gridIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="
 const listIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="4" rx="1"/><line x1="13" y1="6" x2="21" y2="6"/><rect x="3" y="10" width="7" height="4" rx="1"/><line x1="13" y1="12" x2="21" y2="12"/><rect x="3" y="16" width="7" height="4" rx="1"/><line x1="13" y1="18" x2="21" y2="18"/></svg>`;
 function getPageSize(){
   if(isListView) return 10;
-  if(window.innerWidth > 900) return 12; // DESKTOP 3 cols x 4 rows = 12
-  return 4; // MOBILE grid 2 cols x 2 rows = 4
+  if(window.innerWidth > 900) return 12;
+  return 4;
 }
 async function buildMasterMap(){masterMap={};try{let snap=await db.collection('patients').get();snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={pmjayName:name,cmhtName:''};});}catch(e){}try{let snap2=await db.collection('cmht_patients').get();snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={pmjayName:'',cmhtName:''};masterMap[shri].cmhtName=name;});}catch(e){}}
 function enrichPatient(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;}else{if(m.cmhtName)p.name=m.cmhtName;}return p;}
