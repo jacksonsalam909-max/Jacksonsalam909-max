@@ -3,120 +3,332 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA Dialysis - Login</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f3d4a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="logoc.png">
+<title>OFFICE ASSISTANT - SHIJA</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{min-height:100vh;display:grid;place-items:center;background:#0f172a;position:relative;overflow:hidden}
-.bg{position:fixed;inset:0;z-index:0}
-.bg img{width:100%;height:100%;object-fit:cover;filter:blur(10px) brightness(0.75);transform:scale(1.2)}
-.bg::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.12)}
-.hsCard{position:relative;z-index:2;width:94%;max-width:920px;height:500px;background:#fff;border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,0.40);display:flex;overflow:hidden}
-.left{width:62%;position:relative;background:#000;overflow:hidden}
-.slide{position:absolute;inset:0;opacity:0;transition:opacity 1s ease}
-.slide.active{opacity:1}
-.slide img{width:100%;height:100%;object-fit:cover;filter:brightness(0.72)}
-.slideOverlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,0.60) 0%,rgba(0,0,0,0.20) 60%,transparent 100%)}
-.slideText{position:absolute;left:32px;bottom:36px;right:32px;z-index:2;color:#fff}
-.slideText h2{font-size:19px;font-weight:800;line-height:1.3;text-shadow:0 2px 12px rgba(0,0,0,0.6)}
-.slideText p{font-size:11.5px;color:rgba(255,255,255,0.80);margin-top:8px;line-height:1.5;max-width:380px;font-weight:500}
-.dots{position:absolute;left:32px;bottom:108px;z-index:3;display:flex;gap:6px}
-.dot{width:18px;height:4px;border-radius:4px;background:rgba(255,255,255,0.35);transition:.3s;cursor:pointer}
-.dot.active{width:32px;background:#fff}
-.carouselBtn{position:absolute;bottom:32px;right:20px;z-index:3;display:flex;gap:8px}
-.cBtn{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.18);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.30);display:grid;place-items:center;color:#fff;cursor:pointer;font-size:18px;font-weight:700}
-.cBtn:hover{background:rgba(255,255,255,0.30)}
-.right{width:38%;background:#fff;position:relative;padding:32px 32px;display:flex;flex-direction:column;justify-content:center}
-.right::before{content:'';position:absolute;left:-40px;top:0;bottom:0;width:80px;background:#fff;clip-path:ellipse(100% 55% at 100% 50%)}
-.logoTop{display:flex;align-items:center;gap:10px;margin-bottom:22px;position:relative;z-index:2}
-.logoIcon{width:72px;height:72px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;display:grid;place-items:center;padding:6px;box-shadow:0 4px 14px rgba(0,0,0,0.08)}
-.logoIcon img{width:100%;height:100%;object-fit:contain}
-.logoName{font-weight:900;font-size:26px;color:#0f172a;letter-spacing:-0.5px}
-.right h2{font-size:18px;font-weight:800;color:#0f172a;position:relative;z-index:2}
-.right p.sub{font-size:11.5px;color:#64748b;margin-top:4px;margin-bottom:22px;position:relative;z-index:2}
-.field{margin-top:14px;position:relative;z-index:2}
-.field label{font-size:11px;font-weight:600;color:#334155;margin-bottom:6px;display:block}
-.inputBox{display:flex;align-items:center;background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;padding:0 12px;height:42px;transition:.2s}
-.inputBox:focus-within{border-color:#0f766e;box-shadow:0 0 0 3px rgba(15,118,110,0.10)}
-.inputBox input{flex:1;border:0;outline:0;font-size:13px;background:transparent}
-.inputBox svg{width:16px;height:16px;stroke:#9ca3af;stroke-width:1.8;fill:none;margin-left:6px}
-.btn{width:100%;height:42px;background:linear-gradient(135deg,#0f3d4a,#1a5a6a);color:#fff;border:0;border-radius:20px;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 14px rgba(15,61,74,0.3);margin-top:20px;transition:.2s;position:relative;z-index:2}
-.btn:hover{transform:translateY(-1px)}
-.error{display:none;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:8px 10px;border-radius:8px;font-size:11px;font-weight:600;margin-bottom:10px;position:relative;z-index:2}
-.bottomLinks{display:flex;justify-content:space-between;margin-top:16px;font-size:11px;position:relative;z-index:2}
-.link{color:#0f766e;font-weight:600;cursor:pointer;text-decoration:none}
-.link:hover{text-decoration:underline}
-.inlineMsg{display:none;font-size:11px;font-weight:600;color:#0f3d4a;margin-top:12px;text-align:center;position:relative;z-index:2;animation:fadeIn .3s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.trap{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0}
-@media(max-width:800px){
-  .hsCard{flex-direction:column;height:auto;max-width:420px}
-  .left{width:100%;height:240px}
-  .right{width:100%;padding:24px}
-  .right::before{display:none}
-  .slideText{bottom:16px;left:20px;right:20px}
-  .slideText h2{font-size:16px}
-  .dots{bottom:70px;left:20px}
+body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:91;overflow:hidden;transition:transform .32s ease,width .32s ease}
+.whiteBar.folded{width:72px!important;min-width:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#e9eef6;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
+.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
+.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0;flex-shrink:0}
+.sLogo img{width:100%;height:100%;object-fit:contain}
+.sTitle{overflow:hidden;white-space:nowrap}
+.sTitle b{color:#0f172a;font-size:16px;font-weight:900;display:block}
+.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
+.whiteBar.folded .sTitle{display:none}
+.whiteBar.folded .sHead{justify-content:center;padding:14px 0}
+.sMenu{flex:1;padding:8px;overflow-y:auto;overflow-x:hidden}
+.sMenu::-webkit-scrollbar{width:0}
+.sMenu a{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:10px;text-decoration:none;color:#94a3b8;font-size:12.5px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden}
+.sMenu a:hover{background:#1e293b;color:#fff}
+.sMenu a.active{background:#2563eb;color:#fff;font-weight:700}
+.mi{width:36px;min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:#1e293b;border-radius:10px;flex-shrink:0}
+.mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sMenu a.active .mi{background:#fff}
+.sMenu a.active .mi svg{stroke:#2563eb}
+.ml{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.whiteBar.folded .ml{display:none!important}
+.whiteBar.folded .sMenu a{justify-content:center;padding:11px 0}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;white-space:nowrap;overflow:hidden}
+.whiteBar.folded .sFoot{display:none}
+.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
+.menuBtnTop{width:44px;height:40px;background:#fff;border:0;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;z-index:100}
+.menuBtnTop span{display:block;width:18px;height:2.5px;background:#0f172a;border-radius:2px}
+.content{flex:1;padding:12px;background:#e9eef6;display:flex;flex-direction:column;gap:10px;max-width:100%}
+.topFilters{background:#fff;border-radius:12px;padding:12px;border:1px solid #e2e8f0;display:flex;flex-direction:column;gap:10px}
+.searchRow{display:flex;gap:8px;align-items:center}
+.searchInputWrap{flex:1;position:relative;display:flex;align-items:center}
+.searchInput{width:100%;height:42px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 16px;border-radius:10px;font-weight:600;font-size:14px;color:#0f172a;outline:none}
+.clearSearch{position:absolute;right:6px;width:28px;height:28px;border-radius:50%;border:0;background:#dde4f0;display:none;align-items:center;justify-content:center}
+.timePager{display:flex;align-items:center;gap:4px;background:#f4f7fd;border:1.5px solid #d0d9ea;border-radius:100px;padding:3px 4px;height:42px;min-width:92px;justify-content:space-between}
+.pageBtnSmall{height:30px;min-width:28px;padding:0 8px;border-radius:100px;border:0;background:#fff;color:#0f172a;font-weight:900;font-size:14px}
+.pageIndicatorSmall{color:#0f172a;font-weight:900;font-size:12px;min-width:32px;text-align:center}
+.row3{display:flex;gap:6px;align-items:center}
+.dateBoxNew{display:flex;align-items:center;border:1.5px solid #cbd5e1;border-radius:8px;overflow:hidden;height:44px;background:#fff;flex:1.6}
+.dateArrowBox{width:42px;min-width:42px;height:100%;border:0;background:#f8fafc;border-right:1.5px solid #cbd5e1;color:#64748b;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.dateArrowBox.right{border-right:0;border-left:1.5px solid #cbd5e1}
+.dateMiddle{flex:1;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:pointer;background:#fff}
+.dateMiddle span:first-child{font-size:13px;font-weight:800;color:#334155}
+.calBox{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
+.dateBox2{flex:1;border-radius:8px;height:44px;display:flex;align-items:center;padding:0 8px;background:#f8fafc;border:1.5px solid #d0d9ea}
+.dateBox2 select{border:0;width:100%;font-weight:700;font-size:13px;outline:none;background:transparent;color:#0f172a;height:40px}
+.hint{font-size:11px;color:#94a3b8;font-weight:500;margin-top:-4px}
+.chipsWrap{display:flex;gap:6px;overflow-x:auto;align-items:center;padding:2px 0;flex:1}.chipsWrap::-webkit-scrollbar{display:none}
+.chip{height:34px;padding:0 14px;border-radius:100px;border:1.5px solid #d0d9ea;background:#f4f7fd;font-weight:800;font-size:12px;white-space:nowrap;color:#4a5f85;flex-shrink:0;cursor:pointer}
+.chip.on{background:#0f172a;color:#fff;border-color:#0f172a}
+.viewIconSingle{width:36px;height:36px;min-width:36px;border-radius:100px;border:1.5px solid #0f172a;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.viewIconSingle svg{width:16px;height:16px;stroke:#0f172a;stroke-width:2;fill:none}
+.searchMeta{padding:0 2px;font-size:10px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between;align-items:center}
+.scroll{flex:1;display:flex;flex-direction:column}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.card{width:100%;height:178px;min-height:178px;background:#fff;border-radius:14px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;box-shadow:0 4px 12px rgba(15,23,42,0.06);border:1px solid #e2e8f0;border-left:4px solid #22c55e;overflow:hidden}
+.cardTop{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;flex:1}
+.avatarSq{width:42px;height:42px;min-width:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:18px}
+.info{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.card .name{font-size:12px;font-weight:900;line-height:1.2;color:#0f172a;text-transform:uppercase;text-align:center;min-height:28px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+.card .sub{font-size:10px;font-weight:700;color:#6f84a8;text-align:center;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+.actions{width:100%;margin-top:6px;display:flex;gap:6px}
+.btnAct{flex:1;height:32px;min-height:32px;border-radius:8px;font-weight:800;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border:0;transition:.2s}
+.btnRed{background:#ef4444;color:#fff}
+.btnYellow{background:#facc15!important;color:#0f172a!important;border:1.5px solid #eab308}
+.btnGreen{background:#22c55e!important;color:#fff!important}
+.grid.listView{display:flex !important;flex-direction:column !important;gap:8px}
+.grid.listView .card{height:80px;min-height:80px;flex-direction:row;padding:8px 12px;border-radius:12px;border-left:5px solid #0f172a;text-align:left}
+.grid.listView .card .cardTop{flex-direction:row;gap:10px;text-align:left}
+.grid.listView .card .info{align-items:flex-start;text-align:left}
+.grid.listView .card .name{text-align:left;min-height:auto;-webkit-line-clamp:1;font-size:13px}
+.grid.listView .card .sub{text-align:left;font-size:10px}
+.grid.listView .card .avatarSq{width:40px;height:40px;font-size:16px}
+.grid.listView .card .actions{width:auto;min-width:160px;margin-left:8px;margin-top:0}
+.bottomBar{position:fixed;bottom:0;left:270px;right:0;z-index:20;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:space-around;padding:6px 0;transition:left .32s}
+.whiteBar.folded ~ .mainWrap .bottomBar{left:72px}
+.pagesBottom{padding:20px 0 70px}
+#confirmModal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.55)}.confirmBox{background:#fff;width:86%;max-width:320px;border-radius:16px;padding:20px 16px;text-align:center}
+.confirmTitle{font-size:15px;font-weight:900;color:#0f172a;margin-bottom:6px}.confirmSub{font-size:12px;font-weight:600;color:#6f84a8;margin-bottom:16px}
+.confirmBtns{display:flex;gap:8px}.btnNoSure{flex:1;height:40px;border-radius:10px;border:1.5px solid #d0d9ea;background:#f4f7fd;color:#4a5f85;font-weight:800;font-size:12px}.btnSure{flex:1;height:40px;border-radius:10px;border:0;background:#0f172a;color:#fff;font-weight:800;font-size:12px}
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:100px;font-size:12px;font-weight:800;z-index:10001;display:none}
+.toast.show{display:block}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;color:#8aa0c5;cursor:pointer}
+.tab .ic{width:24px;height:24px;border-radius:8px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:13px}
+.tab.active{color:#0f172a}.tab.active .ic{background:#0f172a;color:#fff}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:90;display:none}
+#overlay.show{display:block}
+.topFilters{transition:all .25s ease}
+.topFilters:hover{box-shadow:0 10px 24px rgba(15,23,42,0.08);transform:translateY(-1px);border-color:#cbd5e1}
+.card{transition:all .28s ease}
+.card:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 14px 28px rgba(0,0,0,0.12);border-color:#22c55e;border-left-width:6px}
+.sMenu a{transition:all .22s ease}
+.sMenu a:hover{transform:translateX(3px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.btnAct, .pageBtnSmall, .viewIconSingle, .dateArrowBox, .chip{transition:all .22s ease}
+.btnAct:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(0,0,0,0.18)}
+.pageBtnSmall:hover, .viewIconSingle:hover, .dateArrowBox:hover, .chip:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,0.10);border-color:#22c55e}
+.searchInput:hover, .dateBox2:hover, .dateBoxNew:hover{border-color:#22c55e!important;background:#f0fdf4!important;transform:translateY(-1px);box-shadow:0 4px 12px rgba(34,197,94,0.15)}
+.tab:hover{transform:translateY(-2px)}
+.tab:hover .ic{transform:scale(1.1)}
+/* === MOBILE ONLY - DESKTOP 3-COLUMNS UNCHANGED === */
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%)!important}
+  .whiteBar.mOpen{transform:translateX(0)!important}
+  .whiteBar.folded{transform:translateX(-100%)!important;width:270px!important;min-width:270px!important}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .bottomBar{left:0!important}
+  .content{padding:10px}
+  .grid{grid-template-columns:repeat(2, minmax(0, 1fr))!important}
+  .searchRow{flex-direction:column;align-items:stretch}
+  .row3{flex-wrap:wrap!important}
+  .dateBoxNew{flex:1 1 100%!important;min-width:100%!important;width:100%!important}
+  .dateBox2{flex:1 1 48%!important;min-width:48%!important;width:48%!important}
+}
+@media(max-width:400px){
+  .grid{grid-template-columns:repeat(2, minmax(0, 1fr))!important;gap:6px!important}
+  .card{height:165px!important;min-height:165px!important;padding:8px 6px!important}
+  .card .name{font-size:11px!important}
 }
 </style>
 </head>
 <body>
-<div class="trap"><form autocomplete="on"><input type="text" autocomplete="username"><input type="password" autocomplete="current-password"></form></div>
-<div class="bg"><img src="bgraphic.jpg" alt="Background" onerror="this.src='graphic.jpg'"></div>
-<div class="hsCard">
-  <div class="left" id="slider">
-    <div class="slide active"><img src="newlogin.jpg"><div class="slideOverlay"></div><div class="slideText"><h2>An Enterprise Hospital Information System</h2><p>Transforming Healthcare Workflow through Efficient & Quality patient care management - SHIJA Dialysis</p></div></div>
-    <div class="slide"><img src="secondlog.jpg"><div class="slideOverlay"></div><div class="slideText"><h2>Secure Dialysis Care & Patient Management</h2><p>Comprehensive dialysis operations portal - Secure access to your patient care and dialysis operations</p></div></div>
-    <div class="slide"><img src="thirdlog.jpg"><div class="slideOverlay"></div><div class="slideText"><h2>Manage Patient Records & Daily Operations</h2><p>Track KFT reports, billing, discharge summary and daily dialysis - All in one platform</p></div></div>
-    <div class="slide"><img src="fourlog.jpg" onerror="this.src='fourthlog.jpg'"><div class="slideOverlay"></div><div class="slideText"><h2>Welcome to SHIJA Dialysis Portal</h2><p>Secure • Reliable • Monitored 24/7 - SHIJA Hospital Management System ESTD 1985</p></div></div>
-    <div class="dots" id="dots"><div class="dot active" onclick="goSlide(0)"></div><div class="dot" onclick="goSlide(1)"></div><div class="dot" onclick="goSlide(2)"></div><div class="dot" onclick="goSlide(3)"></div></div>
-    <div class="carouselBtn"><div class="cBtn" onclick="prevSlide()">‹</div><div class="cBtn" onclick="nextSlide()">›</div></div>
-  </div>
-  <div class="right">
-    <div class="logoTop"><div class="logoIcon"><img src="logoc.png" onerror="this.onerror=null;this.src='Logoc.png';this.onerror=null;this.src='logoc.jpg'"></div><div class="logoName">SHIJA</div></div>
-    <h2>Welcome Back!</h2><p class="sub">Please login to get access</p>
-    <div id="errBox" class="error"></div>
-    <form autocomplete="off" onsubmit="return false">
-      <div class="field"><label>Username</label><div class="inputBox"><input id="shija_user_x9271" type="text" placeholder="Enter username" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" style="flex:1"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div></div>
-      <div class="field"><label>Password</label><div class="inputBox"><input id="shija_pass_x9271" type="password" placeholder="Enter password" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" readonly onfocus="this.removeAttribute('readonly')" style="flex:1"><svg onclick="togglePass()" style="cursor:pointer" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div></div>
-      <button id="loginBtn" class="btn" type="button" onclick="doLogin()">LOGIN</button>
-    </form>
-    <div class="bottomLinks">
-      <a class="link" onclick="showMsg('Contact Admin - Jacky')">Forgot password?</a>
-      <a class="link" onclick="showMsg('Contact Admin : 9233287710')">Contact Admin</a>
+<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'};if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}</script>
+<div id="overlay" onclick="closeMob()"></div>
+<div class="whiteBar" id="whiteBar">
+<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+<div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
+<div class="sMenu">
+<a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
+<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
+<a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
+<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
+<a href="gda.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></span><span class="ml">OFFICE ASSISTANT LIST</span></a>
+<a href="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
+<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
+<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
+<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">PMJAY DAILY DIALYSIS</span></a>
+<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
+<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
+<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT REPORT</span></a>
+<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT</span></a>
+<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span><span class="ml">BILL</span></a>
+<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
+</div>
+</div>
+<div class="sFoot">System Online • SHIJA Hospital</div>
+</div>
+<div class="mainWrap" id="mainWrap">
+<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA - OFFICE ASSISTANT</div>
+<div style="display:flex;align-items:center;gap:8px">
+  <div id="adminMenuWrap" style="position:relative">
+    <button id="adminBtn" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
+    <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
+      <button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button>
+      <button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button>
     </div>
-    <div id="inlineMsg" class="inlineMsg"></div>
   </div>
 </div>
+</div>
+<div class="content">
+<div class="topFilters">
+<div class="searchRow"><div class="searchInputWrap"><input type="search" id="searchName" name="shija_gda_q_9271_xyz" autocomplete="off" data-lpignore="true" data-form-type="other" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
+<div class="row3"><div class="dateBoxNew"><button class="dateArrowBox" id="datePrev">‹</button><div class="dateMiddle" id="dateCenter"><span id="dateDisplay">03-11-2026</span><div class="calBox" id="calIcon"></div></div><button class="dateArrowBox right" id="dateNext">›</button></div><div class="dateBox2"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div><div class="dateBox2"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div>
+<input type="date" id="fDate" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
+<div class="hint">Click middle date /  for all dates</div>
+<div style="display:flex;gap:8px;align-items:center"><div class="chipsWrap"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div><button id="toggleViewBtn" class="viewIconSingle"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button></div>
+<div class="searchMeta"><span id="searchInfo"></span><span id="doneMeta">OPD + PHOTO</span></div>
+</div>
+<div class="scroll" id="scroll"><div class="grid" id="grid"></div><div class="pagesBottom"></div></div>
+</div>
+<div class="bottomBar"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:100px;font-size:10px;font-weight:800">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
+</div>
+<div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
+  <div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
+    <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter admin password</div>
+    <input type="password" id="adminPassInput" placeholder="Password" autocomplete="new-password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
+    <div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div>
+    <div style="display:flex;gap:8px">
+      <button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:12px;cursor:pointer">Cancel</button>
+      <button id="confirmLogoutAll" style="flex:1;height:38px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer">Logout All</button>
+    </div>
+  </div>
+</div>
+<div id="confirmModal"><div class="confirmBox"><div class="confirmTitle" id="confirmTitle">Are you sure?</div><div class="confirmSub" id="confirmSub">Complete?</div><div class="confirmBtns"><button class="btnNoSure" id="btnNotSure">NOT SURE</button><button class="btnSure" id="btnSure">SURE</button></div></div></div>
+<div class="toast" id="toast">Moved to Done ✓</div>
 <script>
-let cur=0; const slides=document.querySelectorAll('.slide'); const dots=document.querySelectorAll('.dot');
-function updateSlide(){ slides.forEach((s,i)=>s.classList.toggle('active',i===cur)); dots.forEach((d,i)=>d.classList.toggle('active',i===cur)); }
-function goSlide(n){ cur=n; updateSlide(); }
-function nextSlide(){ cur=(cur+1)%slides.length; updateSlide(); }
-function prevSlide(){ cur=(cur-1+slides.length)%slides.length; updateSlide(); }
-setInterval(nextSlide,3500);
-function clearAll(){
-  let p=document.getElementById('shija_pass_x9271');
-  if(p){p.value='';p.setAttribute('readonly','readonly')}
+const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
+function toggleWhiteBar(){
+  const bar=document.getElementById('whiteBar');
+  const over=document.getElementById('overlay');
+  if(window.innerWidth<=900){
+    const isOpen=bar.classList.contains('mOpen');
+    if(isOpen){ bar.classList.remove('mOpen'); over.classList.remove('show'); }
+    else { bar.classList.add('mOpen'); over.classList.add('show'); }
+  }else{
+    bar.classList.toggle('folded');
+  }
 }
-function togglePass(){let p=document.getElementById('shija_pass_x9271');p.type=p.type==='password'?'text':'password';p.focus()}
-let msgTimer=null;
-function showMsg(text){
-  let el=document.getElementById('inlineMsg');
-  el.textContent=text;
-  el.style.display='block';
-  clearTimeout(msgTimer);
-  msgTimer=setTimeout(()=>{ el.style.display='none'; }, 3000);
+function closeMob(){
+  document.getElementById('whiteBar').classList.remove('mOpen');
+  document.getElementById('overlay').classList.remove('show');
 }
-function doLogin(){let uEl=document.getElementById('shija_user_x9271'),pEl=document.getElementById('shija_pass_x9271');pEl.removeAttribute('readonly');let u=uEl.value.trim(),p=pEl.value.trim(),err=document.getElementById('errBox'),btn=document.getElementById('loginBtn');if(!u||!p){err.textContent='Please enter username and password manually';err.style.display='block';return}err.style.display='none';btn.textContent='Signing in...';btn.disabled=true;setTimeout(()=>{if(p==='jack8189'||u.toLowerCase().includes('shija')||u==='admin'){localStorage.setItem('shija_logged','1');localStorage.setItem('shija_login_time',Date.now().toString());location.href='index.html'}else{err.textContent='Invalid username or password';err.style.display='block';btn.textContent='LOGIN';btn.disabled=false;pEl.value=''}},600)}
-document.addEventListener('DOMContentLoaded',()=>{clearAll();[10,100,300,600,1000,2000].forEach(t=>setTimeout(clearAll,t))});
-window.addEventListener('load',clearAll);window.addEventListener('pageshow',clearAll);document.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }
+document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();e.stopPropagation();toggleWhiteBar();});
+document.getElementById('overlay').addEventListener('click',closeMob);
+function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function formatDisplayDMY(s){if(!s)return'';let p=s.split('-');return `${p[2]}-${p[1]}-${p[0]}`;}
+function addDays(s, days){let d=new Date(s+'T00:00:00');d.setDate(d.getDate()+days);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function updateDateDisplay(){document.getElementById('dateDisplay').innerText=formatDisplayDMY(document.getElementById('fDate').value);}
+function openCalendar(){let el=document.getElementById('fDate');try{if(el.showPicker){el.showPicker();}}catch(e){}}
+let fDateEl=document.getElementById('fDate');fDateEl.value=new URLSearchParams(location.search).get('date')||getTodayIST();updateDateDisplay();
+document.getElementById('datePrev').addEventListener('click',function(){fDateEl.value=addDays(fDateEl.value,-1);updateDateDisplay();loadData();});
+document.getElementById('dateNext').addEventListener('click',function(){fDateEl.value=addDays(fDateEl.value,1);updateDateDisplay();loadData();});
+document.getElementById('dateCenter').addEventListener('click',function(e){e.preventDefault();openCalendar();});
+document.getElementById('calIcon').addEventListener('click',function(e){e.preventDefault();e.stopPropagation();openCalendar();});
+fDateEl.addEventListener('change',function(){updateDateDisplay();loadData();});
+let allPatients=[],statusMap={},activeTimeFilter='',masterMap={},searchQuery='',isListView=false,currentPage=1,pendingShri=null,pendingType=null;
+if(localStorage.getItem('gda_view')==='list')isListView=true;
+const gridIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`;
+const listIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="4" rx="1"/><line x1="13" y1="6" x2="21" y2="6"/><rect x="3" y="10" width="7" height="4" rx="1"/><line x1="13" y1="12" x2="21" y2="12"/><rect x="3" y="16" width="7" height="4" rx="1"/><line x1="13" y1="18" x2="21" y2="18"/></svg>`;
+function getPageSize(){return isListView?10:20;}
+function normalizeTime(t){let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
+async function buildMasterMap(){masterMap={};try{let snap=await db.collection('patients').get();snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={pmjayName:name,cmhtName:''};});}catch(e){}try{let snap2=await db.collection('cmht_patients').get();snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={pmjayName:'',cmhtName:''};masterMap[shri].cmhtName=name;});}catch(e){}}
+function enrichPatient(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;}else{if(m.cmhtName)p.name=m.cmhtName;}return p;}
+async function loadData(){try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;document.getElementById('doneMeta').innerText="Loading...";await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let patients=snap.exists?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let e=enrichPatient({...p});e.sl=i+1;return e;});allPatients=patients;let sSnap=await db.collection('daily_photo_opd').doc(id).get();statusMap=sSnap.exists?(sSnap.data().status||{}):{};render();}catch(e){document.getElementById('doneMeta').innerText="Error: "+(e.message||e);}}
+async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await db.collection('daily_photo_opd').doc(id).set({date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()},{merge:true});}
+function showConfirm(sh,type){pendingShri=sh;pendingType=type;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let name=p?p.name:sh;let st=statusMap[sh]||{photoTaken:false,opdDone:false};let isDone=type==='photo'?st.photoTaken:st.opdDone;let typeTxt=type==='photo'?'PHOTO':'OPD';document.getElementById('confirmTitle').innerText='Are you sure?';document.getElementById('confirmSub').innerText=isDone?typeTxt+' not done for '+name:typeTxt+' done for '+name;document.getElementById('confirmModal').style.display='flex';}
+function hideConfirm(){document.getElementById('confirmModal').style.display='none';pendingShri=null;pendingType=null;}
+async function confirmSure(){if(!pendingShri||!pendingType)return;let btn=document.getElementById('btnSure');btn.innerText='...';btn.disabled=true;try{if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};let st=statusMap[pendingShri];let isDone=pendingType==='photo'?st.photoTaken:st.opdDone;if(!isDone){if(pendingType==='photo')st.photoTaken=true;else st.opdDone=true;}await saveStatus();hideConfirm();render();}catch(e){alert('Error: '+(e.message||e));}finally{btn.innerText='SURE';btn.disabled=false;}}
+async function confirmNotSure(){if(!pendingShri||!pendingType)return;let btn=document.getElementById('btnNotSure');btn.innerText='...';btn.disabled=true;try{if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};let st=statusMap[pendingShri];let isDone=pendingType==='photo'?st.photoTaken:st.opdDone;if(isDone){if(pendingType==='photo')st.photoTaken=false;else st.opdDone=false;await saveStatus();}hideConfirm();render();}catch(e){alert('Error: '+(e.message||e));}finally{btn.innerText='NOT SURE';btn.disabled=false;}}
+function getInit(n){return(n||'A').charAt(0).toUpperCase();}
+function getCol(name){const colors=['linear-gradient(135deg,#8B5CF6,#7C3AED)','linear-gradient(135deg,#3B82F6,#0EA5E9)','linear-gradient(135deg,#22C55E,#10B981)','linear-gradient(135deg,#F59E0B,#F97316)','linear-gradient(135deg,#EF4444,#EC4899)'];let h=0;for(let i=0;i<name.length;i++){h=name.charCodeAt(i)+((h<<5)-h);}return colors[Math.abs(h)%colors.length];}
+function getFiltered(){
+  let tn=normalizeTime(activeTimeFilter);
+  let bf=document.getElementById('filterBlock').value;
+  let sq=searchQuery.toLowerCase().trim();
+  if(sq.includes('admin')){ sq=''; searchQuery=''; let el=document.getElementById('searchName'); if(el) el.value=''; }
+  return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(st.photoTaken&&st.opdDone)return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq))return false;}return true;});
+}
+function updateToggleBtn(){let b=document.getElementById('toggleViewBtn');if(b){b.innerHTML=isListView?listIconSVG:gridIconSVG;}}
+function render(){let grid=document.getElementById('grid');if(!grid)return;grid.classList.toggle('listView',isListView);let filtered=getFiltered();let done=0;allPatients.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(st&&st.photoTaken&&st.opdDone)done++;});let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;if(currentPage<1)currentPage=1;let items=filtered.slice((currentPage-1)*ps,currentPage*ps);grid.innerHTML='';items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh]||{photoTaken:false,opdDone:false};let photoClass=st.photoTaken?'btnAct btnGreen':'btnAct btnRed';let opdClass=st.opdDone?'btnAct btnGreen':'btnAct btnYellow';let photoTxt=st.photoTaken?'COMPLETE':'PHOTO';let opdTxt=st.opdDone?'COMPLETE':'OPD';let div=document.createElement('div');div.className='card';div.innerHTML=`<div class="cardTop"><div class="avatarSq" style="background:${getCol(p.name)}">${getInit(p.name)}</div><div class="info"><div class="name">${p.name||''}</div><div class="sub">${p.time||''} • ${sh}</div></div></div><div class="actions"><button class="${photoClass}" data-shri="${sh}" data-type="photo">${photoTxt}</button><button class="${opdClass}" data-shri="${sh}" data-type="opd">${opdTxt}</button></div>`;grid.appendChild(div);});if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:30px;background:#fff;border-radius:14px;color:#0f172a;font-weight:700">All done ✓ - Check DONE tab</div>`;}document.getElementById('pageIndicator').innerText=`${currentPage}/${pages}`;document.getElementById('prevBtn').disabled=currentPage<=1;document.getElementById('nextBtn').disabled=currentPage>=pages;document.getElementById('doneB').innerText=done;document.getElementById('searchInfo').innerText=`${filtered.length} patients • ${currentPage}/${pages}`;document.getElementById('doneMeta').innerText=`${done} done • ${filtered.length} pending`;updateToggleBtn();document.querySelectorAll('.btnAct').forEach(btn=>{const h=(e)=>{e.preventDefault();e.stopPropagation();showConfirm(btn.getAttribute('data-shri'),btn.getAttribute('data-type'));};btn.addEventListener('click',h);btn.addEventListener('touchend',h,{passive:false});});}
+let startX=0;const scrollEl=document.getElementById('scroll');scrollEl.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;},{passive:true});scrollEl.addEventListener('touchend',e=>{let diff=e.changedTouches[0].clientX-startX;if(Math.abs(diff)>70){if(diff<0)goNextPage();else goPrevPage();}},{passive:true});
+function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;render();}}
+function goPrevPage(){if(currentPage>1){currentPage--;render();}}
+function goToCompleted(){let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
+function addUniversal(el,fn){if(!el)return;el.addEventListener('click',fn);el.addEventListener('touchend',e=>{e.preventDefault();fn(e);},{passive:false});}
+document.querySelectorAll('.chip').forEach(c=>{addUniversal(c,()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;currentPage=1;render();});});
+document.getElementById('filterBlock')?.addEventListener('change',()=>{currentPage=1;render();});
+document.getElementById('fType')?.addEventListener('change',loadData);
+addUniversal(document.getElementById('tabSync'),()=>location.reload());
+addUniversal(document.getElementById('tabDone'),goToCompleted);
+addUniversal(document.getElementById('tabHome'),()=>location.href='index.html');
+addUniversal(document.getElementById('toggleViewBtn'),()=>{isListView=!isListView;localStorage.setItem('gda_view',isListView?'list':'grid');currentPage=1;render();});
+addUniversal(document.getElementById('prevBtn'),()=>goPrevPage());
+addUniversal(document.getElementById('nextBtn'),()=>goNextPage());
+addUniversal(document.getElementById('btnSure'),()=>confirmSure());
+addUniversal(document.getElementById('btnNotSure'),()=>confirmNotSure());
+document.getElementById('confirmModal')?.addEventListener('click',e=>{if(e.target.id==='confirmModal')hideConfirm();});
+const searchInput=document.getElementById('searchName');
+const clearBtn=document.getElementById('clearSearch');
+function killAdmin(){
+  if((searchInput.value||'').toLowerCase().includes('admin')){
+    searchInput.value=''; searchQuery=''; if(clearBtn) clearBtn.style.display='none'; currentPage=1; render();
+    return true;
+  }
+  return false;
+}
+searchInput?.addEventListener('input',e=>{
+  if(killAdmin()) return;
+  searchQuery=e.target.value;
+  if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';
+  currentPage=1;render();
+});
+searchInput?.addEventListener('focus',killAdmin);
+addUniversal(clearBtn,()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
+const ADMIN_PASSWORD="jack8189";
+let adminDb=null;
+try{
+  adminDb=db;
+  db.collection("system").doc("global_logout").onSnapshot((snap)=>{
+    if(!snap.exists) return;
+    let lt=snap.data().logoutTime||0;
+    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
+    if(lt>my && my!==0){
+      localStorage.removeItem('shija_logged');
+      localStorage.removeItem('shija_login_time');
+      location.href='login.html';
+    }
+  });
+}catch(e){}
+document.addEventListener('DOMContentLoaded',()=>{
+  if(searchInput) searchInput.value='';
+  searchQuery='';
+  setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);
+  let iv=0; let timer=setInterval(()=>{ killAdmin(); iv++; if(iv>30) clearInterval(timer); },200);
+  const adminBtn=document.getElementById('adminBtn');
+  const adminDropdown=document.getElementById('adminDropdown');
+  adminBtn?.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
+  document.addEventListener('click',(e)=>{ if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none'; });
+  document.getElementById('btnLogout')?.addEventListener('click',()=>{ if(confirm('Logout from this device?')){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } });
+  document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none'; });
+  document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
+  document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
+  document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
+    let pass=document.getElementById('adminPassInput').value.trim();
+    if(pass!==ADMIN_PASSWORD){ document.getElementById('passError').style.display='block'; return; }
+    document.getElementById('passError').style.display='none';
+    let btn=document.getElementById('confirmLogoutAll'); btn.innerText='...'; btn.disabled=true;
+    try{
+      await db.collection("system").doc("global_logout").set({ logoutTime: Date.now(), timestamp: firebase.firestore.FieldValue.serverTimestamp(), triggeredBy:'admin' },{merge:true});
+      alert('All devices logged out!');
+      localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html';
+    }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
+  });
+});
+window.addEventListener('load',()=>{setTimeout(()=>{updateToggleBtn();loadData();},300);});
 </script>
 </body>
 </html>
