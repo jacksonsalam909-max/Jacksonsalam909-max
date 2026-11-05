@@ -41,7 +41,7 @@ body{display:flex;min-height:100vh}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
 .menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
-.content{flex:1;padding:20px 24px;position:relative;background:#ffffff!important;min-height:100vh;max-width:100%}
+.content{flex:1;padding:20px 24px;position:relative!important;background:#ffffff!important;min-height:100vh;max-width:100%}
 .bgLogo{position:absolute!important;top:175px!important;left:50%!important;transform:translateX(-50%)!important;width:420px!important;height:420px!important;max-width:85vw;max-height:85vw;pointer-events:none;z-index:1!important;display:grid;place-items:center}
 .bgLogo img{width:100%;height:100%;object-fit:contain;opacity:0.20!important;filter: drop-shadow(0 12px 24px rgba(15,23,42,0.15)) drop-shadow(0 4px 12px rgba(15,23,42,0.12)) drop-shadow(0 1px 3px rgba(15,23,42,0.10))!important}
 .pageHead{position:relative;z-index:10;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:18px}
@@ -59,8 +59,6 @@ body{display:flex;min-height:100vh}
 .schemeFilter{display:flex;background:#f1f5f9;border-radius:10px;padding:3px;border:1px solid #e2e8f0;gap:3px}
 .sBtn{padding:8px 14px;border-radius:8px;border:0;background:transparent;font-weight:800;font-size:11px;cursor:pointer;transition:.2s;color:#64748b}
 .sBtn.active{background:#2563eb!important;color:#fff!important;box-shadow:0 2px 8px #2563eb40}
-.sBtn.pmjay.active{background:#2563eb!important;color:#fff!important}
-.sBtn.cmht.active{background:#2563eb!important;color:#fff!important}
 .patientGrid{position:relative;z-index:10;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
 .pCard{border-radius:14px;padding:0;overflow:hidden;background:rgba(255,255,255,0.82)!important;border:1px solid #e2e8f0;box-shadow:0 2px 10px #00000006;transition:.22s;cursor:pointer}
 .pCard:hover{transform:translateY(-3px);box-shadow:0 10px 20px #00000015;border-color:#2563eb}
@@ -210,9 +208,10 @@ try{ onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{ if(!snap.exists(
 <button class="sBtn cmht" id="cmhtBtn" onclick="setScheme('CMHT')">CMHT</button>
 </div>
 </div>
+<!-- LOGO FROM PREVIOUS STORAGE / GITHUB - NOT FIREBASE -->
 <div class="bgLogo"><img src="loko.png" alt="SHRI Watermark"></div>
+<!-- If your GitHub raw URL, use: <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/loko.png"> -->
 <div id="emptyState" style="position:relative;z-index:10;text-align:center;padding:60px 20px;color:#64748b">
-<div style="font-size:48px;margin-bottom:12px"></div>
 <div style="font-weight:800;color:#0f172a;font-size:16px">Search to see patient details</div>
 <div style="font-size:13px;margin-top:6px">Type Name, SHRI ID, PMJAY ID or CMHT ID above</div>
 </div>
@@ -414,7 +413,6 @@ async function init(){
    let rawId=String(raw.id||raw.key||'').trim(); 
    let key=rawShri||rawId||String(raw.name||'').trim(); 
    if(!key) return;
-   // FIX: Firestore is source of truth - don't block new patients that exist in Firestore
    let isDel = false;
    if(!isFirestore){
      isDel = scheme==='PMJAY' ? (deletedLocal.includes(key) || deletedLocal.includes(rawId) || deletedLocal.includes(rawShri) || raw.deleted===true) : (raw.deleted===true);
@@ -430,11 +428,13 @@ async function init(){
  }
  (typeof patientData!=='undefined'?patientData:[]).forEach(pd=>addToMap(pd,'PMJAY',false,false));
  Object.values(editedLocal).forEach(v=>addToMap(v,'PMJAY',true,false));
+ // FROM FIREBASE - total.html -> patients
  try{ const snapPatients = await getDocs(collection(db,"patients")); snapPatients.forEach(d=>{ let data=d.data(); if(data.deleted===true) return; addToMap({key:d.id,id:d.id,...data},'PMJAY',true,true); }); }catch(e){}
+ // FROM FIREBASE - cmht.html -> cmht_patients
  try{ const snapCmht = await getDocs(collection(db,"cmht_patients")); snapCmht.forEach(d=>{ let data=d.data(); if(data.deleted===true) return; addToMap({key:d.id,id:d.id,...data},'CMHT',true,true); }); }catch(e){}
  allPatients=Object.values(map);
  allPatients.sort((a,b)=>a.name.localeCompare(b.name));
- document.getElementById('info').textContent=allPatients.length+' patients loaded (PMJAY + CMHT) - Type to search';
+ document.getElementById('info').textContent=allPatients.length+' patients loaded from Firebase (PMJAY: patients + CMHT: cmht_patients) - Type to search';
 }
 
 const ADMIN_PASSWORD="jack8189";
