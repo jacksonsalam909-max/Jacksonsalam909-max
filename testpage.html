@@ -3,321 +3,184 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>OFFICE ASSISTANT - SHIJA</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<title>SHIJA - CHAT DESIGN I</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#e9eef6;display:flex;min-height:100vh;overflow-x:hidden}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:91;overflow:hidden;transition:transform .32s ease,width .32s ease}
+body{background:#f1f5f9;display:flex;min-height:100vh}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:91;transition:transform .32s}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#e9eef6;width:calc(100% - 270px)}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
-.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
-.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0;flex-shrink:0}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s;min-height:100vh;display:flex;flex-direction:column;background:#f1f5f9;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px;width:calc(100% - 72px)}
+.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff;border-bottom:1px solid #e2e8f0}
+.sLogo{width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;border:1px solid #e2e8f0}
 .sLogo img{width:100%;height:100%;object-fit:contain}
-.sTitle{overflow:hidden;white-space:nowrap}
 .sTitle b{color:#0f172a;font-size:16px;font-weight:900;display:block}
-.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
-.whiteBar.folded .sTitle{display:none}
-.whiteBar.folded .sHead{justify-content:center;padding:14px 0}
-.sMenu{flex:1;padding:8px;overflow-y:auto;overflow-x:hidden}
-.sMenu::-webkit-scrollbar{width:0}
-.sMenu a{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:10px;text-decoration:none;color:#94a3b8;font-size:12.5px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden}
-.sMenu a:hover{background:#1e293b;color:#fff}
-.sMenu a.active{background:#2563eb;color:#fff;font-weight:700}
-.mi{width:36px;min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:#1e293b;border-radius:10px;flex-shrink:0}
-.mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.sMenu a.active .mi{background:#fff}
-.sMenu a.active .mi svg{stroke:#2563eb}
-.ml{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.whiteBar.folded .ml{display:none!important}
-.whiteBar.folded .sMenu a{justify-content:center;padding:11px 0}
-.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;white-space:nowrap;overflow:hidden}
-.whiteBar.folded .sFoot{display:none}
-.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
-.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
-.menuBtnTop{width:44px;height:40px;background:#fff;border:0;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;z-index:100}
-.menuBtnTop span{display:block;width:18px;height:2.5px;background:#0f172a;border-radius:2px}
-.content{flex:1;padding:12px;background:#e9eef6;display:flex;flex-direction:column;gap:10px;max-width:100%}
-.topFilters{background:#fff;border-radius:12px;padding:12px;border:1px solid #e2e8f0;display:flex;flex-direction:column;gap:10px}
-.searchRow{display:flex;gap:8px;align-items:center}
-.searchInputWrap{flex:1;position:relative;display:flex;align-items:center}
-.searchInput{width:100%;height:42px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 16px;border-radius:10px;font-weight:600;font-size:14px;color:#0f172a;outline:none}
-.clearSearch{position:absolute;right:6px;width:28px;height:28px;border-radius:50%;border:0;background:#dde4f0;display:none;align-items:center;justify-content:center}
-.timePager{display:flex;align-items:center;gap:4px;background:#f4f7fd;border:1.5px solid #d0d9ea;border-radius:100px;padding:3px 4px;height:42px;min-width:92px;justify-content:space-between}
-.pageBtnSmall{height:30px;min-width:28px;padding:0 8px;border-radius:100px;border:0;background:#fff;color:#0f172a;font-weight:900;font-size:14px}
-.pageIndicatorSmall{color:#0f172a;font-weight:900;font-size:12px;min-width:32px;text-align:center}
-.row3{display:flex;gap:6px;align-items:center}
-.dateBoxNew{display:flex;align-items:center;border:1.5px solid #cbd5e1;border-radius:8px;overflow:hidden;height:44px;background:#fff;flex:1.6}
-.dateArrowBox{width:42px;min-width:42px;height:100%;border:0;background:#f8fafc;border-right:1.5px solid #cbd5e1;color:#64748b;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sTitle span{font-size:9px;color:#64748b;font-weight:700}
+.sMenu{flex:1;padding:8px;overflow-y:auto}
+.sMenu a{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:10px;text-decoration:none;color:#94a3b8;font-size:12.5px;font-weight:600;margin-bottom:2px}
+.sMenu a.active{background:#2563eb;color:#fff}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b}
+.top{height:60px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:16px;color:#0f172a}
+.menuBtnTop{width:40px;height:36px;background:#fff;border:0;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.menuBtnTop span{width:18px;height:2.5px;background:#0f172a;border-radius:2px;display:block}
+.content{flex:1;padding:8px;display:flex;flex-direction:column;gap:8px}
+.topFilters{background:#fff;border-radius:12px;padding:10px;border:1px solid #e2e8f0;display:flex;flex-direction:column;gap:8px}
+.searchRow{display:flex;gap:6px}
+.searchInput{flex:1;height:38px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 14px;border-radius:8px;font-weight:600;font-size:13px;outline:none}
+.timePager{display:flex;align-items:center;gap:3px;background:#f4f7fd;border:1.5px solid #d0d9ea;border-radius:100px;padding:2px 3px;height:36px}
+.pageBtnSmall{height:26px;min-width:24px;border-radius:100px;border:0;background:#fff;font-weight:900}
+.pageIndicatorSmall{font-weight:900;font-size:11px;min-width:28px;text-align:center}
+.row3{display:flex;gap:5px}
+.dateBoxNew{display:flex;align-items:center;border:1.5px solid #cbd5e1;border-radius:8px;height:40px;background:#fff;flex:1.6}
+.dateArrowBox{width:38px;height:100%;border:0;background:#f8fafc;border-right:1.5px solid #cbd5e1;font-size:20px;font-weight:800}
 .dateArrowBox.right{border-right:0;border-left:1.5px solid #cbd5e1}
-.dateMiddle{flex:1;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:pointer;background:#fff}
-.dateMiddle span:first-child{font-size:13px;font-weight:800;color:#334155}
-.calBox{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
-.dateBox2{flex:1;border-radius:8px;height:44px;display:flex;align-items:center;padding:0 8px;background:#f8fafc;border:1.5px solid #d0d9ea}
-.dateBox2 select{border:0;width:100%;font-weight:700;font-size:13px;outline:none;background:transparent;color:#0f172a;height:40px}
-.hint{font-size:11px;color:#94a3b8;font-weight:500;margin-top:-4px}
-.chipsWrap{display:flex;gap:6px;overflow-x:auto;align-items:center;padding:2px 0;flex:1}.chipsWrap::-webkit-scrollbar{display:none}
-.chip{height:34px;padding:0 14px;border-radius:100px;border:1.5px solid #d0d9ea;background:#f4f7fd;font-weight:800;font-size:12px;white-space:nowrap;color:#4a5f85;flex-shrink:0;cursor:pointer}
-.chip.on{background:#0f172a;color:#fff;border-color:#0f172a}
-.viewIconSingle{width:36px;height:36px;min-width:36px;border-radius:100px;border:1.5px solid #0f172a;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.viewIconSingle svg{width:16px;height:16px;stroke:#0f172a;stroke-width:2;fill:none}
-.searchMeta{padding:0 2px;font-size:10px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between;align-items:center}
-.scroll{flex:1;display:flex;flex-direction:column}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dateMiddle{flex:1;display:flex;justify-content:space-between;padding:0 8px;align-items:center;font-weight:800;font-size:12px}
+.dateBox2{flex:1;border-radius:8px;height:40px;display:flex;align-items:center;padding:0 6px;background:#f8fafc;border:1.5px solid #d0d9ea}
+.dateBox2 select{border:0;width:100%;font-weight:700;font-size:12px;background:transparent;outline:none}
+.chipsWrap{display:flex;gap:5px;overflow-x:auto;flex:1}
+.chip{height:30px;padding:0 12px;border-radius:100px;border:1.5px solid #d0d9ea;background:#f4f7fd;font-weight:800;font-size:11px;white-space:nowrap}
+.chip.on{background:#0f172a;color:#fff}
+.viewIconSingle{width:32px;height:32px;border-radius:100px;border:1.5px solid #0f172a;background:#fff;display:flex;align-items:center;justify-content:center}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 12px;padding-bottom:80px}
+.searchMeta{font-size:9.5px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between}
 
-/* === DESIGN 2 - PILL CHIPS === */
+/* DESIGN I - CHAT BUBBLE GRID */
 .card{
-  width:100%;min-height:198px;
+  width:100%;min-height:132px;
   background:#fff;
-  border-radius:16px;
-  padding:16px;
+  border-radius:18px 18px 18px 4px;
+  padding:12px 12px 10px;
   display:flex;flex-direction:column;
   border:1px solid #e2e8f0;
-  box-shadow:0 2px 8px rgba(15,23,42,0.06);
-  transition:all .2s ease
+  box-shadow:0 6px 18px rgba(15,23,42,0.08);
+  position:relative;
 }
-.card:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(15,23,42,0.12)}
-.cardTop{display:flex;align-items:flex-start;gap:12px;width:100%}
+.card::after{
+  content:'';
+  position:absolute;
+  left:10px;bottom:-10px;
+  width:16px;height:16px;
+  background:#fff;
+  border-left:1px solid #e2e8f0;
+  border-bottom:1px solid #e2e8f0;
+  clip-path:polygon(0 0, 100% 0, 0 100%);
+  transform:rotate(-8deg);
+}
+.cardTop{display:flex;gap:10px;align-items:flex-start}
 .avatarSq{
-  width:54px!important;height:54px!important;min-width:54px!important;min-height:54px!important;
+  width:44px!important;height:44px!important;min-width:44px!important;
   border-radius:50%!important;
-  background:#2563eb!important;
+  background:linear-gradient(135deg,#3b82f6,#2563eb)!important;
   display:flex!important;align-items:center!important;justify-content:center!important;
-  font-size:22px!important;font-weight:900!important;color:#fff!important;
-  flex-shrink:0!important
+  font-size:18px!important;font-weight:900!important;color:#fff!important;
+  box-shadow:0 4px 10px rgba(37,99,235,0.3)!important;
 }
 .infoMain{flex:1;overflow:hidden}
-.card .name{font-size:17px;font-weight:900;color:#0f172a;letter-spacing:-0.2px;text-transform:uppercase;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pillsRow{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center}
-.pill{
-  height:26px;padding:0 10px;border-radius:100px;
-  font-size:11px;font-weight:700;
-  display:inline-flex;align-items:center;gap:4px;white-space:nowrap
-}
-.pill.time{background:#2563eb;color:#fff}
-.pill.shri{background:#e2e8f0;color:#475569}
-.pill.pmjay{background:#e2e8f0;color:#475569}
-.pmjayIdText{margin-top:8px;font-size:11px;font-weight:600;color:#94a3b8;letter-spacing:0.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.actions{width:100%;display:flex;gap:10px;margin-top:auto;padding-top:14px}
-.btnAct{flex:1;height:42px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;border:0;transition:.18s}
-.btnAct:active{transform:scale(0.97)}
-.btnPhoto{background:#2563eb;color:#fff}
-.btnPhoto.done{background:#22c55e!important}
-.btnOpd{background:#2563eb;color:#fff}
-.btnOpd.done{background:#22c55e!important}
+.card .name{font-size:13px;font-weight:800;color:#0f172a;text-transform:uppercase;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pmjayIdText{margin-top:3px;font-size:9.5px;font-weight:600;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.timeText{font-size:10px;font-weight:600;color:#94a3b8;text-align:right;margin-top:6px}
+.actions{display:flex;gap:8px;margin-top:auto;padding-top:10px}
+.btnAct{flex:1;height:34px;border-radius:100px;font-weight:800;font-size:11.5px;display:flex;align-items:center;justify-content:center;border:1.5px solid #2563eb;cursor:pointer}
+.btnPhoto{background:#2563eb;color:#fff;border-color:#2563eb}
+.btnPhoto.done{background:#22c55e!important;border-color:#22c55e!important}
+.btnOpd{background:#fff;color:#2563eb}
+.btnOpd.done{background:#22c55e!important;color:#fff!important;border-color:#22c55e!important}
 
-/* LIST VIEW - DESIGN 2 */
-.grid.listView{display:flex !important;flex-direction:column !important;gap:10px}
-.grid.listView .card{
-  min-height:92px;height:92px;
-  flex-direction:row;align-items:center;
-  padding:10px 14px;
-  gap:12px
-}
-.grid.listView .cardTop{flex:0 0 auto;gap:12px}
-.grid.listView .avatarSq{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important}
-.grid.listView .infoMain{flex:1;display:flex;flex-direction:column;justify-content:center}
-.grid.listView .name{font-size:15px}
-.grid.listView .pillsRow{margin-top:4px}
-.grid.listView .pmjayIdText{margin-top:2px;font-size:10.5px}
-.grid.listView .actions{
-  width:auto;min-width:130px;flex-direction:column;
-  margin-top:0;padding-top:0;gap:6px;margin-left:auto
-}
-.grid.listView .btnAct{height:32px;font-size:11.5px;width:92px}
+.grid.listView{grid-template-columns:1fr!important;display:flex!important;flex-direction:column!important;gap:14px}
+.grid.listView .card{border-radius:20px 20px 20px 4px;min-height:78px;height:78px;flex-direction:row;align-items:center;padding:10px 14px}
+.grid.listView .card::after{left:14px}
+.grid.listView .cardTop{flex:1}
+.grid.listView .timeText{margin-top:0;margin-left:8px}
+.grid.listView .actions{min-width:120px;margin-left:auto;margin-top:0;padding-top:0}
+.grid.listView .btnAct{height:30px;font-size:10.5px}
 
-.bottomBar{position:fixed;bottom:0;left:270px;right:0;z-index:20;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:space-around;padding:6px 0;transition:left .32s}
-.whiteBar.folded ~ .mainWrap .bottomBar{left:72px}
-.pagesBottom{padding:20px 0 70px}
-#confirmModal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.55)}.confirmBox{background:#fff;width:86%;max-width:320px;border-radius:16px;padding:20px 16px;text-align:center}
-.confirmTitle{font-size:15px;font-weight:900;color:#0f172a;margin-bottom:6px}.confirmSub{font-size:12px;font-weight:600;color:#6f84a8;margin-bottom:16px}
-.confirmBtns{display:flex;gap:8px}.btnNoSure{flex:1;height:40px;border-radius:10px;border:1.5px solid #d0d9ea;background:#f4f7fd;color:#4a5f85;font-weight:800;font-size:12px}.btnSure{flex:1;height:40px;border-radius:10px;border:0;background:#0f172a;color:#fff;font-weight:800;font-size:12px}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;color:#8aa0c5;cursor:pointer}
-.tab .ic{width:24px;height:24px;border-radius:8px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:13px}
+.bottomBar{position:fixed;bottom:0;left:270px;right:0;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:space-around;padding:5px 0;z-index:20}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;font-weight:700;color:#8aa0c5;cursor:pointer}
+.tab .ic{width:22px;height:22px;border-radius:7px;background:#e2e8f0;display:flex;align-items:center;justify-content:center}
 .tab.active{color:#0f172a}.tab.active .ic{background:#0f172a;color:#fff}
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:90;display:none}
-#overlay.show{display:block}
+#confirmModal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.55)}.confirmBox{background:#fff;width:86%;max-width:320px;border-radius:16px;padding:20px 16px;text-align:center}
+.confirmTitle{font-size:14px;font-weight:900}.confirmSub{font-size:11px;color:#6f84a8;margin:6px 0 16px}.confirmBtns{display:flex;gap:8px}.btnNoSure{flex:1;height:38px;border-radius:8px;border:1.5px solid #d0d9ea;background:#f4f7fd;font-weight:800}.btnSure{flex:1;height:38px;border-radius:8px;border:0;background:#0f172a;color:#fff;font-weight:800}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:90;display:none}#overlay.show{display:block}
 @media(max-width:900px){
-  .whiteBar{transform:translateX(-100%)!important}
-  .whiteBar.mOpen{transform:translateX(0)!important}
-  .whiteBar.folded{transform:translateX(-100%)!important;width:270px!important;min-width:270px!important}
-  .mainWrap{margin-left:0!important;width:100%!important}
-  .bottomBar{left:0!important}
-  .content{padding:10px}
-  .grid{grid-template-columns:repeat(2, minmax(0, 1fr))!important}
-  .searchRow{flex-direction:column;align-items:stretch}
-  .row3{flex-wrap:wrap!important}
-  .dateBoxNew{flex:1 1 100%!important;min-width:100%!important;width:100%!important}
-  .dateBox2{flex:1 1 48%!important;min-width:48%!important;width:48%!important}
-  .grid.listView .card{height:auto;min-height:92px;flex-wrap:wrap}
-  .grid.listView .actions{flex-direction:row;min-width:100%;margin-left:0;margin-top:6px}
-  .grid.listView .btnAct{width:50%}
+.whiteBar{transform:translateX(-100%)!important}.whiteBar.mOpen{transform:translateX(0)!important}
+.mainWrap{margin-left:0!important;width:100%!important}
+.bottomBar{left:0!important}
+.content{padding:6px}
+.grid{grid-template-columns:repeat(2,1fr)!important;gap:16px 8px}
 }
 </style>
 </head>
 <body>
-<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'};if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}</script>
-<div id="overlay" onclick="closeMob()"></div>
-<div class="whiteBar" id="whiteBar">
-<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
-<div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
-<div class="sMenu">
-<a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
-<a href="gda.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></span><span class="ml">OFFICE ASSISTANT LIST</span></a>
-</div>
-</div>
-<div class="sFoot">System Online • SHIJA Hospital</div>
-</div>
-<div class="mainWrap" id="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA - OFFICE ASSISTANT</div>
-<div style="display:flex;align-items:center;gap:8px">
-  <div id="adminMenuWrap" style="position:relative">
-    <button id="adminBtn" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
-    <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
-      <button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button>
-      <button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button>
-    </div>
-  </div>
-</div>
-</div>
-<div class="content">
-<div class="topFilters">
-<div class="searchRow"><div class="searchInputWrap"><input type="search" id="searchName" class="searchInput" placeholder="Search name, SHRI or PMJAY..."><button class="clearSearch" id="clearSearch">✕</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
-<div class="row3"><div class="dateBoxNew"><button class="dateArrowBox" id="datePrev">‹</button><div class="dateMiddle" id="dateCenter"><span id="dateDisplay">03-11-2026</span><div class="calBox">📅</div></div><button class="dateArrowBox right" id="dateNext">›</button></div><div class="dateBox2"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div><div class="dateBox2"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div>
-<input type="date" id="fDate" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
-<div class="hint">Click middle date for all dates</div>
-<div style="display:flex;gap:8px;align-items:center"><div class="chipsWrap"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div><button id="toggleViewBtn" class="viewIconSingle"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button></div>
-<div class="searchMeta"><span id="searchInfo"></span><span id="doneMeta">OPD + PHOTO</span></div>
-</div>
-<div class="scroll" id="scroll"><div class="grid" id="grid"></div><div class="pagesBottom"></div></div>
-</div>
-<div class="bottomBar"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB" style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:100px;font-size:10px;font-weight:800">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
-</div>
-<div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)"><div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center"><div style="font-size:14px;font-weight:800;margin-bottom:6px">Logout from all devices?</div><input type="password" id="adminPassInput" placeholder="Password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;margin-bottom:8px"><div id="passError" style="color:#ef4444;font-size:11px;display:none">Wrong password!</div><div style="display:flex;gap:8px"><button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc">Cancel</button><button id="confirmLogoutAll" style="flex:1;height:38px;border-radius:8px;border:0;background:#ef4444;color:#fff">Logout All</button></div></div></div>
-<div id="confirmModal"><div class="confirmBox"><div class="confirmTitle" id="confirmTitle">Are you sure?</div><div class="confirmSub" id="confirmSub">Complete?</div><div class="confirmBtns"><button class="btnNoSure" id="btnNotSure">NOT SURE</button><button class="btnSure" id="btnSure">SURE</button></div></div></div>
+<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
+<div id="overlay"></div>
+<div class="whiteBar" id="whiteBar"><div style="display:flex;flex-direction:column;height:100%"><div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div><div class="sMenu"><a href="index.html"><span>HOME</span></a><a href="gda.html" class="active"><span>OFFICE ASSISTANT LIST</span></a></div></div><div class="sFoot">System Online</div></div>
+<div class="mainWrap"><div class="top"><div class="logo"><button class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA - OFFICE ASSISTANT</div></div>
+<div class="content"><div class="topFilters"><div class="searchRow"><input id="searchName" class="searchInput" placeholder="Search name, SHRI or PMJAY..."><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div><div class="row3"><div class="dateBoxNew"><button class="dateArrowBox" id="datePrev">‹</button><div class="dateMiddle" id="dateCenter"><span id="dateDisplay">03-11-2026</span><span>📅</span></div><button class="dateArrowBox right" id="dateNext">›</button></div><div class="dateBox2"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option></select></div><div class="dateBox2"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div><input type="date" id="fDate" style="position:absolute;opacity:0;width:0;height:0;"><div style="display:flex;gap:8px;align-items:center"><div class="chipsWrap"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button></div><button id="toggleViewBtn" class="viewIconSingle">⊞</button></div><div class="searchMeta"><span id="searchInfo"></span><span id="doneMeta"></span></div></div><div class="grid" id="grid"></div></div><div class="bottomBar"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div></div>
+<div id="confirmModal"><div class="confirmBox"><div class="confirmTitle" id="confirmTitle">Are you sure?</div><div class="confirmSub" id="confirmSub"></div><div class="confirmBtns"><button class="btnNoSure" id="btnNotSure">NOT SURE</button><button class="btnSure" id="btnSure">SURE</button></div></div></div>
 <script>
 const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
-function toggleWhiteBar(){const bar=document.getElementById('whiteBar');const over=document.getElementById('overlay');if(window.innerWidth<=900){const isOpen=bar.classList.contains('mOpen');if(isOpen){bar.classList.remove('mOpen');over.classList.remove('show');}else{bar.classList.add('mOpen');over.classList.add('show');}}else{bar.classList.toggle('folded');}}
-function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('overlay').classList.remove('show');}
-document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();e.stopPropagation();toggleWhiteBar();});
-document.getElementById('overlay').addEventListener('click',closeMob);
+function toggleWhiteBar(){const bar=document.getElementById('whiteBar');const over=document.getElementById('overlay');if(window.innerWidth<=900){bar.classList.toggle('mOpen');over.classList.toggle('show');}else{bar.classList.toggle('folded');}}
+document.getElementById('menuBtnTop').addEventListener('click',toggleWhiteBar);
+document.getElementById('overlay').addEventListener('click',()=>{document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('overlay').classList.remove('show');});
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function formatDisplayDMY(s){if(!s)return'';let p=s.split('-');return `${p[2]}-${p[1]}-${p[0]}`;}
-function addDays(s, days){let d=new Date(s+'T00:00:00');d.setDate(d.getDate()+days);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function updateDateDisplay(){document.getElementById('dateDisplay').innerText=formatDisplayDMY(document.getElementById('fDate').value);}
-function openCalendar(){let el=document.getElementById('fDate');try{if(el.showPicker){el.showPicker();}}catch(e){}}
-let fDateEl=document.getElementById('fDate');fDateEl.value=new URLSearchParams(location.search).get('date')||getTodayIST();updateDateDisplay();
-document.getElementById('datePrev').addEventListener('click',function(){fDateEl.value=addDays(fDateEl.value,-1);updateDateDisplay();loadData();});
-document.getElementById('dateNext').addEventListener('click',function(){fDateEl.value=addDays(fDateEl.value,1);updateDateDisplay();loadData();});
-document.getElementById('dateCenter').addEventListener('click',function(e){e.preventDefault();openCalendar();});
-fDateEl.addEventListener('change',function(){updateDateDisplay();loadData();});
-let allPatients=[],statusMap={},activeTimeFilter='',masterMap={},searchQuery='',isListView=false,currentPage=1,pendingShri=null,pendingType=null;
+function addDays(s,days){let d=new Date(s+'T00:00:00');d.setDate(d.getDate()+days);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+let fDateEl=document.getElementById('fDate');fDateEl.value=new URLSearchParams(location.search).get('date')||getTodayIST();document.getElementById('dateDisplay').innerText=formatDisplayDMY(fDateEl.value);
+document.getElementById('datePrev').addEventListener('click',()=>{fDateEl.value=addDays(fDateEl.value,-1);document.getElementById('dateDisplay').innerText=formatDisplayDMY(fDateEl.value);loadData();});
+document.getElementById('dateNext').addEventListener('click',()=>{fDateEl.value=addDays(fDateEl.value,1);document.getElementById('dateDisplay').innerText=formatDisplayDMY(fDateEl.value);loadData();});
+document.getElementById('dateCenter').addEventListener('click',()=>{try{fDateEl.showPicker()}catch(e){}});
+fDateEl.addEventListener('change',()=>{document.getElementById('dateDisplay').innerText=formatDisplayDMY(fDateEl.value);loadData();});
+let allPatients=[],statusMap={},activeTimeFilter='',searchQuery='',isListView=false,currentPage=1,pendingShri=null,pendingType=null;
 if(localStorage.getItem('gda_view')==='list')isListView=true;
-const gridIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`;
-const listIconSVG=`<svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="4" rx="1"/><line x1="13" y1="6" x2="21" y2="6"/><rect x="3" y="10" width="7" height="4" rx="1"/><line x1="13" y1="12" x2="21" y2="12"/><rect x="3" y="16" width="7" height="4" rx="1"/><line x1="13" y1="18" x2="21" y2="18"/></svg>`;
-function getPageSize(){if(isListView) return 12; if(window.innerWidth > 900) return 12; return 20;}
+function getPageSize(){return isListView?12:12;}
 function normalizeTime(t){let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
-async function buildMasterMap(){masterMap={};try{let snap=await db.collection('patients').get();snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;let pmjay=String(p.pmjayId||p.pmjay||p.pmjayCard||p.cardNo||'').trim();masterMap[shri]={pmjayName:name,cmhtName:'',pmjayId:pmjay,cmhtId:''};});}catch(e){}try{let snap2=await db.collection('cmht_patients').get();snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();let pmjay=String(p.pmjayId||p.pmjay||p.pmjayCard||p.cardNo||p.cmhtId||'').trim();if(!shri)return;if(!masterMap[shri])masterMap[shri]={pmjayName:'',cmhtName:'',pmjayId:'',cmhtId:''};masterMap[shri].cmhtName=name;if(pmjay)masterMap[shri].cmhtId=pmjay;if(!masterMap[shri].pmjayId)masterMap[shri].pmjayId=pmjay;});}catch(e){}}
-function enrichPatient(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;if(m.pmjayId&&!p.pmjayId)p.pmjayId=m.pmjayId;}else{if(m.cmhtName)p.name=m.cmhtName;if(m.cmhtId&&!p.pmjayId)p.pmjayId=m.cmhtId;else if(m.pmjayId&&!p.pmjayId)p.pmjayId=m.pmjayId;}return p;}
-async function loadData(){try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;document.getElementById('doneMeta').innerText="Loading...";await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let patients=snap.exists?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let e=enrichPatient({...p});e.sl=i+1;return e;});allPatients=patients;let sSnap=await db.collection('daily_photo_opd').doc(id).get();statusMap=sSnap.exists?(sSnap.data().status||{}):{};render();}catch(e){document.getElementById('doneMeta').innerText="Error: "+(e.message||e);}}
-async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value,id=d+'_'+s;await db.collection('daily_photo_opd').doc(id).set({date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()},{merge:true});}
-function showConfirm(sh,type){pendingShri=sh;pendingType=type;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let name=p?p.name:sh;let st=statusMap[sh]||{photoTaken:false,opdDone:false};let isDone=type==='photo'?st.photoTaken:st.opdDone;let typeTxt=type==='photo'?'PHOTO':'OPD';document.getElementById('confirmTitle').innerText='Are you sure?';document.getElementById('confirmSub').innerText=isDone?typeTxt+' UNDO for '+name:typeTxt+' done for '+name;document.getElementById('confirmModal').style.display='flex';}
+async function loadData(){try{let d=fDateEl.value,s=document.getElementById('fType').value,id=d+'_'+s;document.getElementById('doneMeta').innerText="Loading...";let snap=await db.collection('daily_dialysis_lists').doc(id).get();allPatients=snap.exists?(snap.data().patients||[]):[];let sSnap=await db.collection('daily_photo_opd').doc(id).get();statusMap=sSnap.exists?(sSnap.data().status||{}):{};render();}catch(e){document.getElementById('doneMeta').innerText="Error";}}
+async function saveStatus(){let d=fDateEl.value,s=document.getElementById('fType').value,id=d+'_'+s;await db.collection('daily_photo_opd').doc(id).set({date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()},{merge:true});}
+function showConfirm(sh,type){pendingShri=sh;pendingType=type;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);document.getElementById('confirmSub').innerText=(type==='photo'?'PHOTO':'OPD')+' for '+(p?p.name:sh);document.getElementById('confirmModal').style.display='flex';}
 function hideConfirm(){document.getElementById('confirmModal').style.display='none';pendingShri=null;pendingType=null;}
-async function confirmSure(){if(!pendingShri||!pendingType)return;let btn=document.getElementById('btnSure');btn.innerText='...';btn.disabled=true;try{if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};let st=statusMap[pendingShri];let isDone=pendingType==='photo'?st.photoTaken:st.opdDone;if(!isDone){if(pendingType==='photo')st.photoTaken=true;else st.opdDone=true;}await saveStatus();hideConfirm();render();}catch(e){alert('Error: '+(e.message||e));}finally{btn.innerText='SURE';btn.disabled=false;}}
-async function confirmNotSure(){if(!pendingShri||!pendingType)return;let btn=document.getElementById('btnNotSure');btn.innerText='...';btn.disabled=true;try{if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};let st=statusMap[pendingShri];let isDone=pendingType==='photo'?st.photoTaken:st.opdDone;if(isDone){if(pendingType==='photo')st.photoTaken=false;else st.opdDone=false;await saveStatus();}hideConfirm();render();}catch(e){alert('Error: '+(e.message||e));}finally{btn.innerText='NOT SURE';btn.disabled=false;}}
-function getInit(n){return(n||'A').charAt(0).toUpperCase();}
-function getFiltered(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(st.photoTaken&&st.opdDone)return false;if(sq){let nameL=String(p.name||'').toLowerCase();let shriL=sh.toLowerCase();let pmjayL=String(p.pmjayId||'').toLowerCase();if(!nameL.includes(sq)&&!shriL.includes(sq)&&!pmjayL.includes(sq))return false;}return true;});}
-function updateToggleBtn(){let b=document.getElementById('toggleViewBtn');if(b){b.innerHTML=isListView?listIconSVG:gridIconSVG;}}
-function getPmjayId(p){return String(p.pmjayId||p.pmjay||p.pmjayCard||p.cardNo||'').trim();}
+async function confirmSure(){if(!pendingShri)return;let btn=document.getElementById('btnSure');btn.innerText='...';try{if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};if(pendingType==='photo')statusMap[pendingShri].photoTaken=true;else statusMap[pendingShri].opdDone=true;await saveStatus();hideConfirm();render();}finally{btn.innerText='SURE';}}
+async function confirmNotSure(){if(!pendingShri)return;let btn=document.getElementById('btnNotSure');btn.innerText='...';try{if(statusMap[pendingShri]){if(pendingType==='photo')statusMap[pendingShri].photoTaken=false;else statusMap[pendingShri].opdDone=false;await saveStatus();}hideConfirm();render();}finally{btn.innerText='NOT SURE';}}
+function getInit(n){let parts=String(n||'').trim().split(/\s+/);if(parts.length>=2)return (parts[0][0]+parts[1][0]).toUpperCase();return (n||'A').substring(0,2).toUpperCase();}
+function getFiltered(){let tn=normalizeTime(activeTimeFilter);let bf=document.getElementById('filterBlock').value;let sq=searchQuery.toLowerCase().trim();return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(activeTimeFilter&&normalizeTime(p.time)!==tn)return false;if(bf&&p.block!==bf)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(st.photoTaken&&st.opdDone)return false;if(sq){let nl=String(p.name||'').toLowerCase();let sl=sh.toLowerCase();let pl=String(p.pmjayId||'').toLowerCase();if(!nl.includes(sq)&&!sl.includes(sq)&&!pl.includes(sq))return false;}return true;});}
+function getPmjayId(p){return String(p.pmjayId||'').trim();}
 function render(){
-  let grid=document.getElementById('grid');if(!grid)return;
-  grid.classList.toggle('listView',isListView);
-  let filtered=getFiltered();let done=0;
-  allPatients.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(st&&st.photoTaken&&st.opdDone)done++;});
-  let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));
-  if(currentPage>pages)currentPage=pages;if(currentPage<1)currentPage=1;
+  let grid=document.getElementById('grid');grid.classList.toggle('listView',isListView);
+  let filtered=getFiltered();let done=0;allPatients.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh];if(st&&st.photoTaken&&st.opdDone)done++;});
+  let ps=getPageSize();let pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;
   let items=filtered.slice((currentPage-1)*ps,currentPage*ps);
   grid.innerHTML='';
   items.forEach(p=>{
-    let sh=String(p.shri||'').toUpperCase();
-    let pmjay=getPmjayId(p);
-    let st=statusMap[sh]||{photoTaken:false,opdDone:false};
-    let photoClass=st.photoTaken?'btnAct btnPhoto done':'btnAct btnPhoto';
-    let opdClass=st.opdDone?'btnAct btnOpd done':'btnAct btnOpd';
-    let photoTxt=st.photoTaken?'✓ DONE':'PHOTO';
-    let opdTxt=st.opdDone?'✓ DONE':'OPD';
+    let sh=String(p.shri||'').toUpperCase();let pmjay=getPmjayId(p);let st=statusMap[sh]||{photoTaken:false,opdDone:false};
+    let photoClass=st.photoTaken?'btnAct btnPhoto done':'btnAct btnPhoto';let opdClass=st.opdDone?'btnAct btnOpd done':'btnAct btnOpd';
+    let photoTxt=st.photoTaken?'✓ DONE':'PHOTO';let opdTxt=st.opdDone?'✓ DONE':'OPD';
     let div=document.createElement('div');div.className='card';
-    div.innerHTML=`
-      <div class="cardTop">
-        <div class="avatarSq">${getInit(p.name)}</div>
-        <div class="infoMain">
-          <div class="name">${p.name||''}</div>
-          <div class="pillsRow">
-            <span class="pill time">🕒 ${p.time||''}</span>
-            <span class="pill shri">SHRI ${sh}</span>
-            <span class="pill pmjay">PMJAY</span>
-          </div>
-          <div class="pmjayIdText">${pmjay||'PMJAY ID pending'}</div>
-        </div>
-      </div>
-      <div class="actions">
-        <button class="${photoClass}" data-shri="${sh}" data-type="photo">${photoTxt}</button>
-        <button class="${opdClass}" data-shri="${sh}" data-type="opd">${opdTxt}</button>
-      </div>`;
+    div.innerHTML=`<div class="cardTop"><div class="avatarSq">${getInit(p.name)}</div><div class="infoMain"><div class="name">${p.name||''}</div><div class="pmjayIdText">SHRI ${sh} • PMJAY ${pmjay||'P8VNJY5Y4'}</div></div></div><div class="timeText">${p.time||'7AM'}</div><div class="actions"><button class="${photoClass}" data-shri="${sh}" data-type="photo">${photoTxt}</button><button class="${opdClass}" data-shri="${sh}" data-type="opd">${opdTxt}</button></div>`;
     grid.appendChild(div);
   });
-  if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:30px;background:#fff;border-radius:14px;color:#0f172a;font-weight:700">All done ✓ - Check DONE tab</div>`;}
-  document.getElementById('pageIndicator').innerText=`${currentPage}/${pages}`;
-  document.getElementById('prevBtn').disabled=currentPage<=1;
-  document.getElementById('nextBtn').disabled=currentPage>=pages;
-  document.getElementById('doneB').innerText=done;
-  document.getElementById('searchInfo').innerText=`${filtered.length} patients • ${currentPage}/${pages}`;
-  document.getElementById('doneMeta').innerText=`${done} done • ${filtered.length} pending`;
-  updateToggleBtn();
-  document.querySelectorAll('.btnAct').forEach(btn=>{
-    const h=(e)=>{e.preventDefault();e.stopPropagation();showConfirm(btn.getAttribute('data-shri'),btn.getAttribute('data-type'));};
-    btn.addEventListener('click',h);btn.addEventListener('touchend',h,{passive:false});
-  });
+  if(filtered.length===0)grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;background:#fff;border-radius:12px;font-weight:700">All done ✓</div>`;
+  document.getElementById('pageIndicator').innerText=`${currentPage}/${pages}`;document.getElementById('doneB').innerText=done;
+  document.getElementById('searchInfo').innerText=`${filtered.length} patients • ${currentPage}/${pages}`;document.getElementById('doneMeta').innerText=`${done} done • ${filtered.length} pending`;
+  document.querySelectorAll('.btnAct').forEach(btn=>{btn.addEventListener('click',()=>showConfirm(btn.dataset.shri,btn.dataset.type));});
 }
-let startX=0;const scrollEl=document.getElementById('scroll');scrollEl.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;},{passive:true});scrollEl.addEventListener('touchend',e=>{let diff=e.changedTouches[0].clientX-startX;if(Math.abs(diff)>70){if(diff<0)goNextPage();else goPrevPage();}},{passive:true});
-function goNextPage(){let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;render();}}
-function goPrevPage(){if(currentPage>1){currentPage--;render();}}
-function goToCompleted(){let d=document.getElementById('fDate').value,t=document.getElementById('fType').value;location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);}
-function addUniversal(el,fn){if(!el)return;el.addEventListener('click',fn);el.addEventListener('touchend',e=>{e.preventDefault();fn(e);},{passive:false});}
-document.querySelectorAll('.chip').forEach(c=>{addUniversal(c,()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;currentPage=1;render();});});
+document.querySelectorAll('.chip').forEach(c=>{c.addEventListener('click',()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');activeTimeFilter=c.dataset.time;currentPage=1;render();});});
 document.getElementById('filterBlock')?.addEventListener('change',()=>{currentPage=1;render();});
 document.getElementById('fType')?.addEventListener('change',loadData);
-addUniversal(document.getElementById('tabSync'),()=>location.reload());
-addUniversal(document.getElementById('tabDone'),goToCompleted);
-addUniversal(document.getElementById('tabHome'),()=>location.href='index.html');
-addUniversal(document.getElementById('toggleViewBtn'),()=>{isListView=!isListView;localStorage.setItem('gda_view',isListView?'list':'grid');currentPage=1;render();});
-addUniversal(document.getElementById('prevBtn'),()=>goPrevPage());
-addUniversal(document.getElementById('nextBtn'),()=>goNextPage());
-addUniversal(document.getElementById('btnSure'),()=>confirmSure());
-addUniversal(document.getElementById('btnNotSure'),()=>confirmNotSure());
+document.getElementById('tabSync')?.addEventListener('click',()=>location.reload());
+document.getElementById('tabDone')?.addEventListener('click',()=>{let d=fDateEl.value,t=document.getElementById('fType').value;location.href='gdacompleted.html?date='+encodeURIComponent(d)+'&type='+encodeURIComponent(t);});
+document.getElementById('tabHome')?.addEventListener('click',()=>location.href='index.html');
+document.getElementById('toggleViewBtn')?.addEventListener('click',()=>{isListView=!isListView;localStorage.setItem('gda_view',isListView?'list':'grid');currentPage=1;render();});
+document.getElementById('prevBtn')?.addEventListener('click',()=>{if(currentPage>1){currentPage--;render();}});
+document.getElementById('nextBtn')?.addEventListener('click',()=>{let ps=getPageSize();let pages=Math.max(1,Math.ceil(getFiltered().length/ps));if(currentPage<pages){currentPage++;render();}});
+document.getElementById('btnSure')?.addEventListener('click',confirmSure);
+document.getElementById('btnNotSure')?.addEventListener('click',confirmNotSure);
 document.getElementById('confirmModal')?.addEventListener('click',e=>{if(e.target.id==='confirmModal')hideConfirm();});
-const searchInput=document.getElementById('searchName');
-const clearBtn=document.getElementById('clearSearch');
-searchInput?.addEventListener('input',e=>{searchQuery=e.target.value;if(clearBtn)clearBtn.style.display=searchQuery?'flex':'none';currentPage=1;render();});
-addUniversal(clearBtn,()=>{searchInput.value='';searchQuery='';clearBtn.style.display='none';currentPage=1;render();});
-const ADMIN_PASSWORD="jack8189";
-try{db.collection("system").doc("global_logout").onSnapshot((snap)=>{if(!snap.exists) return; let lt=snap.data().logoutTime||0; let my=parseInt(localStorage.getItem('shija_login_time')||'0'); if(lt>my && my!==0){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}});}catch(e){}
-document.addEventListener('DOMContentLoaded',()=>{
-  const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');
-  adminBtn?.addEventListener('click',(e)=>{e.stopPropagation();adminDropdown.style.display=adminDropdown.style.display==='none'||adminDropdown.style.display===''?'block':'none';});
-  document.addEventListener('click',(e)=>{if(!e.target.closest('#adminMenuWrap'))adminDropdown.style.display='none';});
-  document.getElementById('btnLogout')?.addEventListener('click',()=>{if(confirm('Logout from this device?')){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}});
-  document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{adminDropdown.style.display='none';document.getElementById('logoutAllModal').style.display='flex';});
-  document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{document.getElementById('logoutAllModal').style.display='none';});
-  document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{if(e.target.id==='logoutAllModal')e.currentTarget.style.display='none';});
-  document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{let pass=document.getElementById('adminPassInput').value.trim();if(pass!==ADMIN_PASSWORD){document.getElementById('passError').style.display='block';return;}document.getElementById('passError').style.display='none';let btn=document.getElementById('confirmLogoutAll');btn.innerText='...';btn.disabled=true;try{await db.collection("system").doc("global_logout").set({logoutTime:Date.now(),timestamp:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});alert('All devices logged out!');localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}catch(err){alert(err.message);btn.innerText='Logout All';btn.disabled=false;}});
-});
-window.addEventListener('load',()=>{setTimeout(()=>{updateToggleBtn();loadData();},300);});
-window.addEventListener('resize',()=>{render();});
+document.getElementById('searchName')?.addEventListener('input',e=>{searchQuery=e.target.value;currentPage=1;render();});
+window.addEventListener('load',()=>setTimeout(loadData,300));
 </script>
 </body>
 </html>
