@@ -102,8 +102,6 @@ tr:hover{background:#f8fafc!important}
 .detailCard.full{grid-column:1/-1}
 .detailCard span{display:block;font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
 .detailCard b{display:block;font-size:14px;font-weight:800;color:#0f172a;word-break:break-word}
-
-/* === MOBILE ONLY FIX === */
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
 @media(max-width:900px){
@@ -124,8 +122,6 @@ tr:hover{background:#f8fafc!important}
 @media(max-width:400px){
   .patientGrid{grid-template-columns:1fr}
 }
-
-/* === HOVER HIGHLIGHT + POP-UP - ADDED === */
 .controls{transition:all .25s ease}
 .controls:hover{box-shadow:0 10px 24px rgba(15,23,42,0.08);transform:translateY(-1px);border-color:#2563eb}
 .pCard{transition:all .28s ease}
@@ -187,7 +183,6 @@ try{ onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{ if(!snap.exists(
 </div>
 <div class="sFoot">System Online • SHIJA</div>
 </div>
-
 <div class="mainWrap">
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA Dialysis</div>
 <div style="display:flex;align-items:center;gap:8px">
@@ -205,7 +200,7 @@ try{ onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{ if(!snap.exists(
 <div class="pageHead"><div><h1>Patient Details</h1><p id="info">Search any patient by Name, SHRI ID, PMJAY/CMHT ID</p></div></div>
 <div class="controls">
 <div class="searchWrap">
-<input id="search" name="shija_sp_q_9271" type="search" autocomplete="new-password" data-lpignore="true" spellcheck="false" placeholder="Search patient - Name / SHRI ID..." oninput="onSearch()" autofocus>
+<input id="search" name="shija_sp_q_9271_xyz" type="search" autocomplete="off" data-lpignore="true" data-form-type="other" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')" placeholder="Search patient - Name / SHRI ID..." autofocus>
 <div class="searchIcon" onclick="onSearch()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><line x1="16" y1="16" x2="21" y2="21"/></svg></div>
 </div>
 <div class="viewToggle"><button class="vBtn active" id="gridBtn" onclick="setView('grid')">⊞</button><button class="vBtn" id="tableBtn" onclick="setView('table')">☰</button></div>
@@ -215,18 +210,14 @@ try{ onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{ if(!snap.exists(
 <button class="sBtn cmht" id="cmhtBtn" onclick="setScheme('CMHT')">CMHT</button>
 </div>
 </div>
-
 <div class="bgLogo"><img src="loko.png" alt="SHRI Watermark"></div>
-
 <div id="emptyState" style="position:relative;z-index:10;text-align:center;padding:60px 20px;color:#64748b">
 <div style="font-size:48px;margin-bottom:12px"></div>
 <div style="font-weight:800;color:#0f172a;font-size:16px">Search to see patient details</div>
 <div style="font-size:13px;margin-top:6px">Type Name, SHRI ID, PMJAY ID or CMHT ID above</div>
 </div>
-
 <div class="patientGrid hidden" id="patientGrid"></div>
 <div class="tableWrap hidden" id="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div></div>
-
 <div id="detailView" class="detailView hidden">
 <div class="detailHead">
 <h2>Patient Information</h2>
@@ -249,11 +240,9 @@ try{ onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{ if(!snap.exists(
 <div class="detailCard full"><span>ADDRESS</span><b id="dAddr">-</b></div>
 </div>
 </div>
-
 </div>
 <div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0;position:relative;z-index:10">SHIJA Dialysis Management</div>
 </div>
-
 <div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
   <div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
     <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
@@ -266,7 +255,6 @@ try{ onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{ if(!snap.exists(
     </div>
   </div>
 </div>
-
 <script>
 function toggleWhiteBar(){
   if(window.innerWidth<=900){
@@ -290,9 +278,10 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none'; });
   document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
   document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
-  function killAdmin(){ let s=document.getElementById('search'); if(s && s.value.toLowerCase().includes('admin')){ s.value=''; onSearch(); } }
+  let el=document.getElementById('search');
+  function killAdmin(){ if(el && el.value.toLowerCase().includes('admin')){ el.value=''; onSearch(); } }
   setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);
-  let el=document.getElementById('search'); if(el){ el.addEventListener('focus',killAdmin); el.addEventListener('input',killAdmin); }
+  if(el){ el.addEventListener('focus',killAdmin); }
   let iv=0; let timer=setInterval(()=>{ killAdmin(); iv++; if(iv>50) clearInterval(timer); },100);
 });
 let currentView='grid';
@@ -316,7 +305,6 @@ function setScheme(s){
 window.setView=setView;
 window.setScheme=setScheme;
 </script>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -421,12 +409,18 @@ window.renderAll=()=>{
 
 async function init(){
  let deletedLocal=getDeleted(); let editedLocal=getEdited(); let map={};
- function addToMap(raw, scheme, overwrite){
+ function addToMap(raw, scheme, overwrite, isFirestore=false){
    let rawShri=String(raw.shri||raw.shriId||'').trim(); 
    let rawId=String(raw.id||raw.key||'').trim(); 
    let key=rawShri||rawId||String(raw.name||'').trim(); 
    if(!key) return;
-   let isDel = scheme==='PMJAY' ? (deletedLocal.includes(key) || deletedLocal.includes(rawId) || deletedLocal.includes(rawShri) || raw.deleted===true) : false;
+   // FIX: Firestore is source of truth - don't block new patients that exist in Firestore
+   let isDel = false;
+   if(!isFirestore){
+     isDel = scheme==='PMJAY' ? (deletedLocal.includes(key) || deletedLocal.includes(rawId) || deletedLocal.includes(rawShri) || raw.deleted===true) : (raw.deleted===true);
+   } else {
+     isDel = raw.deleted===true;
+   }
    if(isDel) return;
    let edited = scheme==='PMJAY' ? (editedLocal[key]||editedLocal[rawId]||editedLocal[rawShri]) : null;
    let obj={ key:key, id:rawId||key, name:String((edited&&edited.name)||raw.patientName||raw.name||'').trim(), shri:String((edited&&edited.shri)||rawShri||'').trim(), pmjay:String((edited&&edited.pmjay)||raw.pmjay||raw.pmjayId||raw.cmht||raw.cmhtId||'').trim(), contact:String((edited&&edited.contact)||raw.contact||raw.contactNo||'').trim(), aadhaar:String(raw.aadhaar||raw.aadhaarNo||'').trim(), addr:String((edited&&edited.addr)||raw.addr||raw.address||'').trim(), age:String(raw.age||'').trim(), gender:String(raw.gender||raw.sex||'').trim(), scheme:scheme, deleted:false };
@@ -434,10 +428,10 @@ async function init(){
    if(overwrite || !map[key]) map[key]=obj;
    else if(scheme==='CMHT' && map[key].scheme==='PMJAY'){ map[key+'_cmht']=obj; }
  }
- (typeof patientData!=='undefined'?patientData:[]).forEach(pd=>addToMap(pd,'PMJAY',false));
- Object.values(editedLocal).forEach(v=>addToMap(v,'PMJAY',true));
- try{ const snapPatients = await getDocs(collection(db,"patients")); snapPatients.forEach(d=>{ let data=d.data(); if(data.deleted===true) return; addToMap({key:d.id,id:d.id,...data},'PMJAY',true); }); }catch(e){}
- try{ const snapCmht = await getDocs(collection(db,"cmht_patients")); snapCmht.forEach(d=>{ let data=d.data(); addToMap({key:d.id,id:d.id,...data},'CMHT',true); }); }catch(e){}
+ (typeof patientData!=='undefined'?patientData:[]).forEach(pd=>addToMap(pd,'PMJAY',false,false));
+ Object.values(editedLocal).forEach(v=>addToMap(v,'PMJAY',true,false));
+ try{ const snapPatients = await getDocs(collection(db,"patients")); snapPatients.forEach(d=>{ let data=d.data(); if(data.deleted===true) return; addToMap({key:d.id,id:d.id,...data},'PMJAY',true,true); }); }catch(e){}
+ try{ const snapCmht = await getDocs(collection(db,"cmht_patients")); snapCmht.forEach(d=>{ let data=d.data(); if(data.deleted===true) return; addToMap({key:d.id,id:d.id,...data},'CMHT',true,true); }); }catch(e){}
  allPatients=Object.values(map);
  allPatients.sort((a,b)=>a.name.localeCompare(b.name));
  document.getElementById('info').textContent=allPatients.length+' patients loaded (PMJAY + CMHT) - Type to search';
