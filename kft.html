@@ -75,13 +75,10 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;position:rel
 .pageBtns button{padding:8px 12px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:800;cursor:pointer}
 .pageBtns button:disabled{opacity:.4;cursor:not-allowed}
 .pageBtns button.active{background:#0a1931;color:#fff;border-color:#0a1931}
-
-/* WATERMARK - TABLE behind button, GRID FRONT */
 .tableWrap .tableWatermark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;max-width:70%;z-index:1!important;pointer-events:none!important;opacity:0.28}
 .tableWrap .tableWatermark img{width:100%;height:auto;display:block}
 .gridWrap .tableWatermark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:460px;max-width:78%;z-index:10!important;pointer-events:none!important;opacity:0.38}
 .gridWrap .tableWatermark img{width:100%;height:auto;display:block}
-
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
 @media(max-width:900px){
@@ -378,7 +375,7 @@ function renderTable(){
   let p=pageItems[i];
   let shriKey=p.shriId||p.patientName;
   let cur=firebaseStatusMap[shriKey] || firebaseStatusMap[p.shriId] || false;
-  let badge=cur?`<span class="badgeRecv" onclick="toggleStatus('${(p.shriId||'').replace(/'/g,"\\'")}','${(p.patientName||'').replace(/'/g,"\\'")}')">RECEIVED ✓</span>`:`<span class="badgeNot" onclick="toggleStatus('${(p.shriId||'').replace(/'/g,"\\'")}','${(p.patientName||'').replace(/'/g,"\\'")}')">NOT-RECEIVED ✗</span>`;
+  let badge=cur?`<span class="badgeRecv" onclick="event.stopPropagation();toggleStatus('${(p.shriId||'').replace(/'/g,"\\'")}','${(p.patientName||'').replace(/'/g,"\\'")}')">RECEIVED ✓</span>`:`<span class="badgeNot" onclick="event.stopPropagation();toggleStatus('${(p.shriId||'').replace(/'/g,"\\'")}','${(p.patientName||'').replace(/'/g,"\\'")}')">NOT-RECEIVED ✗</span>`;
   html+=`<tr><td><div class="sl">${startIndex+i+1}</div></td><td><b>${p.patientName}</b></td><td><span class="shri">${p.shriId||''}</span></td><td>${p.contactNo||'-'}</td><td>${badge}</td><td>${dateKey}</td></tr>`;
   let iconColor=cur?'#10b981':'#ef4444'; let bgColor=cur?'#dcfce7':'#fee2e2';
   gridHtml+=`<div class="gridCard" onclick="toggleStatus('${(p.shriId||'').replace(/'/g,"\\'")}','${(p.patientName||'').replace(/'/g,"\\'")}')"><div class="iconOnly" style="background:${bgColor}"><svg viewBox="0 0 24 24" style="stroke:${iconColor}"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><b>${p.patientName||'No Name'}</b><span class="shriSmall">${p.shriId||''}</span><div>${badge}</div></div>`;
