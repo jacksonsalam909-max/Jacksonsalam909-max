@@ -10,16 +10,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#e9eef6;display:flex;min-height:100vh;overflow-x:hidden}
-/* === LOKO.PNG ABOVE CARDS === */
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:url('loko.png') center 45% / 520px no-repeat;
-  opacity:0.28;
-  pointer-events:none;
-  z-index:10;
-}
+
 .whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:91;overflow:hidden;transition:transform .32s ease,width .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
 .mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:transparent;width:calc(100% - 270px);position:relative;z-index:1}
@@ -37,12 +28,16 @@ body::before{
 .sMenu a.active .mi{background:#fff}.sMenu a.active .mi svg{stroke:#2563eb}
 .ml{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whiteBar.folded .ml{display:none!important}.whiteBar.folded .sMenu a{justify-content:center;padding:11px 0}
 .sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;white-space:nowrap;overflow:hidden}.whiteBar.folded .sFoot{display:none}
-.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
+.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:30}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
 .menuBtnTop{width:44px;height:40px;background:#fff;border:0;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;z-index:100}
 .menuBtnTop span{display:block;width:18px;height:2.5px;background:#0f172a;border-radius:2px}
 .content{flex:1;padding:12px;background:transparent;display:flex;flex-direction:column;gap:10px;max-width:100%;position:relative;z-index:2}
-.topFilters{background:rgba(255,255,255,0.95);border-radius:12px;padding:12px;border:1px solid #e2e8f0;display:flex;flex-direction:column;gap:10px;position:relative;z-index:3}
+
+/* TOP FILTERS ALWAYS ABOVE LOGO */
+.topFilters{background:rgba(255,255,255,0.98);backdrop-filter:blur(8px);border-radius:12px;padding:12px;border:1px solid #e2e8f0;display:flex;flex-direction:column;gap:10px;position:relative;z-index:20;transition:all .25s ease}
+.topFilters:hover{box-shadow:0 10px 24px rgba(15,23,42,0.08);transform:translateY(-1px);border-color:#22c55e}
+
 .searchRow{display:flex;gap:8px;align-items:center}.searchInputWrap{flex:1;position:relative;display:flex;align-items:center}
 .searchInput{width:100%;height:42px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 16px;border-radius:10px;font-weight:600;font-size:14px;color:#0f172a;outline:none}
 .clearSearch{position:absolute;right:6px;width:28px;height:28px;border-radius:50%;border:0;background:#dde4f0;display:none;align-items:center;justify-content:center}
@@ -59,20 +54,58 @@ body::before{
 .dateBox2 select{border:0;width:100%;font-weight:700;font-size:13px;outline:none;background:transparent;color:#0f172a;height:40px}
 .hint{font-size:11px;color:#94a3b8;font-weight:500;margin-top:-4px}
 .chipsWrap{display:flex;gap:6px;overflow-x:auto;align-items:center;padding:2px 0;flex:1}.chipsWrap::-webkit-scrollbar{display:none}
-.chip{height:34px;padding:0 14px;border-radius:100px;border:1.5px solid #d0d9ea;background:#f4f7fd;font-weight:800;font-size:12px;white-space:nowrap;color:#4a5f85;flex-shrink:0;cursor:pointer}
+.chip{height:34px;padding:0 14px;border-radius:100px;border:1.5px solid #d0d9ea;background:#f4f7fd;font-weight:800;font-size:12px;white-space:nowrap;color:#4a5f85;flex-shrink:0;cursor:pointer;transition:all .22s ease}
 .chip.on{background:#0f172a;color:#fff;border-color:#0f172a}
-.viewIconSingle{width:36px;height:36px;min-width:36px;border-radius:100px;border:1.5px solid #0f172a;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.chip:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,0.10);border-color:#22c55e}
+.viewIconSingle{width:36px;height:36px;min-width:36px;border-radius:100px;border:1.5px solid #0f172a;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .22s ease}
 .viewIconSingle svg{width:16px;height:16px;stroke:#0f172a;stroke-width:2;fill:none}
 .searchMeta{padding:0 2px;font-size:10px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between;align-items:center}
-.scroll{flex:1;display:flex;flex-direction:column;position:relative;z-index:2}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;position:relative;z-index:2}
-.card{width:100%;height:178px;min-height:178px;background:rgba(255,255,255,0.92);border-radius:14px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;box-shadow:0 4px 12px rgba(15,23,42,0.06);border:1px solid #e2e8f0;overflow:hidden;position:relative;z-index:2}
+.scroll{flex:1;display:flex;flex-direction:column;position:relative;z-index:2}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;position:relative;z-index:2}
+
+/* === LOKO.PNG - ONLY OVER CARDS, NOT FILTERS === */
+#centerLogo{
+  position:absolute;
+  left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:520px; max-width:80%;
+  z-index:10;
+  pointer-events:auto;
+  opacity:0.28;
+  transition:all .35s cubic-bezier(0.34,1.56,0.64,1);
+  cursor:pointer;
+}
+#centerLogo img{width:100%;height:auto;display:block;pointer-events:none}
+#centerLogo .logoTip{
+  position:absolute; left:50%; bottom:-36px;
+  transform:translateX(-50%) translateY(10px);
+  background:#0f172a; color:#fff;
+  padding:6px 14px; border-radius:100px;
+  font-size:11px; font-weight:800;
+  opacity:0; pointer-events:none;
+  transition:all .3s ease; white-space:nowrap;
+}
+#centerLogo:hover{
+  opacity:0.92;
+  transform:translate(-50%,-50%) scale(1.1);
+  filter:drop-shadow(0 18px 40px rgba(0,0,0,0.35)) drop-shadow(0 0 20px rgba(34,197,94,0.4));
+}
+#centerLogo:hover .logoTip{opacity:1; transform:translateX(-50%) translateY(0)}
+#centerLogo:active{transform:translate(-50%,-50%) scale(0.96)}
+
+/* CARD HOVER HIGHLIGHT + POP-UP */
+.card{width:100%;height:178px;min-height:178px;background:rgba(255,255,255,0.92);border-radius:14px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;box-shadow:0 4px 12px rgba(15,23,42,0.06);border:1px solid #e2e8f0;overflow:hidden;position:relative;z-index:2;transition:all .28s cubic-bezier(0.34,1.56,0.64,1)}
+.card:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 18px 36px rgba(0,0,0,0.18)!important;border-color:#22c55e!important;background:rgba(255,255,255,0.98)!important;z-index:4}
+.card:hover .avatarSq{transform:scale(1.15) rotate(4deg)}
+.card:hover .name{color:#22c55e!important}
 .cardTop{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;flex:1}
-.avatarSq{width:42px;height:42px;min-width:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:18px}
+.avatarSq{width:42px;height:42px;min-width:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:18px;transition:all .28s ease}
 .info{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.card .name{font-size:12px;font-weight:900;line-height:1.2;color:#0f172a;text-transform:uppercase;text-align:center;min-height:28px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+.card .name{font-size:12px;font-weight:900;line-height:1.2;color:#0f172a;text-transform:uppercase;text-align:center;min-height:28px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word;transition:all .22s ease}
 .card .sub{font-size:10px;font-weight:700;color:#6f84a8;text-align:center;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
 .actions{width:100%;margin-top:6px;display:flex;gap:6px}
-.btnAct{flex:1;height:32px;min-height:32px;border-radius:8px;font-weight:800;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border:0;transition:.2s}
+.btnAct{flex:1;height:32px;min-height:32px;border-radius:8px;font-weight:800;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border:0;transition:all .22s ease}
+.btnAct:hover{transform:translateY(-1px) scale(1.04);box-shadow:0 6px 14px rgba(0,0,0,0.18)}
 .btnRed{background:#ef4444;color:#fff}.btnYellow{background:#facc15!important;color:#0f172a!important;border:1.5px solid #eab308}.btnGreen{background:#22c55e!important;color:#fff!important}
 .grid.listView{display:flex!important;flex-direction:column!important;gap:8px}.grid.listView .card{height:80px;min-height:80px;flex-direction:row;padding:8px 12px;border-radius:12px;text-align:left}
 .grid.listView .card .cardTop{flex-direction:row;gap:10px;text-align:left}.grid.listView .card .info{align-items:flex-start;text-align:left}
@@ -84,13 +117,14 @@ body::before{
 .confirmTitle{font-size:15px;font-weight:900;color:#0f172a;margin-bottom:6px}.confirmSub{font-size:12px;font-weight:600;color:#6f84a8;margin-bottom:16px}
 .confirmBtns{display:flex;gap:8px}.btnNoSure{flex:1;height:40px;border-radius:10px;border:1.5px solid #d0d9ea;background:#f4f7fd;color:#4a5f85;font-weight:800;font-size:12px}.btnSure{flex:1;height:40px;border-radius:10px;border:0;background:#0f172a;color:#fff;font-weight:800;font-size:12px}
 .toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:100px;font-size:12px;font-weight:800;z-index:10001;display:none}.toast.show{display:block}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;color:#8aa0c5;cursor:pointer}.tab .ic{width:24px;height:24px;border-radius:8px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:13px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;color:#8aa0c5;cursor:pointer;transition:all .22s ease}.tab .ic{width:24px;height:24px;border-radius:8px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .22s ease}
 .tab.active{color:#0f172a}.tab.active .ic{background:#0f172a;color:#fff}
+.tab:hover{transform:translateY(-2px)}.tab:hover .ic{transform:scale(1.1)}
 #overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:90;display:none}#overlay.show{display:block}
 @media(max-width:900px){
 .whiteBar{transform:translateX(-100%)!important}.whiteBar.mOpen{transform:translateX(0)!important}.whiteBar.folded{transform:translateX(-100%)!important;width:270px!important;min-width:270px!important}
 .mainWrap{margin-left:0!important;width:100%!important}.bottomBar{left:0!important}.content{padding:10px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.dateBox2{flex:1 1 48%!important;min-width:0!important}
-body::before{background-size:380px!important}
+#centerLogo{width:360px!important}
 }
 </style>
 </head>
@@ -143,7 +177,15 @@ body::before{background-size:380px!important}
 <div style="display:flex;gap:8px;align-items:center"><div class="chipsWrap"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div><button id="toggleViewBtn" class="viewIconSingle"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button></div>
 <div class="searchMeta"><span id="searchInfo"></span><span id="doneMeta">OPD + PHOTO</span></div>
 </div>
-<div class="scroll" id="scroll"><div class="grid" id="grid"></div><div class="pagesBottom"></div></div>
+<div class="scroll" id="scroll" style="position:relative;min-height:500px">
+  <!-- LOGO ONLY OVER CARDS, NOT FILTERS -->
+  <div id="centerLogo">
+    <img src="loko.png" alt="SHIJA Logo">
+    <div class="logoTip">SHIJA • Estd 1985 • Humane Technology</div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="pagesBottom"></div>
+</div>
 </div>
 <div class="bottomBar"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
 </div>
@@ -213,6 +255,10 @@ try{db.collection("system").doc("global_logout").onSnapshot((snap)=>{if(!snap.ex
 document.addEventListener('DOMContentLoaded',()=>{if(searchInput) searchInput.value='';searchQuery='';setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);let iv=0; let timer=setInterval(()=>{killAdmin();iv++;if(iv>30) clearInterval(timer);},200);const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');adminBtn?.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});document.addEventListener('click',(e)=>{if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none';});document.getElementById('btnLogout')?.addEventListener('click',()=>{if(confirm('Logout from this device?')){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}});document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{adminDropdown.style.display='none';document.getElementById('logoutAllModal').style.display='flex';document.getElementById('adminPassInput').value='';document.getElementById('passError').style.display='none';});document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{document.getElementById('logoutAllModal').style.display='none';});document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none';});document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{let pass=document.getElementById('adminPassInput').value.trim();if(pass!==ADMIN_PASSWORD){document.getElementById('passError').style.display='block';return;}document.getElementById('passError').style.display='none';let btn=document.getElementById('confirmLogoutAll');btn.innerText='...';btn.disabled=true;try{await db.collection("system").doc("global_logout").set({logoutTime:Date.now(),timestamp:firebase.firestore.FieldValue.serverTimestamp(),triggeredBy:'admin'},{merge:true});alert('All devices logged out!');localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}catch(err){alert(err.message);btn.innerText='Logout All';btn.disabled=false;}});});
 window.addEventListener('load',()=>{setTimeout(()=>{updateToggleBtn();loadData();},300);});
 window.addEventListener('resize',()=>{render();});
+document.getElementById('centerLogo')?.addEventListener('click',function(){
+  this.style.opacity='0'; this.style.pointerEvents='none';
+  setTimeout(()=>{this.style.opacity='0.28'; this.style.pointerEvents='auto';},3000);
+});
 </script>
 </body>
 </html>
