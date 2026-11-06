@@ -62,7 +62,7 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;position:rel
 .badgeNot{background:#fee2e2;color:#991b1b;border-radius:20px;font-weight:800;font-size:11px;cursor:pointer;border:1px solid #fecaca;display:inline-flex!important;align-items:center;justify-content:center;white-space:nowrap!important;min-width:128px;height:30px;padding:0 14px;gap:4px;line-height:1}
 #tbl td:nth-child(5){min-width:140px!important}
 #tbl td:nth-child(6){min-width:95px!important}
-.gridWrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:12px;position:relative;min-height:420px;background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px}
+.gridWrap{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,auto);gap:14px;margin-top:12px;position:relative;min-height:520px;background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px}
 .gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:.2s;text-align:center;position:relative;z-index:2}
 .gridCard:hover{border-color:#1a56db;box-shadow:0 4px 12px rgba(26,86,219,.15);transform:translateY(-2px)}
 .iconOnly{width:56px;height:56px;border-radius:14px;background:#dbeafe;display:grid;place-items:center}
@@ -77,7 +77,7 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;position:rel
 .pageBtns button.active{background:#0a1931;color:#fff;border-color:#0a1931}
 .tableWrap .tableWatermark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;max-width:70%;z-index:1!important;pointer-events:none!important;opacity:0.28}
 .tableWrap .tableWatermark img{width:100%;height:auto;display:block}
-.gridWrap .tableWatermark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:200px;max-width:40%;z-index:10!important;pointer-events:none!important;opacity:0.32}
+.gridWrap .tableWatermark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;max-width:70%;z-index:1!important;pointer-events:none!important;opacity:0.28}
 .gridWrap .tableWatermark img{width:100%;height:auto;display:block}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
@@ -91,7 +91,8 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;position:rel
   .content{padding:12px}
   .filterBox{padding:12px}
   .tableWrap .tableWatermark{width:300px}
-  .gridWrap .tableWatermark{width:180px;max-width:50%}
+  .gridWrap .tableWatermark{width:300px}
+  .gridWrap{grid-template-columns:repeat(2,1fr);grid-template-rows:auto}
   table{min-width:900px}
 }
 @media(max-width:700px){
@@ -99,7 +100,6 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;position:rel
   .viewIcons{margin-left:0;justify-content:flex-end;width:100%}
   .searchInput{max-width:100%}
   .gridWrap{grid-template-columns:repeat(2,1fr)}
-  .gridWrap .tableWatermark{width:160px}
 }
 .filterBox{transition:all .25s ease}
 .filterBox:hover{box-shadow:0 10px 24px rgba(15,23,42,0.08);transform:translateY(-1px);border-color:#cbd5e1}
@@ -203,7 +203,8 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
     <label style="font-size:12px;font-weight:800">Show:</label>
     <select id="pageSizeSel" onchange="changePageSize()">
-      <option value="10" selected>10</option>
+      <option value="12" selected>12 (4x3)</option>
+      <option value="10">10</option>
       <option value="20">20</option>
       <option value="30">30</option>
       <option value="40">40</option>
@@ -264,6 +265,10 @@ window.setView=(mode)=>{
  document.getElementById('btnGrid').classList.toggle('active', mode==='grid');
  document.getElementById('tableWrap').classList.toggle('hidden', mode==='grid');
  document.getElementById('gridWrap').classList.toggle('hidden', mode==='list');
+ if(mode==='grid'){
+   let sel=document.getElementById('pageSizeSel');
+   if(sel.value!=='12'){ sel.value='12'; pageSize=12; currentPage=1; }
+ }
  renderTable();
 };
 </script>
@@ -281,7 +286,7 @@ document.getElementById('monthSel').value=now.getMonth();
 let allPatients=[];
 let patients=[];
 let currentPage=1;
-let pageSize=10;
+let pageSize=12;
 let selDate='1';
 let firebaseStatusMap={};
 async function loadMasterPatients(){
