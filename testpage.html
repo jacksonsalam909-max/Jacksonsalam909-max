@@ -76,12 +76,13 @@ td.idCol{background:#f0f7ff;color:#1e40af;font-weight:900;font-size:13px;transit
 .fInputSm.scheme{background:#fef3c7;border:1.5px solid #f59e0b;min-width:85px}
 .clearBtn{height:36px;min-width:95px;background:#0f172a;color:#fff;font-weight:900;font-size:12px;padding:0 14px;border-radius:8px;border:0;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .addBtn{height:36px;min-width:115px;background:#7c3aed;color:#fff;font-weight:900;font-size:12px;padding:0 14px;border-radius:8px;border:0;cursor:pointer;white-space:nowrap;flex-shrink:0}
-/* EXACT DATE PILL LIKE IMAGE */
-.datePill{display:flex;align-items:center;background:#f8fafc;border:1.8px solid #cbd5e1;border-radius:14px;overflow:hidden;height:46px;min-width:240px;box-shadow:0 1px 2px rgba(0,0,0,0.05)}
-.dateArrow{width:56px;min-width:56px;height:100%;border:0;background:#f8fafc;font-size:20px;font-weight:900;color:#64748b;cursor:pointer;display:grid;place-items:center;transition:all .2s ease}
-.dateArrow:hover{background:#e2e8f0;color:#0f172a}
-.dateMiddle{flex:1;height:100%;border-left:1.8px solid #cbd5e1;border-right:1.8px solid #cbd5e1;display:grid;place-items:center;font-weight:900;font-size:17px;color:#334155;letter-spacing:0.3px;cursor:pointer;background:#fff;min-width:148px;user-select:none}
-.dateMiddle:hover{background:#f1f5f9}
+/* DATE SAME SIZE AS OTHERS - 36px */
+.datePill{display:flex;align-items:center;background:#fff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;height:36px;min-width:190px}
+.dateArrow{width:32px;min-width:32px;height:100%;border:0;background:#fff;font-size:12px;font-weight:900;color:#64748b;cursor:pointer;display:grid;place-items:center;transition:all .15s ease;border-right:1px solid #e2e8f0}
+.dateArrow:last-child{border-right:0;border-left:1px solid #e2e8f0}
+.dateArrow:hover{background:#0f172a;color:#fff}
+.dateMiddle{flex:1;height:100%;display:grid;place-items:center;font-weight:800;font-size:13px;color:#0f172a;cursor:pointer;background:#fff;min-width:110px;user-select:none}
+.dateMiddle:hover{background:#f8fafc}
 #fDate{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
 .gridWrap{display:none;grid-template-columns:repeat(3,1fr);grid-auto-rows:minmax(150px,auto);gap:14px;padding:8px;position:relative;z-index:2}
 .gridWrap.show{display:grid!important}
@@ -123,9 +124,6 @@ table tbody tr:hover .idCol{background:#bfdbfe!important;color:#1e3a8a!important
   .content{padding:12px}
   .filterBar{flex-wrap:wrap}
   #centerLogo{width:360px!important;opacity:0.10!important}
-  .datePill{min-width:200px;height:42px}
-  .dateArrow{width:46px;min-width:46px}
-  .dateMiddle{font-size:15px;min-width:120px}
 }
 @media(max-width:600px){
   .gridWrap{grid-template-columns:repeat(2,1fr);gap:10px}
@@ -182,10 +180,10 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div class="filterBar">
 <div class="fGroup"><label>DATE</label>
 <div class="datePill">
-  <button type="button" class="dateArrow" id="datePrev">❮</button>
+  <button type="button" class="dateArrow" id="datePrev">◀</button>
   <div class="dateMiddle" id="dateDisplay">06-11-2026</div>
   <input type="date" id="fDate">
-  <button type="button" class="dateArrow" id="dateNext">❯</button>
+  <button type="button" class="dateArrow" id="dateNext">▶</button>
 </div>
 </div>
 <div class="fGroup"><label>SCHEME</label><select id="fType" class="fInputSm scheme"><option value="PMJAY" selected>PMJAY</option><option value="CMHT">CMHT</option></select></div>
@@ -196,9 +194,7 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div class="fGroup"><label style="opacity:0">.</label><button class="addBtn" onclick="openAddPatientPage()">+ ADD PATIENT</button></div>
 </div>
 <div class="searchRow">
-<form autocomplete="off" onsubmit="return false" style="display:flex;flex:1;min-width:0">
-<input type="text" id="searchName" placeholder="SEARCH NAME / SHRI / PMJAY ID..." autocomplete="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')" oninput="applyFilter()">
-</form>
+<input type="text" id="searchName" placeholder="SEARCH NAME / SHRI / PMJAY ID..." autocomplete="off" spellcheck="false" oninput="applyFilter()">
 <div class="viewToggle"><button class="viewBtn" id="btnListView" onclick="switchView('list')">☰</button><button class="viewBtn active" id="btnGridView" onclick="switchView('grid')">⊞</button></div>
 </div>
 </div>
@@ -212,68 +208,27 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div id="bottomStats" style="text-align:center;padding:14px;font-size:13px;font-weight:800;color:#0f172a;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:center;gap:14px;flex-wrap:wrap">Total: 0 | Filtered: 0 | Time: ALL | Block: ALL</div>
 </div>
 <div id="editModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9999"><div style="background:#fff;border-radius:12px;padding:16px;width:90%;max-width:420px"><div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="font-weight:900;font-size:14px" id="editTitle">EDIT</span><button class="btn btnDark" onclick="closeModal()">X</button></div><div style="display:flex;flex-direction:column;gap:10px"><input id="editName" class="input" placeholder="PATIENT NAME"><input id="editShri" class="input" placeholder="SHRI ID"><input id="editId" class="input" placeholder="PMJAY/CMHT ID"><input id="editTime" class="input" placeholder="TIME"><input id="editBlock" class="input" placeholder="BLOCK"><input id="editPrev" class="input" placeholder="PREV"><button class="btn" style="background:#10b981;color:#fff;padding:14px;font-size:14px;min-height:44px" onclick="saveEdit()">SAVE</button></div></div></div>
-<div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
-  <div style="background:#fff;width:90%;max-width:360px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
-    <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
-    <div style="font-size:12px;color:#64748b;margin-bottom:12px">Enter admin password</div>
-    <input type="password" id="adminPassInput" placeholder="Password" autocomplete="new-password" style="width:100%;height:42px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:10px;outline:none">
-    <div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div>
-    <div style="display:flex;gap:10px">
-      <button id="cancelLogoutAll" style="flex:1;height:40px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:13px;cursor:pointer">Cancel</button>
-      <button id="confirmLogoutAll" style="flex:1;height:40px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:13px;cursor:pointer">Logout All</button>
-    </div>
-  </div>
-</div>
+<div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)"><div style="background:#fff;width:90%;max-width:360px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0"><div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div><div style="font-size:12px;color:#64748b;margin-bottom:12px">Enter admin password</div><input type="password" id="adminPassInput" placeholder="Password" autocomplete="new-password" style="width:100%;height:42px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:10px;outline:none"><div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div><div style="display:flex;gap:10px"><button id="cancelLogoutAll" style="flex:1;height:40px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:13px;cursor:pointer">Cancel</button><button id="confirmLogoutAll" style="flex:1;height:40px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:13px;cursor:pointer">Logout All</button></div></div></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, getDocs, collection, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(firebaseConfig,"listMain_"+Math.random());const db=getFirestore(app);window._fb={db,doc,setDoc,getDoc,getDocs,collection,serverTimestamp};
 const app2=initializeApp(firebaseConfig,"logout_"+Math.random());const db2=getFirestore(app2);window._fb2={db:db2,doc,setDoc};
-try{
-  onSnapshot(doc(db2,"system","global_logout"),(snap)=>{
-    if(!snap.exists()) return;
-    let lt=snap.data().logoutTime||0;
-    let my=parseInt(localStorage.getItem('shija_login_time')||'0');
-    if(lt>my && my!==0){
-      localStorage.removeItem('shija_logged');
-      localStorage.removeItem('shija_login_time');
-      location.href='login.html';
-    }
-  });
-}catch(e){}
+try{onSnapshot(doc(db2,"system","global_logout"),(snap)=>{if(!snap.exists())return;let lt=snap.data().logoutTime||0;let my=parseInt(localStorage.getItem('shija_login_time')||'0');if(lt>my&&my!==0){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}});}catch(e){}
 </script>
 <script>
 let allPatients=[],filteredPatients=[],currentPage=1,pageSize=12,editIndex=-1,currentView='grid',masterMap={};
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function formatDisplay(iso){if(!iso) return ''; let parts=iso.split('-'); if(parts.length!==3) return iso; return `${parts[2]}-${parts[1]}-${parts[0]}`;}
-function openDatePicker(){let inp=document.getElementById('fDate'); if(inp.showPicker) inp.showPicker(); else inp.click();}
-function updateDateDisplay(){let iso=document.getElementById('fDate').value; document.getElementById('dateDisplay').innerText=formatDisplay(iso);}
-function shiftDate(days){
-  let input=document.getElementById('fDate');
-  let d=input.value?new Date(input.value):new Date();
-  if(isNaN(d)) d=new Date();
-  d.setDate(d.getDate()+days);
-  let newDate=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  input.value=newDate;
-  updateDateDisplay();
-  onDateChange();
-}
+function formatDisplay(iso){if(!iso)return'';let p=iso.split('-');if(p.length!==3)return iso;return `${p[2]}-${p[1]}-${p[0]}`;}
+function openDatePicker(){let i=document.getElementById('fDate');if(i.showPicker)i.showPicker();else i.click();}
+function updateDateDisplay(){document.getElementById('dateDisplay').innerText=formatDisplay(document.getElementById('fDate').value);}
+function shiftDate(d){let input=document.getElementById('fDate');let dt=input.value?new Date(input.value):new Date();if(isNaN(dt))dt=new Date();dt.setDate(dt.getDate()+d);let nd=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;input.value=nd;updateDateDisplay();onDateChange();}
 let urlParams=new URLSearchParams(window.location.search);
-if(urlParams.get('date')&&urlParams.get('force')==='1'){document.getElementById('fDate').value=urlParams.get('date');}else{document.getElementById('fDate').value=getTodayIST();}
-if(urlParams.get('scheme')){document.getElementById('fType').value=urlParams.get('scheme');}
-function toggleWhiteBar(){
-  if(window.innerWidth<=900){
-    document.getElementById('whiteBar').classList.toggle('mOpen');
-    document.getElementById('mobOverlay').classList.toggle('show');
-  }else{
-    document.getElementById('whiteBar').classList.toggle('folded');
-  }
-}
-function closeMob(){
-  document.getElementById('whiteBar').classList.remove('mOpen');
-  document.getElementById('mobOverlay').classList.remove('show');
-}
+document.getElementById('fDate').value=urlParams.get('date')&&urlParams.get('force')==='1'?urlParams.get('date'):getTodayIST();
+if(urlParams.get('scheme'))document.getElementById('fType').value=urlParams.get('scheme');
+function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{document.getElementById('whiteBar').classList.toggle('folded');}}
+function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
 document.addEventListener('DOMContentLoaded',function(){
  document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
  document.getElementById('datePrev').addEventListener('click',()=>shiftDate(-1));
@@ -282,36 +237,20 @@ document.addEventListener('DOMContentLoaded',function(){
  updateDateDisplay();
  let scheme=urlParams.get('scheme')||document.getElementById('fType').value;
  document.querySelectorAll('.sMenu a').forEach(a=>a.classList.remove('active'));
- if(scheme==='CMHT'){ let el=document.getElementById('cmhtLink'); if(el) el.classList.add('active'); } else { let el=document.getElementById('pmjayLink'); if(el) el.classList.add('active'); }
+ if(scheme==='CMHT'){let el=document.getElementById('cmhtLink');if(el)el.classList.add('active');}else{let el=document.getElementById('pmjayLink');if(el)el.classList.add('active');}
  switchView('grid');
-  const adminBtn=document.getElementById('adminBtn');
-  const adminDropdown=document.getElementById('adminDropdown');
-  adminBtn?.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
-  document.addEventListener('click',(e)=>{ if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none'; });
-  document.getElementById('btnLogout')?.addEventListener('click',()=>{ if(confirm('Logout from this device?')){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; } });
-  document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none'; });
-  document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
-  document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
+  const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');
+  adminBtn?.addEventListener('click',(e)=>{e.stopPropagation();adminDropdown.style.display=adminDropdown.style.display==='none'||adminDropdown.style.display===''?'block':'none';});
+  document.addEventListener('click',(e)=>{if(!e.target.closest('#adminMenuWrap'))adminDropdown.style.display='none';});
+  document.getElementById('btnLogout')?.addEventListener('click',()=>{if(confirm('Logout from this device?')){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}});
+  document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{adminDropdown.style.display='none';document.getElementById('logoutAllModal').style.display='flex';document.getElementById('adminPassInput').value='';document.getElementById('passError').style.display='none';});
+  document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{document.getElementById('logoutAllModal').style.display='none';});
+  document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{if(e.target.id==='logoutAllModal')e.currentTarget.style.display='none';});
 });
 function openAddPatientPage(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;location.href=`addlist.html?date=${date}&scheme=${scheme}&force=1`;}
-function switchView(view){
- currentView=view;
- document.getElementById('btnListView').classList.toggle('active', view==='list');
- document.getElementById('btnGridView').classList.toggle('active', view==='grid');
- let sheet=document.getElementById('sheetWrap');
- let grid=document.getElementById('gridWrap');
- if(view==='grid'){ sheet.classList.add('hide'); grid.classList.add('show'); }
- else{ sheet.classList.remove('hide'); grid.classList.remove('show'); }
- renderPagination();
-}
-function clearFiltersDirect(){
- document.getElementById('filterTime').value='';
- document.getElementById('filterBlock').value='';
- let s=document.getElementById('searchName');
- if(s) s.value='';
- applyFilter();
-}
-function updateStatusVisibility(){let scheme=document.getElementById('fType').value;document.getElementById('thStatus').classList.toggle('hidden', scheme!=='PMJAY');}
+function switchView(view){currentView=view;document.getElementById('btnListView').classList.toggle('active',view==='list');document.getElementById('btnGridView').classList.toggle('active',view==='grid');let sheet=document.getElementById('sheetWrap');let grid=document.getElementById('gridWrap');if(view==='grid'){sheet.classList.add('hide');grid.classList.add('show');}else{sheet.classList.remove('hide');grid.classList.remove('show');}renderPagination();}
+function clearFiltersDirect(){document.getElementById('filterTime').value='';document.getElementById('filterBlock').value='';let s=document.getElementById('searchName');if(s)s.value='';applyFilter();}
+function updateStatusVisibility(){let scheme=document.getElementById('fType').value;document.getElementById('thStatus').classList.toggle('hidden',scheme!=='PMJAY');}
 async function buildMasterMap(){masterMap={};try{let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patients'));snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let pmjay=String(p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={shri:shri,pmjayId:pmjay,pmjayName:name,cmhtId:'',cmhtName:''};});}catch(e){}try{let snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,'cmht_patients'));snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let cmht=String(p.cmhtId||p.cmht||p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={shri:shri,pmjayId:'',pmjayName:'',cmhtId:'',cmhtName:''};masterMap[shri].cmhtId=cmht;masterMap[shri].cmhtName=name;});}catch(e){}return masterMap;}
 function enrichPatient(p){let shriKey=String(p.shri||'').trim().toUpperCase();if(!shriKey)return p;let m=masterMap[shriKey];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;if(m.pmjayId)p.pmjayCmhtId=m.pmjayId;}else if(scheme==='CMHT'){if(m.cmhtName)p.name=m.cmhtName;if(m.cmhtId)p.pmjayCmhtId=m.cmhtId;else if(m.pmjayId)p.pmjayCmhtId=m.pmjayId;}if(!p.patientStatus){p.patientStatus='ENHANCEMENT';}return p;}
 function setStatus(t,m){let el=document.getElementById('status');el.className='status '+t;el.innerText=m;}
@@ -319,73 +258,11 @@ async function autoSaveToFirebase(){let date=document.getElementById('fDate').va
 async function onDateChange(){updateDateDisplay();let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;let docId=date+'_'+scheme;updateStatusVisibility();setStatus('saving','LOADING...');try{let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));let patients=snap.exists()?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let enriched=enrichPatient({...p,sl:i+1});enriched.sl=i+1;if(!enriched.patientStatus)enriched.patientStatus='ENHANCEMENT';return enriched;});if(scheme==='PMJAY'){patients=patients.filter(p=>(p.patientStatus||'ENHANCEMENT')!=='DISCHARGE');}allPatients=patients;filteredPatients=[...allPatients];currentPage=1;if(patients.length===0){setStatus('blank','BLANK');}else{setStatus('saved',`${patients.length} PATIENTS`);}applyFilter();}catch(e){setStatus('saved','ERROR');}}
 async function onSchemeChange(){allPatients=[];filteredPatients=[];currentPage=1;await onDateChange();}
 function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim().replace(/\s+/g,' ').replace(/\./g,'');let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let hour=parseInt(m[1]);let min=m[2]?m[2].padStart(2,'0'):'00';let ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}if(ap){return`${hour}:${min} ${ap}`;}return`${hour}:${min}`;}
-function applyFilter(){
- let searchInput=document.getElementById('searchName');
- let search=(searchInput?searchInput.value:'').toLowerCase().trim();
- if(search.includes('admin')){ search=''; if(searchInput) searchInput.value=''; }
- let timeFilter=document.getElementById('filterTime').value;
- let timeFilterNorm=normalizeTime(timeFilter);
- let blockFilter=document.getElementById('filterBlock').value;
- filteredPatients=allPatients.filter(p=>{
-   if(search){
-     let name=String(p.name||'').toLowerCase();
-     let shri=String(p.shri||'').toLowerCase();
-     let pid=String(p.pmjayCmhtId||'').toLowerCase();
-     if(!name.includes(search) && !shri.includes(search) && !pid.includes(search)) return false;
-   }
-   if(timeFilter){
-     let pTimeNorm=normalizeTime(p.time);
-     if(pTimeNorm!==timeFilterNorm) return false;
-   }
-   if(blockFilter && p.block!==blockFilter) return false;
-   return true;
- });
- currentPage=1;
- renderPagination();
- updateBottomStats();
-}
-function updateBottomStats(){
- let timeF=document.getElementById('filterTime').value||'ALL';
- let blockF=document.getElementById('filterBlock').value||'ALL';
- document.getElementById('bottomStats').innerText=`Total: ${allPatients.length} | Filtered: ${filteredPatients.length} | Time: ${timeF} | Block: ${blockF} | Scheme: ${document.getElementById('fType').value}`;
- document.getElementById('filterNoMid').innerText=`Filtered: ${filteredPatients.length}`;
-}
+function applyFilter(){let search=(document.getElementById('searchName')?document.getElementById('searchName').value:'').toLowerCase().trim();if(search.includes('admin')){search='';document.getElementById('searchName').value='';}let timeFilter=document.getElementById('filterTime').value;let timeFilterNorm=normalizeTime(timeFilter);let blockFilter=document.getElementById('filterBlock').value;filteredPatients=allPatients.filter(p=>{if(search){let name=String(p.name||'').toLowerCase();let shri=String(p.shri||'').toLowerCase();let pid=String(p.pmjayCmhtId||'').toLowerCase();if(!name.includes(search)&&!shri.includes(search)&&!pid.includes(search))return false;}if(timeFilter){let pTimeNorm=normalizeTime(p.time);if(pTimeNorm!==timeFilterNorm)return false;}if(blockFilter&&p.block!==blockFilter)return false;return true;});currentPage=1;renderPagination();updateBottomStats();}
+function updateBottomStats(){let timeF=document.getElementById('filterTime').value||'ALL';let blockF=document.getElementById('filterBlock').value||'ALL';document.getElementById('bottomStats').innerText=`Total: ${allPatients.length} | Filtered: ${filteredPatients.length} | Time: ${timeF} | Block: ${blockF} | Scheme: ${document.getElementById('fType').value}`;document.getElementById('filterNoMid').innerText=`Filtered: ${filteredPatients.length}`;}
 function renderPagination(){pageSize=parseInt(document.getElementById('rowsPerPage').value)||12;let totalPages=Math.max(1,Math.ceil(filteredPatients.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;let pag=document.getElementById('pagination');pag.innerHTML='';for(let i=1;i<=totalPages;i++){let b=document.createElement('button');b.className='pageBtn'+(i===currentPage?' active':'');b.innerText=i;b.onclick=()=>{currentPage=i;renderTable();renderGrid();renderPagination();};pag.appendChild(b);}renderTable();renderGrid();}
-function renderTable(){
-  let tbody=document.getElementById('tbody');tbody.innerHTML='';
-  let start=(currentPage-1)*pageSize;let end=start+pageSize;
-  let pagePatients=filteredPatients.slice(start,end);
-  let scheme=document.getElementById('fType').value;
-  let isPMJAY=scheme==='PMJAY';
-  pagePatients.forEach((p,idx)=>{
-    let globalIdx=allPatients.indexOf(p);
-    let status=p.patientStatus||'ENHANCEMENT';
-    let tr=document.createElement('tr');
-    tr.title = `${p.name||''} | SHRI:${p.shri||''} | ${p.time||''} ${p.block||''}`;
-    let statusCell=isPMJAY?`<td class="status-col"><select class="filterSelect" onchange="handleStatusChange(${globalIdx}, this.value)"><option value="ENHANCEMENT" ${status==='ENHANCEMENT'?'selected':''}>ENHANCEMENT</option><option value="DISCHARGE" ${status==='DISCHARGE'?'selected':''}>DISCHARGE</option></select></td>`:`<td class="status-col hidden"></td>`;
-    tr.innerHTML=`<td class="slCol">${p.sl||start+idx+1}</td><td class="nameCol"><div class="nameInner">${p.name||''}</div></td><td class="idCol">${p.pmjayCmhtId||''}</td><td>${p.shri||''}</td>${statusCell}<td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td><td><div style="display:flex;gap:6px;justify-content:center"><button class="btnEdit" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">DELETE</button></div></td>`;
-    tbody.appendChild(tr);
-  });
-  if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="9" style="padding:16px;text-align:center;font-size:14px">NO PATIENTS</td>`;tbody.appendChild(tr);}
-  document.getElementById('pageInfo').innerText=`${formatDisplay(document.getElementById('fDate').value)} | ${document.getElementById('fType').value} | P${currentPage}/${Math.max(1,Math.ceil(filteredPatients.length/pageSize))}`;
-}
-function renderGrid(){
-  let grid=document.getElementById('gridWrap');grid.innerHTML='';
-  let start=(currentPage-1)*pageSize;let end=start+pageSize;
-  let pagePatients=filteredPatients.slice(start,end);
-  let scheme=document.getElementById('fType').value;
-  let isPMJAY=scheme==='PMJAY';
-  pagePatients.forEach((p,idx)=>{
-    let globalIdx=allPatients.indexOf(p);
-    let status=p.patientStatus||'ENHANCEMENT';
-    let div=document.createElement('div');div.className='pCard';
-    div.setAttribute('data-popup', `SHRI: ${p.shri||''} • ${p.time||''} • ${p.block||''} • ${p.pmjayCmhtId||''}`);
-    let statusDropdown=isPMJAY?`<select class="gridStatus" onchange="handleStatusChange(${globalIdx}, this.value)"><option value="ENHANCEMENT" ${status==='ENHANCEMENT'?'selected':''}>ENHANCEMENT</option><option value="DISCHARGE" ${status==='DISCHARGE'?'selected':''}>DISCHARGE</option></select>`:`<select class="gridStatus" style="visibility:hidden"><option></option></select>`;
-    div.innerHTML=`<div class="pCardTop"><span class="pCardSL">#${p.sl||start+idx+1}</span>${statusDropdown}</div><div class="pCardName">${p.name||'NO NAME'}</div><div class="pCardSub">${p.pmjayCmhtId||'NO ID'} | SHRI: ${p.shri||''}</div><div class="pCardInfo"><span>${p.time||''}</span><span>${p.block||''}</span></div><div class="pCardActions"><button class="btnEdit" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">DELETE</button></div>`;
-    grid.appendChild(div);
-  });
-  if(pagePatients.length===0){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0;font-size:14px;font-weight:700">No patients</div>';}
-}
+function renderTable(){let tbody=document.getElementById('tbody');tbody.innerHTML='';let start=(currentPage-1)*pageSize;let end=start+pageSize;let pagePatients=filteredPatients.slice(start,end);let scheme=document.getElementById('fType').value;let isPMJAY=scheme==='PMJAY';pagePatients.forEach((p,idx)=>{let globalIdx=allPatients.indexOf(p);let status=p.patientStatus||'ENHANCEMENT';let tr=document.createElement('tr');tr.title=`${p.name||''} | SHRI:${p.shri||''} | ${p.time||''} ${p.block||''}`;let statusCell=isPMJAY?`<td class="status-col"><select class="filterSelect" onchange="handleStatusChange(${globalIdx}, this.value)"><option value="ENHANCEMENT" ${status==='ENHANCEMENT'?'selected':''}>ENHANCEMENT</option><option value="DISCHARGE" ${status==='DISCHARGE'?'selected':''}>DISCHARGE</option></select></td>`:`<td class="status-col hidden"></td>`;tr.innerHTML=`<td class="slCol">${p.sl||start+idx+1}</td><td class="nameCol"><div class="nameInner">${p.name||''}</div></td><td class="idCol">${p.pmjayCmhtId||''}</td><td>${p.shri||''}</td>${statusCell}<td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td><td><div style="display:flex;gap:6px;justify-content:center"><button class="btnEdit" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">DELETE</button></div></td>`;tbody.appendChild(tr);});if(pagePatients.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="9" style="padding:16px;text-align:center;font-size:14px">NO PATIENTS</td>`;tbody.appendChild(tr);}document.getElementById('pageInfo').innerText=`${formatDisplay(document.getElementById('fDate').value)} | ${document.getElementById('fType').value} | P${currentPage}/${Math.max(1,Math.ceil(filteredPatients.length/pageSize))}`;}
+function renderGrid(){let grid=document.getElementById('gridWrap');grid.innerHTML='';let start=(currentPage-1)*pageSize;let end=start+pageSize;let pagePatients=filteredPatients.slice(start,end);let scheme=document.getElementById('fType').value;let isPMJAY=scheme==='PMJAY';pagePatients.forEach((p,idx)=>{let globalIdx=allPatients.indexOf(p);let status=p.patientStatus||'ENHANCEMENT';let div=document.createElement('div');div.className='pCard';div.setAttribute('data-popup',`SHRI: ${p.shri||''} • ${p.time||''} • ${p.block||''}`);let statusDropdown=isPMJAY?`<select class="gridStatus" onchange="handleStatusChange(${globalIdx}, this.value)"><option value="ENHANCEMENT" ${status==='ENHANCEMENT'?'selected':''}>ENHANCEMENT</option><option value="DISCHARGE" ${status==='DISCHARGE'?'selected':''}>DISCHARGE</option></select>`:`<select class="gridStatus" style="visibility:hidden"><option></option></select>`;div.innerHTML=`<div class="pCardTop"><span class="pCardSL">#${p.sl||start+idx+1}</span>${statusDropdown}</div><div class="pCardName">${p.name||'NO NAME'}</div><div class="pCardSub">${p.pmjayCmhtId||'NO ID'} | SHRI: ${p.shri||''}</div><div class="pCardInfo"><span>${p.time||''}</span><span>${p.block||''}</span></div><div class="pCardActions"><button class="btnEdit" onclick="openEdit(${globalIdx})">EDIT</button><button class="btnDelete" onclick="deleteRow(${globalIdx})">DELETE</button></div>`;grid.appendChild(div);});if(pagePatients.length===0){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0;font-size:14px;font-weight:700">No patients</div>';}}
 function changePage(d){let totalPages=Math.max(1,Math.ceil(filteredPatients.length/pageSize));currentPage+=d;if(currentPage<1)currentPage=1;if(currentPage>totalPages)currentPage=totalPages;renderPagination();}
 function openEdit(globalIdx){editIndex=globalIdx;let p=allPatients[globalIdx];if(!p)return;document.getElementById('editTitle').innerText=`EDIT: ${p.name}`;document.getElementById('editName').value=p.name||'';document.getElementById('editShri').value=p.shri||'';document.getElementById('editId').value=p.pmjayCmhtId||'';document.getElementById('editTime').value=p.time||'';document.getElementById('editBlock').value=p.block||'';document.getElementById('editPrev').value=p.prev||'';document.getElementById('editModal').style.display='flex';}
 function saveEdit(){if(editIndex<0)return;allPatients[editIndex].name=document.getElementById('editName').value.toUpperCase();allPatients[editIndex].shri=document.getElementById('editShri').value.toUpperCase();allPatients[editIndex].pmjayCmhtId=document.getElementById('editId').value.toUpperCase();allPatients[editIndex].time=document.getElementById('editTime').value.toUpperCase();allPatients[editIndex].block=document.getElementById('editBlock').value.toUpperCase();allPatients[editIndex].prev=document.getElementById('editPrev').value;allPatients[editIndex]=enrichPatient(allPatients[editIndex]);closeModal();applyFilter();autoSaveToFirebase();}
@@ -399,18 +276,8 @@ document.getElementById('filterTime').addEventListener('change', applyFilter);
 document.getElementById('filterBlock').addEventListener('change', applyFilter);
 window.addEventListener('load', async ()=>{updateDateDisplay();await buildMasterMap();updateStatusVisibility();setTimeout(onDateChange,200);});
 const ADMIN_PASSWORD="jack8189";
-document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
-  let pass=document.getElementById('adminPassInput').value.trim();
-  if(pass!==ADMIN_PASSWORD){ document.getElementById('passError').style.display='block'; return; }
-  document.getElementById('passError').style.display='none';
-  let btn=document.getElementById('confirmLogoutAll'); btn.innerText='...'; btn.disabled=true;
-  try{
-    await window._fb.setDoc(window._fb.doc(window._fb.db,'system','global_logout'),{ logoutTime: Date.now(), timestamp: window._fb.serverTimestamp(), triggeredBy:'admin' },{merge:true});
-    alert('All devices logged out!');
-    localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html';
-  }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
-});
-document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{ if(e.key==='Enter') document.getElementById('confirmLogoutAll').click(); });
+document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{let pass=document.getElementById('adminPassInput').value.trim();if(pass!==ADMIN_PASSWORD){document.getElementById('passError').style.display='block';return;}document.getElementById('passError').style.display='none';let btn=document.getElementById('confirmLogoutAll');btn.innerText='...';btn.disabled=true;try{await window._fb.setDoc(window._fb.doc(window._fb.db,'system','global_logout'),{ logoutTime: Date.now(), timestamp: window._fb.serverTimestamp(), triggeredBy:'admin' },{merge:true});alert('All devices logged out!');localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}catch(err){alert(err.message);btn.innerText='Logout All';btn.disabled=false;}});
+document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{if(e.key==='Enter')document.getElementById('confirmLogoutAll').click();});
 </script>
 </body>
 </html>
