@@ -92,6 +92,7 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;position:rel
 #mobOverlay.show{display:block}
 #fbStatus{display:none!important}
 #syncInfo{display:none!important}
+#countInfo{display:none!important}
 @media(max-width:900px){
   .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
   .whiteBar.mOpen{transform:translateX(0)}
@@ -161,7 +162,7 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 </div>
 </div>
 <div class="content" id="content">
-<h1 style="font-size:20px;font-weight:900;color:#0f172a">KFT Report - Auto Save</h1><p id="info" style="color:#64748b;font-size:13px;margin:4px 0 0;font-weight:600">Dashboard / KFT - 1st and 15th - Auto Sync</p>
+<h1 style="font-size:20px;font-weight:900;color:#0f172a">KFT Report - Auto Save</h1><p id="info" style="color:#64748b;font-size:13px;margin:4px 0 0;font-weight:600">Dashboard / KFT</p>
 <div class="filterBox">
 <div class="filterRow1">
 <label style="font-size:12px;font-weight:800">Year:</label><select id="yearSel" onchange="loadFromFirebase()"></select>
@@ -170,7 +171,6 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 </select>
 <label style="font-size:12px;font-weight:800">Date:</label><select id="daySel" onchange="setDate(this.value)"><option value="1">1st</option><option value="15">15th</option></select>
 <button class="btnExp" onclick="exportExcel()">Export Excel</button>
-<span id="countInfo" style="font-weight:700;color:#475569;font-size:12px;margin-left:8px"></span>
 </div>
 <div class="filterRow2">
 <input id="searchAdded" name="shija_kft_q_9271" type="search" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="searchInput" placeholder="Search Patient (Name / SHRI)" oninput="resetPageAndLoad()">
@@ -268,7 +268,7 @@ async function loadMasterPatients(){
   try{
     const snap = await getDocs(collection(db,"patients"));
     let fbPatients=[];snap.forEach(d=>{let p=d.data();if(p.deleted) return;fbPatients.push({patientName:p.patientName||p.name||'',shriId:p.shriId||p.shri||'',pmjayId:p.pmjayId||p.PMJAY||'',contactNo:p.contactNo||p.contact||'',address:p.address||''});});
-    fbPatients.sort((a,b)=>(a.patientName||'').localeCompare(b.patientName||''));patients=fbPatients;document.getElementById('info').textContent=`Dashboard / KFT - ${fbPatients.length} Patients Loaded`;loadFromFirebase();
+    fbPatients.sort((a,b)=>(a.patientName||'').localeCompare(b.patientName||''));patients=fbPatients;loadFromFirebase();
   }catch(e){ console.error(e); }
 }
 function getFiltered(){let searchQ=document.getElementById('searchAdded').value.toLowerCase().trim();if(!searchQ) return patients;return patients.filter(p=> (p.patientName||'').toLowerCase().includes(searchQ)|| (p.shriId||'').toLowerCase().includes(searchQ));}
@@ -294,10 +294,10 @@ window.loadFromFirebase=async()=>{
  }catch(e){ firebaseStatusMap={}; renderTable(); }
 };
 function renderTable(){
- let y=document.getElementById('yearSel').value,m=document.getElementById('monthSel').value;
- let months=["January","February","March","April","May","June","July","August","September","October","November","December"];
  let filtered=getFiltered();let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;
- let pageItems=filtered.slice((currentPage-1)*pageSize,currentPage*pageSize);let startIndex=(currentPage-1)*pageSize;let dateKey=`${y}-${String(parseInt(m)+1).padStart(2,'0')}-${selDate}`;
+ let pageItems=filtered.slice((currentPage-1)*pageSize,currentPage*pageSize);let startIndex=(currentPage-1)*pageSize;
+ let y=document.getElementById('yearSel').value,m=document.getElementById('monthSel').value;
+ let dateKey=`${y}-${String(parseInt(m)+1).padStart(2,'0')}-${selDate}`;
  let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Contact</th><th>KFT Status</th><th>Date</th></tr>';
  let gridHtml='<div class="tableWatermark"><img src="loko.png" alt="SHIJA Logo"></div>';
  for(let i=0;i<pageItems.length;i++){
@@ -310,7 +310,6 @@ function renderTable(){
  if(filtered.length===0) html+=`<tr><td colspan="6" style="text-align:center;padding:20px">No patient found</td></tr>`;
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('gridWrap').innerHTML=gridHtml;
- document.getElementById('countInfo').textContent=filtered.length+' / '+patients.length+' patients';
  renderPageBtns(filtered.length, totalPages);
 }
 window.renderTable=renderTable;
