@@ -50,7 +50,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .vBtn.active{background:#0f172a;color:#fff;box-shadow:0 2px 8px #0002}
 .pSelect{padding:10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700;background:#fff}
 .addBtn{padding:10px 16px;background:#8b5cf6;color:#fff;border-radius:10px;text-decoration:none;font-weight:800;font-size:13px;box-shadow:0 4px 12px #8b5cf640}
-.patientGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;position:relative;min-height:400px}
+.patientGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:relative;z-index:2}
 .pCard{border-radius:14px;padding:0;overflow:hidden;background:#fff;border:1px solid #e2e8f0;box-shadow:0 2px 10px #00000006;transition:.22s;position:relative;z-index:2}
 .pCard:hover{transform:translateY(-3px);box-shadow:0 10px 20px #00000010}
 .pCardTop{height:52px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;color:#fff;position:relative}
@@ -86,7 +86,8 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-ali
 .hidden{display:none!important}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
-/* === LOKO WATERMARK IN FRONT - ADDED === */
+/* === LOKO WATERMARK IN FRONT - GRID + TABLE FIXED === */
+.tableWrapGrid{position:relative;min-height:420px;margin-top:16px}
 .tableWatermark{
   position:absolute;
   left:50%;
@@ -181,7 +182,7 @@ try{
 <a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
 <a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT REPORT</span></a>
 <a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT</span></a>
-<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span><span class="ml">BILL</span></a>
+<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12"/><path d="M15 9a3 3 0 0 0-3-3H10a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H9a3 3 0 0 1-3-3"/></svg></span><span class="ml">BILL</span></a>
 <a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
 </div>
 </div>
@@ -213,12 +214,18 @@ try{
 <select id="pageSize" class="pSelect" onchange="changePageSize()"><option value="12" selected>12 / page</option><option value="24">24 / page</option><option value="48">48 / page</option></select>
 </div>
 
-<div class="patientGrid hidden" id="patientGrid"></div>
-<div class="pagerGrid hidden" id="pagerGrid"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtnGrid" onclick="prevPage()">←</button><button class="pBtn" id="nextBtnGrid" onclick="nextPage()">→</button></div><div id="pageInfoGrid" style="font-weight:700;font-size:12px"></div><div id="pageNumsGrid" style="display:flex;gap:6px"></div></div>
+<!-- GRID FIXED WITH WATERMARK -->
+<div class="tableWrapGrid" id="tableWrapGrid">
+  <div class="tableWatermark"><img src="loko.png" alt="SHIJA Logo"></div>
+  <div class="patientGrid hidden" id="patientGrid"></div>
+  <div class="pagerGrid hidden" id="pagerGrid"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtnGrid" onclick="prevPage()">←</button><button class="pBtn" id="nextBtnGrid" onclick="nextPage()">→</button></div><div id="pageInfoGrid" style="font-weight:700;font-size:12px"></div><div id="pageNumsGrid" style="display:flex;gap:6px"></div></div>
+</div>
 
 <div class="tableWrap" id="tableWrap">
-<div class="tableWatermark"><img src="loko.png" alt="SHIJA Logo"></div>
-<div style="overflow-x:auto;position:relative;z-index:2"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">←</button><button class="pBtn" id="nextBtn" onclick="nextPage()">→</button></div><div id="pageInfo" style="font-weight:700;font-size:12px"></div><div id="pageNums" style="display:flex;gap:6px"></div></div></div>
+  <div class="tableWatermark"><img src="loko.png" alt="SHIJA Logo"></div>
+  <div style="overflow-x:auto;position:relative;z-index:2"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">←</button><button class="pBtn" id="nextBtn" onclick="nextPage()">→</button></div><div id="pageInfo" style="font-weight:700;font-size:12px"></div><div id="pageNums" style="display:flex;gap:6px"></div></div>
+</div>
+
 </div>
 <div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis • CMHT Management</div>
 </div>
@@ -271,8 +278,7 @@ window.setView=(v)=>{
  currentView=v;
  document.getElementById('gridBtn').classList.toggle('active',v==='grid');
  document.getElementById('tableBtn').classList.toggle('active',v==='table');
- document.getElementById('patientGrid').classList.toggle('hidden',v!=='grid');
- document.getElementById('pagerGrid').classList.toggle('hidden',v!=='grid');
+ document.getElementById('tableWrapGrid').classList.toggle('hidden',v!=='grid');
  document.getElementById('tableWrap').classList.toggle('hidden',v!=='table');
  renderAll();
 };
@@ -309,7 +315,7 @@ window.renderAll=()=>{
      </div>
    </div>`;
  });
- if(data.length===0) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">No CMHT patients</div>';
+ if(data.length===0) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0;position:relative;z-index:2">No CMHT patients</div>';
  document.getElementById('patientGrid').innerHTML=gridHtml;
  let html='<tr><th>SL No</th><th>Patient Name</th><th>CMHT ID</th><th>SHRI ID</th><th>Contact</th><th>Aadhaar Number</th><th>Address</th><th>Action</th></tr>';
  data.forEach((p,i)=>{
