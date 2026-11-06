@@ -81,6 +81,9 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;position:rel
 .gridWrap .tableWatermark img{width:100%;height:auto;display:block}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
+/* HIDE GREEN WORDS */
+#fbStatus{display:none!important}
+#syncInfo{display:none!important}
 @media(max-width:900px){
   .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
   .whiteBar.mOpen{transform:translateX(0)}
@@ -159,7 +162,6 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 <div class="mainWrap">
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> KFT REPORT <div class="badgeBlue">PMJAY KFT</div></div>
 <div style="display:flex;align-items:center;gap:8px">
-<span style="color:#10b981;font-weight:700;font-size:12px" id="fbStatus">Firebase Connected</span>
   <div id="adminMenuWrap" style="position:relative">
     <button id="adminBtn" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
     <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
@@ -180,7 +182,6 @@ try{ onSnapshot(doc(dbGuard,"system","global_logout"),(snap)=>{ if(!snap.exists(
 <label style="font-size:12px;font-weight:800">Date:</label><select id="daySel" onchange="setDate(this.value)"><option value="1">1st</option><option value="15">15th</option></select>
 <button class="btnExp" onclick="exportExcel()">Export Excel</button>
 <span id="countInfo" style="font-weight:700;color:#475569;font-size:12px;margin-left:8px"></span>
-<span id="syncInfo" style="font-weight:700;color:#10b981;font-size:11px;margin-left:auto">Auto Sync ON</span>
 </div>
 <div class="filterRow2">
 <input id="searchAdded" name="shija_kft_q_9271" type="search" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="searchInput" placeholder="Search Patient (Name / SHRI)" oninput="resetPageAndLoad()">
@@ -277,7 +278,6 @@ window.fb = { collection, getDocs, query, where, serverTimestamp, setDoc, doc };
 let yearSel=document.getElementById('yearSel'),now=new Date();
 for(let y=now.getFullYear()-2;y<=now.getFullYear()+1;y++){let o=document.createElement('option');o.value=y;o.textContent=y;if(y===now.getFullYear())o.selected=true;yearSel.appendChild(o);}
 document.getElementById('monthSel').value=now.getMonth();
-document.getElementById('fbStatus').innerText = "Firebase Connected - Auto Sync";
 let allPatients=[];
 let patients=[];
 let currentPage=1;
@@ -326,7 +326,7 @@ function getFiltered(){
 function renderPageBtns(total, totalPages){
   let wrap=document.getElementById('pageBtns');
   let info=document.getElementById('pageInfo');
-  if(pageSize==='all' || totalPages<=1){ wrap.innerHTML=''; info.textContent = total>0 ? `Showing 1 - ${total} of ${total} patients` : ''; return; }
+  if(totalPages<=1){ wrap.innerHTML=''; info.textContent = total>0 ? `Showing 1 - ${total} of ${total} patients` : ''; return; }
   let start=(currentPage-1)*pageSize+1; let end=Math.min(currentPage*pageSize, total);
   info.textContent=`Showing ${start} - ${end} of ${total} patients | Page ${currentPage} of ${totalPages}`;
   let html=`<button onclick="goToPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹ Prev</button>`;
@@ -334,14 +334,12 @@ function renderPageBtns(total, totalPages){
   for(let i=s;i<=e;i++){ html+=`<button onclick="goToPage(${i})" class="${i===currentPage?'active':''}">${i}</button>`; }
   html+=`<button onclick="goToPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next ›</button>`; wrap.innerHTML=html;
 }
-window.goToPage=(p)=>{ let filtered=getFiltered(); let totalPages = pageSize==='all' ? 1 : Math.max(1, Math.ceil(filtered.length/pageSize)); if(p<1) p=1; if(p>totalPages) p=totalPages; currentPage=p; renderTable(); };
-window.changePageSize=()=>{ let v=document.getElementById('pageSizeSel').value; pageSize = v==='all' ? 'all' : parseInt(v); currentPage=1; renderTable(); };
+window.goToPage=(p)=>{ let filtered=getFiltered(); let totalPages = Math.max(1, Math.ceil(filtered.length/pageSize)); if(p<1) p=1; if(p>totalPages) p=totalPages; currentPage=p; renderTable(); };
+window.changePageSize=()=>{ let v=document.getElementById('pageSizeSel').value; pageSize = parseInt(v); currentPage=1; renderTable(); };
 window.resetPageAndLoad=()=>{ let el=document.getElementById('searchAdded'); if(el && el.value.toLowerCase().includes('admin')){ el.value=''; } currentPage=1; renderTable(); };
 window.setDate=(d)=>{ selDate=d; loadFromFirebase(); };
 window.loadFromFirebase=async()=>{
  let y=document.getElementById('yearSel').value,m=document.getElementById('monthSel').value;
- document.getElementById('fbStatus').textContent=`Loading ${y}-${m}-${selDate}...`;
- document.getElementById('syncInfo').textContent='Loading...';
  try{
   let q=query(collection(db,"kft_reports"), where("year","==",String(y)), where("month","==",String(m)), where("day","==",String(selDate)));
   let snap=await getDocs(q);
@@ -352,10 +350,8 @@ window.loadFromFirebase=async()=>{
     firebaseStatusMap[key]=data.statusBool? true : false;
     if(data.shriId) firebaseStatusMap[data.shriId]=data.statusBool;
   });
-  document.getElementById('fbStatus').textContent=`Firebase: ${Object.keys(firebaseStatusMap).length} statuses for ${y}-${m}-${selDate}`;
-  document.getElementById('syncInfo').textContent=`${snap.size} saved - Auto Save ON`;
   currentPage=1; renderTable();
- }catch(e){ document.getElementById('fbStatus').textContent='Error: '+e.message; firebaseStatusMap={}; renderTable(); }
+ }catch(e){ firebaseStatusMap={}; renderTable(); }
 };
 function renderTable(){
  let y=document.getElementById('yearSel').value,m=document.getElementById('monthSel').value;
@@ -363,10 +359,10 @@ function renderTable(){
  let searchQ=document.getElementById('searchAdded').value.toLowerCase().trim();
  document.getElementById('info').textContent=`KFT Report - ${months[m]} ${selDate}, ${y} - Click status to toggle${searchQ?' | Search: "'+searchQ+'"':''}`;
  let filtered=getFiltered();
- let totalPages = pageSize==='all' ? 1 : Math.max(1, Math.ceil(filtered.length/pageSize));
+ let totalPages = Math.max(1, Math.ceil(filtered.length/pageSize));
  if(currentPage>totalPages) currentPage=totalPages;
- let pageItems = pageSize==='all' ? filtered : filtered.slice((currentPage-1)*pageSize, currentPage*pageSize);
- let startIndex = pageSize==='all' ? 0 : (currentPage-1)*pageSize;
+ let pageItems = filtered.slice((currentPage-1)*pageSize, currentPage*pageSize);
+ let startIndex = (currentPage-1)*pageSize;
  let dateKey=`${y}-${String(parseInt(m)+1).padStart(2,'0')}-${selDate}`;
  let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Contact</th><th>KFT Status</th><th>Date</th></tr>';
  let gridHtml='<div class="tableWatermark"><img src="loko.png" alt="SHIJA Logo"></div>';
@@ -393,7 +389,6 @@ window.toggleStatus=async(shri, pname)=>{
  let newVal=!cur;
  firebaseStatusMap[shri]=newVal;
  renderTable();
- document.getElementById('fbStatus').textContent=`Saving ${shri}...`;
  try{
   const docId = `${y}_${m}_${selDate}_${shri}`.replace(/[^a-zA-Z0-9_]/g,'_');
   await setDoc(doc(db, "kft_reports", docId), {
@@ -401,9 +396,7 @@ window.toggleStatus=async(shri, pname)=>{
     status: newVal? "Submitted" : "Not-yet", statusBool: newVal,
     createdAt: serverTimestamp(), localTime: new Date().toLocaleString()
   });
-  document.getElementById('fbStatus').innerText = `Saved ${shri}`;
-  document.getElementById('syncInfo').innerText = `${shri} Saved`;
- }catch(e){ document.getElementById('fbStatus').innerText = "Error: "+e.message; }
+ }catch(e){}
 };
 window.exportExcel=()=>{
   let y=document.getElementById('yearSel').value,m=document.getElementById('monthSel').value;
