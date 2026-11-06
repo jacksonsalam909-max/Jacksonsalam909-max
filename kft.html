@@ -53,13 +53,15 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .btnViewIcon.active svg{stroke:#fff}
 .btnViewIcon svg{width:16px;height:16px;stroke:#0f172a;stroke-width:2;fill:none}
 .tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden;margin-top:12px;position:relative;min-height:520px}
-table{width:100%;border-collapse:collapse;min-width:800px;position:relative;z-index:2}
-th{padding:14px 12px;font-size:12px;color:#64748b;background:#f8fafc;text-align:left;font-weight:800;text-transform:uppercase;position:relative;z-index:2}
-td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;position:relative;z-index:2}
+table{width:100%;border-collapse:collapse;min-width:900px;position:relative;z-index:2}
+th{padding:14px 12px;font-size:12px;color:#64748b;background:#f8fafc;text-align:left;font-weight:800;text-transform:uppercase;position:relative;z-index:2;white-space:nowrap}
+td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;position:relative;z-index:2;white-space:nowrap}
 .sl{background:#dbeafe;width:36px;height:28px;display:grid;place-items:center;border-radius:6px;font-weight:800;color:#1e40af}
-.shri{background:#1a56db;color:#fff;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px}
-.badgeRecv{background:#dcfce7;color:#166534;padding:5px 12px;border-radius:20px;font-weight:800;font-size:11px;cursor:pointer;border:1px solid #bbf7d0}
-.badgeNot{background:#fee2e2;color:#991b1b;padding:5px 12px;border-radius:20px;font-weight:800;font-size:11px;cursor:pointer;border:1px solid #fecaca}
+.shri{background:#1a56db;color:#fff;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;white-space:nowrap!important;display:inline-block}
+.badgeRecv{background:#dcfce7;color:#166534;border-radius:20px;font-weight:800;font-size:11px;cursor:pointer;border:1px solid #bbf7d0;display:inline-flex!important;align-items:center;justify-content:center;white-space:nowrap!important;min-width:128px;height:30px;padding:0 14px;gap:4px;line-height:1}
+.badgeNot{background:#fee2e2;color:#991b1b;border-radius:20px;font-weight:800;font-size:11px;cursor:pointer;border:1px solid #fecaca;display:inline-flex!important;align-items:center;justify-content:center;white-space:nowrap!important;min-width:128px;height:30px;padding:0 14px;gap:4px;line-height:1}
+#tbl td:nth-child(5){min-width:140px!important}
+#tbl td:nth-child(6){min-width:95px!important}
 .gridWrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:12px;position:relative;min-height:420px;background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px}
 .gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:.2s;text-align:center;position:relative;z-index:2}
 .gridCard:hover{border-color:#1a56db;box-shadow:0 4px 12px rgba(26,86,219,.15);transform:translateY(-2px)}
@@ -74,10 +76,10 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;position:rel
 .pageBtns button:disabled{opacity:.4;cursor:not-allowed}
 .pageBtns button.active{background:#0a1931;color:#fff;border-color:#0a1931}
 
-/* === WATERMARK FRONT === */
-.tableWatermark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;max-width:70%;z-index:10;pointer-events:none;opacity:0.38}
+/* WATERMARK FRONT - but behind buttons */
+.tableWatermark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;max-width:70%;z-index:1!important;pointer-events:none!important;opacity:0.28}
 .tableWatermark img{width:100%;height:auto;display:block}
-.gridWrap .tableWatermark{width:460px;max-width:75%;opacity:0.32;z-index:10}
+.gridWrap .tableWatermark{width:460px;max-width:75%;opacity:0.28;z-index:1!important}
 
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
@@ -90,6 +92,7 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;position:rel
   .filterBox{padding:12px}
   .tableWatermark{width:300px}
   .gridWrap .tableWatermark{width:340px}
+  table{min-width:900px}
 }
 @media(max-width:700px){
   .filterRow2{flex-direction:column;align-items:stretch}
@@ -98,7 +101,7 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;position:rel
   .gridWrap{grid-template-columns:repeat(2,1fr)}
 }
 
-/* === HOVER HIGHLIGHT + POP-UP === */
+/* HOVER HIGHLIGHT + POP-UP */
 .filterBox{transition:all .25s ease}
 .filterBox:hover{box-shadow:0 10px 24px rgba(15,23,42,0.08);transform:translateY(-1px);border-color:#cbd5e1}
 .tableWrap{transition:all .25s ease}
@@ -447,7 +450,6 @@ document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
   document.getElementById('passError').style.display='none';
   let btn=document.getElementById('confirmLogoutAll'); btn.innerText='...'; btn.disabled=true;
   try{
-    const { serverTimestamp: st } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
     await setDoc(doc(adminDb,"system","global_logout"),{ logoutTime: Date.now(), timestamp: serverTimestamp(), triggeredBy:'admin' },{merge:true});
     alert('All devices logged out!');
     localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html';
