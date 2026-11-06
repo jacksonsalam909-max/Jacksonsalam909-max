@@ -44,7 +44,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .pageHead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:18px}
 .pageHead h1{font-size:26px;font-weight:900;color:#0f172a}
 .pageHead p{color:#64748b;font-size:13px;font-weight:600;margin-top:4px}
-.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#fff;border:1.5px solid #e2e8f0;padding:12px;border-radius:16px;box-shadow:0 4px 12px #00000006}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#fff;border:1.5px solid #e2e8f0;padding:12px;border-radius:16px;box-shadow:0 4px 12px #00000006;position:relative;z-index:2}
 .controls input{flex:1;min-width:180px;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;font-size:13px;outline:0;background:#f8fafc}
 .controls input:focus{border-color:#2563eb;background:#fff}
 .viewToggle{display:flex;background:#f1f5f9;border-radius:10px;padding:3px;border:1px solid #e2e8f0}
@@ -88,9 +88,20 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-ali
 .addBtn:hover{background:#1d4ed8}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
-/* === LOKO WATERMARK - ADDED === */
-#centerLogo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:520px;max-width:80%;z-index:1;pointer-events:none;opacity:0.10}
-#centerLogo img{width:100%;height:auto;display:block}
+/* === WATERMARK LIKE YOUR SCREENSHOT === */
+#centerLogo{
+  position:absolute;
+  left:50%;
+  top:55%;
+  transform:translate(-50%,-50%);
+  width:480px;
+  max-width:65%;
+  z-index:1;
+  pointer-events:none;
+  opacity:0.14;
+}
+#centerLogo img{width:100%;height:auto;display:block;filter: grayscale(0%);}
+
 @media(max-width:900px){
   .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
   .whiteBar.mOpen{transform:translateX(0)}
@@ -98,7 +109,7 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-ali
   .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
   .content{padding:12px}
   .patientGrid{grid-template-columns:repeat(2,1fr)}
-  #centerLogo{width:360px!important;opacity:0.10!important}
+  #centerLogo{width:380px;max-width:80%;opacity:0.13}
 }
 @media(max-width:600px){
   .patientGrid{grid-template-columns:repeat(2,1fr);gap:8px}
@@ -171,7 +182,7 @@ window.renderAll=()=>{
  data.forEach((p,idx)=>{let realIdx=allPatients.indexOf(p);let grad=getGradient(start+idx);gridHtml+=`<div class="pCard"><div class="pCardTop ${grad}"><div class="pCardAvatar">${getInitial(p.name)}</div></div><div class="pCardBody"><div class="pCardNameRow"><div class="pCardName">${p.name||'Unknown'}</div><span class="pmjayBlue">${p.pmjay||'No PMJAY'}</span></div><div class="pCardRow"><span>SHRI ID</span><b>${p.shri||'-'}</b></div><div class="pCardRow"><span>Contact</span><b>${p.contact||'-'}</b></div><div style="margin-top:4px"><span class="shri">${p.shri||'No SHRI'}</span></div><div class="pCardActions"><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button><button class="btnDel" onclick="deletePatient(${realIdx})">Delete</button></div></div></div>`;});
  if(data.length===0) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">No patients</div>';
  document.getElementById('patientGrid').innerHTML=gridHtml;
- let html='<tr><th>SL No</th><th>Patient</th><th>PMJAY ID</th><th>SHRI ID</th><th>Contact</th><th>Address</th><th>Action</th></tr>';
+ let html='<tr><th>SL NO</th><th>PATIENT</th><th>PMJAY ID</th><th>SHRI ID</th><th>CONTACT</th><th>ADDRESS</th><th>ACTION</th></tr>';
  data.forEach((p)=>{let realIdx=allPatients.indexOf(p);html+=`<tr><td><div class="sl">${start+filtered.indexOf(p)+1}</div></td><td><b>${p.name}</b></td><td><span class="pmjayTable">${p.pmjay||'-'}</span></td><td><span class="shriTable">${p.shri||'No ID'}</span></td><td>${p.contact||'-'}</td><td>${(p.addr||'-').substring(0,24)}</td><td><div style="display:flex;gap:10px"><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button><button class="btnDel" onclick="deletePatient(${realIdx})">Delete</button></div></td></tr>`;});
  if(data.length===0) html+='<tr><td colspan="7" style="text-align:center;padding:20px">No patients</td></tr>';
  document.getElementById('tbl').innerHTML=html;
