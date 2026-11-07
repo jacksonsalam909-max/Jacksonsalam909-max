@@ -3,163 +3,253 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>OFFICE ASSISTANT - SHIJA</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<title>SHIJA DIALYSIS MANAGMENT</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#e9eef6;display:flex;min-height:100vh;overflow-x:hidden}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:91;overflow:hidden;transition:transform .32s ease,width .32s ease}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui;font-weight:400}
+body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:transparent;width:calc(100% - 270px);position:relative;z-index:1}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
 .whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
-.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0;flex-shrink:0}
+.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
 .sLogo img{width:100%;height:100%;object-fit:contain}
-.sTitle{overflow:hidden;white-space:nowrap}.sTitle b{color:#0f172a;font-size:16px;font-weight:900;display:block}.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
-.whiteBar.folded .sTitle{display:none}.whiteBar.folded .sHead{justify-content:center;padding:14px 0}
-.sMenu{flex:1;padding:8px;overflow-y:auto;overflow-x:hidden}.sMenu::-webkit-scrollbar{width:0}
-.sMenu a{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:10px;text-decoration:none;color:#94a3b8;font-size:12.5px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden}
-.sMenu a:hover{background:#1e293b;color:#fff}.sMenu a.active{background:#2563eb;color:#fff;font-weight:700}
-.mi{width:36px;min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:#1e293b;border-radius:10px;flex-shrink:0}
+.sTitle b{color:#0f172a;font-size:16px;font-weight:500}
+.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:400}
+.whiteBar.folded .sTitle{display:none}
+.whiteBar.folded .sHead{justify-content:center;padding:14px 0}
+.sMenu{flex:1;padding:8px 8px;overflow-y:auto;overflow:visible}
+.sMenu::-webkit-scrollbar{width:0}
+.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:400;margin-bottom:3px;white-space:nowrap;overflow:hidden;transition:all .22s ease;position:relative;border-left:3px solid transparent}
+.sMenu a:hover{background:#1e293b;color:#fff;transform:translateX(4px);box-shadow:0 6px 16px rgba(0,0,0,0.25);border-left-color:#2563eb}
+.sMenu a.active{background:#1e293b;color:#fff;font-weight:500;box-shadow:inset 0 0 0 1px #334155;border-left-color:#2563eb}
+.mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px;flex-shrink:0;transition:all .22s ease}
 .mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.sMenu a.active .mi{background:#fff}.sMenu a.active .mi svg{stroke:#2563eb}
-.ml{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whiteBar.folded .ml{display:none!important}.whiteBar.folded .sMenu a{justify-content:center;padding:11px 0}
-.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;white-space:nowrap;overflow:hidden}.whiteBar.folded .sFoot{display:none}
+.sMenu a:hover .mi{background:#2563eb;transform:scale(1.10) rotate(2deg);box-shadow:0 4px 12px rgba(37,99,235,0.4)}
+.sMenu a:hover .mi svg{stroke:#fff}
+.sMenu a.active .mi{background:#2563eb}
+.sMenu a.active .mi svg{stroke:#fff}
+.ml{overflow:hidden;text-overflow:ellipsis}
+.whiteBar.folded .ml{display:none}
+.whiteBar.folded .sMenu a{justify-content:center;padding:12px 0;overflow:visible}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;overflow:hidden;white-space:nowrap}
+.whiteBar.folded .sFoot{display:none}
 .top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:30}
-.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
-.menuBtnTop{width:44px;height:40px;background:#fff;border:0;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;z-index:100}
-.menuBtnTop span{display:block;width:18px;height:2.5px;background:#0f172a;border-radius:2px}
-.content{flex:0 0 auto;padding:12px;background:transparent;display:flex;flex-direction:column;gap:10px;max-width:100%;position:relative;z-index:2}
-.topFilters{background:rgba(255,255,255,0.98);backdrop-filter:blur(8px);border-radius:12px;padding:12px;border:1px solid #e2e8f0;display:flex;flex-direction:column;gap:10px;position:relative;z-index:20;transition:all .25s ease}
-.topFilters:hover{box-shadow:0 10px 24px rgba(15,23,42,0.08);transform:translateY(-1px);border-color:#22c55e}
-.searchRow{display:flex;gap:8px;align-items:center}.searchInputWrap{flex:1;position:relative;display:flex;align-items:center}
-.searchInput{width:100%;height:42px;border:1.5px solid #d0d9ea;background:#f4f7fd;padding:0 16px;border-radius:10px;font-weight:600;font-size:14px;color:#0f172a;outline:none}
-.clearSearch{position:absolute;right:6px;width:28px;height:28px;border-radius:50%;border:0;background:#dde4f0;display:none;align-items:center;justify-content:center}
-.timePager{display:flex;align-items:center;gap:4px;background:#f4f7fd;border:1.5px solid #d0d9ea;border-radius:100px;padding:3px 4px;height:44px;min-width:110px;justify-content:space-between;flex-shrink:0}
-.pageBtnSmall{height:30px;min-width:28px;padding:0 8px;border-radius:100px;border:0;background:#fff;color:#0f172a;font-weight:900;font-size:14px}
-.pageIndicatorSmall{color:#0f172a;font-weight:900;font-size:12px;min-width:32px;text-align:center}
-.row3{display:flex;gap:6px;align-items:center}.datePageRow{display:flex;gap:8px;align-items:center;width:100%;flex-wrap:nowrap}
-.dateBoxNew{display:flex;align-items:center;border:1.5px solid #cbd5e1;border-radius:8px;overflow:hidden;height:44px;background:#fff;flex:1;min-width:0}
-.dateArrowBox{width:42px;min-width:42px;height:100%;border:0;background:#f8fafc;border-right:1.5px solid #cbd5e1;color:#64748b;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.dateArrowBox.right{border-right:0;border-left:1.5px solid #cbd5e1}
-.dateMiddle{flex:1;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:pointer;background:#fff}
-.dateMiddle span:first-child{font-size:13px;font-weight:800;color:#334155}.calBox{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
-.dateBox2{flex:1;border-radius:8px;height:44px;display:flex;align-items:center;padding:0 8px;background:#f8fafc;border:1.5px solid #d0d9ea}
-.dateBox2 select{border:0;width:100%;font-weight:700;font-size:13px;outline:none;background:transparent;color:#0f172a;height:40px}
-.hint{font-size:11px;color:#94a3b8;font-weight:500;margin-top:-4px}
-.chipsWrap{display:flex;gap:6px;overflow-x:auto;align-items:center;padding:2px 0;flex:1}.chipsWrap::-webkit-scrollbar{display:none}
-.chip{height:34px;padding:0 14px;border-radius:100px;border:1.5px solid #d0d9ea;background:#f4f7fd;font-weight:800;font-size:12px;white-space:nowrap;color:#4a5f85;flex-shrink:0;cursor:pointer;transition:all .22s ease}
-.chip.on{background:#0f172a;color:#fff;border-color:#0f172a}
-.viewIconSingle{width:36px;height:36px;min-width:36px;border-radius:100px;border:1.5px solid #0f172a;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.viewIconSingle svg{width:16px;height:16px;stroke:#0f172a;stroke-width:2;fill:none}
-.searchMeta{padding:0 2px;font-size:10px;font-weight:700;color:#5a7196;display:flex;justify-content:space-between;align-items:center}
-.scroll{flex:0 0 auto;display:flex;flex-direction:column;position:relative;z-index:2;min-height:0!important;height:auto!important}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;position:relative;z-index:2}
-#centerLogo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:520px;max-width:80%;z-index:10;pointer-events:none;opacity:0.28}
+.logo{display:flex;align-items:center;gap:10px;font-weight:500;font-size:20px;color:#0f172a}
+.menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
+.btn{padding:8px 14px;border:0;border-radius:8px;font-weight:500;font-size:12px;cursor:pointer;min-height:36px}
+.btnDark{background:#0f172a;color:#fff}.btnPurple{background:#7c3aed;color:#fff}
+.input{padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;font-weight:400;font-size:13px;background:#fff}
+.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px;max-width:100%;z-index:1}
+.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;border:1px solid #e2e8f0;box-shadow:0 1px 2px #00000006;position:relative;z-index:20}
+.card.filterCard{z-index:20}
+.sheetWrap{overflow:auto;border:1px solid #e2e8f0;background:rgba(255,255,255,0.92);max-height:75vh;border-radius:12px;position:relative;z-index:2}
+.sheetWrap.hide{display:none!important}
+table{border-collapse:collapse;width:100%;min-width:1100px;border:none}
+th{position:sticky;top:0;background:#0f172a;color:#fff;padding:12px 8px;font-size:12px;font-weight:500;text-align:center;border:none;border-bottom:2px solid #0a1931;z-index:2}
+td{border:none;border-bottom:1px solid #f1f5f9;padding:10px 8px;height:54px;font-size:13px;font-weight:400;text-align:center;text-transform:uppercase;background:#fff}
+td.nameCol{text-align:left;padding-left:10px;max-width:220px;white-space:normal;background:#fff;vertical-align:middle}
+.nameInner{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3;font-size:14px;word-break:break-word;text-align:left;font-weight:500}
+td.slCol{background:#f8fafc;font-weight:400;font-size:13px;transition:all .22s ease}
+td.idCol{background:#f0f7ff;color:#1e40af;font-weight:400;font-size:13px;transition:all .22s ease}
+.status{font-size:12px;font-weight:400;padding:5px 10px;border-radius:12px}.status.saved{background:#dcfce7;color:#14532d}.status.blank{background:#f3f4f6}
+.pagination{display:flex;gap:5px;flex-wrap:wrap}.pageBtn{padding:8px 14px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-weight:400;cursor:pointer;font-size:12px;min-height:36px}.pageBtn.active{background:#0a1931;color:#fff}
+.filterSelect{padding:6px 10px;border-radius:6px;font-weight:400;font-size:12px;border:1px solid #d1d5db;background:#fff;color:#0f172a;cursor:pointer;min-width:110px;max-width:125px;white-space:nowrap;height:34px}
+.viewToggle{display:flex;gap:2px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:2px;height:40px;align-items:center}
+.viewBtn{width:36px;height:32px;border-radius:6px;border:0;background:transparent;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.viewBtn.active{background:#0a1931;color:#fff}
+.status-col.hidden{display:none !important}
+.searchRow{display:flex;gap:8px;align-items:center;margin-top:12px;width:100%}
+.searchRow input{flex:1;min-width:0;padding:11px 14px;font-size:14px;border:2px solid #0a1931;border-radius:10px;background:#fff;font-weight:400}
+.filterBar{display:flex;gap:8px;flex-wrap:nowrap;align-items:end;overflow-x:auto;padding-bottom:4px}
+.filterBar::-webkit-scrollbar{height:0}
+.fGroup{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
+.fGroup label{font-size:9px;font-weight:400;color:#64748b;letter-spacing:.5px;text-transform:uppercase;line-height:1}
+.fInputSm{height:36px;min-width:90px;max-width:110px;padding:0 10px;border:1px solid #e2e8f0;border-radius:8px;font-weight:400;font-size:13px;background:#fff;color:#0f172a;outline:0;cursor:pointer}
+.fInputSm:focus{border-color:#0f172a}
+.fInputSm.scheme{background:#fef3c7;border:1.5px solid #f59e0b;min-width:85px}
+.clearBtn{height:36px;min-width:70px;max-width:80px;background:#0f172a;color:#fff;font-weight:400;font-size:10px;padding:0 8px;border-radius:8px;border:0;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.addBtn{height:36px;min-width:78px;max-width:90px;background:#7c3aed;color:#fff;font-weight:400;font-size:10px;padding:0 8px;border-radius:8px;border:0;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.datePill{display:flex;align-items:center;background:#fff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;height:36px;min-width:190px}
+.dateArrow{width:32px;min-width:32px;height:100%;border:0;background:#fff;font-size:12px;font-weight:400;color:#64748b;cursor:pointer;display:grid;place-items:center;transition:all .15s ease;border-right:1px solid #e2e8f0}
+.dateArrow:last-child{border-right:0;border-left:1px solid #e2e8f0}
+.dateArrow:hover{background:#0f172a;color:#fff}
+.dateMiddle{flex:1;height:100%;display:grid;place-items:center;font-weight:400;font-size:13px;color:#0f172a;cursor:pointer;background:#fff;min-width:110px;user-select:none}
+#fDate{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
+.gridWrap{display:none;grid-template-columns:repeat(3,1fr);grid-auto-rows:minmax(150px,auto);gap:14px;padding:8px;position:relative;z-index:2}
+.gridWrap.show{display:grid!important}
+.pCard{background:rgba(255,255,255,0.92);border:1px solid #e2e8f0;border-radius:12px;padding:14px;box-shadow:0 3px 8px rgba(0,0,0,0.06);display:flex;flex-direction:column;justify-content:space-between;min-height:150px;position:relative;z-index:2;transition:all .28s ease;overflow:visible}
+.pCardTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.pCardSL{background:#0a1931;color:#fff;font-weight:400;font-size:12px;padding:5px 10px;border-radius:12px;transition:all .22s ease}
+.pCardName{font-weight:500;font-size:15px;text-transform:uppercase;color:#0f172a;margin-bottom:8px;line-height:1.2;flex:1;max-width:60%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;transition:color .22s ease}
+.pCardSub{font-size:12px;font-weight:400;color:#475569;background:#f8fafc;padding:6px 8px;border-radius:6px;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid #eef2f7}
+.pCardInfo{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.pCardInfo span{background:#f1f5f9;color:#334155;font-weight:400;font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid #e2e8f0}
+.pCardActions{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:auto}
+.pCard .btnEdit{background:#FFD60A;color:#000;font-weight:400;font-size:12px;padding:0 14px;border-radius:6px;border:0;cursor:pointer;flex:1;height:36px}
+.pCard .btnDelete{background:#EF4444;color:#fff;font-weight:400;font-size:12px;padding:0 14px;border-radius:6px;border:0;cursor:pointer;flex:1;height:36px}
+td .btnEdit, td .btnDelete{flex:none!important;height:30px!important;padding:0 12px!important;font-size:11px!important;border-radius:6px!important;line-height:1!important;min-width:62px!important}
+td .btnEdit{background:#FFD60A;color:#000;font-weight:400;border:0;cursor:pointer}
+td .btnDelete{background:#EF4444;color:#fff;font-weight:400;border:0;cursor:pointer}
+.gridStatus{padding:0 10px;border-radius:6px;font-weight:400;font-size:12px;border:1px solid #d1d5db;background:#fff;color:#0f172a;cursor:pointer;min-width:110px;max-width:125px;white-space:nowrap;height:34px}
+.pCard:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 18px 32px rgba(37,99,235,0.22)!important;border-color:#2563eb!important;background:#fff!important;z-index:15}
+.pCard:hover .pCardSL{background:#2563eb;transform:scale(1.08)}
+.pCard:hover .pCardName{color:#2563eb}
+table tbody tr{transition:all .22s ease;position:relative}
+table tbody tr:hover td{background:#dbeafe!important;border-bottom-color:#93c5fd!important}
+table tbody tr:hover .slCol{background:#2563eb!important;color:#fff!important;transform:scale(1.08);box-shadow:0 4px 12px rgba(37,99,235,0.4)}
+table tbody tr:hover .nameCol{background:#eff6ff!important}
+table tbody tr:hover .idCol{background:#bfdbfe!important;color:#1e3a8a!important}
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+#centerLogo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:520px;max-width:80%;z-index:10;pointer-events:none;opacity:0.10}
 #centerLogo img{width:100%;height:auto;display:block}
-.card{width:100%;height:178px;min-height:178px;background:rgba(255,255,255,0.92);border-radius:14px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;box-shadow:0 4px 12px rgba(15,23,42,0.06);border:1px solid #e2e8f0;overflow:hidden;position:relative;z-index:2;transition:all .28s cubic-bezier(0.34,1.56,0.64,1)}
-.card:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 18px 36px rgba(0,0,0,0.18)!important;border-color:#22c55e!important;background:rgba(255,255,255,0.98)!important;z-index:4}
-.cardTop{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;flex:1}
-.avatarSq{width:42px;height:42px;min-width:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:18px;transition:all .28s ease}
-.info{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.card .name{font-size:12px;font-weight:900;line-height:1.2;color:#0f172a;text-transform:uppercase;text-align:center;min-height:28px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
-.card .sub{font-size:10px;font-weight:700;color:#6f84a8;text-align:center;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
-.actions{width:100%;margin-top:6px;display:flex;gap:6px}
-.btnAct{flex:1;height:32px;min-height:32px;border-radius:8px;font-weight:800;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;border:0;transition:all .22s ease}
-.btnAct:hover{transform:translateY(-1px) scale(1.04);box-shadow:0 6px 14px rgba(0,0,0,0.18)}
-.btnRed{background:#ef4444;color:#fff}.btnYellow{background:#facc15!important;color:#0f172a!important;border:1.5px solid #eab308}.btnGreen{background:#22c55e!important;color:#fff!important}
-.grid.listView{display:flex!important;flex-direction:column!important;gap:8px}.grid.listView .card{height:80px;min-height:80px;flex-direction:row;padding:8px 12px;border-radius:12px;text-align:left}
-.grid.listView .card .cardTop{flex-direction:row;gap:10px;text-align:left}.grid.listView .card .info{align-items:flex-start;text-align:left}
-.grid.listView .card .name{text-align:left;min-height:auto;-webkit-line-clamp:1;font-size:13px}.grid.listView .card .sub{text-align:left;font-size:10px}
-.grid.listView .card .avatarSq{width:40px;height:40px;font-size:16px}.grid.listView .card .actions{width:auto;min-width:160px;margin-left:8px;margin-top:0}
-.bottomBar{position:fixed;bottom:0;left:270px;right:0;z-index:20;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:space-around;padding:6px 0;transition:left .32s}
-.whiteBar.folded ~ .mainWrap .bottomBar{left:72px}.pagesBottom{padding:0!important;height:0!important;min-height:0!important;margin:0!important;display:block}
-#confirmModal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.55)}.confirmBox{background:#fff;width:86%;max-width:320px;border-radius:16px;padding:20px 16px;text-align:center}
-.confirmTitle{font-size:15px;font-weight:900;color:#0f172a;margin-bottom:6px}.confirmSub{font-size:12px;font-weight:600;color:#6f84a8;margin-bottom:16px}
-.confirmBtns{display:flex;gap:8px}.btnNoSure{flex:1;height:40px;border-radius:10px;border:1.5px solid #d0d9ea;background:#f4f7fd;color:#4a5f85;font-weight:800;font-size:12px}.btnSure{flex:1;height:40px;border-radius:10px;border:0;background:#0f172a;color:#fff;font-weight:800;font-size:12px}
-.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:100px;font-size:12px;font-weight:800;z-index:10001;display:none}.toast.show{display:block}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;color:#8aa0c5;cursor:pointer}.tab .ic{width:24px;height:24px;border-radius:8px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:13px}
-.tab.active{color:#0f172a}.tab.active .ic{background:#0f172a;color:#fff}
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:90;display:none}#overlay.show{display:block}
+.dataCard{position:relative;z-index:1;min-height:520px}
 @media(max-width:900px){
-.whiteBar{transform:translateX(-100%)!important}.whiteBar.mOpen{transform:translateX(0)!important}.whiteBar.folded{transform:translateX(-100%)!important;width:270px!important;min-width:270px!important}
-.mainWrap{margin-left:0!important;width:100%!important}.bottomBar{left:0!important}.content{padding:10px;flex:0 0 auto}.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.dateBox2{flex:1 1 48%!important;min-width:0!important}
-#centerLogo{width:360px!important}
-.pagesBottom{padding:0 0 60px!important;height:auto!important}
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
+  .content{padding:12px}
+  .filterBar{flex-wrap:wrap}
+  #centerLogo{width:360px!important;opacity:0.10!important}
 }
-@media(min-width:901px){
-.content{padding-bottom:12px!important}
-.scroll{padding-bottom:0!important;margin-bottom:0!important}
-.pagesBottom{display:none!important;height:0!important;padding:0!important;margin:0!important}
-/* DESKTOP ONLY - REDUCED CARDS TO FIT SCREEN */
-.grid{grid-template-columns:repeat(4,1fr)!important;gap:8px!important}
-.card{height:148px!important;min-height:148px!important;padding:8px 6px!important;border-radius:12px!important}
-.avatarSq{width:32px!important;height:32px!important;min-width:32px!important;font-size:14px!important;border-radius:8px!important}
-.card .name{font-size:10px!important;min-height:24px!important}
-.card .sub{font-size:8.5px!important;margin-top:2px!important}
-.btnAct{height:26px!important;min-height:26px!important;font-size:9px!important;border-radius:6px!important}
-.actions{gap:4px!important;margin-top:4px!important}
+@media(max-width:900px){
+  .logo{font-size:14px!important;font-weight:400!important}
+  .status{font-size:9px!important;padding:3px 7px!important}
+  .fGroup label{font-size:8px!important}
+  .fInputSm{font-size:10px!important;height:30px!important;min-width:72px!important;max-width:95px!important;padding:0 6px!important}
+  .clearBtn,.addBtn{font-size:8px!important;height:30px!important;min-width:58px!important;max-width:70px!important}
+  .datePill{height:30px!important;min-width:150px!important}
+  .dateMiddle{font-size:10px!important;min-width:80px!important}
+  .dateArrow{width:24px!important;min-width:24px!important;font-size:10px!important}
+  .searchRow input{font-size:11px!important;padding:8px 10px!important;border-width:1.5px!important}
+  .viewBtn{width:28px!important;height:24px!important;font-size:12px!important}
+  th{font-size:8px!important;padding:6px 3px!important;font-weight:400!important}
+  td{font-size:10px!important;padding:5px 3px!important;height:38px!important}
+  .nameInner{font-size:10px!important;line-height:1.15!important;font-weight:400!important}
+  .pCard{padding:9px!important;min-height:108px!important;border-radius:10px!important}
+  .pCardSL{font-size:9px!important;padding:3px 6px!important}
+  .pCardName{font-size:11px!important;max-width:56%!important;line-height:1.15!important}
+  .pCardSub{font-size:9px!important;padding:4px 5px!important;margin-bottom:6px!important}
+  .pCardInfo{gap:4px!important;margin-bottom:8px!important}
+  .pCardInfo span{font-size:9px!important;padding:3px 5px!important}
+  .gridStatus{font-size:9px!important;height:26px!important;min-width:80px!important;max-width:100px!important;padding:0 6px!important}
+  .filterSelect{font-size:9px!important;height:26px!important;min-width:80px!important;max-width:100px!important}
+  .pCard .btnEdit,.pCard .btnDelete{font-size:9px!important;height:26px!important;padding:0 8px!important}
+  td .btnEdit, td .btnDelete{font-size:9px!important;height:24px!important;min-width:50px!important;padding:0 6px!important}
+  .pageBtn{font-size:9px!important;padding:5px 8px!important;min-height:26px!important}
+  #filterNoMid{font-size:9px!important;padding:5px 6px!important}
+  #bottomStats{font-size:9px!important;padding:8px!important;gap:6px!important;flex-wrap:wrap!important}
+  #pageInfo{font-size:8px!important}
+  .ml{font-size:11px!important;font-weight:400!important}
+  .sMenu a{font-size:11px!important;padding:8px 8px!important}
+  .mi{width:28px!important;min-width:28px!important;height:28px!important}
+  .mi svg{width:14px!important;height:14px!important}
+  .input{font-size:10px!important}
+  .btn{font-size:9px!important;min-height:28px!important;padding:6px 10px!important}
+}
+@media(max-width:600px){
+  .top{height:50px!important;padding:0 8px!important}
+  .logo{font-size:12px!important;gap:6px!important}
+  .content{padding:8px!important}
+  .card{padding:8px!important;margin-bottom:8px!important}
+  .filterBar{gap:4px!important}
+  .searchRow{gap:6px!important;margin-top:8px!important}
+  .searchRow input{font-size:10px!important;padding:7px 8px!important}
+  .gridWrap{grid-template-columns:repeat(2,1fr)!important;gap:6px!important;padding:4px!important}
+  .pCard{padding:7px!important;min-height:100px!important}
+  .pCardTop{margin-bottom:6px!important}
+  .pCardName{font-size:10px!important}
+  .pCardSub{font-size:8px!important}
+  .pCardInfo span{font-size:8px!important}
+  .pCardActions{gap:4px!important}
+  .pCard .btnEdit,.pCard .btnDelete{font-size:8px!important;height:24px!important}
+  th{font-size:7px!important;padding:5px 2px!important}
+  td{font-size:9px!important;padding:4px 2px!important;height:34px!important}
+  .nameInner{font-size:9px!important}
+  #bottomStats{font-size:8px!important;padding:6px!important}
+  #filterNoMid{font-size:8px!important}
+  .pageBtn{font-size:8px!important;padding:4px 6px!important;min-height:22px!important}
 }
 </style>
 </head>
 <body>
-<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'};if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}</script>
-<div id="overlay" onclick="closeMob()"></div>
+<div id="mobOverlay" onclick="closeMob()"></div>
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
-<div class="sHead"><div class="sLogo"><img src="loko.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
+<div class="sHead"><div class="sLogo"><img src="loko.png" onerror="this.style.display='none'"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
 <div class="sMenu">
 <a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
-<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
-<a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
-<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="ml">CLAIM</span></a>
-<a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
-<a href="gda.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="ml">OFFICE ASSISTANT LIST</span></a>
+<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
+<a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
+<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
+<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></span><span class="ml">OFFICE ASSISTANT</span></a>
 <a href="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
-<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
-<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
-<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">PMJAY DAILY DIALYSIS</span></a>
-<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
-<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
-<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></span><span class="ml">KFT REPORT</span></a>
-<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">ADD PATIENT</span></a>
-<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="ml">BILL</span></a>
-<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
+<a href="list.html?scheme=CMHT&force=1" id="cmhtLink"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
+<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
+<a href="list.html?scheme=PMJAY&force=1" id="pmjayLink"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
+<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
+<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT REPORT</span></a>
+<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT</span></a>
+<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></span><span class="ml">BILL</span></a>
+<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
 </div>
 </div>
-<div class="sFoot">System Online • SHIJA Hospital</div>
+<div class="sFoot">System Online • SHIJA</div>
 </div>
-<div class="mainWrap" id="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA - OFFICE ASSISTANT</div>
+<div class="mainWrap">
+<div class="top">
+<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA DIALYSIS <div id="status" class="status saved">READY</div></div>
 <div style="display:flex;align-items:center;gap:8px">
-<div id="adminMenuWrap" style="position:relative">
-<button id="adminBtn" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
-<div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
-<button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button>
-<button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button>
-</div>
-</div>
+  <div id="adminMenuWrap" style="position:relative">
+    <button id="adminBtn" style="height:36px;padding:0 12px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:400;font-size:12px;cursor:pointer">Admin ▾</button>
+    <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
+      <button id="btnLogout" style="width:100%;height:32px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:400;font-size:11px;cursor:pointer;margin-bottom:4px">Logout</button>
+      <button id="btnLogoutAll" style="width:100%;height:32px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:400;font-size:11px;cursor:pointer">Logout from all devices</button>
+    </div>
+  </div>
 </div>
 </div>
 <div class="content">
-<div class="topFilters">
-<div class="searchRow"><div class="searchInputWrap"><input type="search" id="searchName" class="searchInput" placeholder="Search name or SHRI..."><button class="clearSearch" id="clearSearch">✕</button></div></div>
-<div class="datePageRow"><div class="dateBoxNew"><button class="dateArrowBox" id="datePrev">‹</button><div class="dateMiddle" id="dateCenter"><span id="dateDisplay">03-11-2026</span><div class="calBox" id="calIcon"></div></div><button class="dateArrowBox right" id="dateNext">›</button></div><div class="timePager"><button class="pageBtnSmall" id="prevBtn">‹</button><div class="pageIndicatorSmall" id="pageIndicator">1/1</div><button class="pageBtnSmall" id="nextBtn">›</button></div></div>
-<div class="row3"><div class="dateBox2"><select id="filterBlock"><option value="">All Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div><div class="dateBox2"><select id="fType"><option>PMJAY</option><option>CMHT</option></select></div></div>
-<input type="date" id="fDate" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
-<div class="hint">Click middle date / for all dates</div>
-<div style="display:flex;gap:8px;align-items:center"><div class="chipsWrap"><button class="chip on" data-time="">ALL</button><button class="chip" data-time="7:00 AM">7 AM</button><button class="chip" data-time="12:00 PM">12 PM</button><button class="chip" data-time="5:00 PM">5 PM</button><button class="chip" data-time="9:00 PM">9 PM</button><button class="chip" data-time="12:00 AM">12 AM</button><button class="chip" data-time="2:00 AM">2 AM</button></div><button id="toggleViewBtn" class="viewIconSingle"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button></div>
-<div class="searchMeta"><span id="searchInfo"></span><span id="doneMeta">OPD + PHOTO</span></div>
-</div>
-<div class="scroll" id="scroll">
-  <div id="centerLogo"><img src="loko.png" alt="SHIJA Logo"></div>
-  <div class="grid" id="grid"></div>
-  <div class="pagesBottom"></div>
+<div class="card filterCard">
+<div class="filterBar">
+<div class="fGroup"><label>DATE</label>
+<div class="datePill">
+  <button type="button" class="dateArrow" id="datePrev">◀</button>
+  <div class="dateMiddle" id="dateDisplay">06-11-2026</div>
+  <input type="date" id="fDate">
+  <button type="button" class="dateArrow" id="dateNext">▶</button>
 </div>
 </div>
-<div class="bottomBar"><div class="tab active" id="tabHome"><div class="ic">⌂</div>Home</div><div class="tab" id="tabDone"><div class="ic">✓</div>Done <span id="doneB">0</span></div><div class="tab" id="tabSync"><div class="ic">↻</div>Sync</div></div>
+<div class="fGroup"><label>SCHEME</label><select id="fType" class="fInputSm scheme"><option value="PMJAY" selected>PMJAY</option><option value="CMHT">CMHT</option></select></div>
+<div class="fGroup"><label>SHOW</label><select id="rowsPerPage" class="fInputSm"><option value="12" selected>12 / page</option><option value="24">24 / page</option><option value="36">36 / page</option><option value="48">48 / page</option></select></div>
+<div class="fGroup"><label>TIME</label><select id="filterTime" class="fInputSm"><option value="">ALL</option><option value="7:00 AM">7 AM</option><option value="12:00 PM">12 PM</option><option value="5:00 PM">5 PM</option><option value="9:00 PM">9 PM</option></select></div>
+<div class="fGroup"><label>BLOCK</label><select id="filterBlock" class="fInputSm"><option value="">ALL</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
+<div class="fGroup"><label style="opacity:0">.</label><button class="clearBtn" onclick="clearFiltersDirect()">CLEAR</button></div>
+<div class="fGroup"><label style="opacity:0">.</label><button class="addBtn" onclick="openAddPatientPage()">+ ADD</button></div>
+</div>
+<div class="searchRow">
+<input type="text" id="searchName" placeholder="SEARCH NAME / SHRI / PMJAY ID..." autocomplete="off" spellcheck="false" oninput="applyFilter()">
+<div class="viewToggle"><button class="viewBtn" id="btnListView" onclick="switchView('list')">☰</button><button class="viewBtn active" id="btnGridView" onclick="switchView('grid')">⊞</button></div>
+</div>
+</div>
+<div class="card dataCard" style="padding:8px">
+<div id="centerLogo"><img src="loko.png" alt="SHIJA Logo"></div>
+<div class="sheetWrap hide" id="sheetWrap"><table><thead><tr><th style="width:40px">SL</th><th style="width:240px">PATIENT NAME</th><th style="width:110px">PMJAY/CMHT ID</th><th style="width:90px">SHRI ID</th><th class="status-col" id="thStatus" style="width:130px">STATUS</th><th style="width:80px">TIME</th><th style="width:80px">BLOCK</th><th style="width:80px">PREV</th><th style="width:140px">ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
+<div class="gridWrap show" id="gridWrap"></div>
+<div style="padding:10px;display:flex;gap:8px;align-items:center"><div class="pagination" id="pagination"></div><div id="filterNoMid" style="flex:1;text-align:center;font-weight:400;font-size:13px;color:#0f172a;background:#f0f7ff;padding:10px 12px;border-radius:8px;border:1px solid #c7d2fe;margin:0 8px">Filtered: 0</div><div style="display:flex;gap:8px;margin-left:auto"><button class="btn btnDark" onclick="changePage(-1)">◀</button><button class="btn btnDark" onclick="changePage(1)">▶</button></div><span id="pageInfo" style="font-weight:400;font-size:11px;margin-left:8px"></span></div>
+</div>
+</div>
+<div id="bottomStats" style="text-align:center;padding:14px;font-size:13px;font-weight:400;color:#0f172a;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:center;gap:14px;flex-wrap:wrap">Total: 0 | Filtered: 0 | Time: ALL | Block: ALL</div>
+</div>
 </div>
 </body>
 </html>
