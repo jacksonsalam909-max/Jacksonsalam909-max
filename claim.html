@@ -101,7 +101,14 @@ td.nameCol{text-align:left;padding-left:12px}
 .btnAdd{height:36px;padding:0 20px;border-radius:10px;border:0;background:#0f172a;color:#fff;font-weight:800;font-size:12px;cursor:pointer;box-shadow:0 4px 12px rgba(15,23,42,0.2);transition:.15s}
 .btnAdd:hover{background:#1e293b}
 
-/* === MOBILE ONLY FIX === */
+/* DATE PILL - ADDED */
+.datePill{display:flex;align-items:center;background:#fff;border:1.5px solid #cbd5e1;border-radius:10px;overflow:hidden;height:38px;min-width:160px}
+.dateArrow{width:30px;min-width:30px;height:100%;border:0;background:#f8fafc;font-size:12px;font-weight:900;color:#64748b;cursor:pointer;display:grid;place-items:center;border-right:1px solid #e2e8f0}
+.dateArrow:last-child{border-right:0;border-left:1px solid #e2e8f0}
+.dateMiddle{flex:1;height:100%;display:grid;place-items:center;font-weight:800;font-size:12px;color:#0f172a;cursor:pointer;background:#fff;min-width:90px;padding:0 8px}
+#fDateFilter{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
+.fSelect{height:38px;padding:0 10px;border:1.5px solid #cbd5e1;border-radius:10px;font-weight:700;font-size:11px;background:#fff;color:#0f172a;outline:0;cursor:pointer;min-width:100px}
+
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
 @media(max-width:900px){
@@ -120,8 +127,6 @@ td.nameCol{text-align:left;padding-left:12px}
   .patientGrid{grid-template-columns:1fr}
   .tableWrap{overflow-x:auto}
 }
-
-/* === HOVER HIGHLIGHT + POP-UP - ADDED === */
 .card{transition:all .25s ease}
 .card:hover{box-shadow:0 10px 24px rgba(15,23,42,0.10);transform:translateY(-1px);border-color:#cbd5e1}
 .sheetWrap tr, .patientGrid .pCard, .searchResults .sItem{transition:all .22s ease}
@@ -210,18 +215,27 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 
 <div class="controls">
+<div class="datePill">
+<button type="button" class="dateArrow" id="fDatePrev">◀</button>
+<div class="dateMiddle" id="fDateDisplay">ALL DATE</div>
+<input type="date" id="fDateFilter">
+<button type="button" class="dateArrow" id="fDateNext">▶</button>
+</div>
+<select id="fTime" class="fSelect"><option value="">ALL TIME</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select>
+<select id="fBlock" class="fSelect"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select>
 <input id="fSearch" name="shija_claim_filter_9271" type="search" autocomplete="off" data-lpignore="true" spellcheck="false" placeholder="Search claim patient..." oninput="applyFilter()" style="flex:1;min-width:180px;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;font-size:13px;outline:0;background:#f8fafc">
 <div class="viewToggle">
 <button class="vBtn" id="gridBtn" onclick="setView('grid')" title="Grid">⊞</button>
 <button class="vBtn active" id="tableBtn" onclick="setView('table')" title="List">☰</button>
 </div>
 <select id="pageSize" class="pSelect" onchange="changePageSize()" style="padding:10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700;background:#fff"><option value="12" selected>12 / page</option><option value="24">24 / page</option><option value="48">48 / page</option></select>
+<button onclick="clearFilters()" style="height:38px;padding:0 14px;border-radius:10px;border:0;background:#0f172a;color:#fff;font-weight:800;font-size:11px;cursor:pointer">CLEAR</button>
 </div>
 
 <div class="patientGrid hidden" id="patientGrid"></div>
 <div class="pagerGrid hidden" id="pagerGrid"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtnGrid" onclick="changePage(-1)">←</button><button class="pBtn" id="nextBtnGrid" onclick="changePage(1)">→</button></div><div id="pageInfoGrid" style="font-weight:700;font-size:12px"></div><div id="pageNumsGrid" style="display:flex;gap:6px"></div></div>
 
-<div class="tableWrap" id="tableWrap" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px #00000006"><div style="overflow-x:auto"><table id="tbl"><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>CLAIM ID</th><th>TIME</th><th>BLOCK</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="changePage(-1)">←</button><button class="pBtn" id="nextBtn" onclick="changePage(1)">→</button></div><div id="pageInfo" style="font-weight:700;font-size:12px"></div><div id="pageNums" style="display:flex;gap:6px"></div></div></div>
+<div class="tableWrap" id="tableWrap" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px #00000006"><div style="overflow-x:auto"><table id="tbl"><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>CLAIM ID</th><th>TIME</th><th>BLOCK</th><th>DATE</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="changePage(-1)">←</button><button class="pBtn" id="nextBtn" onclick="changePage(1)">→</button></div><div id="pageInfo" style="font-weight:700;font-size:12px"></div><div id="pageNums" style="display:flex;gap:6px"></div></div></div>
 
 </div>
 <div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis</div>
@@ -291,6 +305,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 let allClaimed=[],filtered=[],masterPatients=[],currentPage=1,pageSize=12,urlClaimId='';
 let selectedTotalPatient=null;
 let currentView='table';
+let filterDateValue=''; // YYYY-MM-DD or empty = ALL
+
 function toggleWhiteBar(){
   if(window.innerWidth<=900){
     document.getElementById('whiteBar').classList.toggle('mOpen');
@@ -303,7 +319,53 @@ function closeMob(){
   document.getElementById('whiteBar').classList.remove('mOpen');
   document.getElementById('mobOverlay').classList.remove('show');
 }
-document.addEventListener('DOMContentLoaded',function(){document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();})});
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
+  // DATE ARROWS
+  document.getElementById('fDatePrev').addEventListener('click',()=>shiftFilterDate(-1));
+  document.getElementById('fDateNext').addEventListener('click',()=>shiftFilterDate(1));
+  document.getElementById('fDateDisplay').addEventListener('click',()=>{ let i=document.getElementById('fDateFilter'); if(i.showPicker) i.showPicker(); else i.click(); });
+  document.getElementById('fDateFilter').addEventListener('change',()=>{
+    filterDateValue=document.getElementById('fDateFilter').value;
+    updateFilterDateDisplay();
+    applyFilter();
+  });
+  document.getElementById('fTime').addEventListener('change',applyFilter);
+  document.getElementById('fBlock').addEventListener('change',applyFilter);
+});
+
+function formatDisplay(iso){
+  if(!iso) return 'ALL DATE';
+  let p=iso.split('-'); if(p.length!==3) return iso;
+  return `${p[2]}-${p[1]}-${p[0]}`;
+}
+function updateFilterDateDisplay(){
+  document.getElementById('fDateDisplay').innerText=formatDisplay(filterDateValue);
+}
+function shiftFilterDate(delta){
+  if(!filterDateValue){
+    // if ALL, set to today then shift
+    let d=new Date();
+    filterDateValue=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if(delta<0){ let dt=new Date(filterDateValue); dt.setDate(dt.getDate()+delta); filterDateValue=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`; }
+  }else{
+    let dt=new Date(filterDateValue);
+    dt.setDate(dt.getDate()+delta);
+    filterDateValue=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+  }
+  document.getElementById('fDateFilter').value=filterDateValue;
+  updateFilterDateDisplay();
+  applyFilter();
+}
+function clearFilters(){
+  filterDateValue='';
+  document.getElementById('fDateFilter').value='';
+  document.getElementById('fTime').value='';
+  document.getElementById('fBlock').value='';
+  document.getElementById('fSearch').value='';
+  updateFilterDateDisplay();
+  applyFilter();
+}
 function getClaimIdFromURL(){ return new URLSearchParams(location.search).get('claimId')||''; }
 window.setView=(v)=>{
  currentView=v;
@@ -335,12 +397,38 @@ async function loadMaster(){
   Object.values(map).forEach(v=>{ masterPatients.push({shri:v.shri, pmjayId:v.pmjay, name:v.name}); });
 }
 async function loadAll(){ try{ let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges')); allClaimed=[]; snap.forEach(d=>{ let o=d.data(); o._id=d.id; if(o.claimId && o.claimStatus==='CLAIMED') allClaimed.push(o); }); allClaimed.sort((a,b)=> new Date(b.claimedAt||0)-new Date(a.claimedAt||0)); }catch(e){} applyFilter(); }
+
+function normalizeTime(t){
+  if(!t) return '';
+  let s=String(t).toUpperCase().trim().replace(/\s+/g,' ').replace(/\./g,'');
+  let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);
+  if(!m) return s;
+  let h=parseInt(m[1]); let mm=m[2]?m[2].padStart(2,'0'):'00'; let ap=m[3]||'';
+  if(!ap){ if(s.includes('AM')) ap='AM'; else if(s.includes('PM')) ap='PM'; }
+  if(ap) return `${h}:${mm} ${ap}`;
+  return `${h}:${mm}`;
+}
+
 function applyFilter(){
   let search=document.getElementById('fSearch').value.toLowerCase().trim();
   if(search.includes('admin')){ document.getElementById('fSearch').value=''; search=''; }
+  let timeFilter=document.getElementById('fTime').value;
+  let blockFilter=document.getElementById('fBlock').value;
+  let timeNorm=normalizeTime(timeFilter);
+
   filtered=allClaimed.filter(p=>{
     if(urlClaimId && (p.claimId||'').toUpperCase()!==urlClaimId.toUpperCase()) return false;
     if(search){ let s=`${p.patientName||p.name||''} ${p.shriId||p.shri||''} ${p.pmjayCmhtId||p.pmjayId||''} ${p.claimId||''}`.toLowerCase(); if(!s.includes(search)) return false; }
+    if(filterDateValue){
+      let d=String(p.date||'').slice(0,10);
+      if(d!==filterDateValue) return false;
+    }
+    if(timeFilter){
+      if(normalizeTime(p.time||'')!==timeNorm) return false;
+    }
+    if(blockFilter){
+      if((p.block||'').toUpperCase()!==blockFilter.toUpperCase()) return false;
+    }
     return true;
   });
   currentPage=1; renderAll();
@@ -349,7 +437,7 @@ function getInitial(name){ return (name||'P').trim().charAt(0).toUpperCase(); }
 function renderAll(){
   let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize)); if(currentPage>totalPages) currentPage=totalPages;
   let start=(currentPage-1)*pageSize; let data=filtered.slice(start,start+pageSize);
-  document.getElementById('countBadge').innerText=`${allClaimed.length} CLAIMED`;
+  document.getElementById('countBadge').innerText=`${filtered.length} / ${allClaimed.length} CLAIMED`;
   let gridHtml='';
   data.forEach((p)=>{
     let pmjay=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';
@@ -360,6 +448,7 @@ function renderAll(){
         <div class="pCardName">${p.patientName||p.name||''}</div>
         <div class="pCardRow"><span>SHRI ID</span><b>${p.shriId||p.shri||'-'}</b></div>
         <div class="pCardRow"><span>PMJAY</span><b>${pmjay||'-'}</b></div>
+        <div class="pCardRow"><span>DATE</span><b>${p.date||'-'}</b></div>
         <div class="pCardRow"><span>TIME • BLOCK</span><b>${p.time||'-'} • ${p.block||'-'}</b></div>
         <div class="pCardActions"><button class="btnEditText" onclick="editClaim('${p._id}')">EDIT</button><button class="btnDelText" onclick="removeClaim('${p._id}')">DELETE</button></div>
       </div>
@@ -368,12 +457,12 @@ function renderAll(){
   if(data.length===0) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">No claimed patients</div>';
   document.getElementById('patientGrid').innerHTML=gridHtml;
   let tbody=document.getElementById('tbody'); tbody.innerHTML='';
-  if(data.length===0){ tbody.innerHTML=`<tr><td colspan="8" style="padding:30px;text-align:center">NO CLAIMED PATIENTS</td></tr>`; }
+  if(data.length===0){ tbody.innerHTML=`<tr><td colspan="9" style="padding:30px;text-align:center">NO CLAIMED PATIENTS</td></tr>`; }
   else{
     data.forEach((p,i)=>{
       let pmjay=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';
       let tr=document.createElement('tr');
-      tr.innerHTML=`<td>${start+i+1}</td><td class="nameCol"><b>${p.patientName||p.name||''}</b></td><td>${p.shriId||p.shri||''}</td><td style="color:#0f172a;font-weight:900">${pmjay}</td><td><span style="background:#0f172a;color:#fff;padding:4px 10px;border-radius:20px;font-weight:900;font-size:9px">${p.claimId}</span></td><td>${p.time||''}</td><td>${p.block||''}</td><td><div style="display:flex;gap:6px;justify-content:center"><button style="height:32px;padding:0 12px;border-radius:8px;border:0;background:#facc15;font-weight:800;font-size:11px;cursor:pointer;color:#000" onclick="editClaim('${p._id}')">EDIT</button><button style="height:32px;padding:0 14px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:800;font-size:11px;cursor:pointer" onclick="removeClaim('${p._id}')">DELETE</button></div></td>`;
+      tr.innerHTML=`<td>${start+i+1}</td><td class="nameCol"><b>${p.patientName||p.name||''}</b></td><td>${p.shriId||p.shri||''}</td><td style="color:#0f172a;font-weight:900">${pmjay}</td><td><span style="background:#0f172a;color:#fff;padding:4px 10px;border-radius:20px;font-weight:900;font-size:9px">${p.claimId}</span></td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.date||''}</td><td><div style="display:flex;gap:6px;justify-content:center"><button style="height:32px;padding:0 12px;border-radius:8px;border:0;background:#facc15;font-weight:800;font-size:11px;cursor:pointer;color:#000" onclick="editClaim('${p._id}')">EDIT</button><button style="height:32px;padding:0 14px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:800;font-size:11px;cursor:pointer" onclick="removeClaim('${p._id}')">DELETE</button></div></td>`;
       tbody.appendChild(tr);
     });
   }
@@ -436,7 +525,7 @@ async function finalAddClaim(){
 async function removeClaim(id){ if(!confirm('DELETE this patient from CLAIM LIST?')) return; try{ await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:'',claimStatus:'',claimedAt:''},{merge:true}); await window._fb.deleteDoc(window._fb.doc(window._fb.db,'claims',id)); await loadAll(); }catch(e){ alert(e.message); } }
 async function editClaim(id){ let p=allClaimed.find(x=>x._id===id); if(!p) return; let newId=prompt('EDIT CLAIM ID:',p.claimId); if(newId===null) return; newId=newId.trim().toUpperCase(); if(!newId) return; try{ await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:newId,claimedAt:new Date().toISOString(),claimStatus:'CLAIMED'},{merge:true}); await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...p,claimId:newId,claimedAt:new Date().toISOString(),claimStatus:'CLAIMED'},{merge:true}); loadAll(); }catch(e){ alert(e.message); } }
 document.getElementById('fSearch').addEventListener('input', applyFilter);
-window.addEventListener('load', async ()=>{ urlClaimId=getClaimIdFromURL(); await loadMaster(); await loadAll(); });
+window.addEventListener('load', async ()=>{ urlClaimId=getClaimIdFromURL(); updateFilterDateDisplay(); await loadMaster(); await loadAll(); });
 </script>
 </body>
 </html>
