@@ -100,6 +100,8 @@ td.nameCol{text-align:left;padding-left:12px;white-space:nowrap;max-width:160px;
 .searchInputClaim{flex:1 1 auto;min-width:0;width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;font-size:13px;outline:0;background:#f8fafc;box-sizing:border-box}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
+/* Hide password dots but keep text */
+.maskedPass{-webkit-text-security:disc!important;text-security:disc!important}
 @media(max-width:900px){
   .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
   .whiteBar.mOpen{transform:translateX(0)}
@@ -125,6 +127,12 @@ td.nameCol{text-align:left;padding-left:12px;white-space:nowrap;max-width:160px;
 </style>
 </head>
 <body>
+<!-- FAKE CREDENTIAL TRAP FOR GOOGLE - STOPS POPUP -->
+<div style="position:absolute;left:-9999px;top:-9999px;width:0;height:0;overflow:hidden;opacity:0">
+  <input type="text" name="username" autocomplete="username">
+  <input type="password" name="password" autocomplete="current-password">
+</div>
+
 <div id="mobOverlay" onclick="closeMob()"></div>
 <script>
 if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
@@ -160,10 +168,10 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> CLAIM <div class="badgeBlue" id="countBadge">0 CLAIMED</div></div>
 <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
   <div id="adminMenuWrap" style="position:relative">
-    <button id="adminBtn" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
+    <button id="adminBtn" type="button" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
     <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
-      <button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button>
-      <button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button>
+      <button id="btnLogout" type="button" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button>
+      <button id="btnLogoutAll" type="button" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button>
     </div>
   </div>
 </div>
@@ -173,19 +181,19 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 
 <div class="card" style="background:#eff6ff;border:1px solid #bfdbfe">
 <div class="label" style="color:#0f172a">ADD CLAIM PATIENT FROM TOTAL</div>
-<div class="searchBox"><input type="search" id="searchTotal" autocomplete="off" spellcheck="false" class="input" placeholder="SEARCH TOTAL PATIENT TO ADD..." style="border:1.5px solid #0f172a;padding:12px;background:#fff"><div class="searchResults" id="searchResults"></div></div>
+<div class="searchBox"><input type="search" id="searchTotal" name="shija_total_q_9271" autocomplete="off" data-lpignore="true" data-form-type="other" spellcheck="false" class="input" placeholder="SEARCH TOTAL PATIENT TO ADD..." style="border:1.5px solid #0f172a;padding:12px;background:#fff"><div class="searchResults" id="searchResults"></div></div>
 <div class="inlineBar" id="inlineBar">
 <div class="inlineBarHead"><b id="selPatientHead">Add Claim</b><span>Select options</span></div>
 <div class="inlineBarBody">
 <div class="formGrid">
 <div class="formGroup"><label>Patient</label><div class="fInput patientBox" id="selPatientLabel">-</div></div>
-<div class="formGroup"><label>Claim ID</label><input id="inlineClaimId" type="text" class="fInput" placeholder="Enter Claim ID"></div>
-<div class="formGroup"><label>Date</label><input id="inlineDate" class="fInput select" type="date"></div>
-<div class="formGroup"><label>Time Slot</label><select id="inlineTime" class="fInput select"><option value="">Select Time</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
-<div class="formGroup"><label>Block</label><select id="inlineBlock" class="fInput select"><option value="">Select Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
-<div class="formGroup"><label style="opacity:0">Action</label><button class="btnAdd" onclick="finalAddClaim()" style="width:100%;height:38px">Add to Claim</button></div>
+<div class="formGroup"><label>Claim ID</label><input id="inlineClaimId" type="search" name="shija_claimid_9271" autocomplete="off" data-lpignore="true" data-form-type="other" spellcheck="false" class="fInput" placeholder="Enter Claim ID"></div>
+<div class="formGroup"><label>Date</label><input id="inlineDate" class="fInput select" type="date" autocomplete="off" data-lpignore="true"></div>
+<div class="formGroup"><label>Time Slot</label><select id="inlineTime" class="fInput select" autocomplete="off" data-lpignore="true"><option value="">Select Time</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
+<div class="formGroup"><label>Block</label><select id="inlineBlock" class="fInput select" autocomplete="off" data-lpignore="true"><option value="">Select Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
+<div class="formGroup"><label style="opacity:0">Action</label><button type="button" class="btnAdd" onclick="finalAddClaim()" style="width:100%;height:38px">Add to Claim</button></div>
 </div>
-<div class="inlineActions"><button class="btnCancel" onclick="closeInlineBar()">Cancel</button></div>
+<div class="inlineActions"><button type="button" class="btnCancel" onclick="closeInlineBar()">Cancel</button></div>
 </div>
 </div>
 </div>
@@ -195,27 +203,27 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
     <div class="datePill">
       <button type="button" class="dateArrow" id="fDatePrev">◀</button>
       <div class="dateMiddle" id="fDateDisplay">LOADING...</div>
-      <input type="date" id="fDateFilter">
+      <input type="date" id="fDateFilter" autocomplete="off" data-lpignore="true">
       <button type="button" class="dateArrow" id="fDateNext">▶</button>
     </div>
-    <select id="fTime" class="fSelect"><option value="">ALL TIME</option><option value="7:00 AM">7 AM</option><option value="12:00 PM">12 PM</option><option value="5:00 PM">5 PM</option><option value="9:00 PM">9 PM</option><option value="12:00 AM">12 AM</option><option value="2:00 AM">2 AM</option></select>
-    <select id="fBlock" class="fSelect"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select>
-    <select id="pageSize" class="fSelect" onchange="changePageSize()"><option value="12" selected>12 / page</option><option value="24">24 / page</option><option value="48">48 / page</option></select>
-    <button onclick="clearFilters()" style="height:38px;padding:0 16px;border-radius:10px;border:0;background:#0f172a;color:#fff;font-weight:800;font-size:11px;cursor:pointer;flex-shrink:0">CLEAR</button>
+    <select id="fTime" class="fSelect" autocomplete="off" data-lpignore="true"><option value="">ALL TIME</option><option value="7:00 AM">7 AM</option><option value="12:00 PM">12 PM</option><option value="5:00 PM">5 PM</option><option value="9:00 PM">9 PM</option><option value="12:00 AM">12 AM</option><option value="2:00 AM">2 AM</option></select>
+    <select id="fBlock" class="fSelect" autocomplete="off" data-lpignore="true"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select>
+    <select id="pageSize" class="fSelect" onchange="changePageSize()" autocomplete="off" data-lpignore="true"><option value="12" selected>12 / page</option><option value="24">24 / page</option><option value="48">48 / page</option></select>
+    <button type="button" onclick="clearFilters()" style="height:38px;padding:0 16px;border-radius:10px;border:0;background:#0f172a;color:#fff;font-weight:800;font-size:11px;cursor:pointer;flex-shrink:0">CLEAR</button>
   </div>
   <div class="searchRow">
-    <input id="fSearch" class="searchInputClaim" type="search" autocomplete="off" spellcheck="false" placeholder="Search claim patient...">
+    <input id="fSearch" class="searchInputClaim" type="search" name="shija_filter_9271" autocomplete="off" data-lpignore="true" data-form-type="other" spellcheck="false" placeholder="Search claim patient...">
     <div class="viewToggle">
-      <button class="vBtn" id="gridBtn" onclick="setView('grid')" title="Grid">⊞</button>
-      <button class="vBtn active" id="tableBtn" onclick="setView('table')" title="List">☰</button>
+      <button type="button" class="vBtn" id="gridBtn" onclick="setView('grid')" title="Grid">⊞</button>
+      <button type="button" class="vBtn active" id="tableBtn" onclick="setView('table')" title="List">☰</button>
     </div>
   </div>
 </div>
 
 <div class="patientGrid hidden" id="patientGrid"></div>
-<div class="pagerGrid hidden" id="pagerGrid"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtnGrid" onclick="changePage(-1)">←</button><button class="pBtn" id="nextBtnGrid" onclick="changePage(1)">→</button></div><div id="pageInfoGrid" style="font-weight:700;font-size:12px"></div><div id="pageNumsGrid" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
+<div class="pagerGrid hidden" id="pagerGrid"><div style="display:flex;gap:6px"><button type="button" class="pBtn" id="prevBtnGrid" onclick="changePage(-1)">←</button><button type="button" class="pBtn" id="nextBtnGrid" onclick="changePage(1)">→</button></div><div id="pageInfoGrid" style="font-weight:700;font-size:12px"></div><div id="pageNumsGrid" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
 
-<div class="tableWrap" id="tableWrap"><div class="tableScroll"><table id="tbl"><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>CLAIM ID</th><th>TIME</th><th>BLOCK</th><th>DATE</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="changePage(-1)">←</button><button class="pBtn" id="nextBtn" onclick="changePage(1)">→</button></div><div id="pageInfo" style="font-weight:700;font-size:12px"></div><div id="pageNums" style="display:flex;gap:6px;flex-wrap:wrap"></div></div></div>
+<div class="tableWrap" id="tableWrap"><div class="tableScroll"><table id="tbl"><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>CLAIM ID</th><th>TIME</th><th>BLOCK</th><th>DATE</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div><div class="pager"><div style="display:flex;gap:6px"><button type="button" class="pBtn" id="prevBtn" onclick="changePage(-1)">←</button><button type="button" class="pBtn" id="nextBtn" onclick="changePage(1)">→</button></div><div id="pageInfo" style="font-weight:700;font-size:12px"></div><div id="pageNums" style="display:flex;gap:6px;flex-wrap:wrap"></div></div></div>
 
 </div>
 <div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0;width:100%;box-sizing:border-box">SHIJA Dialysis</div>
@@ -224,11 +232,13 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
   <div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
     <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
-    <input type="password" id="adminPassInput" placeholder="Password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
+    <div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter admin password</div>
+    <!-- CHANGED FROM password TO TEXT WITH DOTS - STOPS GOOGLE POPUP -->
+    <input type="text" id="adminPassInput" class="maskedPass" name="shija_admin_pwd_9271" autocomplete="off" data-lpignore="true" data-form-type="other" inputmode="text" spellcheck="false" placeholder="Password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
     <div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div>
     <div style="display:flex;gap:8px">
-      <button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:12px;cursor:pointer">Cancel</button>
-      <button id="confirmLogoutAll" style="flex:1;height:38px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer">Logout All</button>
+      <button type="button" id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:12px;cursor:pointer">Cancel</button>
+      <button type="button" id="confirmLogoutAll" style="flex:1;height:38px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer">Logout All</button>
     </div>
   </div>
 </div>
@@ -253,14 +263,17 @@ document.addEventListener('DOMContentLoaded',()=>{
   adminBtn?.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
   document.addEventListener('click',(e)=>{ if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none'; });
   document.getElementById('btnLogout')?.addEventListener('click',()=>{ if(confirm('Logout from this device?')){ localStorage.removeItem('shija_logged'); location.href='login.html'; } });
-  document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; });
+  document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none'; });
   document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
+  document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
   document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
     let pass=document.getElementById('adminPassInput').value.trim();
     if(pass!==ADMIN_PASSWORD){ document.getElementById('passError').style.display='block'; return; }
+    document.getElementById('passError').style.display='none';
     let btn=document.getElementById('confirmLogoutAll'); btn.innerText='...'; btn.disabled=true;
     try{ await setDoc(doc(adminDb,"system","global_logout"),{ logoutTime: Date.now(), timestamp: serverTimestamp() },{merge:true}); alert('All devices logged out!'); localStorage.removeItem('shija_logged'); location.href='login.html'; }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
   });
+  document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{ if(e.key==='Enter') document.getElementById('confirmLogoutAll').click(); });
 });
 </script>
 <script>
@@ -273,7 +286,6 @@ function toggleWhiteBar(){
     document.getElementById('mobOverlay').classList.toggle('show');
   }else{
     bar.classList.toggle('folded');
-    // FORCE FIX FOR WHITE GAP - this was the bug
     if(bar.classList.contains('folded')){
       wrap.style.marginLeft='72px';
       wrap.style.width='calc(100% - 72px)';
@@ -285,14 +297,8 @@ function toggleWhiteBar(){
     }
   }
 }
-function closeMob(){
-  document.getElementById('whiteBar').classList.remove('mOpen');
-  document.getElementById('mobOverlay').classList.remove('show');
-}
-function todayISO(){
-  let d=new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
+function closeMob(){ document.getElementById('whiteBar').classList.remove('mOpen'); document.getElementById('mobOverlay').classList.remove('show'); }
+function todayISO(){ let d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
   document.getElementById('fDatePrev').addEventListener('click',()=>shiftFilterDate(-1));
@@ -301,8 +307,6 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('fDateFilter').addEventListener('change',()=>{ filterDateValue=document.getElementById('fDateFilter').value; updateFilterDateDisplay(); applyFilter(); });
   document.getElementById('fTime').addEventListener('change',applyFilter);
   document.getElementById('fBlock').addEventListener('change',applyFilter);
-  
-  // SET DEFAULT TODAY - FIX
   filterDateValue=todayISO();
   document.getElementById('fDateFilter').value=filterDateValue;
   updateFilterDateDisplay();
@@ -319,7 +323,6 @@ function shiftFilterDate(delta){
   applyFilter();
 }
 function clearFilters(){
-  // CLEAR GOES TO TODAY, NOT ALL
   filterDateValue=todayISO();
   document.getElementById('fDateFilter').value=filterDateValue;
   document.getElementById('fTime').value='';
@@ -374,7 +377,7 @@ function renderAll(){
   let gridHtml='';
   data.forEach((p)=>{
     let pmjay=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';
-    gridHtml+=`<div class="pCard"><div class="pCardTop"><div class="pCardAvatar">${getInitial(p.patientName||p.name)}</div><span class="claimBadge">${p.claimId||'-'}</span></div><div class="pCardBody"><div class="pCardName">${p.patientName||p.name||''}</div><div class="pCardRow"><span>SHRI</span><b>${p.shriId||p.shri||'-'}</b></div><div class="pCardRow"><span>PMJAY</span><b>${pmjay||'-'}</b></div><div class="pCardRow"><span>DATE</span><b>${p.date||'-'}</b></div><div class="pCardRow"><span>TIME • BLOCK</span><b>${p.time||'-'} • ${p.block||'-'}</b></div><div class="pCardActions"><button class="btnEditText" onclick="editClaim('${p._id}')">EDIT</button><button class="btnDelText" onclick="removeClaim('${p._id}')">DELETE</button></div></div></div>`;
+    gridHtml+=`<div class="pCard"><div class="pCardTop"><div class="pCardAvatar">${getInitial(p.patientName||p.name)}</div><span class="claimBadge">${p.claimId||'-'}</span></div><div class="pCardBody"><div class="pCardName">${p.patientName||p.name||''}</div><div class="pCardRow"><span>SHRI</span><b>${p.shriId||p.shri||'-'}</b></div><div class="pCardRow"><span>PMJAY</span><b>${pmjay||'-'}</b></div><div class="pCardRow"><span>DATE</span><b>${p.date||'-'}</b></div><div class="pCardRow"><span>TIME • BLOCK</span><b>${p.time||'-'} • ${p.block||'-'}</b></div><div class="pCardActions"><button type="button" class="btnEditText" onclick="editClaim('${p._id}')">EDIT</button><button type="button" class="btnDelText" onclick="removeClaim('${p._id}')">DELETE</button></div></div></div>`;
   });
   if(data.length===0) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0;width:100%;box-sizing:border-box">No claimed patients for '+filterDateValue+'</div>';
   document.getElementById('patientGrid').innerHTML=gridHtml;
@@ -384,7 +387,7 @@ function renderAll(){
     data.forEach((p,i)=>{
       let pmjay=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';
       let tr=document.createElement('tr');
-      tr.innerHTML=`<td>${start+i+1}</td><td class="nameCol"><b>${p.patientName||p.name||''}</b></td><td>${p.shriId||p.shri||''}</td><td style="font-weight:900">${pmjay}</td><td><span style="background:#0f172a;color:#fff;padding:4px 10px;border-radius:20px;font-weight:900;font-size:9px">${p.claimId}</span></td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.date||''}</td><td><div style="display:flex;gap:6px;justify-content:center"><button style="height:32px;padding:0 12px;border-radius:8px;border:0;background:#facc15;font-weight:800;font-size:11px;cursor:pointer;color:#000" onclick="editClaim('${p._id}')">EDIT</button><button style="height:32px;padding:0 14px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:800;font-size:11px;cursor:pointer" onclick="removeClaim('${p._id}')">DELETE</button></div></td>`;
+      tr.innerHTML=`<td>${start+i+1}</td><td class="nameCol"><b>${p.patientName||p.name||''}</b></td><td>${p.shriId||p.shri||''}</td><td style="font-weight:900">${pmjay}</td><td><span style="background:#0f172a;color:#fff;padding:4px 10px;border-radius:20px;font-weight:900;font-size:9px">${p.claimId}</span></td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.date||''}</td><td><div style="display:flex;gap:6px;justify-content:center"><button type="button" style="height:32px;padding:0 12px;border-radius:8px;border:0;background:#facc15;font-weight:800;font-size:11px;cursor:pointer;color:#000" onclick="editClaim('${p._id}')">EDIT</button><button type="button" style="height:32px;padding:0 14px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:800;font-size:11px;cursor:pointer" onclick="removeClaim('${p._id}')">DELETE</button></div></td>`;
       tbody.appendChild(tr);
     });
   }
@@ -396,7 +399,7 @@ function renderAll(){
     if(pInfo) pInfo.textContent='Page '+currentPage+' of '+totalPages;
     if(prevBtn) prevBtn.disabled=currentPage<=1;
     if(nextBtn) nextBtn.disabled=currentPage>=totalPages;
-    if(numsEl){ let nums=''; for(let i=1;i<=Math.min(totalPages,10);i++){ nums+=`<button class="pBtn" style="${i===currentPage?'background:#0f172a;color:#fff':''}" onclick="goPage(${i})">${i}</button>`; } numsEl.innerHTML=nums; }
+    if(numsEl){ let nums=''; for(let i=1;i<=Math.min(totalPages,10);i++){ nums+=`<button type="button" class="pBtn" style="${i===currentPage?'background:#0f172a;color:#fff':''}" onclick="goPage(${i})">${i}</button>`; } numsEl.innerHTML=nums; }
   });
 }
 function changePage(d){ let tp=Math.max(1,Math.ceil(filtered.length/pageSize)); currentPage+=d; if(currentPage<1) currentPage=1; if(currentPage>tp) currentPage=tp; renderAll(); }
