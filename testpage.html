@@ -63,14 +63,7 @@ td{padding:12px 10px;font-size:12px;border-bottom:1px solid #f1f5f9;white-space:
 #tbl tbody tr:hover td{background:#eff6ff!important}
 #tbl tbody tr:hover .sl{background:#2563eb;color:#fff;transform:scale(1.15)}
 #tbl tbody tr:hover .shri{transform:scale(1.05)}
-#tbl tbody tr:hover .rowPop{opacity:1;visibility:visible;transform:translate(-50%, -8px) scale(1)}
-.rowPop{position:absolute;bottom:100%;left:50%;transform:translate(-50%, 8px) scale(0.9);background:#0f172a;color:#fff;border-radius:12px;padding:10px 12px;min-width:200px;max-width:240px;box-shadow:0 14px 32px rgba(0,0,0,0.4);opacity:0;visibility:hidden;transition:all .24s cubic-bezier(.34,1.56,.64,1);z-index:100;pointer-events:none;text-align:left;white-space:normal}
-.rowPop::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-top-color:#0f172a}
-.rowPop .popTitle{font-size:11px;font-weight:900;color:#fff;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rowPop .popRow{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid #1e293b;font-size:10px}
-.rowPop .popRow:last-child{border-bottom:0}
-.rowPop .popRow span:first-child{color:#94a3b8;font-weight:600}
-.rowPop .popRow span:last-child{color:#fff;font-weight:700;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rowPop{display:none!important}
 .gridWrap{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px;position:relative;min-height:520px;background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px}
 .gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;position:relative;z-index:2;overflow:visible;transition:all .28s cubic-bezier(.34,1.56,.64,1);cursor:pointer}
 .gridCard:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 14px 28px rgba(37,99,235,0.18);border-color:#2563eb;background:#faf5ff;z-index:20}
@@ -136,7 +129,7 @@ td{padding:12px 10px;font-size:12px;border-bottom:1px solid #f1f5f9;white-space:
   .kftSlide.show{width:148px!important;transform:translateX(-50%)!important}
   .kftSlide .q{font-size:7px!important;padding-left:6px!important}
   .kftSlide button{font-size:7px!important;min-width:32px!important;padding:0 6px!important}
-  .rowPop,.hoverPop{display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+  .hoverPop{display:none!important;opacity:0!important;visibility:hidden!important}
   .gridWrap{grid-template-columns:repeat(2,1fr)!important;gap:8px!important;padding:8px!important;width:100%!important}
   .gridCard{padding:10px 6px!important;gap:5px!important;width:100%!important;min-width:0!important}
   .gridCard b{font-size:9px!important;white-space:normal!important}
@@ -300,14 +293,13 @@ function renderTable(){
   let safeName=(p.patientName||'').replace(/'/g,"\\'");
   let slideId=`slide_${startIndex+i}`;
   let gridSlideId=`gslide_${startIndex+i}`;
-  let statusText=cur?'RECEIVED':'NOT-RECEIVED';
   let badge=cur?
     `<div class="kftCell"><span class="badgeRecv" onclick="event.stopPropagation();toggleSlide('${safeShri}','${slideId}')">RECEIVED ✓</span><div class="kftSlide" id="${slideId}"><span class="q">NOT-RECEIVED?</span><button class="yes" onclick="event.stopPropagation();confirmYes('${safeShri}','${safeName}')">YES</button><button class="no" onclick="event.stopPropagation();confirmNo()">NO</button></div></div>`
     :
     `<div class="kftCell"><span class="badgeNot" onclick="event.stopPropagation();toggleSlide('${safeShri}','${slideId}')">NOT-RECEIVED ✗</span><div class="kftSlide" id="${slideId}"><span class="q">RECEIVED?</span><button class="yes" onclick="event.stopPropagation();confirmYes('${safeShri}','${safeName}')">YES</button><button class="no" onclick="event.stopPropagation();confirmNo()">NO</button></div></div>`;
   html+=`<tr>
     <td><div class="sl">${startIndex+i+1}</div></td>
-    <td><b>${p.patientName}</b><div class="rowPop"><div class="popTitle">${p.patientName}</div><div class="popRow"><span>SHRI ID:</span><span>${p.shriId||'-'}</span></div><div class="popRow"><span>Contact:</span><span>${p.contactNo||'-'}</span></div><div class="popRow"><span>KFT:</span><span>${statusText}</span></div><div class="popRow"><span>Date:</span><span>${dateKey}</span></div></div></td>
+    <td><b>${p.patientName}</b></td>
     <td><span class="shri">${p.shriId||''}</span></td>
     <td>${p.contactNo||'-'}</td>
     <td>${badge}</td>
@@ -319,7 +311,7 @@ function renderTable(){
     :
     `<div class="kftCell"><span class="badgeNot" onclick="event.stopPropagation();toggleSlide('${safeShri}','${gridSlideId}')">NOT-RECEIVED ✗</span><div class="kftSlide" id="${gridSlideId}"><span class="q">RECEIVED?</span><button class="yes" onclick="event.stopPropagation();confirmYes('${safeShri}','${safeName}')">YES</button><button class="no" onclick="event.stopPropagation();confirmNo()">NO</button></div></div>`;
   gridHtml+=`<div class="gridCard">
-    <div class="hoverPop"><div class="popTitle">${p.patientName||'No Name'}</div><div class="popRow"><span>SHRI ID:</span><span>${p.shriId||'-'}</span></div><div class="popRow"><span>Contact:</span><span>${p.contactNo||'-'}</span></div><div class="popRow"><span>KFT:</span><span>${statusText}</span></div><div class="popRow"><span>Date:</span><span>${dateKey}</span></div></div>
+    <div class="hoverPop"><div class="popTitle">${p.patientName||'No Name'}</div><div class="popRow"><span>SHRI ID:</span><span>${p.shriId||'-'}</span></div><div class="popRow"><span>Contact:</span><span>${p.contactNo||'-'}</span></div><div class="popRow"><span>KFT:</span><span>${cur?'RECEIVED':'NOT-RECEIVED'}</span></div><div class="popRow"><span>Date:</span><span>${dateKey}</span></div></div>
     <div class="iconOnly" style="background:${bgColor}"><svg viewBox="0 0 24 24" style="stroke:${iconColor}"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <b>${p.patientName||'No Name'}</b><span class="shriSmall">${p.shriId||''}</span><div>${gridBadge}</div>
   </div>`;
