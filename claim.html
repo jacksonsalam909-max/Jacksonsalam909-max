@@ -121,6 +121,15 @@ td.nameCol{text-align:left;padding-left:8px;max-width:120px;overflow:hidden;text
 }
 @media(max-width:600px){ .patientGrid{grid-template-columns:repeat(2, minmax(0,1fr))!important} .formGrid{grid-template-columns:1fr!important} }
 @media(max-width:380px){ .patientGrid{grid-template-columns:1fr!important} .fSelect{flex:1 1 100%!important;max-width:100%!important} }
+
+/* HOVER POPUP + HIGHLIGHT ONLY - NO EXTRA CARD */
+tbody tr{transition:0.22s ease}
+tbody tr:hover td{background:#f0fdf4!important;color:#14532d!important}
+.pCard{position:relative}
+.pCard:hover{transform:translateY(-5px) scale(1.02)!important;border-color:#16a34a!important;box-shadow:0 12px 28px rgba(22,163,74,0.18)!important}
+.pCard:hover .pCardName{color:#16a34a}
+.pCard[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%);background:#0f172a;color:#fff;padding:6px 10px;border-radius:8px;font-size:9px;font-weight:800;white-space:nowrap;z-index:99;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,0.22)}
+.pCard[data-tip]:hover::before{content:'';position:absolute;left:50%;bottom:calc(100% + 4px);transform:translateX(-50%);border:6px solid transparent;border-top-color:#0f172a;z-index:99;pointer-events:none}
 </style>
 </head>
 <body>
@@ -281,7 +290,8 @@ function renderAll(){
   let gridHtml='';
   data.forEach((p)=>{
     let pmjay=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';
-    gridHtml+=`<div class="pCard"><div class="pCardTop"><div class="pCardAvatar">${getInitial(p.patientName||p.name)}</div><span class="claimBadge">${p.claimId||'-'}</span></div><div class="pCardBody"><div class="pCardName">${p.patientName||p.name||''}</div><div class="pCardRow"><span>SHRI</span><b>${p.shriId||p.shri||'-'}</b></div><div class="pCardRow"><span>PMJAY</span><b>${pmjay||'-'}</b></div><div class="pCardRow"><span>DATE</span><b>${p.date||'-'}</b></div><div class="pCardRow"><span>TIME • BLOCK</span><b>${p.time||'-'} • ${p.block||'-'}</b></div><div class="pCardActions"><button type="button" class="btnEditText" onclick="editClaim('${p._id}')">EDIT</button><button type="button" class="btnDelText" onclick="removeClaim('${p._id}')">DELETE</button></div></div></div>`;
+    let tip=`SHRI: ${p.shriId||p.shri||'-'} | PMJAY: ${pmjay||'-'} | ${p.time||'-'} • ${p.block||'-'}`;
+    gridHtml+=`<div class="pCard" data-tip="${tip}"><div class="pCardTop"><div class="pCardAvatar">${getInitial(p.patientName||p.name)}</div><span class="claimBadge">${p.claimId||'-'}</span></div><div class="pCardBody"><div class="pCardName">${p.patientName||p.name||''}</div><div class="pCardRow"><span>SHRI</span><b>${p.shriId||p.shri||'-'}</b></div><div class="pCardRow"><span>PMJAY</span><b>${pmjay||'-'}</b></div><div class="pCardRow"><span>DATE</span><b>${p.date||'-'}</b></div><div class="pCardRow"><span>TIME • BLOCK</span><b>${p.time||'-'} • ${p.block||'-'}</b></div><div class="pCardActions"><button type="button" class="btnEditText" onclick="editClaim('${p._id}')">EDIT</button><button type="button" class="btnDelText" onclick="removeClaim('${p._id}')">DELETE</button></div></div></div>`;
   });
   if(data.length===0) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:24px;background:#fff;border-radius:12px;border:1px solid #e2e8f0;width:100%;box-sizing:border-box">No claimed patients for '+filterDateValue+'</div>';
   document.getElementById('patientGrid').innerHTML=gridHtml;
