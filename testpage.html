@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA DISCHARGE - NO BLOCK + VERTICAL GRID</title>
+<title>SHIJA DISCHARGE - NO LOADING STUCK</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="Patient.js"></script>
 <style>
@@ -76,7 +76,6 @@ td.actionTd{overflow:visible!important;z-index:20}
 .badge{background:#0f172a;color:#fff;padding:5px 10px;border-radius:20px;font-weight:900;font-size:9px}
 .claimBtn{background:#facc15!important;color:#000!important;padding:5px 8px;border-radius:5px;border:1.5px solid #eab308!important;font-weight:900;font-size:7.5px;cursor:pointer}
 .delBtn{background:#ef4444;color:#fff;padding:5px 7px;border-radius:5px;border:0;font-weight:900;font-size:7.5px;cursor:pointer}
-/* GRID FIX - NO STRETCH */
 .gridWrap{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:6px;align-items:start}
 .gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px;min-height:140px;display:flex;flex-direction:column;justify-content:flex-start;transition:all .22s ease;align-self:start;height:auto}
 .gridName{font-weight:900;font-size:12px;color:#0f172a;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -117,20 +116,14 @@ td.actionTd{overflow:visible!important;z-index:20}
 .gridWrap{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:600px){.gridWrap{grid-template-columns:1fr}}
-
-/* LIST HOVER HIGHLIGHT - NO POPUP */
 .mainRow:hover td{background:#eef2ff!important}
 .gridCard:hover{background:#faf5ff!important;border-color:#c4b5fd!important;transform:translateY(-2px);box-shadow:0 8px 20px rgba(60,37,235,0.12)}
-
-/* GRID VERTICAL UPLOAD - NEW */
 .gridDocsVertical{display:none;flex-direction:column;gap:8px;margin-top:10px;width:100%}
 .gridDocsVertical.show{display:flex}
 .gridDocsVertical .vCard{width:100%;padding:10px 8px;border-radius:8px;border:1.5px dashed #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;transition:all .2s}
 .gridDocsVertical .vCard.done{border-style:solid;background:#eef2ff;border-color:#3c25eb}
 .gridDocsVertical .vCard b{font-size:9px;color:#0f172a}
 .gridDocsVertical .vCard .sub{font-size:7px;color:#94a3b8;font-weight:600}
-
-/* NO BLUR POPUP */
 #fileModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;align-items:center;justify-content:center;padding:12px}
 #fileModal.show{display:flex}
 .popupCard{background:#fff;width:96%;max-width:520px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;border-radius:8px;box-shadow:0 24px 64px rgba(0,0,0,0.45)}
@@ -194,7 +187,7 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT FOR PMJAY</span></a>
 <a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span><span class="ml">BILL</span></a>
 <a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
-</div></div><div class="sFoot"><span class="footFull">SHIJA • TODAY ONLY</span><span class="footFold">Click ☰</span></div></div>
+</div></div><div class="sFoot"><span class="footFull">SHIJA • TODAY FIXED</span><span class="footFold">Click ☰</span></div></div>
 
 <div class="mainWrap">
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY</div></div>
@@ -252,7 +245,7 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 </div>
 
 <div class="card" style="padding:8px">
-<div class="sheetWrap" id="tableWrap"><table><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>TIME</th><th>BLOCK</th><th>UPLOAD</th><th>ACTION</th></tr></thead><tbody id="tbody"><tr><td colspan="8" style="padding:20px;text-align:center">Loading today's discharge...</td></tr></tbody></table></div>
+<div class="sheetWrap" id="tableWrap"><table><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>TIME</th><th>BLOCK</th><th>UPLOAD</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
 <div class="gridWrap" id="gridWrap" style="display:none"></div>
 </div>
 </div>
@@ -310,7 +303,7 @@ try{if(window._fb&&window._fb.db){var snap2=await window._fb.getDocs(window._fb.
 
 async function loadAll(){
 try{
-if(!window._fb||!window._fb.db){render(); setTimeout(loadAll,500); return;}
+if(!window._fb||!window._fb.db){render(); setTimeout(loadAll,800); return;}
 var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges'));
 allDischarge=[];snap.forEach(function(d){var o=d.data();o._id=d.id;allDischarge.push(o);});
 allDischarge.sort(function(a,b){return new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0);});
@@ -354,9 +347,9 @@ document.getElementById('pageInfo').innerText="Page "+currentPage+" of "+totalPa
 var fTimeVal=document.getElementById('fTime')?document.getElementById('fTime').value:'';var fBlockVal=document.getElementById('fBlock')?document.getElementById('fBlock').value:'';
 document.getElementById('dateInfo').innerText=(fTimeVal||'ALL TIME')+" | "+(fBlockVal||'ALL BLOCK');
 if(page.length===0){
-var d=document.getElementById('fDate')?document.getElementById('fDate').value:'';
-tbody.innerHTML='<tr><td colspan="8" style="padding:20px;text-align:center">NO DISCHARGED FOR TODAY ('+d+')<br><button class="btn btnDark btnSmall" style="margin-top:8px" onclick="loadAll()">RETRY</button> <button class="btn btnSmall" style="margin-top:8px;margin-left:6px;background:#fff;border:1px solid #e2e8f0" onclick="filtered=allDischarge;currentPage=1;render()">SHOW ALL</button></td></tr>';
-grid.innerHTML='<div style="padding:20px;text-align:center;grid-column:1/-1">NO DISCHARGED FOR TODAY ('+d+')</div>';return;
+var d=document.getElementById('fDate')?document.getElementById('fDate').value:getToday();
+tbody.innerHTML='<tr><td colspan="8" style="padding:20px;text-align:center">NO DISCHARGED FOR TODAY ('+d+')<br><button class="btn btnDark btnSmall" style="margin-top:8px" onclick="loadAll()">RETRY LOAD</button> <button class="btn btnSmall" style="margin-top:8px;margin-left:6px;background:#fff;border:1px solid #e2e8f0" onclick="filtered=allDischarge;currentPage=1;render()">SHOW ALL</button></td></tr>';
+grid.innerHTML='<div style="padding:20px;text-align:center;grid-column:1/-1">NO DISCHARGED FOR TODAY ('+d+')<br><button class="btn btnDark btnSmall" style="margin-top:8px" onclick="loadAll()">RETRY</button></div>';return;
 }
 page.forEach(function(p,i){
 var pmjayShow=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';var shriVal=p.shriId||p.shri||'';var nameVal=p.patientName||p.name||'';
@@ -447,12 +440,14 @@ document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{if(e.t
 });
 window.addEventListener('load',function(){
 var fDate=document.getElementById('fDate');
+// TODAY ONLY - FIXED
 if(fDate) fDate.value=getToday();
 var bar=document.getElementById('whiteBar');if(bar){bar.classList.remove('folded');try{localStorage.setItem('shija_menu_folded','0');}catch(e){}}
 setupSearch();
+// INSTANT RENDER - NO LOADING STUCK
 allDischarge=[];filtered=[];
 try{render();}catch(e){}
-setTimeout(function(){loadMaster().then(function(){loadAll();setView('list');});},400);
+setTimeout(function(){loadMaster().then(function(){loadAll();setView('list');});},300);
 document.getElementById('fTime').addEventListener('change',applyFilter);
 document.getElementById('fBlock').addEventListener('change',applyFilter);
 document.getElementById('perPage').addEventListener('change',applyFilter);
