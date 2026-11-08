@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA DISCHARGE - TODAY ONLY + NO BLUR + GRID + HOVER</title>
+<title>SHIJA DISCHARGE - NO BLOCK + VERTICAL GRID</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="Patient.js"></script>
 <style>
@@ -59,7 +59,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .sMeta{font-size:10px;color:#64748b;font-weight:700;margin-top:2px}
 .addPanel{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s,margin .3s;background:#fff;border:0 solid #3c25eb;border-radius:12px;margin-top:0;padding:0 14px}
 .addPanel.open{max-height:600px;border-width:2px;margin-top:12px;padding:14px}
-/* FIX COLUMN WIDTH - CLAIM VISIBLE */
 .sheetWrap{background:#fff;border:1.5px solid #e2e8f0;overflow:auto;max-height:75vh;border-radius:12px}
 table{border-collapse:collapse;width:100%;min-width:760px;table-layout:fixed}
 th{position:sticky;top:0;background:#0f172a;color:#fff;padding:8px 4px;font-size:8.5px;text-align:center;z-index:2;font-weight:800;white-space:nowrap}
@@ -77,8 +76,9 @@ td.actionTd{overflow:visible!important;z-index:20}
 .badge{background:#0f172a;color:#fff;padding:5px 10px;border-radius:20px;font-weight:900;font-size:9px}
 .claimBtn{background:#facc15!important;color:#000!important;padding:5px 8px;border-radius:5px;border:1.5px solid #eab308!important;font-weight:900;font-size:7.5px;cursor:pointer}
 .delBtn{background:#ef4444;color:#fff;padding:5px 7px;border-radius:5px;border:0;font-weight:900;font-size:7.5px;cursor:pointer}
-.gridWrap{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:6px}
-.gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;transition:all .22s ease;cursor:pointer}
+/* GRID FIX - NO STRETCH */
+.gridWrap{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:6px;align-items:start}
+.gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px;min-height:140px;display:flex;flex-direction:column;justify-content:flex-start;transition:all .22s ease;align-self:start;height:auto}
 .gridName{font-weight:900;font-size:12px;color:#0f172a;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gridRow{display:flex;justify-content:space-between;font-size:9px;font-weight:700;color:#64748b;margin-bottom:3px}
 .iconBtn{width:36px;height:36px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#0f172a}
@@ -118,16 +118,19 @@ td.actionTd{overflow:visible!important;z-index:20}
 }
 @media(max-width:600px){.gridWrap{grid-template-columns:1fr}}
 
-/* HOVER HIGHLIGHT - LIST + GRID */
-.mainRow:hover td{background:#eef2ff!important;transform:scale(1.005);box-shadow:0 2px 10px rgba(60,37,235,0.12)}
-.gridCard:hover{background:#faf5ff!important;border-color:#3c25eb!important;transform:translateY(-3px);box-shadow:0 12px 28px rgba(60,37,235,0.18)}
-.hCard:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(60,37,235,0.15);border-color:#3c25eb}
+/* LIST HOVER HIGHLIGHT - NO POPUP */
+.mainRow:hover td{background:#eef2ff!important}
+.gridCard:hover{background:#faf5ff!important;border-color:#c4b5fd!important;transform:translateY(-2px);box-shadow:0 8px 20px rgba(60,37,235,0.12)}
 
-/* HOVER POPUP TIP */
-#hoverTip{position:fixed;z-index:99999;display:none;background:#0f172a;color:#fff;padding:10px 12px;border-radius:10px;font-size:10px;font-weight:700;max-width:260px;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,0.3);line-height:1.4;border:1px solid #3c25eb}
-#hoverTip b{color:#facc15;display:block;font-size:11px;margin-bottom:2px}
+/* GRID VERTICAL UPLOAD - NEW */
+.gridDocsVertical{display:none;flex-direction:column;gap:8px;margin-top:10px;width:100%}
+.gridDocsVertical.show{display:flex}
+.gridDocsVertical .vCard{width:100%;padding:10px 8px;border-radius:8px;border:1.5px dashed #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;transition:all .2s}
+.gridDocsVertical .vCard.done{border-style:solid;background:#eef2ff;border-color:#3c25eb}
+.gridDocsVertical .vCard b{font-size:9px;color:#0f172a}
+.gridDocsVertical .vCard .sub{font-size:7px;color:#94a3b8;font-weight:600}
 
-/* FIX 2 - NO BLUR POPUP - REMOVED backdrop-filter */
+/* NO BLUR POPUP */
 #fileModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;align-items:center;justify-content:center;padding:12px}
 #fileModal.show{display:flex}
 .popupCard{background:#fff;width:96%;max-width:520px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;border-radius:8px;box-shadow:0 24px 64px rgba(0,0,0,0.45)}
@@ -153,25 +156,9 @@ var bar=document.getElementById('whiteBar');if(!bar)return;bar.classList.toggle(
 }
 function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
 function getToday(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');}
-function showTip(e, name, shri, pmjay, time, block){
- var tip=document.getElementById('hoverTip');
- tip.innerHTML='<b>'+name+'</b>SHRI: '+shri+'<br>PMJAY: '+pmjay+'<br>TIME: '+time+' | BLOCK: '+block+'';
- tip.style.display='block';
- tip.style.left=(e.clientX+12)+'px';
- tip.style.top=(e.clientY+12)+'px';
-}
-function moveTip(e){
- var tip=document.getElementById('hoverTip');
- if(tip.style.display==='block'){
-   tip.style.left=(e.clientX+12)+'px';
-   tip.style.top=(e.clientY+12)+'px';
- }
-}
-function hideTip(){document.getElementById('hoverTip').style.display='none';}
 </script>
 </head>
 <body>
-<div id="hoverTip"></div>
 <div id="mobOverlay" onclick="closeMob()"></div>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}</script>
 <script type="module">
@@ -207,7 +194,7 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT FOR PMJAY</span></a>
 <a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span><span class="ml">BILL</span></a>
 <a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
-</div></div><div class="sFoot"><span class="footFull">SHIJA • TODAY ONLY + HOVER</span><span class="footFold">Click ☰</span></div></div>
+</div></div><div class="sFoot"><span class="footFull">SHIJA • TODAY ONLY</span><span class="footFold">Click ☰</span></div></div>
 
 <div class="mainWrap">
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY</div></div>
@@ -381,9 +368,6 @@ var claimTag=p.claimId?' <span style="background:#eff6ff;color:#3c25eb;padding:2
 var btnTxt=p.claimId?'EDIT':'Claim';
 var safeName=nameVal.replace(/'/g,"\\'").replace(/"/g,"&quot;");
 var tr=document.createElement('tr');tr.className='mainRow';tr.id='tr_'+cleanShri;
-tr.setAttribute('onmouseenter','showTip(event,\''+safeName+'\',\''+shriVal+'\',\''+pmjayShow+'\',\''+(p.time||'')+'\',\''+(p.block||'')+'\')');
-tr.setAttribute('onmousemove','moveTip(event)');
-tr.setAttribute('onmouseleave','hideTip()');
 tr.innerHTML='<td>'+(start+i+1)+'</td><td class="nameCol" title="'+nameVal+'">'+nameVal+claimTag+'</td><td><span class="shriGray">'+shriVal+'</span></td><td><span class="pmjayBlue">'+pmjayShow+'</span></td><td>'+(p.time||'')+'</td><td>'+(p.block||'')+'</td><td><button class="uploadBtnFold '+(totalUp>0?'done':'')+'" onclick="toggleSlideList(\''+cleanShri+'\')">'+(totalUp>0?'✓'+totalUp:'UPLOAD')+' ▼</button></td><td class="actionTd"><div class="actionCell"><button class="claimBtn" onclick="openClaimInline(\''+p._id+'\')">'+btnTxt+'</button><div class="claimFold" id="fold-'+p._id+'"><input type="text" id="input-'+p._id+'" placeholder="CLAIM ID" value="'+(p.claimId||'')+'"><button class="btn btnDark btnSmall" onclick="saveClaimInline(\''+p._id+'\')">ADD</button><button class="btn btnSmall" style="background:#fff;border:1px solid #e2e8f0" onclick="closeClaimInline(\''+p._id+'\')">✕</button></div><button class="delBtn" onclick="delDischarge(\''+p._id+'\')">X</button></div></td>';
 tbody.appendChild(tr);
 var slideTr=document.createElement('tr');slideTr.className='slideRow';slideTr.id='slide_'+cleanShri;
@@ -391,13 +375,10 @@ slideTr.innerHTML='<td colspan="8" class="slideCell"><div class="slideInner"><di
 tbody.appendChild(slideTr);
 
 var gc=document.createElement('div');gc.className='gridCard';gc.id='grid_'+cleanShri;
-gc.setAttribute('onmouseenter','showTip(event,\''+safeName+'\',\''+shriVal+'\',\''+pmjayShow+'\',\''+(p.time||'')+'\',\''+(p.block||'')+'\')');
-gc.setAttribute('onmousemove','moveTip(event)');
-gc.setAttribute('onmouseleave','hideTip()');
-gc.innerHTML='<div><div class="gridName">'+nameVal+claimTag+'</div><div class="gridRow"><span>SHRI ID</span><b><span class="shriGray">'+shriVal+'</span></b></div><div class="gridRow"><span>PMJAY ID</span><b><span class="pmjayBlue">'+(pmjayShow||'NO')+'</span></b></div><div class="gridRow"><span>TIME</span><b>'+(p.time||'')+'</b></div><div class="gridRow"><span>BLOCK</span><b>'+(p.block||'')+'</b></div></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px"><div class="gridAction" style="display:flex;gap:5px;flex-wrap:wrap"><button class="uploadBtnFold '+(totalUp>0?'done':'')+'" onclick="toggleSlideGrid(\''+cleanShri+'\')" style="flex:1">'+(totalUp>0?'✓'+totalUp:'UPLOAD')+' ▼</button><button class="claimBtn" onclick="openClaimInlineGrid(\''+p._id+'\')">'+btnTxt+'</button><button class="delBtn" onclick="delDischarge(\''+p._id+'\')">X</button></div><div id="gridDocs_'+cleanShri+'" style="display:none;flex-direction:column;gap:6px;margin-top:6px"><div style="display:flex;gap:6px"><div class="hCard summary '+(mapCount.discharge_summary?'done':'')+'" style="flex:1;min-height:50px" onclick="triggerUpload(\''+cleanShri+'\',\'discharge_summary\',\''+shriVal+'\')"><b>SUMMARY</b><div class="sub">'+(mapCount.discharge_summary?'✓':'')+'</div></div><div class="hCard photo '+(mapCount.discharge_photo?'done':'')+'" style="flex:1;min-height:50px" onclick="triggerUpload(\''+cleanShri+'\',\'discharge_photo\',\''+shriVal+'\')"><b>PHOTO</b><div class="sub">'+(mapCount.discharge_photo?'✓':'')+'</div></div><div class="hCard feedback '+(mapCount.feedback_form?'done':'')+'" style="flex:1;min-height:50px" onclick="triggerUpload(\''+cleanShri+'\',\'feedback_form\',\''+shriVal+'\')"><b>FEEDBACK</b><div class="sub">'+(mapCount.feedback_form?'✓':'')+'</div></div></div><div class="claimFold" id="gfold-'+p._id+'" style="width:100%"><input type="text" id="ginput-'+p._id+'" placeholder="CLAIM ID" value="'+(p.claimId||'')+'" style="flex:1"><button class="btn btnDark btnSmall" onclick="saveClaimInlineGrid(\''+p._id+'\')">ADD</button></div></div></div>';
+gc.innerHTML='<div><div class="gridName" title="'+nameVal+'">'+nameVal+claimTag+'</div><div class="gridRow"><span>SHRI ID</span><b><span class="shriGray">'+shriVal+'</span></b></div><div class="gridRow"><span>PMJAY ID</span><b><span class="pmjayBlue">'+(pmjayShow||'NO')+'</span></b></div><div class="gridRow"><span>TIME</span><b>'+(p.time||'')+'</b></div><div class="gridRow"><span>BLOCK</span><b>'+(p.block||'')+'</b></div></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px"><div class="gridAction" style="display:flex;gap:5px;flex-wrap:wrap"><button class="uploadBtnFold '+(totalUp>0?'done':'')+'" onclick="toggleSlideGrid(\''+cleanShri+'\')" style="flex:1">'+(totalUp>0?'✓'+totalUp:'UPLOAD')+' ▼</button><button class="claimBtn" onclick="openClaimInlineGrid(\''+p._id+'\')">'+btnTxt+'</button><button class="delBtn" onclick="delDischarge(\''+p._id+'\')">X</button></div><div id="gridDocs_'+cleanShri+'" class="gridDocsVertical"><div class="vCard summary '+(mapCount.discharge_summary?'done':'')+'" onclick="triggerUpload(\''+cleanShri+'\',\'discharge_summary\',\''+shriVal+'\')"><div><b>DISCHARGE SUMMARY</b><div class="sub">'+(mapCount.discharge_summary?'✓ UPLOADED':'Click to Upload')+'</div></div>'+(mapCount.discharge_summary?'<div class="delNextToCard" onclick="event.stopPropagation();deleteSpecific(\''+shriVal+'\',\'discharge_summary\')">X</div>':'')+'</div><div class="vCard photo '+(mapCount.discharge_photo?'done':'')+'" onclick="triggerUpload(\''+cleanShri+'\',\'discharge_photo\',\''+shriVal+'\')"><div><b>DISCHARGE PHOTO</b><div class="sub">'+(mapCount.discharge_photo?'✓ UPLOADED':'Click to Upload')+'</div></div>'+(mapCount.discharge_photo?'<div class="delNextToCard" onclick="event.stopPropagation();deleteSpecific(\''+shriVal+'\',\'discharge_photo\')">X</div>':'')+'</div><div class="vCard feedback '+(mapCount.feedback_form?'done':'')+'" onclick="triggerUpload(\''+cleanShri+'\',\'feedback_form\',\''+shriVal+'\')"><div><b>FEEDBACK FORM</b><div class="sub">'+(mapCount.feedback_form?'✓ UPLOADED':'Click to Upload')+'</div></div>'+(mapCount.feedback_form?'<div class="delNextToCard" onclick="event.stopPropagation();deleteSpecific(\''+shriVal+'\',\'feedback_form\')">X</div>':'')+'</div><div class="claimFold" id="gfold-'+p._id+'" style="width:100%"><input type="text" id="ginput-'+p._id+'" placeholder="CLAIM ID" value="'+(p.claimId||'')+'" style="flex:1"><button class="btn btnDark btnSmall" onclick="saveClaimInlineGrid(\''+p._id+'\')">ADD</button></div></div></div>';
 grid.appendChild(gc);
 });
-if(lastOpenCleanShri){var s=document.getElementById('slide_'+lastOpenCleanShri);var r=document.getElementById('tr_'+lastOpenCleanShri);if(s)s.classList.add('show');if(r)r.classList.add('openRow');}
+if(lastOpenCleanShri){var s=document.getElementById('slide_'+lastOpenCleanShri);var r=document.getElementById('tr_'+lastOpenCleanShri);if(s)s.classList.add('show');if(r)r.classList.add('openRow'); var gd=document.getElementById('gridDocs_'+lastOpenCleanShri); if(gd) gd.classList.add('show');}
 }catch(e){var tb=document.getElementById('tbody');if(tb) tb.innerHTML='<tr><td colspan="8" style="padding:20px;color:red">Error: '+e.message+'</td></tr>';}
 }
 function changePage(d){var tp=Math.max(1,Math.ceil(filtered.length/pageSize));currentPage+=d;if(currentPage<1)currentPage=1;if(currentPage>tp)currentPage=tp;render();}
@@ -421,9 +402,9 @@ function closeAddPanel(){document.getElementById('addPanel').classList.remove('o
 async function confirmAddDischarge(){var time=document.getElementById('addTimeSelect').value;var block=document.getElementById('addBlockSelect').value;if(!selectedPatient||!time||!block){alert('Select TIME and BLOCK');return;}var date=document.getElementById('fDate').value||getToday();var docId=date+"_"+selectedPatient.shri+"_"+Date.now();try{if(!window._fb){alert('Firebase not ready');return;}await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',docId),{date:date,shriId:selectedPatient.shri,shri:selectedPatient.shri,patientName:selectedPatient.name,name:selectedPatient.name,pmjayCmhtId:selectedPatient.pmjayId,pmjayId:selectedPatient.pmjayId,time:time,block:block,status:'DISCHARGE',dischargedAt:new Date().toISOString()});closeAddPanel();loadAll();}catch(e){alert(e.message);}}
 async function delDischarge(id){if(!confirm('DELETE DISCHARGE?'))return;try{await window._fb.deleteDoc(window._fb.doc(window._fb.db,'discharges',id));loadAll();}catch(e){alert(e.message);}}
 function toggleSlideList(cleanShri){var slide=document.getElementById('slide_'+cleanShri);var isShow=slide&&slide.classList.contains('show');document.querySelectorAll('.slideRow').forEach(function(r){r.classList.remove('show');});document.querySelectorAll('.mainRow').forEach(function(r){r.classList.remove('openRow');});if(!isShow){if(slide)slide.classList.add('show');var row=document.getElementById('tr_'+cleanShri);if(row)row.classList.add('openRow');lastOpenCleanShri=cleanShri;}else{lastOpenCleanShri=null;}}
-function toggleSlideGrid(cleanShri){var docsDiv=document.getElementById('gridDocs_'+cleanShri);if(!docsDiv)return;var isOpen=docsDiv.style.display==='flex';if(isOpen){docsDiv.style.display='none';}else{docsDiv.style.display='flex';}}
+function toggleSlideGrid(cleanShri){var docsDiv=document.getElementById('gridDocs_'+cleanShri);if(!docsDiv)return;var isOpen=docsDiv.classList.contains('show');if(isOpen){docsDiv.classList.remove('show');}else{docsDiv.classList.add('show');}}
 function triggerUpload(cleanShri,type,shri){var docs=getDocsForShri(shri).filter(function(d){return d.type===type;});if(docs.length>0){openFileModal(docs[0]._id,shri);}else{document.getElementById('file_'+cleanShri+'_'+type).click();}}
-async function uploadFile(file,shri,name,pmjay,type){if(!file)return;if(file.size>10*1024*1024){alert('Max 10MB');return;}var cleanShri=shri.replace(/[^a-zA-Z0-9]/g,'_');var base64=await new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result);};r.readAsDataURL(file);});var id=cleanShri+'_'+type+'_'+Date.now();try{var chunks=[];for(var i=0;i<base64.length;i+=CHUNK_SIZE){chunks.push(base64.substring(i,i+CHUNK_SIZE));}await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:shri,cleanShri:cleanShri,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type||'application/octet-stream',size:file.size,chunkCount:chunks.length,createdAt:Date.now()});for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}if(!window._fb._docsCache[shri])window._fb._docsCache[shri]=[];window._fb._docsCache[shri].push({_id:id,type:type,shri:shri,fileName:file.name});render();}catch(e){alert(e.message);}}
+async function uploadFile(file,shri,name,pmjay,type){if(!file)return;if(file.size>10*1024*1024){alert('Max 10MB');return;}var cleanShri=shri.replace(/[^a-zA-Z0-9]/g,'_');var base64=await new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result);};r.readAsDataURL(file);});var id=cleanShri+'_'+type+'_'+Date.now();try{var chunks=[];for(var i=0;i<base64.length;i+=CHUNK_SIZE){chunks.push(base64.substring(i,i+CHUNK_SIZE));}await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:shri,cleanShri:cleanShri,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type||'application/octet-stream',size:file.size,chunkCount:chunks.length,createdAt:Date.now()});for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}if(!window._fb._docsCache[shri])window._fb._docsCache[shri]=[];window._fb._docsCache[shri].push({_id:id,[STRIPPED]
 async function getFullData(id){try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));var arr=[];snap.forEach(function(d){arr.push(d.data());});arr.sort(function(a,b){return a.index-b.index;});return arr.map(function(a){return a.data;}).join('');}catch(e){return null;}}
 async function openFileModal(id,shri){window._fb._currentZoom=1;window._fb._currentRotate=0;try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs'));var meta=null;snap.forEach(function(d){if(d.id===id)meta=d.data();});if(!meta)return;var data=await getFullData(id);if(!data)return;document.getElementById('modalFileName').textContent=meta.fileName;var box=document.getElementById('paperBox');if(data.startsWith('data:application/pdf')){box.innerHTML='<iframe src="'+data+'"></iframe>';}else if(data.startsWith('data:image')){box.innerHTML='<img id="popImg" src="'+data+'">';}else{box.innerHTML='<div style="padding:20px;text-align:center"><b>'+meta.fileName+'</b><br><a href="'+data+'" download="'+meta.fileName+'" style="color:#7c3aed;font-weight:800">Download</a></div>';}applyZoom();document.getElementById('fileModal').classList.add('show');document.getElementById('modalDownBtn').onclick=function(){var a=document.createElement('a');a.href=data;a.download=meta.fileName;a.click();};document.getElementById('popupBody').onwheel=function(e){e.preventDefault();if(e.deltaY<0){window._fb._currentZoom=Math.min(window._fb._currentZoom+0.12,3.5);}else{window._fb._currentZoom=Math.max(window._fb._currentZoom-0.12,0.4);}applyZoom();};}catch(e){alert(e.message);}}
 function zoomIn(){window._fb._currentZoom=Math.min(window._fb._currentZoom+0.2,3.5);applyZoom();}
