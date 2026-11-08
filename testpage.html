@@ -73,8 +73,8 @@ th:nth-child(8),td:nth-child(8){width:22%}
 td.nameCol{text-align:left;padding-left:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;font-size:9px}
 td.actionTd{overflow:visible!important;position:relative;z-index:20}
 .badge{background:#0f172a;color:#fff;padding:5px 10px;border-radius:20px;font-weight:900;font-size:9px}
-.claimBtn{background:#facc15!important;color:#000!important;padding:6px 12px;border-radius:20px;border:1.5px solid #eab308!important;font-weight:900;font-size:8px;cursor:pointer;min-width:54px}
-.delBtn{background:#ef4444;color:#fff;padding:6px 10px;border-radius:20px;border:0;font-weight:900;font-size:8px;cursor:pointer;min-width:32px}
+.claimBtn{background:#facc15!important;color:#000!important;padding:6px 12px;border-radius:20px;border:1.5px solid #eab308!important;font-weight:900;font-size:8px;cursor:pointer;min-width:54px;flex-shrink:0}
+.delBtn{background:#ef4444;color:#fff;padding:6px 10px;border-radius:20px;border:0;font-weight:900;font-size:8px;cursor:pointer;min-width:32px;flex-shrink:0}
 .gridWrap{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:6px;align-items:start;align-content:start}
 .gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:10px;min-height:140px;height:auto;align-self:start;display:flex;flex-direction:column;justify-content:space-between;overflow:visible}
 .gridName{font-weight:900;font-size:11px;color:#0f172a;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
@@ -85,38 +85,83 @@ td.actionTd{overflow:visible!important;position:relative;z-index:20}
 .filterBox2{display:flex;flex-direction:column;gap:10px}
 .filterRow1{display:flex;gap:6px;flex-wrap:wrap;align-items:end}
 .filterRow2{display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-top:1px solid #f1f5f9;padding-top:10px}
-.actionCell{display:flex;align-items:center;justify-content:flex-start;gap:6px;position:relative;overflow:visible;z-index:20}
-.claimWrap{display:inline-flex;align-items:center;gap:6px;position:relative}
-.claimFold{display:none;align-items:center;gap:0;background:#fff;border:1.5px solid #3c25eb;border-radius:24px;padding:3px 3px 3px 8px;box-shadow:0 6px 16px rgba(60,37,235,0.18);position:relative;z-index:5;animation:foldBetween .25s ease;white-space:nowrap}
-.claimFold.show{display:inline-flex}
+.actionCell{display:flex;align-items:center;justify-content:flex-start;gap:6px;position:relative;overflow:visible;z-index:20;min-width:0}
+.claimWrap{display:inline-flex;align-items:center;gap:6px;position:relative;flex-shrink:0}
+
+/* LIST VIEW - FIXED TO NOT SPREAD OUT OF TABLE */
+.actionCell .claimFold{
+  display:none;
+  align-items:center;
+  gap:0;
+  background:#fff;
+  border:1.5px solid #3c25eb;
+  border-radius:24px;
+  padding:2px 2px 2px 6px;
+  box-shadow:0 8px 20px rgba(60,37,235,0.18);
+  position:absolute;
+  left:60px;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:50;
+  animation:foldBetweenList .22s ease;
+  white-space:nowrap;
+  max-width:175px;
+}
+.actionCell .claimFold.show{display:inline-flex}
+@keyframes foldBetweenList{from{transform:translateY(-50%) translateX(15px);opacity:0}to{transform:translateY(-50%) translateX(0);opacity:1}}
+.actionCell .claimFold input{width:90px;padding:5px 6px;border:0;border-radius:20px;font-weight:800;font-size:8px;background:#f1f5f9;outline:0;text-transform:uppercase}
+.actionCell .claimFold .addClaimBtn{background:#3c25eb;color:#fff;padding:5px 10px;border-radius:20px;border:0;font-weight:900;font-size:7px;cursor:pointer;margin-left:4px}
+.actionCell .claimFold .addClaimBtn:disabled{background:#cbd5e1!important;color:#64748b!important;opacity:.5;pointer-events:none}
+
+/* GRID VIEW - STAY AS IT IS - RELATIVE */
+.gridAction .claimFold{
+  display:none;
+  align-items:center;
+  gap:0;
+  background:#fff;
+  border:1.5px solid #3c25eb;
+  border-radius:24px;
+  padding:3px 3px 3px 8px;
+  box-shadow:0 6px 16px rgba(60,37,235,0.18);
+  position:relative;
+  left:auto;
+  top:auto;
+  transform:none;
+  animation:foldBetween .25s ease;
+  white-space:nowrap;
+}
+.gridAction .claimFold.show{display:inline-flex}
 @keyframes foldBetween{from{transform:translateX(20px) scaleX(0.5);opacity:0;max-width:0}to{transform:translateX(0) scaleX(1);opacity:1;max-width:220px}}
-.claimFold input{width:110px;padding:6px 8px;border:0;border-radius:20px;font-weight:800;font-size:9px;background:#f1f5f9;outline:0;text-transform:uppercase}
-.claimFold .addClaimBtn{background:#3c25eb;color:#fff;padding:6px 12px;border-radius:20px;border:0;font-weight:900;font-size:8px;cursor:pointer;margin-left:5px}
-.claimFold .addClaimBtn:disabled{background:#cbd5e1!important;color:#64748b!important;cursor:not-allowed;opacity:.5;pointer-events:none}
+.gridAction .claimFold input{width:110px;padding:6px 8px;border:0;border-radius:20px;font-weight:800;font-size:9px;background:#f1f5f9;outline:0;text-transform:uppercase}
+.gridAction .claimFold .addClaimBtn{background:#3c25eb;color:#fff;padding:6px 12px;border-radius:20px;border:0;font-weight:900;font-size:8px;cursor:pointer;margin-left:5px}
+.gridAction .claimFold .addClaimBtn:disabled{background:#cbd5e1!important;opacity:.5;pointer-events:none}
+
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 .shake{animation:shake .3s ease}
 .gridAction{display:flex;gap:6px;align-items:center;flex-wrap:wrap;position:relative;overflow:visible;z-index:20}
 tr.mainRow td{border-bottom:1px solid #e2e8f0}
 tr.mainRow.openRow td{border-bottom:none!important;background:#eef2ff!important}
-.uploadBtnFold{background:#fff!important;color:#0f172a!important;padding:5px 12px;border-radius:20px;border:1.5px solid #3c25eb!important;font-weight:800;font-size:7px;cursor:pointer;min-width:76px}
+
+/* UPLOAD BUTTONS - HEIGHT REDUCED MORE */
+.uploadBtnFold{background:#fff!important;color:#0f172a!important;padding:4px 10px!important;border-radius:20px;border:1.5px solid #3c25eb!important;font-weight:800;font-size:6.5px!important;cursor:pointer;min-width:68px!important;height:24px!important;line-height:1}
 .uploadBtnFold:hover{background:#3c25eb!important;color:#fff!important}
 .uploadBtnFold.done{background:#f0fdf4!important;color:#16a34a!important;border-color:#86efac!important}
 .slideRow{display:none}
 .slideRow.show{display:table-row;animation:foldDown .28s ease}
 @keyframes foldDown{from{opacity:0;max-height:0;transform:translateY(-8px)}to{opacity:1;max-height:500px;transform:translateY(0)}}
 .slideCell{padding:0!important;background:#f8fafc!important;border-bottom:1px solid #e2e8f0!important;border-top:1px solid #3c25eb!important}
-.slideInner{padding:8px;background:#f8fafc}
-.horizontalBtns{display:flex;gap:8px;justify-content:center}
-.cardWrap{flex:1;display:flex;align-items:center;gap:6px;max-width:320px}
-.hCard{flex:1;padding:6px 6px;border-radius:8px;border:1.5px dashed #cbd5e1;background:#fff;font-size:9px;font-weight:700;color:#64748b;cursor:pointer;text-align:center;min-height:48px;height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transition:.22s;position:relative}
-.hCard b{font-size:8px;color:#0f172a;line-height:1.1}
-.hCard .sub{font-size:6.5px;color:#94a3b8;font-weight:600;line-height:1}
+.slideInner{padding:6px!important;background:#f8fafc}
+.horizontalBtns{display:flex;gap:6px!important;justify-content:center}
+.cardWrap{flex:1;display:flex;align-items:center;gap:4px;max-width:320px}
+.hCard{flex:1;padding:4px 4px!important;border-radius:7px!important;border:1.5px dashed #cbd5e1;background:#fff;font-size:8px;font-weight:700;color:#64748b;cursor:pointer;text-align:center;min-height:38px!important;height:38px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0px!important;transition:.22s;position:relative}
+.hCard b{font-size:7px!important;color:#0f172a;line-height:1.1}
+.hCard .sub{font-size:5.5px!important;color:#94a3b8;font-weight:600;line-height:1}
 .hCard.summary.done{background:#eef2ff;border-style:solid;border-color:#3c25eb;color:#1e1b4b}
 .hCard.photo.done{background:#fff7ed;border-style:solid;border-color:#fb923c;color:#9a3412}
 .hCard.feedback.done{background:#faf5ff;border-style:solid;border-color:#c084fc;color:#581c87}
 .hCard.done .sub{color:inherit;font-weight:800}
 .hCard.done b{color:inherit}
-.delNextToCard{width:22px;min-width:22px;height:22px;background:#ef4444;color:#fff;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:900;cursor:pointer;border:2px solid #fff}
+.delNextToCard{width:20px!important;min-width:20px!important;height:20px!important;background:#ef4444;color:#fff;border-radius:50%;display:grid;place-items:center;font-size:9px!important;font-weight:900;cursor:pointer;border:2px solid #fff}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
 @media(max-width:900px){
@@ -140,6 +185,8 @@ tr.mainRow.openRow td{border-bottom:none!important;background:#eef2ff!important}
   th:nth-child(4),td:nth-child(4){width:18%}
   th:nth-child(7),td:nth-child(7){width:16%}
   th:nth-child(8),td:nth-child(8){width:18%}
+  .actionCell .claimFold{max-width:140px;left:58px}
+  .actionCell .claimFold input{width:70px}
 }
 #fileModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;align-items:center;justify-content:center;padding:16px}
 #fileModal.show{display:flex}
@@ -273,66 +320,12 @@ const CHUNK_SIZE=800000;
 function getToday(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');}
 function setView(mode){isGrid=(mode==='grid');var tableWrap=document.getElementById('tableWrap');var gridWrap=document.getElementById('gridWrap');var btnList=document.getElementById('btnList');var btnGrid=document.getElementById('btnGrid');if(isGrid){tableWrap.style.display='none';gridWrap.style.display='grid';btnGrid.classList.add('active');btnList.classList.remove('active');btnGrid.style.background='#3c25eb';btnGrid.style.color='#fff';btnList.style.background='transparent';btnList.style.color='#0f172a';}else{tableWrap.style.display='block';gridWrap.style.display='none';btnList.classList.add('active');btnGrid.classList.remove('active');btnList.style.background='#3c25eb';btnList.style.color='#fff';btnGrid.style.background='transparent';btnGrid.style.color='#0f172a';}pageSize=parseInt(document.getElementById('perPage').value)||12;currentPage=1;render();}
 function getDocsForShri(shri){return window._fb._docsCache[shri]||[];}
-
-async function loadMasterFAST(){
-  masterPatients=[];
-  var map={};
-  function addToMap(raw){
-    var shri=String(raw.shri||raw.shriId||'').trim().toUpperCase();
-    var name=String(raw.name||raw.patientName||'').trim().toUpperCase();
-    var pmjay=String(raw.pmjay||raw.pmjayId||'').trim().toUpperCase();
-    if(!shri || map[shri]) return false;
-    map[shri]={shri:shri,name:name||'UNKNOWN',pmjayId:pmjay};
-    return true;
-  }
-  try{
-    if(typeof patientData!=='undefined' && Array.isArray(patientData)){
-      patientData.forEach(r=>addToMap(r));
-    }
-  }catch(e){}
-  Object.keys(map).forEach(k=>masterPatients.push(map[k]));
-  try{ localStorage.setItem('shija_pat_cache_v2', JSON.stringify(masterPatients)); }catch(e){}
-}
-
-async function loadAllFAST(){
-  try{
-    if(!window._fb){ setTimeout(loadAllFAST,300); return; }
-    var snap = await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges'));
-    allDischarge=[];
-    snap.forEach(d=>{
-      var o=d.data(); o._id=d.id;
-      if(o.claimId && String(o.claimId).trim()!=='') return;
-      allDischarge.push(o);
-    });
-    allDischarge.sort((a,b)=> new Date(b.dischargedAt||0) - new Date(a.dischargedAt||0));
-  }catch(e){}
-  applyFilter();
-}
-
-function applyFilter(){
-  var date=document.getElementById('fDate').value;
-  var time=document.getElementById('fTime').value;
-  var block=document.getElementById('fBlock').value;
-  var search=document.getElementById('fSearch').value.toLowerCase().trim();
-  if(search.includes('admin')){document.getElementById('fSearch').value='';search='';}
-  pageSize=parseInt(document.getElementById('perPage').value)||12;
-  filtered=allDischarge.filter(function(p){
-    if(date&&p.date!==date) return false;
-    if(time&&(p.time||'')!==time) return false;
-    if(block&&(p.block||'').toUpperCase()!==block.toUpperCase()) return false;
-    if(search){
-      var s=(p.patientName||p.name||'')+" "+(p.shriId||p.shri||'')+" "+(p.pmjayCmhtId||'')+" "+(p.claimId||'');
-      if(s.toLowerCase().indexOf(search)===-1) return false;
-    }
-    return true;
-  });
-  currentPage=1; render();
-}
-
+async function loadMasterFAST(){masterPatients=[];var map={};function addToMap(raw){var shri=String(raw.shri||raw.shriId||'').trim().toUpperCase();var name=String(raw.name||raw.patientName||'').trim().toUpperCase();var pmjay=String(raw.pmjay||raw.pmjayId||'').trim().toUpperCase();if(!shri || map[shri]) return false;map[shri]={shri:shri,name:name||'UNKNOWN',pmjayId:pmjay};return true;}try{if(typeof patientData!=='undefined' && Array.isArray(patientData)){patientData.forEach(r=>addToMap(r));}}catch(e){}Object.keys(map).forEach(k=>masterPatients.push(map[k]));try{ localStorage.setItem('shija_pat_cache_v2', JSON.stringify(masterPatients)); }catch(e){}}
+async function loadAllFAST(){try{if(!window._fb){ setTimeout(loadAllFAST,300); return; }var snap = await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges'));allDischarge=[];snap.forEach(d=>{var o=d.data(); o._id=d.id;if(o.claimId && String(o.claimId).trim()!=='') return;allDischarge.push(o);});allDischarge.sort((a,b)=> new Date(b.dischargedAt||0) - new Date(a.dischargedAt||0));}catch(e){}applyFilter();}
+function applyFilter(){var date=document.getElementById('fDate').value;var time=document.getElementById('fTime').value;var block=document.getElementById('fBlock').value;var search=document.getElementById('fSearch').value.toLowerCase().trim();if(search.includes('admin')){document.getElementById('fSearch').value='';search='';}pageSize=parseInt(document.getElementById('perPage').value)||12;filtered=allDischarge.filter(function(p){if(date&&p.date!==date) return false;if(time&&(p.time||'')!==time) return false;if(block&&(p.block||'').toUpperCase()!==block.toUpperCase()) return false;if(search){var s=(p.patientName||p.name||'')+" "+(p.shriId||p.shri||'')+" "+(p.pmjayCmhtId||'')+" "+(p.claimId||'');if(s.toLowerCase().indexOf(search)===-1) return false;}return true;});currentPage=1; render();}
 function handleDragOver(e){e.preventDefault();e.stopPropagation();e.currentTarget.classList.add('dragOver');}
 function handleDragLeave(e){e.preventDefault();e.stopPropagation();e.currentTarget.classList.remove('dragOver');}
 function handleDrop(e){e.preventDefault();e.stopPropagation();e.currentTarget.classList.remove('dragOver');var shri=e.currentTarget.dataset.shri;var type=e.currentTarget.dataset.type;var name=e.currentTarget.dataset.name;var pmjay=e.currentTarget.dataset.pmjay;if(!e.dataTransfer.files||e.dataTransfer.files.length===0) return;uploadFile(e.dataTransfer.files[0],shri,name,pmjay,type);}
-
 function render(){
   var tbody=document.getElementById('tbody');
   var grid=document.getElementById('gridWrap');
@@ -381,7 +374,6 @@ function render(){
     if(r) r.classList.add('openRow');
   }
 }
-
 function checkClaimInput(id,isGrid){var inp=document.getElementById((isGrid?'ginput-':'input-')+id);var btn=document.getElementById((isGrid?'gaddBtn-':'addBtn-')+id);if(!inp||!btn) return;btn.disabled=inp.value.trim().length===0;}
 function changePage(d){var tp=Math.max(1,Math.ceil(filtered.length/pageSize));currentPage+=d;if(currentPage<1)currentPage=1;if(currentPage>tp)currentPage=tp;render();}
 function clearFilters(){document.getElementById('fTime').value='';document.getElementById('fBlock').value='';document.getElementById('fSearch').value='';applyFilter();}
@@ -407,8 +399,6 @@ function openAddPanel(shri){var p=masterPatients.find(function(x){return x.shri=
 function closeAddPanel(){document.getElementById('addPanel').classList.remove('open');selectedPatient=null;}
 async function confirmAddDischarge(){var time=document.getElementById('addTimeSelect').value;var block=document.getElementById('addBlockSelect').value;if(!selectedPatient||!time||!block){alert('Select TIME and BLOCK');return;}var date=document.getElementById('fDate').value||getToday();var docId=date+"_"+selectedPatient.shri+"_"+Date.now();try{if(!window._fb){alert('Firebase not ready');return;}await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',docId),{date:date,shriId:selectedPatient.shri,shri:selectedPatient.shri,patientName:selectedPatient.name,name:selectedPatient.name,pmjayCmhtId:selectedPatient.pmjayId,pmjayId:selectedPatient.pmjayId,time:time,block:block,status:'DISCHARGE',dischargedAt:new Date().toISOString()});closeAddPanel();loadAllFAST();}catch(e){alert(e.message);}}
 async function delDischarge(id){if(!confirm('DELETE DISCHARGE?')) return;try{await window._fb.deleteDoc(window._fb.doc(window._fb.db,'discharges',id));loadAllFAST();}catch(e){alert(e.message);}}
-
-// FAST DOCS - only load when UPLOAD clicked
 async function ensureDocsLoaded(shri){
   if(window._fb._docsCache[shri] && window._fb._docsCache[shri].length>0) return window._fb._docsCache[shri];
   if(window._fb._docsLoaded) return getDocsForShri(shri);
@@ -417,14 +407,12 @@ async function ensureDocsLoaded(shri){
     snap.forEach(d=>{
       var data=d.data(); data._id=d.id;
       if(!window._fb._docsCache[data.shri]) window._fb._docsCache[data.shri]=[];
-      // avoid duplicates
       if(!window._fb._docsCache[data.shri].some(x=>x._id===data._id)) window._fb._docsCache[data.shri].push(data);
     });
     window._fb._docsLoaded=true;
   }catch(e){}
   return getDocsForShri(shri);
 }
-
 async function toggleSlideList(cleanShri, shri){
   var slide=document.getElementById('slide_'+cleanShri);
   var isShow=slide&&slide.classList.contains('show');
@@ -445,7 +433,6 @@ async function toggleSlideGrid(cleanShri, shri){
   if(isOpen){ docsDiv.style.display='none'; openGridSet.delete(cleanShri); }
   else{ docsDiv.style.display='flex'; openGridSet.add(cleanShri); render(); }
 }
-
 function triggerUpload(cleanShri,type,shri){var docs=getDocsForShri(shri).filter(d=>d.type===type);if(docs.length>0){openFileModal(docs[0]._id,shri);}else{document.getElementById('file_'+cleanShri+'_'+type).click();}}
 async function uploadFile(file,shri,name,pmjay,type){
   if(!file) return; if(file.size>10*1024*1024){alert('Max 10MB');return;}
@@ -517,7 +504,6 @@ window.addEventListener('load',function(){
   var fDate=document.getElementById('fDate'); if(fDate) fDate.value=getToday();
   var bar=document.getElementById('whiteBar'); if(bar){bar.classList.remove('folded'); try{localStorage.setItem('shija_menu_folded','0');}catch(e){}}
   setupSearch(); setView('list');
-  // FAST BOOT
   var cached = localStorage.getItem('shija_pat_cache_v2');
   if(cached){
     try{ masterPatients = JSON.parse(cached); }catch(e){}
