@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA DISCHARGE - UPLOAD + CLAIM SLIDE FINAL</title>
+<title>SHIJA DISCHARGE - FAST FINAL</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="Patient.js"></script>
 <style>
@@ -85,8 +85,6 @@ td.nameCol{text-align:left;padding-left:4px;overflow:hidden;text-overflow:ellips
 .claimFold input{flex:1;min-width:0;border:0;outline:0;font-weight:800;font-size:6px;background:transparent;text-transform:uppercase;color:#374151;width:100%}
 .claimFold .addClaimBtn{background:#3c25eb!important;color:#fff!important;border:1px solid #3c25eb!important;padding:3px 8px!important;border-radius:999px!important;font-weight:900!important;font-size:6px!important;cursor:pointer;flex-shrink:0;min-width:32px!important}
 .claimFold .addClaimBtn:disabled{background:#e5e7eb!important;color:#9ca3af!important;border-color:#e5e7eb!important}
-
-/* GRID - REDUCED 18px + FILL ROW + DELETE NEXT TO CLAIM ID */
 .gridAction{display:flex!important;flex-direction:row!important;gap:4px!important;width:100%!important;align-items:stretch!important;flex-wrap:nowrap!important;justify-content:space-between!important;margin-top:8px}
 .gridAction .uploadBtnFold{flex:1 1 32%!important;min-width:0!important;max-width:none!important;height:18px!important;min-height:18px!important;font-size:6px!important;font-weight:900!important;border-radius:6px!important;padding:2px 4px!important;white-space:nowrap!important;background:#fff!important;color:#0f172a!important;border:1.5px solid #3c25eb!important;cursor:pointer;line-height:1!important}
 .gridAction .uploadBtnFold.done{background:#f0fdf4!important;color:#16a34a!important;border-color:#86efac!important}
@@ -103,8 +101,6 @@ td.nameCol{text-align:left;padding-left:4px;overflow:hidden;text-overflow:ellips
 .gridAction.claimMode .claimBtn{flex:0 0 22%!important;max-width:22%!important;font-size:5.5px!important}
 .gridAction.claimMode .claimFold{flex:1 1 36%!important}
 .gridAction.claimMode .delBtnGrid{flex:0 0 24%!important;max-width:24%!important;font-size:5.5px!important}
-
-/* UPLOAD DESIGN */
 .uploadBtnFold{background:#fff!important;color:#0f172a!important;padding:3px 6px!important;border-radius:20px;border:1.5px solid #3c25eb!important;font-weight:800;font-size:6px!important;cursor:pointer;min-width:44px!important;height:20px!important}
 .uploadBtnFold.done{background:#f0fdf4!important;color:#16a34a!important;border-color:#86efac!important}
 .slideRow{display:none}.slideRow.show{display:table-row}
@@ -119,13 +115,10 @@ td.nameCol{text-align:left;padding-left:4px;overflow:hidden;text-overflow:ellips
 .hCard.photo.done{background:#fff7ed;border-style:solid;border-color:#fb923c}
 .hCard.feedback.done{background:#faf5ff;border-style:solid;border-color:#c084fc}
 .delNextToCard{width:18px!important;min-width:18px!important;height:18px!important;background:#ef4444;color:#fff;border-radius:50%;display:grid;place-items:center;font-size:8px!important;font-weight:900;cursor:pointer;border:2px solid #fff}
-
-/* FOLD OPTIONS FOR ADD PATIENT */
 #addOptionsFold{display:none;gap:12px;margin-top:8px;width:100%;flex-wrap:wrap}
 #addOptionsFold.show{display:flex!important}
 .foldBtn{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:6px 12px;font-weight:800;font-size:9px;cursor:pointer;color:#0f172a;display:inline-flex;align-items:center;gap:6px}
 .foldBtn.active{background:#eff6ff;border-color:#3c25eb;color:#3c25eb}
-
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
 .sheetWrap.claimOpen th:nth-child(1), .sheetWrap.claimOpen td:nth-child(1){width:0!important;padding:0!important;opacity:0;overflow:hidden;border:0!important}
@@ -178,7 +171,7 @@ import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, onSnapshot, 
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(firebaseConfig,"app_"+Math.random());
 const db=getFirestore(app);
-window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},_currentZoom:1,_docsLoaded:false};
+window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},_currentZoom:1,_docsLoaded:false,_docsLoading:false};
 const guardApp=initializeApp(firebaseConfig,"discharge_guard_"+Math.random());
 const guardDb=getFirestore(guardApp);
 try{onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{if(!snap.exists()) return;let lt=snap.data().logoutTime||0;let my=parseInt(localStorage.getItem('shija_login_time')||'0');if(lt>my && my!==0){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');alert('🔒 Logged out by Admin');location.href='login.html?reason=global';}});}catch(e){}
@@ -204,9 +197,9 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT FOR PMJAY</span></a>
 <a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span><span class="ml">BILL</span></a>
 <a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
-</div></div><div class="sFoot"><span class="footFull">SHIJA • DEFAULT UNFOLD</span><span class="footFold">Click ☰</span></div></div>
+</div></div><div class="sFoot"><span class="footFull">SHIJA • FAST</span><span class="footFold">Click ☰</span></div></div>
 <div class="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY</div></div>
+<div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY • FAST</div></div>
 <div style="display:flex;align-items:center;gap:8px">
 <a href="claim.html" style="background:#3c25eb;color:#fff;padding:8px 16px;border-radius:20px;font-weight:900;font-size:11px;text-decoration:none;border:1.5px solid #3c25eb">VIEW CLAIM</a>
 <div id="adminMenuWrap" style="position:relative">
@@ -217,9 +210,9 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 </div></div></div></div>
 <div class="content">
 <div class="card">
-<div class="label" style="margin-bottom:8px">ADD DISCHARGE PATIENT - ONLY PMJAY</div>
+<div class="label" style="margin-bottom:8px">ADD DISCHARGE PATIENT - ONLY PMJAY - FAST SEARCH</div>
 <div class="searchBox">
-<input type="search" id="searchTotal" name="shija_dis_q_9271" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="input" placeholder="SEARCH PMJAY PATIENT - NAME / SHRI / PMJAY..." style="border:1.5px solid #e2e8f0;padding:12px;border-radius:10px;background:#f8fafc;font-weight:600">
+<input type="search" id="searchTotal" name="shija_dis_q_9271" autocomplete="off" data-lpignore="true" spellcheck="false" class="input" placeholder="SEARCH PMJAY PATIENT - TYPE 2 LETTERS..." style="border:1.5px solid #3c25eb;padding:12px;border-radius:10px;background:#f8fafc;font-weight:700">
 <div class="searchResults" id="searchResults"></div>
 </div>
 <div class="addPanel" id="addPanel">
@@ -244,12 +237,12 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <div><div class="label" style="font-size:8px">DATE</div><input type="date" id="fDate" class="input inputSmall" style="width:130px"></div>
 <div><div class="label" style="font-size:8px">TIME FILTER</div><select id="fTime" class="input inputSmall" style="width:110px"><option value="">ALL TIME</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
 <div><div class="label" style="font-size:8px">BLOCK FILTER</div><select id="fBlock" class="input inputSmall" style="width:90px"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
-<div><div class="label" style="font-size:8px">PER PAGE</div><select id="perPage" class="input inputSmall" style="width:90px"><option value="12" selected>12</option><option value="24">24</option><option value="36">36</option><option value="48">48</option><option value="60">60</option><option value="96">96</option></select></div>
+<div><div class="label" style="font-size:8px">PER PAGE</div><select id="perPage" class="input inputSmall" style="width:90px"><option value="12" selected>12</option><option value="24">24</option><option value="36">36</option><option value="48">48</option></select></div>
 <div><div class="label" style="font-size:8px">ACTION</div><button class="btn btnDark btnSmall" onclick="clearFilters()">CLEAR</button></div>
 </div>
 <div class="filterRow2">
 <div style="display:flex;gap:6px;align-items:center;flex:1;flex-wrap:wrap">
-<input type="search" id="fSearch" name="shija_dis_f_9271" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="input inputSmall" placeholder="Search..." style="flex:1;max-width:280px;min-width:150px;border-radius:20px">
+<input type="search" id="fSearch" name="shija_dis_f_9271" autocomplete="off" data-lpignore="true" class="input inputSmall" placeholder="Search discharged..." style="flex:1;max-width:280px;min-width:150px;border-radius:20px">
 <div class="badge" style="font-size:8px;padding:4px 8px" id="badgeD">Discharged - 0</div>
 <span id="dateInfo" style="font-size:9px;font-weight:800">TIME | BLOCK</span>
 <span id="pageInfo" style="font-size:9px;font-weight:800;color:#0f172a"></span>
@@ -258,20 +251,13 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <button class="btn btnDark btnSmall" onclick="changePage(-1)">PREV</button>
 <button class="btn btnDark btnSmall" onclick="changePage(1)">NEXT</button>
 <div style="display:flex;gap:4px;border:1.5px solid #e2e8f0;border-radius:8px;padding:2px;background:#f8fafc">
-<button class="iconBtn active" style="width:32px;height:32px;border:none;background:#3c25eb;color:#fff" id="btnList" onclick="setView('list')" title="List View"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5"/><circle cx="4" cy="12" r="1.5"/><circle cx="4" cy="18" r="1.5"/></svg></button>
-<button class="iconBtn" style="width:32px;height:32px;border:none;background:transparent;color:#0f172a" id="btnGrid" onclick="setView('grid')" title="Grid View"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
-</div>
-</div>
-</div>
-</div>
-</div>
+<button class="iconBtn active" id="btnList" onclick="setView('list')" title="List View"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5"/><circle cx="4" cy="12" r="1.5"/><circle cx="4" cy="18" r="1.5"/></svg></button>
+<button class="iconBtn" id="btnGrid" onclick="setView('grid')" title="Grid View"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+</div></div></div></div></div>
 <div class="card" style="padding:8px">
 <div class="sheetWrap" id="tableWrap"><table><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>TIME</th><th>BLOCK</th><th>UPLOAD</th><th>ACTION</th></tr></thead><tbody id="tbody"><tr><td colspan="8" style="padding:30px;text-align:center">LOADING...</td></tr></tbody></table></div>
 <div class="gridWrap" id="gridWrap" style="display:none"></div>
-</div>
-</div>
-</div>
-</div>
+</div></div></div>
 <div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
 <div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
 <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
@@ -284,7 +270,7 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 </div></div></div>
 <div id="fileModal"><div class="popupCard"><div class="popupHead"><b id="modalFileName">FILE</b><div class="headRight"><button class="iconTop" onclick="zoomIn()">+</button><button class="iconTop" onclick="zoomOut()">−</button><button class="iconTop" onclick="downloadCurrent()">⬇</button><button class="iconTop closeTop" onclick="closeModal()">✕</button></div></div><div class="zoomBar"><span id="modalFileMeta">IMAGE</span><div style="display:flex;gap:4px;align-items:center"><button class="zoomBtn" onclick="zoomOut()">−</button><div class="zoomLabel" id="zoomLabel">100%</div><button class="zoomBtn" onclick="zoomIn()">+</button><button class="zoomBtn" onclick="resetZoom()">⟲</button></div></div><div class="popupBody"><div class="paperBox" id="paperBox"></div></div></div></div>
 <script>
-var allDischarge=[],filtered=[],masterPatients=[],selectedPatient=null,currentPage=1,pageSize=12,isGrid=false,openGridSet=new Set(),lastOpenCleanShri=null,currentFileData=null,currentFileName=null;
+var allDischarge=[],filtered=[],masterPatients=[],selectedPatient=null,currentPage=1,pageSize=12,isGrid=false,openGridSet=new Set(),lastOpenCleanShri=null,currentFileData=null,currentFileName=null,searchDebounce=null;
 const CHUNK_SIZE=800000;
 function getToday(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');}
 function setView(mode){
@@ -293,36 +279,75 @@ function setView(mode){
   var gridWrap=document.getElementById('gridWrap');
   var btnList=document.getElementById('btnList');
   var btnGrid=document.getElementById('btnGrid');
-  if(isGrid){tableWrap.style.display='none';gridWrap.style.display='grid';btnGrid.classList.add('active');btnList.classList.remove('active');btnGrid.style.background='#3c25eb';btnGrid.style.color='#fff';btnList.style.background='transparent';btnList.style.color='#0f172a';}
-  else{tableWrap.style.display='block';gridWrap.style.display='none';btnList.classList.add('active');btnGrid.classList.remove('active');btnList.style.background='#3c25eb';btnList.style.color='#fff';btnGrid.style.background='transparent';btnGrid.style.color='#0f172a';}
+  if(isGrid){tableWrap.style.display='none';gridWrap.style.display='grid';btnGrid.classList.add('active');btnList.classList.remove('active');}
+  else{tableWrap.style.display='block';gridWrap.style.display='none';btnList.classList.add('active');btnGrid.classList.remove('active');}
   pageSize=parseInt(document.getElementById('perPage').value)||12;currentPage=1;render();
 }
 function getDocsForShri(shri){return window._fb._docsCache[shri]||[];}
 async function loadMaster(){
-  masterPatients=[]; var map={};
+  var cached = localStorage.getItem('shija_pat_cache_v2') || localStorage.getItem('total_patients_cache');
+  if(cached){
+    try{
+      var arr=JSON.parse(cached);
+      if(arr.length>20){ masterPatients=arr; setupSearch(); }
+    }catch(e){}
+  }
+  var map={}; var hasCache = masterPatients.length>20;
   function addToMap(raw){
-    if(!raw) return false;
     var shri=String(raw.shri||raw.shriId||'').trim().toUpperCase();
     var name=String(raw.name||raw.patientName||'').trim().toUpperCase();
-    var pmjay=String(raw.pmjay||raw.pmjayId||'').trim().toUpperCase();
-    if(!shri) return false;
-    if(map[shri]) return false;
+    var pmjay=String(raw.pmjay||raw.pmjayId||raw.pmjayCmhtId||'').trim().toUpperCase();
+    if(!shri||map[shri]) return false;
     map[shri]={shri:shri,name:name||'UNKNOWN',pmjayId:pmjay};
     return true;
   }
-  try{ if(typeof patientData!=='undefined'&&Array.isArray(patientData)){ patientData.forEach(function(r){ addToMap(r); }); } }catch(e){}
-  try{ if(window._fb){ var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patients")); snap.forEach(function(d){ addToMap(d.data()); }); } }catch(e){}
-  Object.keys(map).forEach(function(k){ masterPatients.push(map[k]); });
-  if(!window._fb._docsCache) window._fb._docsCache={};
-  if(!window._fb._docsLoaded){
+  if(!hasCache){
+    masterPatients=[]; 
+    try{ if(typeof patientData!=='undefined'&&Array.isArray(patientData)){ patientData.forEach(r=>addToMap(r)); } }catch(e){}
+    Object.keys(map).forEach(k=>masterPatients.push(map[k]));
+    masterPatients.sort((a,b)=>a.name.localeCompare(b.name));
+    try{ localStorage.setItem('shija_pat_cache_v2', JSON.stringify(masterPatients)); }catch(e){}
+    setupSearch();
+  }
+  // background refresh without blocking
+  if(window._fb && !window._fb._docsLoading){
+    window._fb._docsLoading=true;
     try{
-      var snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs'));
-      snap2.forEach(function(d){ var data=d.data(); data._id=d.id; if(!window._fb._docsCache[data.shri]) window._fb._docsCache[data.shri]=[]; if(!window._fb._docsCache[data.shri].some(x=>x._id===data._id)) window._fb._docsCache[data.shri].push(data); });
-      window._fb._docsLoaded=true;
-    }catch(e){}
+      var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patients"));
+      var added=false;
+      snap.forEach(d=>{ if(addToMap(d.data())) added=true; });
+      if(added){
+        var fresh=[]; Object.keys(map).forEach(k=>fresh.push(map[k]));
+        fresh.sort((a,b)=>a.name.localeCompare(b.name));
+        if(fresh.length>masterPatients.length){
+          masterPatients=fresh;
+          try{ localStorage.setItem('shija_pat_cache_v2', JSON.stringify(fresh)); }catch(e){}
+        }
+      }
+      // docs cache once
+      if(!window._fb._docsLoaded){
+        var snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs'));
+        if(!window._fb._docsCache) window._fb._docsCache={};
+        snap2.forEach(d=>{ var data=d.data(); data._id=d.id; if(!window._fb._docsCache[data.shri]) window._fb._docsCache[data.shri]=[]; if(!window._fb._docsCache[data.shri].some(x=>x._id===data._id)) window._fb._docsCache[data.shri].push(data); });
+        window._fb._docsLoaded=true;
+      }
+    }catch(e){} 
+    window._fb._docsLoading=false;
   }
 }
-async function loadAll(){try{if(!window._fb){setTimeout(loadAll,500);return;}var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges'));allDischarge=[];snap.forEach(function(d){var o=d.data();o._id=d.id;allDischarge.push(o);});allDischarge.sort(function(a,b){return new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0);});}catch(e){}applyFilter();}
+async function loadAll(){
+  var disCache=localStorage.getItem('shija_dis_cache');
+  if(disCache){ try{ allDischarge=JSON.parse(disCache); applyFilter(); }catch(e){} }
+  try{
+    if(!window._fb){setTimeout(loadAll,500);return;}
+    var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges'));
+    var fresh=[]; snap.forEach(d=>{ var o=d.data(); o._id=d.id; fresh.push(o); });
+    fresh.sort((a,b)=>new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0));
+    allDischarge=fresh;
+    try{ localStorage.setItem('shija_dis_cache', JSON.stringify(fresh.slice(0,80))); }catch(e){}
+    applyFilter();
+  }catch(e){}
+}
 function applyFilter(){var date=document.getElementById('fDate').value;var time=document.getElementById('fTime').value;var block=document.getElementById('fBlock').value;var search=document.getElementById('fSearch').value.toLowerCase().trim(); if(search.includes('admin')){ document.getElementById('fSearch').value=''; search=''; } pageSize=parseInt(document.getElementById('perPage').value)||12;filtered=allDischarge.filter(function(p){if(date&&p.date!==date)return false;if(time&&(p.time||'')!==time)return false;if(block&&(p.block||'').toUpperCase()!==block.toUpperCase())return false;if(search){var s=(p.patientName||p.name||'')+" "+(p.shriId||p.shri||'')+" "+(p.pmjayCmhtId||'')+" "+(p.claimId||'');if(s.toLowerCase().indexOf(search)===-1)return false;}return true;});currentPage=1;render();}
 function handleDragOver(e){e.preventDefault();}
 function handleDrop(e){e.preventDefault();var shri=e.currentTarget.dataset.shri;var type=e.currentTarget.dataset.type;if(!e.dataTransfer.files||e.dataTransfer.files.length===0)return;uploadFile(e.dataTransfer.files[0],shri,'','',type);}
@@ -375,20 +400,31 @@ function setupSearch(){
     var q=e.target.value.toLowerCase().trim();
     if(q.includes('admin')){ e.target.value=''; searchResults.classList.remove('open'); return; }
     if(q.length<1){ searchResults.classList.remove('open'); return; }
-    var filteredSearch=masterPatients.filter(function(p){
-      var combined=(p.name+" "+p.shri+" "+p.pmjayId).toLowerCase();
-      return combined.indexOf(q)!==-1;
-    }).slice(0,30);
-    if(filteredSearch.length===0){
-      searchResults.innerHTML='<div class="sItem"><div><div class="sName">No patient for "'+q+'"</div></div></div>';
-      searchResults.classList.add('open'); return;
-    }
-    var html='';
-    filteredSearch.forEach(function(p){
-      html+='<div class="sItem" onclick="openAddPanel(\''+p.shri+'\')"><div><div class="sName">'+p.name+'</div><div class="sMeta">SHRI: '+p.shri+' | PMJAY: '+p.pmjayId+'</div></div><div class="btn btnGreen btnSmall">SELECT</div></div>';
-    });
-    searchResults.innerHTML=html;
-    searchResults.classList.add('open');
+    clearTimeout(searchDebounce);
+    searchDebounce=setTimeout(function(){
+      if(masterPatients.length===0){
+        searchResults.innerHTML='<div class="sItem"><div><div class="sName">Loading cache...</div></div></div>';
+        searchResults.classList.add('open'); return;
+      }
+      var out=[]; var qLower=q;
+      for(var i=0;i<masterPatients.length;i++){
+        var p=masterPatients[i];
+        var combined=(p.name+" "+p.shri+" "+p.pmjayId).toLowerCase();
+        if(combined.indexOf(qLower)!==-1){
+          out.push(p);
+          if(out.length>=20) break;
+        }
+      }
+      if(out.length===0){
+        searchResults.innerHTML='<div class="sItem"><div class="sName">No patient for "'+q+'"</div></div>';
+        searchResults.classList.add('open'); return;
+      }
+      var html=''; out.forEach(function(p){
+        html+='<div class="sItem" onclick="openAddPanel(\''+p.shri+'\')"><div><div class="sName">'+p.name+'</div><div class="sMeta">SHRI: '+p.shri+' | PMJAY: '+p.pmjayId+'</div></div><div class="btn btnGreen btnSmall">SELECT</div></div>';
+      });
+      searchResults.innerHTML=html;
+      searchResults.classList.add('open');
+    }, 80);
   });
   document.addEventListener('click',function(e){
     if(!e.target.closest('.searchBox')){ document.getElementById('searchResults').classList.remove('open'); }
@@ -423,6 +459,7 @@ var btn=document.getElementById('foldOptionsBtn');
 if(btn){btn.classList.remove('active');btn.innerHTML='▼ SHOW OPTIONS - TIME & BLOCK';}
 var st=document.getElementById('foldStatus');
 if(st)st.innerText='Click to select Time & Block';
+document.getElementById('addPanel').scrollIntoView({behavior:'smooth',block:'center'});
 }
 function closeAddPanel(){document.getElementById('addPanel').classList.remove('open');selectedPatient=null;}
 async function confirmAddDischarge(){
@@ -438,7 +475,7 @@ var date=document.getElementById('fDate').value||getToday();
 var docId=date+"_"+selectedPatient.shri+"_"+Date.now();
 try{if(!window._fb){alert('Firebase not ready');return;}await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',docId),{date:date,shriId:selectedPatient.shri,shri:selectedPatient.shri,patientName:selectedPatient.name,name:selectedPatient.name,pmjayCmhtId:selectedPatient.pmjayId,pmjayId:selectedPatient.pmjayId,time:time,block:block,status:'DISCHARGE',dischargedAt:new Date().toISOString()});closeAddPanel();loadAll();}catch(e){alert(e.message);}}
 async function delDischarge(id){if(!confirm('DELETE DISCHARGE?'))return;try{await window._fb.deleteDoc(window._fb.doc(window._fb.db,'discharges',id));loadAll();}catch(e){alert(e.message);}}
-async function ensureDocsLoaded(shri){if(window._fb._docsCache[shri]&&window._fb._docsCache[shri].length>0)return window._fb._docsCache[shri];if(window._fb._docsLoaded)return getDocsForShri(shri);try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs'));snap.forEach(function(d){var data=d.data();data._id=d.id;if(!window._fb._docsCache[data.shri])window._fb._docsCache[data.shri]=[];if(!window._fb._docsCache[data.shri].some(x=>x._id===data._id))window._fb._docsCache[data.shri].push(data);});window._fb._docsLoaded=true;}catch(e){}return getDocsForShri(shri);}
+async function ensureDocsLoaded(shri){if(window._fb._docsCache[shri]&&window._fb._docsCache[shri].length>0)return window._fb._docsCache[shri];if(window._fb._docsLoaded)return getDocsForShri(shri);if(window._fb._docsLoading) return getDocsForShri(shri);window._fb._docsLoading=true;try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs'));snap.forEach(function(d){var data=d.data();data._id=d.id;if(!window._fb._docsCache[data.shri])window._fb._docsCache[data.shri]=[];if(!window._fb._docsCache[data.shri].some(x=>x._id===data._id))window._fb._docsCache[data.shri].push(data);});window._fb._docsLoaded=true;}catch(e){}window._fb._docsLoading=false;return getDocsForShri(shri);}
 async function toggleSlideList(cleanShri,shri){var slide=document.getElementById('slide_'+cleanShri);var isShow=slide&&slide.classList.contains('show');document.querySelectorAll('.slideRow').forEach(function(r){r.classList.remove('show');});document.querySelectorAll('.mainRow').forEach(function(r){r.classList.remove('openRow');});if(!isShow){await ensureDocsLoaded(shri);if(slide)slide.classList.add('show');var row=document.getElementById('tr_'+cleanShri);if(row)row.classList.add('openRow');lastOpenCleanShri=cleanShri;render();}else{lastOpenCleanShri=null;render();}}
 async function toggleSlideGrid(cleanShri,shri){await ensureDocsLoaded(shri);var docsDiv=document.getElementById('gridDocs_'+cleanShri);if(!docsDiv)return;var isOpen=docsDiv.style.display==='flex';if(isOpen){docsDiv.style.display='none';openGridSet.delete(cleanShri);}else{docsDiv.style.display='flex';openGridSet.add(cleanShri);}render();}
 function triggerUpload(cleanShri,type,shri){var docs=getDocsForShri(shri).filter(function(d){return d.type===type;});if(docs.length>0){openFileModal(docs[0]._id,shri);}else{document.getElementById('file_'+cleanShri+'_'+type).click();}}
@@ -522,20 +559,17 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none'; });
   document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
   document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
-  function killAdmin(){
-    ['searchTotal','fSearch'].forEach(id=>{
-      let el=document.getElementById(id);
-      if(el && el.value.toLowerCase().includes('admin')) el.value='';
-    });
-  }
-  setTimeout(killAdmin,50); setTimeout(killAdmin,300);
-  ['searchTotal','fSearch'].forEach(id=>{
-    let el=document.getElementById(id);
-    if(el){ el.addEventListener('input',killAdmin); el.addEventListener('focus',killAdmin); }
-  });
-  let iv=0; let timer=setInterval(()=>{ killAdmin(); iv++; if(iv>50) clearInterval(timer); },100);
 });
-window.addEventListener('load',function(){var fDate=document.getElementById('fDate');if(fDate)fDate.value=getToday();var bar=document.getElementById('whiteBar');if(bar){bar.classList.remove('folded');try{localStorage.setItem('shija_menu_folded','0');}catch(e){}}setupSearch();setTimeout(function(){loadMaster().then(function(){loadAll();setView('list');});},800);var fTime=document.getElementById('fTime');if(fTime)fTime.addEventListener('change',applyFilter);var fBlock=document.getElementById('fBlock');if(fBlock)fBlock.addEventListener('change',applyFilter);var perPage=document.getElementById('perPage');if(perPage)perPage.addEventListener('change',applyFilter);var fSearch=document.getElementById('fSearch');if(fSearch)fSearch.addEventListener('input',applyFilter);if(fDate)fDate.addEventListener('change',applyFilter);});
+window.addEventListener('load',function(){
+  var fDate=document.getElementById('fDate');if(fDate)fDate.value=getToday();
+  var bar=document.getElementById('whiteBar');if(bar){bar.classList.remove('folded');try{localStorage.setItem('shija_menu_folded','0');}catch(e){}}
+  loadMaster().then(()=>{ loadAll(); setView('list'); });
+  document.getElementById('fTime').addEventListener('change',applyFilter);
+  document.getElementById('fBlock').addEventListener('change',applyFilter);
+  document.getElementById('perPage').addEventListener('change',applyFilter);
+  document.getElementById('fSearch').addEventListener('input',applyFilter);
+  if(fDate)fDate.addEventListener('change',applyFilter);
+});
 </script>
 </body>
 </html>
