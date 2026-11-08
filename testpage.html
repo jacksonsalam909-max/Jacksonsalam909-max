@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA - Only Ticked Button</title>
+<title>SHIJA - Paper Only Zoom</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
@@ -58,33 +58,36 @@ td.nameCol{font-weight:700;color:#0f172a}
 .uploadGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .upBox{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px}
 .upBox label{font-size:10px;font-weight:800;color:#0f172a;display:block;margin-bottom:8px;text-align:center}
-
-/* ONLY THIS BUTTON - LIKE YOUR TICKED PHOTO */
 .dropZonePMJAY{border-radius:10px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;background:#fff;border:1.5px dashed #cbd5e1;min-height:52px;transition:.2s}
 .dropZonePMJAY:hover{border-color:#6366f1;background:#f5f3ff}
 .dropZonePMJAY.done{background:#0f172a!important;border:1.5px solid #0f172a!important;color:#8b5cf6!important}
 .dt{font-size:11px;color:#94a3b8;font-weight:700;text-align:center}
 .dropZonePMJAY.done .dt{color:#8b5cf6!important}
-.dt b{color:#2563eb}
 .emptyBox{padding:30px;text-align:center;color:#94a3b8;font-size:12px;font-weight:600;border:1.5px dashed #e2e8f0;border-radius:10px;margin:20px;background:#fff}
 
-#fileModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:20px}
+/* PAPER ONLY POPUP WITH SPACE AND ZOOM */
+#fileModal{display:none;position:fixed;inset:0;background:#0f172a;z-index:9999;flex-direction:column}
 #fileModal.show{display:flex}
-.modalBox{background:#fff;border-radius:12px;width:100%;max-width:800px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column}
-.modalHead{padding:14px 16px;background:#0f172a;color:#fff;display:flex;justify-content:space-between;align-items:center}
-.modalHead b{font-size:13px}
-.modalHead span{font-size:10px;color:#94a3b8}
-.modalBody{flex:1;overflow:auto;background:#f8fafc;padding:12px;display:grid;place-items:center;min-height:300px}
-.modalBody img{max-width:100%;max-height:65vh;border-radius:8px;cursor:grab}
-.modalBody iframe{width:100%;height:65vh;border:0;background:#fff}
-.modalFoot{padding:12px 16px;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-.modalFootRight{display:flex;gap:8px}
+.modalTopBar{height:54px;background:#0f172a;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0}
+.modalTopLeft b{font-size:13px;color:#fde68a}
+.modalTopLeft span{font-size:10px;color:#94a3b8;display:block}
+.modalTopRight{display:flex;gap:8px;align-items:center}
+.zoomBtn{height:32px;min-width:36px;padding:0 12px;background:#1e293b;color:#fff;border:1px solid #334155;border-radius:8px;font-weight:900;font-size:14px;cursor:pointer}
+.zoomBtn:hover{background:#334155}
+.zoomLabel{font-size:11px;font-weight:800;color:#94a3b8;min-width:50px;text-align:center}
+.modalBodyPaper{flex:1;overflow:auto;background:#1e293b;display:flex;align-items:flex-start;justify-content:center;padding:20px;position:relative}
+.paperWrap{background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.5);border-radius:4px;overflow:hidden;transition:transform .15s ease;transform-origin:top center}
+.paperWrap img{display:block;max-width:900px;width:90vw; height:auto; cursor:grab}
+.paperWrap img:active{cursor:grabbing}
+.paperWrap iframe{display:block;width:90vw;max-width:900px;height:85vh;border:0;background:#fff}
+.modalFootPaper{height:56px;background:#0f172a;border-top:1px solid #1e293b;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0}
+.hint{font-size:10px;color:#94a3b8;font-weight:600}
+.btnRow{display:flex;gap:8px}
 .btnModal{height:36px;padding:0 16px;border-radius:8px;border:0;font-weight:800;font-size:11px;cursor:pointer}
-.btnModalDel{background:#ef4444;color:#fff}
 .btnModalDown{background:#2563eb;color:#fff}
-.btnModalClose{background:#0f172a;color:#fff}
-.hint{font-size:10px;color:#2563eb;font-weight:700;background:#dbeafe;padding:4px 8px;border-radius:12px}
-@media(max-width:900px){.whiteBar{transform:translateX(-100%);width:270px!important}.whiteBar.mOpen{transform:translateX(0)}.mainWrap{margin-left:0!important;width:100%!important}.uploadGrid{grid-template-columns:1fr!important}}
+.btnModalDel{background:#ef4444;color:#fff}
+.btnModalClose{background:#334155;color:#fff}
+@media(max-width:900px){.whiteBar{transform:translateX(-100%);width:270px!important}.whiteBar.mOpen{transform:translateX(0)}.mainWrap{margin-left:0!important;width:100%!important}.uploadGrid{grid-template-columns:1fr!important}.paperWrap img{width:95vw}}
 </style>
 </head>
 <body>
@@ -99,7 +102,7 @@ td.nameCol{font-weight:700;color:#0f172a}
 <a href="docs.html" class="active"><span class="mi">U</span><span style="margin-left:8px">PATIENT DOCS UPLOAD</span></a>
 </div>
 </div>
-<div style="padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b">Only Ticked Button</div>
+<div style="padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b">Paper Only + Zoom</div>
 </div>
 <div class="mainWrap">
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> ADD DISCHARGE PATIENT - ONLY PMJAY</div></div>
@@ -122,22 +125,32 @@ td.nameCol{font-weight:700;color:#0f172a}
 <div class="prevNext"><button>PREV</button><button>NEXT</button></div>
 </div>
 <div class="tableWrap" id="tableContainer">
-<div class="emptyBox">Search → ADD → ▼ arrow → ONLY ticked button shows like your photo<br>Click dark button → Popup → DOWNLOAD before DELETE + drag to download</div>
+<div class="emptyBox">Search → ADD → ▼ arrow → Click dark UPLOADED button → Only paper shows big with zoom + download before delete</div>
 </div>
 </div>
 </div>
 
+<!-- PAPER ONLY MODAL -->
 <div id="fileModal">
-<div class="modalBox">
-<div class="modalHead"><div><b id="modalFileName">File</b><br><span id="modalFileMeta">Drag image out to download</span></div><button class="btnModal btnModalClose" onclick="closeModal()">X</button></div>
-<div class="modalBody" id="modalBody"></div>
-<div class="modalFoot">
-<div><span class="hint">💡 Drag image out to download • Same row: DOWNLOAD then DELETE</span></div>
-<div class="modalFootRight">
+<div class="modalTopBar">
+<div class="modalTopLeft"><b id="modalFileName">BUDHIMANTA LALAMBUNG.jpg</b><span id="modalFileMeta">JPG • 0.26 MB • Drag image out to download</span></div>
+<div class="modalTopRight">
+<button class="zoomBtn" onclick="zoomOut()">−</button>
+<div class="zoomLabel" id="zoomLabel">100%</div>
+<button class="zoomBtn" onclick="zoomIn()">+</button>
+<button class="zoomBtn" onclick="resetZoom()">⟲</button>
+<button class="btnModal btnModalClose" onclick="closeModal()">X</button>
+</div>
+</div>
+<div class="modalBodyPaper" id="modalBodyPaper">
+<div class="paperWrap" id="paperWrap"></div>
+</div>
+<div class="modalFootPaper">
+<div class="hint">💡 Only paper visible • Space around • + / - to zoom • Drag image out to download • DOWNLOAD before DELETE</div>
+<div class="btnRow">
 <button class="btnModal btnModalDown" id="modalDownBtn">DOWNLOAD</button>
 <button class="btnModal btnModalDel" id="modalDelBtn">DELETE</button>
 <button class="btnModal btnModalClose" onclick="closeModal()">CLOSE</button>
-</div>
 </div>
 </div>
 </div>
@@ -146,13 +159,14 @@ td.nameCol{font-weight:700;color:#0f172a}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig,"onlyTicked_"+Math.random());
+const app=initializeApp(firebaseConfig,"paperZoom_"+Math.random());
 const db=getFirestore(app);
 let allPatients=[];
 const CHUNK_SIZE=800000;
 let docsCache={};
 let addedList = JSON.parse(localStorage.getItem('shija_added_patients')||'[]');
 let filteredAdded = [];
+let currentZoom=1;
 
 async function loadPatients(){
   let tar=[];
@@ -337,6 +351,7 @@ async function getFullData(id){
 }
 
 window.openFileModal=async(id,shri)=>{
+  currentZoom=1;
   let snap=await getDocs(collection(db,"patient_docs"));
   let meta=null; snap.forEach(d=>{ if(d.id===id) meta=d.data(); });
   if(!meta) return;
@@ -344,20 +359,30 @@ window.openFileModal=async(id,shri)=>{
   if(!data) return;
   document.getElementById('modalFileName').textContent=meta.fileName;
   document.getElementById('modalFileMeta').textContent=`${meta.fileType.includes('pdf')?'PDF':'JPG'} • ${(meta.size/1024/1024).toFixed(2)} MB • Drag image out to download`;
-  let body=document.getElementById('modalBody');
+  let wrap=document.getElementById('paperWrap');
   if(data.startsWith('data:application/pdf')){
-    body.innerHTML=`<iframe src="${data}"></iframe>`;
+    wrap.innerHTML=`<iframe src="${data}"></iframe>`;
   } else {
-    body.innerHTML=`<img id="popupImg" src="${data}" draggable="true" alt="${meta.fileName}">`;
+    wrap.innerHTML=`<img id="popupImg" src="${data}" draggable="true" alt="${meta.fileName}">`;
     let img=document.getElementById('popupImg');
     img.addEventListener('dragstart', (e)=>{
       e.dataTransfer.setData('text/uri-list', data);
       e.dataTransfer.setData('text/plain', meta.fileName);
     });
   }
+  applyZoom();
   document.getElementById('fileModal').classList.add('show');
   document.getElementById('modalDelBtn').onclick=async()=>{ if(confirm('DELETE this file?')){ await delDoc(id, shri); closeModal(); } };
   document.getElementById('modalDownBtn').onclick=()=>{ let a=document.createElement('a'); a.href=data; a.download=meta.fileName; a.click(); };
+}
+
+window.zoomIn=()=>{ currentZoom=Math.min(currentZoom+0.25, 3); applyZoom(); }
+window.zoomOut=()=>{ currentZoom=Math.max(currentZoom-0.25, 0.5); applyZoom(); }
+window.resetZoom=()=>{ currentZoom=1; applyZoom(); }
+function applyZoom(){
+  let wrap=document.getElementById('paperWrap');
+  if(wrap) wrap.style.transform=`scale(${currentZoom})`;
+  document.getElementById('zoomLabel').textContent=Math.round(currentZoom*100)+'%';
 }
 
 window.closeModal=()=>{ document.getElementById('fileModal').classList.remove('show'); }
@@ -374,7 +399,7 @@ window.clearSearch=()=>{ document.getElementById('searchInput').value=''; docume
 window.toggleWhiteBar=()=>{ if(window.innerWidth<=900){ document.getElementById('whiteBar').classList.toggle('mOpen'); document.getElementById('mobOverlay').classList.toggle('show'); }else{ document.getElementById('whiteBar').classList.toggle('folded'); } }
 window.closeMob=()=>{ document.getElementById('whiteBar').classList.remove('mOpen'); document.getElementById('mobOverlay').classList.remove('show'); }
 document.getElementById('menuBtnTop').addEventListener('click',e=>{e.preventDefault();toggleWhiteBar();});
-document.addEventListener('click',e=>{ if(!e.target.closest('.searchTopWrap')) document.getElementById('searchList').style.display='none'; if(e.target.id==='fileModal') closeModal(); });
+document.addEventListener('click',e=>{ if(!e.target.closest('.searchTopWrap')) document.getElementById('searchList').style.display='none'; });
 loadPatients();
 </script>
 </body>
