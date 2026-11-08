@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA - Clean After Upload</title>
+<title>SHIJA - Row Click Slide</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="Patient.js"></script>
 <style>
@@ -46,40 +46,34 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .sheetWrap{background:#fff;border:1.5px solid #e2e8f0;overflow:auto;max-height:75vh;border-radius:12px}
 table{border-collapse:collapse;width:100%;min-width:1100px}
 th{position:sticky;top:0;background:#0f172a;color:#fff;padding:11px 8px;font-size:9px;text-align:center;z-index:2;font-weight:800}
-td{border-bottom:1px solid #f1f5f9;padding:8px 6px;height:48px;font-size:10px;font-weight:700;text-align:center;text-transform:uppercase;background:#fff;vertical-align:middle}
+td{border-bottom:1px solid #f1f5f9;padding:8px 6px;height:52px;font-size:10px;font-weight:700;text-align:center;text-transform:uppercase;background:#fff;vertical-align:middle;cursor:pointer}
 td.nameCol{text-align:left;padding-left:12px}
+tr.mainRow:hover td{background:#f8fafc!important}
+tr.mainRow.openRow td{background:#eff6ff!important;border-bottom-color:#bfdbfe}
 .delBtn{background:#ef4444;color:#fff;padding:6px 8px;border-radius:5px;border:0;font-weight:900;font-size:8px;cursor:pointer}
 .filterBox2{display:flex;flex-direction:column;gap:10px}
 .filterRow1{display:flex;gap:6px;flex-wrap:wrap;align-items:end}
 .filterRow2{display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-top:1px solid #f1f5f9;padding-top:10px}
-
-/* CLEAN BUTTONS */
-.uploadBtn{background:#fff!important;color:#0f172a!important;padding:8px 14px;border-radius:6px;border:1.5px solid #e2e8f0!important;font-weight:800;font-size:9px;cursor:pointer;min-width:100px}
-.uploadBtn.done{background:#f1f5f9!important;color:#16a34a!important;border-color:#86efac!important}
+.uploadBtn{background:#fff!important;color:#0f172a!important;padding:8px 14px;border-radius:6px;border:1.5px solid #e2e8f0!important;font-weight:800;font-size:9px;cursor:pointer;min-width:100px;pointer-events:none}
+.uploadBtn.done{background:#f0fdf4!important;color:#16a34a!important;border-color:#86efac!important}
 .slideRow{display:none}
 .slideRow.show{display:table-row;animation:slideDown .25s ease}
 @keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .slideCell{padding:0!important;background:#f8fafc!important;border-top:2px solid #e2e8f0}
 .slideInner{padding:14px;background:#f8fafc}
-.horizontalBtns{display:flex;gap:12px;justify-content:center}
-.hBtn{flex:1;padding:12px 10px;border-radius:10px;border:1.5px dashed #cbd5e1;background:#fff;font-size:10px;font-weight:700;color:#64748b;cursor:pointer;text-align:center;transition:.2s;min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
-.hBtn b{font-size:10px;color:#0f172a;display:block}
-.hBtn .sub{font-size:8px;color:#94a3b8}
-
-/* AFTER UPLOAD - CLEAN - SAME SIZE - DIFFERENT LIGHT COLOURS */
-.hBtn.done{border-style:solid!important}
-.hBtn.summary.done{background:#f0fdf4;border-color:#4ade80;color:#166534}
-.hBtn.photo.done{background:#fff7ed;border-color:#fb923c;color:#9a3412}
-.hBtn.feedback.done{background:#faf5ff;border-color:#c084fc;color:#6b21a8}
-.hBtn .statusRow{margin-top:6px;display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap}
-.tick{font-size:9px;font-weight:900;padding:3px 8px;border-radius:12px;background:#fff;border:1px solid currentColor}
-.hBtn.summary.done .tick{background:#dcfce7;color:#166534}
-.hBtn.photo.done .tick{background:#ffedd5;color:#9a3412}
-.hBtn.feedback.done .tick{background:#f3e8ff;color:#6b21a8}
-.viewBtn{font-size:8px;font-weight:800;padding:3px 8px;border-radius:4px;background:#0f172a;color:#fff;cursor:pointer}
-.delNext{width:18px;height:18px;background:#ef4444;color:#fff;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:900;cursor:pointer;border:1px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2)}
-.delNext:hover{background:#dc2626}
-
+.horizontalBtns{display:flex;gap:14px;justify-content:center}
+.cardWrap{flex:1;position:relative;display:flex;align-items:center;gap:8px}
+.hCard{flex:1;padding:14px 12px;border-radius:12px;border:2px dashed #cbd5e1;background:#fff;font-size:10px;font-weight:700;color:#64748b;cursor:pointer;text-align:center;transition:.2s;min-height:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.hCard:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.hCard b{font-size:10px;color:#0f172a}
+.hCard .sub{font-size:8px;color:#94a3b8;font-weight:600}
+.hCard.summary.done{background:#f0fdf4;border-style:solid;border-color:#4ade80;color:#166534}
+.hCard.photo.done{background:#fff7ed;border-style:solid;border-color:#fb923c;color:#9a3412}
+.hCard.feedback.done{background:#faf5ff;border-style:solid;border-color:#c084fc;color:#6b21a8}
+.hCard.done .sub{color:inherit;font-weight:800}
+.hCard.done b{color:inherit}
+.delNextToCard{width:28px;min-width:28px;height:28px;background:#ef4444;color:#fff;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:900;cursor:pointer;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.15);transition:.2s}
+.delNextToCard:hover{background:#dc2626;transform:scale(1.1)}
 #fileModal{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(6px);z-index:99999;align-items:center;justify-content:center;padding:20px}
 #fileModal.show{display:flex}
 .popupCard{background:#fff;border-radius:14px;width:90%;max-width:720px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;border:1.5px solid #e2e8f0}
@@ -119,7 +113,7 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},_currentZoo
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 <div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div><b>SHIJA</b><div style="font-size:9px;color:#64748b;font-weight:700">DIALYSIS CARE</div></div></div>
 <div class="sMenu"><a href="discharge.html" class="active"><span class="mi">D</span><span style="margin-left:8px">DISCHARGE PATIENT</span></a></div></div>
-<div class="sFoot">CLEAN AFTER UPLOAD • NO BIG BLOCK</div></div>
+<div class="sFoot">ROW CLICK = SLIDE DOWN/UP</div></div>
 
 <div class="mainWrap">
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY</div></div></div>
@@ -128,7 +122,7 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},_currentZoo
 <div class="card">
 <div class="label">ADD DISCHARGE PATIENT - ONLY PMJAY (TIME 7AM/12PM/5PM/9PM/12AM/2AM - BLOCK MAIN/ITOCHA)</div>
 <div class="searchBox">
-<input type="search" id="searchTotal" autocomplete="off" data-lpignore="true" class="input" placeholder="SEARCH PATIENT - NAME / SHRI / PMJAY...">
+<input type="search" id="searchTotal" autocomplete="off" class="input" placeholder="SEARCH PATIENT - NAME / SHRI / PMJAY...">
 <div class="searchResults" id="searchResults"></div>
 </div>
 <div class="addPanel" id="addPanel">
@@ -155,7 +149,7 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},_currentZoo
 </div>
 <div class="filterRow2">
 <div style="display:flex;gap:6px;align-items:center;flex:1;flex-wrap:wrap">
-<input type="search" id="fSearch" autocomplete="off" data-lpignore="true" class="input inputSmall" placeholder="Search patient..." value="" style="flex:1;max-width:280px;min-width:150px;border-radius:20px">
+<input type="search" id="fSearch" autocomplete="off" class="input inputSmall" placeholder="Search patient..." value="" style="flex:1;max-width:280px;min-width:150px;border-radius:20px">
 <div class="badge" style="font-size:8px;padding:4px 8px;background:#0f172a;color:#fff;border-radius:20px" id="badgeD">Discharged - 0</div>
 <span id="dateInfo" style="font-size:9px;font-weight:800"></span>
 <span id="pageInfo" style="font-size:9px;font-weight:800;color:#0f172a"></span>
@@ -230,14 +224,17 @@ function render(){
     var uploadBtnClass=totalUp>0?'uploadBtn done':'uploadBtn';
     var uploadLabel=totalUp>0?'✓ '+totalUp+' UPLOADED ▼':'UPLOAD ▼';
     var tr=document.createElement('tr');
-    tr.innerHTML='<td>'+(start+i+1)+'</td><td class="nameCol">'+nameVal+'</td><td><span class="shriGray">'+shriVal+'</span></td><td><span class="pmjayBlue">'+pmjayShow+'</span></td><td><span style="background:#f1f5f9;padding:3px 7px;border-radius:4px;border:1px solid #e2e8f0">'+(p.time||'')+'</span></td><td><span style="background:#f1f5f9;padding:3px 7px;border-radius:4px;border:1px solid #e2e8f0">'+(p.block||'')+'</span></td><td><button class="'+uploadBtnClass+'" onclick="toggleSlide(\''+cleanShri+'\')">'+uploadLabel+'</button></td><td><button class="delBtn" onclick="delDischarge(\''+p._id+'\')">X</button></td>';
+    tr.className='mainRow';
+    tr.id='tr_'+cleanShri;
+    tr.setAttribute('onclick','toggleSlide(\''+cleanShri+'\')');
+    tr.innerHTML='<td>'+(start+i+1)+'</td><td class="nameCol">'+nameVal+'</td><td><span class="shriGray">'+shriVal+'</span></td><td><span class="pmjayBlue">'+pmjayShow+'</span></td><td><span style="background:#f1f5f9;padding:3px 7px;border-radius:4px;border:1px solid #e2e8f0">'+(p.time||'')+'</span></td><td><span style="background:#f1f5f9;padding:3px 7px;border-radius:4px;border:1px solid #e2e8f0">'+(p.block||'')+'</span></td><td><button class="'+uploadBtnClass+'">'+uploadLabel+'</button></td><td><button class="delBtn" onclick="event.stopPropagation(); delDischarge(\''+p._id+'\')">X</button></td>';
     tbody.appendChild(tr);
     var slideTr=document.createElement('tr');
     slideTr.className='slideRow'; slideTr.id='slide_'+cleanShri;
-    slideTr.innerHTML='<td colspan="8" class="slideCell"><div class="slideInner"><div style="font-size:9px;font-weight:800;color:#64748b;text-align:center;margin-bottom:8px">▼ SLIDE DOWN - DIFFERENT LIGHT COLOURS - CLEAN AFTER UPLOAD</div><div class="horizontalBtns">'
-      +'<div class="hBtn summary '+(mapCount.discharge_summary?'done':'')+'" onclick="triggerUpload(\''+cleanShri+'\',\'discharge_summary\',\''+shriVal+'\')"><b>DISCHARGE SUMMARY</b><div class="sub">'+(mapCount.discharge_summary?'File uploaded':'Click to Upload / Drag & Drop')+'</div><div class="statusRow">'+(mapCount.discharge_summary?'<span class="tick">✓ UPLOADED</span><span class="viewBtn" onclick="event.stopPropagation(); triggerUpload(\''+cleanShri+'\',\'discharge_summary\',\''+shriVal+'\')">VIEW</span><div class="delNext" onclick="event.stopPropagation(); deleteSpecific(\''+shriVal+'\',\'discharge_summary\')">X</div>':'')+'</div></div>'
-      +'<div class="hBtn photo '+(mapCount.discharge_photo?'done':'')+'" onclick="triggerUpload(\''+cleanShri+'\',\'discharge_photo\',\''+shriVal+'\')"><b>DISCHARGE PHOTO</b><div class="sub">'+(mapCount.discharge_photo?'File uploaded':'Click to Upload / Drag & Drop')+'</div><div class="statusRow">'+(mapCount.discharge_photo?'<span class="tick">✓ UPLOADED</span><span class="viewBtn" onclick="event.stopPropagation(); triggerUpload(\''+cleanShri+'\',\'discharge_photo\',\''+shriVal+'\')">VIEW</span><div class="delNext" onclick="event.stopPropagation(); deleteSpecific(\''+shriVal+'\',\'discharge_photo\')">X</div>':'')+'</div></div>'
-      +'<div class="hBtn feedback '+(mapCount.feedback_form?'done':'')+'" onclick="triggerUpload(\''+cleanShri+'\',\'feedback_form\',\''+shriVal+'\')"><b>FEEDBACK FORM</b><div class="sub">'+(mapCount.feedback_form?'File uploaded':'Click to Upload / Drag & Drop')+'</div><div class="statusRow">'+(mapCount.feedback_form?'<span class="tick">✓ UPLOADED</span><span class="viewBtn" onclick="event.stopPropagation(); triggerUpload(\''+cleanShri+'\',\'feedback_form\',\''+shriVal+'\')">VIEW</span><div class="delNext" onclick="event.stopPropagation(); deleteSpecific(\''+shriVal+'\',\'feedback_form\')">X</div>':'')+'</div></div>'
+    slideTr.innerHTML='<td colspan="8" class="slideCell"><div class="slideInner"><div class="horizontalBtns">'
+      +'<div class="cardWrap"><div class="hCard summary '+(mapCount.discharge_summary?'done':'')+'" onclick="event.stopPropagation(); triggerUpload(\''+cleanShri+'\',\'discharge_summary\',\''+shriVal+'\')"><b>DISCHARGE SUMMARY</b><div class="sub">'+(mapCount.discharge_summary?'✓ UPLOADED - Click to View':'Click to Upload / Drag & Drop')+'</div></div>'+(mapCount.discharge_summary?'<div class="delNextToCard" onclick="event.stopPropagation(); deleteSpecific(\''+shriVal+'\',\'discharge_summary\')">X</div>':'')+'</div>'
+      +'<div class="cardWrap"><div class="hCard photo '+(mapCount.discharge_photo?'done':'')+'" onclick="event.stopPropagation(); triggerUpload(\''+cleanShri+'\',\'discharge_photo\',\''+shriVal+'\')"><b>DISCHARGE PHOTO</b><div class="sub">'+(mapCount.discharge_photo?'✓ UPLOADED - Click to View':'Click to Upload / Drag & Drop')+'</div></div>'+(mapCount.discharge_photo?'<div class="delNextToCard" onclick="event.stopPropagation(); deleteSpecific(\''+shriVal+'\',\'discharge_photo\')">X</div>':'')+'</div>'
+      +'<div class="cardWrap"><div class="hCard feedback '+(mapCount.feedback_form?'done':'')+'" onclick="event.stopPropagation(); triggerUpload(\''+cleanShri+'\',\'feedback_form\',\''+shriVal+'\')"><b>FEEDBACK FORM</b><div class="sub">'+(mapCount.feedback_form?'✓ UPLOADED - Click to View':'Click to Upload / Drag & Drop')+'</div></div>'+(mapCount.feedback_form?'<div class="delNextToCard" onclick="event.stopPropagation(); deleteSpecific(\''+shriVal+'\',\'feedback_form\')">X</div>':'')+'</div>'
       +'</div><input type="file" id="file_'+cleanShri+'_discharge_summary" style="display:none" accept="*/*" onchange="uploadFile(this.files[0],\''+shriVal+'\',\''+nameVal.replace(/'/g,"\\'")+'\',\''+pmjayShow+'\',\'discharge_summary\')"><input type="file" id="file_'+cleanShri+'_discharge_photo" style="display:none" accept="*/*" onchange="uploadFile(this.files[0],\''+shriVal+'\',\''+nameVal.replace(/'/g,"\\'")+'\',\''+pmjayShow+'\',\'discharge_photo\')"><input type="file" id="file_'+cleanShri+'_feedback_form" style="display:none" accept="*/*" onchange="uploadFile(this.files[0],\''+shriVal+'\',\''+nameVal.replace(/'/g,"\\'")+'\',\''+pmjayShow+'\',\'feedback_form\')"></div></td>';
     tbody.appendChild(slideTr);
   });
@@ -262,7 +259,17 @@ function openAddPanel(shri){var p=masterPatients.find(function(x){return x.shri=
 function closeAddPanel(){document.getElementById('addPanel').classList.remove('open');selectedPatient=null;}
 async function confirmAddDischarge(){var time=document.getElementById('addTimeSelect').value;var block=document.getElementById('addBlockSelect').value;if(!selectedPatient||!time||!block){alert('Select TIME (7AM/12PM/5PM/9PM/12AM/2AM) and BLOCK (MAIN/ITOCHA) then click ADD BUTTON');return;}var date=document.getElementById('fDate').value||getToday();var docId=date+"_"+selectedPatient.shri+"_"+Date.now();try{await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',docId),{date:date,shriId:selectedPatient.shri,shri:selectedPatient.shri,patientName:selectedPatient.name,name:selectedPatient.name,pmjayCmhtId:selectedPatient.pmjayId,pmjayId:selectedPatient.pmjayId,time:time,block:block,status:'DISCHARGE',dischargedAt:new Date().toISOString()});closeAddPanel();loadAll();}catch(e){alert(e.message);}}
 async function delDischarge(id){if(!confirm('DELETE DISCHARGE?'))return;try{await window._fb.deleteDoc(window._fb.doc(window._fb.db,'discharges',id));loadAll();}catch(e){alert(e.message);}}
-function toggleSlide(cleanShri){var slide=document.getElementById('slide_'+cleanShri);var isShow=slide.classList.contains('show');document.querySelectorAll('.slideRow').forEach(function(r){r.classList.remove('show');});if(!isShow){slide.classList.add('show');}}
+function toggleSlide(cleanShri){
+  var slide=document.getElementById('slide_'+cleanShri);
+  var row=document.getElementById('tr_'+cleanShri);
+  var isShow=slide.classList.contains('show');
+  document.querySelectorAll('.slideRow').forEach(function(r){r.classList.remove('show');});
+  document.querySelectorAll('.mainRow').forEach(function(r){r.classList.remove('openRow');});
+  if(!isShow){
+    slide.classList.add('show');
+    if(row) row.classList.add('openRow');
+  }
+}
 function triggerUpload(cleanShri,type,shri){var docs=getDocsForShri(shri).filter(function(d){return d.type===type;});if(docs.length>0){openFileModal(docs[0]._id, shri);}else{document.getElementById('file_'+cleanShri+'_'+type).click();}}
 async function uploadFile(file,shri,name,pmjay,type){
   if(!file) return;
@@ -276,7 +283,7 @@ async function uploadFile(file,shri,name,pmjay,type){
     for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}
     if(!window._fb._docsCache[shri]) window._fb._docsCache[shri]=[];
     window._fb._docsCache[shri].push({_id:id,type:type,shri:shri,fileName:file.name});
-    render(); setTimeout(function(){var s=document.getElementById('slide_'+cleanShri);if(s) s.classList.add('show');},100);
+    render(); setTimeout(function(){var s=document.getElementById('slide_'+cleanShri); var r=document.getElementById('tr_'+cleanShri); if(s) s.classList.add('show'); if(r) r.classList.add('openRow');},100);
   }catch(e){alert(e.message);}
 }
 async function getFullData(id){try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));var arr=[];snap.forEach(function(d){arr.push(d.data());});arr.sort(function(a,b){return a.index-b.index;});return arr.map(function(a){return a.data;}).join('');}catch(e){return null;}}
@@ -315,12 +322,6 @@ window.addEventListener('load',function(){
   document.getElementById('perPage').addEventListener('change',applyFilter);
   document.getElementById('fSearch').addEventListener('input',applyFilter);
   document.getElementById('fDate').addEventListener('change',applyFilter);
-  setInterval(function(){
-    var fs=document.getElementById('fSearch');
-    var st=document.getElementById('searchTotal');
-    if(fs && fs.value.toLowerCase().includes('shija')) fs.value='';
-    if(st && st.value.toLowerCase().includes('shija')) st.value='';
-  },500);
 });
 </script>
 </body>
