@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA - FREE 10MB Docs</title>
+<title>SHIJA - Multi Patient Slide Upload</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
@@ -26,39 +26,50 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .content{flex:1;padding:12px 18px;background:#fff}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
-.searchWrap{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.searchBox{flex:1;max-width:380px;position:relative}
+.searchWrap{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:sticky;top:68px;z-index:10}
+.searchBox{flex:1;max-width:420px;position:relative}
 .searchBox input{width:100%;padding:10px 12px;border:1.5px solid #2563eb;background:#eff6ff;border-radius:8px;font-size:12px;font-weight:700;outline:0}
-.searchList{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:8px;max-height:240px;overflow:auto;z-index:50;display:none;box-shadow:0 8px 20px rgba(0,0,0,.1)}
-.selCard{background:#f0f9ff;border:1.5px solid #60a5fa;border-radius:12px;padding:12px;margin-bottom:14px;display:none}
-.selCard.show{display:flex;justify-content:space-between;align-items:center}
-.uploadRow{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:10px}
-.uploadItem{display:flex;flex-direction:column;gap:8px}
-.uploadLabel{font-size:13px;font-weight:600;color:#334155}
-.dropZone{border:1.5px dashed #cbd5e1;border-radius:10px;padding:18px 12px;display:flex;align-items:center;justify-content:center;gap:10px;background:#fafafa;cursor:pointer;transition:.24s}
-.dropZone:hover{border-color:#8b5cf6;background:#fdfaff;box-shadow:0 8px 20px rgba(139,92,246,0.12);transform:translateY(-2px)}
-.dropZone.dragover{border-color:#2563eb;background:#eff6ff}
-.dropZone.done{background:#0f172a!important;border-color:#0f172a!important;color:#fff!important;pointer-events:none;opacity:1}
+
+/* Patient Row like total.html */
+.pRow{background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:10px;overflow:hidden;transition:.3s}
+.pRow:hover{border-color:#2563eb;box-shadow:0 6px 16px rgba(0,0,0,.06)}
+.pHead{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:10px}
+.pHeadLeft{display:flex;flex-direction:column;gap:2px}
+.pName{font-weight:900;font-size:13px;color:#0f172a}
+.pMeta{font-size:11px;color:#64748b;font-weight:600}
+.pHeadRight{display:flex;align-items:center;gap:8px}
+.badge{padding:4px 8px;border-radius:12px;font-size:10px;font-weight:800}
+.badgeGreen{background:#dcfce7;color:#166534}
+.badgeGray{background:#f1f5f9;color:#475569}
+.arrow{width:28px;height:28px;border-radius:50%;background:#f1f5f9;display:grid;place-items:center;transition:.3s;font-weight:900}
+.pRow.open .arrow{transform:rotate(180deg);background:#0f172a;color:#fff}
+
+/* Slide down area */
+.slideBody{max-height:0;overflow:hidden;transition:max-height .4s ease, padding .3s ease;background:#fafbff;border-top:0 solid #e2e8f0}
+.pRow.open .slideBody{max-height:800px;padding:14px;border-top:1px solid #e2e8f0}
+.uploadRow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.uploadItem{display:flex;flex-direction:column;gap:6px}
+.uploadLabel{font-size:12px;font-weight:700;color:#334155}
+.dropZone{border:1.5px dashed #cbd5e1;border-radius:10px;padding:14px 10px;display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;cursor:pointer;transition:.24s}
+.dropZone:hover{border-color:#8b5cf6;background:#fdfaff;transform:translateY(-1px);box-shadow:0 6px 14px rgba(139,92,246,0.12)}
+.dropZone.done{background:#0f172a!important;border-color:#0f172a!important;color:#fff!important}
 .dropZone.done .dropText{color:#fff!important}
 .dropZone.done .dropText b{color:#4ade80!important}
-.dropZone.done .dropIcon{background:#1e293b;border-color:#334155}
-.dropZone.done .dropIcon svg{stroke:#4ade80}
-.dropIcon{width:28px;height:28px;border-radius:50%;background:#fff;border:1px solid #e2e8f0;display:grid;place-items:center}
-.dropIcon svg{width:16px;height:16px;stroke:#94a3b8;stroke-width:1.6;fill:none}
-.dropText{font-size:13px;color:#64748b;font-weight:500}
+.dropIcon{width:26px;height:26px;border-radius:50%;background:#fff;border:1px solid #e2e8f0;display:grid;place-items:center}
+.dropIcon svg{width:14px;height:14px;stroke:#94a3b8;stroke-width:1.6;fill:none}
+.dropText{font-size:12px;color:#64748b;font-weight:500}
 .dropText b{color:#8b5cf6}
 .fileInput{display:none}
-.progress{height:6px;background:#e2e8f0;border-radius:10px;overflow:hidden;display:none;margin-top:6px}
+.progress{height:5px;background:#e2e8f0;border-radius:10px;overflow:hidden;display:none;margin-top:4px}
 .progress div{height:100%;width:0;background:#16a34a;transition:.3s}
-.fileList{margin-top:10px;display:flex;flex-direction:column;gap:8px}
-.fItem{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fileList{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.fItem{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 8px;display:flex;align-items:center;justify-content:space-between;gap:6px}
 .fItem.dark{background:#0f172a!important;border-color:#0f172a!important;color:#fff!important}
 .fItem.dark .fName{color:#fff!important}
-.fItem.dark .fThumb{background:#1e293b;border-color:#334155;color:#4ade80}
-.fThumb{width:36px;height:36px;border-radius:6px;background:#f1f5f9;border:1px solid #e2e8f0;overflow:hidden;display:grid;place-items:center}
+.fThumb{width:30px;height:30px;border-radius:6px;background:#f1f5f9;border:1px solid #e2e8f0;overflow:hidden;display:grid;place-items:center;font-size:10px;font-weight:900}
 .fThumb img{width:100%;height:100%;object-fit:cover}
-.fName{font-size:11px;font-weight:700;color:#0f172a;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.btnS{height:26px;padding:0 10px;border-radius:6px;border:0;font-weight:800;font-size:10px;cursor:pointer}
+.fName{font-size:10px;font-weight:700;color:#0f172a;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btnS{height:24px;padding:0 8px;border-radius:6px;border:0;font-weight:800;font-size:9px;cursor:pointer}
 .btnV{background:#0f172a;color:#fff}
 .btnD{background:#2563eb;color:#fff}
 .btnX{background:#fee2e2;color:#991b1b}
@@ -79,24 +90,17 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 <a href="docs.html" class="active"><span class="mi">U</span><span class="ml">PATIENT DOCS UPLOAD</span></a>
 </div>
 </div>
-<div style="padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b">FREE • No Billing • 10MB</div>
+<div style="padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b">FREE • Multi Patient Slide</div>
 </div>
 <div class="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> PATIENT DOCUMENTS <div style="background:#0f172a;color:#fff;padding:6px 12px;border-radius:20px;font-weight:900;font-size:11px">DARK WHEN UPLOADED</div></div></div>
+<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> PATIENT DOCUMENTS <div style="background:#0f172a;color:#fff;padding:6px 12px;border-radius:20px;font-weight:900;font-size:11px">MULTI + SLIDE DOWN</div></div></div>
 <div class="content">
 <div class="searchWrap">
-<div class="searchBox"><input id="searchInput" placeholder="Search from total.html - Name / SHRI / IP" oninput="doSearch(this.value)" onfocus="doSearch(this.value)"><div id="searchList" class="searchList"></div></div>
-<div style="font-size:11px;color:#64748b;font-weight:600" id="statusTxt">Select patient - FREE 10MB</div>
-</div>
-<div class="selCard" id="selCard"><div><b id="selName"></b><br><span id="selMeta" style="font-size:11px;color:#475569;font-weight:600"></span></div><button onclick="clearSel()" style="height:32px;padding:0 12px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-weight:700;font-size:11px;cursor:pointer">Change</button></div>
-
-<div class="uploadRow" id="uploadRow" style="opacity:.35;pointer-events:none">
-<div class="uploadItem" id="item1"><div class="uploadLabel">Discharge Summary<span style="color:#ef4444">*</span></div><div class="dropZone" id="zone1" onclick="document.getElementById('file1').click()" ondrop="handleDrop(event,'discharge_summary')" ondragover="handleDragOver(event,'zone1')" ondragleave="handleDragLeave(event,'zone1')"><div class="dropIcon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="dropText" id="txt1">Drag your file here <b>Or Browse</b></div></div><input type="file" id="file1" class="fileInput" accept=".jpg,.jpeg,.png,.pdf" onchange="uploadFile(this.files[0],'discharge_summary')"><div class="progress" id="prog1"><div id="bar1"></div></div><div class="fileList" id="list1"></div></div>
-<div class="uploadItem" id="item2"><div class="uploadLabel">Post Surgery Photo<span style="color:#ef4444">*</span></div><div class="dropZone" id="zone2" onclick="document.getElementById('file2').click()" ondrop="handleDrop(event,'discharge_photo')" ondragover="handleDragOver(event,'zone2')" ondragleave="handleDragLeave(event,'zone2')"><div class="dropIcon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="dropText" id="txt2">Drag your file here <b>Or Browse</b></div></div><input type="file" id="file2" class="fileInput" accept=".jpg,.jpeg,.png,.pdf" onchange="uploadFile(this.files[0],'discharge_photo')"><div class="progress" id="prog2"><div id="bar2"></div></div><div class="fileList" id="list2"></div></div>
-<div class="uploadItem" id="item3"><div class="uploadLabel">Feedback Form<span style="color:#ef4444">*</span></div><div class="dropZone" id="zone3" onclick="document.getElementById('file3').click()" ondrop="handleDrop(event,'feedback_form')" ondragover="handleDragOver(event,'zone3')" ondragleave="handleDragLeave(event,'zone3')"><div class="dropIcon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="dropText" id="txt3">Drag your file here <b>Or Browse</b></div></div><input type="file" id="file3" class="fileInput" accept=".jpg,.jpeg,.png,.pdf" onchange="uploadFile(this.files[0],'feedback_form')"><div class="progress" id="prog3"><div id="bar3"></div></div><div class="fileList" id="list3"></div></div>
+<div class="searchBox"><input id="searchInput" placeholder="Search from total.html - Name / SHRI / IP - Add multiple patients" oninput="doSearch(this.value)"></div>
+<div style="font-size:11px;color:#64748b;font-weight:600" id="statusTxt">Search and click row to slide down upload</div>
 </div>
 
-<div style="margin-top:20px;border-top:1px solid #e2e8f0;padding-top:14px" id="allWrap"><h2 style="font-size:14px;font-weight:900;color:#0f172a">All Uploaded (Stays forever)</h2><div id="allList" style="margin-top:10px"></div></div>
+<div id="patientList"></div>
 </div>
 </div>
 
@@ -105,11 +109,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig,"free10dark_"+Math.random());
+const app=initializeApp(firebaseConfig,"multiSlide_"+Math.random());
 const db=getFirestore(app);
 
-let allPMJAY=[], allCMHT=[], lastFiltered=[], selectedPatient=null;
+let allPMJAY=[], allCMHT=[], allCombined=[];
 const CHUNK_SIZE = 800000;
+let patientDocsCache={};
 
 async function loadPatients(){
   allPMJAY=[]; allCMHT=[];
@@ -117,97 +122,150 @@ async function loadPatients(){
     for(let n of names){
       try{
         let s=await getDocs(collection(db,n));
-        if(!s.empty){ s.forEach(d=>{let c=d.data();tar.push({shri:c.shriId||c.shri||c.UHID||c.uhid||c.id||'',ip:c.pmjayId||c.pmjay||c.ipNo||c.ip||'',name:c.patientName||c.name||'',age:c.age||'',sex:c.sex||c.gender||''});}); if(tar.length>0) return; }
+        if(!s.empty){ s.forEach(d=>{let c=d.data();tar.push({shri:c.shriId||c.shri||c.UHID||c.uhid||c.id||'',ip:c.pmjayId||c.pmjay||c.ipNo||c.ip||'',name:c.patientName||c.name||'',age:c.age||'',sex:c.sex||c.gender||'',raw:c});}); if(tar.length>0) return; }
       }catch(e){}
     }
   };
   await tryCol(["pmjay_patients","PMJAY_patients","pmjay","PMJAY","patients","total_patients"],allPMJAY);
   await tryCol(["cmht_patients","CMHT_patients","cmht","CMHT"],allCMHT);
+  allCombined=[...allPMJAY,...allCMHT];
+  // load docs cache for badges
+  try{
+    let snap=await getDocs(collection(db,"patient_docs"));
+    snap.forEach(d=>{
+      let data=d.data();
+      if(!patientDocsCache[data.shri]) patientDocsCache[data.shri]={c:0,byType:{}};
+      patientDocsCache[data.shri].c++;
+      patientDocsCache[data.shri].byType[data.type]=(patientDocsCache[data.shri].byType[data.type]||0)+1;
+    });
+  }catch(e){}
+  renderList(allCombined.slice(0,30));
 }
-function getCombined(){ return [...allPMJAY,...allCMHT]; }
+
+function clean(str){ return str.replace(/[^a-zA-Z0-9]/g,'_'); }
+
+function renderList(list){
+  let container=document.getElementById('patientList');
+  if(list.length===0){ container.innerHTML='<div style="font-size:11px;color:#94a3b8">No patients found</div>'; return; }
+  container.innerHTML=list.map(p=>{
+    let cs=clean(p.shri);
+    let docs=patientDocsCache[p.shri]||{c:0,byType:{}};
+    let badge = docs.c>0 ? `<span class="badge badgeGreen">${docs.c} files • S:${docs.byType.discharge_summary||0} P:${docs.byType.discharge_photo||0} F:${docs.byType.feedback_form||0}</span>` : `<span class="badge badgeGray">No docs</span>`;
+    return `
+    <div class="pRow" id="row_${cs}">
+      <div class="pHead" onclick="toggleRow('${cs}','${p.shri.replace(/'/g,"\\'")}')">
+        <div class="pHeadLeft"><div class="pName">${p.name||'Unknown'}</div><div class="pMeta">${p.shri} • IP ${p.ip||'N/A'} • ${p.age||''} ${p.sex||''}</div></div>
+        <div class="pHeadRight">${badge}<div class="arrow">▼</div></div>
+      </div>
+      <div class="slideBody" id="slide_${cs}">
+        <div class="uploadRow">
+          <div class="uploadItem">
+            <div class="uploadLabel">Discharge Summary *</div>
+            <div class="dropZone" id="zone_${cs}_discharge_summary" onclick="triggerFile('${cs}','discharge_summary')" ondrop="handleDrop(event,'${p.shri.replace(/'/g,"\\'")}','discharge_summary')" ondragover="handleDragOver(event,'zone_${cs}_discharge_summary')" ondragleave="handleDragLeave(event,'zone_${cs}_discharge_summary')"><div class="dropIcon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/></svg></div><div class="dropText" id="txt_${cs}_discharge_summary">Browse or Drag <b>MAX 10MB</b></div></div>
+            <input type="file" id="file_${cs}_discharge_summary" class="fileInput" accept=".jpg,.jpeg,.png,.pdf" onchange="uploadFile(this.files[0],'${p.shri.replace(/'/g,"\\'")}','${p.name.replace(/'/g,"\\'")}','${p.ip}','discharge_summary')">
+            <div class="progress" id="prog_${cs}_discharge_summary"><div id="bar_${cs}_discharge_summary"></div></div>
+            <div class="fileList" id="list_${cs}_discharge_summary"></div>
+          </div>
+          <div class="uploadItem">
+            <div class="uploadLabel">Post Surgery Photo with Doctor PMAM *</div>
+            <div class="dropZone" id="zone_${cs}_discharge_photo" onclick="triggerFile('${cs}','discharge_photo')" ondrop="handleDrop(event,'${p.shri.replace(/'/g,"\\'")}','discharge_photo')" ondragover="handleDragOver(event,'zone_${cs}_discharge_photo')" ondragleave="handleDragLeave(event,'zone_${cs}_discharge_photo')"><div class="dropIcon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/></svg></div><div class="dropText" id="txt_${cs}_discharge_photo">Browse or Drag <b>MAX 10MB</b></div></div>
+            <input type="file" id="file_${cs}_discharge_photo" class="fileInput" accept=".jpg,.jpeg,.png,.pdf" onchange="uploadFile(this.files[0],'${p.shri.replace(/'/g,"\\'")}','${p.name.replace(/'/g,"\\'")}','${p.ip}','discharge_photo')">
+            <div class="progress" id="prog_${cs}_discharge_photo"><div id="bar_${cs}_discharge_photo"></div></div>
+            <div class="fileList" id="list_${cs}_discharge_photo"></div>
+          </div>
+          <div class="uploadItem">
+            <div class="uploadLabel">Feedback Form *</div>
+            <div class="dropZone" id="zone_${cs}_feedback_form" onclick="triggerFile('${cs}','feedback_form')" ondrop="handleDrop(event,'${p.shri.replace(/'/g,"\\'")}','feedback_form')" ondragover="handleDragOver(event,'zone_${cs}_feedback_form')" ondragleave="handleDragLeave(event,'zone_${cs}_feedback_form')"><div class="dropIcon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/></svg></div><div class="dropText" id="txt_${cs}_feedback_form">Browse or Drag <b>MAX 10MB</b></div></div>
+            <input type="file" id="file_${cs}_feedback_form" class="fileInput" accept=".jpg,.jpeg,.png,.pdf" onchange="uploadFile(this.files[0],'${p.shri.replace(/'/g,"\\'")}','${p.name.replace(/'/g,"\\'")}','${p.ip}','feedback_form')">
+            <div class="progress" id="prog_${cs}_feedback_form"><div id="bar_${cs}_feedback_form"></div></div>
+            <div class="fileList" id="list_${cs}_feedback_form"></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 window.doSearch=(q)=>{
-  let l=document.getElementById('searchList'); let c=getCombined();
-  if(!q){ let a=c.slice(0,20); lastFiltered=a; l.innerHTML=a.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:8px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:11px"><b style="color:#2563eb">${p.shri}</b> - ${p.name}</div>`).join(''); l.style.display='block'; return; }
-  q=q.toLowerCase(); let f=c.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,20);
-  lastFiltered=f; l.innerHTML=f.length?f.map((p,i)=>`<div onclick="selectPatByIdx(${i})" style="padding:8px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;font-size:11px"><b style="color:#2563eb">${p.shri}</b> - ${p.name.slice(0,35)}</div>`).join(''):'<div style="padding:8px;font-size:11px">No patient</div>'; l.style.display='block';
-}
-window.selectPatByIdx=(i)=>{
-  let p=lastFiltered[i]; if(!p) return;
-  selectedPatient=p;
-  document.getElementById('selCard').classList.add('show');
-  document.getElementById('selName').textContent=p.name;
-  document.getElementById('selMeta').textContent=`${p.shri} • IP: ${p.ip||'N/A'}`;
-  document.getElementById('searchList').style.display='none';
-  document.getElementById('searchInput').value=p.shri+' - '+p.name;
-  document.getElementById('uploadRow').style.opacity='1';
-  document.getElementById('uploadRow').style.pointerEvents='auto';
-  document.getElementById('statusTxt').textContent='Patient selected - upload';
-  document.getElementById('allWrap').style.display='none'; // hide extra cards when patient selected
-  resetZones();
-  loadPatientDocs();
-}
-window.clearSel=()=>{
-  selectedPatient=null;
-  document.getElementById('selCard').classList.remove('show');
-  document.getElementById('uploadRow').style.opacity='.35';
-  document.getElementById('uploadRow').style.pointerEvents='none';
-  document.getElementById('searchInput').value='';
-  document.getElementById('statusTxt').textContent='Select patient first';
-  document.getElementById('list1').innerHTML=''; document.getElementById('list2').innerHTML=''; document.getElementById('list3').innerHTML='';
-  document.getElementById('allWrap').style.display='block';
-  resetZones();
-  loadAllPatientsDocs();
-}
-function resetZones(){
-  ['zone1','zone2','zone3'].forEach(z=>{ document.getElementById(z).classList.remove('done'); });
-  document.getElementById('txt1').innerHTML='Drag your file here <b>Or Browse</b>';
-  document.getElementById('txt2').innerHTML='Drag your file here <b>Or Browse</b>';
-  document.getElementById('txt3').innerHTML='Drag your file here <b>Or Browse</b>';
+  if(!q){ renderList(allCombined.slice(0,30)); return; }
+  q=q.toLowerCase();
+  let f=allCombined.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,30);
+  renderList(f);
 }
 
-const mapList={discharge_summary:'list1',discharge_photo:'list2',feedback_form:'list3'};
-const mapProg={discharge_summary:['prog1','bar1'],discharge_photo:['prog2','bar2'],feedback_form:['prog3','bar3']};
-const mapZone={discharge_summary:'zone1',discharge_photo:'zone2',feedback_form:'zone3'};
-const mapTxt={discharge_summary:'txt1',discharge_photo:'txt2',feedback_form:'txt3'};
+window.toggleRow=async(cs,shri)=>{
+  let row=document.getElementById('row_'+cs);
+  let isOpen=row.classList.contains('open');
+  document.querySelectorAll('.pRow').forEach(r=>r.classList.remove('open'));
+  if(!isOpen){
+    row.classList.add('open');
+    await loadDocsForPatient(shri);
+  }
+}
 
-window.handleDragOver=(e,zoneId)=>{ e.preventDefault(); if(document.getElementById(zoneId).classList.contains('done')) return; document.getElementById(zoneId).classList.add('dragover'); }
-window.handleDragLeave=(e,zoneId)=>{ document.getElementById(zoneId).classList.remove('dragover'); }
-window.handleDrop=(e,type)=>{ e.preventDefault(); document.querySelectorAll('.dropZone').forEach(z=>z.classList.remove('dragover')); let file=e.dataTransfer.files[0]; if(file) uploadFile(file,type); }
-
-window.uploadFile=async(file,type)=>{
-  if(!file) return;
-  if(!selectedPatient){ alert('First select patient'); return; }
-  if(file.size > 10*1024*1024){ alert(`Max 10MB\nYour: ${(file.size/1024/1024).toFixed(2)} MB`); return; }
-
-  let [progId,barId]=mapProg[type];
-  let prog=document.getElementById(progId); let bar=document.getElementById(barId);
-  prog.style.display='block'; bar.style.width='0%';
-  document.getElementById('statusTxt').textContent='Reading file...';
-
-  let base64=await new Promise(res=>{
-    let r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file);
-  });
-
-  let cleanShri = selectedPatient.shri.replace(/[^a-zA-Z0-9]/g,'_');
-  let id=`${cleanShri}_${type}_${Date.now()}`;
-
+async function loadDocsForPatient(shri){
+  let cs=clean(shri);
   try{
-    let chunks=[];
-    for(let i=0;i<base64.length;i+=CHUNK_SIZE){ chunks.push(base64.substring(i,i+CHUNK_SIZE)); }
-    document.getElementById('statusTxt').textContent=`Uploading FREE - ${chunks.length} parts...`;
-
-    await setDoc(doc(db,"patient_docs",id),{type:type,shri:selectedPatient.shri,cleanShri:cleanShri,patientName:selectedPatient.name,ip:selectedPatient.ip,fileName:file.name,fileType:file.type,size:file.size,chunkCount:chunks.length,createdAt:Date.now()});
-
-    for(let i=0;i<chunks.length;i++){
-      bar.style.width=Math.round((i+1)/chunks.length*100)+'%';
-      await setDoc(doc(db,"patient_docs",id,"chunks",String(i)),{index:i,data:chunks[i]});
+    let snap=await getDocs(collection(db,"patient_docs"));
+    let byType={discharge_summary:[],discharge_photo:[],feedback_form:[]};
+    snap.forEach(d=>{
+      let data=d.data(); data._id=d.id;
+      if(data.shri===shri && byType[data.type]) byType[data.type].push(data);
+    });
+    Object.values(byType).forEach(arr=>arr.sort((a,b)=>b.createdAt-a.createdAt));
+    for(let type in byType){
+      renderCurrent(cs,shri,type,byType[type]);
     }
-    await setDoc(doc(db,"discharge_patients",cleanShri),{shri:selectedPatient.shri,patientName:selectedPatient.name,ip:selectedPatient.ip,lastUpload:Date.now(),discharged:true},{merge:true});
+  }catch(e){ console.error(e); }
+}
 
+function renderCurrent(cs,shri,type,items){
+  let listEl=document.getElementById(`list_${cs}_${type}`);
+  let zoneEl=document.getElementById(`zone_${cs}_${type}`);
+  let txtEl=document.getElementById(`txt_${cs}_${type}`);
+  if(!listEl) return;
+  if(items.length===0){
+    listEl.innerHTML='';
+    zoneEl.classList.remove('done');
+    txtEl.innerHTML='Browse or Drag <b>MAX 10MB</b>';
+    return;
+  }
+  zoneEl.classList.add('done');
+  txtEl.innerHTML='✓ <b>UPLOADED</b> - Dark card';
+  listEl.innerHTML=items.map(it=>{
+    let isPdf=it.fileName.toLowerCase().endsWith('.pdf');
+    let thumb=isPdf?`PDF`:`IMG`;
+    let mb=(it.size/1024/1024).toFixed(2);
+    return `<div class="fItem dark"><div class="fThumb">${thumb}</div><div style="flex:1"><div class="fName">${it.fileName}</div><div style="font-size:9px;color:#94a3b8">${mb} MB</div></div><div style="display:flex;gap:4px"><button class="btnS btnV" onclick="viewDoc('${it._id}')">VIEW</button><button class="btnS btnD" onclick="downloadDoc('${it._id}')">DOWN</button><button class="btnS btnX" onclick="delDoc('${it._id}','${shri}')">✕</button></div></div>`;
+  }).join('');
+}
+
+window.triggerFile=(cs,type)=>{ document.getElementById(`file_${cs}_${type}`).click(); }
+window.handleDragOver=(e,zoneId)=>{ e.preventDefault(); let z=document.getElementById(zoneId); if(z.classList.contains('done')) return; z.classList.add('dragover'); }
+window.handleDragLeave=(e,zoneId)=>{ document.getElementById(zoneId).classList.remove('dragover'); }
+window.handleDrop=(e,shri,type)=>{ e.preventDefault(); document.querySelectorAll('.dropZone').forEach(z=>z.classList.remove('dragover')); let file=e.dataTransfer.files[0]; if(!file) return; let p=allCombined.find(x=>x.shri===shri); if(!p) return; uploadFile(file,shri,p.name,p.ip,type); }
+
+window.uploadFile=async(file,shri,name,ip,type)=>{
+  if(!file) return;
+  if(file.size>10*1024*1024){ alert(`Max 10MB\nYour: ${(file.size/1024/1024).toFixed(2)} MB`); return; }
+  let cs=clean(shri);
+  let prog=document.getElementById(`prog_${cs}_${type}`); let bar=document.getElementById(`bar_${cs}_${type}`);
+  prog.style.display='block'; bar.style.width='0%';
+  document.getElementById('statusTxt').textContent=`Uploading ${name} - ${type}...`;
+
+  let base64=await new Promise(res=>{ let r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); });
+
+  let id=`${cs}_${type}_${Date.now()}`;
+  try{
+    let chunks=[]; for(let i=0;i<base64.length;i+=CHUNK_SIZE){ chunks.push(base64.substring(i,i+CHUNK_SIZE)); }
+    await setDoc(doc(db,"patient_docs",id),{type:type,shri:shri,cleanShri:cs,patientName:name,ip:ip,fileName:file.name,fileType:file.type,size:file.size,chunkCount:chunks.length,createdAt:Date.now()});
+    for(let i=0;i<chunks.length;i++){ bar.style.width=Math.round((i+1)/chunks.length*100)+'%'; await setDoc(doc(db,"patient_docs",id,"chunks",String(i)),{index:i,data:chunks[i]}); }
+    await setDoc(doc(db,"discharge_patients",cs),{shri:shri,patientName:name,ip:ip,lastUpload:Date.now(),discharged:true},{merge:true});
     prog.style.display='none'; bar.style.width='0%';
-    document.getElementById('statusTxt').textContent='Uploaded! Card darkened';
-    loadPatientDocs();
+    document.getElementById('statusTxt').textContent='Uploaded FREE - card darkened';
+    if(!patientDocsCache[shri]) patientDocsCache[shri]={c:0,byType:{}};
+    patientDocsCache[shri].c++; patientDocsCache[shri].byType[type]=(patientDocsCache[shri].byType[type]||0)+1;
+    await loadDocsForPatient(shri);
   }catch(e){ alert(e.message); prog.style.display='none'; }
 }
 
@@ -217,99 +275,32 @@ async function getFullData(id){
     let arr=[]; snap.forEach(d=>{ arr.push(d.data()); });
     arr.sort((a,b)=>a.index-b.index);
     return arr.map(a=>a.data).join('');
-  }catch(e){
-    let snap=await getDocs(collection(db,"patient_docs"));
-    let found=null; snap.forEach(d=>{ if(d.id===id && d.data().data) found=d.data().data; });
-    return found;
-  }
-}
-
-async function loadPatientDocs(){
-  if(!selectedPatient) return;
-  try{
-    let snap=await getDocs(collection(db,"patient_docs"));
-    let byType={discharge_summary:[],discharge_photo:[],feedback_form:[]};
-    snap.forEach(d=>{
-      let data=d.data(); data._id=d.id;
-      if(data.shri===selectedPatient.shri && byType[data.type]) byType[data.type].push(data);
-    });
-    Object.values(byType).forEach(arr=>arr.sort((a,b)=>b.createdAt-a.createdAt));
-    for(let type in byType){ renderCurrent(type,byType[type]); }
-  }catch(e){ console.error(e); }
-}
-function renderCurrent(type,items){
-  let listId=mapList[type]; let zoneId=mapZone[type]; let txtId=mapTxt[type];
-  let el=document.getElementById(listId); let zone=document.getElementById(zoneId); let txt=document.getElementById(txtId);
-  if(items.length===0){
-    el.innerHTML=''; // don't show extra cards
-    zone.classList.remove('done');
-    txt.innerHTML='Drag your file here <b>Or Browse</b>';
-    return;
-  }
-  // darken card when uploaded
-  zone.classList.add('done');
-  txt.innerHTML='✓ <b>UPLOADED</b> - Dark card';
-
-  el.innerHTML=items.map(it=>{
-    let isPdf=it.fileName.toLowerCase().endsWith('.pdf');
-    let thumb=isPdf?`<div style="font-weight:900;color:#4ade80">PDF</div>`:`IMG`;
-    let mb=(it.size/1024/1024).toFixed(2);
-    return `<div class="fItem dark"><div class="fThumb">${thumb}</div><div style="flex:1"><div class="fName">${it.fileName}</div><div style="font-size:9px;color:#94a3b8">${mb} MB</div></div><div style="display:flex;gap:4px"><button class="btnS btnV" onclick="viewDoc('${it._id}')">VIEW</button><button class="btnS btnD" onclick="downloadDoc('${it._id}')">DOWN</button><button class="btnS btnX" onclick="delDoc('${it._id}')">✕</button></div></div>`;
-  }).join('');
+  }catch(e){ return null; }
 }
 
 window.viewDoc=async(id)=>{
-  document.getElementById('statusTxt').textContent='Loading...';
-  let data=await getFullData(id);
-  if(!data){ alert('Not found'); return; }
-  let w=window.open();
-  if(data.startsWith('data:application/pdf')){ w.document.write(`<iframe src="${data}" style="width:100%;height:100vh;border:0"></iframe>`); }
-  else { w.document.write(`<img src="${data}" style="max-width:100%">`); }
-  document.getElementById('statusTxt').textContent='Loaded';
+  let data=await getFullData(id); if(!data){ alert('Not found'); return; }
+  let w=window.open(); if(data.startsWith('data:application/pdf')){ w.document.write(`<iframe src="${data}" style="width:100%;height:100vh;border:0"></iframe>`); } else { w.document.write(`<img src="${data}" style="max-width:100%">`); }
 }
 window.downloadDoc=async(id)=>{
-  document.getElementById('statusTxt').textContent='Preparing download...';
-  let data=await getFullData(id);
-  if(!data) return;
-  let snap=await getDocs(collection(db,"patient_docs"));
-  let meta=null; snap.forEach(d=>{ if(d.id===id) meta=d.data(); });
+  let data=await getFullData(id); if(!data) return;
+  let snap=await getDocs(collection(db,"patient_docs")); let meta=null; snap.forEach(d=>{ if(d.id===id) meta=d.data(); });
   let a=document.createElement('a'); a.href=data; a.download=meta?meta.fileName:'file'; a.click();
-  document.getElementById('statusTxt').textContent='Downloaded';
 }
-window.delDoc=async(id)=>{
+window.delDoc=async(id,shri)=>{
   if(!confirm('Delete forever?')) return;
   try{
     let csnap=await getDocs(collection(db,"patient_docs",id,"chunks"));
     for(let d of csnap.docs){ await deleteDoc(doc(db,"patient_docs",id,"chunks",d.id)); }
     await deleteDoc(doc(db,"patient_docs",id));
-    loadPatientDocs();
+    await loadDocsForPatient(shri);
   }catch(e){ alert(e.message); }
-}
-
-async function loadAllPatientsDocs(){
-  try{
-    let snap=await getDocs(collection(db,"patient_docs"));
-    let grouped={};
-    snap.forEach(d=>{ let data=d.data(); data._id=d.id; if(!grouped[data.shri]) grouped[data.shri]={shri:data.shri,name:data.patientName,ip:data.ip,docs:[]}; grouped[data.shri].docs.push(data); });
-    let container=document.getElementById('allList');
-    let keys=Object.keys(grouped);
-    if(keys.length===0){ container.innerHTML='<div style="font-size:11px;color:#94a3b8">No patients yet.</div>'; return; }
-    container.innerHTML=Object.values(grouped).map(g=>{
-      return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin-bottom:10px">
-        <div><b style="font-size:13px;color:#0f172a">${g.name}</b><div style="font-size:11px;color:#64748b">${g.shri} • IP ${g.ip} • ${g.docs.length} files</div></div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px">
-          ${g.docs.map(d=>`<div class="fItem"><div class="fThumb">${d.fileName.toLowerCase().endsWith('.pdf')?'PDF':'IMG'}</div><div class="fName">${d.type.replace('_',' ')}: ${d.fileName}</div><div style="display:flex;gap:4px"><button class="btnS btnV" onclick="viewDoc('${d._id}')">VIEW</button><button class="btnS btnD" onclick="downloadDoc('${d._id}')">DOWN</button></div></div>`).join('')}
-        </div>
-      </div>`;
-    }).join('');
-  }catch(e){ console.error(e); }
 }
 
 window.toggleWhiteBar=()=>{ if(window.innerWidth<=900){ document.getElementById('whiteBar').classList.toggle('mOpen'); document.getElementById('mobOverlay').classList.toggle('show'); }else{ document.getElementById('whiteBar').classList.toggle('folded'); } }
 window.closeMob=()=>{ document.getElementById('whiteBar').classList.remove('mOpen'); document.getElementById('mobOverlay').classList.remove('show'); }
 document.getElementById('menuBtnTop').addEventListener('click',e=>{e.preventDefault();toggleWhiteBar();});
-document.addEventListener('click',e=>{ if(!e.target.closest('.searchBox')) document.getElementById('searchList').style.display='none'; });
-(async()=>{ await loadPatients(); loadAllPatientsDocs(); })();
+loadPatients();
 </script>
 </body>
 </html>
