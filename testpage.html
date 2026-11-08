@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>SHIJA - GRID VIEW ADDED</title>
+<title>SHIJA - FINAL FULL</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="Patient.js"></script>
 <style>
@@ -82,9 +82,9 @@ td.nameCol{text-align:left;padding-left:4px;overflow:hidden;text-overflow:ellips
 .filterBox2{display:flex;flex-direction:column;gap:8px}
 .filterRow1{display:flex;gap:5px;flex-wrap:wrap;align-items:end}
 .filterRow2{display:flex;gap:5px;align-items:center;flex-wrap:wrap;border-top:1px solid #f1f5f9;padding-top:8px}
-.actionCell{display:flex;align-items:center;gap:2px;width:100%;flex-wrap:nowrap;justify-content:center;overflow:hidden;transition:all .25s ease}
+.actionCell{display:flex;align-items:center;gap:2px;width:100%;flex-wrap:nowrap;justify-content:center;overflow:hidden}
 .claimWrap{display:flex;align-items:center;gap:2px;flex-wrap:nowrap;width:100%;min-width:0;overflow:hidden;justify-content:center}
-.claimFold{display:none!important;align-items:center;background:#fff;border:1.5px solid #e5e7eb;border-radius:999px;padding:1px 1px 1px 5px;gap:1px;flex:1;min-width:0;max-width:100px;overflow:hidden;transition:all .25s ease}
+.claimFold{display:none!important;align-items:center;background:#fff;border:1.5px solid #e5e7eb;border-radius:999px;padding:1px 1px 1px 5px;gap:1px;flex:1;min-width:0;max-width:100px;overflow:hidden}
 .claimFold.show{display:inline-flex!important}
 .claimFold input{flex:1;min-width:0;border:0;outline:0;font-weight:800;font-size:6px;background:transparent;text-transform:uppercase;color:#374151;width:100%}
 .claimFold .addClaimBtn{background:#3c25eb;color:#fff;border:1px solid #3c25eb;padding:3px 6px;border-radius:999px;font-weight:900;font-size:5px;cursor:pointer;flex-shrink:0;min-width:18px}
@@ -149,21 +149,22 @@ th:nth-child(8),td:nth-child(8){width:18%}
 .zoomBtn{height:26px;min-width:26px;padding:0 6px;background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:5px;font-weight:900;font-size:13px;cursor:pointer;display:grid;place-items:center}
 .zoomLabel{font-size:9px;font-weight:800;color:#0f172a;min-width:36px;text-align:center}
 </style>
-<script>function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{var bar=document.getElementById('whiteBar');bar.classList.toggle('folded')}}function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}</script>
+<script>function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{var bar=document.getElementById('whiteBar');bar.classList.toggle('folded');try{localStorage.setItem('shija_menu_folded',bar.classList.contains('folded')?'1':'0')}catch(e){}}}function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}</script>
 </head>
 <body>
 <div id="mobOverlay" onclick="closeMob()"></div>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(firebaseConfig,"app_"+Math.random());
 const db=getFirestore(app);
-window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},_currentZoom:1,_docsLoaded:false};
-const guardApp=initializeApp(firebaseConfig,"guard_"+Math.random());
+window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},_currentZoom:1, _docsLoaded:false};
+const guardApp=initializeApp(firebaseConfig,"discharge_guard_"+Math.random());
 const guardDb=getFirestore(guardApp);
-try{onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{if(!snap.exists())return;let lt=snap.data().logoutTime||0;let my=parseInt(localStorage.getItem('shija_login_time')||'0');if(lt>my&&my!==0){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');alert('🔒 Logged out');location.href='login.html';}});}catch(e){}
+try{onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{if(!snap.exists()) return;let lt=snap.data().logoutTime||0;let my=parseInt(localStorage.getItem('shija_login_time')||'0');if(lt>my && my!==0){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');alert('🔒 Logged out by Admin');location.href='login.html?reason=global';}});}catch(e){}
+window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 </script>
 <div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
 <div class="whiteBar" id="whiteBar">
@@ -186,7 +187,7 @@ try{onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{if(!snap.exists())
 <a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT FOR PMJAY</span></a>
 <a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span><span class="ml">BILL</span></a>
 <a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
-</div></div><div class="sFoot"><span class="footFull">SHIJA • FAST</span><span class="footFold">☰</span></div></div>
+</div></div><div class="sFoot"><span class="footFull">SHIJA • FAST</span><span class="footFold">Click ☰</span></div></div>
 <div class="mainWrap">
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY • FAST</div></div>
 <div style="display:flex;align-items:center;gap:8px">
@@ -239,7 +240,7 @@ try{onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{if(!snap.exists())
 <button class="iconBtn" style="width:32px;height:32px;border:none;background:transparent;color:#0f172a" id="btnGrid" onclick="setView('grid')" title="Grid View"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
 </div></div></div></div></div>
 <div class="card" style="padding:8px">
-<div class="sheetWrap" id="tableWrap"><table><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>TIME</th><th>BLOCK</th><th>UPLOAD</th><th>ACTION</th></tr></thead><tbody id="tbody"><tr><td colspan="8" style="padding:30px;text-align:center">LOADING FAST...</td></tr></tbody></table></div>
+<div class="sheetWrap" id="tableWrap"><table><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>TIME</th><th>BLOCK</th><th>UPLOAD</th><th>ACTION</th></tr></thead><tbody id="tbody"><tr><td colspan="8" style="padding:10px;text-align:center">FAST LOADING...</td></tr></tbody></table></div>
 <div class="gridWrap" id="gridWrap" style="display:none"></div>
 </div></div></div>
 <div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
@@ -270,8 +271,33 @@ currentPage=1;
 render();
 }
 function getDocsForShri(shri){return window._fb._docsCache[shri]||[];}
-async function loadMasterFAST(){masterPatients=[];var map={};function addToMap(raw){var shri=String(raw.shri||raw.shriId||'').trim().toUpperCase();var name=String(raw.name||raw.patientName||'').trim().toUpperCase();var pmjay=String(raw.pmjay||raw.pmjayId||'').trim().toUpperCase();if(!shri||map[shri])return false;map[shri]={shri:shri,name:name||'UNKNOWN',pmjayId:pmjay};return true;}try{if(typeof patientData!=='undefined'&&Array.isArray(patientData)){patientData.forEach(r=>addToMap(r));}}catch(e){}Object.keys(map).forEach(k=>masterPatients.push(map[k]));try{localStorage.setItem('shija_pat_cache_v2',JSON.stringify(masterPatients));}catch(e){}}
-async function loadAllFAST(){try{if(!window._fb){setTimeout(loadAllFAST,300);return;}var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges'));allDischarge=[];snap.forEach(d=>{var o=d.data();o._id=d.id;if(o.claimId&&String(o.claimId).trim()!=='')return;allDischarge.push(o);});allDischarge.sort((a,b)=>new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0));}catch(e){}applyFilter();}
+async function loadMasterFAST(){
+  var cached = localStorage.getItem('shija_pat_cache_v2');
+  if(cached){
+    try{ masterPatients = JSON.parse(cached); return; }catch(e){}
+  }
+  masterPatients=[];var map={};
+  function addToMap(raw){var shri=String(raw.shri||raw.shriId||'').trim().toUpperCase();var name=String(raw.name||raw.patientName||'').trim().toUpperCase();var pmjay=String(raw.pmjay||raw.pmjayId||'').trim().toUpperCase();if(!shri||map[shri])return false;map[shri]={shri:shri,name:name||'UNKNOWN',pmjayId:pmjay};return true;}
+  try{if(typeof patientData!=='undefined'&&Array.isArray(patientData)){patientData.forEach(r=>addToMap(r));}}catch(e){}
+  Object.keys(map).forEach(k=>masterPatients.push(map[k]));
+  try{localStorage.setItem('shija_pat_cache_v2',JSON.stringify(masterPatients));}catch(e){}
+}
+async function loadAllFAST(){
+  var disCache = localStorage.getItem('shija_dis_cache');
+  if(disCache){
+    try{ allDischarge = JSON.parse(disCache); applyFilter(); }catch(e){}
+  }
+  try{
+    if(!window._fb){setTimeout(loadAllFAST,300);return;}
+    var snap = await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges'));
+    var fresh=[];
+    snap.forEach(d=>{var o=d.data();o._id=d.id;if(o.claimId&&String(o.claimId).trim()!=='')return;fresh.push(o);});
+    fresh.sort((a,b)=>new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0));
+    allDischarge=fresh;
+    try{localStorage.setItem('shija_dis_cache',JSON.stringify(fresh.slice(0,100)));}catch(e){}
+    applyFilter();
+  }catch(e){}
+}
 function applyFilter(){var date=document.getElementById('fDate').value;var time=document.getElementById('fTime').value;var block=document.getElementById('fBlock').value;var search=document.getElementById('fSearch').value.toLowerCase().trim();pageSize=parseInt(document.getElementById('perPage').value)||12;filtered=allDischarge.filter(function(p){if(date&&p.date!==date)return false;if(time&&(p.time||'')!==time)return false;if(block&&(p.block||'').toUpperCase()!==block.toUpperCase())return false;if(search){var s=(p.patientName||p.name||'')+" "+(p.shriId||p.shri||'')+" "+(p.pmjayCmhtId||'');if(s.toLowerCase().indexOf(search)===-1)return false;}return true;});currentPage=1;render();}
 function handleDragOver(e){e.preventDefault();}function handleDragLeave(e){e.preventDefault();}
 function handleDrop(e){e.preventDefault();var shri=e.currentTarget.dataset.shri;var type=e.currentTarget.dataset.type;if(!e.dataTransfer.files||e.dataTransfer.files.length===0)return;uploadFile(e.dataTransfer.files[0],shri,'','',type);}
@@ -297,7 +323,6 @@ tbody.appendChild(tr);
 var slideTr=document.createElement('tr');slideTr.className='slideRow';slideTr.id='slide_'+cleanShri;
 slideTr.innerHTML='<td colspan="8" class="slideCell"><div class="slideInner"><div class="horizontalBtns"><div class="cardWrap"><div class="hCard summary '+(mapCount.discharge_summary?'done':'')+'" data-shri="'+shriVal+'" data-clean="'+cleanShri+'" data-type="discharge_summary" onclick="triggerUpload(\''+cleanShri+'\',\'discharge_summary\',\''+shriVal+'\')" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"><b>SUMMARY</b><div class="sub">'+(mapCount.discharge_summary?'✓':'Drop')+'</div></div>'+(mapCount.discharge_summary?'<div class="delNextToCard" onclick="deleteSpecific(\''+shriVal+'\',\'discharge_summary\')">X</div>':'')+'</div><div class="cardWrap"><div class="hCard photo '+(mapCount.discharge_photo?'done':'')+'" data-shri="'+shriVal+'" data-clean="'+cleanShri+'" data-type="discharge_photo" onclick="triggerUpload(\''+cleanShri+'\',\'discharge_photo\',\''+shriVal+'\')" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"><b>PHOTO</b><div class="sub">'+(mapCount.discharge_photo?'✓':'Drop')+'</div></div>'+(mapCount.discharge_photo?'<div class="delNextToCard" onclick="deleteSpecific(\''+shriVal+'\',\'discharge_photo\')">X</div>':'')+'</div><div class="cardWrap"><div class="hCard feedback '+(mapCount.feedback_form?'done':'')+'" data-shri="'+shriVal+'" data-clean="'+cleanShri+'" data-type="feedback_form" onclick="triggerUpload(\''+cleanShri+'\',\'feedback_form\',\''+shriVal+'\')" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"><b>FEEDBACK</b><div class="sub">'+(mapCount.feedback_form?'✓':'Drop')+'</div></div>'+(mapCount.feedback_form?'<div class="delNextToCard" onclick="deleteSpecific(\''+shriVal+'\',\'feedback_form\')">X</div>':'')+'</div></div><input type="file" id="file_'+cleanShri+'_discharge_summary" style="display:none" onchange="uploadFile(this.files[0],\''+shriVal+'\',\''+nameVal.replace(/\'/g,"\\'")+'\',\''+pmjayShow+'\',\'discharge_summary\')"><input type="file" id="file_'+cleanShri+'_discharge_photo" style="display:none" onchange="uploadFile(this.files[0],\''+shriVal+'\',\''+nameVal.replace(/\'/g,"\\'")+'\',\''+pmjayShow+'\',\'discharge_photo\')"><input type="file" id="file_'+cleanShri+'_feedback_form" style="display:none" onchange="uploadFile(this.files[0],\''+shriVal+'\',\''+nameVal.replace(/\'/g,"\\'")+'\',\''+pmjayShow+'\',\'feedback_form\')"></div></td>';
 tbody.appendChild(slideTr);
-// GRID CARD
 var gc=document.createElement('div');gc.className='gridCard';gc.id='grid_'+cleanShri;var isOpen=openGridSet.has(cleanShri);
 gc.innerHTML='<div><div class="gridName" title="'+nameVal+'">'+nameVal+'</div><div class="gridRow"><span>SHRI ID</span><b><span class="shriGray">'+shriVal+'</span></b></div><div class="gridRow"><span>PMJAY ID</span><b><span class="pmjayBlue">'+(pmjayShow||'NO PMJAY')+'</span></b></div><div class="gridRow"><span>TIME</span><b>'+(p.time||'')+'</b></div><div class="gridRow"><span>BLOCK</span><b>'+(p.block||'')+'</b></div></div>'+
 '<div style="display:flex;flex-direction:column;gap:6px;margin-top:8px"><div class="gridAction"><button class="uploadBtnFold '+(totalUp>0?'done':'')+'" onclick="toggleSlideGrid(\''+cleanShri+'\',\''+shriVal+'\')" style="flex:1">'+(totalUp>0?'✓ '+totalUp:'UPLOAD')+' '+(isOpen?'▲':'▼')+'</button><div class="claimWrap"><button class="claimBtn" onclick="openClaimInlineGrid(\''+p._id+'\')">Claim</button><div class="claimFold" id="gfold-'+p._id+'"><input type="text" id="ginput-'+p._id+'" placeholder="CLAIM ID" oninput="checkClaimInput(\''+p._id+'\',true)"><button class="addClaimBtn" id="gaddBtn-'+p._id+'" onclick="saveClaimInlineGrid(\''+p._id+'\')" disabled>→</button></div></div><button class="delBtn" onclick="delDischarge(\''+p._id+'\')">X</button></div>'+
@@ -331,7 +356,20 @@ async function ensureDocsLoaded(shri){if(window._fb._docsCache[shri]&&window._fb
 async function toggleSlideList(cleanShri,shri){var slide=document.getElementById('slide_'+cleanShri);var isShow=slide&&slide.classList.contains('show');document.querySelectorAll('.slideRow').forEach(r=>r.classList.remove('show'));document.querySelectorAll('.mainRow').forEach(r=>r.classList.remove('openRow'));if(!isShow){await ensureDocsLoaded(shri);if(slide)slide.classList.add('show');var row=document.getElementById('tr_'+cleanShri);if(row)row.classList.add('openRow');lastOpenCleanShri=cleanShri;render();}else{lastOpenCleanShri=null;}}
 async function toggleSlideGrid(cleanShri,shri){await ensureDocsLoaded(shri);var docsDiv=document.getElementById('gridDocs_'+cleanShri);if(!docsDiv)return;var isOpen=docsDiv.style.display==='flex';if(isOpen){docsDiv.style.display='none';openGridSet.delete(cleanShri);}else{docsDiv.style.display='flex';openGridSet.add(cleanShri);render();}}
 function triggerUpload(cleanShri,type,shri){var docs=getDocsForShri(shri).filter(d=>d.type===type);if(docs.length>0){openFileModal(docs[0]._id,shri);}else{document.getElementById('file_'+cleanShri+'_'+type).click();}}
-async function uploadFile(file,shri,name,pmjay,type){if(!file)return;if(file.size>10*1024*1024){alert('Max 10MB');return;}var cleanShri=shri.replace(/[^a-zA-Z0-9]/g,'_');var base64=await new Promise(res=>{var r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(file);});var id=cleanShri+'_'+type+'_'+Date.now();try{var chunks=[];for(var i=0;i<base64.length;i+=CHUNK_SIZE){chunks.push(base64.substring(i,i+CHUNK_SIZE));}await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:shri,cleanShri:cleanShri,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type||'application/octet-stream',size:file.size,chunkCount:chunks.length,createdAt:Date.now()});for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}if(!window._fb._docsCache[shri])window._fb._docsCache[shri]=[];window._fb._docsCache[shri].push({_id:id,[STRIPPED]
+async function uploadFile(file,shri,name,pmjay,type){
+if(!file)return;if(file.size>10*1024*1024){alert('Max 10MB');return;}
+var cleanShri=shri.replace(/[^a-zA-Z0-9]/g,'_');
+var base64=await new Promise(res=>{var r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(file);});
+var id=cleanShri+'_'+type+'_'+Date.now();
+try{
+var chunks=[];for(var i=0;i<base64.length;i+=CHUNK_SIZE){chunks.push(base64.substring(i,i+CHUNK_SIZE));}
+await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:shri,cleanShri:cleanShri,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type||'application/octet-stream',size:file.size,chunkCount:chunks.length,createdAt:Date.now()});
+for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}
+if(!window._fb._docsCache[shri])window._fb._docsCache[shri]=[];
+window._fb._docsCache[shri].push({_id:id,type:type,shri:shri,fileName:file.name,fileType:file.type,size:file.size});
+render();
+}catch(e){alert(e.message);}
+}
 async function getFullData(id){try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));var arr=[];snap.forEach(d=>arr.push(d.data()));arr.sort((a,b)=>a.index-b.index);return arr.map(a=>a.data).join('');}catch(e){return null;}}
 async function openFileModal(id,shri){window._fb._currentZoom=1;var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs'));var meta=null;snap.forEach(d=>{if(d.id===id)meta=d.data();});if(!meta)return;var data=await getFullData(id);if(!data)return;currentFileData=data;currentFileName=meta.fileName;document.getElementById('modalFileName').textContent=meta.fileName;document.getElementById('modalFileMeta').textContent=(meta.fileType.includes('pdf')?'PDF':'IMAGE')+' • '+(meta.size/1024/1024).toFixed(2)+' MB';var box=document.getElementById('paperBox');if(data.startsWith('data:application/pdf')){box.innerHTML='<iframe src="'+data+'"></iframe>';}else if(data.startsWith('data:image')){box.innerHTML='<img src="'+data+'">';}else{box.innerHTML='<div style="padding:20px;text-align:center"><b>'+meta.fileName+'</b></div>';}applyZoom();document.getElementById('fileModal').classList.add('show');}
 function downloadCurrent(){if(!currentFileData)return;var a=document.createElement('a');a.href=currentFileData;a.download=currentFileName||'file';a.click();}
@@ -390,9 +428,7 @@ document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{if(e.t
 window.addEventListener('load',function(){
 var fDate=document.getElementById('fDate');if(fDate)fDate.value=getToday();
 var bar=document.getElementById('whiteBar');if(bar)bar.classList.remove('folded');
-setupSearch();setView('list');
-var cached=localStorage.getItem('shija_pat_cache_v2');
-if(cached){try{masterPatients=JSON.parse(cached);}catch(e){}loadAllFAST();setTimeout(()=>{loadMasterFAST();},500);}else{loadMasterFAST().then(()=>{loadAllFAST();});}
+loadMasterFAST().then(()=>{setupSearch();setView('list');loadAllFAST();});
 document.getElementById('fTime').addEventListener('change',applyFilter);
 document.getElementById('fBlock').addEventListener('change',applyFilter);
 document.getElementById('perPage').addEventListener('change',applyFilter);
