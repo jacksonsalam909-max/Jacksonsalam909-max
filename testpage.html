@@ -3,79 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA - Multi Patient Slide Upload</title>
+<title>SHIJA - Table Upload</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#f1f5f9;display:flex;min-height:100vh}
 .whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;transition:.32s}
 .whiteBar.folded{width:72px!important}
-.mainWrap{flex:1;margin-left:270px;min-height:100vh;display:flex;flex-direction:column;background:#fff;width:calc(100% - 270px)}
+.mainWrap{flex:1;margin-left:270px;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;border:1px solid #e2e8f0;overflow:hidden}
 .sLogo img{width:100%;height:100%;object-fit:contain}
+.sTitle b{color:#0f172a;font-size:16px;font-weight:900}
+.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
+.whiteBar.folded .sTitle{display:none}
 .sMenu{flex:1;padding:8px;overflow-y:auto}
 .sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px}
 .sMenu a.active{background:#1e293b;color:#fff;font-weight:600}
 .mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px}
 .whiteBar.folded .ml{display:none}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b}
+.whiteBar.folded .sFoot{display:none}
 .top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
 .menuBtnTop{width:40px;height:36px;background:transparent;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
+.badgeBlue{background:#0f172a;color:#fff;padding:6px 12px;border-radius:20px;font-weight:900;font-size:11px}
 .content{flex:1;padding:12px 18px;background:#fff}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
-.searchWrap{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:sticky;top:68px;z-index:10}
-.searchBox{flex:1;max-width:420px;position:relative}
-.searchBox input{width:100%;padding:10px 12px;border:1.5px solid #2563eb;background:#eff6ff;border-radius:8px;font-size:12px;font-weight:700;outline:0}
 
-/* Patient Row like total.html */
-.pRow{background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:10px;overflow:hidden;transition:.3s}
-.pRow:hover{border-color:#2563eb;box-shadow:0 6px 16px rgba(0,0,0,.06)}
-.pHead{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:10px}
-.pHeadLeft{display:flex;flex-direction:column;gap:2px}
-.pName{font-weight:900;font-size:13px;color:#0f172a}
-.pMeta{font-size:11px;color:#64748b;font-weight:600}
-.pHeadRight{display:flex;align-items:center;gap:8px}
-.badge{padding:4px 8px;border-radius:12px;font-size:10px;font-weight:800}
-.badgeGreen{background:#dcfce7;color:#166534}
-.badgeGray{background:#f1f5f9;color:#475569}
-.arrow{width:28px;height:28px;border-radius:50%;background:#f1f5f9;display:grid;place-items:center;transition:.3s;font-weight:900}
-.pRow.open .arrow{transform:rotate(180deg);background:#0f172a;color:#fff}
+/* Filters like your screenshot */
+.filterBar{display:flex;gap:10px;flex-wrap:wrap;background:#fffbe6;border:1px solid #fde68a;border-radius:10px;padding:10px;margin-bottom:12px;align-items:end}
+.filterItem{display:flex;flex-direction:column;gap:4px}
+.filterItem label{font-size:10px;font-weight:800;color:#92400e;text-transform:uppercase}
+.filterItem input,.filterItem select{height:34px;padding:0 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:600;min-width:110px}
+.btnClear{height:34px;padding:0 14px;background:#312e81;color:#fff;border:0;border-radius:8px;font-weight:800;font-size:11px;cursor:pointer}
 
-/* Slide down area */
-.slideBody{max-height:0;overflow:hidden;transition:max-height .4s ease, padding .3s ease;background:#fafbff;border-top:0 solid #e2e8f0}
-.pRow.open .slideBody{max-height:800px;padding:14px;border-top:1px solid #e2e8f0}
-.uploadRow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.uploadItem{display:flex;flex-direction:column;gap:6px}
-.uploadLabel{font-size:12px;font-weight:700;color:#334155}
-.dropZone{border:1.5px dashed #cbd5e1;border-radius:10px;padding:14px 10px;display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;cursor:pointer;transition:.24s}
-.dropZone:hover{border-color:#8b5cf6;background:#fdfaff;transform:translateY(-1px);box-shadow:0 6px 14px rgba(139,92,246,0.12)}
-.dropZone.done{background:#0f172a!important;border-color:#0f172a!important;color:#fff!important}
-.dropZone.done .dropText{color:#fff!important}
-.dropZone.done .dropText b{color:#4ade80!important}
-.dropIcon{width:26px;height:26px;border-radius:50%;background:#fff;border:1px solid #e2e8f0;display:grid;place-items:center}
-.dropIcon svg{width:14px;height:14px;stroke:#94a3b8;stroke-width:1.6;fill:none}
-.dropText{font-size:12px;color:#64748b;font-weight:500}
-.dropText b{color:#8b5cf6}
-.fileInput{display:none}
-.progress{height:5px;background:#e2e8f0;border-radius:10px;overflow:hidden;display:none;margin-top:4px}
-.progress div{height:100%;width:0;background:#16a34a;transition:.3s}
-.fileList{margin-top:8px;display:flex;flex-direction:column;gap:6px}
-.fItem{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 8px;display:flex;align-items:center;justify-content:space-between;gap:6px}
-.fItem.dark{background:#0f172a!important;border-color:#0f172a!important;color:#fff!important}
-.fItem.dark .fName{color:#fff!important}
-.fThumb{width:30px;height:30px;border-radius:6px;background:#f1f5f9;border:1px solid #e2e8f0;overflow:hidden;display:grid;place-items:center;font-size:10px;font-weight:900}
-.fThumb img{width:100%;height:100%;object-fit:cover}
-.fName{font-size:10px;font-weight:700;color:#0f172a;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.btnS{height:24px;padding:0 8px;border-radius:6px;border:0;font-weight:800;font-size:9px;cursor:pointer}
+.searchBar2{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.searchBar2 input{flex:1;max-width:320px;height:36px;padding:0 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:600}
+
+/* TABLE like your screenshot */
+.tableWrap{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:1100px}
+thead{background:#2e344e;color:#fff}
+thead th{padding:12px 8px;font-size:11px;font-weight:800;text-transform:uppercase;white-space:nowrap;text-align:center}
+tbody td{padding:10px 8px;font-size:11px;font-weight:600;color:#334155;border-bottom:1px solid #f1f5f9;text-align:center}
+tbody tr:hover{background:#f8fafc}
+td.nameCol{text-align:left!important;font-weight:800;color:#0f172a}
+
+/* Upload buttons in table */
+.upBtn{height:26px;padding:0 8px;border-radius:6px;border:1px dashed #cbd5e1;background:#fff;font-size:9px;font-weight:800;cursor:pointer;white-space:nowrap}
+.upBtn.done{background:#0f172a!important;color:#fff!important;border-color:#0f172a!important}
+.upBtn.done2{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
+.miniActions{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.btnMini{height:22px;padding:0 6px;border-radius:5px;border:0;font-size:8px;font-weight:800;cursor:pointer}
 .btnV{background:#0f172a;color:#fff}
 .btnD{background:#2563eb;color:#fff}
 .btnX{background:#fee2e2;color:#991b1b}
-.fItem.dark .btnV{background:#fff;color:#0f172a}
-.fItem.dark .btnD{background:#4ade80;color:#0f172a}
-@media(max-width:900px){.whiteBar{transform:translateX(-100%);width:270px!important}.whiteBar.mOpen{transform:translateX(0)}.mainWrap{margin-left:0!important;width:100%!important}.uploadRow{grid-template-columns:1fr!important}}
+.emptyBox{border:1.5px dashed #cbd5e1;border-radius:12px;padding:30px;text-align:center;background:#fafafa;color:#94a3b8;font-size:12px;font-weight:600;margin-top:20px}
+@media(max-width:900px){.whiteBar{transform:translateX(-100%);width:270px!important}.whiteBar.mOpen{transform:translateX(0)}.mainWrap{margin-left:0!important;width:100%!important}.tableWrap{overflow:auto}}
 </style>
 </head>
 <body>
@@ -83,24 +71,32 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
-<div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span style="font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700">DIALYSIS CARE</span></div></div>
+<div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
 <div class="sMenu">
 <a href="total.html"><span class="mi">T</span><span class="ml">TOTAL PATIENT</span></a>
 <a href="discharge.html"><span class="mi">D</span><span class="ml">DISCHARGE PATIENT</span></a>
 <a href="docs.html" class="active"><span class="mi">U</span><span class="ml">PATIENT DOCS UPLOAD</span></a>
 </div>
 </div>
-<div style="padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b">FREE • Multi Patient Slide</div>
+<div class="sFoot">FREE • Table View • No Auto</div>
 </div>
 <div class="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> PATIENT DOCUMENTS <div style="background:#0f172a;color:#fff;padding:6px 12px;border-radius:20px;font-weight:900;font-size:11px">MULTI + SLIDE DOWN</div></div></div>
+<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> ADD DISCHARGE PATIENT - ONLY PMJAY <div class="badgeBlue">TABLE - NO DROPDOWN</div></div></div>
 <div class="content">
-<div class="searchWrap">
-<div class="searchBox"><input id="searchInput" placeholder="Search from total.html - Name / SHRI / IP - Add multiple patients" oninput="doSearch(this.value)"></div>
-<div style="font-size:11px;color:#64748b;font-weight:600" id="statusTxt">Search and click row to slide down upload</div>
+
+<div class="filterBar">
+<div class="filterItem"><label>SEARCH PMJAY PATIENT - NAME / SHRI / PMJAY...</label><input id="searchInput" placeholder="Type Name / SHRI / PMJAY ID" oninput="doSearch(this.value)" style="min-width:320px;background:#fff"></div>
+<div class="filterItem"><label>DATE</label><input type="date" id="dateF" value="2026-11-08"></div>
+<div class="filterItem"><label>TIME FILTER</label><select id="timeF"><option>ALL TIME</option><option>7AM</option><option>1PM</option><option>7PM</option></select></div>
+<div class="filterItem"><label>BLOCK FILTER</label><select id="blockF"><option>ALL BLOCK</option><option>MAIN</option><option>ANNEXE</option></select></div>
+<div class="filterItem"><label>PER PAGE</label><select id="perPage"><option>12</option><option>25</option><option>50</option></select></div>
+<div class="filterItem"><label>ACTION</label><button class="btnClear" onclick="clearSearch()">CLEAR</button></div>
 </div>
 
-<div id="patientList"></div>
+<div id="tableContainer">
+<div class="emptyBox">🔍 No patient shown automatically like you wanted<br>Search PMJAY PATIENT - NAME / SHRI / PMJAY above<br>Table will show like your screenshot with direct upload buttons for Summary / Photo / Feedback</div>
+</div>
+
 </div>
 </div>
 
@@ -109,164 +105,134 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig,"multiSlide_"+Math.random());
+const app=initializeApp(firebaseConfig,"tableNoDrop_"+Math.random());
 const db=getFirestore(app);
 
-let allPMJAY=[], allCMHT=[], allCombined=[];
-const CHUNK_SIZE = 800000;
-let patientDocsCache={};
+let allCombined=[];
+const CHUNK_SIZE=800000;
+let docsCache={}; // shri -> array
 
 async function loadPatients(){
-  allPMJAY=[]; allCMHT=[];
-  const tryCol=async(names,tar)=>{
+  let tar=[];
+  const tryCol=async(names)=>{
     for(let n of names){
       try{
         let s=await getDocs(collection(db,n));
-        if(!s.empty){ s.forEach(d=>{let c=d.data();tar.push({shri:c.shriId||c.shri||c.UHID||c.uhid||c.id||'',ip:c.pmjayId||c.pmjay||c.ipNo||c.ip||'',name:c.patientName||c.name||'',age:c.age||'',sex:c.sex||c.gender||'',raw:c});}); if(tar.length>0) return; }
+        if(!s.empty){ s.forEach(d=>{let c=d.data(); tar.push({shri:c.shriId||c.shri||c.UHID||c.uhid||c.id||'',pmjay:c.pmjayId||c.pmjay||c.PMJAY||'',name:c.patientName||c.name||'',time:c.time||c.dialysisTime||'7AM',block:c.block||c.blockName||'MAIN',age:c.age||'',sex:c.sex||''});}); if(tar.length>0) return; }
       }catch(e){}
     }
   };
-  await tryCol(["pmjay_patients","PMJAY_patients","pmjay","PMJAY","patients","total_patients"],allPMJAY);
-  await tryCol(["cmht_patients","CMHT_patients","cmht","CMHT"],allCMHT);
-  allCombined=[...allPMJAY,...allCMHT];
-  // load docs cache for badges
+  await tryCol(["pmjay_patients","PMJAY_patients","pmjay","PMJAY","patients","total_patients","cmht_patients"]);
+  allCombined=tar;
   try{
     let snap=await getDocs(collection(db,"patient_docs"));
     snap.forEach(d=>{
-      let data=d.data();
-      if(!patientDocsCache[data.shri]) patientDocsCache[data.shri]={c:0,byType:{}};
-      patientDocsCache[data.shri].c++;
-      patientDocsCache[data.shri].byType[data.type]=(patientDocsCache[data.shri].byType[data.type]||0)+1;
+      let data=d.data(); data._id=d.id;
+      if(!docsCache[data.shri]) docsCache[data.shri]=[];
+      docsCache[data.shri].push(data);
     });
   }catch(e){}
-  renderList(allCombined.slice(0,30));
 }
 
-function clean(str){ return str.replace(/[^a-zA-Z0-9]/g,'_'); }
+function clean(s){ return s.replace(/[^a-zA-Z0-9]/g,'_'); }
 
-function renderList(list){
-  let container=document.getElementById('patientList');
-  if(list.length===0){ container.innerHTML='<div style="font-size:11px;color:#94a3b8">No patients found</div>'; return; }
-  container.innerHTML=list.map(p=>{
+function renderTable(list){
+  let container=document.getElementById('tableContainer');
+  if(list.length===0){
+    container.innerHTML=`<div class="emptyBox">No patient found for search</div>`;
+    return;
+  }
+  let html=`
+  <div class="tableWrap">
+  <table>
+  <thead>
+    <tr>
+      <th>SL</th>
+      <th>PATIENT NAME</th>
+      <th>SHRI ID</th>
+      <th>PMJAY ID</th>
+      <th>TIME</th>
+      <th>BLOCK</th>
+      <th>DISCHARGE SUMMARY</th>
+      <th>DISCHARGE PHOTO</th>
+      <th>FEEDBACK FORM</th>
+      <th>ACTION</th>
+    </tr>
+  </thead>
+  <tbody>
+  ${list.map((p,i)=>{
     let cs=clean(p.shri);
-    let docs=patientDocsCache[p.shri]||{c:0,byType:{}};
-    let badge = docs.c>0 ? `<span class="badge badgeGreen">${docs.c} files • S:${docs.byType.discharge_summary||0} P:${docs.byType.discharge_photo||0} F:${docs.byType.feedback_form||0}</span>` : `<span class="badge badgeGray">No docs</span>`;
-    return `
-    <div class="pRow" id="row_${cs}">
-      <div class="pHead" onclick="toggleRow('${cs}','${p.shri.replace(/'/g,"\\'")}')">
-        <div class="pHeadLeft"><div class="pName">${p.name||'Unknown'}</div><div class="pMeta">${p.shri} • IP ${p.ip||'N/A'} • ${p.age||''} ${p.sex||''}</div></div>
-        <div class="pHeadRight">${badge}<div class="arrow">▼</div></div>
-      </div>
-      <div class="slideBody" id="slide_${cs}">
-        <div class="uploadRow">
-          <div class="uploadItem">
-            <div class="uploadLabel">Discharge Summary *</div>
-            <div class="dropZone" id="zone_${cs}_discharge_summary" onclick="triggerFile('${cs}','discharge_summary')" ondrop="handleDrop(event,'${p.shri.replace(/'/g,"\\'")}','discharge_summary')" ondragover="handleDragOver(event,'zone_${cs}_discharge_summary')" ondragleave="handleDragLeave(event,'zone_${cs}_discharge_summary')"><div class="dropIcon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/></svg></div><div class="dropText" id="txt_${cs}_discharge_summary">Browse or Drag <b>MAX 10MB</b></div></div>
-            <input type="file" id="file_${cs}_discharge_summary" class="fileInput" accept=".jpg,.jpeg,.png,.pdf" onchange="uploadFile(this.files[0],'${p.shri.replace(/'/g,"\\'")}','${p.name.replace(/'/g,"\\'")}','${p.ip}','discharge_summary')">
-            <div class="progress" id="prog_${cs}_discharge_summary"><div id="bar_${cs}_discharge_summary"></div></div>
-            <div class="fileList" id="list_${cs}_discharge_summary"></div>
-          </div>
-          <div class="uploadItem">
-            <div class="uploadLabel">Post Surgery Photo with Doctor PMAM *</div>
-            <div class="dropZone" id="zone_${cs}_discharge_photo" onclick="triggerFile('${cs}','discharge_photo')" ondrop="handleDrop(event,'${p.shri.replace(/'/g,"\\'")}','discharge_photo')" ondragover="handleDragOver(event,'zone_${cs}_discharge_photo')" ondragleave="handleDragLeave(event,'zone_${cs}_discharge_photo')"><div class="dropIcon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/></svg></div><div class="dropText" id="txt_${cs}_discharge_photo">Browse or Drag <b>MAX 10MB</b></div></div>
-            <input type="file" id="file_${cs}_discharge_photo" class="fileInput" accept=".jpg,.jpeg,.png,.pdf" onchange="uploadFile(this.files[0],'${p.shri.replace(/'/g,"\\'")}','${p.name.replace(/'/g,"\\'")}','${p.ip}','discharge_photo')">
-            <div class="progress" id="prog_${cs}_discharge_photo"><div id="bar_${cs}_discharge_photo"></div></div>
-            <div class="fileList" id="list_${cs}_discharge_photo"></div>
-          </div>
-          <div class="uploadItem">
-            <div class="uploadLabel">Feedback Form *</div>
-            <div class="dropZone" id="zone_${cs}_feedback_form" onclick="triggerFile('${cs}','feedback_form')" ondrop="handleDrop(event,'${p.shri.replace(/'/g,"\\'")}','feedback_form')" ondragover="handleDragOver(event,'zone_${cs}_feedback_form')" ondragleave="handleDragLeave(event,'zone_${cs}_feedback_form')"><div class="dropIcon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/></svg></div><div class="dropText" id="txt_${cs}_feedback_form">Browse or Drag <b>MAX 10MB</b></div></div>
-            <input type="file" id="file_${cs}_feedback_form" class="fileInput" accept=".jpg,.jpeg,.png,.pdf" onchange="uploadFile(this.files[0],'${p.shri.replace(/'/g,"\\'")}','${p.name.replace(/'/g,"\\'")}','${p.ip}','feedback_form')">
-            <div class="progress" id="prog_${cs}_feedback_form"><div id="bar_${cs}_feedback_form"></div></div>
-            <div class="fileList" id="list_${cs}_feedback_form"></div>
-          </div>
+    let docs=docsCache[p.shri]||[];
+    let getByType=(t)=>docs.filter(d=>d.type===t);
+    let sum=getByType('discharge_summary');
+    let photo=getByType('discharge_photo');
+    let feed=getByType('feedback_form');
+
+    let btn=(arr,type,label)=>{
+      if(arr.length===0){
+        return `<button class="upBtn" onclick="triggerFile('${cs}','${type}')">+ Upload ${label}</button>
+                <input type="file" id="file_${cs}_${type}" style="display:none" accept=".jpg,.jpeg,.png,.pdf" onchange="uploadFile(this.files[0],'${p.shri.replace(/'/g,"\\'")}','${p.name.replace(/'/g,"\\'")}','${p.pmjay}','${type}')">`;
+      } else {
+        let f=arr[0];
+        return `<div class="miniActions">
+          <button class="upBtn done">✓ ${label}</button>
+          <button class="btnMini btnV" onclick="viewDoc('${f._id}')">VIEW</button>
+          <button class="btnMini btnD" onclick="downloadDoc('${f._id}')">DOWN</button>
+          <button class="btnMini btnX" onclick="delDoc('${f._id}','${p.shri}')">X</button>
         </div>
-      </div>
-    </div>`;
-  }).join('');
+        <input type="file" id="file_${cs}_${type}" style="display:none" accept=".jpg,.jpeg,.png,.pdf" onchange="uploadFile(this.files[0],'${p.shri.replace(/'/g,"\\'")}','${p.name.replace(/'/g,"\\'")}','${p.pmjay}','${type}')">`;
+      }
+    };
+
+    return `<tr>
+      <td>${i+1}</td>
+      <td class="nameCol">${p.name}</td>
+      <td>${p.shri}</td>
+      <td>${p.pmjay}</td>
+      <td>${p.time}</td>
+      <td>${p.block}</td>
+      <td>${btn(sum,'discharge_summary','SUMMARY')}</td>
+      <td>${btn(photo,'discharge_photo','PHOTO')}</td>
+      <td>${btn(feed,'feedback_form','FEEDBACK')}</td>
+      <td><div class="miniActions"><button class="upBtn done2" onclick="if(confirm('Remove all docs for ${p.shri}?')){clearPatient('${p.shri}')}">CLEAR</button></div></td>
+    </tr>`;
+  }).join('')}
+  </tbody>
+  </table>
+  </div>
+  <div style="margin-top:8px;font-size:11px;color:#64748b;font-weight:600">Showing ${list.length} patients • Direct upload in table like your screenshot • Dark when uploaded • FREE 10MB</div>
+  `;
+  container.innerHTML=html;
 }
 
 window.doSearch=(q)=>{
-  if(!q){ renderList(allCombined.slice(0,30)); return; }
-  q=q.toLowerCase();
-  let f=allCombined.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.ip&&p.ip.toLowerCase().includes(q))).slice(0,30);
-  renderList(f);
-}
-
-window.toggleRow=async(cs,shri)=>{
-  let row=document.getElementById('row_'+cs);
-  let isOpen=row.classList.contains('open');
-  document.querySelectorAll('.pRow').forEach(r=>r.classList.remove('open'));
-  if(!isOpen){
-    row.classList.add('open');
-    await loadDocsForPatient(shri);
-  }
-}
-
-async function loadDocsForPatient(shri){
-  let cs=clean(shri);
-  try{
-    let snap=await getDocs(collection(db,"patient_docs"));
-    let byType={discharge_summary:[],discharge_photo:[],feedback_form:[]};
-    snap.forEach(d=>{
-      let data=d.data(); data._id=d.id;
-      if(data.shri===shri && byType[data.type]) byType[data.type].push(data);
-    });
-    Object.values(byType).forEach(arr=>arr.sort((a,b)=>b.createdAt-a.createdAt));
-    for(let type in byType){
-      renderCurrent(cs,shri,type,byType[type]);
-    }
-  }catch(e){ console.error(e); }
-}
-
-function renderCurrent(cs,shri,type,items){
-  let listEl=document.getElementById(`list_${cs}_${type}`);
-  let zoneEl=document.getElementById(`zone_${cs}_${type}`);
-  let txtEl=document.getElementById(`txt_${cs}_${type}`);
-  if(!listEl) return;
-  if(items.length===0){
-    listEl.innerHTML='';
-    zoneEl.classList.remove('done');
-    txtEl.innerHTML='Browse or Drag <b>MAX 10MB</b>';
+  if(!q || q.trim()===''){
+    document.getElementById('tableContainer').innerHTML=`<div class="emptyBox">🔍 No patient shown automatically like you wanted<br>Search PMJAY PATIENT - NAME / SHRI / PMJAY above<br>Table will show like your screenshot with direct upload buttons</div>`;
     return;
   }
-  zoneEl.classList.add('done');
-  txtEl.innerHTML='✓ <b>UPLOADED</b> - Dark card';
-  listEl.innerHTML=items.map(it=>{
-    let isPdf=it.fileName.toLowerCase().endsWith('.pdf');
-    let thumb=isPdf?`PDF`:`IMG`;
-    let mb=(it.size/1024/1024).toFixed(2);
-    return `<div class="fItem dark"><div class="fThumb">${thumb}</div><div style="flex:1"><div class="fName">${it.fileName}</div><div style="font-size:9px;color:#94a3b8">${mb} MB</div></div><div style="display:flex;gap:4px"><button class="btnS btnV" onclick="viewDoc('${it._id}')">VIEW</button><button class="btnS btnD" onclick="downloadDoc('${it._id}')">DOWN</button><button class="btnS btnX" onclick="delDoc('${it._id}','${shri}')">✕</button></div></div>`;
-  }).join('');
+  q=q.toLowerCase();
+  let f=allCombined.filter(p=>(p.name&&p.name.toLowerCase().includes(q))||(p.shri&&p.shri.toLowerCase().includes(q))||(p.pmjay&&p.pmjay.toLowerCase().includes(q))).slice(0,50);
+  renderTable(f);
 }
-
+window.clearSearch=()=>{ document.getElementById('searchInput').value=''; doSearch(''); }
 window.triggerFile=(cs,type)=>{ document.getElementById(`file_${cs}_${type}`).click(); }
-window.handleDragOver=(e,zoneId)=>{ e.preventDefault(); let z=document.getElementById(zoneId); if(z.classList.contains('done')) return; z.classList.add('dragover'); }
-window.handleDragLeave=(e,zoneId)=>{ document.getElementById(zoneId).classList.remove('dragover'); }
-window.handleDrop=(e,shri,type)=>{ e.preventDefault(); document.querySelectorAll('.dropZone').forEach(z=>z.classList.remove('dragover')); let file=e.dataTransfer.files[0]; if(!file) return; let p=allCombined.find(x=>x.shri===shri); if(!p) return; uploadFile(file,shri,p.name,p.ip,type); }
 
-window.uploadFile=async(file,shri,name,ip,type)=>{
+window.uploadFile=async(file,shri,name,pmjay,type)=>{
   if(!file) return;
   if(file.size>10*1024*1024){ alert(`Max 10MB\nYour: ${(file.size/1024/1024).toFixed(2)} MB`); return; }
   let cs=clean(shri);
-  let prog=document.getElementById(`prog_${cs}_${type}`); let bar=document.getElementById(`bar_${cs}_${type}`);
-  prog.style.display='block'; bar.style.width='0%';
-  document.getElementById('statusTxt').textContent=`Uploading ${name} - ${type}...`;
-
   let base64=await new Promise(res=>{ let r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); });
-
   let id=`${cs}_${type}_${Date.now()}`;
   try{
     let chunks=[]; for(let i=0;i<base64.length;i+=CHUNK_SIZE){ chunks.push(base64.substring(i,i+CHUNK_SIZE)); }
-    await setDoc(doc(db,"patient_docs",id),{type:type,shri:shri,cleanShri:cs,patientName:name,ip:ip,fileName:file.name,fileType:file.type,size:file.size,chunkCount:chunks.length,createdAt:Date.now()});
-    for(let i=0;i<chunks.length;i++){ bar.style.width=Math.round((i+1)/chunks.length*100)+'%'; await setDoc(doc(db,"patient_docs",id,"chunks",String(i)),{index:i,data:chunks[i]}); }
-    await setDoc(doc(db,"discharge_patients",cs),{shri:shri,patientName:name,ip:ip,lastUpload:Date.now(),discharged:true},{merge:true});
-    prog.style.display='none'; bar.style.width='0%';
-    document.getElementById('statusTxt').textContent='Uploaded FREE - card darkened';
-    if(!patientDocsCache[shri]) patientDocsCache[shri]={c:0,byType:{}};
-    patientDocsCache[shri].c++; patientDocsCache[shri].byType[type]=(patientDocsCache[shri].byType[type]||0)+1;
-    await loadDocsForPatient(shri);
-  }catch(e){ alert(e.message); prog.style.display='none'; }
+    await setDoc(doc(db,"patient_docs",id),{type:type,shri:shri,cleanShri:cs,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type,size:file.size,chunkCount:chunks.length,createdAt:Date.now()});
+    for(let i=0;i<chunks.length;i++){ await setDoc(doc(db,"patient_docs",id,"chunks",String(i)),{index:i,data:chunks[i]}); }
+    await setDoc(doc(db,"discharge_patients",cs),{shri:shri,patientName:name,ip:pmjay,lastUpload:Date.now(),discharged:true},{merge:true});
+    if(!docsCache[shri]) docsCache[shri]=[];
+    docsCache[shri].push({ _id:id, type:type, shri:shri, fileName:file.name, size:file.size });
+    let q=document.getElementById('searchInput').value;
+    doSearch(q);
+  }catch(e){ alert(e.message); }
 }
 
 async function getFullData(id){
@@ -277,7 +243,6 @@ async function getFullData(id){
     return arr.map(a=>a.data).join('');
   }catch(e){ return null; }
 }
-
 window.viewDoc=async(id)=>{
   let data=await getFullData(id); if(!data){ alert('Not found'); return; }
   let w=window.open(); if(data.startsWith('data:application/pdf')){ w.document.write(`<iframe src="${data}" style="width:100%;height:100vh;border:0"></iframe>`); } else { w.document.write(`<img src="${data}" style="max-width:100%">`); }
@@ -288,13 +253,18 @@ window.downloadDoc=async(id)=>{
   let a=document.createElement('a'); a.href=data; a.download=meta?meta.fileName:'file'; a.click();
 }
 window.delDoc=async(id,shri)=>{
-  if(!confirm('Delete forever?')) return;
+  if(!confirm('Delete this file?')) return;
   try{
     let csnap=await getDocs(collection(db,"patient_docs",id,"chunks"));
     for(let d of csnap.docs){ await deleteDoc(doc(db,"patient_docs",id,"chunks",d.id)); }
     await deleteDoc(doc(db,"patient_docs",id));
-    await loadDocsForPatient(shri);
+    docsCache[shri]= (docsCache[shri]||[]).filter(d=>d._id!==id);
+    let q=document.getElementById('searchInput').value; doSearch(q);
   }catch(e){ alert(e.message); }
+}
+window.clearPatient=async(shri)=>{
+  let arr=docsCache[shri]||[];
+  for(let d of arr){ await delDoc(d._id,shri); }
 }
 
 window.toggleWhiteBar=()=>{ if(window.innerWidth<=900){ document.getElementById('whiteBar').classList.toggle('mOpen'); document.getElementById('mobOverlay').classList.toggle('show'); }else{ document.getElementById('whiteBar').classList.toggle('folded'); } }
