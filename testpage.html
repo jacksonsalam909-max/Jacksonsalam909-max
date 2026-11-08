@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA DISCHARGE - FINAL CLEAN - FIXED SHOWING</title>
+<title>SHIJA DISCHARGE - MENU FOLD + LIST FIXED</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="Patient.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease,min-width .32s ease, transform .32s ease}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease,min-width .32s ease, transform .32s ease, margin .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important;max-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease,width .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)!important}
 .sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0;border:1px solid #e2e8f0}
 .sLogo img{width:100%;height:100%;object-fit:contain;display:block}
@@ -68,7 +68,7 @@ td.nameCol{text-align:left;padding-left:12px}
 .claimBtn{background:#facc15!important;color:#000!important;padding:6px 10px;border-radius:5px;border:1.5px solid #eab308!important;font-weight:900;font-size:8px;cursor:pointer}
 .delBtn{background:#ef4444;color:#fff;padding:6px 8px;border-radius:5px;border:0;font-weight:900;font-size:8px;cursor:pointer}
 .gridWrap{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:6px;align-items:start}
-.gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;align-self:start;transition:all .25s ease}
+.gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;align-self:start}
 .gridName{font-weight:900;font-size:12px;color:#0f172a;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gridRow{display:flex;justify-content:space-between;font-size:9px;font-weight:700;color:#64748b;margin-bottom:3px}
 .iconBtn{width:36px;height:36px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#0f172a;transition:all .2s}
@@ -99,8 +99,28 @@ td.nameCol{text-align:left;padding-left:12px}
 .sheetWrap table tbody tr:hover td{background:#eef2ff!important}
 .gridCard:hover{transform:translateY(-3px);box-shadow:0 12px 24px rgba(60,37,235,0.12);border-color:#3c25eb;background:#faf5ff}
 </style>
-<script>function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{var bar=document.getElementById('whiteBar');if(!bar)return;bar.classList.toggle('folded');try{localStorage.setItem('shija_menu_folded',bar.classList.contains('folded')?'1':'0')}catch(e){}}}
-function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
+<script>
+// MENU FOLD - FIXED
+function toggleWhiteBar(){
+  var bar=document.getElementById('whiteBar');
+  var overlay=document.getElementById('mobOverlay');
+  if(!bar) return;
+  if(window.innerWidth<=900){
+    bar.classList.toggle('mOpen');
+    if(overlay) overlay.classList.toggle('show');
+  }else{
+    bar.classList.toggle('folded');
+    try{localStorage.setItem('shija_menu_folded', bar.classList.contains('folded')?'1':'0');}catch(e){}
+    // Force reflow for sibling selector
+    document.body.offsetHeight;
+  }
+}
+function closeMob(){
+  var bar=document.getElementById('whiteBar');
+  var overlay=document.getElementById('mobOverlay');
+  if(bar) bar.classList.remove('mOpen');
+  if(overlay) overlay.classList.remove('show');
+}
 function getToday(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0");}
 </script>
 </head>
@@ -113,7 +133,7 @@ import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, onSnapshot, 
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(firebaseConfig,"app_"+Math.random());
 const db=getFirestore(app);
-window._fb={db,collection,getDocs,doc,setDoc,deleteDoc};
+window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_fbReady:true};
 const guardApp=initializeApp(firebaseConfig,"discharge_guard_"+Math.random());
 const guardDb=getFirestore(guardApp);
 try{onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{if(!snap.exists()) return;let lt=snap.data().logoutTime||0;let my=parseInt(localStorage.getItem('shija_login_time')||'0');if(lt>my&&my!==0){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');alert('🔒 Logged out by Admin');location.href='login.html?reason=global';}});}catch(e){}
@@ -140,7 +160,7 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT FOR PMJAY</span></a>
 <a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span><span class="ml">BILL</span></a>
 <a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
-</div></div><div class="sFoot"><span class="footFull">SHIJA • FINAL CLEAN</span><span class="footFold">Click ☰</span></div></div>
+</div></div><div class="sFoot"><span class="footFull">SHIJA • FOLD FIXED</span><span class="footFold">Click ☰ to Expand</span></div></div>
 
 <div class="mainWrap">
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY</div></div>
@@ -182,7 +202,7 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <div class="filterRow2">
 <div style="display:flex;gap:6px;align-items:center;flex:1;flex-wrap:wrap">
 <input type="search" id="fSearch" class="input inputSmall" placeholder="Search..." style="flex:1;max-width:280px;min-width:150px;border-radius:20px">
-<div class="badge" style="font-size:8px;padding:4px 8px" id="badgeD">Discharged - 0</div>
+<div class="badge" style="font-size:8px;padding:4px 8px" id="badgeD">Loading...</div>
 <span id="dateInfo" style="font-size:9px;font-weight:800">TIME | BLOCK</span>
 <span id="pageInfo" style="font-size:9px;font-weight:800;color:#0f172a"></span>
 </div>
@@ -199,7 +219,7 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 </div>
 
 <div class="card" style="padding:8px">
-<div class="sheetWrap" id="tableWrap"><table><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>TIME</th><th>BLOCK</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
+<div class="sheetWrap" id="tableWrap"><table><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>TIME</th><th>BLOCK</th><th>ACTION</th></tr></thead><tbody id="tbody"><tr><td colspan="7" style="padding:20px;text-align:center">Loading Firebase...</td></tr></tbody></table></div>
 <div class="gridWrap" id="gridWrap" style="display:none"></div>
 </div>
 </div>
@@ -210,7 +230,6 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 
 <script>
 var allDischarge=[],filtered=[],masterPatients=[],selectedPatient=null,currentPage=1,pageSize=12,isGrid=false;
-function getToday(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0");}
 function setView(mode){
   isGrid = (mode==='grid');
   var tableWrap=document.getElementById('tableWrap');
@@ -236,16 +255,16 @@ async function loadMaster(){
   masterPatients=[]; var map={};
   function addToMap(raw){if(!raw) return false;var shri=String(raw.shri||raw.shriId||'').trim().toUpperCase();var name=String(raw.name||raw.patientName||'').trim().toUpperCase();var pmjay=String(raw.pmjay||raw.pmjayId||'').trim().toUpperCase();if(!shri) return false;if(map[shri]) return false;map[shri]={shri:shri,name:name||'UNKNOWN',pmjayId:pmjay};return true;}
   try{ if(typeof patientData!=='undefined'&&Array.isArray(patientData)){ patientData.forEach(function(r){ addToMap(r); }); } }catch(e){}
-  try{ if(window._fb){ var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patients")); snap.forEach(function(d){ addToMap(d.data()); }); } }catch(e){}
+  try{ if(window._fb&&window._fb.db){ var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patients")); snap.forEach(function(d){ addToMap(d.data()); }); } }catch(e){}
   Object.keys(map).forEach(function(k){ masterPatients.push(map[k]); });
 }
 async function loadAll(){
   try{
-    if(!window._fb){setTimeout(loadAll,500);return;}
+    if(!window._fb||!window._fb.db){setTimeout(loadAll,600);return;}
     var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges'));
     allDischarge=[];snap.forEach(function(d){var o=d.data();o._id=d.id;allDischarge.push(o);});
     allDischarge.sort(function(a,b){return new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0);});
-  }catch(e){ allDischarge=[]; }
+  }catch(e){ console.error('loadAll failed', e); allDischarge=[]; }
   applyFilter();
 }
 function applyFilter(){
@@ -277,7 +296,7 @@ function render(){
   document.getElementById('dateInfo').innerText=(document.getElementById('fTime').value||'ALL TIME')+" | "+(document.getElementById('fBlock').value||'ALL BLOCK');
   if(page.length===0){
     var d=document.getElementById('fDate').value||getToday();
-    tbody.innerHTML='<tr><td colspan="7" style="padding:20px;text-align:center;line-height:1.6">NO DISCHARGED FOR TODAY ('+d+')<br><small style="color:#64748b">Total in DB: '+totalAll+'</small><br><br><button class="btn btnDark btnSmall" onclick="loadAll()">RETRY LOAD</button> <button class="btn btnSmall" style="background:#fff;border:1.5px solid #3c25eb;color:#3c25eb;margin-left:6px" onclick="document.getElementById(\'fDate\').value=\'\'; filtered=allDischarge; currentPage=1; render()">SHOW ALL '+totalAll+'</button></td></tr>';
+    tbody.innerHTML='<tr><td colspan="7" style="padding:20px;text-align:center;line-height:1.6">NO DISCHARGED FOR TODAY ('+d+')<br><small style="color:#64748b">Total in DB: '+totalAll+'</small><br><br><button class="btn btnDark btnSmall" onclick="loadAll()">RETRY</button> <button class="btn btnSmall" style="background:#fff;border:1.5px solid #3c25eb;color:#3c25eb;margin-left:6px" onclick="document.getElementById(\'fDate\').value=\'\'; filtered=allDischarge; currentPage=1; render()">SHOW ALL '+totalAll+'</button></td></tr>';
     grid.innerHTML='<div style="padding:20px;text-align:center;grid-column:1/-1">NO DISCHARGED FOR TODAY ('+d+')<br>Total: '+totalAll+'<br><br><button class="btn btnDark btnSmall" onclick="loadAll()">RETRY</button> <button class="btn btnSmall" style="background:#fff;border:1.5px solid #3c25eb;color:#3c25eb;margin-left:6px" onclick="document.getElementById(\'fDate\').value=\'\'; filtered=allDischarge; currentPage=1; render()">SHOW ALL</button></div>';return;
   }
   page.forEach(function(p,i){
@@ -336,19 +355,31 @@ document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{adminDrop
 document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{document.getElementById('logoutAllModal').style.display='none';});
 document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none';});
 });
+// INIT - FIXED FOR FOLD + LIST
 window.addEventListener('load',function(){
-var fDate=document.getElementById('fDate');
-if(fDate) fDate.value=getToday();
-var bar=document.getElementById('whiteBar');if(bar){bar.classList.remove('folded');try{localStorage.setItem('shija_menu_folded','0');}catch(e){}}
-setupSearch();
-allDischarge=[];filtered=[];
-try{render();}catch(e){}
-setTimeout(function(){loadMaster().then(function(){loadAll();setView('list');});},400);
-document.getElementById('fTime').addEventListener('change',applyFilter);
-document.getElementById('fBlock').addEventListener('change',applyFilter);
-document.getElementById('perPage').addEventListener('change',applyFilter);
-document.getElementById('fSearch').addEventListener('input',applyFilter);
-if(fDate) fDate.addEventListener('change',applyFilter);
+  var fDate=document.getElementById('fDate');
+  if(fDate) fDate.value=getToday();
+  // MENU - default UNFOLDED, allow fold
+  var bar=document.getElementById('whiteBar');
+  if(bar){
+    var folded=localStorage.getItem('shija_menu_folded');
+    if(folded==='1'){ bar.classList.add('folded'); } else { bar.classList.remove('folded'); }
+  }
+  setupSearch();
+  // LIST - immediate empty render then Firebase
+  allDischarge=[];filtered=[];
+  try{render();}catch(e){}
+  setTimeout(function(){
+    loadMaster().then(function(){
+      loadAll();
+      setView('list');
+    });
+  },300);
+  document.getElementById('fTime').addEventListener('change',applyFilter);
+  document.getElementById('fBlock').addEventListener('change',applyFilter);
+  document.getElementById('perPage').addEventListener('change',applyFilter);
+  document.getElementById('fSearch').addEventListener('input',applyFilter);
+  if(fDate) fDate.addEventListener('change',applyFilter);
 });
 </script>
 </body>
