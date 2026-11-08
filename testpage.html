@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>SHIJA - GRID SAME ROW FINAL</title>
+<title>SHIJA - GRID CLAIM NEXT ROW</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="Patient.js"></script>
 <style>
@@ -89,15 +89,24 @@ td.nameCol{text-align:left;padding-left:4px;overflow:hidden;text-overflow:ellips
 .claimFold input{flex:1;min-width:0;border:0;outline:0;font-weight:800;font-size:6px;background:transparent;text-transform:uppercase;color:#374151;width:100%}
 .claimFold .addClaimBtn{background:#3c25eb!important;color:#fff!important;border:1px solid #3c25eb!important;padding:3px 8px!important;border-radius:999px!important;font-weight:900!important;font-size:6px!important;cursor:pointer;flex-shrink:0;min-width:32px!important}
 .claimFold .addClaimBtn:disabled{background:#e5e7eb!important;color:#9ca3af!important;border-color:#e5e7eb!important}
-/* GRID SAME ROW - SMALL */
-.gridAction{display:flex!important;flex-direction:row!important;gap:4px!important;width:100%!important;align-items:center!important;flex-wrap:nowrap!important}
-.gridAction .uploadBtnFold{flex:1.1!important;width:auto!important;min-width:0!important;height:22px!important;font-size:5.5px!important;border-radius:6px!important;padding:2px 4px!important}
+/* GRID SAME ROW + CLAIM NEXT ROW */
+.gridAction{display:flex!important;flex-direction:row!important;gap:4px!important;width:100%!important;align-items:center!important;flex-wrap:nowrap!important;transition:all .2s ease}
+.gridAction .uploadBtnFold{flex:1.1!important;min-width:0!important;height:22px!important;font-size:5.5px!important;border-radius:6px!important;padding:2px 4px!important}
 .gridAction .claimWrap{flex:0.9!important;min-width:0!important;display:flex!important;align-items:center!important}
 .gridAction .claimBtn{width:100%!important;height:22px!important;min-width:0!important;font-size:5.5px!important;border-radius:6px!important;padding:2px 4px!important}
 .gridAction .delBtn{width:28px!important;min-width:28px!important;height:22px!important;font-size:5.5px!important;border-radius:6px!important;padding:2px 2px!important}
 .gridAction .claimFold{max-width:82px!important;height:22px!important;padding:1px 1px 1px 4px!important;gap:2px!important;background:#fff!important;border:1.5px solid #3c25eb!important;border-radius:20px!important}
 .gridAction .claimFold input{font-size:5.5px!important;padding:2px 4px!important;background:#f1f5f9!important;border-radius:10px!important}
 .gridAction .claimFold .addClaimBtn{font-size:5.5px!important;min-width:26px!important;height:16px!important;padding:1px 6px!important;border-radius:10px!important}
+/* CLAIM MODE - NEXT ROW */
+.gridAction.claimMode{flex-wrap:wrap!important}
+.gridAction.claimMode .uploadBtnFold{flex:0 0 100%!important;width:100%!important;height:24px!important}
+.gridAction.claimMode .claimWrap{flex:1!important;width:calc(100% - 36px)!important;order:2!important}
+.gridAction.claimMode .claimBtn{display:none!important}
+.gridAction.claimMode .claimFold{display:inline-flex!important;width:100%!important;max-width:100%!important;height:28px!important;padding:2px 2px 2px 6px!important}
+.gridAction.claimMode .claimFold input{font-size:6.5px!important;padding:4px 6px!important}
+.gridAction.claimMode .claimFold .addClaimBtn{height:20px!important;font-size:6.5px!important;min-width:36px!important}
+.gridAction.claimMode .delBtn{order:2!important;height:28px!important;width:32px!important;min-width:32px!important}
 .uploadBtnFold{background:#fff!important;color:#0f172a!important;padding:3px 6px!important;border-radius:20px;border:1.5px solid #3c25eb!important;font-weight:800;font-size:6px!important;cursor:pointer;min-width:44px!important;height:20px!important}
 .uploadBtnFold.done{background:#f0fdf4!important;color:#16a34a!important;border-color:#86efac!important}
 .slideRow{display:none}.slideRow.show{display:table-row}
@@ -239,8 +248,8 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <button class="btn btnDark btnSmall" onclick="changePage(-1)">PREV</button>
 <button class="btn btnDark btnSmall" onclick="changePage(1)">NEXT</button>
 <div style="display:flex;gap:4px;border:1.5px solid #e2e8f0;border-radius:8px;padding:2px;background:#f8fafc">
-<button class="iconBtn active" style="width:32px;height:32px;border:none;background:#3c25eb;color:#fff" id="btnList" onclick="setView('list')" title="List View"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5"/><circle cx="4" cy="12" r="1.5"/><circle cx="4" cy="18" r="1.5"/></svg></button>
-<button class="iconBtn" style="width:32px;height:32px;border:none;background:transparent;color:#0f172a" id="btnGrid" onclick="setView('grid')" title="Grid View"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+<button class="iconBtn active" id="btnList" onclick="setView('list')" title="List View"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5"/><circle cx="4" cy="12" r="1.5"/><circle cx="4" cy="18" r="1.5"/></svg></button>
+<button class="iconBtn" id="btnGrid" onclick="setView('grid')" title="Grid View"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
 </div></div></div></div></div>
 <div class="card" style="padding:8px">
 <div class="sheetWrap" id="tableWrap"><table><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>TIME</th><th>BLOCK</th><th>UPLOAD</th><th>ACTION</th></tr></thead><tbody id="tbody"><tr><td colspan="8" style="padding:10px;text-align:center">FAST LOADING FROM CACHE...</td></tr></tbody></table></div>
@@ -344,7 +353,11 @@ searchResults.innerHTML=html;searchResults.classList.add('open');
 });
 document.addEventListener('click',function(e){
 if(!e.target.closest('.searchBox')){document.getElementById('searchResults').classList.remove('open');}
-if(!e.target.closest('.claimWrap')){document.querySelectorAll('.claimFold').forEach(function(f){f.classList.remove('show');});var tw=document.getElementById('tableWrap');if(tw)tw.classList.remove('claimOpen');}
+if(!e.target.closest('.claimWrap') && !e.target.closest('.gridAction')){
+document.querySelectorAll('.claimFold').forEach(function(f){f.classList.remove('show');});
+document.querySelectorAll('.gridAction.claimMode').forEach(function(a){a.classList.remove('claimMode');});
+var tw=document.getElementById('tableWrap');if(tw)tw.classList.remove('claimOpen');
+}
 });
 }
 function openAddPanel(shri){var p=masterPatients.find(function(x){return x.shri===shri;});if(!p)return;selectedPatient=p;document.getElementById('searchResults').classList.remove('open');document.getElementById('searchTotal').value='';document.getElementById('addPanelInfo').innerHTML='PATIENT: '+p.name+' | SHRI: <span class="shriGray">'+p.shri+'</span> | PMJAY: <span class="pmjayBlue">'+p.pmjayId+'</span>';document.getElementById('addTimeSelect').value='';document.getElementById('addBlockSelect').value='';document.getElementById('addPanel').classList.add('open');}
@@ -387,7 +400,18 @@ document.querySelectorAll('.claimFold').forEach(function(f){f.classList.remove('
 if(tw)tw.classList.remove('claimOpen');
 if(!isShow){fold.classList.add('show');if(tw)tw.classList.add('claimOpen');setTimeout(function(){var inp=document.getElementById('input-'+id);if(inp){inp.focus();checkClaimInput(id,false);}},50);}
 }
-function openClaimInlineGrid(id){var fold=document.getElementById('gfold-'+id);var isShow=fold.classList.contains('show');document.querySelectorAll('.claimFold').forEach(f=>f.classList.remove('show'));if(isShow){fold.classList.remove('show');return;}fold.classList.add('show');setTimeout(()=>{var inp=document.getElementById('ginput-'+id);if(inp){inp.focus();checkClaimInput(id,true);}},50);}
+function openClaimInlineGrid(id){
+var fold=document.getElementById('gfold-'+id);
+if(!fold)return;
+var gridAction=fold.closest('.gridAction');
+var isShow=fold.classList.contains('show');
+document.querySelectorAll('.gridAction.claimMode').forEach(a=>{if(a!==gridAction)a.classList.remove('claimMode');});
+document.querySelectorAll('.claimFold').forEach(f=>{if(f!==fold)f.classList.remove('show');});
+if(isShow){fold.classList.remove('show');if(gridAction)gridAction.classList.remove('claimMode');return;}
+fold.classList.add('show');
+if(gridAction)gridAction.classList.add('claimMode');
+setTimeout(()=>{var inp=document.getElementById('ginput-'+id);if(inp){inp.focus();checkClaimInput(id,true);}},50);
+}
 async function saveClaimInline(id){
 var inp=document.getElementById('input-'+id);var btn=document.getElementById('addBtn-'+id);
 var claimId=inp.value.trim().toUpperCase();if(!claimId||btn.disabled){inp.focus();return;}
@@ -396,9 +420,19 @@ try{btn.disabled=true;btn.textContent='...';await window._fb.setDoc(window._fb.d
 }
 async function saveClaimInlineGrid(id){
 var inp=document.getElementById('ginput-'+id);var btn=document.getElementById('gaddBtn-'+id);
+var fold=document.getElementById('gfold-'+id);
+var gridAction=fold?fold.closest('.gridAction'):null;
 var claimId=inp.value.trim().toUpperCase();if(!claimId||btn.disabled){inp.focus();return;}
 var data=allDischarge.find(x=>x._id===id);if(!data)return;
-try{btn.disabled=true;btn.textContent='...';await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...data,claimId:claimId,claimedAt:new Date().toISOString(),patientName:data.patientName||data.name,shriId:data.shriId||data.shri,pmjayId:data.pmjayCmhtId||data.pmjayId},{merge:true});document.getElementById('gfold-'+id).classList.remove('show');loadAllFAST();location.href='claim.html?claimId='+encodeURIComponent(claimId);}catch(e){alert(e.message);btn.disabled=false;btn.textContent='ADD';}
+try{
+btn.disabled=true;btn.textContent='...';
+await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});
+await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...data,claimId:claimId,claimedAt:new Date().toISOString(),patientName:data.patientName||data.name,shriId:data.shriId||data.shri,pmjayId:data.pmjayCmhtId||data.pmjayId},{merge:true});
+if(fold)fold.classList.remove('show');
+if(gridAction)gridAction.classList.remove('claimMode');
+loadAllFAST();
+location.href='claim.html?claimId='+encodeURIComponent(claimId);
+}catch(e){alert(e.message);btn.disabled=false;btn.textContent='ADD';}
 }
 </script>
 <script type="module">
