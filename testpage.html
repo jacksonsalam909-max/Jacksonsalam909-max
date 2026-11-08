@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>SHIJA - GRID CLAIM = LIST CLAIM + SMALL CLAIM ID</title>
+<title>SHIJA - NO GAP + NO OVERLAP FINAL</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="Patient.js"></script>
 <style>
@@ -52,8 +52,11 @@ body{background:#f1f5f9;display:flex;min-height:100vh}
 .sItem{padding:12px;border-bottom:1px solid #f1f5f9;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
 .sName{font-weight:900;font-size:12px;color:#0f172a}
 .sMeta{font-size:10px;color:#64748b;font-weight:700;margin-top:2px}
-.addPanel{max-height:0;overflow:hidden;transition:.3s;background:#fff;border:0 solid #3c25eb;border-radius:12px;margin-top:0;padding:0 14px}
-.addPanel.open{max-height:600px;border-width:2px;margin-top:12px;padding:14px}
+.addPanel{max-height:0;overflow:hidden;transition:.3s;background:#fff;border:0 solid #3c25eb;border-radius:12px;margin-top:0;padding:0 14px;display:block}
+.addPanel.open{max-height:600px;border-width:2px;margin-top:12px;padding:14px;display:flex!important;flex-direction:column!important;gap:10px!important}
+#addPanelInfo{width:100%!important;max-width:100%!important;word-break:break-word!important;white-space:normal!important;line-height:1.4!important;margin-bottom:0!important;flex:0 0 auto!important}
+.addPanel > div:nth-child(2){display:flex!important;flex-wrap:wrap!important;gap:8px!important;width:100%!important}
+#addTimeSelect,#addBlockSelect{flex:1 1 140px!important;min-width:130px!important;max-width:100%!important;position:relative!important;z-index:1!important}
 .sheetWrap{background:#fff;border:1.5px solid #e2e8f0;overflow:hidden;max-height:75vh;border-radius:12px;width:100%;overflow-x:hidden;transition:all .25s ease}
 table{border-collapse:collapse;width:100%;table-layout:fixed;transition:all .25s ease}
 th{background:#0f172a;color:#fff;padding:8px 1px;font-size:6px;text-align:center;font-weight:800;white-space:nowrap;transition:all .25s ease;position:sticky;top:0;z-index:2}
@@ -68,11 +71,8 @@ th:nth-child(7),td:nth-child(7){width:14%}
 th:nth-child(8),td:nth-child(8){width:18%}
 td.nameCol{text-align:left;padding-left:4px;overflow:hidden;text-overflow:ellipsis}
 .badge{background:#0f172a;color:#fff;padding:5px 10px;border-radius:20px;font-weight:900;font-size:9px}
-
-/* LIST VIEW - DO NOT TOUCH */
 .claimBtn{background:#facc15!important;color:#000!important;padding:4px 8px!important;border-radius:20px!important;border:1.5px solid #eab308!important;font-weight:900!important;font-size:6px!important;cursor:pointer;min-width:36px!important;flex-shrink:0!important;display:inline-flex!important;visibility:visible!important;opacity:1!important}
 .delBtn{background:#ef4444;color:#fff;padding:4px 6px;border-radius:20px;border:0;font-weight:900;font-size:6px;cursor:pointer;min-width:20px;flex-shrink:0}
-
 .gridWrap{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:6px;align-items:start}
 .gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:8px;min-height:140px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
 .gridName{font-weight:900;font-size:10px;color:#0f172a;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -91,20 +91,20 @@ td.nameCol{text-align:left;padding-left:4px;overflow:hidden;text-overflow:ellips
 .claimFold .addClaimBtn{background:#3c25eb!important;color:#fff!important;border:1px solid #3c25eb!important;padding:3px 8px!important;border-radius:999px!important;font-weight:900!important;font-size:6px!important;cursor:pointer;flex-shrink:0;min-width:32px!important}
 .claimFold .addClaimBtn:disabled{background:#e5e7eb!important;color:#9ca3af!important;border-color:#e5e7eb!important}
 
-/* GRID VIEW ONLY - CLAIM BUTTON SAME AS LIST VIEW + SMALLER CLAIM ID */
-.gridAction{display:flex!important;flex-direction:row!important;gap:4px!important;width:100%!important;align-items:center!important;flex-wrap:nowrap!important;justify-content:flex-start!important}
+/* GRID - NO GAP BETWEEN CLAIM AND DELETE - SMALL CLAIM ID */
+.gridAction{display:flex!important;flex-direction:row!important;gap:2px!important;width:100%!important;align-items:center!important;flex-wrap:nowrap!important;justify-content:flex-start!important}
 .gridAction .uploadBtnFold{flex:1 1 auto!important;min-width:0!important;height:20px!important;font-size:6px!important;border-radius:20px!important;padding:3px 6px!important}
-.gridAction .claimWrap{flex:0 0 auto!important;width:auto!important;display:flex!important;align-items:center!important;gap:3px!important}
-.gridAction .claimBtn{background:#facc15!important;color:#000!important;padding:4px 8px!important;border-radius:20px!important;border:1.5px solid #eab308!important;font-weight:900!important;font-size:6px!important;min-width:36px!important;flex:0 0 auto!important}
-.gridAction .delBtn{background:#ef4444!important;color:#fff!important;padding:4px 6px!important;border-radius:20px!important;border:0!important;font-weight:900!important;font-size:6px!important;min-width:20px!important;flex:0 0 auto!important}
-.gridAction .claimFold{max-width:62px!important;height:20px!important;padding:1px 1px 1px 4px!important;gap:1px!important;background:#fff!important;border:1.5px solid #3c25eb!important;border-radius:999px!important}
+.gridAction .claimWrap{flex:0 0 auto!important;width:auto!important;display:flex!important;align-items:center!important;gap:1px!important}
+.gridAction .claimBtn{background:#facc15!important;color:#000!important;padding:4px 8px!important;border-radius:20px!important;border:1.5px solid #eab308!important;font-weight:900!important;font-size:6px!important;min-width:36px!important;flex:0 0 auto!important;margin-right:0!important}
+.gridAction .delBtn{background:#ef4444!important;color:#fff!important;padding:4px 6px!important;border-radius:20px!important;border:0!important;font-weight:900!important;font-size:6px!important;min-width:20px!important;flex:0 0 auto!important;margin-left:0!important}
+.gridAction .claimFold{max-width:62px!important;height:20px!important;padding:1px 1px 1px 4px!important;gap:1px!important;background:#fff!important;border:1.5px solid #3c25eb!important;border-radius:999px!important;margin:0 1px!important}
 .gridAction .claimFold input{font-size:5.5px!important;padding:2px 3px!important;background:#f1f5f9!important;border-radius:10px!important}
 .gridAction .claimFold .addClaimBtn{font-size:5.5px!important;min-width:24px!important;height:15px!important;padding:1px 5px!important;border-radius:999px!important}
-.gridAction.claimMode{flex-wrap:wrap!important;gap:4px!important}
+.gridAction.claimMode{flex-wrap:wrap!important;gap:1px!important}
 .gridAction.claimMode .uploadBtnFold{flex:0 0 100%!important;width:100%!important;height:20px!important}
-.gridAction.claimMode .claimWrap{flex:1 1 auto!important;width:calc(100% - 26px)!important;order:2!important;display:flex!important;gap:3px!important}
+.gridAction.claimMode .claimWrap{flex:1 1 auto!important;width:calc(100% - 22px)!important;order:2!important;display:flex!important;gap:1px!important}
 .gridAction.claimMode .claimBtn{display:inline-flex!important;visibility:visible!important;opacity:1!important;min-width:36px!important}
-.gridAction.claimMode .claimFold{display:inline-flex!important;flex:1 1 auto!important;max-width:72px!important;height:20px!important}
+.gridAction.claimMode .claimFold{display:inline-flex!important;flex:1 1 auto!important;max-width:72px!important;height:20px!important;margin:0 1px!important}
 .gridAction.claimMode .delBtn{order:2!important;height:20px!important;width:22px!important;min-width:22px!important}
 
 .uploadBtnFold{background:#fff!important;color:#0f172a!important;padding:3px 6px!important;border-radius:20px;border:1.5px solid #3c25eb!important;font-weight:800;font-size:6px!important;cursor:pointer;min-width:44px!important;height:20px!important}
@@ -212,21 +212,21 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 </div></div></div></div>
 <div class="content">
 <div class="card">
-<div class="label" style="margin-bottom:8px">ADD DISCHARGE PATIENT - FROM TOTAL.HTML</div>
+<div class="label" style="margin-bottom:8px">ADD DISCHARGE PATIENT - FROM TOTAL.HTML - NO OVERLAP</div>
 <div class="searchBox">
 <input type="search" id="searchTotal" name="shija_patient_search_total" autocomplete="off" autocorrect="off" spellcheck="false" data-form-type="other" data-lpignore="true" class="input" placeholder="SEARCH FROM TOTAL.HTML PATIENTS - NAME / SHRI / PMJAY..." style="border:1.5px solid #e2e8f0;padding:12px;border-radius:10px;background:#f8fafc;font-weight:600">
 <div class="searchResults" id="searchResults"></div>
 </div>
 <div class="addPanel" id="addPanel">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-<div id="addPanelInfo" style="font-size:11px;font-weight:800;color:#0f172a;background:#fff;padding:6px 10px;border-radius:8px;border:1px solid #e2e8f0"></div>
-<button class="btn btnDark btnSmall" onclick="closeAddPanel()">✕</button>
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0;gap:8px">
+<div id="addPanelInfo" style="font-size:11px;font-weight:800;color:#0f172a;background:#fff;padding:6px 10px;border-radius:8px;border:1px solid #e2e8f0;flex:1"></div>
+<button class="btn btnDark btnSmall" onclick="closeAddPanel()" style="flex:0 0 auto">✕</button>
 </div>
-<div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
-<div><div class="label">TIME - DROPDOWN</div><select id="addTimeSelect" style="width:140px;padding:10px;font-size:11px;font-weight:800;border:1.5px solid #3c25eb;background:#eff6ff;border-radius:8px;outline:0"><option value="">SELECT TIME</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
-<div><div class="label">BLOCK - DROPDOWN</div><select id="addBlockSelect" style="width:120px;padding:10px;font-size:11px;font-weight:800;border:1.5px solid #3c25eb;background:#eff6ff;border-radius:8px;outline:0"><option value="">SELECT BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;width:100%">
+<div style="flex:1 1 140px"><div class="label">TIME - DROPDOWN</div><select id="addTimeSelect" style="width:100%;padding:10px;font-size:11px;font-weight:800;border:1.5px solid #3c25eb;background:#eff6ff;border-radius:8px;outline:0"><option value="">SELECT TIME</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
+<div style="flex:1 1 130px"><div class="label">BLOCK - DROPDOWN</div><select id="addBlockSelect" style="width:100%;padding:10px;font-size:11px;font-weight:800;border:1.5px solid #3c25eb;background:#eff6ff;border-radius:8px;outline:0"><option value="">SELECT BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
 </div>
-<button class="btn btnDark" style="padding:10px 20px;border-radius:8px;font-size:11px" onclick="confirmAddDischarge()">ADD TO DISCHARGE →</button>
+<button class="btn btnDark" style="padding:10px 20px;border-radius:8px;font-size:11px;width:100%;max-width:200px" onclick="confirmAddDischarge()">ADD TO DISCHARGE →</button>
 </div></div>
 <div class="card">
 <div class="filterBox2">
@@ -283,31 +283,22 @@ currentPage=1;
 render();
 }
 function getDocsForShri(shri){return window._fb._docsCache[shri]||[];}
-
 async function loadMasterFAST(){
-  // 1. Try local cache that total.html uses
   var keysToTry=['shija_pat_cache_v2','total_patients_cache','shija_total_cache','patients_cache'];
   for(var k of keysToTry){
     var cached=localStorage.getItem(k);
-    if(cached){try{var arr=JSON.parse(cached); if(arr.length>20){masterPatients=arr; console.log('Loaded from cache',k,arr.length); return;}}catch(e){}}
+    if(cached){try{var arr=JSON.parse(cached); if(arr.length>20){masterPatients=arr; return;}}catch(e){}}
   }
   masterPatients=[]; var map={};
   function addToMap(raw){
-    var shri=String(raw.shri||raw.shriId||raw.SHRI||raw.ShriId||'').trim().toUpperCase();
-    var name=String(raw.name||raw.patientName||raw.PATIENT_NAME||raw.patient_name||'').trim().toUpperCase();
-    var pmjay=String(raw.pmjay||raw.pmjayId||raw.PMJAY||raw.pmjayCmhtId||raw.pmjay_id||'').trim().toUpperCase();
-    if(!shri||shri.length<2||map[shri]) return false;
-    if(name.length<2) name='UNKNOWN';
-    map[shri]={shri:shri,name:name,pmjayId:pmjay};
+    var shri=String(raw.shri||raw.shriId||'').trim().toUpperCase();
+    var name=String(raw.name||raw.patientName||'').trim().toUpperCase();
+    var pmjay=String(raw.pmjay||raw.pmjayId||raw.pmjayCmhtId||'').trim().toUpperCase();
+    if(!shri||map[shri]) return false;
+    map[shri]={shri:shri,name:name||'UNKNOWN',pmjayId:pmjay};
     return true;
   }
-  // 2. Patient.js
-  try{
-    if(typeof patientData!=='undefined'&&Array.isArray(patientData)){
-      patientData.forEach(r=>addToMap(r));
-    }
-  }catch(e){}
-  // 3. From total.html Firestore collections - SAME AS total.html
+  try{if(typeof patientData!=='undefined'&&Array.isArray(patientData)){patientData.forEach(r=>addToMap(r));}}catch(e){}
   if(Object.keys(map).length<20){
     try{
       if(window._fb){
@@ -315,13 +306,9 @@ async function loadMasterFAST(){
         for(var c of tryCols){
           try{
             var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,c));
-            snap.forEach(d=>{
-              var raw=d.data();
-              raw.shri=raw.shri||raw.shriId||d.id;
-              addToMap(raw);
-            });
+            snap.forEach(d=>{ var raw=d.data(); raw.shri=raw.shri||raw.shriId||d.id; addToMap(raw); });
             if(Object.keys(map).length>20) break;
-          }catch(e){ console.log('col',c,e); }
+          }catch(e){}
         }
       }
     }catch(e){}
@@ -329,9 +316,7 @@ async function loadMasterFAST(){
   Object.keys(map).forEach(k=>masterPatients.push(map[k]));
   masterPatients.sort((a,b)=>a.name.localeCompare(b.name));
   try{localStorage.setItem('shija_pat_cache_v2',JSON.stringify(masterPatients)); localStorage.setItem('total_patients_cache',JSON.stringify(masterPatients));}catch(e){}
-  console.log('TOTAL FROM TOTAL.HTML SOURCE:',masterPatients.length);
 }
-
 async function loadAllFAST(){
   var disCache = localStorage.getItem('shija_dis_cache');
   if(disCache){ try{ allDischarge = JSON.parse(disCache); applyFilter(); }catch(e){} }
@@ -407,7 +392,20 @@ var tw=document.getElementById('tableWrap');if(tw)tw.classList.remove('claimOpen
 }
 });
 }
-function openAddPanel(shri){var p=masterPatients.find(function(x){return x.shri===shri;});if(!p)return;selectedPatient=p;document.getElementById('searchResults').classList.remove('open');document.getElementById('searchTotal').value='';document.getElementById('addPanelInfo').innerHTML='PATIENT: '+p.name+' | SHRI: <span class="shriGray">'+p.shri+'</span> | PMJAY: <span class="pmjayBlue">'+p.pmjayId+'</span>';document.getElementById('addTimeSelect').value='';document.getElementById('addBlockSelect').value='';document.getElementById('addPanel').classList.add('open');}
+function openAddPanel(shri){
+var p=masterPatients.find(function(x){return x.shri===shri;});
+if(!p)return;
+selectedPatient=p;
+document.getElementById('searchResults').classList.remove('open');
+document.getElementById('searchTotal').value='';
+document.getElementById('addPanelInfo').innerHTML='PATIENT: '+p.name+'<br>SHRI: <span class="shriGray">'+p.shri+'</span> | PMJAY: <span class="pmjayBlue">'+p.pmjayId+'</span>';
+document.getElementById('addTimeSelect').value='';
+document.getElementById('addBlockSelect').value='';
+var panel=document.getElementById('addPanel');
+panel.classList.add('open');
+panel.style.display='flex';
+panel.style.flexDirection='column';
+}
 function closeAddPanel(){document.getElementById('addPanel').classList.remove('open');selectedPatient=null;}
 async function confirmAddDischarge(){var time=document.getElementById('addTimeSelect').value;var block=document.getElementById('addBlockSelect').value;if(!selectedPatient||!time||!block){alert('Select TIME and BLOCK');return;}var date=document.getElementById('fDate').value||getToday();var docId=date+"_"+selectedPatient.shri+"_"+Date.now();try{await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',docId),{date:date,shriId:selectedPatient.shri,shri:selectedPatient.shri,patientName:selectedPatient.name,name:selectedPatient.name,pmjayCmhtId:selectedPatient.pmjayId,pmjayId:selectedPatient.pmjayId,time:time,block:block,status:'DISCHARGE',dischargedAt:new Date().toISOString()});closeAddPanel();loadAllFAST();}catch(e){alert(e.message);}}
 async function delDischarge(id){if(!confirm('DELETE?'))return;try{await window._fb.deleteDoc(window._fb.doc(window._fb.db,'discharges',id));loadAllFAST();}catch(e){alert(e.message);}}
