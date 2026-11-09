@@ -61,8 +61,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .sMeta{font-size:10px;color:#64748b;font-weight:700;margin-top:2px}
 .addPanel{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s,margin .3s;background:#fff;border:0 solid #3c25eb;border-radius:12px;margin-top:0;padding:0 14px}
 .addPanel.open{max-height:1000px;border-width:2px;margin-top:12px;padding:14px;overflow:visible!important}
-
-/* LIST VIEW FIT FIX - ONLY LIST */
 .sheetWrap{background:#fff;border:1.5px solid #e2e8f0;overflow:hidden;max-height:75vh;border-radius:12px;transition:all .25s ease;width:100%}
 .sheetWrap table{border-collapse:collapse;width:100%!important;min-width:100%!important;table-layout:fixed}
 .sheetWrap th{position:sticky;top:0;background:#0f172a;color:#fff;padding:8px 4px;font-size:8px;text-align:center;z-index:2;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -76,7 +74,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .sheetWrap th:nth-child(6), .sheetWrap td:nth-child(6){width:7%!important}
 .sheetWrap th:nth-child(7), .sheetWrap td:nth-child(7){width:11%!important}
 .sheetWrap th:nth-child(8), .sheetWrap td:nth-child(8){width:26%!important}
-
 .badge{background:#0f172a;color:#fff;padding:5px 10px;border-radius:20px;font-weight:900;font-size:9px}
 .gridWrap{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:6px;align-items:start!important;align-content:start!important}
 .gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;transition:all .25s ease;align-self:start!important;height:auto!important}
@@ -279,7 +276,7 @@ async function ensureDocsLoaded(shri){if(window._fb._docsCache[shri]&&window._fb
 async function toggleSlideList(cleanShri,shri){var slide=document.getElementById('slide_'+cleanShri);var isShow=slide&&slide.classList.contains('show');document.querySelectorAll('.slideRow').forEach(function(r){r.classList.remove('show');});if(!isShow){await ensureDocsLoaded(shri);if(slide)slide.classList.add('show');lastOpenCleanShri=cleanShri;render();}else{lastOpenCleanShri=null;render();}}
 async function toggleSlideGrid(cleanShri,shri){await ensureDocsLoaded(shri);var d=document.getElementById('gridDocs_'+cleanShri);if(!d)return;var isOpen=d.style.display==='flex';if(isOpen){d.style.display='none';openGridSet.delete(cleanShri);}else{d.style.display='flex';openGridSet.add(cleanShri);}render();}
 function triggerUpload(cleanShri,type,shri){var docs=getDocsForShri(shri).filter(function(d){return d.type===type;});if(docs.length>0){openFileModal(docs[0]._id,shri);}else{document.getElementById('file_'+cleanShri+'_'+type).click();}}
-async function uploadFile(file,shri,name,pmjay,type){if(!file)return;var cleanShri=shri.replace(/[^a-zA-Z0-9]/g,'_');var base64=await new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result);};r.readAsDataURL(file);});var id=cleanShri+'_'+type+'_'+Date.now();try{var chunks=[];for(var i=0;i<base64.length;i+=CHUNK_SIZE){chunks.push(base64.substring(i,i+CHUNK_SIZE));}await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:shri,cleanShri:cleanShri,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type||'application/octet-stream',size:file.size,chunkCount:chunks.length,createdAt:Date.now()});for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}if(!window._fb._docsCache[shri])window._fb._docsCache[shri]=[];window._fb._docsCache[shri].push({_id:id,type:type,shri:shri,fileName:file.name});render();alert('UPLOADED '+file.name);}catch(e){alert(e.message);}}
+async function uploadFile(file,shri,name,pmjay,type){if(!file)return;var cleanShri=shri.replace(/[^a-zA-Z0-9]/g,'_');var base64=await new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result);};r.readAsDataURL(file);});var id=cleanShri+'_'+type+'_'+Date.now();try{var chunks=[];for(var i=0;i<base64.length;i+=CHUNK_SIZE){chunks.push(base64.substring(i,i+CHUNK_SIZE));}await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:shri,cleanShri:cleanShri,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type||'application/octet-stream',size:file.size,chunkCount:chunks.length,createdAt:Date.now()});for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}if(!window._fb._docsCache[shri])window._fb._docsCache[shri]=[];window._fb._docsCache[shri].push({_id:id,[STRIPPED] '+file.name);}catch(e){alert(e.message);}}
 async function getFullData(id){try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));var arr=[];snap.forEach(function(d){arr.push(d.data());});arr.sort(function(a,b){return a.index-b.index;});return arr.map(function(a){return a.data;}).join('');}catch(e){return null;}}
 async function openFileModal(id,shri){window._fb._currentZoom=1;var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs'));var meta=null;snap.forEach(function(d){if(d.id===id)meta=d.data();});if(!meta)return;var data=await getFullData(id);if(!data)return;currentFileData=data;currentFileName=meta.fileName;document.getElementById('modalFileName').textContent=meta.fileName;document.getElementById('modalFileMeta').textContent=(meta.fileType.includes('pdf')?'PDF':'IMAGE')+' • '+(meta.size/1024/1024).toFixed(2)+' MB';var box=document.getElementById('paperBox');if(data.startsWith('data:application/pdf')){box.innerHTML='<iframe src="'+data+'"></iframe>';}else if(data.startsWith('data:image')){box.innerHTML='<img src="'+data+'">';}else{box.innerHTML='<div style="padding:20px"><b>'+meta.fileName+'</b></div>';}applyZoom();document.getElementById('fileModal').classList.add('show');}
 function downloadCurrent(){if(!currentFileData)return;var a=document.createElement('a');a.href=currentFileData;a.download=currentFileName||'file';a.click();}
@@ -318,6 +315,43 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{ adminDropdown.style.display='none'; document.getElementById('logoutAllModal').style.display='flex'; });
   document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
 });
+
+// AUTO DELETE AFTER 3 DAYS - NO POPUP - SILENT
+async function autoDeleteExpiredDocs(){
+  try{
+    if(!window._fb || !window._fb._docsCache) return;
+    var now = Date.now();
+    var THREE_DAYS = 3*24*60*60*1000;
+    var toDelete = [];
+    for(var shri in window._fb._docsCache){
+      var arr = window._fb._docsCache[shri] || [];
+      for(var i=0;i<arr.length;i++){
+        var d = arr[i];
+        var ct = d.createdAt || 0;
+        if(ct && (now - ct) > THREE_DAYS){
+          toDelete.push({id:d._id, shri:shri});
+        }
+      }
+    }
+    for(var k=0;k<toDelete.length;k++){
+      try{
+        var item = toDelete[k];
+        var csnap = await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',item.id,'chunks'));
+        for(var dc of csnap.docs){
+          await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',item.id,'chunks',dc.id));
+        }
+        await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',item.id));
+        if(window._fb._docsCache[item.shri]){
+          window._fb._docsCache[item.shri] = window._fb._docsCache[item.shri].filter(function(x){return x._id!==item.id;});
+        }
+      }catch(e){}
+    }
+    if(toDelete.length>0){ console.log('Auto deleted '+toDelete.length+' expired'); try{render();}catch(e){} }
+  }catch(e){}
+}
+setTimeout(autoDeleteExpiredDocs, 4000);
+setInterval(autoDeleteExpiredDocs, 3600000);
+
 window.addEventListener('load',function(){
   var fDate=document.getElementById('fDate');
   if(fDate){
@@ -338,6 +372,7 @@ window.addEventListener('load',function(){
   document.getElementById('perPage').addEventListener('change',applyFilter);
   document.getElementById('fSearch').addEventListener('input',applyFilter);
   if(fDate)fDate.addEventListener('change',applyFilter);
+  setTimeout(autoDeleteExpiredDocs, 5000);
 });
 </script>
 </body>
