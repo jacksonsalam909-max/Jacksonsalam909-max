@@ -134,7 +134,6 @@ tr.mainRow.openRow td{border-bottom:none!important;background:#eef2ff!important}
   .gridWrap{grid-template-columns:1fr;align-items:start}
   .filterRow2{flex-direction:column;align-items:stretch}
 }
-/* === POPUP SMALLER - FINAL - ONLY + - DOWNLOAD X - NO GREEN LINES === */
 #fileModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;align-items:center;justify-content:center;padding:16px}
 #fileModal.show{display:flex}
 .popupCard{background:#fff;border-radius:12px;width:82%;max-width:580px;max-height:78vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.5);overflow:hidden;border:0}
@@ -154,6 +153,10 @@ tr.mainRow.openRow td{border-bottom:none!important;background:#eef2ff!important}
 .zoomBtn{height:26px;min-width:26px;padding:0 6px;background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:5px;font-weight:900;font-size:13px;cursor:pointer;display:grid;place-items:center}
 .zoomBtn:hover{background:#f1f5f9;border-color:#3c25eb}
 .zoomLabel{font-size:9px;font-weight:800;color:#0f172a;min-width:36px;text-align:center}
+.dateArrowBtn{width:32px;height:32px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;color:#0f172a;font-weight:900;font-size:12px;cursor:pointer;display:grid;place-items:center;transition:all .2s ease}
+.dateArrowBtn:hover{background:#3c25eb!important;color:#fff!important;border-color:#3c25eb!important;transform:scale(1.08);box-shadow:0 4px 12px rgba(60,37,235,0.3)}
+.dateNavWrap{display:flex;align-items:center;gap:4px;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;padding:2px 4px;transition:border-color .2s, box-shadow .2s}
+.dateNavWrap:hover{border-color:#3c25eb;box-shadow:0 2px 8px rgba(60,37,235,0.12)}
 </style>
 <script>function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{var bar=document.getElementById('whiteBar');if(!bar)return;bar.classList.toggle('folded');try{localStorage.setItem('shija_menu_folded',bar.classList.contains('folded')?'1':'0')}catch(e){}}}function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}</script>
 </head>
@@ -199,7 +202,6 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <div class="mainWrap">
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY</div></div>
 <div style="display:flex;align-items:center;gap:8px">
-<a href="claim.html" style="background:#3c25eb;color:#fff;padding:8px 16px;border-radius:20px;font-weight:900;font-size:11px;text-decoration:none;border:1.5px solid #3c25eb">VIEW CLAIM</a>
 <div id="adminMenuWrap" style="position:relative">
 <button id="adminBtn" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
 <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
@@ -229,11 +231,11 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <div class="card">
 <div class="filterBox2">
 <div class="filterRow1">
-<div><div class="label" style="font-size:8px">DATE</div><input type="date" id="fDate" class="input inputSmall" style="width:130px"></div>
+<div><div class="label" style="font-size:8px">DATE</div><div class="dateNavWrap"><button type="button" class="dateArrowBtn" onclick="changeDateBy(-1)" title="Previous Day">◀</button><input type="date" id="fDate" class="input inputSmall" style="width:130px;border:none;background:transparent;text-align:center"><button type="button" class="dateArrowBtn" onclick="changeDateBy(1)" title="Next Day">▶</button></div></div>
 <div><div class="label" style="font-size:8px">TIME FILTER</div><select id="fTime" class="input inputSmall" style="width:110px"><option value="">ALL TIME</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
 <div><div class="label" style="font-size:8px">BLOCK FILTER</div><select id="fBlock" class="input inputSmall" style="width:90px"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
 <div><div class="label" style="font-size:8px">PER PAGE</div><select id="perPage" class="input inputSmall" style="width:90px"><option value="12" selected>12</option><option value="24">24</option><option value="36">36</option><option value="48">48</option><option value="60">60</option><option value="96">96</option></select></div>
-<div><div class="label" style="font-size:8px">ACTION</div><button class="btn btnDark btnSmall" onclick="clearFilters()">CLEAR</button></div>
+<div><div class="label" style="font-size:8px">ACTION</div><div style="display:flex;gap:4px"><button class="btn btnDark btnSmall" onclick="clearFilters()">CLEAR</button><a href="claim.html" style="background:#3c25eb;color:#fff;padding:6px 10px;border-radius:6px;font-weight:800;font-size:9px;text-decoration:none;border:1.5px solid #3c25eb;display:grid;place-items:center">VIEW CLAIM</a></div></div>
 </div>
 <div class="filterRow2">
 <div style="display:flex;gap:6px;align-items:center;flex:1;flex-wrap:wrap">
@@ -266,15 +268,16 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <button id="confirmLogoutAll" style="flex:1;height:38px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer">Logout All</button>
 </div></div></div>
 
-<!-- POPUP SMALLER FINAL - CLEAN - GREEN LINES REMOVED -->
 <div id="fileModal">
 <div class="popupCard">
-<div class="popupHead"><b id="modalFileName">DHANANJOY.jpg</b><div class="headRight"><button class="iconTop" onclick="zoomIn()">+</button><button class="iconTop" onclick="zoomOut()">−</button><button class="iconTop" onclick="downloadCurrent()">⬇</button><button class="iconTop closeTop" onclick="closeModal()">✕</button></div></div>
-<div class="zoomBar"><span id="modalFileMeta">IMAGE • 0.21 MB</span><div style="display:flex;gap:4px;align-items:center"><button class="zoomBtn" onclick="zoomOut()">−</button><div class="zoomLabel" id="zoomLabel">100%</div><button class="zoomBtn" onclick="zoomIn()">+</button><button class="zoomBtn" onclick="resetZoom()">⟲</button></div></div>
+<div class="popupHead"><b id="modalFileName">FILE</b><div class="headRight"><button class="iconTop" onclick="zoomIn()">+</button><button class="iconTop" onclick="zoomOut()">−</button><button class="iconTop" onclick="downloadCurrent()">⬇</button><button class="iconTop closeTop" onclick="closeModal()">✕</button></div></div>
+<div class="zoomBar"><span id="modalFileMeta">FILE</span><div style="display:flex;gap:4px;align-items:center"><button class="zoomBtn" onclick="zoomOut()">−</button><div class="zoomLabel" id="zoomLabel">100%</div><button class="zoomBtn" onclick="zoomIn()">+</button><button class="zoomBtn" onclick="resetZoom()">⟲</button></div></div>
 <div class="popupBody"><div class="paperBox" id="paperBox"></div></div>
 </div></div>
 
 <script>
+// INSTANT DATE - FIX FOR DATE NOT SHOWING
+(function(){try{var d=new Date();var t=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');var trySet=function(){var el=document.getElementById('fDate');if(el){el.value=t;}};trySet();document.addEventListener('DOMContentLoaded',trySet);}catch(e){}})();
 var allDischarge=[],filtered=[],masterPatients=[],selectedPatient=null,currentPage=1,pageSize=12,isGrid=false,openGridSet=new Set(),lastOpenCleanShri=null,currentFileData=null,currentFileName=null;
 const CHUNK_SIZE=800000;
 function getToday(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');}
@@ -294,7 +297,14 @@ function addToMap(raw){if(!raw)return false;var shri=String(raw.shri||raw.shriId
 try{if(typeof patientData!=='undefined'&&Array.isArray(patientData)){patientData.forEach(function(r){addToMap(r);});}}catch(e){}
 try{if(window._fb){var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patients"));snap.forEach(function(d){addToMap(d.data());});}}catch(e){}
 Object.keys(map).forEach(function(k){masterPatients.push(map[k]);});
-try{var snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,"patient_docs"));snap2.forEach(function(d){var data=d.data();data._id=d.id;if(!window._fb._docsCache[data.shri])window._fb._docsCache[data.shri]=[];window._fb._docsCache[data.shri].push(data);});}catch(e){}}
+}
+async function loadDocsCache(){
+try{
+var snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,"patient_docs"));
+snap2.forEach(function(d){var data=d.data();data._id=d.id;if(!window._fb._docsCache[data.shri])window._fb._docsCache[data.shri]=[];window._fb._docsCache[data.shri].push(data);});
+render();
+}catch(e){}
+}
 async function loadAll(){try{if(!window._fb){setTimeout(loadAll,500);return;}var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges'));allDischarge=[];snap.forEach(function(d){var o=d.data();o._id=d.id;allDischarge.push(o);});allDischarge.sort(function(a,b){return new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0);});}catch(e){}applyFilter();}
 function applyFilter(){var date=document.getElementById('fDate').value;var time=document.getElementById('fTime').value;var block=document.getElementById('fBlock').value;var search=document.getElementById('fSearch').value.toLowerCase().trim();if(search.includes('admin')){document.getElementById('fSearch').value='';search='';}pageSize=parseInt(document.getElementById('perPage').value)||12;filtered=allDischarge.filter(function(p){if(date&&p.date!==date)return false;if(time&&(p.time||'')!==time)return false;if(block&&(p.block||'').toUpperCase()!==block.toUpperCase())return false;if(search){var s=(p.patientName||p.name||'')+" "+(p.shriId||p.shri||'')+" "+(p.pmjayCmhtId||'')+" "+(p.claimId||'');if(s.toLowerCase().indexOf(search)===-1)return false;}return true;});currentPage=1;render();}
 function handleDragOver(e){e.preventDefault();e.stopPropagation();e.currentTarget.classList.add('dragOver');}
@@ -310,9 +320,8 @@ var pmjayShow=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';var shriVal=p.shriId||p.shri
 var mapCount={discharge_summary:0,discharge_photo:0,feedback_form:0};docs.forEach(function(d){if(mapCount.hasOwnProperty(d.type))mapCount[d.type]++;});
 var totalUp=mapCount.discharge_summary+mapCount.discharge_photo+mapCount.feedback_form;var cleanShri=shriVal.replace(/[^a-zA-Z0-9]/g,'_');
 var tr=document.createElement('tr');tr.className='mainRow';tr.id='tr_'+cleanShri;
-var claimTag=p.claimId?' <span style="background:#eff6ff;color:#3c25eb;padding:2px 6px;border-radius:8px;font-size:7px;font-weight:900;border:0">'+p.claimId+'</span>':'';
-var btnTxt=p.claimId?'EDIT CLAIM':'Claim';
-tr.innerHTML='<td>'+(start+i+1)+'</td><td class="nameCol" title="'+nameVal+'">'+nameVal+claimTag+'</td><td><span class="shriGray">'+shriVal+'</span></td><td><span class="pmjayBlue">'+pmjayShow+'</span></td><td>'+(p.time||'')+'</td><td>'+(p.block||'')+'</td><td><button class="uploadBtnFold '+(totalUp>0?'done':'')+'" onclick="toggleSlideList(\''+cleanShri+'\')">'+(totalUp>0?'✓ '+totalUp:'UPLOAD')+' '+(lastOpenCleanShri===cleanShri?'▲':'▼')+'</button></td><td class="actionTd"><div class="actionCell"><button class="claimBtn" onclick="openClaimInline(\''+p._id+'\')">'+btnTxt+'</button><div class="claimFold" id="fold-'+p._id+'"><input type="text" id="input-'+p._id+'" placeholder="CLAIM ID" value="'+(p.claimId||'')+'"><button class="btn btnDark btnSmall" onclick="saveClaimInline(\''+p._id+'\')">ADD</button><button class="btn btnSmall" style="background:#fff;border:1px solid #e2e8f0" onclick="closeClaimInline(\''+p._id+'\')">✕</button></div><button class="delBtn" onclick="delDischarge(\''+p._id+'\')">X</button></div></td>';
+var claimTag='';var btnTxt=p.claimId?'EDIT':'Claim';
+tr.innerHTML='<td>'+(start+i+1)+'</td><td class="nameCol" title="'+nameVal+'">'+nameVal+'</td><td><span class="shriGray">'+shriVal+'</span></td><td><span class="pmjayBlue">'+pmjayShow+'</span></td><td>'+(p.time||'')+'</td><td>'+(p.block||'')+'</td><td><button class="uploadBtnFold '+(totalUp>0?'done':'')+'" onclick="toggleSlideList(\''+cleanShri+'\')">'+(totalUp>0?'✓ '+totalUp:'UPLOAD')+' '+(lastOpenCleanShri===cleanShri?'▲':'▼')+'</button></td><td class="actionTd"><div class="actionCell"><button class="claimBtn" onclick="openClaimInline(\''+p._id+'\')">'+btnTxt+'</button><div class="claimFold" id="fold-'+p._id+'"><input type="text" id="input-'+p._id+'" placeholder="CLAIM ID" value="'+(p.claimId||'')+'"><button class="btn btnDark btnSmall" onclick="saveClaimInline(\''+p._id+'\')">ADD</button><button class="btn btnSmall" style="background:#fff;border:1px solid #e2e8f0" onclick="closeClaimInline(\''+p._id+'\')">✕</button></div><button class="delBtn" onclick="delDischarge(\''+p._id+'\')">X</button></div></td>';
 tbody.appendChild(tr);
 var slideTr=document.createElement('tr');slideTr.className='slideRow';slideTr.id='slide_'+cleanShri;
 slideTr.innerHTML='<td colspan="8" class="slideCell"><div class="slideInner"><div class="horizontalBtns">'
@@ -322,7 +331,7 @@ slideTr.innerHTML='<td colspan="8" class="slideCell"><div class="slideInner"><di
 +'</div><input type="file" id="file_'+cleanShri+'_discharge_summary" style="display:none" accept="*/*" onchange="uploadFile(this.files[0],\''+shriVal+'\',\''+nameVal.replace(/\'/g,"\\'")+'\',\''+pmjayShow+'\',\'discharge_summary\')"><input type="file" id="file_'+cleanShri+'_discharge_photo" style="display:none" accept="*/*" onchange="uploadFile(this.files[0],\''+shriVal+'\',\''+nameVal.replace(/\'/g,"\\'")+'\',\''+pmjayShow+'\',\'discharge_photo\')"><input type="file" id="file_'+cleanShri+'_feedback_form" style="display:none" accept="*/*" onchange="uploadFile(this.files[0],\''+shriVal+'\',\''+nameVal.replace(/\'/g,"\\'")+'\',\''+pmjayShow+'\',\'feedback_form\')"></div></td>';
 tbody.appendChild(slideTr);
 var gc=document.createElement('div');gc.className='gridCard';gc.id='grid_'+cleanShri;var isOpen=openGridSet.has(cleanShri);
-gc.innerHTML='<div><div class="gridName" title="'+nameVal+'">'+nameVal+claimTag+'</div><div class="gridRow"><span>SHRI ID</span><b><span class="shriGray">'+shriVal+'</span></b></div><div class="gridRow"><span>PMJAY ID</span><b><span class="pmjayBlue">'+(pmjayShow||'NO PMJAY')+'</span></b></div><div class="gridRow"><span>TIME</span><b>'+(p.time||'')+'</b></div><div class="gridRow"><span>BLOCK</span><b>'+(p.block||'')+'</b></div></div>'
+gc.innerHTML='<div><div class="gridName" title="'+nameVal+'">'+nameVal+'</div><div class="gridRow"><span>SHRI ID</span><b><span class="shriGray">'+shriVal+'</span></b></div><div class="gridRow"><span>PMJAY ID</span><b><span class="pmjayBlue">'+(pmjayShow||'NO PMJAY')+'</span></b></div><div class="gridRow"><span>TIME</span><b>'+(p.time||'')+'</b></div><div class="gridRow"><span>BLOCK</span><b>'+(p.block||'')+'</b></div></div>'
 +'<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">'
 +'<div class="gridAction">'
 +'<button class="uploadBtnFold '+(totalUp>0?'done':'')+'" onclick="toggleSlideGrid(\''+cleanShri+'\')" style="flex:1">'+(totalUp>0?'✓ '+totalUp:'UPLOAD')+' '+(isOpen?'▲':'▼')+'</button>'
@@ -356,7 +365,7 @@ async function delDischarge(id){if(!confirm('DELETE DISCHARGE?'))return;try{awai
 function toggleSlideList(cleanShri){var slide=document.getElementById('slide_'+cleanShri);var isShow=slide&&slide.classList.contains('show');document.querySelectorAll('.slideRow').forEach(function(r){r.classList.remove('show');});document.querySelectorAll('.mainRow').forEach(function(r){r.classList.remove('openRow');});if(!isShow){if(slide)slide.classList.add('show');var row=document.getElementById('tr_'+cleanShri);if(row)row.classList.add('openRow');lastOpenCleanShri=cleanShri;}else{lastOpenCleanShri=null;}}
 function toggleSlideGrid(cleanShri){var docsDiv=document.getElementById('gridDocs_'+cleanShri);if(!docsDiv)return;var isOpen=docsDiv.style.display==='flex';if(isOpen){docsDiv.style.display='none';openGridSet.delete(cleanShri);}else{docsDiv.style.display='flex';openGridSet.add(cleanShri);}var gridCard=document.getElementById('grid_'+cleanShri);if(gridCard){var btn=gridCard.querySelector('.uploadBtnFold');if(btn){btn.textContent=(btn.textContent.includes('✓')?'✓ ':'UPLOAD ')+(isOpen?'▼':'▲');}}}
 function triggerUpload(cleanShri,type,shri){var docs=getDocsForShri(shri).filter(function(d){return d.type===type;});if(docs.length>0){openFileModal(docs[0]._id,shri);}else{document.getElementById('file_'+cleanShri+'_'+type).click();}}
-async function uploadFile(file,shri,name,pmjay,type){if(!file)return;if(file.size>10*1024*1024){alert('Max 10MB');return;}var cleanShri=shri.replace(/[^a-zA-Z0-9]/g,'_');var base64=await new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result);};r.readAsDataURL(file);});var id=cleanShri+'_'+type+'_'+Date.now();try{var chunks=[];for(var i=0;i<base64.length;i+=CHUNK_SIZE){chunks.push(base64.substring(i,i+CHUNK_SIZE));}await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:shri,cleanShri:cleanShri,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type||'application/octet-stream',size:file.size,chunkCount:chunks.length,createdAt:Date.now()});for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}if(!window._fb._docsCache[shri])window._fb._docsCache[shri]=[];window._fb._docsCache[shri].push({_id:id,type:type,shri:shri,fileName:file.name,fileType:file.type,size:file.size});render();}catch(e){alert(e.message);}}
+async function uploadFile(file,shri,name,pmjay,type){if(!file)return;if(file.size>10*1024*1024){alert('Max 10MB');return;}var cleanShri=shri.replace(/[^a-zA-Z0-9]/g,'_');var base64=await new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result);};r.readAsDataURL(file);});var id=cleanShri+'_'+type+'_'+Date.now();try{var chunks=[];for(var i=0;i<base64.length;i+=CHUNK_SIZE){chunks.push(base64.substring(i,i+CHUNK_SIZE));}await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:shri,cleanShri:cleanShri,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type||'application/octet-stream',size:file.size,chunkCount:chunks.length,createdAt:Date.now()});for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}if(!window._fb._docsCache[shri])window._fb._docsCache[shri]=[];window._fb._docsCache[shri].push({_id:id,type:type,fileName:file.name});render();alert('✓ Uploaded '+file.name);}catch(e){alert(e.message);}}
 async function getFullData(id){try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));var arr=[];snap.forEach(function(d){arr.push(d.data());});arr.sort(function(a,b){return a.index-b.index;});return arr.map(function(a){return a.data;}).join('');}catch(e){return null;}}
 async function openFileModal(id,shri){window._fb._currentZoom=1;var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs'));var meta=null;snap.forEach(function(d){if(d.id===id)meta=d.data();});if(!meta)return;var data=await getFullData(id);if(!data)return;currentFileData=data;currentFileName=meta.fileName;document.getElementById('modalFileName').textContent=meta.fileName;document.getElementById('modalFileMeta').textContent=(meta.fileType.includes('pdf')?'PDF':'IMAGE')+' • '+(meta.size/1024/1024).toFixed(2)+' MB';var box=document.getElementById('paperBox');if(data.startsWith('data:application/pdf')){box.innerHTML='<iframe src="'+data+'"></iframe>';}else if(data.startsWith('data:image')){box.innerHTML='<img src="'+data+'">';}else{box.innerHTML='<div style="padding:20px;text-align:center"><b>'+meta.fileName+'</b><br><a href="'+data+'" download="'+meta.fileName+'" style="color:#3c25eb;font-weight:800">Download</a></div>';}applyZoom();document.getElementById('fileModal').classList.add('show');}
 function downloadCurrent(){if(!currentFileData)return;var a=document.createElement('a');a.href=currentFileData;a.download=currentFileName||'file';a.click();}
@@ -373,6 +382,17 @@ function openClaimInlineGrid(id){var fold=document.getElementById('gfold-'+id);v
 function closeClaimInlineGrid(id){document.getElementById('gfold-'+id).classList.remove('show');}
 async function saveClaimInline(id){var claimId=document.getElementById('input-'+id).value.trim().toUpperCase();if(!claimId)return;var data=allDischarge.find(function(x){return x._id===id;});try{await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...data,claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});document.getElementById('fold-'+id).classList.remove('show');location.href='claim.html?claimId='+encodeURIComponent(claimId);}catch(e){alert(e.message);}}
 async function saveClaimInlineGrid(id){var claimId=document.getElementById('ginput-'+id).value.trim().toUpperCase();if(!claimId)return;var data=allDischarge.find(function(x){return x._id===id;});try{await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...data,claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});document.getElementById('gfold-'+id).classList.remove('show');location.href='claim.html?claimId='+encodeURIComponent(claimId);}catch(e){alert(e.message);}}
+function changeDateBy(days){
+  var input=document.getElementById('fDate');
+  if(!input) return;
+  var base = input.value ? new Date(input.value) : new Date();
+  base.setDate(base.getDate() + days);
+  var y = base.getFullYear();
+  var m = String(base.getMonth()+1).padStart(2,'0');
+  var d = String(base.getDate()).padStart(2,'0');
+  input.value = y+'-'+m+'-'+d;
+  applyFilter();
+}
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -399,7 +419,25 @@ document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{if(e.t
 function killAdmin(){['searchTotal','fSearch'].forEach(id=>{let el=document.getElementById(id);if(el&&el.value.toLowerCase().includes('admin'))el.value='';});}
 setTimeout(killAdmin,50);setTimeout(killAdmin,300);['searchTotal','fSearch'].forEach(id=>{let el=document.getElementById(id);if(el){el.addEventListener('input',killAdmin);el.addEventListener('focus',killAdmin);}});
 let iv=0;let timer=setInterval(()=>{killAdmin();iv++;if(iv>50)clearInterval(timer);},100);});
-window.addEventListener('load',function(){var fDate=document.getElementById('fDate');if(fDate)fDate.value=getToday();var bar=document.getElementById('whiteBar');if(bar){bar.classList.remove('folded');try{localStorage.setItem('shija_menu_folded','0');}catch(e){}}setupSearch();setTimeout(function(){loadMaster().then(function(){loadAll();setView('list');});},800);var fTime=document.getElementById('fTime');if(fTime)fTime.addEventListener('change',applyFilter);var fBlock=document.getElementById('fBlock');if(fBlock)fBlock.addEventListener('change',applyFilter);var perPage=document.getElementById('perPage');if(perPage)perPage.addEventListener('change',applyFilter);var fSearch=document.getElementById('fSearch');if(fSearch)fSearch.addEventListener('input',applyFilter);if(fDate)fDate.addEventListener('change',applyFilter);});
+window.addEventListener('load',function(){
+var fDate=document.getElementById('fDate');
+if(fDate){
+  var today=getToday();
+  fDate.value=today;
+}
+var bar=document.getElementById('whiteBar');if(bar){bar.classList.remove('folded');try{localStorage.setItem('shija_menu_folded','0');}catch(e){}}
+setupSearch();
+loadMaster().then(function(){
+  loadAll();
+  setView('list');
+  setTimeout(loadDocsCache,800);
+});
+var fTime=document.getElementById('fTime');if(fTime)fTime.addEventListener('change',applyFilter);
+var fBlock=document.getElementById('fBlock');if(fBlock)fBlock.addEventListener('change',applyFilter);
+var perPage=document.getElementById('perPage');if(perPage)perPage.addEventListener('change',applyFilter);
+var fSearch=document.getElementById('fSearch');if(fSearch)fSearch.addEventListener('input',applyFilter);
+if(fDate)fDate.addEventListener('change',applyFilter);
+});
 </script>
 </body>
 </html>
