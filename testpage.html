@@ -167,6 +167,10 @@ tr.mainRow.openRow:hover td{background:#e0e7ff!important}
 <body>
 <div id="mobOverlay" onclick="closeMob()"></div>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}</script>
+<script>
+// INSTANT DATE - SET BEFORE ANYTHING
+window._todayStr = (function(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');})();
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -217,7 +221,7 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <div class="card">
 <div class="label" style="margin-bottom:8px">ADD DISCHARGE PATIENT - ONLY PMJAY - DRAG & DROP ENABLED</div>
 <div class="searchBox">
-<input type="search" id="searchTotal" name="shija_dis_q_9271" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="input" placeholder="SEARCH PMJAY PATIENT - NAME / SHRI / PMJAY..." style="border:1.5px solid #e2e8f0;padding:12px;border-radius:10px;background:#f8fafc;font-weight:600">
+<input type="search" id="searchTotal" name="shija_dis_q_9271" autocomplete="new-password" data-lpignore="true" spellcheck="false" class="input" placeholder="SEARCH PMJAY PATIENT - NAME / SHRI / PMJAY... (INSTANT)" style="border:1.5px solid #e2e8f0;padding:12px;border-radius:10px;background:#f8fafc;font-weight:600">
 <div class="searchResults" id="searchResults"></div>
 </div>
 <div class="addPanel" id="addPanel">
@@ -235,7 +239,12 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <div class="card">
 <div class="filterBox2">
 <div class="filterRow1">
-<div><div class="label" style="font-size:8px">DATE</div><div class="dateNavWrap"><button type="button" class="dateArrowBtn" onclick="changeDateBy(-1)" title="Previous Day">◀</button><input type="date" id="fDate" class="input inputSmall" style="width:130px;border:none;background:transparent;text-align:center"><button type="button" class="dateArrowBtn" onclick="changeDateBy(1)" title="Next Day">▶</button></div></div>
+<div><div class="label" style="font-size:8px">DATE</div><div class="dateNavWrap"><button type="button" class="dateArrowBtn" onclick="changeDateBy(-1)" title="Previous Day">◀</button><input type="date" id="fDate" class="input inputSmall" style="width:130px;border:none;background:transparent;text-align:center"><button type="button" class="dateArrowBtn" onclick="changeDateBy(1)" title="Next Day">▶</button></div>
+<script>
+// DATE FIX - SET IMMEDIATELY INLINE - NO WAIT
+(function(){try{document.getElementById('fDate').value=window._todayStr;}catch(e){}})();
+</script>
+</div>
 <div><div class="label" style="font-size:8px">TIME FILTER</div><select id="fTime" class="input inputSmall" style="width:110px"><option value="">ALL TIME</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
 <div><div class="label" style="font-size:8px">BLOCK FILTER</div><select id="fBlock" class="input inputSmall" style="width:90px"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
 <div><div class="label" style="font-size:8px">PER PAGE</div><select id="perPage" class="input inputSmall" style="width:90px"><option value="12" selected>12</option><option value="24">24</option><option value="36">36</option><option value="48">48</option><option value="60">60</option><option value="96">96</option></select></div>
@@ -280,37 +289,45 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 </div></div>
 
 <script>
-// INSTANT DATE - FIX FOR DATE NOT SHOWING
-(function(){try{var d=new Date();var t=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');var trySet=function(){var el=document.getElementById('fDate');if(el){el.value=t;}};trySet();document.addEventListener('DOMContentLoaded',trySet);}catch(e){}})();
+// INSTANT PATIENT LIST - NO WAIT FOR FIRESTORE
 var allDischarge=[],filtered=[],masterPatients=[],selectedPatient=null,currentPage=1,pageSize=12,isGrid=false,openGridSet=new Set(),lastOpenCleanShri=null,currentFileData=null,currentFileName=null;
 const CHUNK_SIZE=800000;
-function getToday(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');}
+(function initFastPatients(){
+  try{
+    var map={}; var list=[];
+    function add(raw){if(!raw)return;var shri=String(raw.shri||raw.shriId||'').trim().toUpperCase();var name=String(raw.name||raw.patientName||'').trim().toUpperCase();var pmjay=String(raw.pmjay||raw.pmjayId||'').trim().toUpperCase();if(!shri||map[shri])return;map[shri]=1;list.push({shri:shri,name:name||'UNKNOWN',pmjayId:pmjay});}
+    try{var cached=localStorage.getItem('shija_patients_cache'); if(cached){var arr=JSON.parse(cached); arr.forEach(add);}}catch(e){}
+    if(typeof patientData!=='undefined'&&Array.isArray(patientData)){patientData.forEach(add);}
+    masterPatients=list;
+    if(masterPatients.length>0){try{localStorage.setItem('shija_patients_cache',JSON.stringify(masterPatients.slice(0,2000)));}catch(e){}}
+  }catch(e){}
+})();
+function getToday(){return window._todayStr||(function(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');})();}
 function setView(mode){
 isGrid=(mode==='grid');
-var tableWrap=document.getElementById('tableWrap');
-var gridWrap=document.getElementById('gridWrap');
-var btnList=document.getElementById('btnList');
-var btnGrid=document.getElementById('btnGrid');
-if(isGrid){tableWrap.style.display='none';gridWrap.style.display='grid';btnGrid.classList.add('active');btnList.classList.remove('active');btnGrid.style.background='#3c25eb';btnGrid.style.color='#fff';btnList.style.background='transparent';btnList.style.color='#0f172a';}
+var tableWrap=document.getElementById('tableWrap');var gridWrap=document.getElementById('gridWrap');
+var btnList=document.getElementById('btnList');var btnGrid=document.getElementById('btnGrid');
+if(isGrid){tableWrap.style.display='none';gridWrap.style.display='grid';gridWrap.style.gridTemplateColumns='repeat(3,1fr)';btnGrid.classList.add('active');btnList.classList.remove('active');btnGrid.style.background='#3c25eb';btnGrid.style.color='#fff';btnList.style.background='transparent';btnList.style.color='#0f172a';}
 else{tableWrap.style.display='block';gridWrap.style.display='none';btnList.classList.add('active');btnGrid.classList.remove('active');btnList.style.background='#3c25eb';btnList.style.color='#fff';btnGrid.style.background='transparent';btnGrid.style.color='#0f172a';}
-pageSize=parseInt(document.getElementById('perPage').value)||12;currentPage=1;render();}
+try{var pp=document.getElementById('perPage'); if(pp) pageSize=parseInt(pp.value)||12;}catch(e){}
+currentPage=1;render();
+}
 function getDocsForShri(shri){return window._fb._docsCache[shri]||[];}
 async function loadMaster(){
-masterPatients=[];var map={};
-function addToMap(raw){if(!raw)return false;var shri=String(raw.shri||raw.shriId||'').trim().toUpperCase();var name=String(raw.name||raw.patientName||'').trim().toUpperCase();var pmjay=String(raw.pmjay||raw.pmjayId||'').trim().toUpperCase();if(!shri)return false;if(map[shri])return false;map[shri]={shri:shri,name:name||'UNKNOWN',pmjayId:pmjay};return true;}
-try{if(typeof patientData!=='undefined'&&Array.isArray(patientData)){patientData.forEach(function(r){addToMap(r);});}}catch(e){}
-try{if(window._fb){var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patients"));snap.forEach(function(d){addToMap(d.data());});}}catch(e){}
-Object.keys(map).forEach(function(k){masterPatients.push(map[k]);});
+  var map={}; masterPatients.forEach(function(p){map[p.shri]=1;});
+  function add(raw){if(!raw)return false;var shri=String(raw.shri||raw.shriId||'').trim().toUpperCase();var name=String(raw.name||raw.patientName||'').trim().toUpperCase();var pmjay=String(raw.pmjay||raw.pmjayId||'').trim().toUpperCase();if(!shri||map[shri])return false;map[shri]=1;masterPatients.push({shri:shri,name:name||'UNKNOWN',pmjayId:pmjay});return true;}
+  if(typeof patientData!=='undefined'&&Array.isArray(patientData)){patientData.forEach(function(r){add(r);});}
+  try{
+    if(window._fb){
+      var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patients"));
+      var added=0; snap.forEach(function(d){if(add(d.data())) added++;});
+      if(added>0){try{localStorage.setItem('shija_patients_cache',JSON.stringify(masterPatients.slice(0,2000)));}catch(e){}}
+    }
+  }catch(e){}
 }
-async function loadDocsCache(){
-try{
-var snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,"patient_docs"));
-snap2.forEach(function(d){var data=d.data();data._id=d.id;if(!window._fb._docsCache[data.shri])window._fb._docsCache[data.shri]=[];window._fb._docsCache[data.shri].push(data);});
-render();
-}catch(e){}
-}
+async function loadDocsCache(){try{var snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,"patient_docs"));snap2.forEach(function(d){var data=d.data();data._id=d.id;if(!window._fb._docsCache[data.shri])window._fb._docsCache[data.shri]=[];window._fb._docsCache[data.shri].push(data);});render();}catch(e){}}
 async function loadAll(){try{if(!window._fb){setTimeout(loadAll,500);return;}var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges'));allDischarge=[];snap.forEach(function(d){var o=d.data();o._id=d.id;allDischarge.push(o);});allDischarge.sort(function(a,b){return new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0);});}catch(e){}applyFilter();}
-function applyFilter(){var date=document.getElementById('fDate').value;var time=document.getElementById('fTime').value;var block=document.getElementById('fBlock').value;var search=document.getElementById('fSearch').value.toLowerCase().trim();if(search.includes('admin')){document.getElementById('fSearch').value='';search='';}pageSize=parseInt(document.getElementById('perPage').value)||12;filtered=allDischarge.filter(function(p){if(date&&p.date!==date)return false;if(time&&(p.time||'')!==time)return false;if(block&&(p.block||'').toUpperCase()!==block.toUpperCase())return false;if(search){var s=(p.patientName||p.name||'')+" "+(p.shriId||p.shri||'')+" "+(p.pmjayCmhtId||'')+" "+(p.claimId||'');if(s.toLowerCase().indexOf(search)===-1)return false;}return true;});currentPage=1;render();}
+function applyFilter(){var date=document.getElementById('fDate').value;var time=document.getElementById('fTime').value;var block=document.getElementById('fBlock').value;var search=document.getElementById('fSearch').value.toLowerCase().trim();if(search.includes('admin')){document.getElementById('fSearch').value='';search='';}try{var pp=document.getElementById('perPage'); if(pp) pageSize=parseInt(pp.value)||12;}catch(e){}filtered=allDischarge.filter(function(p){if(date&&p.date!==date)return false;if(time&&(p.time||'')!==time)return false;if(block&&(p.block||'').toUpperCase()!==block.toUpperCase())return false;if(search){var s=(p.patientName||p.name||'')+" "+(p.shriId||p.shri||'')+" "+(p.pmjayCmhtId||'')+" "+(p.claimId||'');if(s.toLowerCase().indexOf(search)===-1)return false;}return true;});currentPage=1;render();}
 function handleDragOver(e){e.preventDefault();e.stopPropagation();e.currentTarget.classList.add('dragOver');}
 function handleDragLeave(e){e.preventDefault();e.stopPropagation();e.currentTarget.classList.remove('dragOver');}
 function handleDrop(e){e.preventDefault();e.stopPropagation();e.currentTarget.classList.remove('dragOver');var shri=e.currentTarget.dataset.shri;var type=e.currentTarget.dataset.type;var name=e.currentTarget.dataset.name;var pmjay=e.currentTarget.dataset.pmjay;if(!e.dataTransfer.files||e.dataTransfer.files.length===0) return;uploadFile(e.dataTransfer.files[0],shri,name,pmjay,type);}
@@ -324,7 +341,7 @@ var pmjayShow=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';var shriVal=p.shriId||p.shri
 var mapCount={discharge_summary:0,discharge_photo:0,feedback_form:0};docs.forEach(function(d){if(mapCount.hasOwnProperty(d.type))mapCount[d.type]++;});
 var totalUp=mapCount.discharge_summary+mapCount.discharge_photo+mapCount.feedback_form;var cleanShri=shriVal.replace(/[^a-zA-Z0-9]/g,'_');
 var tr=document.createElement('tr');tr.className='mainRow';tr.id='tr_'+cleanShri;
-var claimTag='';var btnTxt=p.claimId?'EDIT':'Claim';
+var btnTxt=p.claimId?'EDIT':'Claim';
 tr.innerHTML='<td>'+(start+i+1)+'</td><td class="nameCol" title="'+nameVal+'">'+nameVal+'</td><td><span class="shriGray">'+shriVal+'</span></td><td><span class="pmjayBlue">'+pmjayShow+'</span></td><td>'+(p.time||'')+'</td><td>'+(p.block||'')+'</td><td><button class="uploadBtnFold '+(totalUp>0?'done':'')+'" onclick="toggleSlideList(\''+cleanShri+'\')">'+(totalUp>0?'✓ '+totalUp:'UPLOAD')+' '+(lastOpenCleanShri===cleanShri?'▲':'▼')+'</button></td><td class="actionTd"><div class="actionCell"><button class="claimBtn" onclick="openClaimInline(\''+p._id+'\')">'+btnTxt+'</button><div class="claimFold" id="fold-'+p._id+'"><input type="text" id="input-'+p._id+'" placeholder="CLAIM ID" value="'+(p.claimId||'')+'"><button class="btn btnDark btnSmall" onclick="saveClaimInline(\''+p._id+'\')">ADD</button></div><button class="delBtn" onclick="delDischarge(\''+p._id+'\')">X</button></div></td>';
 tbody.appendChild(tr);
 var slideTr=document.createElement('tr');slideTr.className='slideRow';slideTr.id='slide_'+cleanShri;
@@ -357,8 +374,12 @@ var searchTotal=document.getElementById('searchTotal');var searchResults=documen
 searchTotal.addEventListener('input',function(e){
 var q=e.target.value.toLowerCase().trim();if(q.includes('admin')){e.target.value='';searchResults.classList.remove('open');return;}
 if(q.length<1){searchResults.classList.remove('open');return;}
+if(masterPatients.length===0){
+  searchResults.innerHTML='<div class="sItem"><div><div class="sName">Loading patients... '+ (typeof patientData!=='undefined'?patientData.length+' from Patient.js':'') +'</div></div></div>';
+  searchResults.classList.add('open');return;
+}
 var filteredSearch=masterPatients.filter(function(p){var combined=(p.name+" "+p.shri+" "+p.pmjayId).toLowerCase();return combined.indexOf(q)!==-1;}).slice(0,30);
-if(filteredSearch.length===0){searchResults.innerHTML='<div class="sItem"><div><div class="sName">No patient for "'+q+'"</div></div></div>';searchResults.classList.add('open');return;}
+if(filteredSearch.length===0){searchResults.innerHTML='<div class="sItem"><div><div class="sName">No patient for "'+q+'" in '+masterPatients.length+'</div></div></div>';searchResults.classList.add('open');return;}
 var html='';filteredSearch.forEach(function(p){html+='<div class="sItem" onclick="openAddPanel(\''+p.shri+'\')"><div><div class="sName">'+p.name+'</div><div class="sMeta">SHRI: '+p.shri+' | PMJAY: '+p.pmjayId+'</div></div><div class="btn btnGreen btnSmall">SELECT</div></div>';});
 searchResults.innerHTML=html;searchResults.classList.add('open');});
 document.addEventListener('click',function(e){if(!e.target.closest('.searchBox')){document.getElementById('searchResults').classList.remove('open');}if(!e.target.closest('.actionCell')&&!e.target.closest('.gridAction')&&!e.target.closest('.claimFold')){document.querySelectorAll('.claimFold').forEach(function(f){f.classList.remove('show');});}});}
@@ -424,23 +445,19 @@ function killAdmin(){['searchTotal','fSearch'].forEach(id=>{let el=document.getE
 setTimeout(killAdmin,50);setTimeout(killAdmin,300);['searchTotal','fSearch'].forEach(id=>{let el=document.getElementById(id);if(el){el.addEventListener('input',killAdmin);el.addEventListener('focus',killAdmin);}});
 let iv=0;let timer=setInterval(()=>{killAdmin();iv++;if(iv>50)clearInterval(timer);},100);});
 window.addEventListener('load',function(){
-var fDate=document.getElementById('fDate');
-if(fDate){
-  var today=getToday();
-  fDate.value=today;
-}
+try{var fd=document.getElementById('fDate'); if(fd){fd.value=getToday();}}catch(e){}
 var bar=document.getElementById('whiteBar');if(bar){bar.classList.remove('folded');try{localStorage.setItem('shija_menu_folded','0');}catch(e){}}
 setupSearch();
 loadMaster().then(function(){
   loadAll();
   setView('list');
-  setTimeout(loadDocsCache,800);
+  setTimeout(loadDocsCache,500);
 });
 var fTime=document.getElementById('fTime');if(fTime)fTime.addEventListener('change',applyFilter);
 var fBlock=document.getElementById('fBlock');if(fBlock)fBlock.addEventListener('change',applyFilter);
 var perPage=document.getElementById('perPage');if(perPage)perPage.addEventListener('change',applyFilter);
 var fSearch=document.getElementById('fSearch');if(fSearch)fSearch.addEventListener('input',applyFilter);
-if(fDate)fDate.addEventListener('change',applyFilter);
+var fDate=document.getElementById('fDate'); if(fDate)fDate.addEventListener('change',applyFilter);
 });
 </script>
 </body>
