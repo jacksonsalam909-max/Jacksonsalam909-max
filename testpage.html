@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA DISCHARGE - FINAL WORKING</title>
+<title>SHIJA DISCHARGE - FIREBASE PATIENTS</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
@@ -134,7 +134,7 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <div class="sMenu">
 <a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>HOME</a>
 <a href="discharge.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span>DISCHARGE</a>
-</div></div><div class="sFoot">SHIJA • WORKING</div></div>
+</div></div><div class="sFoot">SHIJA • FIREBASE</div></div>
 
 <div class="mainWrap">
 <div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY</div></div>
@@ -143,16 +143,10 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 </div></div>
 
 <div class="content">
-<div class="card" style="background:#dcfce7;border:2px solid #16a34a">
-<div class="label" style="color:#14532d">✅ THIS VERSION WORKS WITHOUT Patient.js - 100% GUARANTEED</div>
-<div style="font-size:10px;font-weight:700;color:#14532d">Patients loaded from: Firestore + Cache + Built-in list. No more infinite loading.</div>
-<div id="debugInfo" style="font-size:9px;font-weight:700;color:#14532d;background:#fff;padding:6px;border-radius:6px;margin-top:6px;border:1px solid #86efac">Initializing...</div>
-</div>
-
 <div class="card">
-<div class="label" style="margin-bottom:8px">ADD DISCHARGE PATIENT - <span id="patientCountBadge" style="background:#f59e0b;color:#000;padding:3px 8px;border-radius:10px;font-size:8px;font-weight:900">LOADING...</span></div>
+<div class="label" style="margin-bottom:8px">ADD DISCHARGE PATIENT - FIREBASE ONLY <span id="patientCountBadge" style="background:#f59e0b;color:#000;padding:3px 8px;border-radius:10px;font-size:8px;font-weight:900">LOADING FROM FIREBASE...</span> <span id="firebaseStatus" style="font-size:8px;font-weight:800;color:#64748b"></span></div>
 <div class="searchBox">
-<input type="search" id="searchTotal" class="input" placeholder="TYPE NAME - TEST, RAM, SITA, SINGH..." style="border:2px solid #16a34a;padding:12px;border-radius:10px;background:#f0fdf4;font-weight:800">
+<input type="search" id="searchTotal" class="input" placeholder="SEARCH FROM FIREBASE - TYPE NAME / SHRI / PMJAY..." style="border:2px solid #3c25eb;padding:12px;border-radius:10px;background:#f8fafc;font-weight:700">
 <div class="searchResults" id="searchResults"></div>
 </div>
 <div class="addPanel" id="addPanel">
@@ -204,39 +198,23 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 </div></div>
 
 <script>
-// 100% WORKING - NO Patient.js NEEDED
+// FIREBASE PATIENTS ONLY - NO Patient.js
 var allDischarge=[],filtered=[],masterPatients=[],selectedPatient=null,currentPage=1,pageSize=12,isGrid=false,openGridSet=new Set(),lastOpenCleanShri=null,currentFileData=null,currentFileName=null;
 const CHUNK_SIZE=800000;
 
-var BUILTIN_PATIENTS=[
-{shri:'SHRI0001',name:'RAM SINGH',pmjayId:'PMJAY0001'},
-{shri:'SHRI0002',name:'SITA DEVI',pmjayId:'PMJAY0002'},
-{shri:'SHRI0003',name:'AJAY KUMAR',pmjayId:'PMJAY0003'},
-{shri:'SHRI0004',name:'PRIYA DEVI',pmjayId:'PMJAY0004'},
-{shri:'SHRI0005',name:'VIJAY SINGH',pmjayId:'PMJAY0005'},
-{shri:'SHRI0006',name:'ANITA DEVI',pmjayId:'PMJAY0006'},
-{shri:'SHRI0007',name:'SUNIL KUMAR',pmjayId:'PMJAY0007'},
-{shri:'SHRI0008',name:'GEETA DEVI',pmjayId:'PMJAY0008'},
-{shri:'SHRI0009',name:'RAJESH SINGH',pmjayId:'PMJAY0009'},
-{shri:'SHRI0010',name:'KAVITA DEVI',pmjayId:'PMJAY0010'},
-{shri:'SHRI0011',name:'MANOJ KUMAR',pmjayId:'PMJAY0011'},
-{shri:'SHRI0012',name:'REKHA DEVI',pmjayId:'PMJAY0012'},
-{shri:'SHRI0013',name:'DEEPAK SINGH',pmjayId:'PMJAY0013'},
-{shri:'SHRI0014',name:'POOJA DEVI',pmjayId:'PMJAY0014'},
-{shri:'SHRI0015',name:'SANJAY KUMAR',pmjayId:'PMJAY0015'}
-];
-
-function debug(msg){
-  var el=document.getElementById('debugInfo');
-  if(el) el.innerHTML+='<br>'+msg;
-  console.log(msg);
-}
-
 function updateBadge(){
   var el=document.getElementById('patientCountBadge');
+  var status=document.getElementById('firebaseStatus');
   if(el){
-    el.textContent=masterPatients.length+' READY ✅ - TYPE TO SEARCH';
-    el.style.background='#16a34a'; el.style.color='#fff';
+    if(masterPatients.length>0){
+      el.textContent=masterPatients.length+' FROM FIREBASE ✅';
+      el.style.background='#16a34a'; el.style.color='#fff';
+      if(status) status.textContent='Firebase patients collection has '+masterPatients.length+' docs - search works';
+    } else {
+      el.textContent='0 FROM FIREBASE ❌';
+      el.style.background='#ef4444'; el.style.color='#fff';
+      if(status) status.textContent='Firestore patients collection is EMPTY! Add patients via total.html or check Firebase rules';
+    }
   }
 }
 
@@ -244,58 +222,46 @@ function addRaw(raw, map){
   if(!raw) return null;
   var shri=String(raw.shri||raw.shriId||'').trim().toUpperCase();
   var name=String(raw.name||raw.patientName||'').trim().toUpperCase();
-  var pmjay=String(raw.pmjay||raw.pmjayId||'').trim().toUpperCase();
+  var pmjay=String(raw.pmjay||raw.pmjayId||raw.pmjayCmhtId||'').trim().toUpperCase();
   if(!shri||map[shri]) return null;
   map[shri]=1;
   return {shri:shri,name:name||'UNKNOWN',pmjayId:pmjay};
 }
 
 async function loadMaster(){
-  debug('--- START - NO Patient.js dependency ---');
-  var map={};
-  // 1. Built-in 15 patients - ALWAYS WORKS
-  BUILTIN_PATIENTS.forEach(function(p){
-    if(!map[p.shri]){masterPatients.push(p); map[p.shri]=1;}
-  });
-  debug('✅ Built-in: '+BUILTIN_PATIENTS.length+' patients loaded - SEARCH WORKS NOW');
-  updateBadge();
-  // 2. Cache
+  console.log('Loading patients from Firebase...');
+  var badge=document.getElementById('patientCountBadge');
+  if(badge){badge.textContent='FETCHING FROM FIREBASE...'; badge.style.background='#f59e0b'; badge.style.color='#000';}
   try{
-    var cached=localStorage.getItem('shija_patients_cache');
-    if(cached){
-      var arr=JSON.parse(cached);
-      if(Array.isArray(arr)&&arr.length>0){
-        var added=0;
-        arr.forEach(function(r){var o=addRaw(r,map); if(o){masterPatients.push(o); added++;}});
-        debug('✅ Cache: +'+added+' total '+masterPatients.length);
-        updateBadge();
-      }
+    if(!window._fb || !window._fb.db){
+      console.log('Firebase not ready, retry in 500ms');
+      setTimeout(loadMaster,500);
+      return;
     }
-  }catch(e){}
-  // 3. Try Patient.js if exists (optional)
-  if(typeof patientData!=='undefined'&&Array.isArray(patientData)&&patientData.length>0){
+    var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patients"));
+    console.log('Firestore patients count:',snap.size);
+    if(snap.size===0){
+      console.log('Firestore patients collection EMPTY');
+      masterPatients=[];
+      updateBadge();
+      return;
+    }
+    var map={}; masterPatients=[];
     var added=0;
-    patientData.forEach(function(r){var o=addRaw(r,map); if(o){masterPatients.push(o); added++;}});
-    debug('✅ Patient.js: +'+added+' total '+masterPatients.length);
+    snap.forEach(function(d){
+      var data=d.data();
+      var o=addRaw(data,map);
+      if(o){masterPatients.push(o); added++;}
+    });
+    console.log('Loaded '+added+' patients from Firebase');
+    // Save cache for speed next time
+    try{localStorage.setItem('shija_patients_cache',JSON.stringify(masterPatients.slice(0,5000)));}catch(e){}
     updateBadge();
-  } else {
-    debug('Patient.js not found - skipping (not needed)');
+  }catch(e){
+    console.error('Firebase load error:',e);
+    var badge=document.getElementById('patientCountBadge');
+    if(badge){badge.textContent='FIREBASE ERROR: '+e.message; badge.style.background='#ef4444'; badge.style.color='#fff';}
   }
-  // 4. Firestore patients collection
-  try{
-    if(window._fb && window._fb.db){
-      debug('Fetching Firestore patients...');
-      var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patients"));
-      debug('Firestore patients: '+snap.size+' docs');
-      var added=0;
-      snap.forEach(function(d){var o=addRaw(d.data(),map); if(o){masterPatients.push(o); added++;}});
-      if(added>0){debug('✅ Firestore: +'+added+' total '+masterPatients.length); updateBadge();}
-    }
-  }catch(e){debug('Firestore error: '+e.message);}
-  // Save cache
-  try{localStorage.setItem('shija_patients_cache',JSON.stringify(masterPatients.slice(0,5000)));}catch(e){}
-  debug('--- FINAL READY: '+masterPatients.length+' patients - TYPE RAM, SITA, SINGH TO TEST ---');
-  updateBadge();
 }
 
 function getToday(){return window._todayStr||(function(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');})();}
@@ -350,8 +316,12 @@ var searchTotal=document.getElementById('searchTotal');var searchResults=documen
 searchTotal.addEventListener('input',function(e){
 var q=e.target.value.toLowerCase().trim();if(q.includes('admin')){e.target.value='';searchResults.classList.remove('open');return;}
 if(q.length<1){searchResults.classList.remove('open');return;}
+if(masterPatients.length===0){
+  searchResults.innerHTML='<div class="sItem"><div><div class="sName">No patients in Firebase patients collection</div><div class="sMeta">Firestore patients is empty - add patients in total.html or check Firebase console</div></div></div>';
+  searchResults.classList.add('open');return;
+}
 var filteredSearch=masterPatients.filter(function(p){var combined=(p.name+" "+p.shri+" "+p.pmjayId).toLowerCase();return combined.indexOf(q)!==-1;}).slice(0,30);
-if(filteredSearch.length===0){searchResults.innerHTML='<div class="sItem"><div><div class="sName">No patient for "'+q+'" in '+masterPatients.length+'</div></div></div>';searchResults.classList.add('open');return;}
+if(filteredSearch.length===0){searchResults.innerHTML='<div class="sItem"><div><div class="sName">No patient for "'+q+'" in '+masterPatients.length+' Firebase patients</div></div></div>';searchResults.classList.add('open');return;}
 var html='';filteredSearch.forEach(function(p){html+='<div class="sItem" onclick="openAddPanel(\''+p.shri+'\')"><div><div class="sName">'+p.name+'</div><div class="sMeta">SHRI: '+p.shri+' | PMJAY: '+p.pmjayId+'</div></div><div class="btn btnGreen btnSmall">SELECT</div></div>';});
 searchResults.innerHTML=html;searchResults.classList.add('open');});
 document.addEventListener('click',function(e){if(!e.target.closest('.searchBox')){document.getElementById('searchResults').classList.remove('open');}if(!e.target.closest('.actionCell')&&!e.target.closest('.gridAction')&&!e.target.closest('.claimFold')){document.querySelectorAll('.claimFold').forEach(function(f){f.classList.remove('show');});}});}
@@ -396,29 +366,6 @@ var fBlock=document.getElementById('fBlock');if(fBlock)fBlock.addEventListener('
 var perPage=document.getElementById('perPage');if(perPage)perPage.addEventListener('change',applyFilter);
 var fSearch=document.getElementById('fSearch');if(fSearch)fSearch.addEventListener('input',applyFilter);
 var fDate=document.getElementById('fDate');if(fDate)fDate.addEventListener('change',applyFilter);
-// Try to load Patient.js in background - if it exists, it will be added
-var s=document.createElement('script');
-s.src='Patient.js?v='+Date.now();
-s.onload=function(){
-  if(typeof patientData!=='undefined'&&Array.isArray(patientData)){
-    var map={}; masterPatients.forEach(function(p){map[p.shri]=1;});
-    var added=0;
-    patientData.forEach(function(r){
-      var shri=String(r.shri||r.shriId||'').trim().toUpperCase();
-      if(!shri||map[shri]) return;
-      map[shri]=1;
-      masterPatients.push({shri:shri,name:String(r.name||r.patientName||'UNKNOWN').toUpperCase(),pmjayId:String(r.pmjay||r.pmjayId||'').toUpperCase()});
-      added++;
-    });
-    if(added>0){
-      try{localStorage.setItem('shija_patients_cache',JSON.stringify(masterPatients.slice(0,5000)));}catch(e){}
-      updateBadge();
-      debug('✅ Patient.js background loaded: +'+added+' total '+masterPatients.length);
-    }
-  }
-};
-s.onerror=function(){debug('Patient.js not found - using built-in + Firestore (this is OK)');};
-document.head.appendChild(s);
 });
 </script>
 </body>
