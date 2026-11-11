@@ -6,9 +6,9 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA DISCHARGE - DRAG DROP FINAL</title>
+<title>SHIJA DISCHARGE</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="Patient.js?v=DATE_CAN_CHANGE"></script>
+<script src="Patient.js?v=INLINE_FINAL"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
@@ -181,7 +181,7 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
-<div class="sHead"><div class="sLogo"><img src="logoc.png?v=CANCHANGE" id="logoImg" alt="SHIJA" onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'"><b id="logoFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:#0f172a;color:#fff;font-weight:900;border-radius:12px">S</b></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
+<div class="sHead"><div class="sLogo"><img src="logoc.png?v=INLINE_FINAL" id="logoImg" alt="SHIJA" onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'"><b id="logoFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:#0f172a;color:#fff;font-weight:900;border-radius:12px">S</b></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
 <div class="sMenu">
 <a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
 <a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
@@ -233,7 +233,25 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <div class="card">
 <div class="filterBox2">
 <div class="filterRow1">
-<div><div class="label" style="font-size:8px">DATE</div><div class="dateNavWrap"><button type="button" class="dateArrowBtn" onclick="changeDateBy(-1)">◀</button><input type="date" id="fDate" autocomplete="off"><button type="button" class="dateArrowBtn" onclick="changeDateBy(1)">▶</button></div></div>
+<div><div class="label" style="font-size:8px">DATE</div><div class="dateNavWrap"><button type="button" class="dateArrowBtn" onclick="changeDateBy(-1)">◀</button><input type="date" id="fDate"><button type="button" class="dateArrowBtn" onclick="changeDateBy(1)">▶</button></div><script>
+(function(){
+  var el=document.getElementById('fDate');
+  if(el){
+    var now=new Date();
+    var yyyy=now.getFullYear();
+    var mm=String(now.getMonth()+1).padStart(2,'0');
+    var dd=String(now.getDate()).padStart(2,'0');
+    var today=yyyy+'-'+mm+'-'+dd;
+    el.value=today;
+    el.setAttribute('value',today);
+    try{ el.valueAsDate=now; }catch(e){}
+    el.style.background='#fff';
+    el.style.color='#0f172a';
+    el.style.opacity='1';
+    el.style.webkitTextFillColor='#0f172a';
+  }
+})();
+</script></div>
 <div><div class="label" style="font-size:8px">TIME FILTER</div><select id="fTime" class="input inputSmall" style="width:110px"><option value="">ALL TIME</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
 <div><div class="label" style="font-size:8px">BLOCK FILTER</div><select id="fBlock" class="input inputSmall" style="width:90px"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
 <div><div class="label" style="font-size:8px">PER PAGE</div><select id="perPage" class="input inputSmall" style="width:90px"><option value="12" selected>12</option><option value="24">24</option><option value="36">36</option><option value="48">48</option><option value="60">60</option><option value="96">96</option></select></div>
@@ -278,29 +296,9 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 </div></div>
 
 <script>
-// DATE FIX - CAN CHANGE NOW
-function getToday(){
-  var d=new Date();
-  var tz=d.getTimezoneOffset()*60000;
-  var local=new Date(Date.now()-tz);
-  return local.toISOString().slice(0,10);
-}
-let userChangedDate = false;
-function forceSetDate(force){
-  var el=document.getElementById('fDate');
-  if(!el) return false;
-  if(userChangedDate && !force) return true;
-  var t=getToday();
-  if(!el.value || force){
-    el.value=t;
-  }
-  return true;
-}
-(function(){
-  forceSetDate(true);
-  document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>forceSetDate(true),50));
-  window.addEventListener('load',()=>setTimeout(()=>forceSetDate(true),50));
-})();
+function getToday(){var d=new Date();var tz=d.getTimezoneOffset()*60000;var local=new Date(Date.now()-tz);return local.toISOString().slice(0,10);}
+let userChangedDate=false;
+function forceSetDateIfEmpty(){var el=document.getElementById('fDate');if(!el)return;if(!el.value){el.value=getToday();}}
 var allDischarge=[],filtered=[],masterPatients=[],selectedPatient=null,currentPage=1,pageSize=12,isGrid=false,openGridSet=new Set(),lastOpenCleanShri=null,currentFileData=null,currentFileName=null;
 const CHUNK_SIZE=800000;
 function setView(mode){
@@ -395,15 +393,7 @@ gc.innerHTML='<div><div class="gridName" title="'+nameVal+'">'+nameVal+'</div><d
 grid.appendChild(gc);});
 if(lastOpenCleanShri){var s=document.getElementById('slide_'+lastOpenCleanShri);var r=document.getElementById('tr_'+lastOpenCleanShri);if(s)s.classList.add('show');if(r)r.classList.add('openRow');}}
 function changePage(d){var tp=Math.max(1,Math.ceil(filtered.length/pageSize));currentPage+=d;if(currentPage<1)currentPage=1;if(currentPage>tp)currentPage=tp;render();}
-function clearFilters(){
-  userChangedDate = false;
-  var fd=document.getElementById('fDate');
-  if(fd) fd.value=getToday();
-  document.getElementById('fTime').value='';
-  document.getElementById('fBlock').value='';
-  document.getElementById('fSearch').value='';
-  applyFilter();
-}
+function clearFilters(){userChangedDate=false;var fd=document.getElementById('fDate');if(fd)fd.value=getToday();document.getElementById('fTime').value='';document.getElementById('fBlock').value='';document.getElementById('fSearch').value='';applyFilter();}
 function setupSearch(){
 var searchTotal=document.getElementById('searchTotal');var searchResults=document.getElementById('searchResults');if(!searchTotal||!searchResults) return;
 searchTotal.addEventListener('input',function(e){
@@ -421,7 +411,7 @@ async function delDischarge(id){if(!confirm('DELETE DISCHARGE?'))return;try{awai
 function toggleSlideList(cleanShri){var slide=document.getElementById('slide_'+cleanShri);var isShow=slide&&slide.classList.contains('show');document.querySelectorAll('.slideRow').forEach(function(r){r.classList.remove('show');});document.querySelectorAll('.mainRow').forEach(function(r){r.classList.remove('openRow');});if(!isShow){if(slide)slide.classList.add('show');var row=document.getElementById('tr_'+cleanShri);if(row)row.classList.add('openRow');lastOpenCleanShri=cleanShri;}else{lastOpenCleanShri=null;}}
 function toggleSlideGrid(cleanShri){var docsDiv=document.getElementById('gridDocs_'+cleanShri);if(!docsDiv)return;var isOpen=docsDiv.style.display==='flex';if(isOpen){docsDiv.style.display='none';openGridSet.delete(cleanShri);}else{docsDiv.style.display='flex';openGridSet.add(cleanShri);}var gridCard=document.getElementById('grid_'+cleanShri);if(gridCard){var btn=gridCard.querySelector('.uploadBtnFold');if(btn){btn.textContent=(btn.textContent.includes('✓')?'✓ ':'UPLOAD ')+(isOpen?'▼':'▲');}}}
 function triggerUpload(cleanShri,type,shri){var docs=getDocsForShri(shri).filter(function(d){return d.type===type;});if(docs.length>0){openFileModal(docs[0]._id,shri);}else{document.getElementById('file_'+cleanShri+'_'+type).click();}}
-async function uploadFile(file,shri,name,pmjay,type){if(!file)return;if(file.size>10*1024*1024){alert('Max 10MB');return;}var cleanShri=shri.replace(/[^a-zA-Z0-9]/g,'_');var base64=await new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result);};r.readAsDataURL(file);});var id=cleanShri+'_'+type+'_'+Date.now();try{var chunks=[];for(var i=0;i<base64.length;i+=CHUNK_SIZE){chunks.push(base64.substring(i,i+CHUNK_SIZE));}await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:shri,cleanShri:cleanShri,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type||'application/octet-stream',size:file.size,chunkCount:chunks.length,createdAt:Date.now()});for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}if(!window._fb._docsCache[shri])window._fb._docsCache[shri]=[];window._fb._docsCache[shri].push({_id:id,[STRIPPED] Uploaded '+file.name);}catch(e){alert(e.message);}}
+async function uploadFile(file,shri,name,pmjay,type){if(!file)return;if(file.size>10*1024*1024){alert('Max 10MB');return;}var cleanShri=shri.replace(/[^a-zA-Z0-9]/g,'_');var base64=await new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result);};r.readAsDataURL(file);});var id=cleanShri+'_'+type+'_'+Date.now();try{var chunks=[];for(var i=0;i<base64.length;i+=CHUNK_SIZE){chunks.push(base64.substring(i,i+CHUNK_SIZE));}await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:shri,cleanShri:cleanShri,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type||'application/octet-stream',size:file.size,chunkCount:chunks.length,createdAt:Date.now()});for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}if(!window._fb._docsCache[shri])window._fb._docsCache[shri]=[];window._fb._docsCache[shri].push({_id:id,type:type,shri:shri,cleanShri:cleanShri,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type,size:file.size,chunkCount:chunks.length,createdAt:Date.now()});render();alert('✓ Uploaded '+file.name);}catch(e){alert(e.message);}}
 async function getFullData(id){try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));var arr=[];snap.forEach(function(d){arr.push(d.data());});arr.sort(function(a,b){return a.index-b.index;});return arr.map(function(a){return a.data;}).join('');}catch(e){return null;}}
 function getCleanDownloadName(meta){
   try{
@@ -457,13 +447,7 @@ async function openFileModal(id,shri){
   applyZoom();
   document.getElementById('fileModal').classList.add('show');
 }
-function downloadCurrent(){
-  if(!currentFileData)return;
-  var a=document.createElement('a');
-  a.href=currentFileData;
-  a.download=currentFileName||'SHIJA_FILE.pdf';
-  a.click();
-}
+function downloadCurrent(){if(!currentFileData)return;var a=document.createElement('a');a.href=currentFileData;a.download=currentFileName||'SHIJA_FILE.pdf';a.click();}
 function zoomIn(){window._fb._currentZoom=Math.min(window._fb._currentZoom+0.25,3);applyZoom();}
 function zoomOut(){window._fb._currentZoom=Math.max(window._fb._currentZoom-0.25,0.5);applyZoom();}
 function resetZoom(){window._fb._currentZoom=1;applyZoom();}
@@ -472,21 +456,17 @@ function closeModal(){document.getElementById('fileModal').classList.remove('sho
 async function delDoc(id,shri){var csnap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));for(var d of csnap.docs){await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',d.id));}await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',id));if(window._fb._docsCache[shri]){window._fb._docsCache[shri]=window._fb._docsCache[shri].filter(function(d){return d._id!==id;});}render();}
 async function deleteSpecific(shri,type){var docs=getDocsForShri(shri).filter(function(d){return d.type===type;});if(docs.length===0)return;await delDoc(docs[0]._id,shri);}
 function openClaimInline(id){var fold=document.getElementById('fold-'+id);var isShow=fold.classList.contains('show');document.querySelectorAll('.claimFold').forEach(function(f){f.classList.remove('show');});if(!isShow){fold.classList.add('show');setTimeout(function(){var inp=document.getElementById('input-'+id);if(inp)inp.focus();},100);}}
-function closeClaimInline(id){document.getElementById('fold-'+id).classList.remove('show');}
 function openClaimInlineGrid(id){var fold=document.getElementById('gfold-'+id);var isShow=fold.classList.contains('show');document.querySelectorAll('.claimFold').forEach(function(f){f.classList.remove('show');});if(!isShow){fold.classList.add('show');setTimeout(function(){var inp=document.getElementById('ginput-'+id);if(inp)inp.focus();},100);}}
-function closeClaimInlineGrid(id){document.getElementById('gfold-'+id).classList.remove('show');}
 async function saveClaimInline(id){var claimId=document.getElementById('input-'+id).value.trim().toUpperCase();if(!claimId)return;var data=allDischarge.find(function(x){return x._id===id;});try{await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...data,claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});document.getElementById('fold-'+id).classList.remove('show');location.href='claim.html?claimId='+encodeURIComponent(claimId);}catch(e){alert(e.message);}}
 async function saveClaimInlineGrid(id){var claimId=document.getElementById('ginput-'+id).value.trim().toUpperCase();if(!claimId)return;var data=allDischarge.find(function(x){return x._id===id;});try{await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...data,claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});document.getElementById('gfold-'+id).classList.remove('show');location.href='claim.html?claimId='+encodeURIComponent(claimId);}catch(e){alert(e.message);}}
 function changeDateBy(days){
-  userChangedDate = true;
+  userChangedDate=true;
   var input=document.getElementById('fDate');
   if(!input) return;
   var base = input.value ? new Date(input.value) : new Date();
   base.setDate(base.getDate() + days);
-  var y = base.getFullYear();
-  var m = String(base.getMonth()+1).padStart(2,'0');
-  var d = String(base.getDate()).padStart(2,'0');
-  input.value = y+'-'+m+'-'+d;
+  var y=base.getFullYear();var m=String(base.getMonth()+1).padStart(2,'0');var d=String(base.getDate()).padStart(2,'0');
+  input.value=y+'-'+m+'-'+d;
   applyFilter();
 }
 </script>
