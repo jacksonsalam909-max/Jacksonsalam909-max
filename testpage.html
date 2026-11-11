@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>SHIJA DISCHARGE - DRAG DROP FINAL</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="Patient.js?v=MOBILE_DATE_FINAL"></script>
+<script src="Patient.js?v=DATE_CAN_CHANGE"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
@@ -181,7 +181,7 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
-<div class="sHead"><div class="sLogo"><img src="logoc.png?v=MOBILE" id="logoImg" alt="SHIJA" onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'"><b id="logoFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:#0f172a;color:#fff;font-weight:900;border-radius:12px">S</b></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
+<div class="sHead"><div class="sLogo"><img src="logoc.png?v=CANCHANGE" id="logoImg" alt="SHIJA" onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'"><b id="logoFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:#0f172a;color:#fff;font-weight:900;border-radius:12px">S</b></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
 <div class="sMenu">
 <a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
 <a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
@@ -278,29 +278,28 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 </div></div>
 
 <script>
+// DATE FIX - CAN CHANGE NOW
 function getToday(){
   var d=new Date();
   var tz=d.getTimezoneOffset()*60000;
   var local=new Date(Date.now()-tz);
   return local.toISOString().slice(0,10);
 }
-function forceSetDate(){
+let userChangedDate = false;
+function forceSetDate(force){
   var el=document.getElementById('fDate');
   if(!el) return false;
+  if(userChangedDate && !force) return true;
   var t=getToday();
-  try{
+  if(!el.value || force){
     el.value=t;
-    el.setAttribute('value',t);
-    if(!el.value) el.valueAsDate=new Date();
-  }catch(e){ el.value=t; }
+  }
   return true;
 }
 (function(){
-  forceSetDate();
-  document.addEventListener('DOMContentLoaded',()=>{ setTimeout(forceSetDate,50); setTimeout(forceSetDate,300); });
-  window.addEventListener('load',()=>{ setTimeout(forceSetDate,50); setTimeout(forceSetDate,800); });
-  window.addEventListener('pageshow',()=>setTimeout(forceSetDate,100));
-  let c=0; let iv=setInterval(()=>{ forceSetDate(); c++; if(c>25) clearInterval(iv); },400);
+  forceSetDate(true);
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>forceSetDate(true),50));
+  window.addEventListener('load',()=>setTimeout(()=>forceSetDate(true),50));
 })();
 var allDischarge=[],filtered=[],masterPatients=[],selectedPatient=null,currentPage=1,pageSize=12,isGrid=false,openGridSet=new Set(),lastOpenCleanShri=null,currentFileData=null,currentFileName=null;
 const CHUNK_SIZE=800000;
@@ -336,13 +335,11 @@ allDischarge=[];snap.forEach(function(d){var o=d.data();o._id=d.id;allDischarge.
 allDischarge.sort(function(a,b){return new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0);});
 applyFilter();
 }catch(e){
-console.log('loadAll error',e);
 allDischarge=[]; filtered=[]; 
 document.getElementById('tbody').innerHTML='<tr><td colspan="8" style="padding:20px">NO DISCHARGED - '+e.message+'</td></tr>';
 }
 }
 function applyFilter(){
-forceSetDate();
 var date=document.getElementById('fDate').value;
 var time=document.getElementById('fTime').value;
 var block=document.getElementById('fBlock').value;
@@ -398,7 +395,15 @@ gc.innerHTML='<div><div class="gridName" title="'+nameVal+'">'+nameVal+'</div><d
 grid.appendChild(gc);});
 if(lastOpenCleanShri){var s=document.getElementById('slide_'+lastOpenCleanShri);var r=document.getElementById('tr_'+lastOpenCleanShri);if(s)s.classList.add('show');if(r)r.classList.add('openRow');}}
 function changePage(d){var tp=Math.max(1,Math.ceil(filtered.length/pageSize));currentPage+=d;if(currentPage<1)currentPage=1;if(currentPage>tp)currentPage=tp;render();}
-function clearFilters(){document.getElementById('fTime').value='';document.getElementById('fBlock').value='';document.getElementById('fSearch').value='';applyFilter();}
+function clearFilters(){
+  userChangedDate = false;
+  var fd=document.getElementById('fDate');
+  if(fd) fd.value=getToday();
+  document.getElementById('fTime').value='';
+  document.getElementById('fBlock').value='';
+  document.getElementById('fSearch').value='';
+  applyFilter();
+}
 function setupSearch(){
 var searchTotal=document.getElementById('searchTotal');var searchResults=document.getElementById('searchResults');if(!searchTotal||!searchResults) return;
 searchTotal.addEventListener('input',function(e){
@@ -416,7 +421,7 @@ async function delDischarge(id){if(!confirm('DELETE DISCHARGE?'))return;try{awai
 function toggleSlideList(cleanShri){var slide=document.getElementById('slide_'+cleanShri);var isShow=slide&&slide.classList.contains('show');document.querySelectorAll('.slideRow').forEach(function(r){r.classList.remove('show');});document.querySelectorAll('.mainRow').forEach(function(r){r.classList.remove('openRow');});if(!isShow){if(slide)slide.classList.add('show');var row=document.getElementById('tr_'+cleanShri);if(row)row.classList.add('openRow');lastOpenCleanShri=cleanShri;}else{lastOpenCleanShri=null;}}
 function toggleSlideGrid(cleanShri){var docsDiv=document.getElementById('gridDocs_'+cleanShri);if(!docsDiv)return;var isOpen=docsDiv.style.display==='flex';if(isOpen){docsDiv.style.display='none';openGridSet.delete(cleanShri);}else{docsDiv.style.display='flex';openGridSet.add(cleanShri);}var gridCard=document.getElementById('grid_'+cleanShri);if(gridCard){var btn=gridCard.querySelector('.uploadBtnFold');if(btn){btn.textContent=(btn.textContent.includes('✓')?'✓ ':'UPLOAD ')+(isOpen?'▼':'▲');}}}
 function triggerUpload(cleanShri,type,shri){var docs=getDocsForShri(shri).filter(function(d){return d.type===type;});if(docs.length>0){openFileModal(docs[0]._id,shri);}else{document.getElementById('file_'+cleanShri+'_'+type).click();}}
-async function uploadFile(file,shri,name,pmjay,type){if(!file)return;if(file.size>10*1024*1024){alert('Max 10MB');return;}var cleanShri=shri.replace(/[^a-zA-Z0-9]/g,'_');var base64=await new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result);};r.readAsDataURL(file);});var id=cleanShri+'_'+type+'_'+Date.now();try{var chunks=[];for(var i=0;i<base64.length;i+=CHUNK_SIZE){chunks.push(base64.substring(i,i+CHUNK_SIZE));}await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:shri,cleanShri:cleanShri,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type||'application/octet-stream',size:file.size,chunkCount:chunks.length,createdAt:Date.now()});for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}if(!window._fb._docsCache[shri])window._fb._docsCache[shri]=[];window._fb._docsCache[shri].push({_id:id,type:type,shri:shri,fileName:file.name});render();alert('✓ Uploaded '+file.name);}catch(e){alert(e.message);}}
+async function uploadFile(file,shri,name,pmjay,type){if(!file)return;if(file.size>10*1024*1024){alert('Max 10MB');return;}var cleanShri=shri.replace(/[^a-zA-Z0-9]/g,'_');var base64=await new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result);};r.readAsDataURL(file);});var id=cleanShri+'_'+type+'_'+Date.now();try{var chunks=[];for(var i=0;i<base64.length;i+=CHUNK_SIZE){chunks.push(base64.substring(i,i+CHUNK_SIZE));}await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:shri,cleanShri:cleanShri,patientName:name,ip:pmjay,fileName:file.name,fileType:file.type||'application/octet-stream',size:file.size,chunkCount:chunks.length,createdAt:Date.now()});for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}if(!window._fb._docsCache[shri])window._fb._docsCache[shri]=[];window._fb._docsCache[shri].push({_id:id,[STRIPPED] Uploaded '+file.name);}catch(e){alert(e.message);}}
 async function getFullData(id){try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));var arr=[];snap.forEach(function(d){arr.push(d.data());});arr.sort(function(a,b){return a.index-b.index;});return arr.map(function(a){return a.data;}).join('');}catch(e){return null;}}
 function getCleanDownloadName(meta){
   try{
@@ -473,6 +478,7 @@ function closeClaimInlineGrid(id){document.getElementById('gfold-'+id).classList
 async function saveClaimInline(id){var claimId=document.getElementById('input-'+id).value.trim().toUpperCase();if(!claimId)return;var data=allDischarge.find(function(x){return x._id===id;});try{await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...data,claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});document.getElementById('fold-'+id).classList.remove('show');location.href='claim.html?claimId='+encodeURIComponent(claimId);}catch(e){alert(e.message);}}
 async function saveClaimInlineGrid(id){var claimId=document.getElementById('ginput-'+id).value.trim().toUpperCase();if(!claimId)return;var data=allDischarge.find(function(x){return x._id===id;});try{await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...data,claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});document.getElementById('gfold-'+id).classList.remove('show');location.href='claim.html?claimId='+encodeURIComponent(claimId);}catch(e){alert(e.message);}}
 function changeDateBy(days){
+  userChangedDate = true;
   var input=document.getElementById('fDate');
   if(!input) return;
   var base = input.value ? new Date(input.value) : new Date();
@@ -510,20 +516,22 @@ function killAdmin(){['searchTotal','fSearch'].forEach(id=>{let el=document.getE
 setTimeout(killAdmin,50);setTimeout(killAdmin,300);['searchTotal','fSearch'].forEach(id=>{let el=document.getElementById(id);if(el){el.addEventListener('input',killAdmin);el.addEventListener('focus',killAdmin);}});
 let iv=0;let timer=setInterval(()=>{killAdmin();iv++;if(iv>50)clearInterval(timer);},100);});
 window.addEventListener('load',function(){
-forceSetDate();
 var bar=document.getElementById('whiteBar');if(bar){bar.classList.remove('folded');try{localStorage.setItem('shija_menu_folded','0');}catch(e){}}
 setupSearch();
 loadMaster().then(function(){
-  forceSetDate();
   loadAll();
   setView('list');
-  setTimeout(function(){ forceSetDate(); loadDocsCache(); },800);
+  setTimeout(loadDocsCache,800);
 });
 var fTime=document.getElementById('fTime');if(fTime)fTime.addEventListener('change',applyFilter);
 var fBlock=document.getElementById('fBlock');if(fBlock)fBlock.addEventListener('change',applyFilter);
 var perPage=document.getElementById('perPage');if(perPage)perPage.addEventListener('change',applyFilter);
 var fSearch=document.getElementById('fSearch');if(fSearch)fSearch.addEventListener('input',applyFilter);
-var fDate=document.getElementById('fDate');if(fDate)fDate.addEventListener('change',applyFilter);
+var fDate=document.getElementById('fDate');
+if(fDate){
+  fDate.addEventListener('change',function(){ userChangedDate=true; applyFilter(); });
+  fDate.addEventListener('input',function(){ userChangedDate=true; });
+}
 });
 </script>
 </body>
