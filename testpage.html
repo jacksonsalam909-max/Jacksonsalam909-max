@@ -2,129 +2,122 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>DINO GAME</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHIJA HRONE - ROSTER & ATTENDANCE</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
-body{background:#f8fafc;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh}
-h2{font-weight:900;color:#0f172a;margin-bottom:8px}
-#game{border:2px solid #0f172a;background:#fff;border-radius:8px;touch-action:manipulation}
-.info{margin-top:8px;display:flex;gap:12px;font-weight:800;font-size:12px}
-.btn{padding:6px 16px;border-radius:20px;border:1.5px solid #0f172a;background:#fff;font-weight:800;cursor:pointer}
-#score{color:#3c25eb}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
+body{background:#f5f7fb;display:flex;min-height:100vh}
+.sidebar{width:240px;background:#111827;color:#9ca3af;position:fixed;left:0;top:0;bottom:0;padding:16px 10px;display:flex;flex-direction:column}
+.sidebar b{color:#fff;font-size:14px;display:block;margin-bottom:12px}
+.sidebar a{display:flex;gap:10px;padding:10px;border-radius:8px;text-decoration:none;color:#9ca3af;font-size:12px;font-weight:600;margin-bottom:4px}
+.sidebar a.active{background:#1f2937;color:#fff}
+.main{margin-left:240px;flex:1;padding:16px;max-width:100%}
+.topbar{background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.card{background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:14px;margin-bottom:12px}
+.label{font-size:8px;font-weight:900;color:#6b7280;letter-spacing:0.5px}
+.input{padding:8px 10px;border:1.5px solid #d1d5db;border-radius:8px;font-weight:700;font-size:11px;outline:0}
+.btn{padding:8px 14px;border-radius:8px;border:0;font-weight:800;font-size:11px;cursor:pointer}
+.btnDark{background:#111827;color:#fff} .btnBlue{background:#4f46e5;color:#fff} .btnGreen{background:#10b981;color:#fff}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kpi{padding:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff}
+.kpi b{font-size:22px;color:#111827} .kpi span{font-size:10px;color:#6b7280;font-weight:700;display:block}
+.sheet{overflow:auto;max-height:60vh;border-radius:10px;border:1.5px solid #e5e7eb}
+table{border-collapse:collapse;width:100%;min-width:900px}
+th{background:#111827;color:#fff;padding:8px 6px;font-size:8px;position:sticky;top:0;text-align:center}
+td{border-bottom:1px solid #e5e7eb;padding:6px;font-size:10px;text-align:center;font-weight:700;height:38px}
+td.name{text-align:left;position:sticky;left:0;background:#fff;min-width:160px}
+.M{background:#dcfce7} .E{background:#fef3c7} .N{background:#dbeafe} .OFF{background:#f3f4f6;color:#9ca3af}
+.punch{padding:4px 8px;border-radius:20px;font-size:8px;font-weight:900;border:1px solid #e5e7eb;background:#fff;cursor:pointer}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}.grid3{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<h2>🦖 SHIJA DINO</h2>
-<canvas id="game" width="800" height="250"></canvas>
-<div class="info">
-<span>SCORE: <b id="score">0</b></span>
-<span>HIGH: <b id="high">0</b></span>
-<button class="btn" onclick="resetGame()">RESTART (SPACE)</button>
+<div class="sidebar">
+<b>⚡ SHIJA HRONE</b>
+<a href="#" class="active">📅 Roster & Attendance</a>
+<a href="#">👥 Employee Directory</a>
+<a href="#">⏰ Attendance Inbox</a>
+<a href="#">🏖️ Leave</a>
+<a href="#">💰 Payroll</a>
+<a href="#" style="margin-top:auto;color:#ef4444" onclick="localStorage.clear();location.reload()">Logout</a>
 </div>
-<div style="font-size:10px;color:#64748b;margin-top:6px">SPACE / TAP / CLICK = JUMP</div>
+<div class="main">
+<div class="topbar">
+<div><b style="font-size:16px">SHIJA HRONE - DIALYSIS</b><br><span style="font-size:10px;color:#6b7280">Award Winning HRMS • Like HRONE</span></div>
+<div style="display:flex;gap:6px"><input type="month" id="month" class="input"><button class="btn btnDark" onclick="autoRoster()">AUTO SHIFT</button><button class="btn btnBlue" onclick="save()">SAVE</button></div>
+</div>
+
+<div class="grid3">
+<div class="kpi"><span>TOTAL STAFF</span><b id="kTotal">12</b></div>
+<div class="kpi"><span>PRESENT TODAY</span><b id="kPresent" style="color:#10b981">0</b></div>
+<div class="kpi"><span>ON LEAVE / OFF</span><b id="kOff" style="color:#ef4444">0</b></div>
+</div>
+
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+<b style="font-size:12px">SHIFT ROSTER - HRONE STYLE</b>
+<div style="display:flex;gap:6px"><span class="label">LEGEND:</span><span style="font-size:9px;padding:3px 6px;border-radius:6px" class="M">M-Morning 7AM</span><span class="E" style="padding:3px 6px;border-radius:6px">E-Evening 12PM</span><span class="N" style="padding:3px 6px;border-radius:6px">N-Night 5PM</span><span class="OFF" style="padding:3px 6px;border-radius:6px">OFF</span></div>
+</div>
+<div class="sheet"><table><thead id="head"></thead><tbody id="body"></tbody></table></div>
+</div>
+
+<div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div><div class="label">ADD NEW EMPLOYEE</div><div style="display:flex;gap:6px;margin-top:6px"><input id="empName" class="input" placeholder="Name" style="flex:1"><input id="empRole" class="input" placeholder="Role GDA/NURSE" style="width:110px"><button class="btn btnBlue" onclick="addEmp()">+ ADD</button></div></div>
+<div><div class="label">ATTENDANCE PUNCH (Today)</div><div id="punchList" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div></div>
+</div>
+</div>
 
 <script>
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-let score=0,high=parseInt(localStorage.getItem('dinoHigh')||0),speed=6,frame=0,gameOver=false;
-document.getElementById('high').textContent=high;
-
-const dino={x:50,y:170,w:40,h:40,vy:0,jumping:false};
-const ground=210;
-let obstacles=[];
-
-function drawDino(){
- ctx.fillStyle='#0f172a';
- ctx.fillRect(dino.x,dino.y,dino.w,dino.h);
- // eye
- ctx.fillStyle='#fff';
- ctx.fillRect(dino.x+25,dino.y+8,6,6);
-}
-function drawGround(){
- ctx.fillStyle='#e2e8f0';
- ctx.fillRect(0,ground,800,4);
- // dots
- ctx.fillStyle='#cbd5e1';
- for(let i=0;i<800;i+=40){ ctx.fillRect((i-frame)%800,ground+10,2,2); }
-}
-function drawObstacles(){
- ctx.fillStyle='#ef4444';
- obstacles.forEach(o=>{
-  ctx.fillRect(o.x,o.y,o.w,o.h);
-  // cactus spikes
-  ctx.fillStyle='#dc2626';
-  ctx.fillRect(o.x-3,o.y+10,3,10);
-  ctx.fillStyle='#ef4444';
- });
-}
-function update(){
- if(gameOver) return;
- frame++;
- if(frame%6===0) score++;
- document.getElementById('score').textContent=score;
- if(score>high){high=score;localStorage.setItem('dinoHigh',high);document.getElementById('high').textContent=high;}
-
- // dino physics
- if(dino.jumping){
-  dino.vy+=0.8;
-  dino.y+=dino.vy;
-  if(dino.y>=170){dino.y=170;dino.jumping=false;dino.vy=0;}
- }
-
- // obstacles
- if(frame%90===0){
-  obstacles.push({x:800,y:180,w:20+Math.random()*20,h:30});
- }
- obstacles.forEach(o=>o.x-=speed);
- obstacles=obstacles.filter(o=>o.x>-30);
-
- // collision
- obstacles.forEach(o=>{
-  if(dino.x < o.x+o.w && dino.x+dino.w > o.x && dino.y < o.y+o.h && dino.y+dino.h > o.y){
-   gameOver=true;
-  }
- });
-
- if(score%200===0 && speed<12) speed+=0.3;
-}
+let staff=JSON.parse(localStorage.getItem('hrone_staff')||'[{"name":"GDA-1","role":"GDA"},{"name":"GDA-2","role":"GDA"},{"name":"GDA-3","role":"GDA"},{"name":"GDA-4","role":"GDA"},{"name":"NURSE-1","role":"NURSE"},{"name":"NURSE-2","role":"NURSE"},{"name":"NURSE-3","role":"NURSE"},{"name":"NURSE-4","role":"NURSE"},{"name":"TECH-1","role":"TECH"},{"name":"TECH-2","role":"TECH"},{"name":"OFFICE-1","role":"OFFICE"},{"name":"OFFICE-2","role":"OFFICE"}]');
+let roster=JSON.parse(localStorage.getItem('hrone_roster')||'{}');
+let attendance=JSON.parse(localStorage.getItem('hrone_att')||'{}');
+const $=id=>document.getElementById(id);
+function ym(){return $('month').value||new Date().toISOString().slice(0,7);}
+function dim(y,m){return new Date(y,m,0).getDate();}
+function k(s,d){return ym()+'_'+s+'_'+d;}
+function todayKey(s){let d=new Date().toISOString().slice(0,10);return d+'_'+s;}
 
 function render(){
- ctx.clearRect(0,0,800,250);
- drawGround();
- drawDino();
- drawObstacles();
- if(gameOver){
-  ctx.fillStyle='rgba(0,0,0,0.6)';
-  ctx.fillRect(0,0,800,250);
-  ctx.fillStyle='#fff';
-  ctx.font='900 24px system-ui';
-  ctx.fillText('GAME OVER',320,120);
-  ctx.font='700 14px system-ui';
-  ctx.fillText('Press SPACE / TAP to restart',290,145);
- }
+ let y=ym().split('-')[0],m=ym().split('-')[1],days=dim(y,m);
+ let h='<tr><th style="position:sticky;left:0;z-index:3;min-width:160px">EMPLOYEE ('+staff.length+')</th>';for(let d=1;d<=days;d++)h+='<th>'+d+'</th>';h+='</tr>';$('head').innerHTML=h;
+ let b='';staff.forEach(st=>{
+  b+='<tr><td class="name"><b>'+st.name+'</b><br><span style="font-size:8px;color:#6b7280">'+st.role+'</span></td>';
+  for(let d=1;d<=days;d++){let v=roster[k(st.name,d)]||'';b+=`<td class="${v}"><select onchange="setR('${st.name}',${d},this.value)" style="width:100%;border:0;background:transparent;font-weight:800;text-align:center"><option value=""></option><option ${v=='M'?'selected':''}>M</option><option ${v=='E'?'selected':''}>E</option><option ${v=='N'?'selected':''}>N</option><option ${v=='OFF'?'selected':''}>OFF</option></select></td>`;}
+  b+='</tr>';
+ });$('body').innerHTML=b;
+
+ // punch list
+ let phtml='';staff.forEach(st=>{
+  let tKey=todayKey(st.name);
+  let punched=attendance[tKey];
+  phtml+=`<button class="punch ${punched?'M':''}" onclick="punch('${st.name}')">${st.name} ${punched?'✓ '+punched:'PUNCH'}</button>`;
+ });$('punchList').innerHTML=phtml;
+
+ // kpi
+ let today=new Date().getDate();
+ let present=0,off=0;staff.forEach(st=>{let v=roster[k(st.name,today)];if(v=='OFF')off++;let att=attendance[todayKey(st.name)];if(att)present++;});
+ $('kTotal').textContent=staff.length;$('kPresent').textContent=present;$('kOff').textContent=off;
 }
 
-function loop(){ update(); render(); requestAnimationFrame(loop); }
-
-function jump(){
- if(gameOver){resetGame();return;}
- if(!dino.jumping){dino.jumping=true;dino.vy=-12;}
+function setR(s,d,v){roster[k(s,d)]=v;localStorage.setItem('hrone_roster',JSON.stringify(roster));render();}
+function addEmp(){let n=$('empName').value.trim().toUpperCase(),r=$('empRole').value.trim().toUpperCase()||'GDA';if(!n)return alert('Enter name');staff.push({name:n,role:r});localStorage.setItem('hrone_staff',JSON.stringify(staff));$('empName').value='';$('empRole').value='';render();}
+function punch(name){
+ let key=todayKey(name);let now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+ if(attendance[key]){if(!confirm('Already punched at '+attendance[key]+' - Update?'))return;}
+ attendance[key]=now;localStorage.setItem('hrone_att',JSON.stringify(attendance));render();
 }
-function resetGame(){
- score=0;speed=6;obstacles=[];gameOver=false;dino.y=170;dino.vy=0;dino.jumping=false;frame=0;
+function autoRoster(){
+ if(!confirm('Auto assign like HRONE Shift Rotation?'))return;
+ let y=ym().split('-')[0],m=ym().split('-')[1],days=dim(y,m);
+ let pattern=['M','M','E','E','N','OFF','OFF'];
+ staff.forEach((st,i)=>{
+  for(let d=1;d<=days;d++){roster[k(st.name,d)]=pattern[(d+i)%pattern.length];}
+ });
+ localStorage.setItem('hrone_roster',JSON.stringify(roster));render();
 }
-
-document.addEventListener('keydown',e=>{ if(e.code==='Space') jump(); });
-canvas.addEventListener('touchstart',e=>{e.preventDefault();jump();});
-canvas.addEventListener('mousedown',jump);
-
-// responsive
-function resize(){
- if(window.innerWidth<820){canvas.width=window.innerWidth-20; canvas.style.width=canvas.width+'px';}
-}
-resize();
-window.addEventListener('resize',resize);
-loop();
+function save(){localStorage.setItem('hrone_roster',JSON.stringify(roster));alert('HRONE Roster Saved for '+staff.length+' staff ✓');}
+(function(){let now=new Date().toISOString().slice(0,7);$('month').value=now;$('month').addEventListener('change',render);render();})();
 </script>
 </body>
 </html>
