@@ -3,93 +3,126 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ADMIN - SHIJA ROSTER UPLOAD</title>
+<title>ADMIN - SHIJA ROSTER</title>
 <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui}
-body{background:#f1f5f9;padding:12px}
-.card{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px;margin-bottom:10px}
+body{background:#f1f5f9;padding:10px}
+.card{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:8px}
 .btn{padding:8px 14px;border-radius:8px;border:0;font-weight:800;font-size:11px;cursor:pointer}
 .btnDark{background:#0f172a;color:#fff}.btnBlue{background:#3c25eb;color:#fff}.btnRed{background:#ef4444;color:#fff}
 .input{padding:8px 10px;border:1.5px solid #cbd5e1;border-radius:8px;font-weight:700;font-size:11px}
 .label{font-size:9px;font-weight:900;color:#64748b}
-.sheet{overflow:auto;max-height:65vh;border:1.5px solid #e2e8f0;border-radius:10px;background:#fff}
-table{border-collapse:collapse;min-width:1000px;width:100%}
-th{background:#0f172a;color:#fff;padding:8px 4px;font-size:8px;position:sticky;top:0;z-index:2}
-td{border:1px solid #e2e8f0;padding:4px;text-align:center;font-size:10px;font-weight:700;height:34px}
-td.name{position:sticky;left:0;background:#fff;text-align:left;min-width:160px;z-index:1}
-th.name{position:sticky;left:0;z-index:3;min-width:160px}
-.M{background:#dcfce7}.E{background:#fef9c3}.N{background:#dbeafe}.NOFF{background:#fee2e2}.OFF{background:#f1f5f9}
-.profile{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.pc{border:1.5px solid #e2e8f0;border-radius:10px;padding:8px 10px;min-width:140px;background:#f8fafc}
-.pc b{font-size:12px}.pc span{font-size:9px;color:#64748b;display:block}
+.sheet{overflow:auto;max-height:75vh;border:2px solid #0f172a;border-radius:8px;background:#fff}
+table{border-collapse:collapse;width:max-content;min-width:100%}
+th{background:#0f172a;color:#fff;padding:8px 6px;font-size:9px;position:sticky;top:0;z-index:2;min-width:120px;white-space:nowrap}
+td{border:1px solid #cbd5e1;padding:0;text-align:center;font-size:10px;font-weight:700;height:36px;min-width:120px;max-width:120px;position:relative}
+td.name{position:sticky;left:0;background:#fff;text-align:left;min-width:170px;max-width:170px;z-index:1;padding-left:8px}
+th.name{position:sticky;left:0;z-index:3;min-width:170px}
+.cell{width:100%;height:100%;border:0;text-align:center;font-weight:800;font-size:10px;outline:0;padding:6px;white-space:normal;word-break:break-word;display:flex;align-items:center;justify-content:center;cursor:cell}
+.cell:focus{background:#fef9c3;outline:2px solid #3c25eb}
+.MORNING{background:#dcfce7;color:#166534}
+.EVENING{background:#fef9c3;color:#854d0e}
+.NIGHT{background:#dbeafe;color:#1e40af}
+.NIGHTOFF{background:#fecaca;color:#991b1b}
+.DAYOFF{background:#f1f5f9;color:#64748b}
 .filterRow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-select.shiftSel{width:100%;border:0;background:transparent;font-weight:800;font-size:10px;text-align:center}
+.profile{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.pc{border:1.5px solid #e2e8f0;border-radius:8px;padding:6px 8px;min-width:130px;background:#f8fafc;font-size:10px}
 </style>
 </head>
 <body>
 <div class="card" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
-<div><b>ADMIN - ROSTER UPLOAD</b><br><span style="font-size:10px;color:#64748b">Upload Excel for any days + Add/Remove Staff + Manual Edit</span></div>
-<div style="display:flex;gap:6px"><a href="view.html" class="btn btnDark" style="text-decoration:none">STAFF VIEW PAGE →</a><button class="btn btnBlue" onclick="save()">SAVE</button></div>
+<div><b>ADMIN - ROSTER (COPY PASTE ENABLED)</b><br><span style="font-size:9px">Select Excel → Ctrl+C → Click cell → Ctrl+V | Columns show full shift names</span></div>
+<div style="display:flex;gap:6px"><a href="view.html" class="btn btnDark" style="text-decoration:none">VIEW PAGE →</a><button class="btn btnBlue" onclick="save()">SAVE</button></div>
 </div>
 
 <div class="card">
 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
-<div><div class="label">UPLOAD EXCEL (Any Days)</div><input type="file" id="excelFile" accept=".xlsx,.xls" class="input"></div>
-<div><div class="label">MONTH FILTER</div><input type="month" id="month" class="input"></div>
-<div><div class="label">ADD STAFF</div><div style="display:flex;gap:4px"><input id="sName" class="input" placeholder="Name"><input id="sRole" class="input" placeholder="Role" style="width:80px"><button class="btn btnBlue" onclick="addStaff()">+ ADD</button></div></div>
+<div><div class="label">UPLOAD EXCEL</div><input type="file" id="excelFile" class="input"></div>
+<div><div class="label">MONTH</div><input type="month" id="month" class="input"></div>
+<div><div class="label">ADD STAFF</div><div style="display:flex;gap:4px"><input id="sName" class="input" placeholder="NAME"><input id="sRole" class="input" placeholder="ROLE" style="width:80px"><button class="btn btnBlue" onclick="addStaff()">+ ADD</button></div></div>
 </div>
 <div class="filterRow">
 <select id="fShift" class="input" onchange="render()"><option value="">FILTER BY SHIFT - ALL</option><option>MORNING</option><option>EVENING</option><option>NIGHT</option><option>NIGHT OFF</option><option>DAY OFF</option></select>
 <input type="date" id="fDate" class="input" onchange="render()">
-<input id="fStaff" class="input" placeholder="FILTER BY STAFF NAME" oninput="render()">
-<button class="btn" onclick="clearF()">CLEAR FILTERS</button>
+<input id="fStaff" class="input" placeholder="FILTER BY STAFF" oninput="render()">
+<button class="btn" onclick="clearF()">CLEAR</button>
+<span class="label" style="margin-left:auto">TIP: Copy from Excel and paste directly in table!</span>
 </div>
 </div>
 
-<div class="card"><div class="label">STAFF PROFILE CARDS ({{count}})</div><div id="profiles" class="profile"></div></div>
+<div class="card"><div class="label">STAFF PROFILE CARDS</div><div id="profiles" class="profile"></div></div>
 
-<div class="card" style="padding:8px"><div class="sheet"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div></div>
+<div class="card" style="padding:6px"><div class="sheet"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div></div>
 
 <script>
-let staff=JSON.parse(localStorage.getItem('shija_final_staff')||'[{"name":"RONALD","role":"DATA ENTRY","phone":""},{"name":"SHINGLAI","role":"DATA ENTRY","phone":""},{"name":"SURAJ","role":"DATA ENTRY","phone":""},{"name":"LAXMIKANTA","role":"DATA ENTRY","phone":""},{"name":"JACKSON","role":"DATA ENTRY","phone":""},{"name":"NIKHIL","role":"GDA","phone":""},{"name":"NGANTHOIBA","role":"GDA","phone":""},{"name":"ELVISON","role":"GDA","phone":""},{"name":"KELLY","role":"GDA","phone":""},{"name":"TONDON","role":"GDA","phone":""}]');
+let staff=JSON.parse(localStorage.getItem('shija_final_staff')||'[{"name":"RONALD","role":"DATA ENTRY"},{"name":"SHINGLAI","role":"DATA ENTRY"},{"name":"SURAJ","role":"DATA ENTRY"},{"name":"LAXMIKANTA","role":"DATA ENTRY"},{"name":"JACKSON","role":"DATA ENTRY"},{"name":"NIKHIL","role":"GDA"},{"name":"NGANTHOIBA","role":"GDA"},{"name":"ELVISON","role":"GDA"},{"name":"KELLY","role":"GDA"},{"name":"TONDON","role":"GDA"}]');
 let roster=JSON.parse(localStorage.getItem('shija_final_roster')||'{}');
 let dates=[];
-const SHIFTS=['','MORNING','EVENING','NIGHT','NIGHT OFF','DAY OFF'];
+let lastFocused={name:null,date:null};
 function ym(){return document.getElementById('month').value||new Date().toISOString().slice(0,7);}
 function k(name,date){return name+'_'+date;}
-function initDates(){
- let m=ym();let [y,mo]=m.split('-').map(Number);let d=new Date(y,mo,0).getDate();
- dates=[];for(let i=1;i<=d;i++)dates.push(`${y}-${String(mo).padStart(2,'0')}-${String(i).padStart(2,'0')}`);
-}
+function getDates(){let m=ym();let [y,mo]=m.split('-').map(Number);let d=new Date(y,mo,0).getDate();let arr=[];for(let i=1;i<=d;i++)arr.push(`${y}-${String(mo).padStart(2,'0')}-${String(i).padStart(2,'0')}`);return arr;}
+
 function render(){
- initDates();
- let fShift=document.getElementById('fShift').value;
+ let allDates=getDates();
  let fDate=document.getElementById('fDate').value;
  let fStaff=document.getElementById('fStaff').value.toUpperCase();
- let filteredDates=fDate? [fDate] : dates;
+ let fShift=document.getElementById('fShift').value;
+ dates=fDate?[fDate]:allDates;
  let filteredStaff=staff.filter(s=>!fStaff||s.name.includes(fStaff));
- // header
- let h='<tr><th class="name">STAFF / DATE</th>';filteredDates.forEach(d=>{let dd=d.split('-')[2];h+=`<th>${dd}<br>${d.slice(5)}</th>`});h+='<th>ACTION</th></tr>';document.getElementById('thead').innerHTML=h;
- // body
- let b='';filteredStaff.forEach((s,i)=>{
-  b+=`<tr><td class="name"><b>${s.name}</b><br><span style="font-size:8px;color:#64748b">${s.role}</span></td>`;
-  filteredDates.forEach(date=>{
-   let val=roster[k(s.name,date)]||'';
-   if(fShift && val!==fShift){b+=`<td style="background:#f1f5f9;color:#cbd5e1">-</td>`;return;}
-   let cls=val==='MORNING'?'M':val==='EVENING'?'E':val==='NIGHT'?'N':val==='NIGHT OFF'?'NOFF':val==='DAY OFF'?'OFF':'';
-   b+=`<td class="${cls}"><select class="shiftSel" onchange="setShift('${s.name}','${date}',this.value)"><option value=""></option>${SHIFTS.map(sh=>`<option ${val===sh?'selected':''}>${sh}</option>`).join('')}</select></td>`;
+ let h='<tr><th class="name">STAFF / DATE</th>';dates.forEach(d=>{h+=`<th>${d.slice(8)}-${d.slice(5,7)}<br>${d}</th>`});h+='<th>ACTION</th></tr>';document.getElementById('thead').innerHTML=h;
+ let b='';filteredStaff.forEach(s=>{
+  b+=`<tr><td class="name"><b>${s.name}</b><br><span style="font-size:8px">${s.role}</span></td>`;
+  dates.forEach(date=>{
+   let val=(roster[k(s.name,date)]||'').toUpperCase();
+   let cls=val.replace(' ','' );
+   let show=val||'';
+   if(fShift && val!==fShift){b+=`<td style="background:#f1f5f9;color:#ddd">-</td>`;return;}
+   b+=`<td><div class="cell ${cls}" contenteditable="true" data-name="${s.name}" data-date="${date}" onfocus="focusCell(this)" onblur="saveCell(this)" onkeydown="handleKey(event,this)">${show}</div></td>`;
   });
   b+=`<td><button class="btn btnRed" style="padding:4px" onclick="removeStaff('${s.name}')">X</button></td></tr>`;
- });document.getElementById('tbody').innerHTML=b;
- // profiles
- let pc='';staff.forEach(s=>{pc+=`<div class="pc"><b>${s.name}</b><span>${s.role}</span><span>📅 ${Object.keys(roster).filter(k=>k.startsWith(s.name+'_')&&roster[k]).length} duties</span></div>`});document.getElementById('profiles').innerHTML=pc;
+ });
+ document.getElementById('tbody').innerHTML=b;
+ let pc='';staff.forEach(s=>{pc+=`<div class="pc"><b>${s.name}</b><br>${s.role}</div>`});document.getElementById('profiles').innerHTML=pc;
+ attachPaste();
 }
-function setShift(name,date,val){roster[k(name,date)]=val;localStorage.setItem('shija_final_roster',JSON.stringify(roster));}
-function addStaff(){let n=document.getElementById('sName').value.trim().toUpperCase(),r=document.getElementById('sRole').value.trim().toUpperCase()||'GDA';if(!n)return;staff.push({name:n,role:r,phone:''});localStorage.setItem('shija_final_staff',JSON.stringify(staff));document.getElementById('sName').value='';render();}
+
+function focusCell(el){lastFocused={name:el.dataset.name,date:el.dataset.date,el:el};}
+function saveCell(el){let name=el.dataset.name,date=el.dataset.date,val=el.innerText.trim().toUpperCase();roster[k(name,date)]=val;el.className='cell '+val.replace(' ','');localStorage.setItem('shija_final_roster',JSON.stringify(roster));}
+function handleKey(e,el){if(e.key==='Enter'){e.preventDefault();el.blur();}}
+
+function addStaff(){let n=document.getElementById('sName').value.trim().toUpperCase(),r=document.getElementById('sRole').value.trim().toUpperCase()||'GDA';if(!n)return;staff.push({name:n,role:r});localStorage.setItem('shija_final_staff',JSON.stringify(staff));document.getElementById('sName').value='';render();}
 function removeStaff(name){if(!confirm('Remove '+name+'?'))return;staff=staff.filter(s=>s.name!==name);localStorage.setItem('shija_final_staff',JSON.stringify(staff));render();}
 function clearF(){document.getElementById('fShift').value='';document.getElementById('fDate').value='';document.getElementById('fStaff').value='';render();}
-function save(){localStorage.setItem('shija_final_roster',JSON.stringify(roster));localStorage.setItem('shija_final_staff',JSON.stringify(staff));alert('Saved ✓ Will show in Staff Page');}
+function save(){localStorage.setItem('shija_final_roster',JSON.stringify(roster));alert('Saved ✓');}
+
+// COPY PASTE LOGIC LIKE GOOGLE SHEETS
+function attachPaste(){
+ document.querySelectorAll('.cell').forEach(cell=>{
+  cell.addEventListener('paste',function(e){
+   e.preventDefault();
+   let text=(e.clipboardData||window.clipboardData).getData('text');
+   let rows=text.trim().split('\n').map(r=>r.split('\t'));
+   let startName=this.dataset.name;
+   let startDate=this.dataset.date;
+   let startDateIdx=dates.indexOf(startDate);
+   let startStaffIdx=staff.findIndex(s=>s.name===startName);
+   rows.forEach((r,rowIdx)=>{
+    r.forEach((val,colIdx)=>{
+     let targetStaff=staff[startStaffIdx+rowIdx];
+     let targetDate=dates[startDateIdx+colIdx];
+     if(targetStaff && targetDate){
+      roster[k(targetStaff.name,targetDate)]=val.trim().toUpperCase();
+     }
+    });
+   });
+   localStorage.setItem('shija_final_roster',JSON.stringify(roster));
+   render();
+  });
+ });
+}
 
 document.getElementById('excelFile').addEventListener('change',function(e){
  let f=e.target.files[0];if(!f)return;
@@ -98,26 +131,9 @@ document.getElementById('excelFile').addEventListener('change',function(e){
   let wb=XLSX.read(ev.target.result,{type:'binary'});
   let ws=wb.Sheets[wb.SheetNames[0]];
   let json=XLSX.utils.sheet_to_json(ws,{header:1});
-  // Row0 = dates, Col0 = staff names
-  if(json.length<2)return alert('Excel format wrong');
-  let header=json[0];
-  let newDates=header.slice(1).filter(Boolean).map(d=>{
-   if(typeof d==='number'){let dt=XLSX.SSF.parse_date_code(d);return `${dt.y}-${String(dt.m).padStart(2,'0')}-${String(dt.d).padStart(2,'0')}`;}
-   return String(d).trim();
-  });
-  dates=newDates;
-  for(let i=1;i<json.length;i++){
-   let row=json[i];if(!row[0])continue;
-   let name=String(row[0]).trim().toUpperCase();
-   if(!staff.find(s=>s.name===name))staff.push({name:name,role:'STAFF',phone:''});
-   newDates.forEach((date,idx)=>{
-    let val=row[idx+1]?String(row[idx+1]).trim().toUpperCase():'';
-    if(val)roster[k(name,date)]=val;
-   });
-  }
-  localStorage.setItem('shija_final_staff',JSON.stringify(staff));
-  localStorage.setItem('shija_final_roster',JSON.stringify(roster));
-  render();alert('Excel Uploaded: '+newDates.length+' days, '+json.length+' staff');
+  let header=json[0];let newDates=header.slice(1).filter(Boolean).map(d=>typeof d==='number'?XLSX.SSF.format('yyyy-mm-dd',d):String(d).trim());
+  for(let i=1;i<json.length;i++){let row=json[i];if(!row[0])continue;let name=String(row[0]).trim().toUpperCase();if(!staff.find(s=>s.name===name))staff.push({name:name,role:'STAFF'});newDates.forEach((date,idx)=>{let val=row[idx+1]?String(row[idx+1]).trim().toUpperCase():'';if(val)roster[k(name,date)]=val;});}
+  localStorage.setItem('shija_final_staff',JSON.stringify(staff));localStorage.setItem('shija_final_roster',JSON.stringify(roster));render();alert('Excel uploaded');
  };
  reader.readAsBinaryString(f);
 });
