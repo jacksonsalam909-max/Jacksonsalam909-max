@@ -137,7 +137,6 @@ tr.mainRow.openRow td{border-bottom:none!important;background:#eef2ff!important}
   .gridWrap{grid-template-columns:1fr;align-items:start}
   .filterRow2{flex-direction:column;align-items:stretch}
 }
-/* FIXED POPUP - NO EXTRA SPACE, NO Q SYMBOL */
 #fileModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;align-items:center;justify-content:center;padding:16px}
 #fileModal.show{display:flex}
 .popupCard{background:#fff;border-radius:12px;width:92%;max-width:900px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.5);overflow:hidden;border:0}
@@ -234,25 +233,7 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <div class="card">
 <div class="filterBox2">
 <div class="filterRow1">
-<div><div class="label" style="font-size:8px">DATE</div><div class="dateNavWrap"><button type="button" class="dateArrowBtn" onclick="changeDateBy(-1)">◀</button><input type="date" id="fDate"><button type="button" class="dateArrowBtn" onclick="changeDateBy(1)">▶</button></div><script>
-(function(){
-  var el=document.getElementById('fDate');
-  if(el){
-    var now=new Date();
-    var yyyy=now.getFullYear();
-    var mm=String(now.getMonth()+1).padStart(2,'0');
-    var dd=String(now.getDate()).padStart(2,'0');
-    var today=yyyy+'-'+mm+'-'+dd;
-    el.value=today;
-    el.setAttribute('value',today);
-    try{ el.valueAsDate=now; }catch(e){}
-    el.style.background='#fff';
-    el.style.color='#0f172a';
-    el.style.opacity='1';
-    el.style.webkitTextFillColor='#0f172a';
-  }
-})();
-</script></div>
+<div><div class="label" style="font-size:8px">DATE</div><div class="dateNavWrap"><button type="button" class="dateArrowBtn" onclick="changeDateBy(-1)">◀</button><input type="date" id="fDate"><button type="button" class="dateArrowBtn" onclick="changeDateBy(1)">▶</button></div></div>
 <div><div class="label" style="font-size:8px">TIME FILTER</div><select id="fTime" class="input inputSmall" style="width:110px"><option value="">ALL TIME</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
 <div><div class="label" style="font-size:8px">BLOCK FILTER</div><select id="fBlock" class="input inputSmall" style="width:90px"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
 <div><div class="label" style="font-size:8px">PER PAGE</div><select id="perPage" class="input inputSmall" style="width:90px"><option value="12" selected>12</option><option value="24">24</option><option value="36">36</option><option value="48">48</option><option value="60">60</option><option value="96">96</option></select></div>
@@ -292,14 +273,12 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <div id="fileModal">
 <div class="popupCard">
 <div class="popupHead"><b id="modalFileName">FILE</b><div class="headRight"><button class="iconTop" onclick="zoomIn()">+</button><button class="iconTop" onclick="zoomOut()">−</button><button class="iconTop" onclick="downloadCurrent()">⬇</button><button class="iconTop closeTop" onclick="closeModal()">✕</button></div></div>
-<div class="zoomBar"><span id="modalFileMeta">FILE</span><div style="display:flex;gap:4px;align-items:center"><button class="zoomBtn" onclick="zoomOut()">−</button><div class="zoomLabel" id="zoomLabel">100%</div><button class="zoomBtn" onclick="zoomIn()">+</button><button class="zoomBtn" onclick="resetZoom()">RESET</button></div></div>
 <div class="popupBody"><div class="paperBox" id="paperBox"></div></div>
 </div></div>
 
 <script>
 function getToday(){var d=new Date();var tz=d.getTimezoneOffset()*60000;var local=new Date(Date.now()-tz);return local.toISOString().slice(0,10);}
 let userChangedDate=false;
-function forceSetDateIfEmpty(){var el=document.getElementById('fDate');if(!el)return;if(!el.value){el.value=getToday();}}
 var allDischarge=[],filtered=[],masterPatients=[],selectedPatient=null,currentPage=1,pageSize=12,isGrid=false,openGridSet=new Set(),lastOpenCleanShri=null,currentFileData=null,currentFileName=null;
 const CHUNK_SIZE=800000;
 function setView(mode){
