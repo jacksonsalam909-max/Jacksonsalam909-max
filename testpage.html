@@ -151,11 +151,6 @@ tr.mainRow.openRow td{border-bottom:none!important;background:#eef2ff!important}
 .iconTop:hover{background:rgba(255,255,255,0.3)}
 .iconTop.closeTop{background:#ef4444}
 .iconTop.closeTop:hover{background:#dc2626}
-.zoomBar{padding:6px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.zoomBar span{font-size:9px;color:#64748b;font-weight:700}
-.zoomBtn{height:28px;min-width:28px;padding:0 8px;background:#fff;color:#0f172a;border:1.5px solid #e2e8f0;border-radius:6px;font-weight:800;font-size:12px;cursor:pointer;display:grid;place-items:center}
-.zoomBtn:hover{background:#f1f5f9;border-color:#7c3aed}
-.zoomLabel{font-size:10px;font-weight:800;color:#0f172a;min-width:44px;text-align:center}
 .dateArrowBtn{width:32px;height:32px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;color:#0f172a;font-weight:900;font-size:12px;cursor:pointer;display:grid;place-items:center}
 .dateNavWrap{display:flex;align-items:center;gap:4px;background:#fff!important;border:1.5px solid #e2e8f0;border-radius:8px;padding:2px 4px}
 #fDate{width:135px;border:none!important;background:#fff!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important;opacity:1!important;font-weight:800;text-align:center}
@@ -177,8 +172,6 @@ const guardDb=getFirestore(guardApp);
 try{onSnapshot(doc(guardDb,"system","global_logout"),(snap)=>{if(!snap.exists()) return;let lt=snap.data().logoutTime||0;let my=parseInt(localStorage.getItem('shija_login_time')||'0');if(lt>my && my!==0){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');alert('🔒 Logged out by Admin');location.href='login.html?reason=global';}});}catch(e){}
 window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 </script>
-<div style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0"><input type="text" name="username" autocomplete="username"><input type="password" autocomplete="current-password"></div>
-
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 <div class="sHead"><div class="sLogo"><img src="logoc.png?v=INLINE_FINAL" id="logoImg" alt="SHIJA" onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'"><b id="logoFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:#0f172a;color:#fff;font-weight:900;border-radius:12px">S</b></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
@@ -270,6 +263,7 @@ window._fb.serverTimestamp=serverTimestamp;window._fb.guardDb=guardDb;
 <button id="confirmLogoutAll" style="flex:1;height:38px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer">Logout All</button>
 </div></div></div>
 
+<!-- FILE MODAL - ZOOM BAR REMOVED, ONLY FILE VIEW -->
 <div id="fileModal">
 <div class="popupCard">
 <div class="popupHead"><b id="modalFileName">FILE</b><div class="headRight"><button class="iconTop" onclick="zoomIn()">+</button><button class="iconTop" onclick="zoomOut()">−</button><button class="iconTop" onclick="downloadCurrent()">⬇</button><button class="iconTop closeTop" onclick="closeModal()">✕</button></div></div>
@@ -287,8 +281,8 @@ var tableWrap=document.getElementById('tableWrap');
 var gridWrap=document.getElementById('gridWrap');
 var btnList=document.getElementById('btnList');
 var btnGrid=document.getElementById('btnGrid');
-if(isGrid){tableWrap.style.display='none';gridWrap.style.display='grid';btnGrid.classList.add('active');btnList.classList.remove('active');btnGrid.style.background='#3c25eb';btnGrid.style.color='#fff';btnList.style.background='transparent';btnList.style.color='#0f172a';}
-else{tableWrap.style.display='block';gridWrap.style.display='none';btnList.classList.add('active');btnGrid.classList.remove('active');btnList.style.background='#3c25eb';btnList.style.color='#fff';btnGrid.style.background='transparent';btnGrid.style.color='#0f172a';}
+if(isGrid){tableWrap.style.display='none';gridWrap.style.display='grid';btnGrid.classList.add('active');btnList.classList.remove('active');}
+else{tableWrap.style.display='block';gridWrap.style.display='none';btnList.classList.add('active');btnGrid.classList.remove('active');}
 pageSize=parseInt(document.getElementById('perPage').value)||12;currentPage=1;render();}
 function getDocsForShri(shri){return window._fb._docsCache[shri]||[];}
 async function loadMaster(){
@@ -312,10 +306,7 @@ var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharge
 allDischarge=[];snap.forEach(function(d){var o=d.data();o._id=d.id;allDischarge.push(o);});
 allDischarge.sort(function(a,b){return new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0);});
 applyFilter();
-}catch(e){
-allDischarge=[]; filtered=[]; 
-document.getElementById('tbody').innerHTML='<tr><td colspan="8" style="padding:20px">NO DISCHARGED - '+e.message+'</td></tr>';
-}
+}catch(e){ allDischarge=[]; filtered=[]; }
 }
 function applyFilter(){
 var date=document.getElementById('fDate').value;
@@ -333,8 +324,8 @@ return true;
 });
 currentPage=1;render();
 }
-function handleDragOver(e){e.preventDefault();e.stopPropagation();e.currentTarget.classList.add('dragOver');}
-function handleDragLeave(e){e.preventDefault();e.stopPropagation();e.currentTarget.classList.remove('dragOver');}
+function handleDragOver(e){e.preventDefault();e.currentTarget.classList.add('dragOver');}
+function handleDragLeave(e){e.preventDefault();e.currentTarget.classList.remove('dragOver');}
 function handleDrop(e){e.preventDefault();e.stopPropagation();e.currentTarget.classList.remove('dragOver');var shri=e.currentTarget.dataset.shri;var type=e.currentTarget.dataset.type;var name=e.currentTarget.dataset.name;var pmjay=e.currentTarget.dataset.pmjay;if(!e.dataTransfer.files||e.dataTransfer.files.length===0) return;uploadFile(e.dataTransfer.files[0],shri,name,pmjay,type);}
 function render(){
 var tbody=document.getElementById('tbody');var grid=document.getElementById('gridWrap');if(!tbody||!grid)return;tbody.innerHTML='';grid.innerHTML='';
@@ -419,19 +410,17 @@ async function openFileModal(id,shri){
   currentFileData=data;
   currentFileName=getCleanDownloadName(meta);
   document.getElementById('modalFileName').textContent=currentFileName;
-  document.getElementById('modalFileMeta').textContent=(meta.fileType.includes('pdf')?'PDF':'IMAGE')+' • '+(meta.size/1024/1024).toFixed(2)+' MB';
   var box=document.getElementById('paperBox');
   if(data.startsWith('data:application/pdf')){box.innerHTML='<iframe src="'+data+'"></iframe>';}
   else if(data.startsWith('data:image')){box.innerHTML='<img src="'+data+'">';}
-  else{box.innerHTML='<div style="padding:20px;text-align:center"><b>'+currentFileName+'</b><br><a href="'+data+'" download="'+currentFileName+'" style="color:#3c25eb;font-weight:800">Download '+currentFileName+'</a></div>';}
+  else{box.innerHTML='<div style="padding:20px;text-align:center"><b>'+currentFileName+'</b><br><a href="'+data+'" download="'+currentFileName+'" style="color:#3c25eb;font-weight:800">Download</a></div>';}
   applyZoom();
   document.getElementById('fileModal').classList.add('show');
 }
 function downloadCurrent(){if(!currentFileData)return;var a=document.createElement('a');a.href=currentFileData;a.download=currentFileName||'SHIJA_FILE.pdf';a.click();}
 function zoomIn(){window._fb._currentZoom=Math.min(window._fb._currentZoom+0.25,3);applyZoom();}
 function zoomOut(){window._fb._currentZoom=Math.max(window._fb._currentZoom-0.25,0.5);applyZoom();}
-function resetZoom(){window._fb._currentZoom=1;applyZoom();}
-function applyZoom(){var box=document.getElementById('paperBox');if(box)box.style.transform='scale('+window._fb._currentZoom+')';document.getElementById('zoomLabel').textContent=Math.round(window._fb._currentZoom*100)+'%';}
+function applyZoom(){var box=document.getElementById('paperBox');if(!box)return;box.style.transform='scale('+window._fb._currentZoom+')';}
 function closeModal(){document.getElementById('fileModal').classList.remove('show');}
 async function delDoc(id,shri){var csnap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));for(var d of csnap.docs){await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',d.id));}await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',id));if(window._fb._docsCache[shri]){window._fb._docsCache[shri]=window._fb._docsCache[shri].filter(function(d){return d._id!==id;});}render();}
 async function deleteSpecific(shri,type){var docs=getDocsForShri(shri).filter(function(d){return d.type===type;});if(docs.length===0)return;await delDoc(docs[0]._id,shri);}
@@ -472,26 +461,16 @@ document.getElementById('btnLogout')?.addEventListener('click',()=>{if(confirm('
 document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{adminDropdown.style.display='none';document.getElementById('logoutAllModal').style.display='flex';document.getElementById('adminPassInput').value='';document.getElementById('passError').style.display='none';});
 document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{document.getElementById('logoutAllModal').style.display='none';});
 document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{if(e.target.id==='logoutAllModal')e.currentTarget.style.display='none';});
-function killAdmin(){['searchTotal','fSearch'].forEach(id=>{let el=document.getElementById(id);if(el&&el.value.toLowerCase().includes('admin'))el.value='';});}
-setTimeout(killAdmin,50);setTimeout(killAdmin,300);['searchTotal','fSearch'].forEach(id=>{let el=document.getElementById(id);if(el){el.addEventListener('input',killAdmin);el.addEventListener('focus',killAdmin);}});
-let iv=0;let timer=setInterval(()=>{killAdmin();iv++;if(iv>50)clearInterval(timer);},100);});
+});
 window.addEventListener('load',function(){
 var bar=document.getElementById('whiteBar');if(bar){bar.classList.remove('folded');try{localStorage.setItem('shija_menu_folded','0');}catch(e){}}
 setupSearch();
-loadMaster().then(function(){
-  loadAll();
-  setView('list');
-  setTimeout(loadDocsCache,800);
-});
+loadMaster().then(function(){ loadAll(); setView('list'); setTimeout(loadDocsCache,800); });
 var fTime=document.getElementById('fTime');if(fTime)fTime.addEventListener('change',applyFilter);
 var fBlock=document.getElementById('fBlock');if(fBlock)fBlock.addEventListener('change',applyFilter);
 var perPage=document.getElementById('perPage');if(perPage)perPage.addEventListener('change',applyFilter);
 var fSearch=document.getElementById('fSearch');if(fSearch)fSearch.addEventListener('input',applyFilter);
-var fDate=document.getElementById('fDate');
-if(fDate){
-  fDate.addEventListener('change',function(){ userChangedDate=true; applyFilter(); });
-  fDate.addEventListener('input',function(){ userChangedDate=true; });
-}
+var fDate=document.getElementById('fDate');if(fDate){fDate.addEventListener('change',function(){ userChangedDate=true; applyFilter(); });}
 });
 </script>
 </body>
