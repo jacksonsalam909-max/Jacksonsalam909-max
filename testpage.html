@@ -151,18 +151,9 @@ function addDeleted(key){ let l=getDeleted(); if(!l.includes(key)){l.push(key); 
 function saveEditedLocal(key,data){ let m=getEdited(); m[key]=data; localStorage.setItem('editedKeys',JSON.stringify(m)); }
 window.closeEdit=()=>document.getElementById('editModal').classList.remove('show');
 window.openEdit=(idx)=>{editIndex=idx;let p=allPatients[idx];document.getElementById('eName').value=p.name;document.getElementById('eShri').value=p.shri;document.getElementById('eContact').value=p.contact;document.getElementById('ePmjay').value=p.pmjay;document.getElementById('eAddr').value=p.addr;document.getElementById('editModal').classList.add('show');};
-window.onSearch=()=>{
-  let el=document.getElementById('search');
-  if(el && el.value.toLowerCase().includes('shija')){ el.value=''; }
-  currentPage=1;applyFilter();
-};
+window.onSearch=()=>{currentPage=1;applyFilter();};
 window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderAll();};
-window.applyFilter=()=>{
-  let q=document.getElementById('search').value.toLowerCase();
-  if(q.includes('shija')) q='';
-  filtered=allPatients.filter(p=>!p.deleted && [p.name,p.shri,p.pmjay,p.contact,p.addr].join(' ').toLowerCase().includes(q));
-  renderAll();
-};
+window.applyFilter=()=>{let q=document.getElementById('search').value.toLowerCase();filtered=allPatients.filter(p=>!p.deleted && [p.name,p.shri,p.pmjay,p.contact,p.addr].join(' ').toLowerCase().includes(q));renderAll();};
 function getInitial(name){ return (name||'P').trim().charAt(0).toUpperCase(); }
 window.triggerPhoto=(shri)=>{ let id='file_'+shri.replace(/[^a-zA-Z0-9]/g,'_'); let el=document.getElementById(id); if(el) el.click(); }
 window.triggerUploadFromModal=()=>{ if(currentPhotoShri) triggerPhoto(currentPhotoShri); }
@@ -184,15 +175,30 @@ window.openPhoto=(shri,name)=>{
 }
 window.closePhoto=()=>{ document.getElementById('photoModal').classList.remove('show'); }
 window.deletePhoto=async()=>{
-  if(!currentPhotoShri || !confirm('Delete photo?')) return;
+  if(!currentPhotoShri) return;
+  if(!confirm('Delete photo of '+currentPhotoShri+' ?')) return;
   let clean=currentPhotoShri.replace(/[^a-zA-Z0-9]/g,'_');
+  let delBtn=document.querySelector('#photoModal button[onclick="deletePhoto()"]');
+  if(delBtn){ delBtn.innerText='Deleting...'; delBtn.disabled=true; }
   try{
-    let csnap=await getDocs(collection(db,"patient_photos",clean+"_photo","chunks"));
-    for(let d of csnap.docs){ await deleteDoc(doc(db,"patient_photos",clean+"_photo","chunks",d.id)); }
-    await deleteDoc(doc(db,"patient_photos",clean+"_photo"));
+    try{
+      let csnap=await getDocs(collection(db,"patient_photos",clean+"_photo","chunks"));
+      for(let d of csnap.docs){
+        await deleteDoc(doc(db,"patient_photos",clean+"_photo","chunks",d.id)).catch(()=>{});
+      }
+    }catch(e){}
+    try{
+      await deleteDoc(doc(db,"patient_photos",clean+"_photo")).catch(()=>{});
+    }catch(e){}
     delete photoCache[currentPhotoShri];
-    closePhoto(); renderAll();
-  }catch(e){ alert(e.message); }
+    currentPhotoShri=null;
+    closePhoto();
+    renderAll();
+  }catch(e){
+    alert('Delete failed: '+(e.message||e));
+  }finally{
+    if(delBtn){ delBtn.innerText='Delete'; delBtn.disabled=false; }
+  }
 }
 window.uploadPhoto=async(file,shri)=>{
   if(!file) return;
@@ -286,34 +292,6 @@ async function init(){
  setTimeout(loadPhotoCache,600);
 }
 init();
-
-// FINAL FIX: FORCE REMOVE "shija" FROM SEARCH BAR EVERY TIME
-(function killShija(){
-  function clearIt(){
-    const s=document.getElementById('search');
-    if(!s) return;
-    if(s.value.toLowerCase().includes('shija') || s.value.toLowerCase().includes('shija')){
-      s.value='';
-      s.setAttribute('value','');
-      window.applyFilter && window.applyFilter();
-    }
-    // also if browser autofilled shija as value, clear placeholder text
-    if(s.placeholder.toLowerCase().includes('shija') || s.placeholder.toLowerCase().includes('shri')){
-      s.placeholder='Search name...';
-    }
-  }
-  document.addEventListener('DOMContentLoaded', clearIt);
-  window.addEventListener('load', ()=>{ clearIt(); setTimeout(clearIt,100); setTimeout(clearIt,500); setTimeout(clearIt,1500); });
-  window.addEventListener('pageshow', clearIt);
-  setInterval(clearIt, 300);
-  // observer for Patient.js overwriting
-  const obs = new MutationObserver(clearIt);
-  setTimeout(()=>{
-    const s=document.getElementById('search');
-    if(s) obs.observe(s, {attributes:true, attributeFilter:['value','placeholder']});
-  },500);
-})();
-
 const ADMIN_PASSWORD="jack8189";
 const adminApp2=initializeApp(firebaseConfig,"admin_total_"+Math.random());
 const adminDb=getFirestore(adminApp2);
@@ -324,6 +302,33 @@ document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
   let btn=document.getElementById('confirmLogoutAll'); btn.innerText='...'; btn.disabled=true;
   try{ await setDoc(doc(adminDb,"system","global_logout"),{ logoutTime: Date.now(), timestamp: serverTimestamp(), triggeredBy:'admin' },{merge:true}); alert('All devices logged out!'); localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html'; }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
 });
+</script>
+<script>
+// ===== FINAL FIX - KILL "shija" WORD FROM SEARCH BAR + FORCE EMPTY =====
+(function(){
+  function killShija(){
+    const s=document.getElementById('search');
+    if(!s) return;
+    if(s.value && s.value.toLowerCase().includes('shija')){
+      s.value='';
+      s.setAttribute('value','');
+      try{ window.applyFilter(); }catch(e){}
+    }
+    if(s.placeholder && (s.placeholder.toLowerCase().includes('shija') || s.placeholder.toLowerCase().includes('shri') || s.placeholder.toLowerCase().includes('pmjay'))){
+      s.placeholder='Search name...';
+    }
+  }
+  window.addEventListener('DOMContentLoaded', ()=>{ setTimeout(killShija,10); setTimeout(killShija,200); setTimeout(killShija,800); });
+  window.addEventListener('load', ()=>{ killShija(); setTimeout(killShija,100); setTimeout(killShija,500); });
+  window.addEventListener('pageshow', killShija);
+  document.addEventListener('input', (e)=>{
+    if(e.target && e.target.id==='search' && e.target.value.toLowerCase().includes('shija')){
+      e.target.value='';
+      try{ window.applyFilter(); }catch(e){}
+    }
+  });
+  setInterval(killShija, 300);
+})();
 </script>
 </body>
 </html>
