@@ -107,7 +107,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
   #centerLogo{width:360px!important}
   .pagesBottom{padding:0 0 60px!important;height:auto!important}
   .grid.listView .card .name{font-size:10.5px!important;line-height:1.15!important}
-  /* ONLY CHANGE - HOVER IN MOBILE ENABLED */
   .card:hover,.card:active{transform:translateY(-6px) scale(1.03)!important;box-shadow:0 18px 36px rgba(0,0,0,0.18)!important;border-color:#22c55e!important;background:#FFFBEB!important;z-index:5}
   .btnAct:hover,.btnAct:active{filter:brightness(1.12);transform:translateY(-1px) scale(1.03);box-shadow:0 6px 14px rgba(0,0,0,0.18)}
 }
@@ -212,7 +211,11 @@ function formatDisplayDMY(s){if(!s)return'';let p=s.split('-');return `${p[2]}-$
 function addDays(s, days){let d=new Date(s+'T00:00:00');d.setDate(d.getDate()+days);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function updateDateDisplay(){document.getElementById('dateDisplay').innerText=formatDisplayDMY(document.getElementById('fDate').value);}
 function openCalendar(){let el=document.getElementById('fDate');try{if(el.showPicker){el.showPicker();}}catch(e){}}
-let fDateEl=document.getElementById('fDate');let urlParams=new URLSearchParams(location.search);fDateEl.value=urlParams.get('date')||getTodayIST();let fTypeEl=document.getElementById('fType');if(urlParams.get('type'))fTypeEl.value=urlParams.get('type');updateDateDisplay();
+let fDateEl=document.getElementById('fDate');
+let urlParams=new URLSearchParams(location.search);
+// PRESENT DATE DEFAULT - ALWAYS TODAY
+fDateEl.value=getTodayIST();
+let fTypeEl=document.getElementById('fType');if(urlParams.get('type'))fTypeEl.value=urlParams.get('type');updateDateDisplay();
 document.getElementById('datePrev').addEventListener('click',function(){fDateEl.value=addDays(fDateEl.value,-1);updateDateDisplay();loadData();});
 document.getElementById('dateNext').addEventListener('click',function(){fDateEl.value=addDays(fDateEl.value,1);updateDateDisplay();loadData();});
 document.getElementById('dateCenter').addEventListener('click',function(e){e.preventDefault();openCalendar();});
@@ -309,6 +312,7 @@ try{
   });
 }catch(e){}
 document.addEventListener('DOMContentLoaded',()=>{
+  fDateEl.value=getTodayIST(); updateDateDisplay();
   if(searchInput) searchInput.value='';
   searchQuery='';
   setTimeout(killAdmin,50); setTimeout(killAdmin,300); setTimeout(killAdmin,800);
@@ -332,15 +336,18 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 });
 window.addEventListener('load',()=>{
+  fDateEl.value=getTodayIST(); updateDateDisplay();
   if(searchInput) searchInput.value='';
   searchQuery='';
   if(clearBtn) clearBtn.style.display='none';
   setTimeout(()=>{updateToggleBtn();loadData();},300);
 });
 window.addEventListener('pageshow',()=>{
+  fDateEl.value=getTodayIST(); updateDateDisplay();
   if(searchInput) searchInput.value='';
   searchQuery='';
   if(clearBtn) clearBtn.style.display='none';
+  loadData();
 });
 window.addEventListener('resize',()=>{ render(); });
 </script>
