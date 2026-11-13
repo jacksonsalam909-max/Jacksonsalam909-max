@@ -124,7 +124,7 @@ let currentView='table';window.setView=(v)=>{currentView=v;document.getElementBy
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app = initializeApp(firebaseConfig,"totalMain_"+Math.random());const db = getFirestore(app);
 let allPatients=[],filtered=[],currentPage=1,pageSize=12,editIndex=-1;
@@ -155,7 +155,6 @@ function getInitial(name){ return (name||'P').trim().charAt(0).toUpperCase(); }
 window.triggerPhoto=(ukey)=>{ let el=document.getElementById('file_'+cleanKey(ukey)); if(el) el.click(); }
 window.triggerUploadFromModal=()=>{ if(currentPhotoKey) triggerPhoto(currentPhotoKey); }
 
-// ===== PHOTO FAST LOGIC ONLY =====
 async function createThumb(base64){
   return new Promise(res=>{
     let img=new Image();
@@ -166,7 +165,7 @@ async function createThumb(base64){
       let min=Math.min(img.width, img.height);
       let x=(img.width-min)/2, y=(img.height-min)/2;
       ctx.drawImage(img, x, y, min, min, 0, 0, s, s);
-      res(c.toDataURL('image/jpeg', 0.65));
+      res(c.toDataURL('image/jpeg', 0.6));
     };
     img.onerror=()=>res(base64);
     img.src=base64;
@@ -185,15 +184,22 @@ async function getFullPhoto(ukey){
 window.openPhoto=async(ukey,shri,name)=>{
   currentPhotoKey=ukey; currentPhotoShri=shri;
   document.getElementById('photoName').textContent=name+' - '+shri;
-  let thumb=photoCache[ukey];
-  let full=photoCache[ukey+'_full'];
-  document.getElementById('photoView').src=full || thumb || '';
+  let cached = photoCache[ukey];
+  let cachedFull = photoCache[ukey+'_full'];
+  document.getElementById('photoView').src = cachedFull || cached || '';
   document.getElementById('photoModal').classList.add('show');
-  if(!full){
+  if(!cachedFull){
     let f=await getFullPhoto(ukey);
     if(f){
       photoCache[ukey+'_full']=f;
       if(currentPhotoKey===ukey) document.getElementById('photoView').src=f;
+      // create thumb if missing for future fast load
+      if(!cached || cached.length>50000){
+        let t=await createThumb(f);
+        photoCache[ukey]=t;
+        try{ await setDoc(doc(db,"patient_photos",cleanKey(ukey)+"_photo"),{thumb:t},{merge:true}); }catch(e){}
+        renderAll();
+      }
     }
   }
 }
@@ -220,39 +226,38 @@ window.uploadPhoto=async(file,ukey,shri)=>{
   let c=cleanKey(ukey);
   let id=c+"_photo";
   try{
-    // 1. Save thumb instantly - super fast visible
-    await setDoc(doc(db,"patient_photos",id),{ukey:ukey, shri:shri, cleanKey:c, thumb:thumb, chunkCount:0, hasFull:false, createdAt:Date.now()});
+    await setDoc(doc(db,"patient_photos",id),{ukey:ukey, shri:shri, cleanKey:c, thumb:thumb, fileName:file.name, chunkCount:0, hasFull:false, createdAt:Date.now()});
     photoCache[ukey]=thumb;
     photoCache[ukey+'_full']=base64;
     renderAll();
-    if(document.getElementById('photoModal').classList.contains('show')){
-      document.getElementById('photoView').src=base64;
-    }
-    // 2. Save full in background - no blocking
+    if(document.getElementById('photoModal').classList.contains('show')) document.getElementById('photoView').src=base64;
     let chunks=[]; for(let i=0;i<base64.length;i+=CHUNK_SIZE) chunks.push(base64.substring(i,i+CHUNK_SIZE));
-    await setDoc(doc(db,"patient_photos",id),{ukey:ukey, shri:shri, cleanKey:c, thumb:thumb, chunkCount:chunks.length, hasFull:true, createdAt:Date.now()},{merge:true});
-    for(let j=0;j<chunks.length;j++){ 
-      await setDoc(doc(db,"patient_photos",id,"chunks",String(j)),{index:j,data:chunks[j]}); 
-    }
+    await setDoc(doc(db,"patient_photos",id),{ukey:ukey, shri:shri, cleanKey:c, thumb:thumb, fileName:file.name, chunkCount:chunks.length, hasFull:true, createdAt:Date.now()},{merge:true});
+    for(let j=0;j<chunks.length;j++){ await setDoc(doc(db,"patient_photos",id,"chunks",String(j)),{index:j,data:chunks[j]}); }
   }catch(e){ alert('Upload failed: '+e.message); }
 }
-
 async function loadPhotoCache(){
   try{
-    // ONLY thumbs - 1 call, not 100 calls
-    let snap=await getDocs(collection(db,"patient_photos"));
-    snap.forEach(d=>{
-      let data=d.data();
-      let ukey=data.ukey;
-      if(!ukey) return;
-      if(data.thumb){
-        photoCache[ukey]=data.thumb;
-      }
-    });
+    let start=(currentPage-1)*pageSize;
+    let pageData=filtered.slice(start,start+pageSize);
+    let toLoad=pageData.filter(p=>!photoCache[p.key]);
+    if(toLoad.length===0) return;
+    await Promise.all(toLoad.map(async p=>{
+      let ukey=p.key;
+      let c=cleanKey(ukey);
+      try{
+        let snap=await getDoc(doc(db,"patient_photos",c+"_photo"));
+        if(snap.exists()){
+          let data=snap.data();
+          if(data.thumb){
+            photoCache[ukey]=data.thumb;
+          }
+        }
+      }catch(e){}
+    }));
     renderAll();
-  }catch(e){ console.log('photo cache error', e); }
+  }catch(e){}
 }
-
 window.renderAll=()=>{
  let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));
  if(currentPage>totalPages) currentPage=totalPages;
@@ -283,6 +288,7 @@ window.renderAll=()=>{
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('info').textContent=filtered.length+' patients • Page '+currentPage+' of '+totalPages;
  ['','Grid'].forEach(suffix=>{let pInfo=document.getElementById('pageInfo'+suffix);let prevBtn=document.getElementById('prevBtn'+suffix);let nextBtn=document.getElementById('nextBtn'+suffix);let numsEl=document.getElementById('pageNums'+suffix);if(pInfo) pInfo.textContent='Page '+currentPage+' of '+totalPages;if(prevBtn) prevBtn.disabled=currentPage<=1;if(nextBtn) nextBtn.disabled=currentPage>=totalPages;if(numsEl){let nums='';for(let i=1;i<=Math.min(totalPages,8);i++){nums+=`<button class="pBtn" style="${i===currentPage?'background:#0f172a;color:#fff':''}" onclick="goPage(${i})">${i}</button>`;}numsEl.innerHTML=nums;}});
+ setTimeout(loadPhotoCache, 50);
 };
 window.prevPage=()=>{if(currentPage>1){currentPage--;renderAll();}};
 window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(currentPage<totalPages){currentPage++;renderAll();}};
@@ -296,7 +302,6 @@ async function init(){
  Object.values(editedLocal).forEach(v=>addToMap(v,true));
  try{ const snap=await getDocs(collection(db,"patients")); snap.forEach(d=>{ let data=d.data(); if(data.deleted===true){ if(map[d.id]) map[d.id].deleted=true; return;} addToMap({key:d.id, id:d.id,...data}, true); }); }catch(e){}
  allPatients=Object.values(map); allPatients.sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase())); applyFilter();
- setTimeout(loadPhotoCache,500);
 }
 init();
 const ADMIN_PASSWORD="jack8189";
