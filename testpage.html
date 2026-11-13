@@ -129,7 +129,6 @@ const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDom
 const app = initializeApp(firebaseConfig,"totalMain_"+Math.random());const db = getFirestore(app);
 let allPatients=[],filtered=[],currentPage=1,pageSize=12,editIndex=-1;
 let photoCache={}, currentPhotoKey=null, currentPhotoShri=null;
-const CHUNK_SIZE=800000;
 function getKey(p){ return String(p.key||p.shri||p.id||p.name).trim(); }
 function cleanKey(k){ return String(k).replace(/[^a-zA-Z0-9]/g,'_'); }
 function getDeleted(){ try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]');}catch{return [];} }
@@ -155,6 +154,27 @@ function getInitial(name){ return (name||'P').trim().charAt(0).toUpperCase(); }
 window.triggerPhoto=(ukey)=>{ let el=document.getElementById('file_'+cleanKey(ukey)); if(el) el.click(); }
 window.triggerUploadFromModal=()=>{ if(currentPhotoKey) triggerPhoto(currentPhotoKey); }
 
+// ===== SUPER FAST PHOTO - COMPRESS 3MB -> 70KB =====
+async function compressImage(file, maxSize, quality){
+  return new Promise(res=>{
+    let img=new Image();
+    img.onload=()=>{
+      let c=document.createElement('canvas');
+      let w=img.width, h=img.height;
+      if(w>maxSize || h>maxSize){
+        if(w>h){ h=h*(maxSize/w); w=maxSize; }
+        else{ w=w*(maxSize/h); h=maxSize; }
+      }
+      c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      res(c.toDataURL('image/jpeg', quality));
+    };
+    img.onerror=()=>res(null);
+    let r=new FileReader();
+    r.onload=()=>{ img.src=r.result; };
+    r.readAsDataURL(file);
+  });
+}
 async function createThumb(base64){
   return new Promise(res=>{
     let img=new Image();
@@ -167,39 +187,37 @@ async function createThumb(base64){
       ctx.drawImage(img, x, y, min, min, 0, 0, s, s);
       res(c.toDataURL('image/jpeg', 0.6));
     };
-    img.onerror=()=>res(base64);
     img.src=base64;
   });
 }
-
 async function getFullPhoto(ukey){
   try{
     let c=cleanKey(ukey);
-    let snap=await getDocs(collection(db,"patient_photos",c+"_photo","chunks"));
-    let arr=[]; snap.forEach(d=>arr.push(d.data())); arr.sort((a,b)=>a.index-b.index);
+    let snap=await getDoc(doc(db,"patient_photos",c+"_photo"));
+    if(snap.exists()){
+      let d=snap.data();
+      if(d.full) return d.full;
+      if(d.thumb) return d.thumb;
+    }
+    // OLD CHUNK fallback
+    let snap2=await getDocs(collection(db,"patient_photos",c+"_photo","chunks"));
+    let arr=[]; snap2.forEach(d=>arr.push(d.data())); arr.sort((a,b)=>a.index-b.index);
     return arr.map(a=>a.data).join('');
   }catch(e){ return null; }
 }
-
 window.openPhoto=async(ukey,shri,name)=>{
   currentPhotoKey=ukey; currentPhotoShri=shri;
   document.getElementById('photoName').textContent=name+' - '+shri;
-  let cached = photoCache[ukey];
-  let cachedFull = photoCache[ukey+'_full'];
-  document.getElementById('photoView').src = cachedFull || cached || '';
+  let cachedFull = photoCache[ukey+'_full'] || photoCache[ukey];
+  document.getElementById('photoView').src = cachedFull || '';
   document.getElementById('photoModal').classList.add('show');
-  if(!cachedFull){
+  if(!photoCache[ukey+'_full']){
     let f=await getFullPhoto(ukey);
     if(f){
       photoCache[ukey+'_full']=f;
+      if(!photoCache[ukey]) photoCache[ukey]=f;
       if(currentPhotoKey===ukey) document.getElementById('photoView').src=f;
-      // create thumb if missing for future fast load
-      if(!cached || cached.length>50000){
-        let t=await createThumb(f);
-        photoCache[ukey]=t;
-        try{ await setDoc(doc(db,"patient_photos",cleanKey(ukey)+"_photo"),{thumb:t},{merge:true}); }catch(e){}
-        renderAll();
-      }
+      renderAll();
     }
   }
 }
@@ -220,20 +238,31 @@ window.deletePhoto=async()=>{
 }
 window.uploadPhoto=async(file,ukey,shri)=>{
   if(!file) return;
-  if(file.size>10*1024*1024){ alert('Max 10MB'); return; }
-  let base64=await new Promise(res=>{ let r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); });
-  let thumb=await createThumb(base64);
+  document.getElementById('info').textContent='Compressing...';
+  let compressed = await compressImage(file, 800, 0.60);
+  if(!compressed){ alert('Invalid image'); return; }
+  let thumb = await createThumb(compressed);
   let c=cleanKey(ukey);
   let id=c+"_photo";
   try{
-    await setDoc(doc(db,"patient_photos",id),{ukey:ukey, shri:shri, cleanKey:c, thumb:thumb, fileName:file.name, chunkCount:0, hasFull:false, createdAt:Date.now()});
+    await setDoc(doc(db,"patient_photos",id),{
+      ukey:ukey, shri:shri, cleanKey:c,
+      thumb:thumb,
+      full:compressed,
+      fileName:file.name,
+      originalSize:file.size,
+      compressedSize:compressed.length,
+      hasFull:true,
+      chunkCount:0,
+      createdAt:Date.now()
+    });
     photoCache[ukey]=thumb;
-    photoCache[ukey+'_full']=base64;
+    photoCache[ukey+'_full']=compressed;
     renderAll();
-    if(document.getElementById('photoModal').classList.contains('show')) document.getElementById('photoView').src=base64;
-    let chunks=[]; for(let i=0;i<base64.length;i+=CHUNK_SIZE) chunks.push(base64.substring(i,i+CHUNK_SIZE));
-    await setDoc(doc(db,"patient_photos",id),{ukey:ukey, shri:shri, cleanKey:c, thumb:thumb, fileName:file.name, chunkCount:chunks.length, hasFull:true, createdAt:Date.now()},{merge:true});
-    for(let j=0;j<chunks.length;j++){ await setDoc(doc(db,"patient_photos",id,"chunks",String(j)),{index:j,data:chunks[j]}); }
+    if(document.getElementById('photoModal').classList.contains('show')){
+      document.getElementById('photoView').src=compressed;
+    }
+    document.getElementById('info').textContent=filtered.length+' patients • Photo compressed '+(file.size/1024).toFixed(0)+'KB → '+(compressed.length/1024).toFixed(0)+'KB';
   }catch(e){ alert('Upload failed: '+e.message); }
 }
 async function loadPhotoCache(){
@@ -249,9 +278,9 @@ async function loadPhotoCache(){
         let snap=await getDoc(doc(db,"patient_photos",c+"_photo"));
         if(snap.exists()){
           let data=snap.data();
-          if(data.thumb){
-            photoCache[ukey]=data.thumb;
-          }
+          if(data.thumb) photoCache[ukey]=data.thumb;
+          else if(data.full) photoCache[ukey]=data.full;
+          if(data.full) photoCache[ukey+'_full']=data.full;
         }
       }catch(e){}
     }));
