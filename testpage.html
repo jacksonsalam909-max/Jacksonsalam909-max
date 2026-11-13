@@ -41,7 +41,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .pageHead h1{font-size:26px;font-weight:900;color:#0f172a}
 .pageHead p{color:#64748b;font-size:13px;font-weight:600;margin-top:4px}
 .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#fff;border:1.5px solid #e2e8f0;padding:12px;border-radius:16px;box-shadow:0 4px 12px #00000006;transition:.25s}
-.controls:hover{box-shadow:0 10px 24px rgba(15,23,42,0.08);transform:translateY(-1px);border-color:#cbd5e1}
 .controls input{flex:1;min-width:180px;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;font-size:13px;outline:0;background:#f8fafc}
 .viewToggle{display:flex;background:#f1f5f9;border-radius:10px;padding:3px;border:1px solid #e2e8f0}
 .vBtn{width:42px;height:36px;border-radius:8px;border:0;background:transparent;font-weight:700;font-size:18px;cursor:pointer;display:grid;place-items:center}
@@ -74,7 +73,6 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-ali
 #tbl tbody tr{will-change:transform;transform:translateZ(0);transition:all .20s ease;position:relative}
 #tbl tbody tr:hover{transform:translateY(-2px) translateZ(0);box-shadow:0 12px 28px rgba(0,0,0,0.16), 0 4px 10px rgba(0,0,0,0.10);background:#ffffff;z-index:2}
 #tbl tbody tr:hover td{background:#f9fafb!important}
-#tbl tbody tr:hover .sl{background:#111827}
 .pager{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px}
 .pagerGrid{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;margin-top:16px;flex-wrap:wrap;gap:8px}
 .pBtn{padding:8px 14px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer;font-size:13px}
@@ -129,6 +127,10 @@ const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDom
 const app = initializeApp(firebaseConfig,"totalMain_"+Math.random());const db = getFirestore(app);
 let allPatients=[],filtered=[],currentPage=1,pageSize=12,editIndex=-1;
 let photoCache={}, currentPhotoKey=null, currentPhotoShri=null;
+
+function saveLocal(key, data){ try{ localStorage.setItem('photo_'+cleanKey(key), data); }catch(e){} }
+function getLocal(key){ try{ return localStorage.getItem('photo_'+cleanKey(key)); }catch(e){ return null; } }
+
 function getKey(p){ return String(p.key||p.shri||p.id||p.name).trim(); }
 function cleanKey(k){ return String(k).replace(/[^a-zA-Z0-9]/g,'_'); }
 function getDeleted(){ try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]');}catch{return [];} }
@@ -142,64 +144,25 @@ window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize')
 window.applyFilter=()=>{
   let q=document.getElementById('search').value.trim().toLowerCase();
   if(!q){ filtered=allPatients.filter(p=>!p.deleted); renderAll(); return; }
-  filtered=allPatients.filter(p=>{
-    if(p.deleted) return false;
-    let name=(p.name||'').toLowerCase();
-    let shri=(p.shri||'').toLowerCase();
-    return name.includes(q) || shri.includes(q);
-  });
+  filtered=allPatients.filter(p=>!p.deleted && ((p.name||'').toLowerCase().includes(q) || (p.shri||'').toLowerCase().includes(q)));
   renderAll();
 };
 function getInitial(name){ return (name||'P').trim().charAt(0).toUpperCase(); }
 window.triggerPhoto=(ukey)=>{ let el=document.getElementById('file_'+cleanKey(ukey)); if(el) el.click(); }
 window.triggerUploadFromModal=()=>{ if(currentPhotoKey) triggerPhoto(currentPhotoKey); }
 
-// ===== SUPER FAST PHOTO - COMPRESS 3MB -> 70KB =====
-async function compressImage(file, maxSize, quality){
-  return new Promise(res=>{
-    let img=new Image();
-    img.onload=()=>{
-      let c=document.createElement('canvas');
-      let w=img.width, h=img.height;
-      if(w>maxSize || h>maxSize){
-        if(w>h){ h=h*(maxSize/w); w=maxSize; }
-        else{ w=w*(maxSize/h); h=maxSize; }
-      }
-      c.width=w; c.height=h;
-      c.getContext('2d').drawImage(img,0,0,w,h);
-      res(c.toDataURL('image/jpeg', quality));
-    };
-    img.onerror=()=>res(null);
-    let r=new FileReader();
-    r.onload=()=>{ img.src=r.result; };
-    r.readAsDataURL(file);
-  });
-}
-async function createThumb(base64){
-  return new Promise(res=>{
-    let img=new Image();
-    img.onload=()=>{
-      let c=document.createElement('canvas');
-      let s=140; c.width=s; c.height=s;
-      let ctx=c.getContext('2d');
-      let min=Math.min(img.width, img.height);
-      let x=(img.width-min)/2, y=(img.height-min)/2;
-      ctx.drawImage(img, x, y, min, min, 0, 0, s, s);
-      res(c.toDataURL('image/jpeg', 0.6));
-    };
-    img.src=base64;
-  });
-}
 async function getFullPhoto(ukey){
+  let c=cleanKey(ukey);
+  if(photoCache[ukey+'_full']) return photoCache[ukey+'_full'];
+  let local=getLocal(ukey);
+  if(local) return local;
   try{
-    let c=cleanKey(ukey);
     let snap=await getDoc(doc(db,"patient_photos",c+"_photo"));
     if(snap.exists()){
       let d=snap.data();
       if(d.full) return d.full;
       if(d.thumb) return d.thumb;
     }
-    // OLD CHUNK fallback
     let snap2=await getDocs(collection(db,"patient_photos",c+"_photo","chunks"));
     let arr=[]; snap2.forEach(d=>arr.push(d.data())); arr.sort((a,b)=>a.index-b.index);
     return arr.map(a=>a.data).join('');
@@ -208,84 +171,74 @@ async function getFullPhoto(ukey){
 window.openPhoto=async(ukey,shri,name)=>{
   currentPhotoKey=ukey; currentPhotoShri=shri;
   document.getElementById('photoName').textContent=name+' - '+shri;
-  let cachedFull = photoCache[ukey+'_full'] || photoCache[ukey];
-  document.getElementById('photoView').src = cachedFull || '';
+  let cached = photoCache[ukey+'_full'] || photoCache[ukey] || getLocal(ukey);
+  document.getElementById('photoView').src = cached || '';
   document.getElementById('photoModal').classList.add('show');
-  if(!photoCache[ukey+'_full']){
+  if(!cached){
     let f=await getFullPhoto(ukey);
-    if(f){
-      photoCache[ukey+'_full']=f;
-      if(!photoCache[ukey]) photoCache[ukey]=f;
-      if(currentPhotoKey===ukey) document.getElementById('photoView').src=f;
-      renderAll();
-    }
+    if(f && currentPhotoKey===ukey){ document.getElementById('photoView').src=f; photoCache[ukey+'_full']=f; saveLocal(ukey,f); }
   }
 }
 window.closePhoto=()=>{ document.getElementById('photoModal').classList.remove('show'); }
 window.deletePhoto=async()=>{
-  if(!currentPhotoKey){ alert('No photo'); return; }
+  if(!currentPhotoKey) return;
   if(!confirm('Delete photo of '+currentPhotoShri+' ?')) return;
   let c=cleanKey(currentPhotoKey);
   try{
     let csnap=await getDocs(collection(db,"patient_photos",c+"_photo","chunks"));
     for(let d of csnap.docs){ await deleteDoc(doc(db,"patient_photos",c+"_photo","chunks",d.id)); }
     await deleteDoc(doc(db,"patient_photos",c+"_photo"));
-    delete photoCache[currentPhotoKey];
-    delete photoCache[currentPhotoKey+'_full'];
-    currentPhotoKey=null; currentPhotoShri=null;
-    closePhoto(); renderAll();
-  }catch(e){ alert('Delete failed: '+(e.message||e)); }
+    delete photoCache[currentPhotoKey]; delete photoCache[currentPhotoKey+'_full'];
+    try{ localStorage.removeItem('photo_'+c); localStorage.removeItem('photo_'+cleanKey(currentPhotoKey)); }catch(e){}
+    currentPhotoKey=null; closePhoto(); renderAll();
+  }catch(e){ alert('Delete failed'); }
 }
 window.uploadPhoto=async(file,ukey,shri)=>{
   if(!file) return;
-  document.getElementById('info').textContent='Compressing...';
-  let compressed = await compressImage(file, 800, 0.60);
-  if(!compressed){ alert('Invalid image'); return; }
-  let thumb = await createThumb(compressed);
+  let base64=await new Promise(res=>{ let r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); });
   let c=cleanKey(ukey);
   let id=c+"_photo";
-  try{
-    await setDoc(doc(db,"patient_photos",id),{
-      ukey:ukey, shri:shri, cleanKey:c,
-      thumb:thumb,
-      full:compressed,
-      fileName:file.name,
-      originalSize:file.size,
-      compressedSize:compressed.length,
-      hasFull:true,
-      chunkCount:0,
-      createdAt:Date.now()
-    });
-    photoCache[ukey]=thumb;
-    photoCache[ukey+'_full']=compressed;
-    renderAll();
-    if(document.getElementById('photoModal').classList.contains('show')){
-      document.getElementById('photoView').src=compressed;
-    }
-    document.getElementById('info').textContent=filtered.length+' patients • Photo compressed '+(file.size/1024).toFixed(0)+'KB → '+(compressed.length/1024).toFixed(0)+'KB';
-  }catch(e){ alert('Upload failed: '+e.message); }
+  // INSTANT SHOW - NO WAIT
+  photoCache[ukey]=base64; photoCache[ukey+'_full']=base64; saveLocal(ukey, base64);
+  renderAll();
+  if(document.getElementById('photoModal').classList.contains('show')) document.getElementById('photoView').src=base64;
+  // BACKGROUND SAVE
+  (async()=>{
+    try{
+      let chunks=[]; const CHUNK=800000;
+      for(let i=0;i<base64.length;i+=CHUNK) chunks.push(base64.substring(i,i+CHUNK));
+      await setDoc(doc(db,"patient_photos",id),{ukey:ukey, shri:shri, cleanKey:c, full:base64.length<900000?base64:'', thumb:base64.substring(0,80000), chunkCount:chunks.length, createdAt:Date.now()});
+      if(base64.length>=900000){
+        for(let j=0;j<chunks.length;j++){ await setDoc(doc(db,"patient_photos",id,"chunks",String(j)),{index:j,data:chunks[j]}); }
+      }
+    }catch(e){}
+  })();
 }
 async function loadPhotoCache(){
-  try{
-    let start=(currentPage-1)*pageSize;
-    let pageData=filtered.slice(start,start+pageSize);
-    let toLoad=pageData.filter(p=>!photoCache[p.key]);
-    if(toLoad.length===0) return;
-    await Promise.all(toLoad.map(async p=>{
-      let ukey=p.key;
-      let c=cleanKey(ukey);
-      try{
-        let snap=await getDoc(doc(db,"patient_photos",c+"_photo"));
-        if(snap.exists()){
-          let data=snap.data();
-          if(data.thumb) photoCache[ukey]=data.thumb;
-          else if(data.full) photoCache[ukey]=data.full;
-          if(data.full) photoCache[ukey+'_full']=data.full;
-        }
-      }catch(e){}
-    }));
-    renderAll();
-  }catch(e){}
+  let start=(currentPage-1)*pageSize;
+  let pageData=filtered.slice(start,start+pageSize);
+  let hasNew=false;
+  pageData.forEach(p=>{
+    if(!photoCache[p.key]){
+      let local=getLocal(p.key);
+      if(local){ photoCache[p.key]=local; photoCache[p.key+'_full']=local; hasNew=true; }
+    }
+  });
+  if(hasNew) renderAll();
+  let toLoad=pageData.filter(p=>!photoCache[p.key]);
+  if(toLoad.length===0) return;
+  await Promise.all(toLoad.map(async p=>{
+    let ukey=p.key; let c=cleanKey(ukey);
+    try{
+      let snap=await getDoc(doc(db,"patient_photos",c+"_photo"));
+      if(snap.exists()){
+        let d=snap.data();
+        let img=d.full || d.thumb;
+        if(img){ photoCache[ukey]=img; if(d.full) photoCache[ukey+'_full']=d.full; saveLocal(ukey, img); }
+      }
+    }catch(e){}
+  }));
+  renderAll();
 }
 window.renderAll=()=>{
  let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));
@@ -295,10 +248,9 @@ window.renderAll=()=>{
  let gridHtml='<div class="tableWatermark"><img src="loko.png"></div>';
  data.forEach((p)=>{
    let realIdx=allPatients.indexOf(p);
-   let ukey=p.key;
-   let c=cleanKey(ukey);
-   let photo=photoCache[ukey];
-   let avatar=photo?`<img src="${photo}" loading="lazy">`:`${getInitial(p.name)}`;
+   let ukey=p.key; let c=cleanKey(ukey);
+   let photo=photoCache[ukey] || getLocal(ukey);
+   let avatar=photo?`<img src="${photo}" loading="eager">`:`${getInitial(p.name)}`;
    gridHtml+=`<div class="pCard"><div class="pCardBody"><div class="pCardAvatar" onclick="openPhoto('${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}','${(p.name||'').replace(/'/g,"\\'")}')">${avatar}</div><div class="pCardName">${p.name||'Unknown'}</div><div class="pCardSub">${p.addr||'No address'}</div><div class="pCardMeta"><div class="pCardRow2"><span>PMJAY ID</span><b>${p.pmjay||'-'}</b></div><div class="pCardRow2"><span>SHRI ID</span><b>${p.shri||'-'}</b></div><div class="pCardRow2"><span>Contact</span><b>${p.contact||'-'}</b></div></div><div class="pCardActions"><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button><button class="btnDel" onclick="deletePatient(${realIdx})">Delete</button></div></div><input type="file" id="file_${c}" style="display:none" accept="image/*" onchange="uploadPhoto(this.files[0],'${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}')"></div>`;
  });
  if(data.length===0) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">No patients</div>';
@@ -306,10 +258,9 @@ window.renderAll=()=>{
  let html='<tr><th>SL No</th><th>Patient Name</th><th>PMJAY ID</th><th>SHRI ID</th><th>Contact Number</th><th>Photo</th><th>Address</th><th>Action</th></tr>';
  data.forEach((p)=>{
    let realIdx=allPatients.indexOf(p);
-   let ukey=p.key;
-   let c=cleanKey(ukey);
-   let photo=photoCache[ukey];
-   let thumb=photo?`<img src="${photo}" loading="lazy">`:`${getInitial(p.name)}`;
+   let ukey=p.key; let c=cleanKey(ukey);
+   let photo=photoCache[ukey] || getLocal(ukey);
+   let thumb=photo?`<img src="${photo}" loading="eager">`:`${getInitial(p.name)}`;
    let slNo=start+data.indexOf(p)+1;
    html+=`<tr><td><div class="sl">${slNo}</div></td><td><b>${p.name||'-'}</b></td><td><span class="pmjayTable">${p.pmjay||'-'}</span></td><td><span class="shriTable">${p.shri||'-'}</span></td><td>${p.contact||'-'}</td><td><div class="tAvatar" onclick="openPhoto('${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}','${(p.name||'').replace(/'/g,"\\'")}')">${thumb}</div><input type="file" id="file_${c}" style="display:none" accept="image/*" onchange="uploadPhoto(this.files[0],'${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}')"></td><td>${(p.addr||'-').substring(0,30)}</td><td><div style="display:flex;gap:6px"><button class="btnEdit" onclick="openEdit(${realIdx})">Edit</button><button class="btnDel" onclick="deletePatient(${realIdx})">Delete</button></div></td></tr>`;
  });
@@ -317,7 +268,7 @@ window.renderAll=()=>{
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('info').textContent=filtered.length+' patients • Page '+currentPage+' of '+totalPages;
  ['','Grid'].forEach(suffix=>{let pInfo=document.getElementById('pageInfo'+suffix);let prevBtn=document.getElementById('prevBtn'+suffix);let nextBtn=document.getElementById('nextBtn'+suffix);let numsEl=document.getElementById('pageNums'+suffix);if(pInfo) pInfo.textContent='Page '+currentPage+' of '+totalPages;if(prevBtn) prevBtn.disabled=currentPage<=1;if(nextBtn) nextBtn.disabled=currentPage>=totalPages;if(numsEl){let nums='';for(let i=1;i<=Math.min(totalPages,8);i++){nums+=`<button class="pBtn" style="${i===currentPage?'background:#0f172a;color:#fff':''}" onclick="goPage(${i})">${i}</button>`;}numsEl.innerHTML=nums;}});
- setTimeout(loadPhotoCache, 50);
+ setTimeout(loadPhotoCache, 20);
 };
 window.prevPage=()=>{if(currentPage>1){currentPage--;renderAll();}};
 window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(currentPage<totalPages){currentPage++;renderAll();}};
