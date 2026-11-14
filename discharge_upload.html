@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UPLOAD FILES - SHIJA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
+body{background:#f8fafc;padding:20px}
+.card{background:#fff;border-radius:16px;border:1px solid #e2e8f0;padding:20px;margin-bottom:16px}
+.header{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.btn{padding:10px 16px;border:0;border-radius:9px;font-weight:800;cursor:pointer}
+.btnDark{background:#3c25eb;color:#fff}
+.btnYellow{background:#facc15;color:#000;border:1.5px solid #eab308}
+.uploadSection{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;padding:20px;background:#fff;border-radius:16px;border:1px solid #e2e8f0}
+.uploadCol{flex:1;min-width:260px;max-width:340px;display:flex;flex-direction:column;align-items:center}
+.yellowBox{width:100%;border:3px dashed #facc15;border-radius:8px;background:#fffef0;padding:14px;font-size:13px;font-weight:600;min-height:50px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.trash{color:#ef4444;background:none;border:none;font-size:22px;cursor:pointer}
+.claimWrap{display:flex;gap:10px;align-items:center;margin-top:20px;justify-content:flex-end}
+.claimInput{border:2px solid #6366f1;border-radius:10px;padding:10px 14px;font-weight:700;width:180px;background:#f0f4ff}
+#fileModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:16px}
+#fileModal.show{display:flex}
+.popupCard{background:#fff;border-radius:12px;width:85%;max-width:700px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column}
+.popupHead{padding:12px;background:#7c3aed;color:#fff;display:flex;justify-content:space-between}
+</style>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(cfg,"app_"+Math.random());
+const db=getFirestore(app);
+window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},CHUNK_SIZE:800000};
+</script>
+</head>
+<body>
+<div class="header">
+<div><b id="pName">PATIENT</b><div style="font-size:12px;color:#64748b;margin-top:6px"><span id="pShri"></span> | <span id="pPmjay"></span> | <span id="pMeta"></span></div></div>
+<div style="display:flex;gap:8px"><a href="discharge.html" class="btn btnDark" style="text-decoration:none">← BACK</a><span id="fileCount" style="font-size:12px;color:#94a3b8">0 files</span></div>
+</div>
+
+<div class="uploadSection">
+<div class="uploadCol"><b>Discharge summary</b><div style="display:flex;gap:8px;width:100%;margin-top:10px"><div class="yellowBox" id="box_summary" onclick="openFile('discharge_summary')">Uploaded patient file name</div><button class="trash" onclick="delFile('discharge_summary')">🗑️</button></div><button class="btn btnDark" style="margin-top:8px" onclick="trigger('discharge_summary')">UPLOAD</button></div>
+<div class="uploadCol"><b>Discharge photo</b><div style="display:flex;gap:8px;width:100%;margin-top:10px"><div class="yellowBox" id="box_photo" onclick="openFile('discharge_photo')">Uploaded patient file name</div><button class="trash" onclick="delFile('discharge_photo')">🗑️</button></div><button class="btn btnDark" style="margin-top:8px" onclick="trigger('discharge_photo')">UPLOAD</button></div>
+<div class="uploadCol"><b>Feedback form</b><div style="display:flex;gap:8px;width:100%;margin-top:10px"><div class="yellowBox" id="box_feedback" onclick="openFile('feedback_form')">Uploaded patient file name</div><button class="trash" onclick="delFile('feedback_form')">🗑️</button></div><button class="btn btnDark" style="margin-top:8px" onclick="trigger('feedback_form')">UPLOAD</button></div>
+</div>
+
+<div class="card"><div class="claimWrap"><button class="btn btnYellow" onclick="document.getElementById('claimBox').style.display='flex'">Claim</button><div id="claimBox" style="display:none;gap:8px;align-items:center;background:#fffbeb;padding:6px;border-radius:10px"><input id="claimInput" class="claimInput" placeholder="CLAIM ID"><button class="btn btnDark" onclick="saveClaim()">ADD</button></div></div></div>
+
+<input type="file" id="file_discharge_summary" style="display:none" accept=".pdf,.jpg,.png" onchange="upload(this.files[0],'discharge_summary',this)">
+<input type="file" id="file_discharge_photo" style="display:none" accept=".jpg,.png,.pdf" onchange="upload(this.files[0],'discharge_photo',this)">
+<input type="file" id="file_feedback_form" style="display:none" accept=".pdf,.jpg,.png" onchange="upload(this.files[0],'feedback_form',this)">
+
+<div id="fileModal"><div class="popupCard"><div class="popupHead"><b id="modalName">FILE</b><div><button class="btn btnDark" onclick="downloadCurrent()">Download</button><button class="btn btnDark" onclick="openNewTab()">New Page</button><button class="btn" style="background:#ef4444;color:#fff" onclick="closeModal()">X</button></div></div><div id="paperBox" style="padding:0"></div></div></div>
+
+<script>
+var params=new URLSearchParams(location.search);
+var SHRI=params.get('shri')||'';var NAME=params.get('name')||'';var PMJAY=params.get('pmjay')||'';var DATE=params.get('date')||'';var TIME=params.get('time')||'';var BLOCK=params.get('block')||'';var DID=params.get('id')||'';
+document.getElementById('pName').textContent=NAME;document.getElementById('pShri').textContent='SHRI: '+SHRI;document.getElementById('pPmjay').textContent='PMJAY: '+PMJAY;document.getElementById('pMeta').textContent='DATE: '+DATE+' TIME: '+TIME+' BLOCK: '+BLOCK;
+var cache={};
+function getDocs(){return window._fb._docsCache[SHRI]||[];}
+async function loadDocs(){try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patient_docs"));window._fb._docsCache={};snap.forEach(d=>{var data=d.data();data._id=d.id;if(!window._fb._docsCache[data.shri])window._fb._docsCache[data.shri]=[];window._fb._docsCache[data.shri].push(data);});renderBoxes();}catch(e){}}
+function renderBoxes(){
+var docs=getDocs();
+document.getElementById('fileCount').textContent=docs.length+' files';
+var map={discharge_summary:'box_summary',discharge_photo:'box_photo',feedback_form:'box_feedback'};
+Object.keys(map).forEach(type=>{
+var doc=docs.find(d=>d.type===type);
+var el=document.getElementById(map[type]);
+if(doc){el.textContent=doc.fileName;el.style.background='#f0fdf4';el.style.borderColor='#86efac';}else{el.textContent='Uploaded patient file name';el.style.background='#fffef0';el.style.borderColor='#facc15';}
+});
+}
+function trigger(type){var el=document.getElementById('file_'+type);if(el){el.value='';el.click();}}
+async function upload(file,type,input){
+if(!file)return;
+var clean=SHRI.replace(/[^a-zA-Z0-9]/g,'_');
+var base64=await new Promise((res,rej)=>{var r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});
+var id=clean+'_'+type+'_'+Date.now();
+var chunks=[];for(var i=0;i<base64.length;i+=window._fb.CHUNK_SIZE){chunks.push(base64.substring(i,i+window._fb.CHUNK_SIZE));}
+await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:SHRI,cleanShri:clean,patientName:NAME,ip:PMJAY,fileName:file.name,fileType:file.type,size:file.size,chunkCount:chunks.length,createdAt:Date.now()});
+for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}
+if(!window._fb._docsCache[SHRI])window._fb._docsCache[SHRI]=[];
+window._fb._docsCache[SHRI].push({_id:id,type:type,shri:SHRI,fileName:file.name});
+if(input)input.value='';
+renderBoxes();
+alert('✓ Uploaded');
+}
+async function getFull(id){var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));var arr=[];snap.forEach(d=>arr.push(d.data()));arr.sort((a,b)=>a.index-b.index);return arr.map(a=>a.data).join('');}
+async function openFile(type){
+var docs=getDocs().filter(d=>d.type===type);
+if(docs.length===0){trigger(type);return;}
+var data=await getFull(docs[0]._id);
+window._fb.curData=data;window._fb.curName=docs[0].fileName;
+document.getElementById('modalName').textContent=docs[0].fileName;
+var box=document.getElementById('paperBox');
+if(data.startsWith('data:application/pdf')||docs[0].fileName.toLowerCase().endsWith('.pdf')){box.innerHTML='<iframe src="'+data+'" style="width:100%;height:70vh;border:0"></iframe>';}else{box.innerHTML='<img src="'+data+'" style="max-width:100%;max-height:70vh">';}
+document.getElementById('fileModal').style.display='flex';document.getElementById('fileModal').classList.add('show');
+}
+function closeModal(){document.getElementById('fileModal').style.display='none';}
+function downloadCurrent(){var a=document.createElement('a');a.href=window._fb.curData;a.download=window._fb.curName;a.click();}
+function openNewTab(){var w=window.open();w.document.write('<iframe src="'+window._fb.curData+'" style="width:100%;height:100vh;border:0"></iframe>');}
+async function delFile(type){
+var docs=getDocs().filter(d=>d.type===type);
+if(docs.length===0)return;
+if(!confirm('Delete?'))return;
+var id=docs[0]._id;
+var csnap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));
+for(var d of csnap.docs){await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',d.id));}
+await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',id));
+window._fb._docsCache[SHRI]=window._fb._docsCache[SHRI].filter(x=>x._id!==id);
+renderBoxes();
+}
+async function saveClaim(){
+var claimId=document.getElementById('claimInput').value.trim().toUpperCase();
+if(!claimId)return;
+await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',DID),{claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});
+location.href='claim.html?claimId='+encodeURIComponent(claimId);
+}
+window.addEventListener('load',()=>{setTimeout(loadDocs,600);});
+</script>
+</body>
+</html>
