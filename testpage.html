@@ -46,8 +46,9 @@ body{display:flex;align-items:flex-start!important}
 .pMeta{font-size:12px;color:#64748b;font-weight:700;margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
 .pMeta span{background:#f8fafc;border:1px solid #e2e8f0;padding:4px 10px;border-radius:20px}
 .btn{padding:10px 18px;border:0;border-radius:9px;font-weight:800;cursor:pointer;font-size:12px}
-.btnBack{background:#fff!important;color:#0f172a!important;border:1.5px solid #e2e8f0!important;padding:8px 16px!important;border-radius:20px!important;display:flex;align-items:center;gap:6px}
-.btnBack:hover{background:#f8fafc!important}
+/* BACK BUTTON RECTANGULAR SHAPE ONLY */
+.btnBack{background:#fff!important;color:#0f172a!important;border:1.5px solid #cbd5e1!important;padding:8px 18px!important;border-radius:4px!important;display:flex;align-items:center;gap:6px;font-weight:800!important;font-size:13px!important}
+.btnBack:hover{background:#f1f5f9!important}
 .btnYellow{background:#facc15!important;color:#000!important;border:1.5px solid #eab308!important}
 .btnEdit{background:#fff!important;color:#0f172a!important;border:1.5px solid #e2e8f0!important}
 .btnSave{background:#22c55e!important;color:#fff!important;border:1.5px solid #16a34a!important}
@@ -65,8 +66,6 @@ body{display:flex;align-items:flex-start!important}
 .claimSlideHorizontal{position:absolute;right:100%;top:50%;margin-right:12px;transform:translateY(-50%) translateX(30px);width:300px;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:10px 12px;display:flex;gap:8px;align-items:center;opacity:0;pointer-events:none;transition:transform .35s ease, opacity .35s ease;z-index:20;white-space:nowrap}
 .claimSlideHorizontal.open{transform:translateY(-50%) translateX(0);opacity:1;pointer-events:auto}
 .claimInput{border:2px solid #6366f1;border-radius:10px;padding:9px 12px;font-weight:800;flex:1;background:#f0f4ff;outline:0;font-size:13px;min-width:0}
-
-/* UNIVERSAL POPUP - SAME FOR ALL DEVICES */
 #fileModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:16px}
 #fileModal.show{display:flex!important}
 .popupCard{background:#fff;border-radius:16px;width:92%;max-width:750px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:popIn .3s ease}
@@ -118,10 +117,10 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},CHUNK_SIZE:
 <div class="mainWrap">
 <div class="top">
 <div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> UPLOAD FILES</div>
-<a href="discharge.html" class="btn btnBack">← BACK</a>
+<a href="discharge.html" class="btnBack">← BACK</a>
 </div>
 <div class="content">
-<div class="headerTop"><div style="flex:1"><div class="pName" id="pName">PATIENT</div><div class="pMeta"><span id="pShri">SHRI: -</span><span id="pPmjay">PMJAY: -</span><span id="pMeta">DATE / TIME / BLOCK</span><span id="fileCount" style="background:#0f172a;color:#fff">0 FILES</span><span id="autoDelInfo" style="background:#fef3c7;color:#92400e;border-color:#fde68a">AUTO DELETE 48H</span></div></div></div>
+<div class="headerTop"><div style="flex:1"><div class="pName" id="pName">PATIENT</div><div class="pMeta"><span id="pShri">SHRI: -</span><span id="pPmjay">PMJAY: -</span><span id="pMeta">DATE / TIME / BLOCK</span></div></div></div>
 <div class="uploadSection">
 <div class="uploadCol"><b>Discharge summary</b><div style="display:flex;gap:6px;width:100%;margin-top:10px;align-items:center"><div class="yellowBox" id="box_summary">Click or Drop</div><button class="delIcon" onclick="delFile('discharge_summary')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
 <div class="uploadCol"><b>Discharge photo</b><div style="display:flex;gap:6px;width:100%;margin-top:10px;align-items:center"><div class="yellowBox" id="box_photo">Click or Drop</div><button class="delIcon" onclick="delFile('discharge_photo')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
@@ -139,8 +138,6 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},CHUNK_SIZE:
 <input type="file" id="file_discharge_summary" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="upload(this.files[0],'discharge_summary',this)">
 <input type="file" id="file_discharge_photo" style="display:none" accept=".jpg,.jpeg,.png,.pdf" onchange="upload(this.files[0],'discharge_photo',this)">
 <input type="file" id="file_feedback_form" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="upload(this.files[0],'feedback_form',this)">
-
-<!-- UNIVERSAL POPUP SAME FOR ALL DEVICES -->
 <div id="fileModal"><div class="popupCard"><div class="popupHead"><b id="modalName">FILE</b><div style="display:flex;gap:8px"><button class="btn" style="background:#3c25eb;color:#fff" onclick="downloadCurrent()">Download</button><button class="btn" style="background:#fff;color:#000" onclick="closeModal()">✕ CLOSE</button></div></div><div id="paperBox" class="popupBody"></div></div></div>
 
 <script>
@@ -156,14 +153,10 @@ async function loadDocs(){
 try{
 var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patient_docs"));
 window._fb._docsCache={};
-snap.forEach(d=>{
-var data=d.data();data._id=d.id;
-if(!window._fb._docsCache[data.shri])window._fb._docsCache[data.shri]=[];
-window._fb._docsCache[data.shri].push(data);
-});
+snap.forEach(d=>{var data=d.data();data._id=d.id;if(!window._fb._docsCache[data.shri])window._fb._docsCache[data.shri]=[];window._fb._docsCache[data.shri].push(data);});
 await autoDeleteExpired();
 renderBoxes();
-}catch(e){console.log(e)}
+}catch(e){}
 }
 async function autoDeleteExpired(){
 var docs=window._fb._docsCache[SHRI]||[];
@@ -177,14 +170,12 @@ var csnap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_
 for(var d of csnap.docs){await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',doc._id,'chunks',d.id));}
 await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',doc._id));
 window._fb._docsCache[SHRI]=window._fb._docsCache[SHRI].filter(x=>x._id!==doc._id);
-console.log('Auto deleted 48h:',doc.fileName);
-}catch(err){console.log('Delete error',err)}
+}catch(err){}
 }
 }
 }
 function renderBoxes(){
 var docs=getDocs();
-document.getElementById('fileCount').textContent=docs.length+' FILES';
 var map={discharge_summary:'box_summary',discharge_photo:'box_photo',feedback_form:'box_feedback'};
 Object.keys(map).forEach(type=>{
 var doc=docs.find(d=>d.type===type);
