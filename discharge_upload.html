@@ -35,7 +35,7 @@ body{display:flex}
 .whiteBar.folded .sHead{justify-content:center!important;padding:12px 0!important}
 .top{height:72px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
 .logo{display:flex;align-items:center;gap:12px;font-weight:900;font-size:18px;color:#0f172a}
-.menuBtnTop{width:42px;height:40px;background:#fff;border:none!important;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:.2s}
+.menuBtnTop{width:42px;height:40px;background:#fff;border:none!important;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .menuBtnTop span{display:block;width:22px;height:2.6px;background:#0f172a;border-radius:2px}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
@@ -60,9 +60,8 @@ body{display:flex}
 .pager button{padding:8px 14px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;font-weight:800;cursor:pointer}
 .pager button:disabled{opacity:.35}
 .pager span{font-weight:900;font-size:13px}
-.patientBlock{margin-bottom:20px;border-radius:14px;transition:.25s;overflow:visible!important;border:2px solid transparent}
-.patientBlock.highlight{border-color:#6366f1!important;box-shadow:0 0 0 4px rgba(99,102,241,.15), 0 12px 24px rgba(0,0,0,.12)!important;animation:popHighlight .6s ease}
-@keyframes popHighlight{0%{transform:scale(.98)}50%{transform:scale(1.01)}100%{transform:scale(1)}}
+.patientBlock{margin-bottom:20px;border-radius:14px;transition:.25s;overflow:visible!important}
+.patientBlock:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(0,0,0,.08)}
 .headerTop{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px 14px 0 0;padding:12px 14px}
 .pTitle{font-size:14px;font-weight:900;color:#0f172a;white-space:pre-wrap;word-break:break-word}
 .pTags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
@@ -81,7 +80,7 @@ body{display:flex}
 .btnEdit{background:#fff;border:1.5px solid #e2e8f0!important;color:#0f172a}
 .btnSave{background:#22c55e;color:#fff;border:1.5px solid #16a34a}
 .btnYellow{background:#facc15;color:#000;border:1.5px solid #eab308}
-.claimSlide{position:absolute;right:100%;top:50%;margin-right:14px;transform:translateY(-50%) translateX(30px);width:272px;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:8px 10px;display:flex;gap:8px;align-items:center;opacity:0;pointer-events:none;transition:.36s cubic-bezier(.34,1.2,.64,1);z-index:60}
+.claimSlide{position:absolute;right:100%;top:50%;margin-right:14px;transform:translateY(-50%) translateX(30px);width:272px;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:8px 10px;display:flex;gap:8px;align-items:center;opacity:0;pointer-events:none;transition:.36s;z-index:60}
 .claimSlide.open{opacity:1;pointer-events:auto;transform:translateY(-50%) translateX(0)}
 .claimInput{border:2px solid #6366f1;border-radius:8px;padding:7px 9px;font-weight:800;flex:1;background:#f0f4ff;outline:0;font-size:11px;min-width:120px}
 #fileModal{display:none;position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;background:rgba(0,0,0,0.82)!important;z-index:999999;align-items:center;justify-content:center;padding:12px}
@@ -109,7 +108,7 @@ body{display:flex}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(cfg,"top_patient");
+const app=initializeApp(cfg,"top_only");
 const db=getFirestore(app);
 window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,CHUNK_SIZE:800000};
 </script>
@@ -173,31 +172,19 @@ function toggleDrop(id,btn){document.querySelectorAll('.dropdown').forEach(d=>{i
 
 <script>
 let all=[],filtered=[],currentPage=1,perPage=3,docsCache={},fTime='All',fBlock='All';
-let focusShri=null, focusId=null;
+let focusShri=null;
 
 function getToday(){return new Date().toISOString().slice(0,10);}
 
-function getUrlParams(){
-  let p=new URLSearchParams(window.location.search);
-  focusShri = (p.get('shri')||'').trim();
-  focusId = (p.get('id')||'').trim();
-}
-
 async function loadAll(){
-getUrlParams();
+let params=new URLSearchParams(window.location.search);
+focusShri=(params.get('shri')||'').trim();
+
 let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"discharges"));
 all=[];snap.forEach(d=>{let o=d.data();o._id=d.id;if(!o.claimId)all.push(o);});
 let snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,"patient_docs"));
 docsCache={};snap2.forEach(d=>{let data=d.data();data._id=d.id;let k=data.shri||data.shriId;if(!k)return;if(!docsCache[k])docsCache[k]=[];docsCache[k].push(data);});
-
-// if coming from discharge.html with shri, don't force today's date - show all, but keep date empty to find patient
-if(focusShri){
-  document.getElementById('fDate').value='';
-  // also auto fill search with shri so user sees
-  document.getElementById('searchInput').value=focusShri;
-}else{
-  document.getElementById('fDate').value=getToday();
-}
+document.getElementById('fDate').value=getToday();
 applyFilter();
 }
 
@@ -205,9 +192,7 @@ function applyFilter(){
 let date=document.getElementById('fDate').value;
 let search=document.getElementById('searchInput').value.toLowerCase().trim();
 filtered=all.filter(p=>{
-if(!focusShri){ // only apply date filter if not focused from discharge.html
-  if(date&&p.date!==date)return false;
-}
+if(date&&p.date!==date)return false;
 if(fTime!=='All'&& (p.time||'').toUpperCase()!==fTime.toUpperCase())return false;
 if(fBlock!=='All'&& (p.block||'').toUpperCase()!==fBlock.toUpperCase())return false;
 if(search){
@@ -217,36 +202,39 @@ if(s.indexOf(search)===-1)return false;
 return true;
 });
 
-// SORT: focused patient on TOP
-if(focusShri || focusId){
-  filtered.sort((a,b)=>{
-    let aIsFocus = (focusShri && (a.shri===focusShri || a.shriId===focusShri)) || (focusId && a._id===focusId);
-    let bIsFocus = (focusShri && (b.shri===focusShri || b.shriId===focusShri)) || (focusId && b._id===focusId);
-    if(aIsFocus && !bIsFocus) return -1;
-    if(!aIsFocus && bIsFocus) return 1;
-    return new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0);
-  });
-}else{
-  filtered.sort((a,b)=>new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0));
+// ONLY CHANGE: if coming from discharge.html, bring that patient to top, keep others as is
+if(focusShri){
+  let idx=filtered.findIndex(p=> (p.shri===focusShri || p.shriId===focusShri));
+  if(idx>0){
+    let item=filtered.splice(idx,1)[0];
+    filtered.unshift(item);
+  }
+  // if not in today's list, try find in all and bring to top
+  if(idx===-1){
+    let inAll=all.find(p=> p.shri===focusShri || p.shriId===focusShri);
+    if(inAll && !filtered.find(p=>p._id===inAll._id)){
+      filtered.unshift(inAll);
+    }
+  }
 }
 
-currentPage=1;
-renderPage();
-
-// scroll to top and highlight
-setTimeout(()=>{
-  if(focusShri || focusId){
-    window.scrollTo({top:0,behavior:'smooth'});
+filtered.sort((a,b)=>{
+  // keep focus on top, rest by dischargedAt
+  if(focusShri){
+    if((a.shri===focusShri || a.shriId===focusShri) && !(b.shri===focusShri || b.shriId===focusShri)) return -1;
+    if(!(a.shri===focusShri || a.shriId===focusShri) && (b.shri===focusShri || b.shriId===focusShri)) return 1;
   }
-},300);
+  return new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0);
+});
+
+currentPage=1;renderPage();
 }
 
 function filterSearch(){applyFilter();}
 function setTime(t){fTime=t;document.getElementById('timeDrop').classList.remove('show');document.getElementById('timeBtn').classList.remove('open');document.getElementById('timeBtn').innerHTML=(t==='All'?'TIME':t)+' <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';applyFilter();}
 function setBlock(b){fBlock=b;document.getElementById('blockDrop').classList.remove('show');document.getElementById('blockBtn').classList.remove('open');document.getElementById('blockBtn').innerHTML=(b==='All'?'BLOCK':b)+' <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';applyFilter();}
-function changeDate(d){let inp=document.getElementById('fDate');let base=inp.value?new Date(inp.value):new Date();base.setDate(base.getDate()+d);inp.value=base.toISOString().slice(0,10);focusShri=null;focusId=null;document.getElementById('searchInput').value='';applyFilter();}
-document.getElementById('fDate').addEventListener('change',()=>{focusShri=null;focusId=null;applyFilter();});
-
+function changeDate(d){let inp=document.getElementById('fDate');let base=inp.value?new Date(inp.value):new Date();base.setDate(base.getDate()+d);inp.value=base.toISOString().slice(0,10);applyFilter();}
+document.getElementById('fDate').addEventListener('change',applyFilter);
 function renderPage(){
 let total=Math.ceil(filtered.length/perPage)||1;
 if(currentPage>total)currentPage=total;
@@ -256,14 +244,13 @@ document.getElementById('nextBtn').disabled=currentPage>=total;
 let start=(currentPage-1)*perPage;
 let pageData=filtered.slice(start,start+perPage);
 let html='';
-pageData.forEach((p,i)=>{
+pageData.forEach(p=>{
 let shri=p.shri||p.shriId||'';let pmjay=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';let rawName=p.patientName||p.name||'UNKNOWN';
 let displayName=String(rawName).trim().split(/\s+/).join('  ').toUpperCase();
 let docs=docsCache[shri]||[];let get=(t)=>docs.find(d=>d.type===t);
 let s=get('discharge_summary');let ph=get('discharge_photo');let fb=get('feedback_form');
-let isFocus = (focusShri && (shri===focusShri)) || (focusId && p._id===focusId);
-html+=`<div class="patientBlock ${isFocus && i===0 ? 'highlight' : ''}" ${isFocus && i===0 ? 'id="focusedPatient"' : ''}>
-<div class="headerTop"><div class="pTitle">${displayName} ${isFocus && i===0 ? '⭐ - OPENED FROM DISCHARGE' : ''}</div><div class="pTags"><span>SHRI: ${shri||'-'}</span><span>PMJAY: ${pmjay||'-'}</span><span>DATE: ${p.date||'-'} • TIME: ${p.time||'-'} • BLOCK: ${p.block||'-'}</span></div></div>
+html+=`<div class="patientBlock">
+<div class="headerTop"><div class="pTitle">${displayName}</div><div class="pTags"><span>SHRI: ${shri||'-'}</span><span>PMJAY: ${pmjay||'-'}</span><span>DATE: ${p.date||'-'} • TIME: ${p.time||'-'} • BLOCK: ${p.block||'-'}</span></div></div>
 <div class="uploadSection" data-shri="${shri}" data-id="${p._id}" data-name="${rawName.replace(/"/g,'')}" data-pmjay="${pmjay}">
 <div class="uploadCol"><b>DISCHARGE SUMMARY</b><div style="display:flex;width:100%;margin-top:8px"><div class="yellowBox ${s?'uploaded':''}" onclick="handleBox('${shri}','discharge_summary')">${s?s.fileName:'Click or Drop'}</div><button class="delIcon" onclick="delFile('${shri}','discharge_summary')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
 <div class="uploadCol"><b>DISCHARGE PHOTO</b><div style="display:flex;width:100%;margin-top:8px"><div class="yellowBox ${ph?'uploaded':''}" onclick="handleBox('${shri}','discharge_photo')">${ph?ph.fileName:'Click or Drop'}</div><button class="delIcon" onclick="delFile('${shri}','discharge_photo')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
@@ -271,7 +258,7 @@ html+=`<div class="patientBlock ${isFocus && i===0 ? 'highlight' : ''}" ${isFocu
 <div class="bottomBar"><div class="leftActions"><button class="btn btnEdit" onclick="editP('${shri}')">EDIT</button><button class="btn btnSave" onclick="saveP('${shri}')">SAVE</button></div><div class="rightActions"><div id="claim_${shri}" class="claimSlide"><input id="inp_${shri}" class="claimInput" placeholder="CLAIM ID"><button class="btn btnSave" onclick="doClaim('${shri}','${p._id}')">ADD</button><button class="btn btnEdit" onclick="toggleClaim('${shri}')">✕</button></div><button class="btn btnYellow" onclick="toggleClaim('${shri}')">CLAIM</button></div></div>
 </div></div>`;
 });
-if(html==='')html='<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:30px;text-align:center;font-weight:800;color:#64748b">No discharge patients for '+ (focusShri ? focusShri : document.getElementById('fDate').value) +'<br><small>SHRI not found - check discharge collection</small></div>';
+if(html==='')html='<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:30px;text-align:center;font-weight:800;color:#64748b">No discharge patients for '+document.getElementById('fDate').value+'</div>';
 document.getElementById('allPatients').innerHTML=html;
 }
 function prevPage(){if(currentPage>1){currentPage--;renderPage();}}
