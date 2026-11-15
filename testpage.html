@@ -41,14 +41,13 @@ body{display:flex;align-items:flex-start!important}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
 .content{padding:16px;background:#f8fafc!important}
-.card{background:#fff;border-radius:16px;border:1.5px solid #e2e8f0;padding:18px;margin-bottom:14px}
 .headerTop{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 .pName{font-size:18px;font-weight:900;color:#0f172a;white-space:pre-wrap;word-break:break-word}
 .pMeta{font-size:12px;color:#64748b;font-weight:700;margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
 .pMeta span{background:#f8fafc;border:1px solid #e2e8f0;padding:4px 10px;border-radius:20px}
 .btn{padding:10px 18px;border:0;border-radius:9px;font-weight:800;cursor:pointer;font-size:12px}
 .btnDark{background:#0f172a;color:#fff}
-.btnYellow{background:#facc15;color:#000;border:1.5px solid #eab308}
+.btnYellow{background:#facc15!important;color:#000!important;border:1.5px solid #eab308!important}
 .btnEdit{background:#fff!important;color:#0f172a!important;border:1.5px solid #e2e8f0!important}
 .btnSave{background:#22c55e!important;color:#fff!important;border:1.5px solid #16a34a!important}
 .uploadSection{position:relative;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:22px 18px 70px 18px;background:#fff;border-radius:16px;border:1.5px solid #e2e8f0}
@@ -61,19 +60,14 @@ body{display:flex;align-items:flex-start!important}
 .delIcon svg{width:14px;height:14px;stroke:#64748b;stroke-width:2;fill:none}
 .delIcon:hover{background:#fef2f2!important;border-color:#fecaca!important}
 .delIcon:hover svg{stroke:#ef4444!important}
-
-/* LEFT EDIT SAVE RIGHT CLAIM - SAME BAR */
 .bottomBar{position:absolute;bottom:12px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:center}
 .leftActions{display:flex;gap:8px}
-.rightActions{position:relative;display:flex;gap:8px;align-items:flex-start}
+.rightActions{position:relative;display:flex;align-items:center}
 .leftActions .btn{padding:9px 20px!important;min-width:80px!important}
-.rightActions .btnYellow{padding:9px 22px!important;border-radius:20px!important}
-
-/* CLAIM SLIDE FROM BUTTON ITSELF - NOT SIDE DRAWER */
-.claimSlideFromBtn{position:absolute;bottom:48px;right:0;width:300px;background:#fff;border:1.5px solid #fde68a;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.18);padding:14px;transform-origin:bottom right;transform:translateY(10px) scale(.92);opacity:0;pointer-events:none;transition:.35s cubic-bezier(.34,1.56,.64,1);z-index:20}
-.claimSlideFromBtn.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
-.claimSlideFromBtn::after{content:'';position:absolute;bottom:-8px;right:24px;width:14px;height:14px;background:#fff;border-right:1.5px solid #fde68a;border-bottom:1.5px solid #fde68a;transform:rotate(45deg)}
-.claimInput{border:2px solid #6366f1;border-radius:10px;padding:10px 14px;font-weight:800;width:100%;background:#f0f4ff;outline:0}
+.claimSlideHorizontal{position:absolute;right:105px;top:50%;transform:translateY(-50%) translateX(20px);width:300px;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);padding:10px 12px;display:flex;gap:8px;align-items:center;opacity:0;pointer-events:none;transition:.35s cubic-bezier(.4,0,.2,1);z-index:20}
+.claimSlideHorizontal.open{transform:translateY(-50%) translateX(0);opacity:1;pointer-events:auto}
+.claimSlideHorizontal::after{content:'';position:absolute;right:-7px;top:50%;transform:translateY(-50%) rotate(45deg);width:12px;height:12px;background:#fff;border-right:1.5px solid #e2e8f0;border-top:1.5px solid #e2e8f0}
+.claimInput{border:2px solid #6366f1;border-radius:10px;padding:9px 12px;font-weight:800;flex:1;background:#f0f4ff;outline:0;font-size:13px}
 #fileModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:16px}
 #fileModal.show{display:flex}
 .popupCard{background:#fff;border-radius:12px;width:90%;max-width:750px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column}
@@ -82,7 +76,7 @@ body{display:flex;align-items:flex-start!important}
 .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
 .whiteBar.mOpen{transform:translateX(0)}
 .mainWrap{margin-left:0!important;width:100%!important}
-.claimSlideFromBtn{width:260px;right:-10px}
+.claimSlideHorizontal{width:220px;right:90px}
 }
 </style>
 <script type="module">
@@ -99,35 +93,35 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},CHUNK_SIZE:
 <div id="mobOverlay" onclick="closeMob()"></div>
 <div class="whiteBar" id="whiteBar"><div style="display:flex;flex-direction:column;height:100%;overflow:hidden"><div class="sHead"><div class="sLogo"><img src="logoc.png" alt="SHIJA"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div><div class="sMenu">
 <a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
-<a href="discharge.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
-<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
-<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">CLAIM</span></a>
-</div></div><div class="sFoot"><span class="footFull">SHIJA • UPLOAD</span><span class="footFold">☰</span></div></div>
+<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
+<a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
+<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
+<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="ml">OFFICE ASSISTANT</span></a>
+<a href="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
+<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
+<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
+<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
+<a href="addlist.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span><span class="ml">ADD LIST</span></a>
+<a href="discharge.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
+<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="ml">KFT REPORT</span></a>
+<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">ADD PATIENT FOR PMJAY</span></a>
+<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="ml">BILL</span></a>
+<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
+</div></div><div class="sFoot"><span class="footFull">SHIJA • ALL MENU</span><span class="footFold">☰</span></div></div>
 
 <div class="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> UPLOAD FILES <span style="background:#0f172a;color:#fff;padding:5px 12px;border-radius:20px;font-size:11px">PMJAY</span></div></div>
+<div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> UPLOAD FILES</div></div>
 <div class="content">
-<div class="headerTop"><div style="flex:1"><div class="pName" id="pName">PATIENT NAME</div><div class="pMeta"><span id="pShri">SHRI: -</span><span id="pPmjay">PMJAY: -</span><span id="pMeta">DATE / TIME / BLOCK</span><span id="fileCount" style="background:#0f172a;color:#fff">0 FILES</span></div></div></div>
+<div class="headerTop"><div style="flex:1"><div class="pName" id="pName">PATIENT</div><div class="pMeta"><span id="pShri">SHRI: -</span><span id="pPmjay">PMJAY: -</span><span id="pMeta">DATE / TIME / BLOCK</span><span id="fileCount" style="background:#0f172a;color:#fff">0 FILES</span></div></div></div>
 <div class="uploadSection">
 <div class="uploadCol"><b>Discharge summary</b><div style="display:flex;gap:6px;width:100%;margin-top:10px;align-items:center"><div class="yellowBox" id="box_summary">Click or Drop</div><button class="delIcon" onclick="delFile('discharge_summary')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
 <div class="uploadCol"><b>Discharge photo</b><div style="display:flex;gap:6px;width:100%;margin-top:10px;align-items:center"><div class="yellowBox" id="box_photo">Click or Drop</div><button class="delIcon" onclick="delFile('discharge_photo')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
 <div class="uploadCol"><b>Feedback form</b><div style="display:flex;gap:6px;width:100%;margin-top:10px;align-items:center"><div class="yellowBox" id="box_feedback">Click or Drop</div><button class="delIcon" onclick="delFile('feedback_form')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
-
 <div class="bottomBar">
-<div class="leftActions">
-<button class="btn btnEdit" onclick="editAll()">EDIT</button>
-<button class="btn btnSave" onclick="saveAll()">SAVE</button>
+<div class="leftActions"><button class="btn btnEdit" onclick="editAll()">EDIT</button><button class="btn btnSave" onclick="saveAll()">SAVE</button></div>
+<div class="rightActions"><div id="claimSlide" class="claimSlideHorizontal"><input id="claimInput" class="claimInput" placeholder="CLAIM ID"><button class="btn btnSave" onclick="saveClaim()">ADD</button><button class="btn btnEdit" onclick="toggleClaim()">✕</button></div><button class="btn btnYellow" onclick="toggleClaim()">CLAIM</button></div>
 </div>
-<div class="rightActions">
-<button class="btn btnYellow" onclick="toggleClaim()">CLAIM</button>
-<div id="claimSlide" class="claimSlideFromBtn">
-<div style="font-weight:900;font-size:12px;margin-bottom:8px">ENTER CLAIM ID</div>
-<input id="claimInput" class="claimInput" placeholder="CLAIM ID">
-<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btnEdit" style="flex:1" onclick="toggleClaim()">CLOSE</button><button class="btn btnSave" style="flex:1" onclick="saveClaim()">ADD</button></div>
-</div>
-</div>
-</div>
-
 </div>
 </div>
 </div>
@@ -135,8 +129,7 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},CHUNK_SIZE:
 <input type="file" id="file_discharge_summary" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="upload(this.files[0],'discharge_summary',this)">
 <input type="file" id="file_discharge_photo" style="display:none" accept=".jpg,.jpeg,.png,.pdf" onchange="upload(this.files[0],'discharge_photo',this)">
 <input type="file" id="file_feedback_form" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="upload(this.files[0],'feedback_form',this)">
-
-<div id="fileModal"><div class="popupCard"><div class="popupHead"><b id="modalName">FILE</b><div style="display:flex;gap:6px"><button class="btn btnDark" style="background:#3c25eb" onclick="downloadCurrent()">Download</button><button class="btn btnDark" style="background:#334155" onclick="openNewTab()">New Page</button><button class="btn" style="background:#ef4444;color:#fff" onclick="closeModal()">X</button></div></div><div id="paperBox" style="padding:0;background:#f8fafc"></div></div></div>
+<div id="fileModal"><div class="popupCard"><div class="popupHead"><b id="modalName">FILE</b><div style="display:flex;gap:6px"><button class="btn btnDark" style="background:#3c25eb" onclick="downloadCurrent()">Download</button><button class="btn" style="background:#ef4444;color:#fff" onclick="closeModal()">X</button></div></div><div id="paperBox" style="padding:0;background:#f8fafc"></div></div></div>
 
 <script>
 var params=new URLSearchParams(location.search);
@@ -177,11 +170,7 @@ if(input)input.value='';
 renderBoxes();
 }
 function editAll(){trigger('discharge_summary');}
-function saveAll(){
-var docs=getDocs();
-if(docs.length===0){alert('No files to save');return;}
-alert('✓ Saved: '+docs.length+' files');
-}
+function saveAll(){var docs=getDocs();if(docs.length===0){alert('No files');return;}alert('✓ Saved '+docs.length+' files');}
 async function getFull(id){var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));var arr=[];snap.forEach(d=>arr.push(d.data()));arr.sort((a,b)=>a.index-b.index);return arr.map(a=>a.data).join('');}
 async function openFile(type){
 var docs=getDocs().filter(d=>d.type===type);
@@ -195,7 +184,6 @@ document.getElementById('fileModal').style.display='flex';document.getElementByI
 }
 function closeModal(){document.getElementById('fileModal').style.display='none';}
 function downloadCurrent(){var a=document.createElement('a');a.href=window._fb.curData;a.download=window._fb.curName;a.click();}
-function openNewTab(){var w=window.open();w.document.write('<iframe src="'+window._fb.curData+'" style="width:100%;height:100vh;border:0"></iframe>');}
 async function delFile(type){
 var docs=getDocs().filter(d=>d.type===type);
 if(docs.length===0)return;
@@ -211,7 +199,6 @@ function toggleClaim(){document.getElementById('claimSlide').classList.toggle('o
 async function saveClaim(){
 var claimId=document.getElementById('claimInput').value.trim().toUpperCase();
 if(!claimId)return;
-if(!DID){alert('No discharge ID');return;}
 await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',DID),{claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});
 location.href='claim.html?claimId='+encodeURIComponent(claimId);
 }
@@ -227,7 +214,6 @@ el.addEventListener('click',()=>{var docs=getDocs().filter(d=>d.type===type);if(
 window.addEventListener('load',()=>{
 setTimeout(()=>{loadDocs();setupDrop('discharge_summary');setupDrop('discharge_photo');setupDrop('feedback_form');},600);
 document.getElementById('fileModal').addEventListener('click',e=>{if(e.target.id==='fileModal')closeModal();});
-document.addEventListener('click',e=>{var slide=document.getElementById('claimSlide');if(!e.target.closest('.rightActions')&&slide.classList.contains('open')){slide.classList.remove('open');}});
 });
 </script>
 </body>
