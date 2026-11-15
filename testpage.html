@@ -1,1 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UPLOAD FILES - SHIJA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
+html,body{background:#f8fafc!important;height:auto!important;min-height:100vh;overflow-x:hidden}
+body{display:flex;align-items:flex-start!important}
+/* WHITE BAR SAME */
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;display:flex;flex-direction:column;justify-content:space-between;z-index:90;transition:.32s}
+.whiteBar.folded{width:72px!important;min-width:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:.32s;background:#f8fafc!important;width:calc(100% - 270px);min-height:100vh}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)!important}
+.sHead{padding:18px 14px;display:flex;align-items:center;gap:12px;background:#fff;border-bottom:1px solid #e2e8f0}
+.sLogo{width:46px;height:46px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;border:1px solid #e2e8f0;overflow:hidden}
+.sLogo img{width:100%;height:100%;object-fit:contain}
+.sTitle b{color:#0f172a;font-size:18px;font-weight:900;display:block;line-height:1}
+.sTitle span{font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;display:block;margin-top:2px}
+.whiteBar.folded .sTitle,.whiteBar.folded .ml,.whiteBar.folded .footFull{display:none}
+.sMenu{flex:1;padding:8px;overflow-y:auto;scrollbar-width:none!important}
+.sMenu::-webkit-scrollbar{display:none!important}
+.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13.5px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;transition:all .25s ease!important}
+.sMenu a:hover{background:#1e293b!important;color:#fff!important;transform:translateX(3px)}
+.sMenu a.active{background:#1e293b;color:#fff;font-weight:600}
+.mi{width:34px;min-width:34px;height:34px;display:grid;place-items:center;background:#1e293b;border-radius:8px}
+.mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none}
+.sMenu a.active .mi{background:#3c25eb}
+.sMenu a.active .mi svg{stroke:#fff}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:11px;color:#64748b;text-align:center}
+.whiteBar:not(.folded) .footFold{display:none}
+.whiteBar.folded .sMenu a{justify-content:center!important;padding:12px 0!important;gap:0!important}
+.whiteBar.folded .mi{margin:0 auto!important;width:38px!important;min-width:38px!important;height:38px!important}
+.whiteBar.folded .sHead{justify-content:center!important;padding:12px 0!important}
+.whiteBar.folded .sLogo{width:42px!important;height:42px!important;margin:0 auto!important}
+.top{height:72px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
+.menuBtnTop{width:42px;height:40px;background:#fff;border:none!important;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.menuBtnTop span{display:block;width:22px;height:2.6px;background:#0f172a;border-radius:2px}
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
 
+/* CONTENT */
+.content{padding:16px;background:#f8fafc!important}
+.card{background:#fff;border-radius:16px;border:1.5px solid #e2e8f0;padding:18px;margin-bottom:14px}
+.headerTop{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.pName{font-size:18px;font-weight:900;color:#0f172a;white-space:pre-wrap;word-break:break-word}
+.pMeta{font-size:12px;color:#64748b;font-weight:700;margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
+.pMeta span{background:#f8fafc;border:1px solid #e2e8f0;padding:4px 10px;border-radius:20px}
+.btn{padding:10px 16px;border:0;border-radius:9px;font-weight:800;cursor:pointer}
+.btnDark{background:#0f172a;color:#fff}
+.btnYellow{background:#facc15;color:#000;border:1.5px solid #eab308}
+.uploadSection{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;padding:20px;background:#fff;border-radius:16px;border:1.5px solid #e2e8f0}
+.uploadCol{flex:1;min-width:260px;max-width:360px;display:flex;flex-direction:column;align-items:center;background:#f8fafc;border-radius:14px;padding:14px;border:1px solid #e2e8f0}
+.uploadCol b{font-size:13px;font-weight:900;text-transform:uppercase;color:#0f172a}
+.yellowBox{width:100%;border:2.5px dashed #facc15;border-radius:10px;background:#fffef0;padding:16px;font-size:12.5px;font-weight:800;min-height:70px;display:flex;align-items:center;justify-content:center;cursor:pointer;text-align:center;word-break:break-all;transition:.2s}
+.yellowBox.drag{border-color:#3c25eb;background:#eff6ff;transform:scale(1.02)}
+.yellowBox.uploaded{background:#f0fdf4!important;border-color:#86efac!important;border-style:solid!important}
+.trash{color:#ef4444;background:#fff;border:1.5px solid #fecaca;font-size:18px;cursor:pointer;width:36px;height:36px;border-radius:8px;display:grid;place-items:center}
+.trash:hover{background:#ef4444;color:#fff}
+.claimWrap{display:flex;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.claimBox{max-height:0;overflow:hidden;transition:.35s ease;display:flex;gap:8px;align-items:center;background:#fffbeb;border:0px solid #fde68a;border-radius:10px;padding:0 8px}
+.claimBox.open{max-height:80px;border-width:1.5px;padding:8px}
+.claimInput{border:2px solid #6366f1;border-radius:10px;padding:10px 14px;font-weight:800;width:190px;background:#f0f4ff;outline:0}
+#fileModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:16px}
+#fileModal.show{display:flex}
+.popupCard{background:#fff;border-radius:12px;width:90%;max-width:750px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column}
+.popupHead{padding:12px;background:#0f172a;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:8px}
+@media(max-width:900px){
+.whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+.whiteBar.mOpen{transform:translateX(0)}
+.mainWrap{margin-left:0!important;width:100%!important}
+}
+</style>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(cfg,"app_"+Math.random());
+const db=getFirestore(app);
+window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},CHUNK_SIZE:800000};
+</script>
+<script>function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{document.getElementById('whiteBar').classList.toggle('folded');}}function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}</script>
+</head>
+<body>
+<div id="mobOverlay" onclick="closeMob()"></div>
+<div class="whiteBar" id="whiteBar"><div style="display:flex;flex-direction:column;height:100%;overflow:hidden"><div class="sHead"><div class="sLogo"><img src="logoc.png" alt="SHIJA"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div><div class="sMenu">
+<a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
+<a href="discharge.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
+<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
+<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT REPORT</span></a>
+</div></div><div class="sFoot"><span class="footFull">SHIJA • UPLOAD</span><span class="footFold">☰</span></div></div>
+
+<div class="mainWrap">
+<div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> UPLOAD FILES <span style="background:#0f172a;color:#fff;padding:5px 12px;border-radius:20px;font-size:11px">PMJAY</span></div><a href="discharge.html" class="btn btnDark" style="text-decoration:none">← BACK</a></div>
+<div class="content">
+
+<div class="headerTop">
+<div style="flex:1">
+<div class="pName" id="pName">PATIENT NAME</div>
+<div class="pMeta">
+<span id="pShri">SHRI: -</span>
+<span id="pPmjay">PMJAY: -</span>
+<span id="pMeta">DATE / TIME / BLOCK</span>
+<span id="fileCount" style="background:#0f172a;color:#fff">0 FILES</span>
+</div>
+</div>
+</div>
+
+<div class="uploadSection">
+<div class="uploadCol"><b>Discharge summary</b><div style="display:flex;gap:8px;width:100%;margin-top:12px"><div class="yellowBox" id="box_summary" onclick="trigger('discharge_summary')">Click or Drop file here</div><button class="trash" onclick="delFile('discharge_summary')">🗑</button></div><div style="font-size:10px;color:#94a3b8;margin-top:6px;font-weight:700">AUTO UPLOAD • PDF / JPG / PNG</div></div>
+<div class="uploadCol"><b>Discharge photo</b><div style="display:flex;gap:8px;width:100%;margin-top:12px"><div class="yellowBox" id="box_photo" onclick="trigger('discharge_photo')">Click or Drop file here</div><button class="trash" onclick="delFile('discharge_photo')">🗑</button></div><div style="font-size:10px;color:#94a3b8;margin-top:6px;font-weight:700">AUTO UPLOAD • JPG / PNG / PDF</div></div>
+<div class="uploadCol"><b>Feedback form</b><div style="display:flex;gap:8px;width:100%;margin-top:12px"><div class="yellowBox" id="box_feedback" onclick="trigger('feedback_form')">Click or Drop file here</div><button class="trash" onclick="delFile('feedback_form')">🗑</button></div><div style="font-size:10px;color:#94a3b8;margin-top:6px;font-weight:700">AUTO UPLOAD • PDF / JPG / PNG</div></div>
+</div>
+
+<div class="card"><div class="claimWrap"><button class="btn btnYellow" onclick="toggleClaim()">CLAIM ▼</button><div id="claimBox" class="claimBox"><input id="claimInput" class="claimInput" placeholder="CLAIM ID"><button class="btn btnDark" onclick="saveClaim()">ADD →</button></div></div></div>
+
+</div>
+</div>
+
+<input type="file" id="file_discharge_summary" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="upload(this.files[0],'discharge_summary',this)">
+<input type="file" id="file_discharge_photo" style="display:none" accept=".jpg,.jpeg,.png,.pdf" onchange="upload(this.files[0],'discharge_photo',this)">
+<input type="file" id="file_feedback_form" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="upload(this.files[0],'feedback_form',this)">
+
+<div id="fileModal"><div class="popupCard"><div class="popupHead"><b id="modalName">FILE</b><div style="display:flex;gap:6px"><button class="btn btnDark" style="background:#3c25eb" onclick="downloadCurrent()">Download</button><button class="btn btnDark" style="background:#334155" onclick="openNewTab()">New Page</button><button class="btn" style="background:#ef4444;color:#fff" onclick="closeModal()">X</button></div></div><div id="paperBox" style="padding:0;background:#f8fafc"></div></div></div>
+
+<script>
+var params=new URLSearchParams(location.search);
+var SHRI=params.get('shri')||'';var NAME=params.get('name')||'';var PMJAY=params.get('pmjay')||'';var DATE=params.get('date')||'';var TIME=params.get('time')||'';var BLOCK=params.get('block')||'';var DID=params.get('id')||'';
+function formatName(n){if(!n) return '';return String(n).trim().split(/\s+/).join('  ');}
+document.getElementById('pName').textContent=formatName(NAME)||'PATIENT';
+document.getElementById('pShri').textContent='SHRI: '+SHRI;
+document.getElementById('pPmjay').textContent='PMJAY: '+PMJAY;
+document.getElementById('pMeta').textContent='DATE: '+DATE+' • TIME: '+TIME+' • BLOCK: '+BLOCK;
+var cache={};
+function getDocs(){return window._fb._docsCache[SHRI]||[];}
+async function loadDocs(){try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patient_docs"));window._fb._docsCache={};snap.forEach(d=>{var data=d.data();data._id=d.id;if(!window._fb._docsCache[data.shri])window._fb._docsCache[data.shri]=[];window._fb._docsCache[data.shri].push(data);});renderBoxes();}catch(e){console.log(e)}}
+function renderBoxes(){
+var docs=getDocs();
+document.getElementById('fileCount').textContent=docs.length+' FILES';
+var map={discharge_summary:'box_summary',discharge_photo:'box_photo',feedback_form:'box_feedback'};
+Object.keys(map).forEach(type=>{
+var doc=docs.find(d=>d.type===type);
+var el=document.getElementById(map[type]);
+if(doc){el.textContent=doc.fileName;el.classList.add('uploaded');}else{el.textContent='Click or Drop file here';el.classList.remove('uploaded');}
+});
+}
+function trigger(type){var el=document.getElementById('file_'+type);if(el){el.value='';el.click();}}
+async function upload(file,type,input){
+if(!file)return;
+var box=document.getElementById('box_'+type.replace('discharge_','').replace('feedback_','feedback')); // fallback
+var targetId='box_'+(type==='discharge_summary'?'summary':type==='discharge_photo'?'photo':'feedback');
+var tBox=document.getElementById(targetId);
+if(tBox){tBox.textContent='Uploading '+file.name+'...';tBox.classList.add('uploaded');}
+var clean=SHRI.replace(/[^a-zA-Z0-9]/g,'_');
+var base64=await new Promise((res,rej)=>{var r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});
+var id=clean+'_'+type+'_'+Date.now();
+var chunks=[];for(var i=0;i<base64.length;i+=window._fb.CHUNK_SIZE){chunks.push(base64.substring(i,i+window._fb.CHUNK_SIZE));}
+await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:SHRI,cleanShri:clean,patientName:NAME,ip:PMJAY,fileName:file.name,fileType:file.type,size:file.size,chunkCount:chunks.length,createdAt:Date.now()});
+for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}
+if(!window._fb._docsCache[SHRI])window._fb._docsCache[SHRI]=[];
+window._fb._docsCache[SHRI].push({_id:id,type:type,shri:SHRI,fileName:file.name});
+if(input)input.value='';
+renderBoxes();
+}
+async function getFull(id){var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));var arr=[];snap.forEach(d=>arr.push(d.data()));arr.sort((a,b)=>a.index-b.index);return arr.map(a=>a.data).join('');}
+async function openFile(type){
+var docs=getDocs().filter(d=>d.type===type);
+if(docs.length===0){trigger(type);return;}
+var data=await getFull(docs[0]._id);
+window._fb.curData=data;window._fb.curName=docs[0].fileName;
+document.getElementById('modalName').textContent=docs[0].fileName;
+var box=document.getElementById('paperBox');
+if(data.startsWith('data:application/pdf')||docs[0].fileName.toLowerCase().endsWith('.pdf')){box.innerHTML='<iframe src="'+data+'" style="width:100%;height:70vh;border:0"></iframe>';}else{box.innerHTML='<div style="padding:10px;display:grid;place-items:center"><img src="'+data+'" style="max-width:100%;max-height:70vh;border-radius:10px"></div>';}
+document.getElementById('fileModal').style.display='flex';document.getElementById('fileModal').classList.add('show');
+}
+function closeModal(){document.getElementById('fileModal').style.display='none';}
+function downloadCurrent(){var a=document.createElement('a');a.href=window._fb.curData;a.download=window._fb.curName;a.click();}
+function openNewTab(){var w=window.open();w.document.write('<iframe src="'+window._fb.curData+'" style="width:100%;height:100vh;border:0"></iframe>');}
+async function delFile(type){
+var docs=getDocs().filter(d=>d.type===type);
+if(docs.length===0)return;
+if(!confirm('Delete '+docs[0].fileName+' ?'))return;
+var id=docs[0]._id;
+var csnap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));
+for(var d of csnap.docs){await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',d.id));}
+await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',id));
+window._fb._docsCache[SHRI]=window._fb._docsCache[SHRI].filter(x=>x._id!==id);
+renderBoxes();
+}
+function toggleClaim(){document.getElementById('claimBox').classList.toggle('open');}
+async function saveClaim(){
+var claimId=document.getElementById('claimInput').value.trim().toUpperCase();
+if(!claimId)return;
+if(!DID){alert('No discharge ID');return;}
+await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',DID),{claimId:claimId,claimedAt:new Date().toISOString()},{merge:true});
+location.href='claim.html?claimId='+encodeURIComponent(claimId);
+}
+// Drag & Drop Auto Upload
+function setupDrop(type){
+var elId='box_'+(type==='discharge_summary'?'summary':type==='discharge_photo'?'photo':'feedback');
+var el=document.getElementById(elId);
+if(!el) return;
+el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drag');});
+el.addEventListener('dragleave',()=>el.classList.remove('drag'));
+el.addEventListener('drop',e=>{
+e.preventDefault();el.classList.remove('drag');
+var f=e.dataTransfer.files[0];
+if(f){upload(f,type,null);}
+});
+el.addEventListener('click',()=>{var docs=getDocs().filter(d=>d.type===type);if(docs.length>0)openFile(type);else trigger(type);});
+}
+window.addEventListener('load',()=>{
+setTimeout(()=>{
+loadDocs();
+setupDrop('discharge_summary');setupDrop('discharge_photo');setupDrop('feedback_form');
+},600);
+document.getElementById('fileModal').addEventListener('click',e=>{if(e.target.id==='fileModal')closeModal();});
+});
+</script>
+</body>
+</html>
