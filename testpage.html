@@ -46,6 +46,8 @@ body{display:flex;align-items:flex-start!important}
 .pMeta{font-size:12px;color:#64748b;font-weight:700;margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
 .pMeta span{background:#f8fafc;border:1px solid #e2e8f0;padding:4px 10px;border-radius:20px}
 .btn{padding:10px 18px;border:0;border-radius:9px;font-weight:800;cursor:pointer;font-size:12px}
+.btnBack{background:#fff!important;color:#0f172a!important;border:1.5px solid #e2e8f0!important;padding:8px 16px!important;border-radius:20px!important;display:flex;align-items:center;gap:6px}
+.btnBack:hover{background:#f8fafc!important}
 .btnYellow{background:#facc15!important;color:#000!important;border:1.5px solid #eab308!important}
 .btnEdit{background:#fff!important;color:#0f172a!important;border:1.5px solid #e2e8f0!important}
 .btnSave{background:#22c55e!important;color:#fff!important;border:1.5px solid #16a34a!important}
@@ -60,46 +62,26 @@ body{display:flex;align-items:flex-start!important}
 .bottomBar{position:absolute;bottom:12px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .leftActions{display:flex;gap:8px;flex-shrink:0}
 .rightActions{position:relative;display:flex;align-items:center;flex-shrink:0;margin-left:auto}
-
-/* ONLY CLAIM SLIDE HORIZONTAL - NO OVERLAP */
-.claimSlideHorizontal{
-position:absolute;
-right:100%;
-top:50%;
-margin-right:12px;
-transform:translateY(-50%) translateX(30px);
-width:300px;
-background:#fff;
-border:1.5px solid #e2e8f0;
-border-radius:12px;
-box-shadow:0 8px 24px rgba(0,0,0,.12);
-padding:10px 12px;
-display:flex;
-gap:8px;
-align-items:center;
-opacity:0;
-pointer-events:none;
-transition:transform .35s ease, opacity .35s ease;
-z-index:20;
-white-space:nowrap;
-}
-.claimSlideHorizontal.open{
-transform:translateY(-50%) translateX(0);
-opacity:1;
-pointer-events:auto;
-}
+.claimSlideHorizontal{position:absolute;right:100%;top:50%;margin-right:12px;transform:translateY(-50%) translateX(30px);width:300px;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:10px 12px;display:flex;gap:8px;align-items:center;opacity:0;pointer-events:none;transition:transform .35s ease, opacity .35s ease;z-index:20;white-space:nowrap}
+.claimSlideHorizontal.open{transform:translateY(-50%) translateX(0);opacity:1;pointer-events:auto}
 .claimInput{border:2px solid #6366f1;border-radius:10px;padding:9px 12px;font-weight:800;flex:1;background:#f0f4ff;outline:0;font-size:13px;min-width:0}
+
+/* UNIVERSAL POPUP - SAME FOR ALL DEVICES */
 #fileModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:16px}
-#fileModal.show{display:flex}
-.popupCard{background:#fff;border-radius:12px;width:90%;max-width:750px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column}
-.popupHead{padding:12px;background:#0f172a;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:8px}
+#fileModal.show{display:flex!important}
+.popupCard{background:#fff;border-radius:16px;width:92%;max-width:750px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:popIn .3s ease}
+@keyframes popIn{from{transform:scale(.95) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.popupHead{padding:14px 16px;background:#0f172a;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-shrink:0}
+.popupBody{flex:1;overflow:auto;background:#f8fafc;display:grid;place-items:center;padding:0}
+.popupBody iframe{width:100%;height:70vh;border:0;display:block}
+.popupBody img{max-width:100%;max-height:70vh;border-radius:8px;display:block;margin:12px auto}
 @media(max-width:900px){
 .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
 .whiteBar.mOpen{transform:translateX(0)}
 .mainWrap{margin-left:0!important;width:100%!important}
-.claimSlideHorizontal{width:210px;margin-right:8px}
-.uploadSection{padding-bottom:90px}
-.bottomBar{flex-wrap:nowrap}
+.claimSlideHorizontal{width:210px}
+.popupCard{width:96%!important;max-height:90vh!important}
+.popupBody iframe{height:65vh!important}
 }
 </style>
 <script type="module">
@@ -134,27 +116,20 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},CHUNK_SIZE:
 </div></div><div class="sFoot"><span class="footFull">SHIJA • UPLOAD</span><span class="footFold">☰</span></div></div>
 
 <div class="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> UPLOAD FILES</div></div>
+<div class="top">
+<div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> UPLOAD FILES</div>
+<a href="discharge.html" class="btn btnBack">← BACK</a>
+</div>
 <div class="content">
-<div class="headerTop"><div style="flex:1"><div class="pName" id="pName">PATIENT</div><div class="pMeta"><span id="pShri">SHRI: -</span><span id="pPmjay">PMJAY: -</span><span id="pMeta">DATE / TIME / BLOCK</span><span id="fileCount" style="background:#0f172a;color:#fff">0 FILES</span></div></div></div>
+<div class="headerTop"><div style="flex:1"><div class="pName" id="pName">PATIENT</div><div class="pMeta"><span id="pShri">SHRI: -</span><span id="pPmjay">PMJAY: -</span><span id="pMeta">DATE / TIME / BLOCK</span><span id="fileCount" style="background:#0f172a;color:#fff">0 FILES</span><span id="autoDelInfo" style="background:#fef3c7;color:#92400e;border-color:#fde68a">AUTO DELETE 48H</span></div></div></div>
 <div class="uploadSection">
 <div class="uploadCol"><b>Discharge summary</b><div style="display:flex;gap:6px;width:100%;margin-top:10px;align-items:center"><div class="yellowBox" id="box_summary">Click or Drop</div><button class="delIcon" onclick="delFile('discharge_summary')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
 <div class="uploadCol"><b>Discharge photo</b><div style="display:flex;gap:6px;width:100%;margin-top:10px;align-items:center"><div class="yellowBox" id="box_photo">Click or Drop</div><button class="delIcon" onclick="delFile('discharge_photo')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
 <div class="uploadCol"><b>Feedback form</b><div style="display:flex;gap:6px;width:100%;margin-top:10px;align-items:center"><div class="yellowBox" id="box_feedback">Click or Drop</div><button class="delIcon" onclick="delFile('feedback_form')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
 
 <div class="bottomBar">
-<div class="leftActions">
-<button class="btn btnEdit" onclick="editAll()">EDIT</button>
-<button class="btn btnSave" onclick="saveAll()">SAVE</button>
-</div>
-<div class="rightActions">
-<div id="claimSlide" class="claimSlideHorizontal">
-<input id="claimInput" class="claimInput" placeholder="CLAIM ID">
-<button class="btn btnSave" onclick="saveClaim()">ADD</button>
-<button class="btn btnEdit" onclick="toggleClaim()">✕</button>
-</div>
-<button class="btn btnYellow" onclick="toggleClaim()">CLAIM</button>
-</div>
+<div class="leftActions"><button class="btn btnEdit" onclick="editAll()">EDIT</button><button class="btn btnSave" onclick="saveAll()">SAVE</button></div>
+<div class="rightActions"><div id="claimSlide" class="claimSlideHorizontal"><input id="claimInput" class="claimInput" placeholder="CLAIM ID"><button class="btn btnSave" onclick="saveClaim()">ADD</button><button class="btn btnEdit" onclick="toggleClaim()">✕</button></div><button class="btn btnYellow" onclick="toggleClaim()">CLAIM</button></div>
 </div>
 
 </div>
@@ -164,7 +139,9 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},CHUNK_SIZE:
 <input type="file" id="file_discharge_summary" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="upload(this.files[0],'discharge_summary',this)">
 <input type="file" id="file_discharge_photo" style="display:none" accept=".jpg,.jpeg,.png,.pdf" onchange="upload(this.files[0],'discharge_photo',this)">
 <input type="file" id="file_feedback_form" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="upload(this.files[0],'feedback_form',this)">
-<div id="fileModal"><div class="popupCard"><div class="popupHead"><b id="modalName">FILE</b><div style="display:flex;gap:6px"><button class="btn btnDark" style="background:#3c25eb" onclick="downloadCurrent()">Download</button><button class="btn" style="background:#ef4444;color:#fff" onclick="closeModal()">X</button></div></div><div id="paperBox" style="padding:0;background:#f8fafc"></div></div></div>
+
+<!-- UNIVERSAL POPUP SAME FOR ALL DEVICES -->
+<div id="fileModal"><div class="popupCard"><div class="popupHead"><b id="modalName">FILE</b><div style="display:flex;gap:8px"><button class="btn" style="background:#3c25eb;color:#fff" onclick="downloadCurrent()">Download</button><button class="btn" style="background:#fff;color:#000" onclick="closeModal()">✕ CLOSE</button></div></div><div id="paperBox" class="popupBody"></div></div></div>
 
 <script>
 var params=new URLSearchParams(location.search);
@@ -175,7 +152,36 @@ document.getElementById('pShri').textContent='SHRI: '+SHRI;
 document.getElementById('pPmjay').textContent='PMJAY: '+PMJAY;
 document.getElementById('pMeta').textContent='DATE: '+DATE+' • TIME: '+TIME+' • BLOCK: '+BLOCK;
 function getDocs(){return window._fb._docsCache[SHRI]||[];}
-async function loadDocs(){try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patient_docs"));window._fb._docsCache={};snap.forEach(d=>{var data=d.data();data._id=d.id;if(!window._fb._docsCache[data.shri])window._fb._docsCache[data.shri]=[];window._fb._docsCache[data.shri].push(data);});renderBoxes();}catch(e){}}
+async function loadDocs(){
+try{
+var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patient_docs"));
+window._fb._docsCache={};
+snap.forEach(d=>{
+var data=d.data();data._id=d.id;
+if(!window._fb._docsCache[data.shri])window._fb._docsCache[data.shri]=[];
+window._fb._docsCache[data.shri].push(data);
+});
+await autoDeleteExpired();
+renderBoxes();
+}catch(e){console.log(e)}
+}
+async function autoDeleteExpired(){
+var docs=window._fb._docsCache[SHRI]||[];
+var now=Date.now();
+var limit=48*60*60*1000;
+for(var doc of [...docs]){
+var created=doc.createdAt||0;
+if(created && (now-created) > limit){
+try{
+var csnap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',doc._id,'chunks'));
+for(var d of csnap.docs){await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',doc._id,'chunks',d.id));}
+await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',doc._id));
+window._fb._docsCache[SHRI]=window._fb._docsCache[SHRI].filter(x=>x._id!==doc._id);
+console.log('Auto deleted 48h:',doc.fileName);
+}catch(err){console.log('Delete error',err)}
+}
+}
+}
 function renderBoxes(){
 var docs=getDocs();
 document.getElementById('fileCount').textContent=docs.length+' FILES';
@@ -196,11 +202,11 @@ var clean=SHRI.replace(/[^a-zA-Z0-9]/g,'_');
 var base64=await new Promise((res,rej)=>{var r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});
 var id=clean+'_'+type+'_'+Date.now();
 var chunks=[];for(var i=0;i<base64.length;i+=window._fb.CHUNK_SIZE){chunks.push(base64.substring(i,i+window._fb.CHUNK_SIZE));}
-await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:SHRI,cleanShri:clean,patientName:NAME,ip:PMJAY,fileName:file.name,fileType:file.type,size:file.size,chunkCount:chunks.length,createdAt:Date.now(),saved:true});
+await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:SHRI,cleanShri:clean,patientName:NAME,ip:PMJAY,fileName:file.name,fileType:file.type,size:file.size,chunkCount:chunks.length,createdAt:Date.now(),expireAt:Date.now()+48*60*60*1000,saved:true});
 for(var j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}
 if(!window._fb._docsCache[SHRI])window._fb._docsCache[SHRI]=[];
 window._fb._docsCache[SHRI]=window._fb._docsCache[SHRI].filter(x=>x.type!==type);
-window._fb._docsCache[SHRI].push({_id:id,type:type,shri:SHRI,fileName:file.name});
+window._fb._docsCache[SHRI].push({_id:id,type:type,shri:SHRI,fileName:file.name,createdAt:Date.now()});
 if(input)input.value='';
 renderBoxes();
 }
@@ -214,7 +220,7 @@ var data=await getFull(docs[0]._id);
 window._fb.curData=data;window._fb.curName=docs[0].fileName;
 document.getElementById('modalName').textContent=docs[0].fileName;
 var box=document.getElementById('paperBox');
-if(data.startsWith('data:application/pdf')||docs[0].fileName.toLowerCase().endsWith('.pdf')){box.innerHTML='<iframe src="'+data+'" style="width:100%;height:70vh;border:0"></iframe>';}else{box.innerHTML='<div style="padding:10px;display:grid;place-items:center"><img src="'+data+'" style="max-width:100%;max-height:70vh;border-radius:10px"></div>';}
+if(data.startsWith('data:application/pdf')||docs[0].fileName.toLowerCase().endsWith('.pdf')){box.innerHTML='<iframe src="'+data+'"></iframe>';}else{box.innerHTML='<img src="'+data+'" alt="file">';}
 document.getElementById('fileModal').style.display='flex';document.getElementById('fileModal').classList.add('show');
 }
 function closeModal(){document.getElementById('fileModal').style.display='none';}
@@ -249,6 +255,7 @@ el.addEventListener('click',()=>{var docs=getDocs().filter(d=>d.type===type);if(
 window.addEventListener('load',()=>{
 setTimeout(()=>{loadDocs();setupDrop('discharge_summary');setupDrop('discharge_photo');setupDrop('feedback_form');},600);
 document.getElementById('fileModal').addEventListener('click',e=>{if(e.target.id==='fileModal')closeModal();});
+setInterval(autoDeleteExpired, 60*60*1000);
 });
 </script>
 </body>
