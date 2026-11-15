@@ -77,11 +77,10 @@ tr{cursor:pointer}
 .detailView{position:relative;z-index:20!important;background:#ffffff!important;border:1.5px solid #e2e8f0;border-radius:20px;padding:20px;margin-top:20px}
 .detailHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:12px}
 .detailPhotoBox{display:flex;align-items:center;gap:16px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:16px;padding:14px 16px;margin-bottom:18px}
-.detailPhoto{width:84px;min-width:84px;height:84px;border-radius:50%;background:#fff;border:2px solid #2563eb;display:grid;place-items:center;overflow:hidden;box-shadow:0 4px 14px rgba(37,99,235,.15);font-weight:900;font-size:32px;color:#0f172a;position:relative}
+.detailPhoto{width:92px;min-width:92px;height:92px;border-radius:12px;background:#fff;border:2px solid #e2e8f0;display:grid;place-items:center;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.08);font-weight:900;font-size:32px;color:#0f172a}
 .detailPhoto img{width:100%;height:100%;object-fit:cover;display:block}
 .detailPhotoName b{font-size:18px;font-weight:900;color:#0f172a;display:block;line-height:1.2}
 .detailPhotoName span{font-size:12px;font-weight:700;color:#64748b;margin-top:4px;display:block}
-.uploadBtn{margin-top:8px;padding:6px 12px;border-radius:8px;border:1.5px solid #2563eb;background:#2563eb;color:#fff;font-weight:800;font-size:11px;cursor:pointer}
 .schemeBadge{padding:6px 14px;border-radius:20px;font-weight:800;font-size:12px}
 .schemeBadge.cmht{background:#ede9fe;color:#5b21b6;border:1px solid #ddd6fe}
 .schemeBadge.pmjay{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
@@ -95,7 +94,7 @@ tr{cursor:pointer}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
 @media(max-width:900px){.whiteBar{transform:translateX(-100%);width:270px!important}.whiteBar.mOpen{transform:translateX(0)}.mainWrap{margin-left:0!important;width:100%!important}.content{padding:12px}.patientGrid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.patientGrid{grid-template-columns:repeat(2,1fr);gap:8px}.controls{flex-direction:column;align-items:stretch}.bgLogo{top:165px!important;width:360px!important;height:360px!important}.detailGrid{grid-template-columns:1fr}.detailPhotoBox{flex-direction:row;align-items:center;gap:12px}.detailPhoto{width:72px;min-width:72px;height:72px;font-size:26px}}
+@media(max-width:600px){.patientGrid{grid-template-columns:repeat(2,1fr);gap:8px}.controls{flex-direction:column;align-items:stretch}.bgLogo{top:165px!important;width:360px!important;height:360px!important}.detailGrid{grid-template-columns:1fr}.detailPhoto{width:76px;min-width:76px;height:76px;font-size:26px}}
 </style>
 </head>
 <body>
@@ -128,7 +127,7 @@ tr{cursor:pointer}
 <div class="detailHead"><h2>Patient Information</h2><div style="display:flex;align-items:center;gap:10px"><span id="detailScheme" class="schemeBadge pmjay">PMJAY</span><div class="closeCircle" onclick="backToResults()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div></div>
 <div class="detailPhotoBox" id="detailPhotoBox">
 <div class="detailPhoto" id="dPhotoBox"><img id="dPhoto" src="" alt="" style="display:none"><span id="dPhotoInitial">P</span></div>
-<div class="detailPhotoName"><b id="dPhotoName">PATIENT NAME</b><span id="dPhotoSub">SHRI ID • PMJAY ID</span><input type="file" id="photoInput" accept="image/*" style="display:none"><button class="uploadBtn" id="uploadBtn" onclick="document.getElementById('photoInput').click()">📷 UPLOAD / CHANGE PHOTO</button><div id="uploadStatus" style="font-size:10px;font-weight:700;color:#2563eb;margin-top:4px"></div></div>
+<div class="detailPhotoName"><b id="dPhotoName">PATIENT NAME</b><span id="dPhotoSub">SHRI ID • PMJAY ID</span></div>
 </div>
 <div class="detailGrid"><div class="detailCard"><span>PATIENT NAME</span><b id="dName">-</b></div><div class="detailCard"><span>REMARK / SCHEME</span><b id="dScheme">-</b></div><div class="detailCard"><span>SHRI ID / IPD NO</span><b id="dShri">-</b></div><div class="detailCard"><span>PMJAY / CMHT CARD ID</span><b id="dPmjay">-</b></div><div class="detailCard"><span>AGE</span><b id="dAge">-</b></div><div class="detailCard"><span>SEX / GENDER</span><b id="dGender">-</b></div><div class="detailCard"><span>CONTACT NUMBER</span><b id="dContact">-</b></div><div class="detailCard"><span>AADHAAR NUMBER</span><b id="dAadhaar">-</b></div><div class="detailCard full"><span>ADDRESS</span><b id="dAddr">-</b></div></div>
 </div>
@@ -141,11 +140,11 @@ function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen'
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app = initializeApp(firebaseConfig,"search_final_"+Date.now());
 const db = getFirestore(app);
-let allPatients=[]; let filtered=[]; let currentPatientKey=null;
+let allPatients=[]; let filtered=[];
 let currentView='grid'; let currentScheme='ALL';
 
 window.setView=(v)=>{
@@ -192,16 +191,19 @@ window.onSearch=()=>{
 function getGradient(i){ const g=['gc1','gc2','gc3','gc4','gc5','gc6','gc7','gc8','gc9','gc10','gc11','gc12']; return g[i%12]; }
 function getInitial(n){ return (n||'P').trim().charAt(0).toUpperCase(); }
 
-// FIND PHOTO FROM MANY POSSIBLE FIELDS - TOTAL.HTML ONLY
-function findPhoto(raw){
- if(!raw) return '';
- let keys=['photo','photoUrl','photoURL','image','imageUrl','imageURL','profilePhoto','avatar','picture','profilePic','patientPhoto'];
- for(let k of keys){
-   if(raw[k] && String(raw[k]).trim().length>10) return String(raw[k]).trim();
+function findPhotoFromDoc(doc){
+ if(!doc) return '';
+ let tryKeys=['photo','photoUrl','photoURL','image','imageUrl','imageURL','profilePhoto','profilePic','avatar','picture','patientPhoto','photoBase64','imageBase64','profileImage','patientImage','pic','img'];
+ for(let k of tryKeys){
+   let v=doc[k];
+   if(v && typeof v==='string' && v.trim().length>20) return v.trim();
  }
- // nested
- if(raw.data && typeof raw.data==='object'){
-   for(let k of keys){ if(raw.data[k]) return String(raw.data[k]).trim(); }
+ // deep search any string that looks like image
+ for(let k in doc){
+   let v=doc[k];
+   if(typeof v==='string' && (v.startsWith('data:image/') || v.startsWith('https://firebasestorage') || v.startsWith('https://') && v.length>100)){
+     if(v.length>50) return v;
+   }
  }
  return '';
 }
@@ -209,7 +211,6 @@ function findPhoto(raw){
 window.selectPatient=(key)=>{
  let p=allPatients.find(x=>x.key===key) || filtered.find(x=>x.key===key);
  if(!p) return;
- currentPatientKey=p.key;
  document.getElementById('patientGrid').classList.add('hidden');
  document.getElementById('tableWrap').classList.add('hidden');
  document.getElementById('emptyState').classList.add('hidden');
@@ -235,18 +236,16 @@ window.selectPatient=(key)=>{
    document.getElementById('dPhotoSub').textContent=(p.shri||'-')+' • '+(p.pmjay||p.scheme);
    let photoEl=document.getElementById('dPhoto');
    let initEl=document.getElementById('dPhotoInitial');
-   document.getElementById('uploadStatus').textContent='';
    if(p.photo && p.photo.trim()!==''){
      photoEl.src=p.photo;
      photoEl.style.display='block';
      initEl.style.display='none';
+     photoEl.onerror=()=>{ photoEl.style.display='none'; initEl.style.display='grid'; initEl.textContent=getInitial(p.name); };
    }else{
      photoEl.style.display='none';
      initEl.style.display='grid';
      initEl.textContent=getInitial(p.name);
-     document.getElementById('uploadStatus').textContent='No photo in total.html - click to upload';
    }
-   photoEl.onerror=()=>{ photoEl.style.display='none'; initEl.style.display='grid'; initEl.textContent=getInitial(p.name); };
  }
  document.getElementById('info').textContent='Patient: '+p.name;
  window.scrollTo({top:0,behavior:'smooth'});
@@ -281,7 +280,7 @@ function renderAll(){
    if(isCMHT){
      photoInner=`${getInitial(p.name)}`;
    }else{
-     photoInner=p.photo?`<img src="${p.photo}" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid'"><span style="display:none">${getInitial(p.name)}</span>`:`${getInitial(p.name)}`;
+     photoInner=p.photo?`<img src="${p.photo}" onerror="this.style.display='none'"><span style="display:none">${getInitial(p.name)}</span>`:`${getInitial(p.name)}`;
    }
    let idBadge=p.scheme==='CMHT'?`<span class="cmhtBlue">${p.pmjay||'CMHT'}</span>`:`<span class="pmjayBlue">${p.pmjay||'PMJAY'}</span>`;
    gridHtml+=`<div class="pCard" onclick="selectPatient('${p.key.replace(/'/g,"\\'")}')"><div class="pCardTop ${grad}"><div class="pCardAvatar">${photoInner}</div></div><div class="pCardBody"><div class="pCardNameRow"><div class="pCardName">${p.name||'Unknown'}</div>${idBadge}</div><div class="pCardRow"><span>SHRI ID</span><b>${p.shri||'-'}</b></div><div class="pCardRow"><span>${p.scheme}</span><b>${p.scheme}</b></div><div class="pCardRow"><span>Contact</span><b>${p.contact||'-'}</b></div><div style="margin-top:8px;text-align:center;font-size:10px;color:#2563eb;font-weight:800">CLICK TO VIEW →</div></div></div>`;
@@ -296,35 +295,6 @@ function renderAll(){
  document.getElementById('info').textContent=filtered.length+' patient(s) found';
 }
 window.renderAll=renderAll;
-
-// UPLOAD PHOTO TO patients (total.html) COLLECTION ONLY
-document.getElementById('photoInput')?.addEventListener('change', async (e)=>{
- let file=e.target.files[0];
- if(!file || !currentPatientKey) return;
- let status=document.getElementById('uploadStatus');
- status.textContent='Uploading...';
- let reader=new FileReader();
- reader.onload=async ()=>{
-   try{
-     let base64=reader.result;
-     // Save base64 to patients doc (total.html)
-     await updateDoc(doc(db,"patients",currentPatientKey),{photo:base64, photoUrl:base64, updatedAt:new Date().toISOString()});
-     // Update local
-     let p=allPatients.find(x=>x.key===currentPatientKey);
-     if(p) p.photo=base64;
-     let pf=filtered.find(x=>x.key===currentPatientKey);
-     if(pf) pf.photo=base64;
-     document.getElementById('dPhoto').src=base64;
-     document.getElementById('dPhoto').style.display='block';
-     document.getElementById('dPhotoInitial').style.display='none';
-     status.textContent='✅ Photo saved to total.html!';
-     renderAll();
-   }catch(err){
-     status.textContent='❌ Error: '+err.message;
-   }
- };
- reader.readAsDataURL(file);
-});
 
 document.addEventListener('DOMContentLoaded',()=>{
  document.getElementById('menuBtnTop')?.addEventListener('click',(e)=>{e.preventDefault(); toggleWhiteBar();});
@@ -365,22 +335,21 @@ async function init(){
    if(!name) return;
    let photo='';
    if(scheme!=='CMHT'){
-     photo=findPhoto(raw);
+     photo=findPhotoFromDoc(raw);
    }
-   let obj={ key:key, name:name, shri:String(raw.shri||raw.shriId||'').trim(), pmjay:String(raw.pmjay||raw.pmjayId||raw.cmht||raw.cmhtId||'').trim(), contact:String(raw.contact||raw.contactNo||'').trim(), aadhaar:String(raw.aadhaar||raw.aadhaarNo||'').trim(), addr:String(raw.addr||raw.address||'').trim(), age:String(raw.age||'').trim(), gender:String(raw.gender||raw.sex||'').trim(), photo:photo, scheme:scheme, raw:raw };
+   let obj={ key:key, name:name, shri:String(raw.shri||raw.shriId||'').trim(), pmjay:String(raw.pmjay||raw.pmjayId||raw.cmht||raw.cmhtId||'').trim(), contact:String(raw.contact||raw.contactNo||'').trim(), aadhaar:String(raw.aadhaar||raw.aadhaarNo||'').trim(), addr:String(raw.addr||raw.address||'').trim(), age:String(raw.age||'').trim(), gender:String(raw.gender||raw.sex||'').trim(), photo:photo, scheme:scheme };
    if(!map[key]) map[key]=obj;
    else if(scheme==='CMHT' && map[key].scheme==='PMJAY'){ map[key+'_cmht']=obj; }
  }
  try{ if(typeof patientData!=='undefined' && Array.isArray(patientData)){ patientData.forEach(pd=>addToMap(pd,'PMJAY')); } }catch(e){}
- try{ const snap1=await getDocs(collection(db,"patients")); snap1.forEach(d=>addToMap({key:d.id,id:d.id,...d.data()},'PMJAY')); }catch(e){}
+ try{ const snap1=await getDocs(collection(db,"patients")); snap1.forEach(d=>addToMap({key:d.id,id:d.id,...d.data()},'PMJAY')); }catch(e){ console.log(e); }
  try{ const snap2=await getDocs(collection(db,"cmht_patients")); snap2.forEach(d=>addToMap({key:d.id,id:d.id,...d.data()},'CMHT')); }catch(e){}
  allPatients=Object.values(map);
  allPatients.sort((a,b)=>a.name.localeCompare(b.name));
- document.getElementById('info').textContent=allPatients.length+' patients loaded - Type to search';
+ document.getElementById('info').textContent=allPatients.length+' patients loaded - Type to search (photos: '+allPatients.filter(p=>p.photo).length+')';
  document.getElementById('emptyState').classList.remove('hidden');
  document.getElementById('patientGrid').classList.add('hidden');
  document.getElementById('tableWrap').classList.add('hidden');
- console.log('Loaded patients, photos found:', allPatients.filter(p=>p.photo).length);
 }
 init();
 </script>
