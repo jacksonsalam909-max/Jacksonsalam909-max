@@ -57,8 +57,8 @@ body{display:flex;min-height:100vh}
 .pCard{border-radius:14px;overflow:hidden;background:#ffffff!important;border:1px solid #e2e8f0;box-shadow:0 2px 10px #00000006;cursor:pointer;position:relative;z-index:10;transition:all .28s ease}
 .pCard:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 16px 32px rgba(0,0,0,0.14)!important;border-color:#2563eb!important}
 .pCardTop{height:56px;padding:10px 12px;display:flex;align-items:center;color:#fff}
-.pCardAvatar{width:38px;height:38px;background:#fff;border-radius:10px;display:grid;place-items:center;font-weight:900;color:#0f172a;font-size:14px;overflow:hidden;border:2px solid rgba(255,255,255,.8)}
-.pCardAvatar img{width:100%;height:100%;object-fit:cover}
+.pCardAvatar{width:40px;height:40px;background:#fff;border-radius:10px;display:grid;place-items:center;font-weight:900;color:#0f172a;font-size:14px;overflow:hidden;border:2px solid rgba(255,255,255,.9);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.pCardAvatar img{width:100%;height:100%;object-fit:cover;display:block}
 .pCardBody{padding:10px 12px}
 .pCardNameRow{display:flex;align-items:center;gap:6px}
 .pCardName{font-weight:800;font-size:13px;color:#0f172a!important;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -76,7 +76,7 @@ tr{cursor:pointer}
 .hidden{display:none!important}
 .detailView{position:relative;z-index:20!important;background:#ffffff!important;border:1.5px solid #e2e8f0;border-radius:20px;padding:20px;margin-top:20px}
 .detailHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:12px}
-/* PHOTO - FIXED TO SHOW ALWAYS */
+/* PHOTO FROM FIREBASE patient_photos */
 .detailPhotoBox{display:flex;align-items:center;gap:18px;background:linear-gradient(135deg,#f8fafc,#eef2ff);border:2px solid #e2e8f0;border-radius:18px;padding:16px 18px;margin-bottom:20px}
 .detailPhoto{width:110px;min-width:110px;height:110px;border-radius:16px;background:linear-gradient(135deg,#2563eb,#7c3aed);border:3px solid #fff;display:grid;place-items:center;overflow:hidden;box-shadow:0 8px 24px rgba(37,99,235,.25);font-weight:900;font-size:42px;color:#fff;position:relative}
 .detailPhoto img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0}
@@ -129,7 +129,7 @@ tr{cursor:pointer}
 <div class="detailHead"><h2>Patient Information</h2><div style="display:flex;align-items:center;gap:10px"><span id="detailScheme" class="schemeBadge pmjay">PMJAY</span><div class="closeCircle" onclick="backToResults()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div></div>
 <div class="detailPhotoBox" id="detailPhotoBox">
 <div class="detailPhoto" id="dPhotoBox"><img id="dPhoto" src="" alt="" style="display:none"><span id="dPhotoInitial">P</span></div>
-<div class="detailPhotoName"><b id="dPhotoName">PATIENT NAME</b><span id="dPhotoSub">SHRI ID • PMJAY ID</span><span id="photoStatus" style="font-size:10px;color:#2563eb;font-weight:800;margin-top:6px"></span></div>
+<div class="detailPhotoName"><b id="dPhotoName">PATIENT NAME</b><span id="dPhotoSub">SHRI ID • PMJAY ID</span></div>
 </div>
 <div class="detailGrid"><div class="detailCard"><span>PATIENT NAME</span><b id="dName">-</b></div><div class="detailCard"><span>REMARK / SCHEME</span><b id="dScheme">-</b></div><div class="detailCard"><span>SHRI ID / IPD NO</span><b id="dShri">-</b></div><div class="detailCard"><span>PMJAY / CMHT CARD ID</span><b id="dPmjay">-</b></div><div class="detailCard"><span>AGE</span><b id="dAge">-</b></div><div class="detailCard"><span>SEX / GENDER</span><b id="dGender">-</b></div><div class="detailCard"><span>CONTACT NUMBER</span><b id="dContact">-</b></div><div class="detailCard"><span>AADHAAR NUMBER</span><b id="dAadhaar">-</b></div><div class="detailCard full"><span>ADDRESS</span><b id="dAddr">-</b></div></div>
 </div>
@@ -148,6 +148,50 @@ const app = initializeApp(firebaseConfig,"search_final_"+Date.now());
 const db = getFirestore(app);
 let allPatients=[]; let filtered=[];
 let currentView='grid'; let currentScheme='ALL';
+let photoCache={}; // SAME AS total.html
+
+function cleanKey(k){ return String(k).replace(/[^a-zA-Z0-9]/g,'_'); }
+
+async function getFullPhotoSmart(ukey){
+  let c=cleanKey(ukey);
+  try{
+    let snap=await getDoc(doc(db,"patient_photos",c+"_photo"));
+    if(snap.exists()){
+      let d=snap.data();
+      if(d.full && d.full.length>100) return d.full;
+      if(d.thumb && d.chunkCount===0) return d.thumb;
+    }
+    let snap2=await getDocs(collection(db,"patient_photos",c+"_photo","chunks"));
+    if(!snap2.empty){
+      let arr=[]; snap2.forEach(d=>arr.push(d.data())); arr.sort((a,b)=>a.index-b.index);
+      let full=arr.map(a=>a.data).join('');
+      if(full) return full;
+    }
+    if(snap.exists() && snap.data().thumb) return snap.data().thumb;
+  }catch(e){}
+  return null;
+}
+
+async function loadPhotosForList(list){
+  // ONLY for PMJAY (total.html) patients - CMHT no photo
+  let toLoad=list.filter(p=>p.scheme!=='CMHT' && !photoCache[p.key]);
+  if(toLoad.length===0) return;
+  await Promise.all(toLoad.map(async p=>{
+    let full=await getFullPhotoSmart(p.key);
+    if(full) photoCache[p.key]=full;
+  }));
+  // update grid avatars without full re-render
+  list.forEach(p=>{
+    if(photoCache[p.key]){
+      document.querySelectorAll(`.pCardAvatar[data-ukey="${CSS.escape(p.key)}"] img`).forEach(img=>img.src=photoCache[p.key]);
+      document.querySelectorAll(`.pCardAvatar[data-ukey="${CSS.escape(p.key)}"]`).forEach(el=>{
+        if(!el.querySelector('img')){
+          el.innerHTML=`<img src="${photoCache[p.key]}" style="width:100%;height:100%;object-fit:cover;display:block">`;
+        }
+      });
+    }
+  });
+}
 
 window.setView=(v)=>{
  currentView=v;
@@ -193,24 +237,6 @@ window.onSearch=()=>{
 function getGradient(i){ const g=['gc1','gc2','gc3','gc4','gc5','gc6','gc7','gc8','gc9','gc10','gc11','gc12']; return g[i%12]; }
 function getInitial(n){ return (n||'P').trim().charAt(0).toUpperCase(); }
 
-// ANY MEANS - FIND PHOTO FROM FIREBASE
-function findPhotoFromDoc(raw){
- if(!raw) return '';
- // all possible keys
- for(let k in raw){
-   let v=raw[k];
-   if(typeof v!=='string') continue;
-   let low=k.toLowerCase();
-   if(low.includes('photo') || low.includes('image') || low.includes('pic') || low.includes('avatar')){
-     if(v.trim().length>30) return v.trim();
-   }
-   if(v.startsWith('data:image/') || v.includes('firebasestorage.googleapis.com')){
-     if(v.length>50) return v.trim();
-   }
- }
- return '';
-}
-
 window.selectPatient=async (key)=>{
  let p=allPatients.find(x=>x.key===key) || filtered.find(x=>x.key===key);
  if(!p) return;
@@ -230,7 +256,6 @@ window.selectPatient=async (key)=>{
  document.getElementById('dAadhaar').textContent=p.aadhaar||'-';
  document.getElementById('dAddr').textContent=p.addr||'-';
 
- // ALWAYS SHOW PHOTO BOX FOR PMJAY - EVEN IF NO FIREBASE PHOTO, SHOW BIG INITIAL AS PHOTO
  let photoBox=document.getElementById('detailPhotoBox');
  if(p.scheme==='CMHT'){
    photoBox.style.display='none';
@@ -240,37 +265,23 @@ window.selectPatient=async (key)=>{
    document.getElementById('dPhotoSub').textContent=(p.shri||'-')+' • '+(p.pmjay||p.scheme);
    let photoEl=document.getElementById('dPhoto');
    let initEl=document.getElementById('dPhotoInitial');
-   let statusEl=document.getElementById('photoStatus');
    
-   // Try fresh fetch from Firebase patients collection (total.html)
-   if(!p.photo){
-     try{
-       let snap=await getDoc(doc(db,"patients",p.key));
-       if(snap.exists()){
-         let fresh=findPhotoFromDoc(snap.data());
-         if(fresh) p.photo=fresh;
-       }
-     }catch(e){}
+   // GET FROM patient_photos (total.html) SAME LOGIC
+   let photo=photoCache[p.key];
+   if(!photo){
+     photo=await getFullPhotoSmart(p.key);
+     if(photo) photoCache[p.key]=photo;
    }
-
-   if(p.photo && p.photo.trim()!==''){
-     photoEl.src=p.photo;
+   
+   if(photo){
+     photoEl.src=photo;
      photoEl.style.display='block';
      initEl.style.display='none';
-     statusEl.textContent='Photo from total.html Firebase ✓';
-     statusEl.style.color='#059669';
-     photoEl.onerror=()=>{
-       photoEl.style.display='none';
-       initEl.style.display='grid';
-       initEl.textContent=getInitial(p.name);
-       statusEl.textContent='Firebase photo failed, showing avatar';
-     };
+     photoEl.onerror=()=>{ photoEl.style.display='none'; initEl.style.display='grid'; initEl.textContent=getInitial(p.name); };
    }else{
      photoEl.style.display='none';
      initEl.style.display='grid';
      initEl.textContent=getInitial(p.name);
-     statusEl.textContent='No photo in Firebase - showing avatar (upload in total.html to show photo)';
-     statusEl.style.color='#dc2626';
    }
  }
  document.getElementById('info').textContent='Patient: '+p.name;
@@ -306,14 +317,15 @@ function renderAll(){
    if(isCMHT){
      photoInner=`${getInitial(p.name)}`;
    }else{
-     if(p.photo){
-       photoInner=`<img src="${p.photo}" onerror="this.style.display='none'">`;
+     let cached=photoCache[p.key];
+     if(cached){
+       photoInner=`<img src="${cached}">`;
      }else{
        photoInner=`${getInitial(p.name)}`;
      }
    }
    let idBadge=p.scheme==='CMHT'?`<span class="cmhtBlue">${p.pmjay||'CMHT'}</span>`:`<span class="pmjayBlue">${p.pmjay||'PMJAY'}</span>`;
-   gridHtml+=`<div class="pCard" onclick="selectPatient('${p.key.replace(/'/g,"\\'")}')"><div class="pCardTop ${grad}"><div class="pCardAvatar">${photoInner}</div></div><div class="pCardBody"><div class="pCardNameRow"><div class="pCardName">${p.name||'Unknown'}</div>${idBadge}</div><div class="pCardRow"><span>SHRI ID</span><b>${p.shri||'-'}</b></div><div class="pCardRow"><span>${p.scheme}</span><b>${p.scheme}</b></div><div class="pCardRow"><span>Contact</span><b>${p.contact||'-'}</b></div><div style="margin-top:8px;text-align:center;font-size:10px;color:#2563eb;font-weight:800">CLICK TO VIEW →</div></div></div>`;
+   gridHtml+=`<div class="pCard" onclick="selectPatient('${p.key.replace(/'/g,"\\'")}')"><div class="pCardTop ${grad}"><div class="pCardAvatar" data-ukey="${p.key}">${photoInner}</div></div><div class="pCardBody"><div class="pCardNameRow"><div class="pCardName">${p.name||'Unknown'}</div>${idBadge}</div><div class="pCardRow"><span>SHRI ID</span><b>${p.shri||'-'}</b></div><div class="pCardRow"><span>${p.scheme}</span><b>${p.scheme}</b></div><div class="pCardRow"><span>Contact</span><b>${p.contact||'-'}</b></div><div style="margin-top:8px;text-align:center;font-size:10px;color:#2563eb;font-weight:800">CLICK TO VIEW →</div></div></div>`;
  });
  document.getElementById('patientGrid').innerHTML=gridHtml;
  let html='<tr><th>SL</th><th>Patient Name</th><th>PMJAY/CMHT ID</th><th>SHRI ID</th><th>Scheme</th><th>Contact</th><th>Aadhaar</th></tr>';
@@ -322,7 +334,9 @@ function renderAll(){
    html+=`<tr onclick="selectPatient('${p.key.replace(/'/g,"\\'")}')"><td><div class="sl">${i+1}</div></td><td><b>${p.name}</b></td><td>${badge}</td><td><span class="shriTable">${p.shri||'No ID'}</span></td><td><span style="background:${p.scheme==='CMHT'?'#8b5cf6':'#2563eb'};color:#fff;padding:5px 10px;border-radius:8px;font-weight:800;font-size:11px">${p.scheme}</span></td><td>${p.contact||'-'}</td><td>${p.aadhaar||'-'}</td></tr>`;
  });
  document.getElementById('tbl').innerHTML=html;
- document.getElementById('info').textContent=filtered.length+' patient(s) found - Photos: '+filtered.filter(x=>x.photo).length;
+ document.getElementById('info').textContent=filtered.length+' patient(s) found';
+ // LOAD PHOTOS LIKE total.html DOES
+ setTimeout(()=>{ loadPhotosForList(data); }, 150);
 }
 window.renderAll=renderAll;
 
@@ -363,23 +377,16 @@ async function init(){
    if(raw.deleted===true) return;
    let name=String(raw.patientName||raw.name||'').trim();
    if(!name) return;
-   let photo='';
-   if(scheme!=='CMHT'){
-     photo=findPhotoFromDoc(raw);
-   }
-   let obj={ key:key, name:name, shri:String(raw.shri||raw.shriId||'').trim(), pmjay:String(raw.pmjay||raw.pmjayId||'').trim(), contact:String(raw.contact||raw.contactNo||'').trim(), aadhaar:String(raw.aadhaar||raw.aadhaarNo||'').trim(), addr:String(raw.addr||raw.address||'').trim(), age:String(raw.age||'').trim(), gender:String(raw.gender||raw.sex||'').trim(), photo:photo, scheme:scheme };
-   if(!map[key]){
-     map[key]=obj;
-   }else{
-     if(scheme!=='CMHT' && photo) map[key].photo=photo;
-   }
+   let obj={ key:key, name:name, shri:String(raw.shri||raw.shriId||'').trim(), pmjay:String(raw.pmjay||raw.pmjayId||'').trim(), contact:String(raw.contact||raw.contactNo||'').trim(), aadhaar:String(raw.aadhaar||raw.aadhaarNo||'').trim(), addr:String(raw.addr||raw.address||'').trim(), age:String(raw.age||'').trim(), gender:String(raw.gender||raw.sex||'').trim(), scheme:scheme };
+   if(!map[key]) map[key]=obj;
+   else if(scheme==='CMHT' && map[key].scheme==='PMJAY'){ map[key+'_cmht']=obj; }
  }
  try{ if(typeof patientData!=='undefined' && Array.isArray(patientData)){ patientData.forEach(pd=>addToMap(pd,'PMJAY')); } }catch(e){}
  try{ const snap1=await getDocs(collection(db,"patients")); snap1.forEach(d=>addToMap({key:d.id,id:d.id,...d.data()},'PMJAY')); }catch(e){}
  try{ const snap2=await getDocs(collection(db,"cmht_patients")); snap2.forEach(d=>addToMap({key:d.id,id:d.id,...d.data()},'CMHT')); }catch(e){}
  allPatients=Object.values(map);
  allPatients.sort((a,b)=>a.name.localeCompare(b.name));
- document.getElementById('info').textContent=allPatients.length+' patients loaded - Photos from Firebase: '+allPatients.filter(p=>p.photo).length;
+ document.getElementById('info').textContent=allPatients.length+' patients loaded - Type to search';
  document.getElementById('emptyState').classList.remove('hidden');
  document.getElementById('patientGrid').classList.add('hidden');
  document.getElementById('tableWrap').classList.add('hidden');
