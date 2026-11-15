@@ -49,11 +49,9 @@ body{display:flex;align-items:flex-start!important}
 .btn{padding:10px 18px;border:0;border-radius:9px;font-weight:800;cursor:pointer;font-size:12px}
 .btnDark{background:#0f172a;color:#fff}
 .btnYellow{background:#facc15;color:#000;border:1.5px solid #eab308}
-.btnEdit{background:#fff;color:#0f172a;border:1.5px solid #e2e8f0}
-.btnSave{background:#22c55e;color:#fff;border:1.5px solid #16a34a}
-
-/* UPLOAD */
-.uploadSection{position:relative;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:22px 18px 18px 18px;background:#fff;border-radius:16px;border:1.5px solid #e2e8f0}
+.btnEdit{background:#fff;color:#0f172a;border:1.5px solid #cbd5e1}
+.btnSave{background:#0f172a;color:#fff;border:1.5px solid #0f172a}
+.uploadSection{position:relative;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:22px 18px 70px 18px;background:#fff;border-radius:16px;border:1.5px solid #e2e8f0}
 .uploadCol{flex:1;min-width:250px;max-width:340px;display:flex;flex-direction:column;align-items:center;background:#f8fafc;border-radius:12px;padding:12px;border:1px solid #e2e8f0}
 .uploadCol b{font-size:11px;font-weight:900;text-transform:uppercase;color:#0f172a}
 .yellowBox{width:100%;border:2px dashed #facc15;border-radius:8px;background:#fffef0;padding:10px 12px;font-size:11.5px;font-weight:700;min-height:42px!important;height:42px!important;max-height:42px!important;display:flex;align-items:center;justify-content:center;cursor:pointer;text-align:center;word-break:break-all;transition:.2s}
@@ -64,16 +62,21 @@ body{display:flex;align-items:flex-start!important}
 .delIcon:hover{background:#fef2f2!important;border-color:#fecaca!important}
 .delIcon:hover svg{stroke:#ef4444!important}
 
-/* GLOBAL SAVE EDIT - ONE FOR ALL */
-.globalActions{display:flex;gap:10px;justify-content:center;margin-top:16px;width:100%}
-.globalActions .btn{padding:12px 28px!important;font-size:13px!important;border-radius:10px!important;min-width:120px}
+/* LEFT CORNER EDIT SAVE + RIGHT CORNER CLAIM */
+.bottomBar{position:absolute;bottom:12px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:center}
+.leftActions{display:flex;gap:8px}
+.rightActions{display:flex;gap:8px}
+.leftActions .btn{padding:9px 20px!important;min-width:80px!important;font-size:12px!important}
+.rightActions .btnYellow{padding:9px 22px!important;border-radius:20px!important}
 
-/* CLAIM CORNER - NOT FAB, NORMAL BUTTON AT CORNER */
-.claimCornerBtn{position:absolute;top:10px;right:10px;z-index:5}
-.claimCornerBtn .btnYellow{padding:7px 16px!important;font-size:11px!important;border-radius:20px!important}
-.claimSlideBox{position:absolute;top:46px;right:10px;width:280px;background:#fff;border:1.5px solid #fde68a;border-radius:12px;box-shadow:0 10px 24px rgba(0,0,0,.15);padding:12px;transform:translateY(-10px);opacity:0;pointer-events:none;transition:.3s ease;z-index:10}
-.claimSlideBox.open{transform:translateY(0);opacity:1;pointer-events:auto}
-.claimInput{border:2px solid #6366f1;border-radius:10px;padding:10px 14px;font-weight:800;width:100%;background:#f0f4ff;outline:0}
+/* CLAIM SLIDE OUT DRAWER - NOT POPUP */
+.claimDrawer{position:fixed;top:0;right:0;width:340px;max-width:85vw;height:100vh;background:#fff;border-left:1.5px solid #e2e8f0;box-shadow:-8px 0 32px rgba(0,0,0,.15);z-index:96;transform:translateX(100%);transition:.4s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.claimDrawer.open{transform:translateX(0)}
+.claimDrawerHead{padding:18px;background:#0f172a;color:#fff;display:flex;justify-content:space-between;align-items:center}
+.claimDrawerBody{padding:20px;flex:1}
+.claimInput{border:2px solid #6366f1;border-radius:12px;padding:12px 14px;font-weight:800;width:100%;background:#f0f4ff;outline:0;font-size:14px}
+.claimOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:95}
+.claimOverlay.show{display:block}
 
 #fileModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:16px}
 #fileModal.show{display:flex}
@@ -83,7 +86,8 @@ body{display:flex;align-items:flex-start!important}
 .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
 .whiteBar.mOpen{transform:translateX(0)}
 .mainWrap{margin-left:0!important;width:100%!important}
-.claimSlideBox{width:250px;right:5px}
+.claimDrawer{width:300px}
+.bottomBar{flex-wrap:wrap;gap:8px}
 }
 </style>
 <script type="module">
@@ -122,22 +126,33 @@ window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,_docsCache:{},CHUNK_SIZE:
 </div>
 
 <div class="uploadSection">
-<!-- CLAIM AT CORNER -->
-<div class="claimCornerBtn"><button class="btn btnYellow" onclick="toggleClaim()">CLAIM</button></div>
-<div id="claimSlide" class="claimSlideBox">
-<div style="font-weight:900;font-size:12px;margin-bottom:8px">ENTER CLAIM ID</div>
-<input id="claimInput" class="claimInput" placeholder="CLAIM ID">
-<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btnEdit" style="flex:1" onclick="toggleClaim()">CLOSE</button><button class="btn btnSave" style="flex:1" onclick="saveClaim()">ADD →</button></div>
-</div>
-
 <div class="uploadCol"><b>Discharge summary</b><div style="display:flex;gap:6px;width:100%;margin-top:10px;align-items:center"><div class="yellowBox" id="box_summary">Click or Drop</div><button class="delIcon" onclick="delFile('discharge_summary')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
 <div class="uploadCol"><b>Discharge photo</b><div style="display:flex;gap:6px;width:100%;margin-top:10px;align-items:center"><div class="yellowBox" id="box_photo">Click or Drop</div><button class="delIcon" onclick="delFile('discharge_photo')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
 <div class="uploadCol"><b>Feedback form</b><div style="display:flex;gap:6px;width:100%;margin-top:10px;align-items:center"><div class="yellowBox" id="box_feedback">Click or Drop</div><button class="delIcon" onclick="delFile('feedback_form')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
 
-<!-- ONE SAVE EDIT FOR ALL -->
-<div class="globalActions"><button class="btn btnEdit" onclick="editAll()">EDIT ALL</button><button class="btn btnSave" onclick="saveAll()">SAVE ALL</button></div>
+<div class="bottomBar">
+<div class="leftActions">
+<button class="btn btnEdit" onclick="editAll()">EDIT</button>
+<button class="btn btnSave" onclick="saveAll()">SAVE</button>
+</div>
+<div class="rightActions">
+<button class="btn btnYellow" onclick="toggleClaim()">CLAIM</button>
+</div>
+</div>
 
 </div>
+</div>
+</div>
+
+<!-- CLAIM SLIDE OUT DRAWER FROM RIGHT -->
+<div id="claimOverlay" class="claimOverlay" onclick="toggleClaim()"></div>
+<div id="claimDrawer" class="claimDrawer">
+<div class="claimDrawerHead"><b>CLAIM ENTRY</b><button class="btn" style="background:#fff;color:#000;padding:6px 10px" onclick="toggleClaim()">✕</button></div>
+<div class="claimDrawerBody">
+<div style="font-size:12px;font-weight:800;color:#475569;margin-bottom:10px">ENTER CLAIM ID FOR THIS PATIENT</div>
+<input id="claimInput" class="claimInput" placeholder="CLAIM ID">
+<div style="margin-top:16px;display:flex;gap:10px"><button class="btn btnEdit" style="flex:1" onclick="toggleClaim()">CLOSE</button><button class="btn btnSave" style="flex:1" onclick="saveClaim()">ADD</button></div>
+<div style="margin-top:20px;font-size:11px;color:#94a3b8;font-weight:600">Patient: <span id="drawerPName"></span><br>SHRI: <span id="drawerPShri"></span></div>
 </div>
 </div>
 
@@ -155,6 +170,8 @@ document.getElementById('pName').textContent=formatName(NAME)||'PATIENT';
 document.getElementById('pShri').textContent='SHRI: '+SHRI;
 document.getElementById('pPmjay').textContent='PMJAY: '+PMJAY;
 document.getElementById('pMeta').textContent='DATE: '+DATE+' • TIME: '+TIME+' • BLOCK: '+BLOCK;
+document.getElementById('drawerPName').textContent=NAME;
+document.getElementById('drawerPShri').textContent=SHRI;
 function getDocs(){return window._fb._docsCache[SHRI]||[];}
 async function loadDocs(){try{var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patient_docs"));window._fb._docsCache={};snap.forEach(d=>{var data=d.data();data._id=d.id;if(!window._fb._docsCache[data.shri])window._fb._docsCache[data.shri]=[];window._fb._docsCache[data.shri].push(data);});renderBoxes();}catch(e){}}
 function renderBoxes(){
@@ -185,15 +202,11 @@ window._fb._docsCache[SHRI].push({_id:id,type:type,shri:SHRI,fileName:file.name}
 if(input)input.value='';
 renderBoxes();
 }
-function editAll(){
-if(confirm('Edit all files? This will allow re-upload.')){
-trigger('discharge_summary');
-}
-}
+function editAll(){trigger('discharge_summary');}
 function saveAll(){
 var docs=getDocs();
 if(docs.length===0){alert('No files to save');return;}
-alert('✓ All files saved: '+docs.length+' files\n'+docs.map(d=>d.fileName).join(', '));
+alert('✓ Saved: '+docs.length+' files');
 }
 async function getFull(id){var snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));var arr=[];snap.forEach(d=>arr.push(d.data()));arr.sort((a,b)=>a.index-b.index);return arr.map(a=>a.data).join('');}
 async function openFile(type){
@@ -220,7 +233,10 @@ await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',id));
 window._fb._docsCache[SHRI]=window._fb._docsCache[SHRI].filter(x=>x._id!==id);
 renderBoxes();
 }
-function toggleClaim(){document.getElementById('claimSlide').classList.toggle('open');}
+function toggleClaim(){
+document.getElementById('claimDrawer').classList.toggle('open');
+document.getElementById('claimOverlay').classList.toggle('show');
+}
 async function saveClaim(){
 var claimId=document.getElementById('claimInput').value.trim().toUpperCase();
 if(!claimId)return;
@@ -240,7 +256,6 @@ el.addEventListener('click',()=>{var docs=getDocs().filter(d=>d.type===type);if(
 window.addEventListener('load',()=>{
 setTimeout(()=>{loadDocs();setupDrop('discharge_summary');setupDrop('discharge_photo');setupDrop('feedback_form');},600);
 document.getElementById('fileModal').addEventListener('click',e=>{if(e.target.id==='fileModal')closeModal();});
-document.addEventListener('click',e=>{var slide=document.getElementById('claimSlide');var btn=e.target.closest('.claimCornerBtn');if(!slide.contains(e.target)&&!btn){slide.classList.remove('open');}});
 });
 </script>
 </body>
