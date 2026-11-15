@@ -184,12 +184,16 @@ function openPhotoPop(){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app = initializeApp(firebaseConfig,"search_front_wm_"+Date.now());
+const app = initializeApp(firebaseConfig,"search_no_test_"+Date.now());
 const db = getFirestore(app);
 let allPatients=[]; let filtered=[];
 let currentView='grid'; let currentScheme='ALL';
 
 function cleanKey(k){ return String(k).replace(/[^a-zA-Z0-9]/g,'_'); }
+function isTestPatient(raw){
+  let s = [raw.key||'', raw.id||'', raw.name||'', raw.patientName||'', raw.shri||'', raw.shriId||'', raw.pmjay||'', raw.pmjayId||''].join(' ').toLowerCase();
+  return s.includes('test patient') || s.includes('test002') || s.includes('formshri') || s.includes('form001') || s.includes('form-edited') || s.startsWith('test');
+}
 async function getFullPhotoSmart(ukey){
   let c=cleanKey(ukey);
   try{
@@ -368,12 +372,15 @@ document.addEventListener('DOMContentLoaded',()=>{
 async function init(){
  let map={};
  function addToMap(raw,scheme){
+   if(isTestPatient(raw)) return;
    let key=String(raw.key||raw.id||raw.shri||raw.shriId||'').trim();
    if(!key) key=String(raw.name||'').trim()+Math.random();
    if(!key) return;
    if(raw.deleted===true) return;
    let name=String(raw.patientName||raw.name||'').trim();
    if(!name) return;
+   let lname=name.toLowerCase();
+   if(lname.includes('test patient') || lname.includes('test patient via form')) return;
    let obj={ key:key, name:name, shri:String(raw.shri||raw.shriId||'').trim(), pmjay:String(raw.pmjay||raw.pmjayId||'').trim(), contact:String(raw.contact||raw.contactNo||'').trim(), aadhaar:String(raw.aadhaar||raw.aadhaarNo||'').trim(), addr:String(raw.addr||raw.address||'').trim(), age:String(raw.age||'').trim(), gender:String(raw.gender||raw.sex||'').trim(), scheme:scheme };
    if(!map[key]) map[key]=obj;
  }
