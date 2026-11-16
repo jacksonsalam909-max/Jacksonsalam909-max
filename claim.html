@@ -124,6 +124,19 @@ td.nameCol{text-align:left;padding-left:8px;max-width:120px;overflow:hidden;text
 .hoverPop .popRow span:first-child{color:#94a3b8;font-weight:600}
 .hoverPop .popRow span:last-child{color:#fff;font-weight:700;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hoverPop .popTitle{font-size:11px;font-weight:900;color:#fff;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ONLY NEW - EDIT POPUP */
+#editModal{display:none;position:fixed;inset:0;width:100vw;height:100vh;background:rgba(0,0,0,0.72)!important;z-index:999999;align-items:center;justify-content:center;padding:12px}
+#editModal.show{display:flex!important}
+.editCard{background:#fff!important;border-radius:14px!important;width:94vw!important;max-width:480px!important;overflow:hidden!important;box-shadow:0 24px 80px rgba(0,0,0,.6)!important}
+.editHead{padding:14px 16px;background:#0f172a;color:#fff;display:flex;justify-content:space-between;align-items:center}
+.editHead b{font-size:13px;font-weight:900;text-transform:uppercase}
+.editBody{padding:16px;display:flex;flex-direction:column;gap:12px;background:#fff}
+.editField{display:flex;flex-direction:column;gap:5px}
+.editField label{font-size:9px;font-weight:800;color:#64748b;text-transform:uppercase}
+.editField input,.editField select{height:40px;padding:0 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-weight:700;font-size:12px;background:#f8fafc;outline:0;color:#0f172a;width:100%}
+.editActions{display:flex;gap:8px;margin-top:4px}
+.btnCancelEdit{flex:1;height:40px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;font-weight:800;font-size:12px;cursor:pointer}
+.btnSaveEdit{flex:1;height:40px;border-radius:10px;border:0;background:#16a34a;color:#fff;font-weight:900;font-size:12px;cursor:pointer}
 @media(max-width:900px){
   html,body{overflow-x:hidden!important;max-width:100vw!important}
   .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
@@ -164,11 +177,9 @@ td.nameCol{text-align:left;padding-left:8px;max-width:120px;overflow:hidden;text
 <a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
 <a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
 <a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
-<!-- RESTORED DISCHARGE ICON -->
 <a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
 <a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT REPORT</span></a>
 <a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT</span></a>
-<!-- RESTORED BILL ICON -->
 <a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="ml">BILL</span></a>
 <a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
 </div>
@@ -225,16 +236,32 @@ td.nameCol{text-align:left;padding-left:8px;max-width:120px;overflow:hidden;text
 </div>
 <div style="text-align:center;padding:10px;font-size:10px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis</div>
 </div>
+
+<!-- ONLY NEW POPUP -->
+<div id="editModal">
+<div class="editCard">
+<div class="editHead"><b id="editModalTitle">EDIT CLAIM</b><button onclick="closeEditModal()" style="background:transparent;border:0;color:#fff;font-weight:900;font-size:16px;cursor:pointer">✕</button></div>
+<div class="editBody">
+<div class="editField"><label>Patient</label><div id="editPatientName" style="height:40px;display:flex;align-items:center;padding:0 12px;background:#f1f5f9;border-radius:10px;font-weight:800;font-size:12px;color:#0f172a">-</div></div>
+<div class="editField"><label>Claim ID</label><input id="editClaimId" type="text" placeholder="Enter Claim ID"></div>
+<div class="editField"><label>Date</label><input id="editDate" type="date"></div>
+<div class="editField"><label>Time Slot</label><select id="editTime"><option value="">Select Time</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
+<div class="editField"><label>Block</label><select id="editBlock"><option value="">Select Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
+<div class="editActions"><button class="btnCancelEdit" onclick="closeEditModal()">Cancel</button><button class="btnSaveEdit" onclick="saveEditClaim()">SAVE</button></div>
+</div>
+</div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig,"claim_icons_restored_"+Math.random());
+const app=initializeApp(firebaseConfig,"claim_edit_only_"+Math.random());
 const db=getFirestore(app);
 window._fb={db,collection,getDocs,doc,setDoc,deleteDoc};
 </script>
 <script>
-let allClaimed=[],filtered=[],masterPatients=[],currentPage=1,pageSize=12,urlClaimId='',selectedTotalPatient=null,currentView='table',filterDateValue='';
+let allClaimed=[],filtered=[],masterPatients=[],currentPage=1,pageSize=12,urlClaimId='',selectedTotalPatient=null,currentView='table',filterDateValue='',editingId=null;
 function toggleWhiteBar(){ let bar=document.getElementById('whiteBar'); if(window.innerWidth<=900){ bar.classList.toggle('mOpen'); document.getElementById('mobOverlay').classList.toggle('show'); }else{ bar.classList.toggle('folded'); let wrap=document.getElementById('mainWrap'); if(bar.classList.contains('folded')){ wrap.style.marginLeft='72px'; wrap.style.width='calc(100% - 72px)'; wrap.style.maxWidth='calc(100% - 72px)'; }else{ wrap.style.marginLeft='270px'; wrap.style.width='calc(100% - 270px)'; wrap.style.maxWidth='calc(100% - 270px)'; } } }
 function closeMob(){ document.getElementById('whiteBar').classList.remove('mOpen'); document.getElementById('mobOverlay').classList.remove('show'); }
 function todayISO(){ let d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
@@ -249,17 +276,10 @@ document.addEventListener('DOMContentLoaded',function(){
   filterDateValue=todayISO();
   document.getElementById('fDateFilter').value=filterDateValue;
   updateFilterDateDisplay();
+  document.getElementById('editModal').addEventListener('click',e=>{ if(e.target.id==='editModal') closeEditModal(); });
 });
-function formatDisplay(iso){ 
-  if(!iso || iso=="0" || iso=="0-0-0") { let d=todayISO(); let p=d.split("-"); return `${p[2]}-${p[1]}-${p[0]}`; }
-  let p=iso.split('-'); 
-  if(p.length!==3) return iso; 
-  return `${p[2]}-${p[1]}-${p[0]}`; 
-}
-function updateFilterDateDisplay(){ 
-  if(!filterDateValue || filterDateValue=="0") filterDateValue=todayISO();
-  document.getElementById('fDateDisplay').innerText=formatDisplay(filterDateValue); 
-}
+function formatDisplay(iso){ if(!iso || iso=="0" || iso=="0-0-0") { let d=todayISO(); let p=d.split("-"); return `${p[2]}-${p[1]}-${p[0]}`; } let p=iso.split('-'); if(p.length!==3) return iso; return `${p[2]}-${p[1]}-${p[0]}`; }
+function updateFilterDateDisplay(){ if(!filterDateValue || filterDateValue=="0") filterDateValue=todayISO(); document.getElementById('fDateDisplay').innerText=formatDisplay(filterDateValue); }
 function shiftFilterDate(delta){ if(!filterDateValue || filterDateValue=="0") filterDateValue=todayISO(); let dt=new Date(filterDateValue); dt.setDate(dt.getDate()+delta); filterDateValue=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`; document.getElementById('fDateFilter').value=filterDateValue; updateFilterDateDisplay(); applyFilter(); }
 function clearFilters(){ filterDateValue=todayISO(); document.getElementById('fDateFilter').value=filterDateValue; document.getElementById('fTime').value=''; document.getElementById('fBlock').value=''; document.getElementById('fSearch').value=''; updateFilterDateDisplay(); applyFilter(); }
 function getClaimIdFromURL(){ return new URLSearchParams(location.search).get('claimId')||''; }
@@ -377,7 +397,42 @@ async function removeClaim(id){
     await loadAll();
   }catch(e){ alert(e.message); }
 }
-async function editClaim(id){ let p=allClaimed.find(x=>x._id===id); if(!p) return; let newId=prompt('EDIT CLAIM ID:',p.claimId); if(newId===null) return; newId=newId.trim().toUpperCase(); if(!newId) return; try{ await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:newId,claimedAt:new Date().toISOString(),claimStatus:'CLAIMED'},{merge:true}); await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',id),{...p,claimId:newId,claimedAt:new Date().toISOString(),claimStatus:'CLAIMED'},{merge:true}); loadAll(); }catch(e){ alert(e.message); } }
+/* ONLY CHANGED EDIT LOGIC - POPUP FOR CLAIM ID, DATE, TIME, BLOCK */
+function editClaim(id){
+  let p=allClaimed.find(x=>x._id===id);
+  if(!p) return;
+  editingId=id;
+  document.getElementById('editModalTitle').innerText='EDIT - '+(p.patientName||p.name||'');
+  document.getElementById('editPatientName').innerText=(p.patientName||p.name||'')+' • SHRI: '+(p.shriId||p.shri||'')+' • PMJAY: '+(p.pmjayCmhtId||p.pmjayId||'');
+  document.getElementById('editClaimId').value=p.claimId||'';
+  document.getElementById('editDate').value=(p.date||p.claimDate||'').slice(0,10);
+  document.getElementById('editTime').value=p.time||'';
+  document.getElementById('editBlock').value=p.block||'';
+  document.getElementById('editModal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeEditModal(){
+  document.getElementById('editModal').classList.remove('show');
+  document.body.style.overflow='';
+  editingId=null;
+}
+async function saveEditClaim(){
+  if(!editingId) return;
+  let claimId=document.getElementById('editClaimId').value.trim().toUpperCase();
+  let date=document.getElementById('editDate').value;
+  let time=document.getElementById('editTime').value;
+  let block=document.getElementById('editBlock').value;
+  if(!claimId){alert('Enter Claim ID');return;}
+  if(!date){alert('Select Date');return;}
+  if(!time){alert('Select Time');return;}
+  if(!block){alert('Select Block');return;}
+  try{
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',editingId),{claimId:claimId,date:date,claimDate:date,time:time,block:block,claimedAt:new Date().toISOString(),claimStatus:'CLAIMED'},{merge:true});
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',editingId),{claimId:claimId,date:date,claimDate:date,time:time,block:block,claimedAt:new Date().toISOString(),claimStatus:'CLAIMED'},{merge:true});
+    closeEditModal();
+    await loadAll();
+  }catch(e){ alert(e.message); }
+}
 document.getElementById('fSearch').addEventListener('input', applyFilter);
 window.addEventListener('load', async ()=>{ urlClaimId=getClaimIdFromURL(); if(!filterDateValue || filterDateValue=="0"){ filterDateValue=todayISO(); document.getElementById('fDateFilter').value=filterDateValue; updateFilterDateDisplay(); } await loadMaster(); await loadAll(); });
 </script>
