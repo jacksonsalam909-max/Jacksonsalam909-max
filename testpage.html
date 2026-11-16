@@ -56,17 +56,15 @@ body{display:flex;min-height:100vh}
 .patientGrid{position:relative;z-index:10!important;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
 .pCard{border-radius:16px;overflow:hidden;background:#ffffff!important;border:1px solid #e2e8f0;box-shadow:0 4px 12px #00000008;cursor:pointer;position:relative;z-index:10;transition:all .28s ease}
 .pCard:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 18px 36px rgba(0,0,0,0.14)!important;border-color:#2563eb!important}
-.pCardTop{height:60px;padding:10px 14px;display:flex;align-items:center;color:#fff;position:relative;z-index:2}
+.pCardTop{height:60px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;color:#fff;position:relative;z-index:2}
 .pCardAvatar{width:42px;height:42px;background:#fff;border-radius:11px;display:grid;place-items:center;font-weight:900;color:#0f172a;font-size:15px;overflow:hidden;border:2px solid rgba(255,255,255,.9);box-shadow:0 2px 8px rgba(0,0,0,0.15)}
 .pCardBody{padding:12px 14px;position:relative;z-index:3}
-.pCardNameRow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.pCardName{font-weight:800;font-size:13.5px;color:#0f172a!important;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pmjayBlue{background:#2563eb;color:#fff!important;padding:4px 9px;border-radius:20px;font-weight:800;font-size:10px;letter-spacing:0.3px}
-.cmhtBlue{background:#8b5cf6;color:#fff!important;padding:4px 9px;border-radius:20px;font-weight:800;font-size:10px;letter-spacing:0.3px}
-.pCardRow{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-top:7px}
-.pCardRow span{color:#64748b!important;font-weight:600;font-size:10.5px;text-transform:uppercase;flex-shrink:0;padding-top:1px}
-.pCardRow b{color:#0f172a!important;font-weight:700;font-size:12.5px;text-align:right;flex:1;white-space:normal;word-break:break-word;line-height:1.3}
-.clickView{margin-top:10px;text-align:center;font-size:11px;font-weight:800;color:#2563eb;letter-spacing:0.3px;background:#eff6ff;border-radius:8px;padding:6px 0;border:1px solid #dbeafe}
+.pCardRow{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-top:8px}
+.pCardRow:first-child{margin-top:0}
+.pCardRow span{color:#64748b!important;font-weight:600;font-size:11px;flex-shrink:0;padding-top:1px}
+.pCardRow b{color:#0f172a!important;font-weight:800;font-size:13px;text-align:right;flex:1;white-space:normal;word-break:break-word;line-height:1.3}
+.clickView{margin-top:12px;text-align:center;font-size:11px;font-weight:600;color:#94a3b8}
+.schemeTag{padding:4px 10px;border-radius:20px;font-weight:800;font-size:10px;color:#fff}
 .gc1{background:linear-gradient(135deg,#C850C0,#4158D0)} .gc2{background:linear-gradient(135deg,#FF5E3A,#FF2A68)} .gc3{background:linear-gradient(135deg,#38BDF8,#2563EB)} .gc4{background:linear-gradient(135deg,#6366F1,#4F46E5)} .gc5{background:linear-gradient(135deg,#22D3EE,#06B6D4)} .gc6{background:linear-gradient(135deg,#FBBF24,#F97316)} .gc7{background:linear-gradient(135deg,#E879F9,#A855F7)} .gc8{background:linear-gradient(135deg,#34D399,#059669)} .gc9{background:linear-gradient(135deg,#F9A8D4,#F472B6)} .gc10{background:linear-gradient(135deg,#7DD3FC,#A78BFA)} .gc11{background:linear-gradient(135deg,#8b5cf6,#6366f1)} .gc12{background:linear-gradient(135deg,#a855f7,#ec4899)}
 .tableWrap{position:relative;z-index:10!important;background:#ffffff!important;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-top:16px}
 table{width:100%;border-collapse:collapse;min-width:1100px;background:#ffffff!important}
@@ -185,7 +183,7 @@ function openPhotoPop(){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app = initializeApp(firebaseConfig,"search_prev_design_"+Date.now());
+const app = initializeApp(firebaseConfig,"search_final_plain_"+Date.now());
 const db = getFirestore(app);
 let allPatients=[]; let filtered=[];
 let currentView='grid'; let currentScheme='ALL';
@@ -277,7 +275,6 @@ window.selectPatient=async (key)=>{
  document.getElementById('dContact').textContent=p.contact||'-';
  document.getElementById('dAadhaar').textContent=p.aadhaar||'-';
  document.getElementById('dAddr').textContent=p.addr||'-';
-
  let photoBox=document.getElementById('detailPhotoBox');
  if(p.scheme==='CMHT'){
    photoBox.style.display='none';
@@ -301,7 +298,6 @@ window.selectPatient=async (key)=>{
  document.getElementById('info').textContent='Patient: '+p.name;
  window.scrollTo({top:0,behavior:'smooth'});
 };
-
 window.backToResults=()=>{
  document.getElementById('detailView').classList.add('hidden');
  if(filtered.length>0){
@@ -327,24 +323,24 @@ function renderAll(){
  data.forEach((p,idx)=>{
    let grad=getGradient(idx);
    let pmjayLabel = p.scheme==='CMHT' ? 'CMHT id :' : 'PMJAY id :';
-   let badgeClass = p.scheme==='CMHT' ? 'cmhtBlue' : 'pmjayBlue';
    gridHtml+=`<div class="pCard" onclick="selectPatient('${p.key.replace(/'/g,"\\'")}')">
-   <div class="pCardTop ${grad}"><div class="pCardAvatar">${getInitial(p.name)}</div></div>
+   <div class="pCardTop ${grad}">
+     <div class="pCardAvatar">${getInitial(p.name)}</div>
+     <span class="schemeTag" style="background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.4)">${p.scheme}</span>
+   </div>
    <div class="pCardBody">
-     <div class="pCardNameRow"><div class="pCardName">${p.name||'-'}</div><span class="${badgeClass}">${p.scheme}</span></div>
      <div class="pCardRow"><span>Patient name :</span><b>${p.name||'-'}</b></div>
      <div class="pCardRow"><span>Shri id :</span><b>${p.shri||'-'}</b></div>
      <div class="pCardRow"><span>${pmjayLabel}</span><b>${p.pmjay||'-'}</b></div>
      <div class="pCardRow"><span>Contact :</span><b>${p.contact||'-'}</b></div>
-     <div class="clickView">Click to view →</div>
+     <div class="clickView">Click to view</div>
    </div>
    </div>`;
  });
  document.getElementById('patientGrid').innerHTML=gridHtml;
  let html='<tr><th>SL</th><th>Patient Name</th><th>PMJAY/CMHT ID</th><th>SHRI ID</th><th>Scheme</th><th>Contact</th><th>Aadhaar</th></tr>';
  data.forEach((p,i)=>{
-   let badge=p.scheme==='CMHT'?`<span class="cmhtTable">${p.pmjay||'-'}</span>`:`<span class="pmjayTable">${p.pmjay||'-'}</span>`;
-   html+=`<tr onclick="selectPatient('${p.key.replace(/'/g,"\\'")}')"><td><div class="sl">${i+1}</div></td><td><b>${p.name}</b></td><td>${badge}</td><td><span class="shriTable">${p.shri||'No ID'}</span></td><td><span style="background:${p.scheme==='CMHT'?'#8b5cf6':'#2563eb'};color:#fff;padding:5px 10px;border-radius:8px;font-weight:800;font-size:11px">${p.scheme}</span></td><td>${p.contact||'-'}</td><td>${p.aadhaar||'-'}</td></tr>`;
+   html+=`<tr onclick="selectPatient('${p.key.replace(/'/g,"\\'")}')"><td>${i+1}</td><td><b>${p.name}</b></td><td>${p.pmjay||'-'}</td><td>${p.shri||'-'}</td><td>${p.scheme}</td><td>${p.contact||'-'}</td><td>${p.aadhaar||'-'}</td></tr>`;
  });
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('info').textContent=filtered.length+' patient(s) found';
@@ -372,10 +368,6 @@ document.addEventListener('DOMContentLoaded',()=>{
      if(v==='shija' || v==='shija dialysis'){ el.value=''; }
      onSearch(); 
    });
-   setInterval(()=>{
-     let v=(el.value||'').toLowerCase();
-     if(v==='shija' || v==='shija dialysis'){ el.value=''; onSearch(); }
-   },200);
  }
 });
 
@@ -390,7 +382,7 @@ async function init(){
    let name=String(raw.patientName||raw.name||'').trim();
    if(!name) return;
    let lname=name.toLowerCase();
-   if(lname.includes('test patient') || lname.includes('test patient via form')) return;
+   if(lname.includes('test patient')) return;
    let obj={ key:key, name:name, shri:String(raw.shri||raw.shriId||'').trim(), pmjay:String(raw.pmjay||raw.pmjayId||'').trim(), contact:String(raw.contact||raw.contactNo||'').trim(), aadhaar:String(raw.aadhaar||raw.aadhaarNo||'').trim(), addr:String(raw.addr||raw.address||'').trim(), age:String(raw.age||'').trim(), gender:String(raw.gender||raw.sex||'').trim(), scheme:scheme };
    if(!map[key]) map[key]=obj;
  }
