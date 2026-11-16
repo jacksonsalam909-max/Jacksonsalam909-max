@@ -2,132 +2,262 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>KFT Exact - Alignment Fixed</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>SHIJA - KFT Exact Auto Logic</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#cbd5e1;display:flex;justify-content:center;font-family:Arial,Helvetica,sans-serif}
-.paper{width:210mm;min-height:297mm;background:#fff;color:#000;position:relative;padding:0;box-shadow:0 0 0 1px #000;margin:12px auto}
-.topHead img{width:100%;display:block;margin:0;padding:0;border:none}
-.labTitle{text-align:center;font-size:13.5px;font-weight:700;margin:16px 0 10px 0;letter-spacing:.3px;text-transform:uppercase}
-
-/* PATIENT BOX - ALIGNMENT FIXED */
-.patientBox{border:1.3px solid #000;border-radius:10px;margin:0 12px;padding:8px 14px 10px 14px}
-.pGrid{display:grid;grid-template-columns:90px 1fr 82px 1fr;row-gap:3px;column-gap:6px;font-size:10.8px;line-height:1.5}
-.pGrid .lbl{font-weight:400;color:#000}
-.pGrid .val{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pGrid .colon{font-weight:400;margin-right:3px}
-
-/* BIOCHEM */
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
+body{background:#f1f5f9;display:flex;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;transition:width .32s ease, transform .32s ease}
+.whiteBar.folded{width:72px!important;min-width:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#f1f5f9;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
+.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0}
+.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
+.sLogo img{width:100%;height:100%;object-fit:contain}
+.sTitle b{color:#0f172a;font-size:16px;font-weight:900}
+.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
+.whiteBar.folded .sTitle{display:none}
+.sMenu{flex:1;padding:8px;overflow-y:auto}
+.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap}
+.sMenu a.active{background:#1e293b;color:#fff;font-weight:600}
+.mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px;flex-shrink:0}
+.mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.whiteBar.folded .ml{display:none}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b}
+.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20;gap:10px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
+.menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
+.fontSizeGroup{display:flex;align-items:center;gap:6px}
+.fontBtn{width:36px;height:32px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;font-weight:800;font-size:13px;cursor:pointer}
+.fontBtn.active{background:#0f172a;color:#fff;border-color:#0f172a}
+.btn{padding:10px 18px;border-radius:20px;border:0;font-weight:700;font-size:11px;cursor:pointer;white-space:nowrap}
+.btnGreen{background:#0f172a;color:#fff}
+.btnOutline{background:#fff;color:#0f172a;border:1.5px solid #e2e8f0;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
+.selectPro{padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:20px;font-size:11px;font-weight:700;background:#fff;cursor:pointer;outline:0}
+.inputPro{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:11px;font-weight:600;background:#fff;outline:0}
+.topSearchRow{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.searchLeft{display:flex;gap:8px;align-items:center;flex:1;min-width:260px}
+.searchShort{flex:1;max-width:380px;position:relative}
+.searchShort .inputPro{border:1.5px solid #2563eb;background:#eff6ff;font-size:12px;padding:10px 12px;font-weight:700}
+.searchBox{position:relative}.searchList{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:8px;max-height:240px;overflow:auto;z-index:50;display:none;box-shadow:0 8px 20px rgba(0,0,0,.1)}
+.rightActions{display:flex;gap:8px;align-items:center}
+.content{flex:1;padding:12px;width:100%;max-width:980px;margin:0 auto}
+.card{background:#fff;border-radius:18px;border:1px solid #e5e7eb;padding:16px;margin-bottom:12px;width:100%}
+.card.hidden{display:none}
+.label{font-size:10px;font-weight:800;text-transform:uppercase;color:#475569;margin-bottom:5px;display:block}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.col{flex:1;min-width:130px}
+.col input{width:100%;padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:12px;font-weight:600;font-size:13px;background:#f8fafc;outline:0}
+.rangeInfo{font-size:9px;color:#64748b;margin-top:3px;font-weight:600}
+.previewWrap{background:#cbd5e1;border-radius:12px;padding:16px;border:1px solid #cbd5e1;width:100%;overflow:auto;display:flex;justify-content:center}
+.paper{background:#fff;color:#000;border:1.2px solid #000;width:210mm;min-height:297mm;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;padding:0;margin:0 auto;display:flex;flex-direction:column;position:relative;font-size:12px}
+.topHead{width:100%;line-height:0;border-bottom:1.5px solid #7a0000}
+.topHead img{width:100%;height:auto;display:block;margin:0;padding:0}
+.labTitle{text-align:center;font-weight:700;font-size:13.5px;padding:12px 0 10px 0;text-transform:uppercase;letter-spacing:.2px}
+.patientBox{border:1.3px solid #000;border-radius:10px;margin:0 12px;padding:8px 14px 10px 14px;background:#fff}
+.pGrid{display:grid;grid-template-columns:90px 1fr 82px 1fr;row-gap:3px;column-gap:6px;font-size:10.8px;line-height:1.55;font-family:Arial}
+.pGrid .lbl{font-weight:400}
+.pGrid .val{font-weight:700;white-space:nowrap}
 .bioTitle{text-align:center;font-size:12px;font-weight:600;margin:14px 0 7px 0}
-.greyBar{margin:0 12px;background:#9b9b9b;border-radius:6px;display:grid;grid-template-columns:1.42fr 1.1fr 0.52fr 0.6fr;padding:5px 12px;font-size:10.8px;font-weight:700;color:#000}
-.greyBar2{margin:4px 12px 0 12px;background:#d3d3d3;border-radius:6px;display:grid;grid-template-columns:auto auto auto auto;padding:4px 12px;font-size:9.2px;font-weight:500;color:#000;gap:18px}
-
-/* KFT - 4 COLUMN GRID EXACT */
-.kftSec{padding:10px 16px 0 16px}
+.greyBar{margin:0 12px;background:#9b9b9b;border-radius:6px;display:grid;grid-template-columns:1.42fr 1.1fr 0.52fr 0.6fr;padding:5px 12px;font-size:10.8px;font-weight:700;color:#000;font-family:Arial}
+.greyBar2{margin:4px 12px 0 12px;background:#d3d3d3;border-radius:6px;display:grid;grid-template-columns:auto auto auto auto;padding:4px 12px;font-size:9.2px;font-weight:500;color:#000;gap:18px;font-family:Arial}
+.greyBar2 b{font-weight:700}
+.kftSec{padding:10px 16px 0 16px;font-family:Arial}
 .kftHead{font-size:10.8px;font-weight:400;margin-bottom:8px}
-.kftTable{width:100%}
-.kftRow{display:grid;grid-template-columns:1.42fr 1.1fr 0.52fr 0.6fr;padding:3.5px 0;font-size:10.8px;align-items:start}
-.kftRow .c1{padding-right:8px}
+.kftRow{display:grid;grid-template-columns:1.42fr 1.1fr 0.52fr 0.6fr;padding:3.5px 0;font-size:10.8px;align-items:start;font-family:Arial}
 .kftRow .tName{font-weight:700;font-size:10.8px;line-height:1.2}
 .kftRow .method{font-size:8.8px;font-weight:400;color:#111;margin-top:1px;line-height:1.2}
-.kftRow .c2{font-weight:700;padding-left:2px}
-.kftRow .c3{font-weight:400}
-.kftRow .c4{font-weight:400}
-
+.kftRow .c2{font-weight:400;padding-left:2px}
+.kftRow .c2.boldHigh{font-weight:800}
 .endWrap{display:flex;align-items:center;margin:26px 12px 0 12px}
 .endLine{flex:1;height:1.1px;background:#000}
-.endText{padding:0 16px;font-size:10.8px;font-weight:400}
-
-.sigBlock{position:absolute;left:62px;bottom:150px;width:140px}
+.endText{padding:0 16px;font-size:10.8px;font-weight:400;font-family:Arial}
+.bottomRow{display:flex;justify-content:space-between;align-items:flex-start;margin:18px 14px 0 14px;padding-bottom:80px}
+.sigBlock{width:140px;display:flex;flex-direction:column;align-items:flex-start}
 .sigImg{width:72px;height:auto;display:block;margin-left:4px;object-fit:contain;cursor:ew-resize}
-.sigTxt{font-size:8.8px;line-height:1.25;margin-top:4px;font-weight:500}
-
-.qrWrap{position:absolute;right:38px;bottom:150px;width:84px;height:84px;background:#fff}
+.sigTxt{font-size:8.8px;line-height:1.25;margin-top:4px;font-weight:500;font-family:Arial}
+.qrWrap{width:84px;height:84px;background:#fff;display:block}
 .qrWrap img{width:100%;height:100%;object-fit:contain;display:block;cursor:ew-resize}
-.pageNo{position:absolute;right:14px;bottom:58px;font-size:8.5px}
-
-.editableOnly{background:#fffde7;border-bottom:1px dashed #2563eb;display:inline-block;position:relative;left:0;cursor:ew-resize;touch-action:none}
-.editableOnly.dragging{background:#ffef8a;border:1px dashed #2563eb;z-index:10}
+.pageNo{position:absolute;right:14px;bottom:58px;font-size:8.5px;font-family:Arial}
+.editableOnly{background:#fffde7;border-bottom:1px dashed #2563eb;display:inline-block;position:relative;left:0;cursor:ew-resize;touch-action:none;user-select:text;font-family:Arial}
+.editableOnly.dragging{background:#ffef8a;border:1px dashed #2563eb;border-radius:2px;z-index:10}
 .editableOnly:focus{outline:none;background:#fff3cd}
-.exportClean .editableOnly{background:transparent!important;border:none!important;left:0!important}
-
-.ctrl{position:fixed;top:8px;left:8px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:6px;display:flex;gap:6px;z-index:9999}
-.ctrl button,.ctrl select{padding:6px 10px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-weight:700;font-size:11px;cursor:pointer}
-.ctrl .pr{background:#0f172a;color:#fff}
+.exportClean .editableOnly{background:transparent!important;border:none!important;left:0!important;padding:0!important}
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .top{height:auto;padding:10px}
+  .content{padding:10px}
+  .previewWrap{padding:8px}
+  .paper{width:100%;min-height:auto}
+}
 </style>
 <script>
-let dEl=null,sx=0,sl=0,hm=false;
-function initDrag(){
+function toggleWhiteBar(){ if(window.innerWidth<=900){ document.getElementById('whiteBar').classList.toggle('mOpen'); document.getElementById('mobOverlay').classList.toggle('show'); }else{ document.getElementById('whiteBar').classList.toggle('folded'); } }
+function closeMob(){ document.getElementById('whiteBar').classList.remove('mOpen'); document.getElementById('mobOverlay').classList.remove('show'); }
+let baseSize=12,currentFontSize=12;
+function changeFontSize(t){
+ if(t==='dec') currentFontSize=Math.max(9,currentFontSize-1);
+ if(t==='inc') currentFontSize=Math.min(20,currentFontSize+1);
+ if(t==='normal') currentFontSize=baseSize;
+ document.getElementById('paper').style.fontSize=currentFontSize+'px';
+}
+function resetPositions(){ document.querySelectorAll('.editableOnly,.sigImg,.qrWrap').forEach(el=>el.style.left='0px'); }
+
+// ===== AUTO LOGIC: NORMAL RANGE vs VALUE =====
+const ranges = {
+ urea: {min:15, max:45},
+ creatinine: {min:0.5, max:1.4},
+ sodium: {min:137, max:145},
+ potassium: {min:3.5, max:5.1},
+ chloride: {min:98, max:107}
+};
+
+function formatValue(test, raw){
+ let v = parseFloat(raw);
+ if(isNaN(v)) return raw; // if not number, keep as typed
+ let r = ranges[test];
+ if(!r) return raw;
+ if(v > r.max){
+   return `<span style="font-weight:800">${raw} <span style="font-weight:800">▲ (H)</span></span>`;
+ }
+ if(v < r.min){
+   return `<span style="font-weight:800">${raw} <span style="font-weight:800">▼ (L)</span></span>`;
+ }
+ return `<span style="font-weight:400">${raw}</span>`;
+}
+
+function updateKFT(test){
+ let input = document.getElementById('in_'+test);
+ let display = document.getElementById('b_'+test);
+ let raw = input.value.trim();
+ if(raw===''){ display.innerHTML=''; return; }
+ display.innerHTML = formatValue(test, raw);
+}
+
+let dragEl=null,startX=0,startLeft=0,hasMoved=false;
+function initEditableDrag(){
  document.querySelectorAll('.editableOnly,.sigImg,.qrWrap').forEach(el=>{
-  el.addEventListener('mousedown',e=>{if(document.activeElement===e.currentTarget && el.classList.contains('editableOnly')) return;dEl=e.currentTarget;hm=false;sx=e.clientX;sl=parseInt(dEl.style.left||0)||0;document.addEventListener('mousemove',mv);document.addEventListener('mouseup',ed);e.preventDefault();});
-  el.addEventListener('touchstart',e=>{dEl=e.currentTarget;hm=false;sx=e.touches[0].clientX;sl=parseInt(dEl.style.left||0)||0;document.addEventListener('touchmove',tM,{passive:false});document.addEventListener('touchend',ed);},{passive:false});
+  el.addEventListener('mousedown',startEditDrag);
+  el.addEventListener('touchstart',startEditDragTouch,{passive:false});
  });
 }
-function mv(e){if(!dEl) return;let dx=e.clientX-sx;if(Math.abs(dx)>2) hm=true;if(hm){dEl.classList.add('dragging');let nl=sl+dx;if(nl<-120) nl=-120;if(nl>180) nl=180;dEl.style.left=nl+'px';}}
-function tM(e){if(!dEl) return;let dx=e.touches[0].clientX-sx;if(Math.abs(dx)>2) hm=true;if(hm){dEl.classList.add('dragging');let nl=sl+dx;dEl.style.left=nl+'px';e.preventDefault();}}
-function ed(){if(dEl){dEl.classList.remove('dragging');if(!hm && dEl.classList.contains('editableOnly')) dEl.focus();}dEl=null;hm=false;document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',ed);document.removeEventListener('touchmove',tM);document.removeEventListener('touchend',ed);}
-document.addEventListener('DOMContentLoaded',initDrag);setTimeout(initDrag,800);
-function resetP(){document.querySelectorAll('.editableOnly,.sigImg,.qrWrap').forEach(el=>el.style.left='0px');}
-function getClone(){let p=document.getElementById('paper');let c=p.cloneNode(true);c.classList.add('exportClean');let w=document.createElement('div');w.style.position='absolute';w.style.left='-9999px';w.style.top='0';w.style.width='210mm';w.style.background='#fff';w.appendChild(c);document.body.appendChild(w);return{w,c};}
-async function jpg(){let {w,c}=getClone();let can=await html2canvas(c,{scale:2,useCORS:true,backgroundColor:'#fff'});document.body.removeChild(w);let a=document.createElement('a');a.download='KFT.jpg';a.href=can.toDataURL('image/jpeg',0.95);a.click();}
-async function pdf(){let {w,c}=getClone();let can=await html2canvas(c,{scale:2,useCORS:true,backgroundColor:'#fff'});document.body.removeChild(w);let img=can.toDataURL('image/jpeg',0.95);const {jsPDF}=window.jspdf;let p=new jsPDF('p','mm','a4');p.addImage(img,'JPEG',0,0,210,297);p.save('KFT.pdf');}
+function startEditDrag(e){ if(document.activeElement===e.currentTarget && e.currentTarget.classList.contains('editableOnly')) return; dragEl=e.currentTarget; hasMoved=false; startX=e.clientX; startLeft=parseInt(dragEl.style.left||0)||0; document.addEventListener('mousemove',onEditDrag); document.addEventListener('mouseup',endEditDrag); e.preventDefault(); }
+function startEditDragTouch(e){ dragEl=e.currentTarget; hasMoved=false; startX=e.touches[0].clientX; startLeft=parseInt(dragEl.style.left||0)||0; document.addEventListener('touchmove',onEditDragTouch,{passive:false}); document.addEventListener('touchend',endEditDrag); }
+function onEditDrag(e){ if(!dragEl) return; let dx=e.clientX-startX; if(Math.abs(dx)>2) hasMoved=true; if(hasMoved){ dragEl.classList.add('dragging'); let nl=startLeft+dx; if(nl<-120) nl=-120; if(nl>180) nl=180; dragEl.style.left=nl+'px'; } }
+function onEditDragTouch(e){ if(!dragEl) return; let dx=e.touches[0].clientX-startX; if(Math.abs(dx)>2) hasMoved=true; if(hasMoved){ dragEl.classList.add('dragging'); let nl=startLeft+dx; dragEl.style.left=nl+'px'; e.preventDefault(); } }
+function endEditDrag(){ if(dragEl){ dragEl.classList.remove('dragging'); if(!hasMoved && dragEl.classList.contains('editableOnly')) dragEl.focus(); } dragEl=null; hasMoved=false; document.removeEventListener('mousemove',onEditDrag); document.removeEventListener('mouseup',endEditDrag); document.removeEventListener('touchmove',onEditDragTouch); document.removeEventListener('touchend',endEditDrag); }
+document.addEventListener('DOMContentLoaded',()=>{initEditableDrag(); updateAll();});setTimeout(()=>{initEditableDrag();updateAll();},800);
+
+function updateAll(){
+ ['urea','creatinine','sodium','potassium','chloride'].forEach(t=>updateKFT(t));
+}
+function toggleInputCard(){ let c=document.getElementById('inputCard'); let b=document.getElementById('detailsBtn'); c.classList.toggle('hidden'); b.innerText=c.classList.contains('hidden')?'▼ Details':'▲ Hide Details'; }
+function getCleanClone(){let paper=document.getElementById('paper');let clone=paper.cloneNode(true);clone.classList.add('exportClean');let wrapper=document.createElement('div');wrapper.style.position='absolute';wrapper.style.left='-9999px';wrapper.style.top='0';wrapper.style.width='210mm';wrapper.style.background='#fff';wrapper.appendChild(clone);document.body.appendChild(wrapper);return {wrapper,clone};}
+async function exportJPEG(){let {wrapper,clone}=getCleanClone();let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:'#ffffff'});document.body.removeChild(wrapper);let link=document.createElement('a');link.download='KFT_'+Date.now()+'.jpg';link.href=canvas.toDataURL('image/jpeg',0.95);link.click();}
+async function exportPDF(){let {wrapper,clone}=getCleanClone();let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:'#ffffff'});document.body.removeChild(wrapper);let imgData=canvas.toDataURL('image/jpeg',0.95);const {jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');pdf.addImage(imgData,'JPEG',0,0,210,297);pdf.save('KFT_'+Date.now()+'.pdf');}
+function handlePrint(){let fmt=document.getElementById('formatSelect').value;if(fmt==='pdf') exportPDF(); else exportJPEG();}
 </script>
 </head>
 <body>
-<div class="ctrl"><button onclick="resetP()">↺ RESET</button><select id="fmt"><option value="jpeg">JPEG</option><option value="pdf">PDF</option></select><button class="pr" onclick="document.getElementById('fmt').value==='pdf'?pdf():jpg()">PRINT</button></div>
+<div id="mobOverlay" onclick="closeMob()"></div>
+<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
+<div class="whiteBar" id="whiteBar">
+<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+<div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
+<div class="sMenu">
+<a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
+<a href="kft_editable.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="ml">KFT EDITABLE</span></a>
+<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
+<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
+<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="ml">BILL</span></a>
+</div>
+</div>
+<div class="sFoot">System Online • SHIJA</div>
+</div>
+<div class="mainWrap" id="mainWrap">
+<div class="top">
+<div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> KFT AUTO LOGIC</div>
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+<div class="fontSizeGroup">
+<button class="fontBtn" id="fontDec" onclick="changeFontSize('dec')">-A</button>
+<button class="fontBtn active" id="fontNormal" onclick="changeFontSize('normal')">A</button>
+<button class="fontBtn" id="fontInc" onclick="changeFontSize('inc')">+A</button>
+</div>
+<button class="btnOutline" onclick="resetPositions()">↺ RESET</button>
+<select id="formatSelect" class="selectPro"><option value="jpeg">JPEG</option><option value="pdf">PDF</option></select>
+<button class="btn btnGreen" onclick="handlePrint()">PRINT</button>
+</div>
+</div>
+<div class="content">
+<div class="topSearchRow">
+<div class="searchLeft">
+<div class="searchShort"><div class="searchBox"><input id="searchInput" class="inputPro" placeholder="Search Name / SHRI No"><div id="searchList" class="searchList"></div></div></div>
+<button class="btnOutline" id="detailsBtn" onclick="toggleInputCard()">▼ Details</button>
+</div>
+<div class="rightActions"><span style="font-size:10px;font-weight:800;color:#16a34a">● AUTO ▲(H) ▼(L) LOGIC ON</span></div>
+</div>
 
-<div class="paper" id="paper">
+<!-- INPUTS WITH AUTO LOGIC -->
+<div class="card" id="inputCard">
+<div class="row">
+<div class="col"><span class="label">Urea (15-45)</span><input id="in_urea" value="105.00" oninput="updateKFT('urea')"><div class="rangeInfo">>45 = ▲(H) bold | <15 = ▼(L) bold</div></div>
+<div class="col"><span class="label">Creatinine (0.5-1.4)</span><input id="in_creatinine" value="12.10" oninput="updateKFT('creatinine')"><div class="rangeInfo">>1.4 = ▲(H) bold</div></div>
+<div class="col"><span class="label">Sodium (137-145)</span><input id="in_sodium" value="138.0" oninput="updateKFT('sodium')"><div class="rangeInfo">Normal = just number</div></div>
+<div class="col"><span class="label">Potassium (3.5-5.1)</span><input id="in_potassium" value="6.0" oninput="updateKFT('potassium')"><div class="rangeInfo">>5.1 = ▲(H) bold</div></div>
+<div class="col"><span class="label">Chloride (98-107)</span><input id="in_chloride" value="107" oninput="updateKFT('chloride')"><div class="rangeInfo">98-107 normal</div></div>
+</div>
+</div>
+
+<div class="previewWrap"><div class="paper" id="paper">
 <div class="topHead"><img src="kfthead.png" onerror="this.src='finalopo.png'"></div>
 <div class="labTitle">Laboratory Investigation Report</div>
-
 <div class="patientBox">
 <div class="pGrid">
-<span class="lbl">Patient Name</span><span><span class="colon">:</span><span class="editableOnly val" contenteditable="true">Mr. WAIKHOM MOHINDRO SINGH</span></span>
-<span class="lbl">Age/Sex</span><span><span class="colon">:</span><span class="editableOnly val" contenteditable="true">64 Year(s) / Male</span></span>
-
-<span class="lbl">UHID</span><span><span class="colon">:</span><span class="editableOnly val" contenteditable="true">SHRI.277903</span></span>
-<span class="lbl">Order Date</span><span><span class="colon">:</span><span class="editableOnly val" contenteditable="true">01/11/2026 07:32</span></span>
-
-<span class="lbl">Episode</span><span><span class="colon">:</span><span class="editableOnly val" contenteditable="true">OP</span></span>
+<span class="lbl">Patient Name</span><span><span>:</span><span class="editableOnly val" contenteditable="true">Mr. WAIKHOM MOHINDRO SINGH</span></span>
+<span class="lbl">Age/Sex</span><span><span>:</span><span class="editableOnly val" contenteditable="true">64 Year(s) / Male</span></span>
+<span class="lbl">UHID</span><span><span>:</span><span class="editableOnly val" contenteditable="true">SHRI.277903</span></span>
+<span class="lbl">Order Date</span><span><span>:</span><span class="editableOnly val" contenteditable="true">01/11/2026 07:32</span></span>
+<span class="lbl">Episode</span><span><span>:</span><span class="editableOnly val" contenteditable="true">OP</span></span>
 <span></span><span></span>
-
-<span class="lbl">Ref. Doctor</span><span><span class="colon">:</span><span class="editableOnly val" contenteditable="true">Dr. Guliver Potsangbam</span></span>
-<span class="lbl">Mobile No</span><span><span class="colon">:</span><span class="editableOnly val" contenteditable="true">8837464035</span></span>
-
-<span class="lbl">Address</span><span style="grid-column:2/span 1"><span class="colon">:</span><span class="editableOnly val" contenteditable="true" style="white-space:normal">THOUBAL NONGANGKHONG , Thoubal ,Thoubal,Manipur ,795138</span></span>
-<span class="lbl">Facility</span><span><span class="colon">:</span><span class="editableOnly val" contenteditable="true">Shija Hospitals</span></span>
+<span class="lbl">Ref. Doctor</span><span><span>:</span><span class="editableOnly val" contenteditable="true">Dr. Guliver Potsangbam</span></span>
+<span class="lbl">Mobile No</span><span><span>:</span><span class="editableOnly val" contenteditable="true">8837464035</span></span>
+<span class="lbl">Address</span><span style="grid-column:2/span 1"><span>:</span><span class="editableOnly val" contenteditable="true" style="white-space:normal">THOUBAL NONGANGKHONG , Thoubal ,Thoubal,Manipur ,795138</span></span>
+<span class="lbl">Facility</span><span><span>:</span><span class="editableOnly val" contenteditable="true">Shija Hospitals</span></span>
 </div>
 </div>
-
 <div class="bioTitle">Biochemistry</div>
 <div class="greyBar"><span>Test Name</span><span>Results</span><span>Unit</span><span>Ref. Range</span></div>
-<div class="greyBar2">
-<span>Sample No : <b class="editableOnly" contenteditable="true">00549974B</b></span>
-<span>Collection Date : <b class="editableOnly" contenteditable="true">01/11/26 07:43</b></span>
-<span>Ack Date : <b class="editableOnly" contenteditable="true">01/11/2026 08:49</b></span>
-<span>Report Date : <b class="editableOnly" contenteditable="true">01/11/26 09:45</b></span>
-</div>
-
+<div class="greyBar2"><span>Sample No : <b class="editableOnly" contenteditable="true">00549974B</b></span><span>Collection Date : <b class="editableOnly" contenteditable="true">01/11/26 07:43</b></span><span>Ack Date : <b class="editableOnly" contenteditable="true">01/11/2026 08:49</b></span><span>Report Date : <b class="editableOnly" contenteditable="true">01/11/26 09:45</b></span></div>
 <div class="kftSec">
 <div class="kftHead">KFT(Kidney Function test )</div>
-<div class="kftRow"><div class="c1"><div class="tName">Urea</div><div class="method">Method - Urease Colorimetric</div></div><div class="c2"><span class="editableOnly" contenteditable="true">105.00 &nbsp;▲ (H)</span></div><div class="c3">mg/dl</div><div class="c4">15 - 45</div></div>
-<div class="kftRow"><div class="c1"><div class="tName">Creatinine</div><div class="method">Method - Enzymatic</div></div><div class="c2"><span class="editableOnly" contenteditable="true">12.10 &nbsp;▲ (H)</span></div><div class="c3">mg/dl</div><div class="c4">0.5 - 1.4</div></div>
-<div class="kftRow"><div class="c1"><div class="tName">Sodium</div><div class="method">Method - ISE Direct</div></div><div class="c2"><span class="editableOnly" contenteditable="true">138.0</span></div><div class="c3">mmol/L</div><div class="c4">137 - 145</div></div>
-<div class="kftRow"><div class="c1"><div class="tName">Potassium</div><div class="method">Method - ISE Direct</div></div><div class="c2"><span class="editableOnly" contenteditable="true">6.0 &nbsp;▲ (H)</span></div><div class="c3">mmol/L</div><div class="c4">3.5 - 5.1</div></div>
-<div class="kftRow"><div class="c1"><div class="tName">Chloride</div><div class="method">Method - ISE Direct</div></div><div class="c2"><span class="editableOnly" contenteditable="true">107</span></div><div class="c3">mmol/L</div><div class="c4">98 - 107</div></div>
+<div class="kftRow"><div class="c1"><div class="tName">Urea</div><div class="method">Method - Urease Colorimetric</div></div><div class="c2"><span id="b_urea"></span></div><div class="c3">mg/dl</div><div class="c4">15 - 45</div></div>
+<div class="kftRow"><div class="c1"><div class="tName">Creatinine</div><div class="method">Method - Enzymatic</div></div><div class="c2"><span id="b_creatinine"></span></div><div class="c3">mg/dl</div><div class="c4">0.5 - 1.4</div></div>
+<div class="kftRow"><div class="c1"><div class="tName">Sodium</div><div class="method">Method - ISE Direct</div></div><div class="c2"><span id="b_sodium"></span></div><div class="c3">mmol/L</div><div class="c4">137 - 145</div></div>
+<div class="kftRow"><div class="c1"><div class="tName">Potassium</div><div class="method">Method - ISE Direct</div></div><div class="c2"><span id="b_potassium"></span></div><div class="c3">mmol/L</div><div class="c4">3.5 - 5.1</div></div>
+<div class="kftRow"><div class="c1"><div class="tName">Chloride</div><div class="method">Method - ISE Direct</div></div><div class="c2"><span id="b_chloride"></span></div><div class="c3">mmol/L</div><div class="c4">98 - 107</div></div>
 </div>
-
 <div class="endWrap"><div class="endLine"></div><div class="endText">End of Report</div><div class="endLine"></div></div>
-
+<div class="bottomRow">
 <div class="sigBlock">
-<img src="kftsign.png" class="sigImg" id="sigImg">
+<img src="kftsign.png" class="sigImg" id="sigImg" alt="Sign" onerror="this.style.display='none'">
 <div class="sigTxt"><span class="editableOnly" contenteditable="true">Dr.Phurailatpam Uma Devi<br>MD (Biochemistry)<br>Assistant Professor</span></div>
 </div>
-
-<div class="qrWrap"><img src="qrcode.png"></div>
+<div class="qrWrap" id="qrWrap"><img src="qrcode.png" alt="QR" onerror="this.style.display='none'"></div>
+</div>
 <div class="pageNo">Page 1 of 1</div>
+</div></div>
+</div>
+<div style="text-align:center;padding:10px;font-size:10px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis - KFT Auto Logic</div>
+</div>
 </div>
 </body>
 </html>
