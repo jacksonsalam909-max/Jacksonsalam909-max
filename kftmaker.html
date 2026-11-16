@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>SHIJA - KFT Editable</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
+body{background:#f1f5f9;display:flex;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;transition:width .32s ease, transform .32s ease}
+.whiteBar.folded{width:72px!important;min-width:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#f1f5f9;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
+.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0}
+.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
+.sLogo img{width:100%;height:100%;object-fit:contain}
+.sTitle b{color:#0f172a;font-size:16px;font-weight:900}
+.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
+.whiteBar.folded .sTitle{display:none}
+.sMenu{flex:1;padding:8px;overflow-y:auto}
+.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap}
+.sMenu a.active{background:#1e293b;color:#fff;font-weight:600}
+.mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px;flex-shrink:0}
+.mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.whiteBar.folded .ml{display:none}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b}
+.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20;gap:10px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px}
+.menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
+.fontSizeGroup{display:flex;align-items:center;gap:6px}
+.fontBtn{width:36px;height:32px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;font-weight:800;font-size:13px;cursor:pointer}
+.fontBtn.active{background:#0f172a;color:#fff;border-color:#0f172a}
+.content{flex:1;padding:12px;width:100%;max-width:950px;margin:0 auto}
+.btn{padding:10px 18px;border-radius:20px;border:0;font-weight:700;font-size:11px;cursor:pointer;white-space:nowrap}
+.btnGreen{background:#0f172a;color:#fff}
+.btnOutline{background:#fff;color:#0f172a;border:1.5px solid #e2e8f0;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
+.selectPro{padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:20px;font-size:11px;font-weight:700;background:#fff;cursor:pointer;outline:0}
+.inputPro{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:11px;font-weight:600;background:#fff;outline:0}
+.topSearchRow{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.searchLeft{display:flex;gap:8px;align-items:center;flex:1;min-width:260px}
+.searchShort{flex:1;max-width:380px;position:relative}
+.searchShort .inputPro{border:1.5px solid #2563eb;background:#eff6ff;font-size:12px;padding:10px 12px;font-weight:700}
+.searchBox{position:relative}.searchList{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:8px;max-height:240px;overflow:auto;z-index:50;display:none;box-shadow:0 8px 20px rgba(0,0,0,.1)}
+.rightActions{display:flex;gap:8px;align-items:center}
+.card{background:#fff;border-radius:18px;border:1px solid #e5e7eb;padding:16px;margin-bottom:12px;width:100%}
+.card.hidden{display:none}
+.label{font-size:10px;font-weight:800;text-transform:uppercase;color:#475569;margin-bottom:5px;display:block}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.col{flex:1;min-width:140px}
+.col input{width:100%;padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:12px;font-weight:600;font-size:13px;background:#f8fafc;outline:0}
+.filterRow{display:flex;gap:8px;align-items:center;background:#f0f9ff;padding:12px;border-radius:14px;border:1.5px dashed #60a5fa;margin-bottom:12px;flex-wrap:wrap}
+.resetBtn{padding:8px 14px;border-radius:20px;border:1.5px solid #ef4444;background:#fff;color:#ef4444;font-weight:800;font-size:11px;cursor:pointer;margin-left:auto}
+.previewWrap{background:#e2e8f0;border-radius:12px;padding:16px;border:1px solid #cbd5e1;width:100%;overflow:auto}
+.paper{background:#fff;color:#000;border:1.2px solid #000;width:210mm;min-height:297mm;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;padding:0;margin:0 auto;display:flex;flex-direction:column;position:relative;font-size:12px}
+.letterheadPng{width:100%;display:block;line-height:0;margin:0!important;padding:0!important;border:none;background:#fff}
+.letterheadPng img{width:100%;height:auto;display:block;margin:0!important;padding:0!important;border:none;vertical-align:top}
+.labTitle{text-align:center;font-weight:800;font-size:14px;padding:10px 0 8px 0;text-transform:uppercase}
+.infoBox{border:1.5px solid #000;border-radius:8px;margin:0 10px;padding:8px 12px;background:#fff}
+.infoTable{width:100%;border-collapse:collapse;line-height:1.6}
+.infoTable td{padding:2px 4px;vertical-align:top;font-size:11.5px;white-space:nowrap}
+.editableOnly{background:#fffde7;border-bottom:1px dashed #2563eb;cursor:text;padding:0 2px;display:inline-block;font-weight:500;cursor:ew-resize;touch-action:none;user-select:text}
+.editableOnly.dragging{background:#fef08a;border:1px dashed #2563eb;border-radius:3px;z-index:10}
+.editableOnly:focus{background:#fff3cd;outline:none}
+.bioTitle{text-align:center;font-size:13px;font-weight:700;margin:14px 0 8px 0}
+.testHeader{background:#9ca3af;color:#000;font-weight:700;font-size:11px;display:flex;padding:6px 10px;border-radius:6px;margin:0 8px}
+.testHeader span:nth-child(1){flex:1.2}
+.testHeader span:nth-child(2){flex:1}
+.testHeader span:nth-child(3){flex:0.5}
+.testHeader span:nth-child(4){flex:0.6;text-align:left}
+.sampleRow{background:#d1d5db;font-size:10px;font-weight:600;display:flex;gap:12px;padding:5px 10px;border-radius:6px;margin:6px 8px;flex-wrap:wrap}
+.sampleRow span{display:flex;gap:4px}
+.kftSection{padding:0 12px;margin-top:6px}
+.kftHead{font-size:11px;font-weight:600;margin:10px 0 2px 0}
+.kftRow{display:flex;align-items:flex-start;padding:4px 0;border-bottom:1px dotted #e5e7eb;font-size:11.5px}
+.kftRow .tName{flex:1.2}
+.kftRow .tName b{font-size:11.5px;font-weight:700}
+.kftRow .tName .method{font-size:9px;color:#444}
+.kftRow .tRes{flex:1;font-weight:700}
+.kftRow .tUnit{flex:0.5}
+.kftRow .tRef{flex:0.6}
+.endLine{display:flex;align-items:center;gap:10px;margin:18px 10px 10px 10px;font-size:11px;font-weight:600}
+.endLine .lineL,.endLine .lineR{flex:1;height:1px;background:#000}
+.sigBlock{margin:20px 0 0 80px;font-size:11px;line-height:1.4}
+.sigBlock .sign{font-family:cursive;font-size:18px;margin-bottom:6px}
+.qrBox{position:absolute;right:18px;bottom:110px;width:78px;height:78px;border:1px solid #000;display:grid;place-items:center;font-size:8px;background:#fff}
+.footer{position:absolute;bottom:10px;right:14px;font-size:9px;color:#000}
+.exportClean .editableOnly{background:transparent!important;border:none!important;padding:0!important}
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%)}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .top{flex-wrap:wrap;height:auto;padding:10px}
+  .content{padding:10px}
+  .previewWrap{padding:8px}
+  .paper{width:100%;min-height:auto}
+}
+</style>
+<script>
+function toggleWhiteBar(){ if(window.innerWidth<=900){ document.getElementById('whiteBar').classList.toggle('mOpen'); document.getElementById('mobOverlay').classList.toggle('show'); }else{ document.getElementById('whiteBar').classList.toggle('folded'); } }
+function closeMob(){ document.getElementById('whiteBar').classList.remove('mOpen'); document.getElementById('mobOverlay').classList.remove('show'); }
+let baseSize=12; let currentFontSize=12;
+function changeFontSize(type){
+  if(type==='dec') currentFontSize=Math.max(9, currentFontSize-1);
+  if(type==='inc') currentFontSize=Math.min(20, currentFontSize+1);
+  if(type==='normal') currentFontSize=baseSize;
+  document.getElementById('paper').style.fontSize=currentFontSize+'px';
+}
+function resetPositions(){ document.querySelectorAll('.editableOnly').forEach(el=>{ el.style.left='0px'; }); }
+let dragEl=null, startX=0, startLeft=0, hasMoved=false;
+function initEditableDrag(){
+  document.querySelectorAll('.editableOnly').forEach(el=>{
+    el.addEventListener('mousedown', startEditDrag);
+    el.addEventListener('touchstart', startEditDragTouch, {passive:false});
+  });
+}
+function startEditDrag(e){ if(document.activeElement===e.currentTarget) return; dragEl=e.currentTarget; hasMoved=false; startX=e.clientX; startLeft=parseInt(dragEl.style.left||0)||0; document.addEventListener('mousemove', onEditDrag); document.addEventListener('mouseup', endEditDrag); e.preventDefault(); }
+function startEditDragTouch(e){ dragEl=e.currentTarget; hasMoved=false; startX=e.touches[0].clientX; startLeft=parseInt(dragEl.style.left||0)||0; document.addEventListener('touchmove', onEditDragTouch, {passive:false}); document.addEventListener('touchend', endEditDrag); }
+function onEditDrag(e){ if(!dragEl) return; let dx=e.clientX-startX; if(Math.abs(dx)>2) hasMoved=true; if(hasMoved){ dragEl.classList.add('dragging'); let newLeft=startLeft+dx; if(newLeft<-100) newLeft=-100; if(newLeft>150) newLeft=150; dragEl.style.left=newLeft+'px'; } }
+function onEditDragTouch(e){ if(!dragEl) return; let dx=e.touches[0].clientX-startX; if(Math.abs(dx)>2) hasMoved=true; if(hasMoved){ dragEl.classList.add('dragging'); let newLeft=startLeft+dx; if(newLeft<-100) newLeft=-100; if(newLeft>150) newLeft=150; dragEl.style.left=newLeft+'px'; e.preventDefault(); } }
+function endEditDrag(){ if(dragEl){ dragEl.classList.remove('dragging'); if(!hasMoved){ dragEl.focus(); } } dragEl=null; hasMoved=false; document.removeEventListener('mousemove', onEditDrag); document.removeEventListener('mouseup', endEditDrag); document.removeEventListener('touchmove', onEditDragTouch); document.removeEventListener('touchend', endEditDrag); }
+document.addEventListener('DOMContentLoaded', initEditableDrag);
+setTimeout(initEditableDrag,800);
+</script>
+</head>
+<body>
+<div id="mobOverlay" onclick="closeMob()"></div>
+<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
+<div class="whiteBar" id="whiteBar">
+<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+<div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
+<div class="sMenu">
+<a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
+<a href="kft_editable.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT EDITABLE</span></a>
+<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
+<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
+<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="ml">BILL</span></a>
+</div>
+</div>
+<div class="sFoot">System Online • SHIJA</div>
+</div>
+<div class="mainWrap">
+<div class="top">
+<div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> KFT EDITABLE</div>
+<div style="display:flex;align-items:center;gap:8px">
+<div class="fontSizeGroup">
+<button class="fontBtn" onclick="changeFontSize('dec')">-A</button>
+<button class="fontBtn active" onclick="changeFontSize('normal')">A</button>
+<button class="fontBtn" onclick="changeFontSize('inc')">+A</button>
+</div>
+<select id="formatSelect" class="selectPro"><option value="jpeg">JPEG</option><option value="pdf">PDF</option></select>
+<button class="btn btnGreen" onclick="handlePrint()">PRINT</button>
+</div>
+</div>
+<div class="content">
+<div class="topSearchRow">
+<div class="searchLeft">
+<div class="searchShort"><div class="searchBox"><input id="searchInput" class="inputPro" placeholder="Search Name / SHRI No" oninput="doSearch(this.value)"><div id="searchList" class="searchList"></div></div></div>
+<button class="btnOutline" onclick="document.getElementById('inputCard').classList.toggle('hidden')">▼ Details</button>
+</div>
+<div class="rightActions">
+<button class="resetBtn" onclick="resetPositions()">↺ RESET POSITIONS</button>
+</div>
+</div>
+
+<div class="card" id="inputCard">
+<div class="row">
+<div class="col"><span class="label">Patient Name</span><input id="inName" value="Mr. WAIKHOM MOHINDRO SINGH" oninput="document.getElementById('b_name').innerText=this.value"></div>
+<div class="col"><span class="label">Age/Sex</span><input id="inAge" value="64 Year(s) / Male" oninput="document.getElementById('b_age').innerText=this.value"></div>
+<div class="col"><span class="label">UHID</span><input id="inUhid" value="SHRI.277903" oninput="document.getElementById('b_uhid').innerText=this.value"></div>
+</div>
+<div class="row">
+<div class="col"><span class="label">Order Date</span><input id="inOrder" value="01/11/2026 07:32" oninput="document.getElementById('b_order').innerText=this.value"></div>
+<div class="col"><span class="label">Mobile No</span><input id="inMob" value="8837464035" oninput="document.getElementById('b_mob').innerText=this.value"></div>
+<div class="col"><span class="label">Facility</span><input id="inFac" value="Shija Hospitals" oninput="document.getElementById('b_fac').innerText=this.value"></div>
+</div>
+<div class="row">
+<div class="col"><span class="label">Urea mg/dl</span><input value="105.00 ▲ (H)" oninput="document.getElementById('b_urea').innerText=this.value"></div>
+<div class="col"><span class="label">Creatinine mg/dl</span><input value="12.10 ▲ (H)" oninput="document.getElementById('b_creat').innerText=this.value"></div>
+<div class="col"><span class="label">Sodium mmol/L</span><input value="138.0" oninput="document.getElementById('b_sod').innerText=this.value"></div>
+<div class="col"><span class="label">Potassium mmol/L</span><input value="6.0 ▲ (H)" oninput="document.getElementById('b_pot').innerText=this.value"></div>
+<div class="col"><span class="label">Chloride mmol/L</span><input value="107" oninput="document.getElementById('b_chl').innerText=this.value"></div>
+</div>
+</div>
+
+<div class="previewWrap"><div class="paper" id="paper">
+<!-- USE kfthead.png AS LETTERHEAD -->
+<div class="letterheadPng"><img src="kfthead.png" alt="Shija KFT Header" onerror="this.src='finalopo.png'"></div>
+<div class="labTitle">Laboratory Investigation Report</div>
+<div class="infoBox"><table class="infoTable">
+<tr><td style="width:18%">Patient Name</td><td>:<span id="b_name" class="editableOnly" contenteditable="true">Mr. WAIKHOM MOHINDRO SINGH</span></td><td style="width:18%">Age/Sex</td><td>:<span id="b_age" class="editableOnly" contenteditable="true">64 Year(s) / Male</span></td></tr>
+<tr><td>UHID</td><td>:<span id="b_uhid" class="editableOnly" contenteditable="true">SHRI.277903</span></td><td>Order Date</td><td>:<span id="b_order" class="editableOnly" contenteditable="true">01/11/2026 07:32</span></td></tr>
+<tr><td>Episode</td><td>:<span class="editableOnly" contenteditable="true">OP</span></td><td></td><td></td></tr>
+<tr><td>Ref. Doctor</td><td>:<span id="b_ref" class="editableOnly" contenteditable="true">Dr. Guliver Potsangbam</span></td><td>Mobile No</td><td>:<span id="b_mob" class="editableOnly" contenteditable="true">8837464035</span></td></tr>
+<tr><td>Address</td><td>:<span id="b_addr" class="editableOnly" contenteditable="true">THOUBAL NONGANGKHONG , Thoubal ,Thoubal,Manipur ,795138</span></td><td>Facility</td><td>:<span id="b_fac" class="editableOnly" contenteditable="true">Shija Hospitals</span></td></tr>
+</table></div>
+
+<div class="bioTitle">Biochemistry</div>
+<div class="testHeader"><span>Test Name</span><span>Results</span><span>Unit</span><span>Ref. Range</span></div>
+<div class="sampleRow">
+<span>Sample No : <b class="editableOnly" contenteditable="true">00549974B</b></span>
+<span>Collection Date : <b class="editableOnly" contenteditable="true">01/11/26 07:43</b></span>
+<span>Ack Date : <b class="editableOnly" contenteditable="true">01/11/2026 08:49</b></span>
+<span>Report Date : <b class="editableOnly" contenteditable="true">01/11/26 09:45</b></span>
+</div>
+
+<div class="kftSection">
+<div class="kftHead">KFT(Kidney Function test )</div>
+<div class="kftRow"><div class="tName"><b>Urea</b><div class="method">Method - Urease Colorimetric</div></div><div class="tRes"><span id="b_urea" class="editableOnly" contenteditable="true">105.00 ▲ (H)</span></div><div class="tUnit">mg/dl</div><div class="tRef">15 - 45</div></div>
+<div class="kftRow"><div class="tName"><b>Creatinine</b><div class="method">Method - Enzymatic</div></div><div class="tRes"><span id="b_creat" class="editableOnly" contenteditable="true">12.10 ▲ (H)</span></div><div class="tUnit">mg/dl</div><div class="tRef">0.5 - 1.4</div></div>
+<div class="kftRow"><div class="tName"><b>Sodium</b><div class="method">Method - ISE Direct</div></div><div class="tRes"><span id="b_sod" class="editableOnly" contenteditable="true">138.0</span></div><div class="tUnit">mmol/L</div><div class="tRef">137 - 145</div></div>
+<div class="kftRow"><div class="tName"><b>Potassium</b><div class="method">Method - ISE Direct</div></div><div class="tRes"><span id="b_pot" class="editableOnly" contenteditable="true">6.0 ▲ (H)</span></div><div class="tUnit">mmol/L</div><div class="tRef">3.5 - 5.1</div></div>
+<div class="kftRow"><div class="tName"><b>Chloride</b><div class="method">Method - ISE Direct</div></div><div class="tRes"><span id="b_chl" class="editableOnly" contenteditable="true">107</span></div><div class="tUnit">mmol/L</div><div class="tRef">98 - 107</div></div>
+</div>
+
+<div class="endLine"><div class="lineL"></div><span>End of Report</span><div class="lineR"></div></div>
+<div class="sigBlock">
+<div class="sign editableOnly" contenteditable="true">Uma</div>
+<div><span class="editableOnly" contenteditable="true">Dr.Phurailatpam Uma Devi<br>MD (Biochemistry)<br>Assistant Professor</span></div>
+</div>
+<div class="qrBox"><span class="editableOnly" contenteditable="true">QR</span></div>
+<div class="footer">Page 1 of 1</div>
+</div></div>
+</div>
+</div>
+<script>
+function getCleanClone(){let paper=document.getElementById('paper');let clone=paper.cloneNode(true);clone.classList.add('exportClean');clone.style.width='210mm';clone.style.minHeight='297mm';clone.querySelectorAll('.editableOnly').forEach(el=>{el.style.background='transparent';el.style.border='none';el.style.padding='0';});let wrapper=document.createElement('div');wrapper.style.position='absolute';wrapper.style.left='-9999px';wrapper.style.top='0';wrapper.style.width='210mm';wrapper.style.minHeight='297mm';wrapper.style.background='#fff';wrapper.appendChild(clone);document.body.appendChild(wrapper);return {clone,wrapper};}
+async function exportJPEG(){let {clone,wrapper}=getCleanClone();let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:'#ffffff'});document.body.removeChild(wrapper);let link=document.createElement('a');link.download='KFT_'+Date.now()+'.jpg';link.href=canvas.toDataURL('image/jpeg',0.95);link.click();}
+async function exportPDF(){let {clone,wrapper}=getCleanClone();let canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:'#ffffff'});document.body.removeChild(wrapper);let imgData=canvas.toDataURL('image/jpeg',0.95);const {jsPDF}=window.jspdf;let pdf=new jsPDF('p','mm','a4');pdf.addImage(imgData,'JPEG',0,0,210,297);pdf.save('KFT_'+Date.now()+'.pdf');}
+function handlePrint(){let fmt=document.getElementById('formatSelect').value;if(fmt==='pdf') exportPDF(); else exportJPEG();}
+function doSearch(q){}
+</script>
+</body>
+</html>
