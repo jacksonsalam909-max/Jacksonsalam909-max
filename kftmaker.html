@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>KFT EDITABLE - SLIDER HIDDEN</title>
+<title>KFT EDITABLE - SLIDER BAR HIDDEN</title>
 <script src="Patient.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -22,6 +22,8 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
 .whiteBar.folded .sTitle{display:none}
 .sMenu{flex:1;padding:8px;overflow-y:auto}
+.sMenu::-webkit-scrollbar{display:none!important;width:0!important}
+.sMenu{scrollbar-width:none!important;-ms-overflow-style:none!important}
 .sMenu a{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:12.5px;font-weight:500;margin-bottom:2px;white-space:nowrap}
 .sMenu a:hover{background:#1e293b;color:#fff}
 .sMenu a.active{background:#1e293b;color:#fff;font-weight:700;border:1px solid #334155}
@@ -35,7 +37,6 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
 .menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
-.menuBtnTop{display:none!important}
 .btn{padding:10px 18px;border-radius:20px;border:0;font-weight:700;font-size:11px;cursor:pointer;white-space:nowrap}
 .btnGreen{background:#0f172a;color:#fff}
 .btnOutline{background:#fff;color:#0f172a;border:1.5px solid #e2e8f0;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
@@ -105,8 +106,6 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .exportClean .editableWord{background:transparent!important;border:none!important;outline:none!important}
 .exportClean .resize-handle{display:none!important}
 .exportClean .movable{border:none!important;background:transparent!important}
-.fontControls{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1.5px dashed #e2e8f0;align-items:center}
-.fontControls .fcLabel{font-size:10px;font-weight:900;color:#0f172a;background:#f1f5f9;padding:6px 10px;border-radius:20px}
 .fcBtn{width:44px;height:38px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;font-weight:900;font-size:14px;cursor:pointer}
 .fcBtn:hover{background:#0f172a;color:#fff;border-color:#0f172a}
 .fcBtn.primary{background:#2563eb;color:#fff;border-color:#2563eb}
@@ -193,7 +192,7 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 <div class="col"><span class="label">Chloride</span><input id="in_chloride" value="107" oninput="updateKFT('chloride')"></div>
 <div class="col"><span class="label">Controls</span><div style="display:flex;gap:6px"><button class="fcBtn resetBtn" onclick="resetPositions()" style="flex:1">RESET</button><button class="fcBtn primary" onclick="globalFont(1)">A+</button><button class="fcBtn" onclick="globalFont(-1)">A-</button><button class="fcBtn" onclick="globalFont(0)">A</button></div></div>
 </div>
-<span class="label" id="fontInfo" style="margin-top:12px;background:#f1f5f9;padding:6px 10px;border-radius:20px;display:inline-block">Click any text in report to change font with A+ A- A</span>
+<span class="label" id="fontInfo" style="margin-top:12px;background:#f1f5f9;padding:6px 10px;border-radius:20px;display:inline-block">Click any text in report to change font</span>
 </div>
 <div class="previewWrap">
 <div class="paper" id="paper">
@@ -243,7 +242,7 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app = initializeApp(firebaseConfig,"kftSliderHidden_"+Date.now());
+const app = initializeApp(firebaseConfig,"kftFinalBarHide_"+Date.now());
 const db = getFirestore(app);
 let allPatients = [];
 function getDeleted(){ try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]');}catch{return [];} }
@@ -324,7 +323,7 @@ function selectWord(el){
  el.classList.add('selected');
  selectedWord = el;
  let size = parseInt(window.getComputedStyle(el).fontSize) || 11;
- document.getElementById('fontInfo').innerText = `Selected: ${el.id} - ${size}px - Use A+ A- A`;
+ document.getElementById('fontInfo').innerText = `Selected: ${el.id} - ${size}px`;
 }
 function globalFont(delta){
  if(!selectedWord){ document.getElementById('fontInfo').innerText = 'First click any text!'; return; }
