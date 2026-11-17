@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA - KFT LEFT FIX</title>
+<title>SHIJA - KFT RIGHT FIX</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -69,11 +69,11 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .greyBar2{margin:4px 12px 0 12px;background:#d3d3d3;border-radius:6px;display:grid;grid-template-columns:auto auto auto auto;padding:4px 12px;font-size:9.2px;font-weight:500;color:#000;gap:18px;font-family:Arial}
 .greyBar2 b{font-weight:700}
 
-/* KFT WORDS MORE LEFT - LIKE YOUR PHOTO */
-.kftSec{padding:8px 0 0 0;margin:0 12px 0 6px}
-.kftHead{font-size:10.8px;font-weight:700;margin:0 0 8px -2px;padding-left:0px;color:#000}
+/* KFT WORDS TO RIGHT - CORRECTED */
+.kftSec{padding:8px 0 0 0;margin:0 12px 0 18px}
+.kftHead{font-size:10.8px;font-weight:700;margin:0 0 8px 6px;padding-left:0px;color:#000}
 .kftRow{display:grid;grid-template-columns:1.42fr 1.1fr 0.52fr 0.6fr;padding:3px 0px 3px 0px;font-size:10.8px;align-items:start;font-family:Arial}
-.kftRow .c1{padding-left:0px;margin-left:-2px}
+.kftRow .c1{padding-left:0px;margin-left:6px}
 .kftRow .tName{font-weight:700;font-size:10.8px;line-height:1.2}
 .kftRow .method{font-size:8.8px;font-weight:400;color:#111;margin-top:1px;line-height:1.2;font-style:italic}
 
@@ -109,27 +109,9 @@ function changeFontSize(t){
  document.getElementById('paper').style.fontSize=currentFontSize+'px';
 }
 function resetPositions(){ document.querySelectorAll('.editableOnly,.sigImg,.qrWrap').forEach(el=>el.style.left='0px'); }
-const ranges = {
- urea: {min:15, max:45},
- creatinine: {min:0.5, max:1.4},
- sodium: {min:137, max:145},
- potassium: {min:3.5, max:5.1},
- chloride: {min:98, max:107}
-};
-function formatValue(test, raw){
- let v = parseFloat(raw);
- if(isNaN(v)) return `<span style="font-weight:400">${raw}</span>`;
- let r = ranges[test];
- if(v > r.max){ return `<span style="font-weight:800">${raw} &nbsp;▲ (H)</span>`; }
- if(v < r.min){ return `<span style="font-weight:800">${raw} &nbsp;▼ (L)</span>`; }
- return `<span style="font-weight:400">${raw}</span>`;
-}
-function updateKFT(test){
- let raw = document.getElementById('in_'+test).value.trim();
- let display = document.getElementById('b_'+test);
- if(raw===''){ display.innerHTML=''; return; }
- display.innerHTML = formatValue(test, raw);
-}
+const ranges = { urea: {min:15, max:45}, creatinine: {min:0.5, max:1.4}, sodium: {min:137, max:145}, potassium: {min:3.5, max:5.1}, chloride: {min:98, max:107} };
+function formatValue(test, raw){ let v = parseFloat(raw); if(isNaN(v)) return `<span style="font-weight:400">${raw}</span>`; let r = ranges[test]; if(v > r.max){ return `<span style="font-weight:800">${raw} &nbsp;▲ (H)</span>`; } if(v < r.min){ return `<span style="font-weight:800">${raw} &nbsp;▼ (L)</span>`; } return `<span style="font-weight:400">${raw}</span>`; }
+function updateKFT(test){ let raw = document.getElementById('in_'+test).value.trim(); let display = document.getElementById('b_'+test); if(raw===''){ display.innerHTML=''; return; } display.innerHTML = formatValue(test, raw); }
 function updateAll(){
  ['urea','creatinine','sodium','potassium','chloride'].forEach(t=>updateKFT(t));
  document.getElementById('b_name').innerText = document.getElementById('in_name').value;
@@ -147,12 +129,7 @@ function updateAll(){
  document.getElementById('b_report').innerText = document.getElementById('in_report').value;
 }
 let dragEl=null,startX=0,startLeft=0,hasMoved=false;
-function initEditableDrag(){
- document.querySelectorAll('.editableOnly,.sigImg,.qrWrap').forEach(el=>{
-  el.addEventListener('mousedown',startEditDrag);
-  el.addEventListener('touchstart',startEditDragTouch,{passive:false});
- });
-}
+function initEditableDrag(){ document.querySelectorAll('.editableOnly,.sigImg,.qrWrap').forEach(el=>{ el.addEventListener('mousedown',startEditDrag); el.addEventListener('touchstart',startEditDragTouch,{passive:false}); }); }
 function startEditDrag(e){ if(document.activeElement===e.currentTarget && e.currentTarget.classList.contains('editableOnly')) return; dragEl=e.currentTarget; hasMoved=false; startX=e.clientX; startLeft=parseInt(dragEl.style.left||0)||0; document.addEventListener('mousemove',onEditDrag); document.addEventListener('mouseup',endEditDrag); e.preventDefault(); }
 function startEditDragTouch(e){ dragEl=e.currentTarget; hasMoved=false; startX=e.touches[0].clientX; startLeft=parseInt(dragEl.style.left||0)||0; document.addEventListener('touchmove',onEditDragTouch,{passive:false}); document.addEventListener('touchend',endEditDrag); }
 function onEditDrag(e){ if(!dragEl) return; let dx=e.clientX-startX; if(Math.abs(dx)>2) hasMoved=true; if(hasMoved){ dragEl.classList.add('dragging'); let nl=startLeft+dx; if(nl<-120) nl=-120; if(nl>180) nl=180; dragEl.style.left=nl+'px'; } }
@@ -185,7 +162,7 @@ function handlePrint(){let fmt=document.getElementById('formatSelect').value;if(
 </div>
 <div class="mainWrap">
 <div class="top">
-<div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> KFT FINAL LEFT FIX</div>
+<div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> KFT RIGHT FIX</div>
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
 <div class="fontSizeGroup">
 <button class="fontBtn" onclick="changeFontSize('dec')">-A</button>
@@ -203,7 +180,7 @@ function handlePrint(){let fmt=document.getElementById('formatSelect').value;if(
 <div class="searchShort"><input id="searchInput" class="inputPro" placeholder="Search Name / SHRI No"></div>
 <button class="btnOutline" id="detailsBtn" onclick="toggleInputCard()">▼ Show All Editable Buttons</button>
 </div>
-<div class="rightActions"><span style="font-size:9px;font-weight:800;color:#16a34a;background:#dcfce7;padding:4px 8px;border-radius:20px">LEFT FIX DONE</span></div>
+<div class="rightActions"><span style="font-size:9px;font-weight:800;color:#16a34a;background:#dcfce7;padding:4px 8px;border-radius:20px">RIGHT FIX DONE</span></div>
 </div>
 <div class="card" id="inputCard">
 <div style="font-size:11px;font-weight:900;color:#0f172a;margin-bottom:8px">PATIENT DETAILS</div>
@@ -275,7 +252,7 @@ function handlePrint(){let fmt=document.getElementById('formatSelect').value;if(
 </div>
 </div></div>
 </div>
-<div style="text-align:center;padding:10px;font-size:10px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA - KFT Words Left Fixed</div>
+<div style="text-align:center;padding:10px;font-size:10px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA - KFT Words Right Fixed</div>
 </div>
 </div>
 </body>
