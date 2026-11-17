@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>KFT EDITABLE - LEFT FIXED</title>
+<title>KFT EDITABLE - ALL WORD BUTTONS</title>
 <script src="Patient.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -38,6 +38,11 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .btn{padding:10px 18px;border-radius:20px;border:0;font-weight:700;font-size:11px;cursor:pointer;white-space:nowrap}
 .btnGreen{background:#0f172a;color:#fff}
 .btnOutline{background:#fff;color:#0f172a;border:1.5px solid #e2e8f0;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
+.wordBtn{padding:6px 12px;font-size:10px;border-radius:20px;background:#fff;border:1.5px solid #e2e8f0;font-weight:700;cursor:pointer;transition:.15s}
+.wordBtn:hover{background:#0f172a;color:#fff;border-color:#0f172a}
+.wordBtn.activeWord{background:#2563eb;color:#fff;border-color:#2563eb}
+.wordBtn.kftBtn{background:#eff6ff;border-color:#2563eb;color:#2563eb}
+.wordBtn.kftBtn.activeWord{background:#2563eb;color:#fff}
 .selectPro{padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:20px;font-size:11px;font-weight:700;background:#fff;cursor:pointer;outline:0}
 .inputPro{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:11px;font-weight:600;background:#fff;outline:0}
 .topSearchRow{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:relative;overflow:visible!important;z-index:50}
@@ -76,15 +81,12 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .greyBar{margin:0 12px;background:#9b9b9b;border-radius:6px;display:grid;grid-template-columns:1.42fr 1.1fr 0.52fr 0.6fr;padding:5px 12px;font-size:10.8px;font-weight:700;color:#000;font-family:Arial}
 .greyBar2{margin:4px 12px 0 12px;background:#d3d3d3;border-radius:6px;display:grid;grid-template-columns:auto auto auto auto;padding:4px 12px;font-size:9.2px;font-weight:500;color:#000;gap:18px;font-family:Arial}
 .greyBar2 b{font-weight:700}
-
-/* KFT - BROUGHT TO LEFT - FIXED */
-.kftSec{padding:8px 0 0 0;margin:0 12px 0 14px}
-.kftHead{font-size:10.8px;font-weight:700;margin:0 0 8px 2px;color:#000}
+.kftSec{padding:8px 0 0 0;margin:0 12px 0 26px}
+.kftHead{font-size:10.8px;font-weight:700;margin:0 0 8px 10px;color:#000}
 .kftRow{display:grid;grid-template-columns:1.42fr 1.1fr 0.52fr 0.6fr;padding:3px 2px;font-size:10.8px;align-items:start;font-family:Arial}
-.kftRow .c1{margin-left:2px}
+.kftRow .c1{margin-left:10px}
 .kftRow .tName{font-weight:700;font-size:10.8px}
 .kftRow .method{font-size:8.8px;font-style:italic;margin-top:1px}
-
 .endWrap{display:flex;align-items:center;margin:26px 12px 0 12px}
 .endLine{flex:1;height:1.1px;background:#000}
 .endText{padding:0 16px;font-size:10.8px;font-family:Arial}
@@ -103,7 +105,7 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .sigTxtBlock{width:180px;min-height:50px;background:#fff8c2;padding:4px 6px;cursor:move;font-size:9px;line-height:1.35;font-weight:600;font-family:Arial;touch-action:none;border:1.5px dashed #2563eb;border-radius:6px;position:absolute!important}
 .sigTxtBlock[contenteditable="true"]:focus{outline:2px solid #2563eb;background:#fff}
 .editableWord{display:inline-block;background:transparent;border:none;padding:0px;cursor:text;font-family:Arial;user-select:text}
-.editableWord.selected{outline:1px dashed #2563eb;background:#eff6ff}
+.editableWord.selected{outline:2px dashed #2563eb;background:#dbeafe!important}
 .exportClean .editableWord{background:transparent!important;border:none!important;outline:none!important}
 .exportClean .resize-handle{display:none!important}
 .exportClean .movable{border:none!important;background:transparent!important}
@@ -182,12 +184,39 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 <div class="col"><span class="label">Potassium</span><input id="in_potassium" value="6.0" oninput="updateKFT('potassium')"></div>
 <div class="col"><span class="label">Chloride</span><input id="in_chloride" value="107" oninput="updateKFT('chloride')"></div>
 </div>
+
 <div class="fontControls">
-<span class="fcLabel" id="fontInfo">Click any text then A+ / A- / A</span>
-<button class="fcBtn resetBtn" onclick="resetPositions()">↺ RESET SIGN & QR</button>
+<span class="fcLabel" id="fontInfo">Click button below or click text</span>
+<button class="fcBtn resetBtn" onclick="resetPositions()">RESET</button>
 <button class="fcBtn primary" onclick="globalFont(1)">A+</button>
 <button class="fcBtn" onclick="globalFont(-1)">A-</button>
 <button class="fcBtn" onclick="globalFont(0)">A</button>
+</div>
+
+<!-- ALL EDITABLE WORD BUTTONS -->
+<div style="margin-top:12px;padding-top:12px;border-top:1.5px dashed #e2e8f0">
+<span class="label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px">📝 ALL EDITABLE WORDS - CLICK TO SELECT THEN A+ A- A</span>
+<div style="display:flex;flex-wrap:wrap;gap:6px">
+<button class="wordBtn" onclick="selectWordById('b_name')">Patient Name</button>
+<button class="wordBtn" onclick="selectWordById('b_age')">Age/Sex</button>
+<button class="wordBtn" onclick="selectWordById('b_uhid')">UHID</button>
+<button class="wordBtn" onclick="selectWordById('b_order')">Order Date</button>
+<button class="wordBtn" onclick="selectWordById('b_episode')">Episode</button>
+<button class="wordBtn" onclick="selectWordById('b_ref')">Ref Doctor</button>
+<button class="wordBtn" onclick="selectWordById('b_mob')">Mobile</button>
+<button class="wordBtn" onclick="selectWordById('b_addr')">Address</button>
+<button class="wordBtn" onclick="selectWordById('b_fac')">Facility</button>
+<button class="wordBtn" onclick="selectWordById('b_sample')">Sample No</button>
+<button class="wordBtn" onclick="selectWordById('b_coll')">Collection</button>
+<button class="wordBtn" onclick="selectWordById('b_ack')">Ack Date</button>
+<button class="wordBtn" onclick="selectWordById('b_report')">Report Date</button>
+<button class="wordBtn kftBtn" onclick="selectWordById('b_urea')">Urea</button>
+<button class="wordBtn kftBtn" onclick="selectWordById('b_creatinine')">Creatinine</button>
+<button class="wordBtn kftBtn" onclick="selectWordById('b_sodium')">Sodium</button>
+<button class="wordBtn kftBtn" onclick="selectWordById('b_potassium')">Potassium</button>
+<button class="wordBtn kftBtn" onclick="selectWordById('b_chloride')">Chloride</button>
+<button class="wordBtn" style="background:#fff8c2;border-color:#eab308" onclick="selectWordById('sigTxtBlock')">Doctor Sign Text</button>
+</div>
 </div>
 </div>
 
@@ -212,7 +241,6 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 <div class="bioTitle">Biochemistry</div>
 <div class="greyBar"><span>Test Name</span><span>Results</span><span>Unit</span><span>Ref. Range</span></div>
 <div class="greyBar2"><span>Sample No : <b class="editableWord" id="b_sample" contenteditable="true" onclick="selectWord(this)">00549974B</b></span><span>Collection Date : <b class="editableWord" id="b_coll" contenteditable="true" onclick="selectWord(this)">01/11/26 07:43</b></span><span>Ack Date : <b class="editableWord" id="b_ack" contenteditable="true" onclick="selectWord(this)">01/11/2026 08:49</b></span><span>Report Date : <b class="editableWord" id="b_report" contenteditable="true" onclick="selectWord(this)">01/11/26 09:45</b></span></div>
-
 <div class="kftSec">
 <div class="kftHead">KFT(Kidney Function test )</div>
 <div class="kftRow"><div class="c1"><div class="tName">Urea</div><div class="method">Method - Urease Colorimetric</div></div><div class="c2"><span id="b_urea" class="editableWord" contenteditable="true" onclick="selectWord(this)"></span></div><div class="c3">mg/dl</div><div class="c4">15 - 45</div></div>
@@ -221,7 +249,6 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 <div class="kftRow"><div class="c1"><div class="tName">Potassium</div><div class="method">Method - ISE Direct</div></div><div class="c2"><span id="b_potassium" class="editableWord" contenteditable="true" onclick="selectWord(this)"></span></div><div class="c3">mmol/L</div><div class="c4">3.5 - 5.1</div></div>
 <div class="kftRow"><div class="c1"><div class="tName">Chloride</div><div class="method">Method - ISE Direct</div></div><div class="c2"><span id="b_chloride" class="editableWord" contenteditable="true" onclick="selectWord(this)"></span></div><div class="c3">mmol/L</div><div class="c4">98 - 107</div></div>
 </div>
-
 <div class="endWrap"><div class="endLine"></div><div class="endText">End of Report</div><div class="endLine"></div></div>
 <div class="bottomArea" id="bottomArea">
   <div class="bottomLeft">
@@ -242,7 +269,7 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app = initializeApp(firebaseConfig,"kftLeft_"+Date.now());
+const app = initializeApp(firebaseConfig,"kftWordBtns_"+Date.now());
 const db = getFirestore(app);
 let allPatients = [];
 function getDeleted(){ try{return JSON.parse(localStorage.getItem('deletedKeys')||'[]');}catch{return [];} }
@@ -276,7 +303,6 @@ async function loadBoth(){
   allPatients.sort((a,b)=>a.name.localeCompare(b.name));
   window.allPatients = allPatients;
   document.getElementById('fontInfo').innerText = `Loaded: ${allPatients.length} patients`;
-  document.getElementById('searchInput').placeholder = `Search ${allPatients.length} patients...`;
 }
 loadBoth();
 window.searchFromBoth = function(){
@@ -315,7 +341,6 @@ window.selectPatient = function(idx){
   updateAll();
   document.getElementById('searchResults').classList.remove('show');
   document.getElementById('searchInput').value = p.name + ' ' + p.shri;
-  document.getElementById('fontInfo').innerText = `${p.name} [${p.source}]`;
 };
 </script>
 
@@ -323,21 +348,38 @@ window.selectPatient = function(idx){
 let selectedWord = null;
 function selectWord(el){
  document.querySelectorAll('.editableWord').forEach(w=>w.classList.remove('selected'));
+ document.querySelectorAll('.wordBtn').forEach(b=>b.classList.remove('activeWord'));
  el.classList.add('selected');
  selectedWord = el;
  let size = parseInt(window.getComputedStyle(el).fontSize) || 11;
  document.getElementById('fontInfo').innerText = `Selected: ${el.id} - ${size}px`;
+ highlightBtn(el.id);
+}
+function selectWordById(id){
+  let el = document.getElementById(id);
+  if(!el) return;
+  document.querySelectorAll('.editableWord').forEach(w=>w.classList.remove('selected'));
+  document.querySelectorAll('.wordBtn').forEach(b=>b.classList.remove('activeWord'));
+  el.classList.add('selected');
+  selectedWord = el;
+  let size = parseInt(window.getComputedStyle(el).fontSize) || 11;
+  document.getElementById('fontInfo').innerText = `Selected: ${id} - ${size}px - Use A+ A- A`;
+  highlightBtn(id);
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+  let oldBg = el.style.background;
+  el.style.background = '#fde68a';
+  setTimeout(()=>{ el.style.background=oldBg; }, 700);
+}
+function highlightBtn(id){
+  document.querySelectorAll('.wordBtn').forEach(b=>{
+    if(b.getAttribute('onclick') && b.getAttribute('onclick').includes(id)){
+      b.classList.add('activeWord');
+    }
+  });
 }
 function globalFont(delta){
  if(!selectedWord){
-   document.querySelectorAll('.editableWord').forEach(w=>{
-     if(delta===0){ w.style.fontSize=''; } else {
-       let cur = parseInt(window.getComputedStyle(w).fontSize) || 11;
-       let next = Math.max(6, Math.min(30, cur + delta));
-       w.style.fontSize = next + 'px';
-     }
-   });
-   document.getElementById('fontInfo').innerText = delta===0 ? 'A - Normal' : (delta>0 ? 'A+ Increased All' : 'A- Decreased All');
+   document.getElementById('fontInfo').innerText = 'First click a button or text!';
    return;
  }
  if(delta===0){ selectedWord.style.fontSize=''; document.getElementById('fontInfo').innerText = `A - Normal: ${selectedWord.id}`; }
@@ -359,7 +401,7 @@ function resetPositions(){
  let sImg=document.getElementById('sigImgBlock'); if(sImg){ sImg.style.left='0px'; sImg.style.top='0px'; sImg.style.width='80px'; sImg.style.height='50px'; }
  let sTxt=document.getElementById('sigTxtBlock'); if(sTxt){ sTxt.style.left='0px'; sTxt.style.top='60px'; sTxt.style.width='180px'; }
  let q=document.getElementById('qrWrap'); if(q){ q.style.left='0px'; q.style.top='0px'; q.style.width='110px'; q.style.height='110px'; }
- document.getElementById('fontInfo').innerText='↺ Sign & QR reset - same row';
+ document.getElementById('fontInfo').innerText='RESET done - Sign & QR same row';
 }
 const ranges = { urea: {min:15, max:45}, creatinine: {min:0.5, max:1.4}, sodium: {min:137, max:145}, potassium: {min:3.5, max:5.1}, chloride: {min:98, max:107} };
 function formatValue(test, raw){ let v = parseFloat(raw); if(isNaN(v)) return `<span style="font-weight:400">${raw}</span>`; let r = ranges[test]; if(v > r.max){ return `<span style="font-weight:800">${raw} &nbsp;▲ (H)</span>`; } if(v < r.min){ return `<span style="font-weight:800">${raw} &nbsp;▼ (L)</span>`; } return `<span style="font-weight:400">${raw}</span>`; }
