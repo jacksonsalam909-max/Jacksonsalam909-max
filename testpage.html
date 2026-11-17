@@ -1,1 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pikachu Walking</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; cursor: none; }
+body {
+  overflow: hidden;
+  background: #fff;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+.pikachu {
+  position: absolute;
+  bottom: 80px;
+  width: 180px;
+  animation: walkAcross 8s linear infinite, waddle .4s ease-in-out infinite alternate;
+}
+.pikachu img {
+  width: 100%;
+  display: block;
+}
+.shadow {
+  position: absolute;
+  bottom: 65px;
+  width: 120px;
+  height: 14px;
+  background: rgba(0,0,0,.25);
+  border-radius: 50%;
+  animation: shadowWalk 8s linear infinite, shadowScale .4s ease-in-out infinite alternate;
+}
+.mouse {
+  width: 22px;
+  height: 22px;
+  background: #fff782;
+  border-radius: 50%;
+  position: absolute;
+  z-index: 9999;
+  pointer-events: none;
+  animation: mousePulse .5s infinite ease-in-out alternate;
+  box-shadow: 0 0 0 2px #0001;
+}
+@keyframes walkAcross {
+  0% { left: -200px; transform: scaleX(1); }
+  49% { transform: scaleX(1); }
+  50% { left: calc(100% + 0px); transform: scaleX(-1); }
+  100% { left: -200px; transform: scaleX(-1); }
+}
+@keyframes shadowWalk {
+  0% { left: -170px; }
+  50% { left: 100%; }
+  100% { left: -170px; }
+}
+@keyframes waddle {
+  from { transform: translateY(0) rotate(-2deg); }
+  to { transform: translateY(-8px) rotate(2deg); }
+}
+@keyframes shadowScale {
+  from { transform: scaleX(0.9); }
+  to { transform: scaleX(1.1); }
+}
+@keyframes mousePulse {
+  from { width: 22px; height: 22px; }
+  to { width: 14px; height: 14px; }
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="shadow" id="shadow"></div>
+  <div class="pikachu" id="pika">
+    <img src="YOUR_PIKACHU_IMAGE.png" alt="Pikachu walking with phone">
+  </div>
+  <div class="mouse" id="mouse"></div>
+</div>
 
+<script>
+const mouse = document.getElementById('mouse');
+document.addEventListener('mousemove', (e)=>{
+  mouse.style.left = e.pageX - 11 + 'px';
+  mouse.style.top = e.pageY - 11 + 'px';
+});
+
+// auto sync shadow with pikachu
+const pika = document.getElementById('pika');
+const shadow = document.getElementById('shadow');
+function sync(){
+  shadow.style.left = pika.offsetLeft + 30 + 'px';
+  requestAnimationFrame(sync);
+}
+sync();
+</script>
+</body>
+</html>
