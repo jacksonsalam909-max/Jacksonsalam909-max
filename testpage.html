@@ -73,7 +73,6 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .searchRow{display:flex;gap:10px;align-items:center}
 .searchRow input{flex:1;height:46px;border:1.5px solid #e2e8f0;border-radius:11px;padding:0 14px;font-size:13px;outline:0;background:#f8fafc;font-weight:600;min-width:0}
 .searchRow input:focus{border-color:#2563eb;background:#fff}
-/* LIST / GRID ICONS - DULL YELLOW ACTIVE, NO DARK */
 .viewToggle{display:flex;background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;flex-shrink:0}
 .viewToggle button{border:0;background:#fff;width:44px;height:46px;display:grid;place-items:center;cursor:pointer;color:#64748b}
 .viewToggle button svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
@@ -99,7 +98,6 @@ tr:hover td.sl{background:#eef2ee}
 .editBtn{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;padding:7px 12px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px}
 .delBtn{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:7px 10px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px}
 .empty{padding:30px;text-align:center;color:#94a3b8;font-size:13px;font-weight:600}
-/* GRID VIEW - PURE WHITE, NO DARK */
 .gridView{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .pCard{background:#fff!important;border:1px solid #e2e8f0;border-radius:16px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,.04)}
 .pCard h3{font-size:16px;font-weight:900;color:#0f172a;margin-bottom:2px}
@@ -197,9 +195,9 @@ tr:hover td.sl{background:#eef2ee}
 
 <div class="filterBar">
 <div class="filterRow">
-<div class="fItem"><label>Admission Date</label><div class="dateNav"><button class="arrowBtn" onclick="shiftDate('filterDoa',-1)">◀</button><input id="filterDoa" type="date" onchange="onFilterChange()"><button class="arrowBtn" onclick="shiftDate('filterDoa',1)">▶</button></div></div>
-<div class="fItem"><label>Discharge Date</label><div class="dateNav"><button class="arrowBtn" onclick="shiftDate('filterDod',-1)">◀</button><input id="filterDod" type="date" onchange="onFilterChange()"><button class="arrowBtn" onclick="shiftDate('filterDod',1)">▶</button></div></div>
-<div class="fItemMonth"><label>Month</label><div class="dateNav"><button class="arrowBtn" onclick="shiftMonth(-1)">◀</button><input id="filterMonth" type="month" onchange="onFilterChange()"><button class="arrowBtn" onclick="shiftMonth(1)">▶</button></div></div>
+<div class="fItem"><label>Admission Date</label><div class="dateNav"><button class="arrowBtn" onclick="shiftDate('filterDoa',-1)">◀</button><input id="filterDoa" type="date" onchange="onDateManualChange()"><button class="arrowBtn" onclick="shiftDate('filterDoa',1)">▶</button></div></div>
+<div class="fItem"><label>Discharge Date</label><div class="dateNav"><button class="arrowBtn" onclick="shiftDate('filterDod',-1)">◀</button><input id="filterDod" type="date" onchange="onDateManualChange()"><button class="arrowBtn" onclick="shiftDate('filterDod',1)">▶</button></div></div>
+<div class="fItemMonth"><label>Month</label><div class="dateNav"><button class="arrowBtn" onclick="shiftMonth(-1)">◀</button><input id="filterMonth" type="month" onchange="onDateManualChange()"><button class="arrowBtn" onclick="shiftMonth(1)">▶</button></div></div>
 <div><button class="clearBtn" onclick="clearFilters()">Clear Filters</button></div>
 </div>
 <div class="searchRow"><input id="search" placeholder="Search by Name / Shri ID / IP No / Claim ID..." oninput="onFilterChange()"><div class="viewToggle"><button id="btnList" class="active" title="List View" onclick="setView('table')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button><button id="btnGrid" title="Grid View" onclick="setView('grid')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></button></div></div>
@@ -265,12 +263,14 @@ let editingId=null;
 let viewMode='table';
 let currentPage=1;
 let perPage=9;
+let dateFilterActive=false;
 window.currentPage=1;
-// DEFAULT BLANK - SHOW ALL PATIENTS
 function setDefaultDates(){
-  document.getElementById('filterDoa').value='';
-  document.getElementById('filterDod').value='';
-  document.getElementById('filterMonth').value='';
+  let today=new Date(); let todayStr=today.toISOString().slice(0,10); let monthStr=todayStr.slice(0,7);
+  document.getElementById('filterDoa').value=todayStr;
+  document.getElementById('filterDod').value=todayStr;
+  document.getElementById('filterMonth').value=monthStr;
+  dateFilterActive=false;
 }
 setDefaultDates();
 window.shiftDate=(inputId,delta)=>{
@@ -278,6 +278,7 @@ window.shiftDate=(inputId,delta)=>{
   let cur=el.value ? new Date(el.value+'T00:00:00') : new Date();
   cur.setDate(cur.getDate()+delta);
   el.value=cur.toISOString().slice(0,10);
+  dateFilterActive=true;
   onFilterChange();
 };
 window.shiftMonth=(delta)=>{
@@ -285,8 +286,10 @@ window.shiftMonth=(delta)=>{
   let cur=el.value ? new Date(el.value+'-01T00:00:00') : new Date();
   cur.setMonth(cur.getMonth()+delta);
   el.value=cur.toISOString().slice(0,7);
+  dateFilterActive=true;
   onFilterChange();
 };
+window.onDateManualChange=()=>{ dateFilterActive=true; onFilterChange(); };
 window.onFilterChange=()=>{ currentPage=1; window.currentPage=1; renderList(); };
 window.changePerPage=()=>{ perPage=parseInt(document.getElementById('perPage').value); currentPage=1; window.currentPage=1; renderList(); };
 window.goPage=(p)=>{
@@ -402,9 +405,11 @@ function getFiltered(){
     if(statFilter==='month' && !(x.doa && x.doa.slice(0,7)===todayStr.slice(0,7))) return false;
     if(statFilter==='today' && x.createdDate!==todayStr) return false;
     if(q && ![x.name,x.shri,x.ipno,x.claimid].join(' ').toLowerCase().includes(q)) return false;
-    if(fDoa && x.doa!==fDoa) return false;
-    if(fDod && x.dod!==fDod) return false;
-    if(fMonth && !(x.doa && x.doa.slice(0,7)===fMonth)) return false;
+    if(dateFilterActive){
+      if(fDoa && x.doa!==fDoa) return false;
+      if(fDod && x.dod!==fDod) return false;
+      if(fMonth && !(x.doa && x.doa.slice(0,7)===fMonth)) return false;
+    }
     return true;
   });
 }
