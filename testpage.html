@@ -40,11 +40,15 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .head h1{font-size:24px;font-weight:900;color:#0f172a}
 .head p{color:#64748b;font-size:12px;font-weight:600;margin-top:4px}
 .btn{padding:10px 16px;border:0;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px}
-.btnP{background:#0f172a;color:#fff}.btnG{background:#2563eb;color:#fff}.btnGreen{background:#059669;color:#fff}.btnRed{background:#ef4444;color:#fff}
+.btnP{background:#0f172a;color:#fff}.btnG{background:#2563eb;color:#fff}.btnGreen{background:#059669;color:#fff}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
-.stat{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px}
+.stat{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;cursor:pointer;transition:.2s;position:relative}
+.stat:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.stat.active{border:2px solid #2563eb;background:#eff6ff;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
 .stat b{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}
 .stat h2{font-size:26px;font-weight:900;margin-top:6px;color:#0f172a}
+.stat small{font-size:11px;color:#2563eb;font-weight:700;display:none}
+.stat.active small{display:block;margin-top:4px}
 .card{background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 4px 16px rgba(0,0,0,.04)}
 .card h3{font-size:15px;font-weight:800;color:#0f172a;margin-bottom:4px}
 .card p{font-size:12px;color:#64748b;margin-bottom:16px}
@@ -52,10 +56,17 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .field label{font-size:11px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:6px}
 .field input{width:100%;height:46px;border:1.5px solid #e2e8f0;border-radius:11px;padding:0 13px;font-size:13.5px;font-weight:600;outline:0;background:#f8fafc}
 .field input:focus{border-color:#2563eb;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
-.field input::placeholder{color:#94a3b8;font-weight:500}
 .formBtns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
-.searchBox{width:100%;height:46px;border:1.5px solid #e2e8f0;border-radius:11px;padding:0 14px;font-size:13px;outline:0;background:#f8fafc}
-.searchBox:focus{border-color:#2563eb;background:#fff}
+/* FILTER BAR */
+.filterBar{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:16px}
+.filterBar h4{font-size:13px;font-weight:800;color:#0f172a;margin-bottom:12px}
+.filterGrid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr auto;gap:12px;align-items:end}
+.filterGrid input{width:100%;height:44px;border:1.5px solid #e2e8f0;border-radius:10px;padding:0 12px;font-size:13px;outline:0;background:#f8fafc;font-weight:600}
+.filterGrid input:focus{border-color:#2563eb;background:#fff}
+.filterGrid label{font-size:11px;font-weight:700;color:#334155;text-transform:uppercase;display:block;margin-bottom:6px}
+.clearBtn{height:44px;padding:0 18px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px;color:#0f172a;white-space:nowrap}
+.activeFilter{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;padding:8px 12px;border-radius:100px;font-size:12px;font-weight:700;display:none;margin-top:12px}
+.activeFilter.show{display:inline-block}
 .tableWrap{background:#fff;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden}
 table{width:100%;border-collapse:collapse;min-width:820px}
 th{background:#0f172a;color:#fff;font-size:11px;text-align:left;padding:13px 12px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
@@ -67,15 +78,13 @@ tr:hover td{background:#f8fafc}
 .empty{padding:30px;text-align:center;color:#94a3b8;font-size:13px;font-weight:600}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
-@media(max-width:900px){.whiteBar{transform:translateX(-100%);width:310px!important}.whiteBar.mOpen{transform:translateX(0)}.mainWrap{margin-left:0!important;width:100%!important}.formGrid{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.content{padding:14px}}
-@media(max-width:560px){.formGrid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.tableWrap{overflow-x:auto}}
+@media(max-width:900px){.whiteBar{transform:translateX(-100%);width:310px!important}.whiteBar.mOpen{transform:translateX(0)}.mainWrap{margin-left:0!important;width:100%!important}.formGrid{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.filterGrid{grid-template-columns:1fr 1fr}.content{padding:14px}}
+@media(max-width:560px){.formGrid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.filterGrid{grid-template-columns:1fr}.tableWrap{overflow-x:auto}}
 </style>
 </head>
 <body>
 <div id="mobOverlay" onclick="closeMob()"></div>
-<script>
-if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
-</script>
+<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 <div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
@@ -93,16 +102,17 @@ if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 <div class="mainWrap">
 <div class="top">
 <div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA Dialysis</div>
-<div style="font-size:12px;font-weight:700;color:#64748b">IN-PATIENT CLAIM • PMJAY & CMHT</div>
+<div style="font-size:12px;font-weight:700;color:#64748b">IN-PATIENT CLAIM</div>
 </div>
 
 <div class="content">
-<div class="head"><div><h1>🏥 In-Patient Claim</h1><p>Add any patient for In-Patient Claim • SHIJA Dialysis</p></div><div style="display:flex;gap:8px"><button class="btn btnGreen" onclick="exportExcel()">📥 Export Excel</button><button class="btn btnP" onclick="document.getElementById('name').focus()">+ Add Patient</button></div></div>
+<div class="head"><div><h1>🏥 In-Patient Claim</h1><p>Click any card to filter • Add patient below • SHIJA Dialysis</p></div><div><button class="btn btnGreen" onclick="exportExcel()">📥 Export Excel</button></div></div>
 
+<!-- CLICKABLE STATS -->
 <div class="stats">
-<div class="stat"><b>Total In-Patient Claims</b><h2 id="totalCount">0</h2></div>
-<div class="stat"><b>This Month</b><h2 id="monthCount">0</h2></div>
-<div class="stat"><b>Today Added</b><h2 id="todayCount">0</h2></div>
+<div class="stat active" id="statTotal" onclick="setStatFilter('all')"><b>Total In-Patient Claims</b><h2 id="totalCount">0</h2><small>● Showing All</small></div>
+<div class="stat" id="statMonth" onclick="setStatFilter('month')"><b>This Month</b><h2 id="monthCount">0</h2><small>● Showing This Month Only</small></div>
+<div class="stat" id="statToday" onclick="setStatFilter('today')"><b>Today Added</b><h2 id="todayCount">0</h2><small>● Showing Today Only</small></div>
 </div>
 
 <!-- ADD FORM -->
@@ -111,7 +121,7 @@ if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 <div class="formGrid">
 <div class="field"><label>1. Patient Name *</label><input id="name" type="text" placeholder="Ex: Jackson Slm"></div>
 <div class="field"><label>2. Shri ID *</label><input id="shri" type="text" placeholder="Ex: SHRI12345"></div>
-<div class="field"><label>3. IP Number (In-Patient ID) *</label><input id="ipno" type="text" placeholder="Ex: IP-2026-001"></div>
+<div class="field"><label>3. IP Number *</label><input id="ipno" type="text" placeholder="Ex: IP-2026-001"></div>
 <div class="field"><label>4. Date of Admission *</label><input id="doa" type="date"></div>
 <div class="field"><label>5. Date of Discharge</label><input id="dod" type="date"></div>
 <div class="field"><label>6. Claim ID *</label><input id="claimid" type="text" placeholder="Ex: CLM-2026-001"></div>
@@ -123,9 +133,17 @@ if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
 </div>
 </div>
 
-<!-- SEARCH + LIST -->
-<div class="card" style="margin-bottom:12px;padding:16px">
-<input id="search" class="searchBox" placeholder="🔍 Search by Name / Shri ID / IP No / Claim ID..." oninput="renderList()">
+<!-- FILTERS -->
+<div class="filterBar">
+<h4>🔍 Filter Patients</h4>
+<div class="filterGrid">
+<div><label>Search</label><input id="search" placeholder="Name / Shri ID / IP No / Claim ID..." oninput="renderList()"></div>
+<div><label>Admission Date</label><input id="filterDoa" type="date" onchange="renderList()"></div>
+<div><label>Discharge Date</label><input id="filterDod" type="date" onchange="renderList()"></div>
+<div><label>Month</label><input id="filterMonth" type="month" onchange="renderList()"></div>
+<div><button class="clearBtn" onclick="clearFilters()">✕ Clear Filters</button></div>
+</div>
+<div id="activeFilterText" class="activeFilter"></div>
 </div>
 
 <div class="tableWrap">
@@ -151,6 +169,24 @@ import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimest
 const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(config);const db=getFirestore(app);
 let allData=[];
+let statFilter='all'; // all | month | today
+
+window.setStatFilter=(type)=>{
+  statFilter=type;
+  document.getElementById('statTotal').classList.toggle('active',type==='all');
+  document.getElementById('statMonth').classList.toggle('active',type==='month');
+  document.getElementById('statToday').classList.toggle('active',type==='today');
+  renderList();
+  document.getElementById('tbody').scrollIntoView({behavior:'smooth',block:'start'});
+};
+
+window.clearFilters=()=>{
+  document.getElementById('search').value='';
+  document.getElementById('filterDoa').value='';
+  document.getElementById('filterDod').value='';
+  document.getElementById('filterMonth').value='';
+  setStatFilter('all');
+};
 
 window.saveClaim=async()=>{
   let name=document.getElementById('name').value.trim();
@@ -177,24 +213,74 @@ async function loadData(){
     let snap=await getDocs(query(collection(db,"inpatient_claims"),orderBy("createdAt","desc")));
     allData=[];snap.forEach(d=>allData.push({id:d.id,...d.data()}));
     renderList();
-  }catch(e){document.getElementById('tbody').innerHTML='<tr><td colspan="8" class="empty">Error loading: '+e.message+'</td></tr>';}
+  }catch(e){document.getElementById('tbody').innerHTML='<tr><td colspan="8" class="empty">Error: '+e.message+'</td></tr>';}
 }
+
 window.renderList=()=>{
   let q=(document.getElementById('search').value||'').toLowerCase();
-  let list=allData.filter(x=>[x.name,x.shri,x.ipno,x.claimid].join(' ').toLowerCase().includes(q));
+  let fDoa=document.getElementById('filterDoa').value;
+  let fDod=document.getElementById('filterDod').value;
+  let fMonth=document.getElementById('filterMonth').value; // YYYY-MM
+  let now=new Date();let todayStr=now.toISOString().slice(0,10);
+
+  // Update counts - always from full data
   document.getElementById('totalCount').textContent=allData.length;
-  let now=new Date();let m=now.getMonth(),y=now.getFullYear();
-  document.getElementById('monthCount').textContent=allData.filter(x=>x.doa && new Date(x.doa).getMonth()===m && new Date(x.doa).getFullYear()===y).length;
-  document.getElementById('todayCount').textContent=allData.filter(x=>x.createdDate===now.toISOString().slice(0,10)).length;
-  if(!list.length){document.getElementById('tbody').innerHTML='<tr><td colspan="8" class="empty">No In-Patient Claim Found</td></tr>';return;}
+  document.getElementById('monthCount').textContent=allData.filter(x=>x.doa && x.doa.slice(0,7)===todayStr.slice(0,7)).length;
+  document.getElementById('todayCount').textContent=allData.filter(x=>x.createdDate===todayStr).length;
+
+  let list=allData.filter(x=>{
+    // 1. Card filter
+    if(statFilter==='month' && !(x.doa && x.doa.slice(0,7)===todayStr.slice(0,7))) return false;
+    if(statFilter==='today' && x.createdDate!==todayStr) return false;
+    // 2. Search
+    if(q && ![x.name,x.shri,x.ipno,x.claimid].join(' ').toLowerCase().includes(q)) return false;
+    // 3. Admission Date filter
+    if(fDoa && x.doa!==fDoa) return false;
+    // 4. Discharge Date filter
+    if(fDod && x.dod!==fDod) return false;
+    // 5. Month filter - checks Admission Month
+    if(fMonth && !(x.doa && x.doa.slice(0,7)===fMonth)) return false;
+    return true;
+  });
+
+  // Show active filter text
+  let activeEl=document.getElementById('activeFilterText');
+  let parts=[];
+  if(statFilter==='month') parts.push('This Month');
+  if(statFilter==='today') parts.push('Today Added');
+  if(fDoa) parts.push('Admission: '+fDoa);
+  if(fDod) parts.push('Discharge: '+fDod);
+  if(fMonth) parts.push('Month: '+fMonth);
+  if(q) parts.push('Search: '+q);
+  if(parts.length){activeEl.textContent='🔵 Showing: '+parts.join(' • ')+'  —  ('+list.length+' patients)';activeEl.classList.add('show');}
+  else{activeEl.textContent='Showing All — ('+list.length+' patients)';activeEl.classList.add('show');}
+
+  if(!list.length){document.getElementById('tbody').innerHTML='<tr><td colspan="8" class="empty">No Patient Found for this Filter</td></tr>';return;}
   document.getElementById('tbody').innerHTML=list.map(x=>`<tr><td><b>${x.name}</b></td><td>${x.shri}</td><td><span class="badge">${x.ipno}</span></td><td>${fmt(x.doa)}</td><td>${x.dod?fmt(x.dod):'-'}</td><td><span class="badge2">${x.claimid}</span></td><td>${calcDays(x.doa,x.dod)}</td><td><button class="delBtn" onclick="delClaim('${x.id}')">Delete</button></td></tr>`).join('');
 };
+
 window.delClaim=async(id)=>{
   if(!confirm('Delete this In-Patient Claim?')) return;
   await deleteDoc(doc(db,"inpatient_claims",id)); loadData();
 };
+
 window.exportExcel=()=>{
-  let rows=allData.map(x=>({Name:x.name,'Shri ID':x.shri,'IP Number':x.ipno,'Date of Admission':x.doa,'Date of Discharge':x.dod||'','Claim ID':x.claimid,Days:calcDays(x.doa,x.dod)}));
+  // Export only currently filtered list - reuse same filter logic by reading table? Simpler: export filtered via render logic
+  let q=(document.getElementById('search').value||'').toLowerCase();
+  let fDoa=document.getElementById('filterDoa').value;
+  let fDod=document.getElementById('filterDod').value;
+  let fMonth=document.getElementById('filterMonth').value;
+  let todayStr=new Date().toISOString().slice(0,10);
+  let list=allData.filter(x=>{
+    if(statFilter==='month' && !(x.doa && x.doa.slice(0,7)===todayStr.slice(0,7))) return false;
+    if(statFilter==='today' && x.createdDate!==todayStr) return false;
+    if(q && ![x.name,x.shri,x.ipno,x.claimid].join(' ').toLowerCase().includes(q)) return false;
+    if(fDoa && x.doa!==fDoa) return false;
+    if(fDod && x.dod!==fDod) return false;
+    if(fMonth && !(x.doa && x.doa.slice(0,7)===fMonth)) return false;
+    return true;
+  });
+  let rows=list.map(x=>({Name:x.name,'Shri ID':x.shri,'IP Number':x.ipno,'Date of Admission':x.doa,'Date of Discharge':x.dod||'','Claim ID':x.claimid,Days:calcDays(x.doa,x.dod)}));
   let ws=XLSX.utils.json_to_sheet(rows.length?rows:[{Name:'No Data'}]);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"InPatient Claim");XLSX.writeFile(wb,`InPatient_Claim_${new Date().toISOString().slice(0,10)}.xlsx`);
 };
 loadData();
