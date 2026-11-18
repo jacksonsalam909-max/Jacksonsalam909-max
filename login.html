@@ -113,7 +113,23 @@ function showMsg(text){
   clearTimeout(msgTimer);
   msgTimer=setTimeout(()=>{ el.style.display='none'; }, 3000);
 }
-function doLogin(){let uEl=document.getElementById('shija_user_x9271'),pEl=document.getElementById('shija_pass_x9271');pEl.removeAttribute('readonly');let u=uEl.value.trim(),p=pEl.value.trim(),err=document.getElementById('errBox'),btn=document.getElementById('loginBtn');if(!u||!p){err.textContent='Please enter username and password manually';err.style.display='block';return}err.style.display='none';btn.textContent='Signing in...';btn.disabled=true;setTimeout(()=>{if(p==='jack8189'||u.toLowerCase().includes('shija')||u==='admin'){localStorage.setItem('shija_logged','1');localStorage.setItem('shija_login_time',Date.now().toString());location.href='index.html'}else{err.textContent='Invalid username or password';err.style.display='block';btn.textContent='LOGIN';btn.disabled=false;pEl.value=''}},600)}
+function doLogin(){
+  let uEl=document.getElementById('shija_user_x9271'),pEl=document.getElementById('shija_pass_x9271');
+  pEl.removeAttribute('readonly');
+  let u=uEl.value.trim(),p=pEl.value.trim(),err=document.getElementById('errBox'),btn=document.getElementById('loginBtn');
+  if(!u||!p){err.textContent='Please enter username and password manually';err.style.display='block';return}
+  err.style.display='none';btn.textContent='Signing in...';btn.disabled=true;
+  setTimeout(()=>{
+    // NEW LOGIN - ONLY jack123 / jack007
+    if(u==='jack123' && p==='jack007'){
+      localStorage.setItem('shija_logged','1');
+      localStorage.setItem('shija_login_time',Date.now().toString());
+      location.href='index.html'
+    }else{
+      err.textContent='Invalid username or password';err.style.display='block';btn.textContent='LOGIN';btn.disabled=false;pEl.value=''
+    }
+  },600)
+}
 document.addEventListener('DOMContentLoaded',()=>{clearAll();[10,100,300,600,1000,2000].forEach(t=>setTimeout(clearAll,t))});
 window.addEventListener('load',clearAll);window.addEventListener('pageshow',clearAll);document.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }
