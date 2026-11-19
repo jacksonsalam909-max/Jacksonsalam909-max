@@ -59,17 +59,30 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .field input{width:100%;height:46px;border:1.5px solid #e2e8f0;border-radius:11px;padding:0 13px;font-size:13.5px;font-weight:600;outline:0;background:#f8fafc}
 .field input:focus{border-color:#2563eb;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 .formBtns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;align-items:center}
-.filterBar{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px;margin-bottom:16px}
+.filterBar{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px;margin-bottom:16px;position:relative}
 .filterRow{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:14px}
 .filterRow .fItem{width:200px;max-width:200px}
-.filterRow .fItemMonth{width:180px;max-width:180px}
+.filterRow .fItemMonth{width:180px;max-width:180px;position:relative}
 .filterRow label{font-size:11px;font-weight:700;color:#334155;text-transform:uppercase;display:block;margin-bottom:6px;text-align:center}
 .dateNav{display:flex;align-items:center;background:#fff;border:1.5px solid #D9DEE3;border-radius:12px;height:44px;padding:0 4px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .dateNav input{flex:1;border:0!important;outline:0!important;background:transparent!important;text-align:center;font-size:13px!important;font-weight:800!important;color:#111!important;height:100%;padding:0 2px;box-shadow:none!important;min-width:0}
 .dateNav input::-webkit-calendar-picker-indicator{opacity:.6;cursor:pointer}
-.monthDisplay{flex:1;text-align:center;font-size:14px!important;font-weight:900!important;color:#111!important;letter-spacing:.5px}
+.monthDisplay{flex:1;text-align:center;font-size:14px!important;font-weight:900!important;color:#111!important;letter-spacing:.5px;cursor:pointer;user-select:none}
+.monthDisplay:hover{color:#2563eb}
 .arrowBtn{width:30px;min-width:30px;height:32px;border:1px solid #E5E7EB;background:#fff;border-radius:8px;font-size:12px;font-weight:900;cursor:pointer;color:#111;line-height:1;display:grid;place-items:center}
 .arrowBtn:hover{background:#D9C95C;color:#111;border-color:#C5B84A}
+/* MONTH PICKER POPUP */
+.monthPicker{display:none;position:absolute;top:46px;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.15);padding:12px;z-index:50}
+.monthPicker.show{display:block}
+.mpYear{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mpYear b{font-size:15px;font-weight:900}
+.mpYear button{width:30px;height:30px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:8px;font-weight:900;cursor:pointer}
+.mpYear button:hover{background:#D9C95C}
+.mpGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.mpGrid button{height:36px;border:1px solid #e2e8f0;background:#fff;border-radius:9px;font-weight:700;font-size:12px;cursor:pointer;color:#334155}
+.mpGrid button:hover{background:#EFF6FF;border-color:#2563eb}
+.mpGrid button.active{background:#D9C95C!important;color:#111!important;border-color:#C5B84A}
+.mpClose{width:100%;margin-top:10px;height:32px;border:0;background:#f1f5f9;border-radius:8px;font-weight:700;cursor:pointer}
 .clearBtn{height:44px;padding:0 14px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:12px;font-weight:700;cursor:pointer;font-size:12px;color:#0f172a;white-space:nowrap}
 .searchRow{display:flex;gap:10px;align-items:center}
 .searchRow input{flex:1;height:46px;border:1.5px solid #e2e8f0;border-radius:11px;padding:0 14px;font-size:13px;outline:0;background:#f8fafc;font-weight:600;min-width:0}
@@ -198,7 +211,13 @@ tr:hover td.sl{background:#eef2ee}
 <div class="filterRow">
 <div class="fItem"><label>Admission Date</label><div class="dateNav"><button class="arrowBtn" onclick="shiftDate('filterDoa',-1)">◀</button><input id="filterDoa" type="date" onchange="onDateManualChange('filterDoa')"><button class="arrowBtn" onclick="shiftDate('filterDoa',1)">▶</button></div></div>
 <div class="fItem"><label>Discharge Date</label><div class="dateNav"><button class="arrowBtn" onclick="shiftDate('filterDod',-1)">◀</button><input id="filterDod" type="date" onchange="onDateManualChange('filterDod')"><button class="arrowBtn" onclick="shiftDate('filterDod',1)">▶</button></div></div>
-<div class="fItemMonth"><label>Month</label><div class="dateNav"><button class="arrowBtn" onclick="shiftMonth(-1)">◀</button><div class="monthDisplay" id="filterMonthDisplay">Nov</div><input type="hidden" id="filterMonth" value="11"><button class="arrowBtn" onclick="shiftMonth(1)">▶</button></div></div>
+<div class="fItemMonth"><label>Month</label><div class="dateNav"><button class="arrowBtn" onclick="shiftMonth(-1)">◀</button><div class="monthDisplay" id="filterMonthDisplay" onclick="toggleMonthPicker(event)">Nov</div><input type="hidden" id="filterMonth" value="2026-11"><button class="arrowBtn" onclick="shiftMonth(1)">▶</button></div>
+<div class="monthPicker" id="monthPicker">
+<div class="mpYear"><button onclick="shiftPickerYear(-1)">◀</button><b id="pickerYear">2026</b><button onclick="shiftPickerYear(1)">▶</button></div>
+<div class="mpGrid" id="mpGrid"></div>
+<button class="mpClose" onclick="closeMonthPicker()">Close</button>
+</div>
+</div>
 <div><button class="clearBtn" onclick="clearFilters()">Clear Filters</button></div>
 </div>
 <div class="searchRow"><input id="search" placeholder="Search by Name / Shri ID / IP No / Claim ID..." oninput="onFilterChange()"><div class="viewToggle"><button id="btnList" class="active" title="List View" onclick="setView('table')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button><button id="btnGrid" title="Grid View" onclick="setView('grid')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></button></div></div>
@@ -251,6 +270,10 @@ function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen'
 document.getElementById('menuBtnTop').addEventListener('click',e=>{e.preventDefault();toggleWhiteBar();});
 function calcDays(a,b){if(!a||!b) return '-';let d1=new Date(a),d2=new Date(b);let diff=Math.ceil((d2-d1)/(1000*60*60*24));return diff>=0?diff+' days':'-';}
 function fmt(d){if(!d) return '-';try{return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}catch(e){return d}}
+function pad(n){return String(n).padStart(2,'0')}
+function localDateStr(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function parseLocalDate(s){let p=s.split('-');return new Date(Number(p[0]),Number(p[1])-1,Number(p[2]))}
+function todayLocalStr(){return localDateStr(new Date())}
 </script>
 
 <script type="module">
@@ -267,35 +290,54 @@ let perPage=9;
 let dateFilterActive=false;
 let activeDateFilter=null;
 let currentMonthNum=new Date().getMonth()+1;
+let currentYearNum=new Date().getFullYear();
+let pickerYear=new Date().getFullYear();
 const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 window.currentPage=1;
 function setDefaultDates(){
-  let today=new Date(); let todayStr=today.toISOString().slice(0,10);
-  document.getElementById('filterDoa').value=todayStr;
-  document.getElementById('filterDod').value=todayStr;
-  currentMonthNum=today.getMonth()+1;
-  document.getElementById('filterMonth').value=String(currentMonthNum).padStart(2,'0');
+  let today=new Date();
+  document.getElementById('filterDoa').value=localDateStr(today);
+  document.getElementById('filterDod').value=localDateStr(today);
+  currentMonthNum=today.getMonth()+1; currentYearNum=today.getFullYear(); pickerYear=currentYearNum;
+  document.getElementById('filterMonth').value=currentYearNum+'-'+pad(currentMonthNum);
   document.getElementById('filterMonthDisplay').textContent=MONTHS_SHORT[currentMonthNum-1];
   dateFilterActive=false; activeDateFilter=null;
 }
 setDefaultDates();
 window.shiftDate=(inputId,delta)=>{
   let el=document.getElementById(inputId);
-  let cur=el.value ? new Date(el.value+'T00:00:00') : new Date();
+  let cur=el.value ? parseLocalDate(el.value) : new Date();
   cur.setDate(cur.getDate()+delta);
-  el.value=cur.toISOString().slice(0,10);
+  el.value=localDateStr(cur);
   dateFilterActive=true; activeDateFilter=inputId;
   onFilterChange();
 };
 window.shiftMonth=(delta)=>{
-  currentMonthNum+=delta;
-  if(currentMonthNum>12) currentMonthNum=1;
-  if(currentMonthNum<1) currentMonthNum=12;
-  document.getElementById('filterMonth').value=String(currentMonthNum).padStart(2,'0');
+  let d=new Date(currentYearNum,currentMonthNum-1+delta,1);
+  currentYearNum=d.getFullYear(); currentMonthNum=d.getMonth()+1; pickerYear=currentYearNum;
+  document.getElementById('filterMonth').value=currentYearNum+'-'+pad(currentMonthNum);
   document.getElementById('filterMonthDisplay').textContent=MONTHS_SHORT[currentMonthNum-1];
   dateFilterActive=true; activeDateFilter='filterMonth';
   onFilterChange();
 };
+window.toggleMonthPicker=(e)=>{ e.stopPropagation(); renderMonthPicker(); document.getElementById('monthPicker').classList.toggle('show'); };
+window.closeMonthPicker=()=>{ document.getElementById('monthPicker').classList.remove('show'); };
+window.shiftPickerYear=(delta)=>{ pickerYear+=delta; renderMonthPicker(); };
+function renderMonthPicker(){
+  document.getElementById('pickerYear').textContent=pickerYear;
+  document.getElementById('mpGrid').innerHTML=MONTHS_SHORT.map((m,i)=>{
+    let isActive=(pickerYear===currentYearNum && (i+1)===currentMonthNum);
+    return `<button class="${isActive?'active':''}" onclick="pickMonth(${i+1})">${m}</button>`;
+  }).join('');
+}
+window.pickMonth=(m)=>{
+  currentMonthNum=m; currentYearNum=pickerYear;
+  document.getElementById('filterMonth').value=currentYearNum+'-'+pad(currentMonthNum);
+  document.getElementById('filterMonthDisplay').textContent=MONTHS_SHORT[currentMonthNum-1];
+  dateFilterActive=true; activeDateFilter='filterMonth';
+  closeMonthPicker(); onFilterChange();
+};
+document.addEventListener('click',(e)=>{ let p=document.getElementById('monthPicker'); if(p && !p.contains(e.target) && !e.target.classList.contains('monthDisplay')) p.classList.remove('show'); });
 window.onDateManualChange=(inputId)=>{ dateFilterActive=true; activeDateFilter=inputId; onFilterChange(); };
 window.onFilterChange=()=>{ currentPage=1; window.currentPage=1; renderList(); };
 window.changePerPage=()=>{ perPage=parseInt(document.getElementById('perPage').value); currentPage=1; window.currentPage=1; renderList(); };
@@ -350,7 +392,7 @@ window.saveClaim=async()=>{
   if(dod && dod<doa){msg.style.color='#dc2626';msg.textContent='Discharge date cannot be before Admission';return;}
   let btn=document.getElementById('saveBtn');btn.textContent='Saving...';btn.disabled=true;
   try{
-    await addDoc(collection(db,"inpatient_claims"),{name,shri,ipno,doa,dod: dod||'',claimid,createdAt:serverTimestamp(),createdDate:new Date().toISOString().slice(0,10)});
+    await addDoc(collection(db,"inpatient_claims"),{name,shri,ipno,doa,dod: dod||'',claimid,createdAt:serverTimestamp(),createdDate:todayLocalStr()});
     msg.style.color='#059669';msg.textContent='Saved Successfully!';
     clearForm(); loadData();
     setTimeout(()=>closeAddForm(),800);
@@ -407,7 +449,7 @@ function getFiltered(){
   let fDoa=document.getElementById('filterDoa').value;
   let fDod=document.getElementById('filterDod').value;
   let fMonth=document.getElementById('filterMonth').value;
-  let todayStr=new Date().toISOString().slice(0,10);
+  let todayStr=todayLocalStr();
   return allData.filter(x=>{
     if(statFilter==='month' && !(x.doa && x.doa.slice(0,7)===todayStr.slice(0,7))) return false;
     if(statFilter==='today' && x.createdDate!==todayStr) return false;
@@ -415,7 +457,7 @@ function getFiltered(){
     if(dateFilterActive){
       if(activeDateFilter==='filterDoa' && fDoa && x.doa!==fDoa) return false;
       if(activeDateFilter==='filterDod' && fDod && x.dod!==fDod) return false;
-      if(activeDateFilter==='filterMonth' && fMonth && !(x.doa && x.doa.slice(5,7)===fMonth)) return false;
+      if(activeDateFilter==='filterMonth' && fMonth && !(x.doa && x.doa.slice(0,7)===fMonth)) return false;
     }
     return true;
   });
@@ -440,7 +482,7 @@ function renderPagination(total,totalPages){
   box.innerHTML=html;
 }
 window.renderList=()=>{
-  let todayStr=new Date().toISOString().slice(0,10);
+  let todayStr=todayLocalStr();
   document.getElementById('totalCount').textContent=allData.length;
   document.getElementById('monthCount').textContent=allData.filter(x=>x.doa && x.doa.slice(0,7)===todayStr.slice(0,7)).length;
   document.getElementById('todayCount').textContent=allData.filter(x=>x.createdDate===todayStr).length;
@@ -468,7 +510,7 @@ window.delClaim=async(id)=>{
 window.exportExcel=()=>{
   let list=getFiltered();
   let rows=list.map((x,i)=>({ 'Sl No': i+1, Name:x.name,'Shri ID':x.shri,'IP Number':x.ipno,'Date of Admission':x.doa,'Date of Discharge':x.dod||'','Claim ID':x.claimid,Days:calcDays(x.doa,x.dod)}));
-  let ws=XLSX.utils.json_to_sheet(rows.length?rows:[{'Sl No':'No Data'}]);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"InPatient Claim");XLSX.writeFile(wb,`InPatient_Claim_${new Date().toISOString().slice(0,10)}.xlsx`);
+  let ws=XLSX.utils.json_to_sheet(rows.length?rows:[{'Sl No':'No Data'}]);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"InPatient Claim");XLSX.writeFile(wb,`InPatient_Claim_${todayLocalStr()}.xlsx`);
 };
 loadData();
 </script>
