@@ -67,6 +67,7 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .dateNav{display:flex;align-items:center;background:#fff;border:1.5px solid #D9DEE3;border-radius:12px;height:44px;padding:0 4px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .dateNav input{flex:1;border:0!important;outline:0!important;background:transparent!important;text-align:center;font-size:13px!important;font-weight:800!important;color:#111!important;height:100%;padding:0 2px;box-shadow:none!important;min-width:0}
 .dateNav input::-webkit-calendar-picker-indicator{opacity:.6;cursor:pointer}
+.monthDisplay{flex:1;text-align:center;font-size:14px!important;font-weight:900!important;color:#111!important;letter-spacing:.5px}
 .arrowBtn{width:30px;min-width:30px;height:32px;border:1px solid #E5E7EB;background:#fff;border-radius:8px;font-size:12px;font-weight:900;cursor:pointer;color:#111;line-height:1;display:grid;place-items:center}
 .arrowBtn:hover{background:#D9C95C;color:#111;border-color:#C5B84A}
 .clearBtn{height:44px;padding:0 14px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:12px;font-weight:700;cursor:pointer;font-size:12px;color:#0f172a;white-space:nowrap}
@@ -195,9 +196,9 @@ tr:hover td.sl{background:#eef2ee}
 
 <div class="filterBar">
 <div class="filterRow">
-<div class="fItem"><label>Admission Date</label><div class="dateNav"><button class="arrowBtn" onclick="shiftDate('filterDoa',-1)">◀</button><input id="filterDoa" type="date" onchange="onDateManualChange()"><button class="arrowBtn" onclick="shiftDate('filterDoa',1)">▶</button></div></div>
-<div class="fItem"><label>Discharge Date</label><div class="dateNav"><button class="arrowBtn" onclick="shiftDate('filterDod',-1)">◀</button><input id="filterDod" type="date" onchange="onDateManualChange()"><button class="arrowBtn" onclick="shiftDate('filterDod',1)">▶</button></div></div>
-<div class="fItemMonth"><label>Month</label><div class="dateNav"><button class="arrowBtn" onclick="shiftMonth(-1)">◀</button><input id="filterMonth" type="month" onchange="onDateManualChange()"><button class="arrowBtn" onclick="shiftMonth(1)">▶</button></div></div>
+<div class="fItem"><label>Admission Date</label><div class="dateNav"><button class="arrowBtn" onclick="shiftDate('filterDoa',-1)">◀</button><input id="filterDoa" type="date" onchange="onDateManualChange('filterDoa')"><button class="arrowBtn" onclick="shiftDate('filterDoa',1)">▶</button></div></div>
+<div class="fItem"><label>Discharge Date</label><div class="dateNav"><button class="arrowBtn" onclick="shiftDate('filterDod',-1)">◀</button><input id="filterDod" type="date" onchange="onDateManualChange('filterDod')"><button class="arrowBtn" onclick="shiftDate('filterDod',1)">▶</button></div></div>
+<div class="fItemMonth"><label>Month</label><div class="dateNav"><button class="arrowBtn" onclick="shiftMonth(-1)">◀</button><div class="monthDisplay" id="filterMonthDisplay">Nov</div><input type="hidden" id="filterMonth" value="11"><button class="arrowBtn" onclick="shiftMonth(1)">▶</button></div></div>
 <div><button class="clearBtn" onclick="clearFilters()">Clear Filters</button></div>
 </div>
 <div class="searchRow"><input id="search" placeholder="Search by Name / Shri ID / IP No / Claim ID..." oninput="onFilterChange()"><div class="viewToggle"><button id="btnList" class="active" title="List View" onclick="setView('table')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button><button id="btnGrid" title="Grid View" onclick="setView('grid')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></button></div></div>
@@ -264,13 +265,18 @@ let viewMode='table';
 let currentPage=1;
 let perPage=9;
 let dateFilterActive=false;
+let activeDateFilter=null;
+let currentMonthNum=new Date().getMonth()+1;
+const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 window.currentPage=1;
 function setDefaultDates(){
-  let today=new Date(); let todayStr=today.toISOString().slice(0,10); let monthStr=todayStr.slice(0,7);
+  let today=new Date(); let todayStr=today.toISOString().slice(0,10);
   document.getElementById('filterDoa').value=todayStr;
   document.getElementById('filterDod').value=todayStr;
-  document.getElementById('filterMonth').value=monthStr;
-  dateFilterActive=false;
+  currentMonthNum=today.getMonth()+1;
+  document.getElementById('filterMonth').value=String(currentMonthNum).padStart(2,'0');
+  document.getElementById('filterMonthDisplay').textContent=MONTHS_SHORT[currentMonthNum-1];
+  dateFilterActive=false; activeDateFilter=null;
 }
 setDefaultDates();
 window.shiftDate=(inputId,delta)=>{
@@ -278,18 +284,19 @@ window.shiftDate=(inputId,delta)=>{
   let cur=el.value ? new Date(el.value+'T00:00:00') : new Date();
   cur.setDate(cur.getDate()+delta);
   el.value=cur.toISOString().slice(0,10);
-  dateFilterActive=true;
+  dateFilterActive=true; activeDateFilter=inputId;
   onFilterChange();
 };
 window.shiftMonth=(delta)=>{
-  let el=document.getElementById('filterMonth');
-  let cur=el.value ? new Date(el.value+'-01T00:00:00') : new Date();
-  cur.setMonth(cur.getMonth()+delta);
-  el.value=cur.toISOString().slice(0,7);
-  dateFilterActive=true;
+  currentMonthNum+=delta;
+  if(currentMonthNum>12) currentMonthNum=1;
+  if(currentMonthNum<1) currentMonthNum=12;
+  document.getElementById('filterMonth').value=String(currentMonthNum).padStart(2,'0');
+  document.getElementById('filterMonthDisplay').textContent=MONTHS_SHORT[currentMonthNum-1];
+  dateFilterActive=true; activeDateFilter='filterMonth';
   onFilterChange();
 };
-window.onDateManualChange=()=>{ dateFilterActive=true; onFilterChange(); };
+window.onDateManualChange=(inputId)=>{ dateFilterActive=true; activeDateFilter=inputId; onFilterChange(); };
 window.onFilterChange=()=>{ currentPage=1; window.currentPage=1; renderList(); };
 window.changePerPage=()=>{ perPage=parseInt(document.getElementById('perPage').value); currentPage=1; window.currentPage=1; renderList(); };
 window.goPage=(p)=>{
@@ -406,9 +413,9 @@ function getFiltered(){
     if(statFilter==='today' && x.createdDate!==todayStr) return false;
     if(q && ![x.name,x.shri,x.ipno,x.claimid].join(' ').toLowerCase().includes(q)) return false;
     if(dateFilterActive){
-      if(fDoa && x.doa!==fDoa) return false;
-      if(fDod && x.dod!==fDod) return false;
-      if(fMonth && !(x.doa && x.doa.slice(0,7)===fMonth)) return false;
+      if(activeDateFilter==='filterDoa' && fDoa && x.doa!==fDoa) return false;
+      if(activeDateFilter==='filterDod' && fDod && x.dod!==fDod) return false;
+      if(activeDateFilter==='filterMonth' && fMonth && !(x.doa && x.doa.slice(5,7)===fMonth)) return false;
     }
     return true;
   });
