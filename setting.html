@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHIJA - Master Settings</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
+body{background:#f1f5f9;padding:16px}
+.box{background:#fff;max-width:520px;margin:0 auto;border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.1)}
+h2{text-align:center}
+.sub{text-align:center;color:#777;font-size:13px;margin:6px 0 16px}
+label{font-size:12px;font-weight:800;color:#64748b;display:block;margin:14px 0 6px}
+input,textarea,select{width:100%;padding:12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:600;outline:none}
+textarea{resize:vertical}
+.btn{width:100%;padding:12px;border:0;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;margin-top:12px}
+.btnBlack{background:#000;color:#fff}.btnGreen{background:#16a34a;color:#fff}.btnRed{background:#ef4444;color:#fff}.btnBlue{background:#2563eb;color:#fff}
+.row{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-top:10px;gap:10px}
+.row b{font-size:14px}.row span{font-size:12px;color:#777}
+.switch{width:52px;height:28px;background:#cbd5e1;border-radius:20px;position:relative;cursor:pointer;flex-shrink:0}
+.switch.on{background:#16a34a}.switch:after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:.2s}.switch.on:after{left:27px}
+.switch.red.on{background:#ef4444}
+#mainBox{display:none}
+#err{color:#ef4444;font-size:12px;text-align:center;display:none;margin-top:8px;font-weight:700}
+#ok{color:#16a34a;font-size:12px;text-align:center;display:none;margin-top:8px;font-weight:700}
+.pageTitle{font-size:13px;font-weight:800;margin:18px 0 4px}
+.small{font-size:11px;color:#94a3b8}
+.tag{display:inline-block;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;background:#fee2e2;color:#991b1b}
+.tag.green{background:#dcfce7;color:#14532d}
+</style>
+</head>
+<body>
+<div class="box">
+  <div id="loginBox">
+    <h2>⚙️ SHIJA Master Settings</h2>
+    <p class="sub">Control ALL pages from here<br>Default password: 1234</p>
+    <label>Admin Password</label>
+    <input type="password" id="loginPass" placeholder="Enter password">
+    <div id="err">Wrong password</div>
+    <button class="btn btnBlack" onclick="login()">Unlock Settings</button>
+  </div>
+
+  <div id="mainBox">
+    <h2>⚙️ SHIJA Master Settings</h2>
+    <p class="sub">Changes apply to ALL devices instantly</p>
+
+    <div class="pageTitle">🌐 GLOBAL CONTROL <span class="tag" id="globalTag">OFF</span></div>
+    <div class="row"><div><b>🔧 Global Maintenance</b><br><span>All pages show maintenance</span></div><div class="switch" id="swGlobal" onclick="toggleGlobal('globalMaintenance')"></div></div>
+    <div class="row"><div><b>👁️ Global Hide</b><br><span>All pages show black blank</span></div><div class="switch red" id="swGlobalHide" onclick="toggleGlobal('globalHide')"></div></div>
+
+    <label>✏️ Maintenance Message (for all pages)</label>
+    <textarea id="msgInput" rows="3"></textarea>
+    <button class="btn btnBlue" onclick="saveMsg()">Save Message</button>
+
+    <div class="pageTitle">📄 PER-PAGE CONTROL <span class="small">— Turn ON for only that page</span></div>
+    <div id="pageList"></div>
+
+    <div class="pageTitle">🔑 CHANGE PASSWORD</div>
+    <label>New Admin Password</label>
+    <input type="password" id="newPass" placeholder="New password">
+    <input type="password" id="confirmPass" placeholder="Confirm password" style="margin-top:8px">
+    <button class="btn btnGreen" onclick="changePassword()">Update Password</button>
+
+    <div id="ok">Saved! All devices updated.</div>
+    <button class="btn btnRed" onclick="location.reload()">Lock Settings</button>
+  </div>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,doc,getDoc,setDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(cfg,"settings_"+Math.random());
+const db=getFirestore(app);
+const ref=doc(db,'site_settings','global');
+const PAGES=['index.html','list.html','total.html','cmht.html','claim.html','searchpatient.html','gda.html','gdacompleted.html','cmhtkft.html','addcmht.html','add.html','addlist.html','discharge.html','discharge_upload.html','kft.html','kftmaker.html','bill.html','dischargesummary.html','enhancement.html','inpatient.html','testpage.html','login.html'];
+let data={globalMaintenance:false,globalHide:false,message:'We are updating the page.\nPlease come back in a while.',pages:{},password:'1234'};
+
+async function load(){
+  let s=await getDoc(ref);
+  if(s.exists()) data={...data,...s.data()};
+  render();
+}
+async function save(){ await setDoc(ref,data); showOk(); }
+function showOk(){ let o=document.getElementById('ok'); o.style.display='block'; setTimeout(()=>o.style.display='none',2000); }
+
+window.login=async()=>{
+  await load();
+  if(document.getElementById('loginPass').value===data.password){
+    document.getElementById('loginBox').style.display='none';
+    document.getElementById('mainBox').style.display='block';
+    render();
+  }else document.getElementById('err').style.display='block';
+};
+function render(){
+  document.getElementById('swGlobal').classList.toggle('on',!!data.globalMaintenance);
+  document.getElementById('swGlobalHide').classList.toggle('on',!!data.globalHide);
+  document.getElementById('globalTag').innerText=data.globalMaintenance?'MAINTENANCE ON':'OFF';
+  document.getElementById('globalTag').className='tag '+(data.globalMaintenance?'':'green');
+  document.getElementById('msgInput').value=data.message||'';
+  let html='';
+  PAGES.forEach(p=>{
+    let pg=data.pages[p]||{};
+    html+=`<div class="row"><div><b>${p}</b><br><span>Maintenance / Hide</span></div><div style="display:flex;gap:8px"><div class="switch ${pg.maintenance?'on':''}" title="Maintenance" onclick="togglePage('${p}','maintenance')"></div><div class="switch red ${pg.hide?'on':''}" title="Hide" onclick="togglePage('${p}','hide')"></div></div></div>`;
+  });
+  document.getElementById('pageList').innerHTML=html;
+}
+window.toggleGlobal=async(k)=>{ data[k]=!data[k]; await save(); render(); };
+window.togglePage=async(p,k)=>{ if(!data.pages[p]) data.pages[p]={}; data.pages[p][k]=!data.pages[p][k]; await save(); render(); };
+window.saveMsg=async()=>{ data.message=document.getElementById('msgInput').value.trim()||data.message; await save(); };
+window.changePassword=async()=>{
+  let n=document.getElementById('newPass').value, c=document.getElementById('confirmPass').value;
+  if(!n) return alert('Enter new password');
+  if(n!==c) return alert('Passwords do not match');
+  data.password=n; await save(); alert('Password changed to: '+n);
+  document.getElementById('newPass').value=''; document.getElementById('confirmPass').value='';
+};
+load();
+</script>
+</body>
+</html>
