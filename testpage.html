@@ -139,7 +139,6 @@ try{
 <div class="top">
 <div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> ADDLIST <div id="status" class="status saved">READY</div> <div class="badgeBlue" id="topInfo">10 ROWS</div></div>
 <div style="display:flex;align-items:center;gap:6px">
-<button class="btn btnGreen" onclick="saveAll()" style="height:32px">SAVE</button>
   <div id="adminMenuWrap" style="position:relative">
     <button id="adminBtn" style="height:32px;padding:0 10px;border-radius:6px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
     <div id="adminDropdown" style="display:none;position:absolute;top:38px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
@@ -155,9 +154,9 @@ try{
 <div class="filterBar">
 <div class="fGroup"><label>DATE *</label><input type="date" id="fDate" class="fInputSm date"></div>
 <div class="fGroup"><label>SCHEME *</label><select id="fType" class="fInputSm scheme"><option value="PMJAY">PMJAY</option><option value="CMHT">CMHT</option></select></div>
-<div class="fGroup"><label>EXISTING - CLICK TO VIEW/EDIT</label><span id="existingCount" class="existBadge" onclick="toggleExisting()">0 EXISTING</span></div>
-<div class="fGroup"><label>SAVE</label><button class="btn btnGreen" onclick="saveAll()" style="height:30px">SAVE</button></div>
-<div class="fGroup"><label>CLEAR EXISTING</label><button class="btn btnRed" id="clearExistingBtn" onclick="clearAll()" style="height:30px;background:#991b1b">CLEAR</button></div>
+<div class="fGroup"><label>EXISTING</label><span id="existingCount" class="existBadge" onclick="toggleExisting()">0 EXISTING</span></div>
+<div class="fGroup"><label style="opacity:0">.</label><button class="btn btnGreen" onclick="saveAll()" style="height:30px">SAVE</button></div>
+<div class="fGroup"><label>CLEAR EXISTING</label><button class="btn" id="clearExistingBtn" onclick="clearAll()" style="height:30px;background:#2563eb;color:#fff">CLEAR</button></div>
 </div>
 </div>
 
@@ -337,7 +336,6 @@ function autoFillId(inp){let tr=inp.closest('tr');let name=tr.querySelector('[da
 document.addEventListener('paste',(e)=>{let text=e.clipboardData.getData('text');if(!text)return;let targetCell=lastFocusedCell;if(!targetCell||!targetCell.closest('#tbody')){let firstRow=document.querySelector('#tbody tr');if(firstRow)targetCell=firstRow.querySelector('[data-col="name"]');}if(!targetCell)return;e.preventDefault();let rows=text.replace(/\r/g,'').trim().split('\n');if(rows.length===0)return;if(rows[0].toUpperCase().includes('PATIENT NAME'))rows.shift();let startCol=targetCell.dataset.col;const colOrder=['id','name','shri','time','block','prev'];let startColIndex=colOrder.indexOf(startCol);if(startColIndex===-1)startColIndex=1;let startTr=targetCell.closest('tr');let startRowIdx=Array.from(document.getElementById('tbody').children).indexOf(startTr);if(startRowIdx<0)startRowIdx=0;let needed=startRowIdx+rows.length-document.getElementById('tbody').children.length;if(needed>0)addRows(needed);let tbodyRows=document.getElementById('tbody').children;rows.forEach((r,rIdx)=>{let cols=r.includes('\t')?r.split('\t'):[r];if(cols.length===1&&r.includes(','))cols=r.split(',');let targetRow=tbodyRows[startRowIdx+rIdx];if(!targetRow)return;if(rows.length===1&&cols.length>1){cols.forEach((c,cIdx)=>{let colIdx=startColIndex+cIdx;if(colIdx>=colOrder.length)return;let colName=colOrder[colIdx];let inp=targetRow.querySelector(`[data-col="${colName}"]`);if(inp)inp.value=c.trim().toUpperCase();});}else if(cols.length>1){if(startCol==='name'){if(cols[0])targetRow.querySelector('[data-col="name"]').value=cols[0].trim().toUpperCase();if(cols[1])targetRow.querySelector('[data-col="shri"]').value=cols[1].trim().toUpperCase();if(cols[2])targetRow.querySelector('[data-col="time"]').value=cols[2].trim().toUpperCase();if(cols[3])targetRow.querySelector('[data-col="block"]').value=cols[3].trim().toUpperCase();if(cols[4])targetRow.querySelector('[data-col="prev"]').value=cols[4].trim();}}else{let val=r.trim();let inp=targetRow.querySelector(`[data-col="${startCol}"]`);if(inp)inp.value=val.toUpperCase();}});setTimeout(()=>{document.querySelectorAll('#tbody tr').forEach(tr=>{let name=tr.querySelector('[data-col="name"]')?.value||'';let shri=tr.querySelector('[data-col="shri"]')?.value||'';let scheme=document.getElementById('fType').value;let id=findId(name,shri,scheme);if(id){let idInput=tr.querySelector('[data-col="id"]');if(idInput)idInput.value=id;}});refreshCount();},50);});
 function setStatus(t,m){document.getElementById('status').className='status '+t;document.getElementById('status').innerText=m;}
 function clearAll(){
-  // CLEAR works ONLY when EXISTING is selected - clears all existing patients you entered
   let card=document.getElementById('existingCard');
   if(!card || card.style.display==='none'){
     alert('First click EXISTING button to view existing patients, then CLEAR will work.');
