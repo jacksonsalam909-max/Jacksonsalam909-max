@@ -70,8 +70,6 @@ td.nameCol{text-align:left;padding-left:8px;font-weight:800;font-size:11px;max-w
 .existBadge:hover{background:#f59e0b;color:#fff}
 .existBadge.active{background:#f59e0b;color:#fff}
 .backBtn, #pasteInfoBox, #btnSaveFirebaseBottom, #topSaveBtn{display:none !important}
-
-/* === HOVER HIGHLIGHT + POP-UP - ADDED === */
 .card{transition:all .25s ease}
 .card:hover{box-shadow:0 10px 24px rgba(15,23,42,0.10);transform:translateY(-1px);border-color:#cbd5e1}
 .sheetWrap tr, .sheetWrap2 tr{transition:all .18s ease}
@@ -141,7 +139,6 @@ try{
 <div class="top">
 <div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> ADDLIST <div id="status" class="status saved">READY</div> <div class="badgeBlue" id="topInfo">10 ROWS</div></div>
 <div style="display:flex;align-items:center;gap:6px">
-<button class="btn btnGreen" onclick="saveAll()" style="height:32px">SAVE</button>
   <div id="adminMenuWrap" style="position:relative">
     <button id="adminBtn" style="height:32px;padding:0 10px;border-radius:6px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px;cursor:pointer">Admin ▾</button>
     <div id="adminDropdown" style="display:none;position:absolute;top:38px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
@@ -157,8 +154,9 @@ try{
 <div class="filterBar">
 <div class="fGroup"><label>DATE *</label><input type="date" id="fDate" class="fInputSm date"></div>
 <div class="fGroup"><label>SCHEME *</label><select id="fType" class="fInputSm scheme"><option value="PMJAY">PMJAY</option><option value="CMHT">CMHT</option></select></div>
-<div class="fGroup"><label>EXISTING - CLICK TO VIEW/EDIT</label><span id="existingCount" class="existBadge" onclick="toggleExisting()">0 EXISTING</span></div>
-<div class="fGroup" style="margin-left:auto"><label style="opacity:0">.</label><div style="display:flex;gap:6px"><button class="btn btnDark" onclick="addRows(5)" style="height:30px;background:#0a1931">+ ROWS</button><button class="btn btnRed" onclick="removeRows(5)" style="height:30px">- ROWS</button><button class="btn btnRed" onclick="clearAll()" style="height:30px;background:#991b1b">CLEAR</button></div></div>
+<div class="fGroup"><label>EXISTING</label><span id="existingCount" class="existBadge" onclick="toggleExisting()">0 EXISTING</span></div>
+<div class="fGroup"><label style="opacity:0">.</label><button class="btn btnGreen" onclick="saveAll()" style="height:30px">SAVE</button></div>
+<div class="fGroup"><label>CLEAR EXISTING</label><button class="btn" id="clearExistingBtn" onclick="clearAll()" style="height:30px;background:#2563eb;color:#fff">CLEAR</button></div>
 </div>
 </div>
 
@@ -175,8 +173,7 @@ try{
 <div style="font-weight:900;font-size:11px;margin-bottom:6px">ADD NEW PATIENTS - PASTE SUPPORTED</div>
 <div class="sheetWrap"><table><thead><tr><th>SL.NO</th><th>PMJAY / CMHT ID</th><th>PATIENT NAME</th><th>SHRI ID</th><th>TIME</th><th>BLOCK</th><th>PREV</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div>
 <div style="padding:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-<span id="countInfo" style="font-weight:900;background:#0a1931;color:#fff;padding:8px 14px;border-radius:20px;font-size:11px">0 PATIENTS - 10 ROWS</span>
-<div style="display:flex;gap:6px"><button class="btn btnDark" onclick="addRows(5)" style="background:#0a1931">+ ROWS</button><button class="btn btnRed" onclick="removeRows(5)">- ROWS</button></div>
+<div style="display:flex;gap:6px"><button class="btn btnDark" onclick="addRows(5)" style="height:30px;background:#0a1931">+ ROWS</button><button class="btn btnRed" onclick="removeRows(5)" style="height:30px">- ROWS</button></div>
 </div>
 </div>
 </div>
@@ -333,12 +330,23 @@ async function saveExistingEdits(){
 function findId(name,shri,scheme){name=(name||'').toUpperCase().trim();shri=(shri||'').toUpperCase().trim();let byName=scheme==='PMJAY'?masterByNamePM:masterByNameCM;let byShri=scheme==='PMJAY'?masterByShriPM:masterByShriCM;if(shri&&byShri[shri])return byShri[shri];if(name&&byName[name])return byName[name];return'';}
 function addRows(n){let tbody=document.getElementById('tbody');for(let i=0;i<n;i++){let tr=document.createElement('tr');tr.innerHTML=`<td class="slCol"></td><td class="idCol"><input data-col="id" placeholder="ID"></td><td><input class="nameInput" data-col="name" placeholder="PATIENT NAME"></td><td><input data-col="shri" placeholder="SHRI"></td><td><input data-col="time" placeholder="7:00 AM"></td><td><input data-col="block" placeholder="MAIN"></td><td><input data-col="prev" placeholder="PREV"></td><td style="text-align:center"><button style="background:#ef4444;color:#fff;border:0;padding:6px 10px;border-radius:6px;font-weight:900;font-size:10px" onclick="this.closest('tr').remove();refreshCount()">X</button></td>`;tbody.appendChild(tr);}refreshCount();attachEvents();}
 function removeRows(n){let tbody=document.getElementById('tbody');let total=tbody.children.length;if(total<=10){alert('Minimum 10 rows');return;}let toRemove=Math.min(n,total-10);for(let i=0;i<toRemove;i++){let last=tbody.lastElementChild;if(last)last.remove();}refreshCount();}
-function refreshCount(){let c=1,added=0;let total=document.querySelectorAll('#tbody tr').length;document.querySelectorAll('#tbody tr').forEach(tr=>{let name=tr.querySelector('[data-col="name"]')?.value.trim();tr.querySelector('.slCol').innerText=name?c++:'';if(name)added++;});document.getElementById('countInfo').innerText=`${added} NEW - ${total} ROWS - ${existingPatients.length} EXISTING`;}
+function refreshCount(){let c=1,added=0;let total=document.querySelectorAll('#tbody tr').length;document.querySelectorAll('#tbody tr').forEach(tr=>{let name=tr.querySelector('[data-col="name"]')?.value.trim();tr.querySelector('.slCol').innerText=name?c++:'';if(name)added++;});}
 function attachEvents(){document.querySelectorAll('#tbody input').forEach(el=>{el.addEventListener('focus',()=>{lastFocusedCell=el;});el.addEventListener('click',()=>{lastFocusedCell=el;});el.addEventListener('input',()=>{if(el.dataset.col==='name'||el.dataset.col==='shri')autoFillId(el);refreshCount();});});}
 function autoFillId(inp){let tr=inp.closest('tr');let name=tr.querySelector('[data-col="name"]')?.value||'';let shri=tr.querySelector('[data-col="shri"]')?.value||'';let scheme=document.getElementById('fType').value;let id=findId(name,shri,scheme);if(id){let idInput=tr.querySelector('[data-col="id"]');if(idInput&&!idInput.value)idInput.value=id;}}
 document.addEventListener('paste',(e)=>{let text=e.clipboardData.getData('text');if(!text)return;let targetCell=lastFocusedCell;if(!targetCell||!targetCell.closest('#tbody')){let firstRow=document.querySelector('#tbody tr');if(firstRow)targetCell=firstRow.querySelector('[data-col="name"]');}if(!targetCell)return;e.preventDefault();let rows=text.replace(/\r/g,'').trim().split('\n');if(rows.length===0)return;if(rows[0].toUpperCase().includes('PATIENT NAME'))rows.shift();let startCol=targetCell.dataset.col;const colOrder=['id','name','shri','time','block','prev'];let startColIndex=colOrder.indexOf(startCol);if(startColIndex===-1)startColIndex=1;let startTr=targetCell.closest('tr');let startRowIdx=Array.from(document.getElementById('tbody').children).indexOf(startTr);if(startRowIdx<0)startRowIdx=0;let needed=startRowIdx+rows.length-document.getElementById('tbody').children.length;if(needed>0)addRows(needed);let tbodyRows=document.getElementById('tbody').children;rows.forEach((r,rIdx)=>{let cols=r.includes('\t')?r.split('\t'):[r];if(cols.length===1&&r.includes(','))cols=r.split(',');let targetRow=tbodyRows[startRowIdx+rIdx];if(!targetRow)return;if(rows.length===1&&cols.length>1){cols.forEach((c,cIdx)=>{let colIdx=startColIndex+cIdx;if(colIdx>=colOrder.length)return;let colName=colOrder[colIdx];let inp=targetRow.querySelector(`[data-col="${colName}"]`);if(inp)inp.value=c.trim().toUpperCase();});}else if(cols.length>1){if(startCol==='name'){if(cols[0])targetRow.querySelector('[data-col="name"]').value=cols[0].trim().toUpperCase();if(cols[1])targetRow.querySelector('[data-col="shri"]').value=cols[1].trim().toUpperCase();if(cols[2])targetRow.querySelector('[data-col="time"]').value=cols[2].trim().toUpperCase();if(cols[3])targetRow.querySelector('[data-col="block"]').value=cols[3].trim().toUpperCase();if(cols[4])targetRow.querySelector('[data-col="prev"]').value=cols[4].trim();}}else{let val=r.trim();let inp=targetRow.querySelector(`[data-col="${startCol}"]`);if(inp)inp.value=val.toUpperCase();}});setTimeout(()=>{document.querySelectorAll('#tbody tr').forEach(tr=>{let name=tr.querySelector('[data-col="name"]')?.value||'';let shri=tr.querySelector('[data-col="shri"]')?.value||'';let scheme=document.getElementById('fType').value;let id=findId(name,shri,scheme);if(id){let idInput=tr.querySelector('[data-col="id"]');if(idInput)idInput.value=id;}});refreshCount();},50);});
 function setStatus(t,m){document.getElementById('status').className='status '+t;document.getElementById('status').innerText=m;}
-function clearAll(){if(!confirm('Clear all new rows?'))return;document.getElementById('tbody').innerHTML='';addRows(10);}
+function clearAll(){
+  let card=document.getElementById('existingCard');
+  if(!card || card.style.display==='none'){
+    alert('First click EXISTING button to view existing patients, then CLEAR will work.');
+    return;
+  }
+  if(existingPatients.length===0){alert('No existing patients to clear');return;}
+  if(!confirm(`Clear ALL ${existingPatients.length} existing patients?`))return;
+  existingPatients=[];
+  renderExistingTable();
+  autoSaveExisting();
+}
 async function saveAll(){
   let added=[];
   document.querySelectorAll('#tbody tr').forEach(tr=>{
