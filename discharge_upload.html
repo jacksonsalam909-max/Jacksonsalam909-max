@@ -180,6 +180,10 @@ all=[];snap.forEach(d=>{let o=d.data();o._id=d.id;if(!o.claimId)all.push(o);});
 let snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,"patient_docs"));
 docsCache={};snap2.forEach(d=>{let data=d.data();data._id=d.id;let k=data.shri||data.shriId;if(!k)return;if(!docsCache[k])docsCache[k]=[];docsCache[k].push(data);});
 document.getElementById('fDate').value=getToday();
+if(focusShri){
+let fp=all.find(p=>p.shri===focusShri||p.shriId===focusShri);
+if(fp&&fp.date)document.getElementById('fDate').value=fp.date;
+}
 applyFilter();
 }
 function applyFilter(){
@@ -200,12 +204,6 @@ if(focusShri){
   if(idx>0){
     let item=filtered.splice(idx,1)[0];
     filtered.unshift(item);
-  }
-  if(idx===-1){
-    let inAll=all.find(p=> p.shri===focusShri || p.shriId===focusShri);
-    if(inAll && !filtered.find(p=>p._id===inAll._id)){
-      filtered.unshift(inAll);
-    }
   }
 }
 filtered.sort((a,b)=>{
