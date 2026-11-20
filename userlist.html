@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA - Daily Dialysis List</title>
+<title>SHIJA DIALYSIS MANAGMENT - VIEW ONLY</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
@@ -38,8 +38,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh;font-size:15.5px}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px;color:#0f172a}
 .menuBtnTop{width:48px;height:44px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-radius:8px}
 .menuBtnTop span{display:block;width:26px;height:3px;background:#0f172a;border-radius:2px}
-.live{font-size:11px;font-weight:800;background:#dcfce7;color:#14532d;padding:8px 12px;border-radius:20px;border:1px solid #bbf7d0}
-.content{flex:1;padding:14px;position:relative;background-color:#f8fafc;background-image:radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px;max-width:100%;z-index:1}
 .card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #e2e8f0;position:relative;z-index:20;max-width:100%;overflow:hidden}
 .dataCard{position:relative;z-index:1;min-height:540px;overflow:hidden;background:#fff;border:1.5px solid #e2e8f0;border-radius:18px;box-shadow:0 4px 16px #00000006}
 .sheetWrap{overflow:auto;background:rgba(255,255,255,0.92)!important;max-height:75vh;position:relative;z-index:2;max-width:100%;scrollbar-width:none}
@@ -48,9 +46,11 @@ body{background:#f1f5f9;display:flex;min-height:100vh;font-size:15.5px}
 table{width:100%;border-collapse:collapse;min-width:1100px}
 th{padding:16px 14px;font-size:14.5px;color:#fff!important;background:#0A1931!important;text-align:left;text-transform:uppercase;white-space:nowrap;position:sticky;top:0;z-index:2;font-weight:800}
 td{padding:15px 14px;font-size:15.5px;border-bottom:1px solid #f1f5f9;vertical-align:middle;white-space:nowrap;background:#fff;font-weight:600;text-transform:uppercase}
+td.nameCol{text-align:left;max-width:320px!important;min-width:220px;white-space:normal!important;word-break:break-word}
 .nameInner{display:block;white-space:normal!important;word-break:break-word!important;line-height:1.35;font-size:15.5px;font-weight:800;color:#0f172a;text-align:left}
 .sl{background:#f1f5f9;width:42px;height:32px;display:grid;place-items:center;border-radius:8px;font-weight:800;font-size:14px}
 .shriTable{background:#2563eb;color:#fff;padding:7px 14px;border-radius:8px;font-weight:800;font-size:13px;display:inline-block;min-width:85px;text-align:center}
+.pmjayTable{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;padding:7px 14px;border-radius:8px;font-weight:700;font-size:13px;display:inline-block;min-width:105px;text-align:center}
 .pPhoto{width:48px;height:48px;border-radius:50%;overflow:hidden;background:#f1f5f9;border:2px solid #e0e7ff;display:grid;place-items:center;flex-shrink:0}
 .pPhoto img{width:100%;height:100%;object-fit:cover;display:block}
 .pPhoto span{font-weight:900;font-size:14px;color:#fff}
@@ -60,6 +60,8 @@ td{padding:15px 14px;font-size:15.5px;border-bottom:1px solid #f1f5f9;vertical-a
 .gridWrap.show{display:grid!important}
 .gridWrap .pCard{background:rgba(255,255,255,0.92)!important;border:1px solid #e2e8f0;border-radius:14px;padding:18px;box-shadow:0 3px 8px rgba(0,0,0,0.06);display:flex;flex-direction:column;justify-content:space-between;transition:.32s;overflow:hidden;text-align:center}
 .gridWrap .pCard:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 18px 32px rgba(37,99,235,0.22)!important;border-color:#2563eb!important}
+.gridWrap .pCardTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.gridWrap .pCardSL{background:#0a1931;color:#fff;font-weight:900;font-size:13px;padding:6px 11px;border-radius:10px}
 .gridWrap .pPhotoBig{width:84px;height:84px;border-radius:50%;margin:0 auto 10px;overflow:hidden;background:#f1f5f9;border:3px solid #e0e7ff;display:grid;place-items:center}
 .gridWrap .pPhotoBig img{width:100%;height:100%;object-fit:cover}
 .gridWrap .pPhotoBig span{font-weight:900;font-size:24px;color:#fff}
@@ -83,28 +85,25 @@ td{padding:15px 14px;font-size:15.5px;border-bottom:1px solid #f1f5f9;vertical-a
 .fInputSm{height:36px;min-width:90px;max-width:110px;padding:0 12px;border:1px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:13.5px;background:#fff;outline:0}
 .fInputSm.scheme{background:#fef3c7;border:1.5px solid #f59e0b}
 .clearBtn{height:36px;min-width:68px;background:#0f172a;color:#fff;font-weight:800;font-size:11px;padding:0 12px;border-radius:8px;border:0;cursor:pointer}
-/* DATE - FIXED - VISIBLE INPUT */
-.datePill{display:flex;align-items:center;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;overflow:hidden;height:36px;min-width:220px;position:relative}
-.dateArrow{width:34px;min-width:34px;height:100%;border:0;background:#f8fafc;font-size:12px;font-weight:900;color:#0f172a;cursor:pointer;display:grid;place-items:center;z-index:2}
-.dateArrow:active{background:#e2e8f0}
-#fDate{flex:1;height:100%;border:0;outline:0;background:#fff;font-weight:800;font-size:13.5px;color:#0f172a;text-align:center;cursor:pointer;padding:0 4px;min-width:130px}
-#fDate::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.7}
-.dateLabel{font-size:11px;font-weight:800;color:#0f172a;text-align:center;margin-top:2px}
+.datePill{display:flex;align-items:center;background:#fff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;height:36px;min-width:190px}
+.dateArrow{width:32px;min-width:32px;height:100%;border:0;background:#fff;font-size:12px;font-weight:900;color:#64748b;cursor:pointer;display:grid;place-items:center;border-right:1px solid #e2e8f0}
+.dateArrow:last-child{border-right:0;border-left:1px solid #e2e8f0}
+.dateMiddle{flex:1;height:100%;display:grid;place-items:center;font-weight:800;font-size:13.5px;color:#0f172a;cursor:pointer;background:#fff;min-width:100px}
+#fDate{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
 .bottomBar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px;position:relative;z-index:12}
 #filterNoMid{flex:1;text-align:center;font-weight:800;font-size:13.5px;color:#0f172a;background:#fff;padding:7px 12px;border-radius:8px;border:1px solid #e2e8f0;margin:0 8px;min-width:90px}
 #bottomStats{text-align:center;padding:12px;font-size:13.5px;font-weight:700;color:#0f172a;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
+.content{flex:1;padding:14px;position:relative;background-color:#f8fafc;background-image:radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px;max-width:100%;z-index:1}
 .tableWatermark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:460px;max-width:70%;z-index:20!important;pointer-events:none!important;opacity:0.14!important}
 .tableWatermark img{width:100%;height:auto;display:block}
 #tbody tr:hover td{background:#eef4ff!important}
-.statsTop{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
-.statTop{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;text-align:center}
-.statTop b{font-size:22px;display:block}
-.statTop span{font-size:11px;font-weight:700;color:#64748b}
+.status{font-size:11px;font-weight:800;padding:5px 10px;border-radius:10px}
+.status.saved{background:#dcfce7;color:#14532d}
 @media(max-width:900px){.whiteBar{transform:translateX(-100%);width:290px!important}.whiteBar.mOpen{transform:translateX(0)}.mainWrap{margin-left:0!important;width:100%!important;max-width:100%}}
-@media(max-width:800px){.gridWrap{grid-template-columns:repeat(2,1fr)}.statsTop{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:500px){.gridWrap{grid-template-columns:1fr}.datePill{min-width:200px}}
+@media(max-width:800px){.gridWrap{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.gridWrap{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -113,117 +112,112 @@ td{padding:15px 14px;font-size:15.5px;border-bottom:1px solid #f1f5f9;vertical-a
 <a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
 <a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
 <a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
-<a href="view.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
+<a href="view.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
 <a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
 <a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT REPORT</span></a>
 </div></div><div class="sFoot">System Online • SHIJA</div></div>
-
-<div class="mainWrap"><div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA DIALYSIS</div><div class="live">● LIVE • READ ONLY</div></div>
+<div class="mainWrap"><div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA DIALYSIS <div class="status saved">VIEW ONLY</div></div></div>
 <div class="content">
-<div class="statsTop"><div class="statTop"><b id="statTotal">0</b><span>TOTAL PATIENTS</span></div><div class="statTop"><b id="statFiltered">0</b><span>SHOWING</span></div><div class="statTop"><b id="statScheme">PMJAY</b><span>SCHEME</span></div><div class="statTop"><b id="statDate2">—</b><span>DATE</span></div></div>
-
-<div class="card"><div class="filterBar"><div class="fGroup"><label>DATE</label><div class="datePill"><button type="button" class="dateArrow" id="datePrev">◀</button><input type="date" id="fDate"><button type="button" class="dateArrow" id="dateNext">▶</button></div><div class="dateLabel" id="dateDisplay">—</div></div><div class="fGroup"><label>SCHEME</label><select id="fType" class="fInputSm scheme"><option value="PMJAY" selected>PMJAY</option><option value="CMHT">CMHT</option></select></div><div class="fGroup"><label>SHOW</label><select id="rowsPerPage" class="fInputSm"><option value="12" selected>12 / page</option><option value="24">24 / page</option><option value="36">36 / page</option><option value="48">48 / page</option></select></div><div class="fGroup"><label>TIME</label><select id="filterTime" class="fInputSm"><option value="">ALL</option><option value="7:00 AM">7 AM</option><option value="12:00 PM">12 PM</option><option value="5:00 PM">5 PM</option><option value="9:00 PM">9 PM</option></select></div><div class="fGroup"><label>BLOCK</label><select id="filterBlock" class="fInputSm"><option value="">ALL</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div><div class="fGroup"><label style="opacity:0">.</label><button class="clearBtn" onclick="clearFiltersDirect()">CLEAR</button></div></div>
-<div class="searchRow"><input type="search" id="searchName" placeholder="SEARCH NAME / SHRI ID..." autocomplete="off" oninput="applyFilter()"><div class="viewToggle"><button class="viewBtn" id="btnListView" onclick="switchView('list')">☰</button><button class="viewBtn active" id="btnGridView" onclick="switchView('grid')">⊞</button></div></div></div>
-
-<div class="card dataCard"><div class="tableWatermark"><img src="loko.png" alt="SHIJA Logo"></div><div class="sheetWrap hide" id="sheetWrap"><table><thead><tr><th style="width:60px">SL</th><th style="width:280px">PATIENT NAME</th><th style="width:120px">SHRI ID</th><th style="width:80px">TIME</th><th style="width:80px">BLOCK</th><th style="width:80px">PREV</th></tr></thead><tbody id="tbody"></tbody></table></div><div class="gridWrap show" id="gridWrap"></div><div class="bottomBar"><div class="pagination" id="pagination"></div><div id="filterNoMid">Filtered: 0</div><div style="display:flex;gap:4px;margin-left:auto"><button class="pageBtn" onclick="changePage(-1)">◀</button><button class="pageBtn" onclick="changePage(1)">▶</button></div></div></div></div><div id="bottomStats">Total: 0 | Filtered: 0</div></div>
-
+<div class="card"><div class="filterBar"><div class="fGroup"><label>DATE</label><div class="datePill"><button type="button" class="dateArrow" id="datePrev">◀</button><div class="dateMiddle" id="dateDisplay">—</div><input type="date" id="fDate"><button type="button" class="dateArrow" id="dateNext">▶</button></div></div><div class="fGroup"><label>SCHEME</label><select id="fType" class="fInputSm scheme"><option value="PMJAY" selected>PMJAY</option><option value="CMHT">CMHT</option></select></div><div class="fGroup"><label>SHOW</label><select id="rowsPerPage" class="fInputSm"><option value="12" selected>12 / page</option><option value="24">24 / page</option><option value="36">36 / page</option><option value="48">48 / page</option></select></div><div class="fGroup"><label>TIME</label><select id="filterTime" class="fInputSm"><option value="">ALL</option><option value="7:00 AM">7 AM</option><option value="12:00 PM">12 PM</option><option value="5:00 PM">5 PM</option><option value="9:00 PM">9 PM</option></select></div><div class="fGroup"><label>BLOCK</label><select id="filterBlock" class="fInputSm"><option value="">ALL</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div><div class="fGroup"><label style="opacity:0">.</label><button class="clearBtn" onclick="clearFiltersDirect()">CLEAR</button></div></div>
+<div class="searchRow"><input type="search" id="searchName" placeholder="SEARCH NAME / SHRI / PMJAY ID..." autocomplete="off" oninput="applyFilter()"><div class="viewToggle"><button class="viewBtn" id="btnListView" onclick="switchView('list')">☰</button><button class="viewBtn active" id="btnGridView" onclick="switchView('grid')">⊞</button></div></div></div>
+<div class="card dataCard"><div class="tableWatermark"><img src="loko.png" alt="SHIJA Logo"></div><div class="sheetWrap hide" id="sheetWrap"><table><thead><tr><th style="width:60px">SL</th><th style="width:240px">PATIENT NAME</th><th style="width:120px">PMJAY/CMHT ID</th><th style="width:100px">SHRI ID</th><th style="width:80px">TIME</th><th style="width:80px">BLOCK</th><th style="width:80px">PREV</th></tr></thead><tbody id="tbody"></tbody></table></div><div class="gridWrap show" id="gridWrap"></div><div class="bottomBar"><div class="pagination" id="pagination"></div><div id="filterNoMid">Filtered: 0</div><div style="display:flex;gap:4px;margin-left:auto"><button class="pageBtn" onclick="changePage(-1)">◀</button><button class="pageBtn" onclick="changePage(1)">▶</button></div></div></div></div><div id="bottomStats">Total: 0 | Filtered: 0</div></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(cfg,"view_"+Math.random());const db=getFirestore(app);
-window._viewDb={db,doc,getDoc,getDocs,collection};
+window._fb={db,doc,getDoc,getDocs,collection};
 </script>
 <script>
-let allPatients=[],filtered=[],currentPage=1,pageSize=12,view='grid',masterMap={},photoMap={},photoMapDigits={},scheme='PMJAY';
-function getToday(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function fmt(iso){if(!iso)return'';let p=iso.split('-');return `${p[2]}-${p[1]}-${p[0]}`;}
-function shiftDate(d){let inp=document.getElementById('fDate');let dt=inp.value?new Date(inp.value+'T00:00:00'):new Date();dt.setDate(dt.getDate()+d);inp.value=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;onDateChange();}
+let allPatients=[],filteredPatients=[],currentPage=1,pageSize=12,currentView='grid',masterMap={},photoMap={},photoMapDigits={};
+function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function formatDisplay(iso){if(!iso)return'';let p=iso.split('-');if(p.length!==3)return iso;return `${p[2]}-${p[1]}-${p[0]}`;}
+function openDatePicker(){let i=document.getElementById('fDate');if(i.showPicker)i.showPicker();else i.click();}
+function updateDateDisplay(){document.getElementById('dateDisplay').innerText=formatDisplay(document.getElementById('fDate').value);}
+function shiftDate(d){let input=document.getElementById('fDate');let dt=input.value?new Date(input.value):new Date();dt.setDate(dt.getDate()+d);input.value=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;updateDateDisplay();onDateChange();}
+let urlParams=new URLSearchParams(window.location.search);
+document.getElementById('fDate').value=urlParams.get('date')&&urlParams.get('force')==='1'?urlParams.get('date'):getTodayIST();
+if(urlParams.get('scheme'))document.getElementById('fType').value=urlParams.get('scheme');
 function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{document.getElementById('whiteBar').classList.toggle('folded');}}
 function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
-function switchView(v){view=v;document.getElementById('btnListView').classList.toggle('active',v==='list');document.getElementById('btnGridView').classList.toggle('active',v==='grid');let sheet=document.getElementById('sheetWrap');let grid=document.getElementById('gridWrap');if(v==='grid'){sheet.classList.add('hide');grid.classList.add('show');}else{sheet.classList.remove('hide');grid.classList.remove('show');}renderPagination();}
+document.addEventListener('DOMContentLoaded',function(){
+ document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
+ document.getElementById('datePrev').addEventListener('click',()=>shiftDate(-1));
+ document.getElementById('dateNext').addEventListener('click',()=>shiftDate(1));
+ document.getElementById('dateDisplay').addEventListener('click',openDatePicker);
+ updateDateDisplay();
+ switchView('grid');
+});
+function switchView(view){currentView=view;document.getElementById('btnListView').classList.toggle('active',view==='list');document.getElementById('btnGridView').classList.toggle('active',view==='grid');let sheet=document.getElementById('sheetWrap');let grid=document.getElementById('gridWrap');if(view==='grid'){sheet.classList.add('hide');grid.classList.add('show');}else{sheet.classList.remove('hide');grid.classList.remove('show');}renderPagination();}
 function clearFiltersDirect(){document.getElementById('filterTime').value='';document.getElementById('filterBlock').value='';let s=document.getElementById('searchName');if(s)s.value='';applyFilter();}
 function initials(name){if(!name)return'?';let w=name.trim().split(/\s+/);if(w.length===1)return w[0].substring(0,2).toUpperCase();return (w[0][0]+w[1][0]).toUpperCase();}
 function digitsOnly(s){return String(s||'').replace(/[^0-9]/g,'');}
 function rebuildChunkPhoto(p){
   if(!p) return '';
-  let direct=p.photoUrl||p.photoURL||p.imageUrl||p.imageURL||'';
+  let direct=p.photoUrl||p.photoURL||'';
   if(direct && (String(direct).startsWith('data:')||String(direct).startsWith('http'))) return String(direct);
-  let arr=p.photoChunks||p.photo_parts||p.photoParts||p.chunks||p.parts||p.imageChunks||null;
+  let arr=p.photoChunks||p.photo_parts||p.photoParts||p.chunks||p.parts||null;
   if(Array.isArray(arr)&&arr.length>0){let j=arr.join('');if(j.startsWith('data:'))return j;return 'data:image/jpeg;base64,'+j;}
-  let chunkKeys=Object.keys(p).filter(k=>/^(photo|image|chunk|part)[_\-]?(\d+)$/i.test(k)||/^(photoChunks|chunks)[_\-]\d+$/i.test(k));
-  if(chunkKeys.length>0){chunkKeys.sort((a,b)=>parseInt(a.match(/(\d+)$/)[1])-parseInt(b.match(/(\d+)$/)[1]));let j=chunkKeys.map(k=>String(p[k]||'')).join('');if(j.startsWith('data:'))return j;return 'data:image/jpeg;base64,'+j.replace(/^data:image\/\w+;base64,[STRIPPED],'');}
-  let single=p.photo||p.image||p.img||'';
-  if(single&&String(single).length>100){let s=String(single);if(s.startsWith('data:'))return s;return 'data:image/jpeg;base64,'+s;}
+  let keys=Object.keys(p).filter(k=>/^(photo|image|chunk|part)[_\-]?(\d+)$/i.test(k));
+  if(keys.length>0){keys.sort((a,b)=>parseInt(a.match(/(\d+)$/)[1])-parseInt(b.match(/(\d+)$/)[1]));let j=keys.map(k=>String(p[k]||'')).join('');if(j.startsWith('data:'))return j;return 'data:image/jpeg;base64,'+j;}
+  let s=p.photo||p.image||''; if(s&&String(s).length>100){if(String(s).startsWith('data:'))return String(s);return 'data:image/jpeg;base64,'+String(s);}
   return '';
 }
-async function fetchSubCollectionChunks(docId){
-  let tries=['photoChunks','chunks','photo_chunks','photoParts'];
-  for(let sub of tries){try{let snap=await window._viewDb.getDocs(window._viewDb.collection(window._viewDb.db,'patients',docId,sub));if(snap.size>0){let arr=[];snap.forEach(d=>{let data=d.data();let idx=data.index??data.i??parseInt(d.id.replace(/[^0-9]/g,''))??0;let val=data.chunk||data.data||data.value||data.photo||'';arr[idx]=val;});let j=arr.join('');if(j)return j.startsWith('data:')?j:'data:image/jpeg;base64,'+j;}}catch(e){}}
-  return '';
+async function fetchSubChunks(docId){
+  for(let sub of ['photoChunks','chunks','photo_chunks']){
+    try{let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patients',docId,sub));if(snap.size>0){let arr=[];snap.forEach(d=>{let data=d.data();let idx=data.index??parseInt(d.id.replace(/[^0-9]/g,''))??0;arr[idx]=data.chunk||data.data||data.value||'';});let j=arr.join('');if(j)return j.startsWith('data:')?j:'data:image/jpeg;base64,'+j;}}catch(e){}
+  } return '';
 }
-async function buildMaster(){
+async function buildMasterMap(){
   masterMap={};photoMap={};photoMapDigits={};
-  let loadColl=async(coll,isCMHT)=>{
-    try{let s=await window._viewDb.getDocs(window._viewDb.collection(window._viewDb.db,coll));
-    for(let d of s.docs){let p=d.data();if(p.deleted)continue;let shriRaw=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!shriRaw)continue;if(!masterMap[shriRaw])masterMap[shriRaw]={};if(isCMHT)masterMap[shriRaw].cmhtName=String(p.patientName||p.name||'').trim().toUpperCase();else masterMap[shriRaw].name=String(p.patientName||p.name||'').trim().toUpperCase();let ph=rebuildChunkPhoto(p);if(!ph&&coll==='patients'){ph=await fetchSubCollectionChunks(d.id);}if(ph){photoMap[shriRaw]=ph;let dg=digitsOnly(shriRaw);if(dg)photoMapDigits[dg]=ph;}}
-    }catch(e){}
-  };
-  await loadColl('patients',false);await loadColl('cmht_patients',true);
+  try{let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patients'));for(let d of snap.docs){let p=d.data();if(p.deleted)continue;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!shri)continue;masterMap[shri]={pmjayId:String(p.pmjayId||p.pmjay||'').trim().toUpperCase(),pmjayName:String(p.patientName||p.name||'').trim().toUpperCase(),cmhtId:'',cmhtName:''};let ph=rebuildChunkPhoto(p);if(!ph)ph=await fetchSubChunks(d.id);if(ph){photoMap[shri]=ph;let dg=digitsOnly(shri);if(dg)photoMapDigits[dg]=ph;}}}catch(e){}
+  try{let snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,'cmht_patients'));snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={pmjayId:'',pmjayName:'',cmhtId:'',cmhtName:''};masterMap[shri].cmhtId=String(p.cmhtId||p.cmht||p.pmjayId||'').trim().toUpperCase();masterMap[shri].cmhtName=String(p.patientName||p.name||'').trim().toUpperCase();let ph=rebuildChunkPhoto(p);if(ph){photoMap[shri]=ph;let dg=digitsOnly(shri);if(dg)photoMapDigits[dg]=ph;}});}catch(e){}
 }
-async function enrichAsync(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];if(m){if(scheme==='CMHT'&&m.cmhtName)p.name=m.cmhtName;else if(m.name)p.name=m.name;}let ph=rebuildChunkPhoto(p)||photoMap[k]||photoMapDigits[digitsOnly(k)]||'';if(ph)p._photo=ph;return p;}
-async function onDateChange(){
-  let date=document.getElementById('fDate').value;
-  if(!date){date=getToday();document.getElementById('fDate').value=date;}
-  document.getElementById('dateDisplay').innerText=fmt(date);
-  document.getElementById('statDate2').innerText=fmt(date);
-  document.getElementById('statScheme').innerText=scheme;
-  let docId=date+'_'+scheme;
-  try{let snap=await window._viewDb.getDoc(window._viewDb.doc(window._viewDb.db,'daily_dialysis_lists',docId));let list=snap.exists()?(snap.data().patients||[]):[];let out=[];for(let i=0;i<list.length;i++){out.push(await enrichAsync({...list[i],sl:i+1}));}if(scheme==='PMJAY')out=out.filter(p=>(p.patientStatus||'ENHANCEMENT')!=='DISCHARGE');allPatients=out;applyFilter();}catch(e){allPatients=[];applyFilter();}
+function enrichPatient(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];if(m){let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;if(m.pmjayId)p.pmjayCmhtId=m.pmjayId;}else{if(m.cmhtName)p.name=m.cmhtName;if(m.cmhtId)p.pmjayCmhtId=m.cmhtId;}}if(!p.patientStatus)p.patientStatus='ENHANCEMENT';let ph=rebuildChunkPhoto(p)||photoMap[k]||photoMapDigits[digitsOnly(k)]||'';if(ph)p._photo=ph;return p;}
+async function onDateChange(){updateDateDisplay();let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;let docId=date+'_'+scheme;try{let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));let patients=snap.exists()?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let e=enrichPatient({...p,sl:i+1});e.sl=i+1;return e;});if(scheme==='PMJAY')patients=patients.filter(p=>(p.patientStatus||'ENHANCEMENT')!=='DISCHARGE');allPatients=patients;filteredPatients=[...allPatients];currentPage=1;applyFilter();}catch(e){}}
+function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;return `${parseInt(m[1])}:${(m[2]||'00').padStart(2,'0')} ${m[3]||''}`.trim();}
+function applyFilter(){
+  let search=(document.getElementById('searchName').value||'').toLowerCase().trim();
+  let timeFilter=document.getElementById('filterTime').value;
+  let blockFilter=document.getElementById('filterBlock').value;
+  filteredPatients=allPatients.filter(p=>{
+    if(search){let n=String(p.name||'').toLowerCase();let sh=String(p.shri||'').toLowerCase();let pid=String(p.pmjayCmhtId||'').toLowerCase();if(!n.includes(search)&&!sh.includes(search)&&!pid.includes(search))return false;}
+    if(timeFilter&&normalizeTime(p.time)!==normalizeTime(timeFilter))return false;
+    if(blockFilter&&p.block!==blockFilter)return false;
+    return true;
+  });
+  currentPage=1;renderPagination();updateBottomStats();
 }
-function norm(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;return `${parseInt(m[1])}:${(m[2]||'00').padStart(2,'0')} ${m[3]||''}`.trim();}
-function applyFilter(){let q=(document.getElementById('searchName').value||'').toLowerCase().trim();let tf=document.getElementById('filterTime').value;let bf=document.getElementById('filterBlock').value;filtered=allPatients.filter(p=>{if(q){let n=String(p.name||'').toLowerCase();let sh=String(p.shri||'').toLowerCase();if(!n.includes(q)&&!sh.includes(q))return false;}if(tf&&norm(p.time)!==norm(tf))return false;if(bf&&p.block!==bf)return false;return true;});currentPage=1;renderPagination();updateBottom();}
-function updateBottom(){document.getElementById('statTotal').innerText=allPatients.length;document.getElementById('statFiltered').innerText=filtered.length;document.getElementById('filterNoMid').innerText=`Filtered: ${filtered.length}`;document.getElementById('bottomStats').innerText=`Total: ${allPatients.length} | Filtered: ${filtered.length} | Scheme: ${scheme}`;}
-function photoHTML(p,cls){let ph=p._photo||'';if(ph){return `<div class="${cls}"><img src="${ph}" alt="" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('noPhoto');this.remove();this.parentNode.innerHTML='<span>${initials(p.name)}</span>'"></div>`;}return `<div class="${cls} noPhoto"><span>${initials(p.name)}</span></div>`;}
+function updateBottomStats(){document.getElementById('bottomStats').innerText=`Total: ${allPatients.length} | Filtered: ${filteredPatients.length} | Time: ${document.getElementById('filterTime').value||'ALL'} | Block: ${document.getElementById('filterBlock').value||'ALL'} | Scheme: ${document.getElementById('fType').value}`;document.getElementById('filterNoMid').innerText=`Filtered: ${filteredPatients.length}`;}
 function renderPagination(){
   pageSize=parseInt(document.getElementById('rowsPerPage').value)||12;
-  let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;
+  let totalPages=Math.max(1,Math.ceil(filteredPatients.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;
   let pag=document.getElementById('pagination');pag.innerHTML='';
   function addBtn(i){let b=document.createElement('button');b.className='pageBtn'+(i===currentPage?' active':'');b.innerText=i;b.onclick=()=>{currentPage=i;renderTable();renderGrid();renderPagination();};pag.appendChild(b);}
   if(totalPages<=5){for(let i=1;i<=totalPages;i++)addBtn(i);}else{addBtn(1);addBtn(2);addBtn(3);if(currentPage>4){let s=document.createElement('span');s.innerText='...';pag.appendChild(s);}if(currentPage>3&&currentPage<totalPages)addBtn(currentPage);if(currentPage<totalPages-1){let s=document.createElement('span');s.innerText='...';pag.appendChild(s);}addBtn(totalPages);}
-  renderTable();renderGrid();updateBottom();
+  renderTable();renderGrid();
 }
+function photoHTML(p,cls){let ph=p._photo||'';if(ph)return `<div class="${cls}"><img src="${ph}" onerror="this.parentNode.classList.add('noPhoto');this.remove();this.parentNode.innerHTML='<span>${initials(p.name)}</span>'"></div>`;return `<div class="${cls} noPhoto"><span>${initials(p.name)}</span></div>`;}
 function renderTable(){
   let tbody=document.getElementById('tbody');tbody.innerHTML='';
-  let start=(currentPage-1)*pageSize;let page=filtered.slice(start,start+pageSize);
-  page.forEach((p,idx)=>{let tr=document.createElement('tr');tr.innerHTML=`<td><div class="sl">${p.sl||start+idx+1}</div></td><td><div class="photoName">${photoHTML(p,'pPhoto')}<div class="nameInner">${p.name||''}</div></div></td><td><span class="shriTable">${p.shri||'No ID'}</span></td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td>`;tbody.appendChild(tr);});
-  if(page.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="6" style="padding:16px;text-align:center;font-size:12px">NO PATIENTS</td>`;tbody.appendChild(tr);}
+  let start=(currentPage-1)*pageSize;let page=filteredPatients.slice(start,start+pageSize);
+  page.forEach((p,idx)=>{let tr=document.createElement('tr');tr.innerHTML=`<td><div class="sl">${p.sl||start+idx+1}</div></td><td class="nameCol"><div class="photoName">${photoHTML(p,'pPhoto')}<div class="nameInner">${p.name||''}</div></div></td><td><span class="pmjayTable">${p.pmjayCmhtId||'-'}</span></td><td><span class="shriTable">${p.shri||'No ID'}</span></td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td>`;tbody.appendChild(tr);});
+  if(page.length===0){let tr=document.createElement('tr');tr.innerHTML=`<td colspan="7" style="padding:16px;text-align:center;font-size:12px">NO PATIENTS</td>`;tbody.appendChild(tr);}
 }
 function renderGrid(){
   let grid=document.getElementById('gridWrap');grid.innerHTML='';
-  let start=(currentPage-1)*pageSize;let page=filtered.slice(start,start+pageSize);
-  page.forEach((p,idx)=>{let div=document.createElement('div');div.className='pCard';div.innerHTML=`${photoHTML(p,'pPhotoBig')}<div class="pCardName">${p.name||'NO NAME'}</div><div class="pCardSub">SHRI: ${p.shri||'—'}</div><div class="pCardInfo"><span>${p.time||''}</span><span>${p.block||''}</span><span>PREV: ${p.prev||'-'}</span></div>`;grid.appendChild(div);});
+  let start=(currentPage-1)*pageSize;let page=filteredPatients.slice(start,start+pageSize);
+  page.forEach((p,idx)=>{let div=document.createElement('div');div.className='pCard';div.innerHTML=`<div class="pCardTop"><span class="pCardSL">#${p.sl||start+idx+1}</span></div>${photoHTML(p,'pPhotoBig')}<div class="pCardName">${p.name||'NO NAME'}</div><div class="pCardSub">${(p.pmjayCmhtId||'NO ID')}| SHRI: ${p.shri||''}</div><div class="pCardInfo"><span>${p.time||''}</span><span>${p.block||''}</span><span>PREV: ${p.prev||'-'}</span></div>`;grid.appendChild(div);});
   if(page.length===0){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:24px;background:#fff;border-radius:12px;border:1px solid #e2e8f0;font-size:12px;font-weight:700">No patients</div>';}
 }
-function changePage(d){let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));currentPage+=d;if(currentPage<1)currentPage=1;if(currentPage>totalPages)currentPage=totalPages;renderPagination();}
-document.addEventListener('DOMContentLoaded',function(){
-  document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
-  document.getElementById('datePrev').addEventListener('click',()=>shiftDate(-1));
-  document.getElementById('dateNext').addEventListener('click',()=>shiftDate(1));
-  document.getElementById('fDate').addEventListener('change',onDateChange);
-  document.getElementById('fType').addEventListener('change',()=>{scheme=document.getElementById('fType').value;onDateChange();});
-  document.getElementById('rowsPerPage').addEventListener('change',renderPagination);
-  document.getElementById('filterTime').addEventListener('change',applyFilter);
-  document.getElementById('filterBlock').addEventListener('change',applyFilter);
-  document.getElementById('searchName').addEventListener('input',applyFilter);
-  // DATE INIT - MUST RUN HERE
-  let url=new URLSearchParams(location.search);
-  if(url.get('scheme')){scheme=url.get('scheme');document.getElementById('fType').value=scheme;}
-  if(url.get('date'))document.getElementById('fDate').value=url.get('date');else document.getElementById('fDate').value=getToday();
-  document.getElementById('dateDisplay').innerText=fmt(document.getElementById('fDate').value);
-  document.getElementById('statDate2').innerText=fmt(document.getElementById('fDate').value);
-});
-window.addEventListener('load',async()=>{await buildMaster();onDateChange();});
+function changePage(d){let totalPages=Math.max(1,Math.ceil(filteredPatients.length/pageSize));currentPage+=d;if(currentPage<1)currentPage=1;if(currentPage>totalPages)currentPage=totalPages;renderPagination();}
+document.getElementById('fType').addEventListener('change',onDateChange);
+document.getElementById('rowsPerPage').addEventListener('change',renderPagination);
+document.getElementById('searchName').addEventListener('input',applyFilter);
+document.getElementById('filterTime').addEventListener('change',applyFilter);
+document.getElementById('filterBlock').addEventListener('change',applyFilter);
+document.getElementById('fDate').addEventListener('change',onDateChange);
+window.addEventListener('load',async()=>{updateDateDisplay();await buildMasterMap();setTimeout(onDateChange,200);});
 </script>
 <script type="module" src="maintenance.js"></script>
 </body>
