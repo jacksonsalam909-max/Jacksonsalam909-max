@@ -152,7 +152,7 @@ td .btnDelete{background:#ef4444;color:#fff;font-weight:800;border:0;cursor:poin
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, getDocs, collection, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(firebaseConfig,"listMain_"+Math.random());const db=getFirestore(app);window._fb={db,doc,setDoc,getDoc,getDocs,collection,serverTimestamp};
+const app=initializeApp(firebaseConfig,"listMain_"+Math.random());const db=getFirestore(app);window._fb={db,doc,setDoc,getDoc,getDocs,collection,serverTimestamp};window._fbReady=true;if(window._onFbReady)window._onFbReady();
 </script>
 <script>
 let allPatients=[],filteredPatients=[],currentPage=1,pageSize=12,editIndex=-1,currentView='grid',masterMap={};
@@ -257,7 +257,9 @@ document.getElementById('rowsPerPage').addEventListener('change', renderPaginati
 document.getElementById('searchName').addEventListener('input', applyFilter);
 document.getElementById('filterTime').addEventListener('change', applyFilter);
 document.getElementById('filterBlock').addEventListener('change', applyFilter);
-window.addEventListener('load', async ()=>{updateDateDisplay();await buildMasterMap();updateStatusVisibility();setTimeout(onDateChange,200);});
+// FAST FIRST LOAD ONLY - was window load (waits for images) + masterMap (1000 docs) - now: start as soon as Firebase ready, no master on open
+function startFirstLoad(){updateDateDisplay();updateStatusVisibility();onDateChange();}
+if(window._fbReady){startFirstLoad();}else{window._onFbReady=startFirstLoad;}
 </script>
 <script type="module" src="maintenance.js"></script>
 </body>
