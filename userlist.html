@@ -91,10 +91,9 @@ td{padding:14px;border-bottom:1px solid #f1f5f9;font-size:14px;font-weight:700;t
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(cfg,"view_"+Math.random());const db=getFirestore(app);const storage=getStorage(app);
-window._viewDb={db,doc,getDoc,getDocs,collection,storage,ref,getDownloadURL};
+const app=initializeApp(cfg,"view_"+Math.random());const db=getFirestore(app);
+window._viewDb={db,doc,getDoc,getDocs,collection};
 </script>
 <script>
 let allPatients=[],filtered=[],currentPage=1,pageSize=12,view='list',masterMap={},photoMap={},photoMapDigits={},scheme='PMJAY';
@@ -106,26 +105,77 @@ function setScheme(s){scheme=s;document.getElementById('tabPMJAY').classList.tog
 function switchView(v){view=v;document.getElementById('btnGrid').classList.toggle('active',v==='grid');document.getElementById('btnList').classList.toggle('active',v==='list');document.getElementById('gridWrap').style.display=v==='grid'?'grid':'none';document.getElementById('tableWrap').style.display=v==='list'?'block':'none';render();}
 function initials(name){if(!name)return'?';let w=name.trim().split(/\s+/);if(w.length===1)return w[0].substring(0,2).toUpperCase();return (w[0][0]+w[1][0]).toUpperCase();}
 function digitsOnly(s){return String(s||'').replace(/[^0-9]/g,'');}
-function getRawPhoto(p){
+
+// ===== CHUNK PHOTO - LIKE total.html =====
+// Handles ALL chunk styles:
+// 1) photoChunks = ["...", "..."]  (array)
+// 2) photo_0, photo_1, photo_2 ...  (separate fields)
+// 3) chunk_0, chunk_1 ...
+// 4) photoChunks_0, photoChunks_1 ...
+// 5) photoParts, parts, chunks
+// 6) single photo / photoUrl (normal)
+function rebuildChunkPhoto(p){
   if(!p) return '';
-  let keys=['photo','photoUrl','photoURL','photoPath','image','imageUrl','imageURL','img','profilePic','profilePhoto','profileImage','avatar','picture','photoBase64','imageBase64'];
-  for(let k of keys){ if(p[k] && String(p[k]).length>3) return String(p[k]); }
-  if(p.photo && typeof p.photo==='object' && p.photo.url) return p.photo.url;
+  // 1) Direct photo - if already full
+  let direct = p.photoUrl || p.photoURL || p.imageUrl || p.imageURL || '';
+  if(direct && (String(direct).startsWith('data:') || String(direct).startsWith('http'))) return String(direct);
+
+  // 2) Array chunks
+  let arr = p.photoChunks || p.photo_parts || p.photoParts || p.chunks || p.parts || p.imageChunks || null;
+  if(Array.isArray(arr) && arr.length>0){
+    let joined = arr.join('');
+    if(joined.startsWith('data:')) return joined;
+    if(joined.startsWith('/9j/') || joined.startsWith('iVBOR')) return 'data:image/jpeg;base64,'+joined;
+    return joined;
+  }
+
+  // 3) Separate fields photo_0, photo_1 ... OR chunk_0 ...
+  let chunkKeys = Object.keys(p).filter(k => /^(photo|image|chunk|part)[_\-]?(\d+)$/i.test(k) || /^(photoChunks|chunks)[_\-]\d+$/i.test(k));
+  if(chunkKeys.length>0){
+    chunkKeys.sort((a,b)=>{
+      let na = parseInt(a.match(/(\d+)$/)[1]); let nb = parseInt(b.match(/(\d+)$/)[1]);
+      return na-nb;
+    });
+    let joined = chunkKeys.map(k=>String(p[k]||'')).join('');
+    if(!joined) return '';
+    if(joined.startsWith('data:')) return joined;
+    // first chunk may have data: prefix, others not - already joined
+    if(joined.startsWith('/9j/') || joined.startsWith('iVBOR') || joined.length>100) return 'data:image/jpeg;base64,'+joined.replace(/^data:image\/\w+;base64,/,'');
+    return joined;
+  }
+
+  // 4) Single photo field that is base64 without prefix
+  let single = p.photo || p.image || p.img || '';
+  if(single && String(single).length>100){
+    let s=String(single);
+    if(s.startsWith('data:')) return s;
+    return 'data:image/jpeg;base64,'+s;
+  }
   return '';
 }
-// LIKE total.html - if photo is Storage path, convert to download URL
-async function resolvePhoto(raw){
-  if(!raw) return '';
-  raw=raw.trim();
-  if(raw.startsWith('data:') || raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('blob:')) return raw;
-  // Storage path like photos/xxx.jpg or gs://...
-  try{
-    let path=raw;
-    if(path.startsWith('gs://')) path=path.replace(/^gs:\/\/[^\/]+\//,'');
-    let url=await window._viewDb.getDownloadURL(window._viewDb.ref(window._viewDb.storage, path));
-    return url;
-  }catch(e){ console.log('Storage photo fail',raw,e.message); return ''; }
+
+// Also try sub-collection chunks: patients/{id}/photoChunks / chunks
+async function fetchSubCollectionChunks(docId){
+  let tries = ['photoChunks','chunks','photo_chunks','photoParts'];
+  for(let sub of tries){
+    try{
+      let snap = await window._viewDb.getDocs(window._viewDb.collection(window._viewDb.db,'patients',docId,sub));
+      if(snap.size>0){
+        let arr=[];
+        snap.forEach(d=>{
+          let data=d.data();
+          let idx = data.index ?? data.i ?? parseInt(d.id.replace(/[^0-9]/g,'')) ?? 0;
+          let val = data.chunk || data.data || data.value || data.photo || '';
+          arr[idx]=val;
+        });
+        let joined=arr.join('');
+        if(joined) return joined.startsWith('data:') ? joined : 'data:image/jpeg;base64,'+joined;
+      }
+    }catch(e){}
+  }
+  return '';
 }
+
 async function buildMaster(){
   masterMap={};photoMap={};photoMapDigits={};
   let loadColl=async(coll, isCMHT)=>{
@@ -138,27 +188,30 @@ async function buildMaster(){
         if(!masterMap[shriRaw]) masterMap[shriRaw]={};
         if(isCMHT) masterMap[shriRaw].cmhtName=String(p.patientName||p.name||'').trim().toUpperCase();
         else masterMap[shriRaw].name=String(p.patientName||p.name||'').trim().toUpperCase();
-        let raw=getRawPhoto(p);
-        if(raw){
-          let url=await resolvePhoto(raw);
-          if(url){ photoMap[shriRaw]=url; let dg=digitsOnly(shriRaw); if(dg) photoMapDigits[dg]=url; }
-          else { photoMap[shriRaw]=raw; }
+
+        let ph = rebuildChunkPhoto(p);
+        // If still no photo, try sub-collection chunks (only for patients)
+        if(!ph && coll==='patients'){
+          ph = await fetchSubCollectionChunks(d.id);
         }
+        if(ph){ photoMap[shriRaw]=ph; let dg=digitsOnly(shriRaw); if(dg) photoMapDigits[dg]=ph; }
       }
     }catch(e){ console.log('ERR',coll,e); }
   };
   await loadColl('patients',false);
   await loadColl('cmht_patients',true);
 }
+
 async function enrichAsync(p){
   let k=String(p.shri||'').trim().toUpperCase();
   let m=masterMap[k];
   if(m){ if(scheme==='CMHT'&&m.cmhtName) p.name=m.cmhtName; else if(m.name) p.name=m.name; }
-  let raw=getRawPhoto(p);
-  if(raw){ let url=await resolvePhoto(raw); if(url) p._photo=url; }
-  if(!p._photo) p._photo=photoMap[k] || photoMapDigits[digitsOnly(k)] || '';
+  // daily list itself may have chunks too
+  let ph = rebuildChunkPhoto(p) || photoMap[k] || photoMapDigits[digitsOnly(k)] || '';
+  if(ph) p._photo=ph;
   return p;
 }
+
 async function onDateChange(){
   let date=document.getElementById('fDate').value;
   document.getElementById('dateDisplay').innerText=fmt(date);
@@ -177,7 +230,7 @@ function norm(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.mat
 function applyFilter(){let q=(document.getElementById('searchName').value||'').toLowerCase().trim();let tf=document.getElementById('filterTime').value;let bf=document.getElementById('filterBlock').value;filtered=allPatients.filter(p=>{if(q){let n=String(p.name||'').toLowerCase();let sh=String(p.shri||'').toLowerCase();if(!n.includes(q)&&!sh.includes(q))return false;}if(tf&&norm(p.time)!==norm(tf))return false;if(bf&&p.block!==bf)return false;return true;});currentPage=1;render();}
 function photoHTML(p,cls){
   let ph=p._photo||'';
-  if(ph && (ph.startsWith('http')||ph.startsWith('data:')||ph.startsWith('blob:'))){ return `<div class="${cls}"><img src="${ph}" alt="" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('noPhoto');this.remove();this.parentNode.innerHTML='<span>${initials(p.name)}</span>'"></div>`; }
+  if(ph){ return `<div class="${cls}"><img src="${ph}" alt="" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('noPhoto');this.remove();this.parentNode.innerHTML='<span>${initials(p.name)}</span>'"></div>`; }
   return `<div class="${cls} noPhoto"><span>${initials(p.name)}</span></div>`;
 }
 function render(){
