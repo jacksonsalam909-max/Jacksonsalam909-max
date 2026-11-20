@@ -49,6 +49,12 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 .head p{color:#64748b;font-size:12px;font-weight:600;margin-top:4px}
 .dateBar{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid #e2e8f0;padding:8px 12px;border-radius:12px;flex-wrap:wrap}
 .dateBar input{background:#f8fafc;border:1px solid #e2e8f0;padding:6px 10px;border-radius:8px;font-size:12px;outline:0}
+.settingsCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.settingsCard b{font-size:14px;font-weight:900;color:#0f172a}
+.settingsCard p{font-size:12px;color:#64748b;font-weight:600;margin-top:2px}
+.settingsCard .setBtn{padding:10px 16px;border-radius:10px;border:0;font-weight:800;font-size:12px;cursor:pointer;background:#f59e0b;color:#fff}
+.settingsCard .setBtn.on{background:#dc2626}
+.settingsCard .setBtn.off{background:#059669}
 
 /* === RECTANGLE CARD FIX - NOT TOO WIDE === */
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start}
@@ -131,6 +137,13 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 </div>
 <div class="main"><div class="content">
 <div class="head"><div><h1>Dashboard Overview</h1><p>Welcome back • Premium Minimal</p></div><div class="dateBar"><input type="date" id="dashDate"><button class="btn btnP" onclick="document.getElementById('expModal').style.display='grid'">Export Report</button></div></div>
+<div class="settingsCard" id="settingsCard">
+<div><b>⚙️ Settings — Maintenance Mode</b><p id="maintenanceStatus">Status: Loading...</p></div>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+<input id="maintenanceMsg" placeholder="Maintenance message (optional)" style="padding:10px 12px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:12px;min-width:220px">
+<button class="setBtn" id="maintenanceToggleBtn" onclick="toggleMaintenance()">Turn ON Maintenance</button>
+</div>
+</div>
 <div class="grid">
 <a href="total.html" class="card c1"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><b>PMJAY Total Patient</b><h2 id="v1">0</h2><small>All time PMJAY</small></div></a>
 <a href="cmht.html" class="card c7"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><circle cx="19" cy="8" r="3"/><path d="M20 21v-1.5a3 3 0 0 0-3-3"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><b>CMHT Total Patient</b><h2 id="vCMHT">0</h2><small>CMHT Scheme</small></div></a>
@@ -172,6 +185,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getFirestore, collection, getDocs, doc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app=initializeApp(config);const db=getFirestore(app);
+let maintenanceOn=false;
+function renderMaintenanceUI(){let st=document.getElementById('maintenanceStatus');let btn=document.getElementById('maintenanceToggleBtn');if(!st||!btn) return;st.textContent=maintenanceOn?'Status: ON — All pages will show Maintenance':'Status: OFF — System Online';btn.textContent=maintenanceOn?'Turn OFF Maintenance':'Turn ON Maintenance';btn.className='setBtn '+(maintenanceOn?'on':'off');}
+try{onSnapshot(doc(db,"system","maintenance"),(s)=>{if(!s.exists()){maintenanceOn=false;renderMaintenanceUI();return;}let d=s.data();maintenanceOn=!!(d.enabled||d.on||d.maintenance);if(d.message) document.getElementById('maintenanceMsg').value=d.message;renderMaintenanceUI();});}catch(e){}
+window.toggleMaintenance=async()=>{let msg=document.getElementById('maintenanceMsg').value.trim();let next=!maintenanceOn;if(!confirm(next?'Turn ON Maintenance for all devices?':'Turn OFF Maintenance?')) return;try{await setDoc(doc(db,"system","maintenance"),{enabled:next,on:next,maintenance:next,message:msg||'System under maintenance. Please try again later.',updatedAt:serverTimestamp(),updatedBy:'admin'},{merge:true});maintenanceOn=next;renderMaintenanceUI();}catch(e){alert(e.message);}};
 let todayStr=new Date().toISOString().slice(0,10);let dd=document.getElementById('dashDate');if(dd){dd.value=todayStr;dd.addEventListener('change',loadDashboard);}
 async function loadDashboard(){try{let snap=await getDocs(collection(db,"patients"));document.getElementById('v1').textContent=snap.size;window.allForSearch=[];snap.forEach(d=>{let p=d.data();window.allForSearch.push({name:p.patientName||p.name||'',shri:p.shriId||p.shri||d.id,pmjay:p.pmjayId||p.pmjay||'',contact:p.contactNo||'',aadhaar:p.aadhaar||'',addr:p.address||'',scheme:'PMJAY'});});let csnap=await getDocs(collection(db,"cmht_patients"));document.getElementById('vCMHT').textContent=csnap.size;csnap.forEach(d=>{let p=d.data();window.allForSearch.push({name:p.patientName||p.name||'',shri:p.shriId||p.shri||d.id,pmjay:p.cmhtId||p.cmht||'',contact:p.contactNo||'',aadhaar:p.aadhaar||'',addr:p.address||'',scheme:'CMHT'});});window.allForSearch.sort((a,b)=>a.name.localeCompare(b.name));}catch(e){}}
 loadDashboard();
@@ -183,5 +200,6 @@ document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
 document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{if(e.key==='Enter') document.getElementById('confirmLogoutAll').click();});
 try{onSnapshot(doc(db,"system","global_logout"),(snap)=>{if(!snap.exists()) return;let lt=snap.data().logoutTime||0;let my=parseInt(localStorage.getItem('shija_login_time')||'0');if(lt>my&&my!==0){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');alert('🔒 Logged out by admin');location.href='login.html?reason=global';}});}catch(e){}
 </script>
+<script type="module" src="maintenance.js"></script>
 </body>
 </html>
