@@ -1,354 +1,575 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>UPLOAD FILES - EVERYDAY DISCHARGE</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>SHIJA - In Patient Claim</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Inter;-webkit-tap-highlight-color:transparent}
-html,body{background:#f8fafc;min-height:100vh;overflow-x:hidden}
-body{display:flex}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;display:flex;flex-direction:column;justify-content:space-between;z-index:90;transition:.32s;scrollbar-width:none!important;-ms-overflow-style:none!important}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
+body{background:#f1f5f9;display:flex;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:310px!important;min-width:310px!important;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease,transform .32s ease}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:.32s;width:calc(100% - 270px);min-height:100vh;background:#f8fafc}
+.mainWrap{flex:1;margin-left:310px!important;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#f1f5f9;width:calc(100% - 310px)!important}
 .whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)!important}
-.sHead{padding:18px 14px;display:flex;align-items:center;gap:12px;background:#fff;border-bottom:1px solid #e2e8f0}
-.sLogo{width:46px;height:46px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;border:1px solid #e2e8f0;overflow:hidden}
-.sLogo img{width:100%;height:100%;object-fit:contain}
-.sTitle b{color:#0f172a;font-size:18px;font-weight:900;display:block;line-height:1}
-.sTitle span{font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;display:block;margin-top:2px}
-.whiteBar.folded .sTitle,.whiteBar.folded .ml,.whiteBar.folded .footFull{display:none}
-.sMenu{flex:1;padding:8px;overflow-y:auto;scrollbar-width:none!important}
-.sMenu::-webkit-scrollbar,.whiteBar::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
-.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13.5px;font-weight:500;margin-bottom:2px;white-space:nowrap;transition:all .28s cubic-bezier(.34,1.56,.64,1)!important;border-left:3px solid transparent}
-.sMenu a:hover{background:#1e293b!important;color:#fff!important;transform:translateX(6px) scale(1.02);border-left-color:#2563eb;box-shadow:0 4px 12px rgba(37,99,235,.25)}
-.sMenu a.active{background:#1e293b;color:#fff;font-weight:600;border-left-color:#2563eb}
-.mi{width:34px;min-width:34px;height:34px;display:grid;place-items:center;background:#1e293b;border-radius:8px;transition:.28s}
+.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
+.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
+.sLogo img{width:100%;height:100%;object-fit:contain;display:block}
+.sLogo:hover{transform:none}
+.sLogo:active{transform:none}
+.sTitle b{color:#0f172a;font-size:16px;font-weight:900}
+.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
+.whiteBar.folded .sTitle{display:none}
+.whiteBar.folded .sHead{justify-content:center;padding:14px 0}
+.sMenu{flex:1;padding:8px;overflow-y:auto;background:#0f172a}
+.sMenu::-webkit-scrollbar{width:0}
+.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;transition:.22s}
+.sMenu a:hover{background:#1e293b;color:#fff;transform:translateX(4px);box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.sMenu a.active{background:#1e293b;color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px #334155}
+.sMenu a:hover .mi{background:#D9C95C;transform:scale(1.1)}
+.sMenu a:hover .mi svg{stroke:#111}
+.mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px;flex-shrink:0;transition:.22s}
 .mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.sMenu a:hover .mi{transform:scale(1.1);background:#2563eb}
-.sMenu a:hover svg,.sMenu a.active svg{stroke:#fff}
-.sMenu a.active .mi{background:#3c25eb}
-.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:11px;color:#64748b;text-align:center}
-.whiteBar:not(.folded) .footFold{display:none}
-.whiteBar.folded .sMenu a{justify-content:center!important;padding:12px 0!important;gap:0!important}
-.whiteBar.folded .sHead{justify-content:center!important;padding:12px 0!important}
-.top{height:72px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
-.logo{display:flex;align-items:center;gap:12px;font-weight:900;font-size:18px;color:#0f172a}
-.menuBtnTop{width:42px;height:40px;background:#fff;border:none!important;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
-.menuBtnTop span{display:block;width:22px;height:2.6px;background:#0f172a;border-radius:2px}
+.ml{overflow:hidden;text-overflow:ellipsis}
+.whiteBar.folded .ml{display:none}
+.whiteBar.folded .sMenu a{justify-content:center;padding:12px 0}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b}
+.whiteBar.folded .sFoot{display:none}
+.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px}
+.menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:8px;transform:none!important;outline:none!important;-webkit-tap-highlight-color:transparent}
+.menuBtnTop:hover,.menuBtnTop:active,.menuBtnTop:focus,.menuBtnTop:focus-visible{background:transparent!important;transform:none!important;outline:none!important;box-shadow:none!important}
+.menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a!important;border-radius:2px;transform:none!important}
+.menuBtnTop:hover span,.menuBtnTop:active span,.menuBtnTop:focus span,.menuBtnTop:focus-visible span{background:#0f172a!important;transform:none!important}
+.content{flex:1;padding:20px 24px;max-width:100%}
+.head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.head h1{font-size:24px;font-weight:900;color:#0f172a}
+.head p{color:#64748b;font-size:12px;font-weight:600;margin-top:4px}
+.btn{padding:10px 16px;border:0;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px;transition:.22s}
+.btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 18px rgba(0,0,0,.15)}
+.btn:active{transform:scale(.97)}
+.btnG{background:#2563eb;color:#fff}.btnG:hover{background:#1d4ed8;box-shadow:0 8px 18px rgba(37,99,235,.35)}
+.btnGreen{background:#059669;color:#fff}.btnGreen:hover{background:#047857;box-shadow:0 8px 18px rgba(5,150,105,.35)}
+.btnYellow{background:#FACC15!important;color:#000!important;border:1px solid #EAB308}
+.btnYellow:hover{background:#EAB308!important;box-shadow:0 8px 18px rgba(250,204,21,.4)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.stat{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;cursor:pointer;transition:.25s}
+.stat:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 12px 24px rgba(0,0,0,.1);border-color:#93c5fd}
+.stat.active{border:2px solid #2563eb;background:#eff6ff;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.stat b{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}
+.stat h2{font-size:26px;font-weight:900;margin-top:6px;color:#0f172a;transition:.2s}
+.stat:hover h2{color:#2563eb}
+.stat small{font-size:11px;color:#2563eb;font-weight:700;display:none}
+.stat.active small{display:block;margin-top:4px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 4px 16px rgba(0,0,0,.04);transition:.25s}
+.card:hover{box-shadow:0 10px 26px rgba(0,0,0,.08)}
+.card h3{font-size:15px;font-weight:800;color:#0f172a;margin-bottom:4px}
+.card p{font-size:12px;color:#64748b;margin-bottom:16px}
+.formGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.field label{font-size:11px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:6px}
+.field input{width:100%;height:46px;border:1.5px solid #e2e8f0;border-radius:11px;padding:0 13px;font-size:13.5px;font-weight:600;outline:0;background:#f8fafc;transition:.2s}
+.field input:hover{border-color:#94a3b8;background:#fff}
+.field input:focus{border-color:#2563eb;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.12);transform:translateY(-1px)}
+.formBtns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;align-items:center}
+.filterBar{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px;margin-bottom:16px;position:relative;transition:.25s}
+.filterBar:hover{box-shadow:0 8px 22px rgba(0,0,0,.06);border-color:#cbd5e1}
+.filterRow{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:14px}
+.filterRow .fItem{width:200px;max-width:200px}
+.filterRow .fItemMonth{width:180px;max-width:180px;position:relative}
+.filterRow label{font-size:11px;font-weight:700;color:#334155;text-transform:uppercase;display:block;margin-bottom:6px;text-align:center}
+.dateNav{display:flex;align-items:center;background:#fff;border:1.5px solid #D9DEE3;border-radius:12px;height:44px;padding:0 4px;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:.22s}
+.dateNav:hover{border-color:#94a3b8;box-shadow:0 4px 12px rgba(0,0,0,.06);transform:translateY(-1px)}
+.dateNav input{flex:1;border:0!important;outline:0!important;background:transparent!important;text-align:center;font-size:13px!important;font-weight:800!important;color:#111!important;height:100%;padding:0 2px;box-shadow:none!important;min-width:0}
+.dateNav input::-webkit-calendar-picker-indicator{opacity:.6;cursor:pointer}
+.monthDisplay{flex:1;text-align:center;font-size:14px!important;font-weight:900!important;color:#111!important;letter-spacing:.5px;cursor:pointer;user-select:none;transition:.2s}
+.monthDisplay:hover{color:#2563eb;transform:scale(1.08)}
+.arrowBtn{width:30px;min-width:30px;height:32px;border:1px solid #E5E7EB;background:#fff;border-radius:8px;font-size:12px;font-weight:900;cursor:pointer;color:#111;line-height:1;display:grid;place-items:center;transition:.2s}
+.arrowBtn:hover{background:#D9C95C;color:#111;border-color:#C5B84A;transform:scale(1.12);box-shadow:0 4px 10px rgba(217,201,92,.4)}
+.arrowBtn:active{transform:scale(.92)}
+.monthPicker{display:none;position:absolute;top:46px;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.15);padding:12px;z-index:50}
+.monthPicker.show{display:block;animation:pop .2s ease}
+@keyframes pop{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.mpYear{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mpYear b{font-size:15px;font-weight:900}
+.mpYear button{width:30px;height:30px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:8px;font-weight:900;cursor:pointer;transition:.2s}
+.mpYear button:hover{background:#D9C95C;transform:scale(1.1)}
+.mpGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.mpGrid button{height:36px;border:1px solid #e2e8f0;background:#fff;border-radius:9px;font-weight:700;font-size:12px;cursor:pointer;color:#334155;transition:.18s}
+.mpGrid button:hover{background:#EFF6FF;border-color:#2563eb;transform:translateY(-2px);box-shadow:0 4px 10px rgba(37,99,235,.15)}
+.mpGrid button.active{background:#D9C95C!important;color:#111!important;border-color:#C5B84A}
+.mpClose{width:100%;margin-top:10px;height:32px;border:0;background:#f1f5f9;border-radius:8px;font-weight:700;cursor:pointer;transition:.2s}
+.mpClose:hover{background:#e2e8f0;transform:translateY(-1px)}
+.clearBtn{height:44px;padding:0 14px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:12px;font-weight:700;cursor:pointer;font-size:12px;color:#0f172a;white-space:nowrap;transition:.22s}
+.clearBtn:hover{background:#fee2e2;border-color:#fca5a5;color:#dc2626;transform:translateY(-1px)}
+.searchRow{display:flex;gap:10px;align-items:center}
+.searchRow input{flex:1;height:46px;border:1.5px solid #e2e8f0;border-radius:11px;padding:0 14px;font-size:13px;outline:0;background:#f8fafc;font-weight:600;min-width:0;transition:.2s}
+.searchRow input:hover{border-color:#94a3b8;background:#fff}
+.searchRow input:focus{border-color:#2563eb;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.viewToggle{display:flex;background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;flex-shrink:0}
+.viewToggle button{border:0;background:#fff;width:44px;height:46px;display:grid;place-items:center;cursor:pointer;color:#64748b;transition:.2s}
+.viewToggle button svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.viewToggle button.active{background:#D9C95C!important;color:#111!important}
+.viewToggle button:hover{color:#111;background:#FEF9C3;transform:scale(1.05)}
+.viewToggle button.active:hover{background:#D9C95C!important}
+.viewBar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+.pagePrevNext{display:flex;gap:8px;align-items:center}
+.pagePrevNext button{min-width:42px;height:38px;padding:0 14px;border:1px solid #e2e8f0;background:#fff;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;color:#0f172a;transition:.2s}
+.pagePrevNext button:disabled{opacity:.35;cursor:not-allowed}
+.pagePrevNext button:hover:not(:disabled){background:#D9C95C;color:#111;border-color:#C5B84A;transform:translateY(-1px);box-shadow:0 4px 10px rgba(217,201,92,.35)}
+.pagePrevNext span{font-size:12px;font-weight:700;color:#64748b}
+.tableWrap{background:#fff;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;transition:.25s}
+.tableWrap:hover{box-shadow:0 10px 26px rgba(0,0,0,.07)}
+table{width:100%;border-collapse:collapse;min-width:860px}
+th{background:#C5D5CB!important;color:#1a2e1a!important;font-size:11px;text-align:left;padding:13px 12px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;border-bottom:2px solid #A8BFAF;font-weight:900}
+th.sl{width:56px;text-align:center}
+td{padding:12px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#0f172a;vertical-align:middle;transition:.18s}
+td.sl{width:56px;text-align:center;font-weight:800;color:#334155;background:#f8fafc}
+tr{transition:.18s}
+tr:hover td{background:#FEFCE8!important;transform:scale(1.001)}
+tr:hover td:first-child{border-left:3px solid #D9C95C}
+tr:hover td.sl{background:#FEF3C7!important;color:#111}
+tr:hover td b{color:#2563eb}
+.badge{background:#dbeafe;color:#1e40af;padding:4px 8px;border-radius:100px;font-size:11px;font-weight:800;white-space:nowrap;transition:.2s;display:inline-block}
+.badge:hover{transform:scale(1.08);background:#2563eb;color:#fff}
+.badge2{background:#dcfce7;color:#166534;padding:4px 8px;border-radius:100px;font-size:11px;font-weight:800;transition:.2s;display:inline-block}
+.badge2:hover{transform:scale(1.08);background:#059669;color:#fff}
+.actionBtns{display:flex;gap:6px;white-space:nowrap}
+.editBtn{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;padding:7px 12px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px;transition:.2s}
+.editBtn:hover{background:#2563eb;color:#fff;border-color:#2563eb;transform:translateY(-1px) scale(1.05);box-shadow:0 5px 12px rgba(37,99,235,.3)}
+.delBtn{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:7px 10px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px;transition:.2s}
+.delBtn:hover{background:#dc2626;color:#fff;border-color:#dc2626;transform:translateY(-1px) scale(1.05);box-shadow:0 5px 12px rgba(220,38,38,.3)}
+.empty{padding:30px;text-align:center;color:#94a3b8;font-size:13px;font-weight:600}
+.gridView{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.pCard{background:#fff!important;border:1px solid #e2e8f0;border-radius:16px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,.04);transition:.28s;cursor:pointer}
+.pCard:hover{transform:translateY(-6px) scale(1.015);box-shadow:0 16px 30px rgba(0,0,0,.12);border-color:#D9C95C}
+.pCard:hover h3{color:#2563eb}
+.pCard h3{font-size:16px;font-weight:900;color:#0f172a;margin-bottom:2px;transition:.2s}
+.pCard .shri{font-size:12px;color:#64748b;font-weight:600;margin-bottom:10px}
+.pRow{display:flex;justify-content:space-between;font-size:12px;padding:7px 0;border-bottom:1px dashed #eef2f7;transition:.18s}
+.pRow:hover{background:#f8fafc;padding-left:6px;padding-right:6px;border-radius:6px}
+.pRow b{color:#64748b;font-weight:600}
+.pRow span{font-weight:700;color:#0f172a;text-align:right}
+.pCard .pBtns{display:flex;gap:8px;margin-top:12px}
+.pCard .pBtns button{flex:1}
+.pagination{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:16px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px 14px;transition:.25s}
+.pagination:hover{box-shadow:0 8px 20px rgba(0,0,0,.06)}
+.pagination .info{font-size:12px;font-weight:700;color:#64748b}
+.pageBtns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pageBtn{min-width:36px;height:36px;padding:0 10px;border:1px solid #e2e8f0;background:#fff;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;color:#0f172a;transition:.2s}
+.pageBtn:hover{border-color:#C5B84A;color:#111;transform:translateY(-2px);box-shadow:0 4px 10px rgba(217,201,92,.3)}
+.pageBtn.active{background:#D9C95C!important;color:#111!important;border-color:#C5B84A}
+.pageBtn:disabled{opacity:.4;cursor:not-allowed}
+.perPage{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#334155}
+.perPage select{height:36px;border:1px solid #e2e8f0;border-radius:9px;padding:0 8px;font-weight:700;outline:0;background:#f8fafc;cursor:pointer;transition:.2s}
+.perPage select:hover{border-color:#94a3b8;background:#fff}
+.modalOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center;padding:16px}
+.modalOverlay.show{display:flex}
+.modalBox{background:#fff!important;width:100%;max-width:620px;border-radius:20px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,.3);max-height:92vh;overflow-y:auto;animation:pop .25s ease}
+.modalHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.modalHead h3{font-size:18px;font-weight:900;color:#0f172a}
+.modalHead p{font-size:12px;color:#64748b;margin-top:2px}
+.closeModal{width:36px;height:36px;border:0;background:#f1f5f9;border-radius:100px;font-size:18px;font-weight:800;cursor:pointer;color:#0f172a;flex-shrink:0;transition:.2s}
+.closeModal:hover{background:#fee2e2;color:#dc2626;transform:rotate(90deg) scale(1.1)}
+.modalGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
-.btnBack{background:#fff!important;color:#0f172a!important;border:1.5px solid #cbd5e1!important;border-radius:4px!important;padding:8px 18px!important;font-weight:800!important;text-decoration:none!important;font-size:13px!important}
-.content{padding:14px;background:#f8fafc}
-.dailyControls{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
-.filterLeft{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.searchBox{position:relative;min-width:180px;max-width:260px;flex:1}
-.searchBox input{width:100%;padding:9px 12px 9px 36px;border:1.5px solid #e2e8f0;border-radius:20px;font-weight:600;background:#f8fafc;outline:0;font-size:13px}
-.searchBox svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:#64748b;fill:none;stroke-width:2}
-.filterWrap{position:relative}
-.filterBtn{padding:8px 12px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;font-weight:800;font-size:11px;color:#0f172a;cursor:pointer;display:flex;align-items:center;gap:6px}
-.filterBtn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
-.dropdown{position:absolute;top:110%;left:0;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.15);padding:6px;display:none;z-index:20;min-width:150px}
-.dropdown.show{display:block}
-.dropdown div{padding:8px 10px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px}
-.dropdown div:hover{background:#0f172a;color:#fff}
-.dateNav{display:flex;align-items:center;gap:4px;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;padding:2px 4px}
-.dateArrow{width:28px;height:28px;border-radius:6px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;display:grid;place-items:center;font-weight:900}
-.dateNav input{border:none;font-weight:800;font-size:13px;width:118px;text-align:center;outline:0;background:#fff}
-.pager{display:flex;gap:8px;align-items:center}
-.pager button{padding:8px 14px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;font-weight:800;cursor:pointer}
-.pager button:disabled{opacity:.35}
-.pager span{font-weight:900;font-size:13px}
-.patientBlock{margin-bottom:20px;border-radius:14px;transition:all .32s cubic-bezier(.34,1.56,.64,1);overflow:visible!important}
-.patientBlock:hover{transform:translateY(-6px) scale(1.01);box-shadow:0 18px 32px rgba(37,99,235,.18)}
-.headerTop{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px 14px 0 0;padding:12px 14px}
-.pTitle{font-size:14px;font-weight:900;color:#0f172a;white-space:pre-wrap;word-break:break-word}
-.pTags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.pTags span{background:#f8fafc;border:1px solid #e2e8f0;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;color:#64748b}
-.uploadSection{position:relative;display:flex;gap:10px;flex-wrap:wrap;padding:12px 12px 62px;background:#fff;border:1.5px solid #e2e8f0;border-top:0;border-radius:0 0 14px 14px;overflow:visible!important}
-.uploadCol{flex:1;min-width:200px;max-width:360px;background:#f8fafc;border-radius:10px;padding:10px;border:1px solid #f1f5f9;display:flex;flex-direction:column;align-items:center}
-.uploadCol b{font-size:10px;font-weight:900}
-.yellowBox{width:100%;border:2px dashed #facc15;border-radius:8px;background:#fffef0;padding:8px;font-size:11px;font-weight:700;min-height:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;text-align:center;word-break:break-all;transition:.22s}
-.yellowBox:hover{transform:scale(1.02)}
-.yellowBox.uploaded{background:#f0fdf4!important;border-color:#86efac!important;border-style:solid!important}
-.delIcon{width:26px;min-width:26px;height:26px;background:#fff;border:1.5px solid #e2e8f0;border-radius:6px;display:grid;place-items:center;cursor:pointer;margin-left:6px}
-.delIcon svg{width:11px;height:11px;stroke:#94a3b8;stroke-width:2;fill:none}
-.bottomBar{position:absolute;bottom:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;overflow:visible!important;z-index:5}
-.leftActions{display:flex;gap:6px}
-.rightActions{position:relative;display:flex;align-items:center;margin-left:auto;overflow:visible!important}
-.btn{padding:8px 14px;border-radius:8px;border:0;font-weight:800;font-size:11px;cursor:pointer;transition:.22s}
-.btn:hover{transform:translateY(-1px) scale(1.03)}
-.btnEdit{background:#fff;border:1.5px solid #e2e8f0!important;color:#0f172a}
-.btnSave{background:#22c55e;color:#fff;border:1.5px solid #16a34a}
-.btnYellow{background:#facc15;color:#000;border:1.5px solid #eab308}
-.claimSlide{position:absolute;right:100%;top:50%;margin-right:14px;transform:translateY(-50%) translateX(30px);width:272px;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:8px 10px;display:flex;gap:8px;align-items:center;opacity:0;pointer-events:none;transition:.36s;z-index:60}
-.claimSlide.open{opacity:1;pointer-events:auto;transform:translateY(-50%) translateX(0)}
-.claimInput{border:2px solid #6366f1;border-radius:8px;padding:7px 9px;font-weight:800;flex:1;background:#f0f4ff;outline:0;font-size:11px;min-width:120px}
-#fileModal{display:none;position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;background:rgba(0,0,0,0.82)!important;z-index:999999;align-items:center;justify-content:center;padding:12px}
-#fileModal.show{display:flex!important}
-.popupCard{background:#ffffff!important;border-radius:8px!important;width:94vw!important;max-width:600px!important;max-height:90vh!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;box-shadow:0 24px 80px rgba(0,0,0,.6)!important}
-.popupHead{padding:10px 12px!important;background:#ffffff!important;border-bottom:1px solid #e5e7eb!important;display:flex!important;justify-content:space-between!important;align-items:center!important}
-.popupHead b{font-size:14px!important;font-weight:700!important;color:#111827!important;text-transform:uppercase!important;max-width:50%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
-.headBtns{display:flex;gap:8px;align-items:center}
-.btnDownload{background:#6366f1!important;color:#fff!important;border:none!important;padding:6px 14px!important;border-radius:6px!important;font-weight:700!important;font-size:12px!important;cursor:pointer!important}
-.btnClose{background:#ffffff!important;color:#111827!important;border:1px solid #d1d5db!important;padding:6px 14px!important;border-radius:6px!important;font-weight:700!important;font-size:12px!important;cursor:pointer!important}
-.popupBody{flex:1!important;overflow:auto!important;background:#111827!important;display:block!important;padding:0!important}
-.popupBody img{width:100%!important;height:auto!important;display:block!important;background:#fff!important}
-.popupBody iframe{width:100%!important;height:78vh!important;border:0!important;background:#fff!important}
-@media(max-width:900px){
-.whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
-.whiteBar.mOpen{transform:translateX(0)}
-.mainWrap{margin-left:0!important;width:100%!important}
-.dailyControls{flex-direction:column;align-items:stretch}
-.claimSlide{right:0;top:auto;bottom:calc(100% + 12px);margin-right:0;transform:translateY(12px);width:100%;max-width:320px}
-.claimSlide.open{transform:translateY(0)}
-.rightActions{position:static}
-}
+@media(max-width:900px){.whiteBar{transform:translateX(-100%);width:310px!important}.whiteBar.mOpen{transform:translateX(0)}.mainWrap{margin-left:0!important;width:100%!important}.formGrid{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.gridView{grid-template-columns:1fr 1fr}.content{padding:14px}.filterRow .fItem,.filterRow .fItemMonth{width:160px}}
+@media(max-width:560px){.formGrid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.filterRow .fItem,.filterRow .fItemMonth{width:100%;max-width:100%}.gridView{grid-template-columns:1fr}.tableWrap{overflow-x:auto}.pagination{justify-content:center}.modalGrid{grid-template-columns:1fr}.searchRow{flex-wrap:wrap}}
 </style>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(cfg,"top_only_final");
-const db=getFirestore(app);
-window._fb={db,collection,getDocs,doc,setDoc,deleteDoc,CHUNK_SIZE:800000};
-</script>
-<script>
-function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{document.getElementById('whiteBar').classList.toggle('folded');}}
-function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
-function toggleDrop(id,btn){document.querySelectorAll('.dropdown').forEach(d=>{if(d.id!==id)d.classList.remove('show')});document.getElementById(id).classList.toggle('show');document.getElementById(btn).classList.toggle('open');}
-</script>
 </head>
 <body>
 <div id="mobOverlay" onclick="closeMob()"></div>
-<div class="whiteBar" id="whiteBar"><div style="display:flex;flex-direction:column;height:100%;overflow:hidden"><div class="sHead"><div class="sLogo"><img src="logoc.png" alt="SHIJA"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div><div class="sMenu">
+<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'};if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}</script>
+<div class="whiteBar" id="whiteBar">
+<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+<div class="sHead"><div class="sLogo"><img src="menu.png?v=2" onerror="this.onerror=null;this.src='menu.png'"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
+<div class="sMenu">
 <a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
 <a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
 <a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
-<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="claim_inpatient.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">IN-PATIENT CLAIM</span></a>
 <a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
-<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></span><span class="ml">OFFICE ASSISTANT</span></a>
+<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="ml">OFFICE ASSISTANT LIST</span></a>
 <a href="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
-<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
-<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
-<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
-<a href="addlist.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span><span class="ml">ADD LIST</span></a>
-<a href="discharge.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
+<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
+<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
+<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">PMJAY DAILY DIALYSIS</span></a>
+<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
+<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
 <a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT REPORT</span></a>
-<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT FOR PMJAY</span></a>
+<a href="kftmaker.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span><span class="ml">KFT EDITOR</span></a>
+<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">ADD PATIENT</span></a>
 <a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="ml">BILL</span></a>
-<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
-</div></div><div class="sFoot"><span class="footFull">SHIJA • UPLOAD</span><span class="footFold">☰</span></div></div>
+<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
+</div>
+</div>
+<div class="sFoot">System Online • SHIJA Hospital</div>
+</div>
+
 <div class="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" onclick="toggleWhiteBar()"><span></span><span></span><span></span></button> UPLOAD FILES</div><a href="discharge.html" class="btnBack">BACK</a></div>
+<div class="top">
+<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA Dialysis</div>
+<div style="display:flex;align-items:center;gap:12px"><div style="font-size:12px;font-weight:700;color:#64748b">IN-PATIENT CLAIM</div><div id="adminMenuWrap" style="position:relative"><button id="adminBtn" style="height:38px;padding:0 14px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:12px;cursor:pointer">Admin ▾</button><div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px"><button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button><button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button></div></div></div>
+</div>
+
 <div class="content">
-<div class="dailyControls">
-<div class="filterLeft">
-<div class="searchBox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="searchInput" placeholder="Search SHRI / PMJAY / Name" oninput="filterSearch()"></div>
-<div class="dateNav"><button class="dateArrow" onclick="changeDate(-1)">◀</button><input type="date" id="fDate"><button class="dateArrow" onclick="changeDate(1)">▶</button></div>
-<div class="filterWrap"><button class="filterBtn" id="timeBtn" onclick="toggleDrop('timeDrop','timeBtn')">TIME <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="dropdown" id="timeDrop"><div onclick="setTime('All')">All Time</div><div onclick="setTime('7AM')">7AM</div><div onclick="setTime('12PM')">12PM</div><div onclick="setTime('5PM')">5PM</div><div onclick="setTime('9PM')">9PM</div></div></div>
-<div class="filterWrap"><button class="filterBtn" id="blockBtn" onclick="toggleDrop('blockDrop','blockBtn')">BLOCK <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="dropdown" id="blockDrop"><div onclick="setBlock('All')">All Blocks</div><div onclick="setBlock('MAIN')">MAIN</div><div onclick="setBlock('ITOCHA')">ITOCHA</div></div></div>
+<div class="head"><div><h1>In-Patient Claim</h1><p>Click any card to filter • SHIJA Dialysis</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btnYellow" id="addPatientBtn" onclick="toggleAddForm()">Add Patient</button><button class="btn btnGreen" onclick="exportExcel()">Export Excel</button></div></div>
+
+<div class="stats">
+<div class="stat active" id="statTotal" onclick="setStatFilter('all')"><b>Total In-Patient Claims</b><h2 id="totalCount">0</h2><small>Showing All</small></div>
+<div class="stat" id="statMonth" onclick="setStatFilter('month')"><b>This Month</b><h2 id="monthCount">0</h2><small>Showing This Month Only</small></div>
+<div class="stat" id="statToday" onclick="setStatFilter('today')"><b>Today Added</b><h2 id="todayCount">0</h2><small>Showing Today Only</small></div>
 </div>
-<div class="pager"><button id="prevBtn" onclick="prevPage()">PREV</button><span id="pageInfo">1 / 1</span><button id="nextBtn" onclick="nextPage()">NEXT</button></div>
+
+<div class="card" id="formCard" style="display:none">
+<h3>Add New In-Patient Claim</h3><p>Fill all 6 details and click Save</p>
+<div class="formGrid">
+<div class="field"><label>1. Patient Name *</label><input id="name" type="text" placeholder="Enter Patient Name"></div>
+<div class="field"><label>2. Shri ID *</label><input id="shri" type="text" placeholder="Enter Shri ID"></div>
+<div class="field"><label>3. IP Number *</label><input id="ipno" type="text" placeholder="Enter IP Number"></div>
+<div class="field"><label>4. Date of Admission *</label><input id="doa" type="date"></div>
+<div class="field"><label>5. Date of Discharge</label><input id="dod" type="date"></div>
+<div class="field"><label>6. Claim ID *</label><input id="claimid" type="text" placeholder="Enter Claim ID"></div>
 </div>
-<div id="allPatients"><div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:20px;text-align:center;font-weight:700">Loading everyday discharge patients...</div></div>
+<div class="formBtns">
+<button class="btn btnG" id="saveBtn" onclick="saveClaim()">Save</button>
+<button class="btn" style="background:#e2e8f0" onclick="closeAddForm()">Close</button>
+<button class="btn" style="background:#e2e8f0" onclick="clearForm()">Clear</button>
+<span id="msg" style="font-size:12px;font-weight:700;color:#059669;align-self:center"></span>
 </div>
 </div>
-<div id="fileModal">
-<div class="popupCard">
-<div class="popupHead">
-<b id="modalName">BASANTA.jpg</b>
-<div class="headBtns">
-<button class="btnDownload" onclick="downloadCurrent()">Download</button>
-<button class="btnClose" onclick="closeModal()">CLOSE</button>
+
+<div class="filterBar">
+<div class="filterRow">
+<div class="fItem"><label>Admission Date</label><div class="dateNav"><button class="arrowBtn" onclick="shiftDate('filterDoa',-1)">◀</button><input id="filterDoa" type="date" onchange="onDateManualChange('filterDoa')"><button class="arrowBtn" onclick="shiftDate('filterDoa',1)">▶</button></div></div>
+<div class="fItem"><label>Discharge Date</label><div class="dateNav"><button class="arrowBtn" onclick="shiftDate('filterDod',-1)">◀</button><input id="filterDod" type="date" onchange="onDateManualChange('filterDod')"><button class="arrowBtn" onclick="shiftDate('filterDod',1)">▶</button></div></div>
+<div class="fItemMonth"><label>Month</label><div class="dateNav"><button class="arrowBtn" onclick="shiftMonth(-1)">◀</button><div class="monthDisplay" id="filterMonthDisplay" onclick="toggleMonthPicker(event)">Nov</div><input type="hidden" id="filterMonth" value="2026-11"><button class="arrowBtn" onclick="shiftMonth(1)">▶</button></div>
+<div class="monthPicker" id="monthPicker">
+<div class="mpYear"><button onclick="shiftPickerYear(-1)">◀</button><b id="pickerYear">2026</b><button onclick="shiftPickerYear(1)">▶</button></div>
+<div class="mpGrid" id="mpGrid"></div>
+<button class="mpClose" onclick="closeMonthPicker()">Close</button>
 </div>
 </div>
-<div id="paperBox" class="popupBody"></div>
+<div><button class="clearBtn" onclick="clearFilters()">Clear Filters</button></div>
+</div>
+<div class="searchRow"><input id="search" placeholder="Search by Name / Shri ID / IP No / Claim ID..." oninput="onFilterChange()"><div class="viewToggle"><button id="btnList" class="active" title="List View" onclick="setView('table')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button><button id="btnGrid" title="Grid View" onclick="setView('grid')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></button></div></div>
+</div>
+
+<div class="viewBar">
+<div class="pagePrevNext"><button id="topPrev" onclick="goPage(currentPage-1)">‹ Prev</button><span id="topPageInfo">Page 1 of 1</span><button id="topNext" onclick="goPage(currentPage+1)">Next ›</button></div>
+<div style="font-size:13px;font-weight:800;color:#0f172a"><span id="showingCount">0 Patients</span></div>
+</div>
+
+<div class="tableWrap" id="tableWrap">
+<table><thead><tr><th class="sl">Sl No</th><th>Name</th><th>Shri ID</th><th>IP Number</th><th>Admission</th><th>Discharge</th><th>Claim ID</th><th>Days</th><th>Action</th></tr></thead>
+<tbody id="tbody"><tr><td colspan="9" class="empty">Loading...</td></tr></tbody></table>
+</div>
+
+<div class="gridView" id="gridView" style="display:none"></div>
+
+<div class="pagination" id="pagination">
+<div class="info" id="pageInfo">Showing 0 to 0 of 0 patients</div>
+<div class="pageBtns" id="pageBtns"></div>
+<div class="perPage">Per Page <select id="perPage" onchange="changePerPage()"><option value="9">9</option><option value="12">12</option><option value="24">24</option><option value="50">50</option></select></div>
+</div>
+
+<div style="text-align:center;padding:14px;font-size:11px;color:#64748b">SHIJA Dialysis • In-Patient Claim</div>
 </div>
 </div>
-<input type="file" id="hiddenFile" style="display:none">
+
+<div class="modalOverlay" id="editModal" onclick="if(event.target===this) closeEditModal()">
+<div class="modalBox">
+<div class="modalHead"><div><h3>Edit In-Patient Claim</h3><p id="editModalName">Update patient details</p></div><button class="closeModal" onclick="closeEditModal()">×</button></div>
+<div class="modalGrid">
+<div class="field"><label>1. Patient Name *</label><input id="edit_name" type="text"></div>
+<div class="field"><label>2. Shri ID *</label><input id="edit_shri" type="text"></div>
+<div class="field"><label>3. IP Number *</label><input id="edit_ipno" type="text"></div>
+<div class="field"><label>4. Date of Admission *</label><input id="edit_doa" type="date"></div>
+<div class="field"><label>5. Date of Discharge</label><input id="edit_dod" type="date"></div>
+<div class="field"><label>6. Claim ID *</label><input id="edit_claimid" type="text"></div>
+</div>
+<div class="formBtns">
+<button class="btn btnG" id="updateBtn" onclick="updateClaim()">Save</button>
+<button class="btn" style="background:#e2e8f0" onclick="closeEditModal()">Cancel</button>
+<span id="editMsg" style="font-size:12px;font-weight:700;color:#059669"></span>
+</div>
+</div>
+</div>
+
+<div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
+  <div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
+    <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter admin password</div>
+    <input type="password" id="adminPassInput" placeholder="Password" autocomplete="new-password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
+    <div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div>
+    <div style="display:flex;gap:8px"><button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:12px;cursor:pointer">Cancel</button><button id="confirmLogoutAll" style="flex:1;height:38px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer">Logout All</button></div>
+  </div>
+</div>
+
 <script>
-let all=[],filtered=[],currentPage=1,perPage=3,docsCache={},fTime='All',fBlock='All';
-let focusShri=null;
-function getToday(){return new Date().toISOString().slice(0,10);}
-async function loadAll(){
-let params=new URLSearchParams(window.location.search);
-focusShri=(params.get('shri')||'').trim();
-let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"discharges"));
-all=[];snap.forEach(d=>{let o=d.data();o._id=d.id;if(!o.claimId)all.push(o);});
-let snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,"patient_docs"));
-docsCache={};snap2.forEach(d=>{let data=d.data();data._id=d.id;let k=data.shri||data.shriId;if(!k)return;if(!docsCache[k])docsCache[k]=[];docsCache[k].push(data);});
-document.getElementById('fDate').value=getToday();
-if(focusShri){
-let fp=all.find(p=>p.shri===focusShri||p.shriId===focusShri);
-if(fp&&fp.date)document.getElementById('fDate').value=fp.date;
-}
-applyFilter();
-}
-function applyFilter(){
-let date=document.getElementById('fDate').value;
-let search=document.getElementById('searchInput').value.toLowerCase().trim();
-filtered=all.filter(p=>{
-if(date&&p.date!==date)return false;
-if(fTime!=='All'&& (p.time||'').toUpperCase()!==fTime.toUpperCase())return false;
-if(fBlock!=='All'&& (p.block||'').toUpperCase()!==fBlock.toUpperCase())return false;
-if(search){
-let s=((p.patientName||p.name||'')+' '+(p.shri||p.shriId||'')+' '+(p.pmjayCmhtId||p.pmjayId||'')).toLowerCase();
-if(s.indexOf(search)===-1)return false;
-}
-return true;
+function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{document.getElementById('whiteBar').classList.toggle('folded');}}
+function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
+document.getElementById('menuBtnTop').addEventListener('click',e=>{e.preventDefault();toggleWhiteBar();});
+document.addEventListener('DOMContentLoaded',function(){
+  const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');
+  if(adminBtn){adminBtn.addEventListener('click',(e)=>{e.stopPropagation();adminDropdown.style.display=adminDropdown.style.display==='none'||adminDropdown.style.display===''?'block':'none';});}
+  document.addEventListener('click',(e)=>{if(!e.target.closest('#adminMenuWrap') && adminDropdown) adminDropdown.style.display='none';});
+  document.getElementById('btnLogout')?.addEventListener('click',()=>{if(confirm('Logout from this device?')){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');location.href='login.html';}});
+  document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{if(adminDropdown) adminDropdown.style.display='none';document.getElementById('logoutAllModal').style.display='flex';document.getElementById('adminPassInput').value='';document.getElementById('passError').style.display='none';});
+  document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{document.getElementById('logoutAllModal').style.display='none';});
+  document.getElementById('logoutAllModal')?.addEventListener('click',(e)=>{if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none';});
 });
-if(focusShri){
-  let idx=filtered.findIndex(p=> (p.shri===focusShri || p.shriId===focusShri));
-  if(idx>0){
-    let item=filtered.splice(idx,1)[0];
-    filtered.unshift(item);
-  }
-}
-filtered.sort((a,b)=>{
-  if(focusShri){
-    if((a.shri===focusShri || a.shriId===focusShri) && !(b.shri===focusShri || b.shriId===focusShri)) return -1;
-    if(!(a.shri===focusShri || a.shriId===focusShri) && (b.shri===focusShri || b.shriId===focusShri)) return 1;
-  }
-  return new Date(b.dischargedAt||0)-new Date(a.dischargedAt||0);
-});
-currentPage=1;renderPage();
-}
-function filterSearch(){applyFilter();}
-function setTime(t){fTime=t;document.getElementById('timeDrop').classList.remove('show');document.getElementById('timeBtn').classList.remove('open');document.getElementById('timeBtn').innerHTML=(t==='All'?'TIME':t)+' <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';applyFilter();}
-function setBlock(b){fBlock=b;document.getElementById('blockDrop').classList.remove('show');document.getElementById('blockBtn').classList.remove('open');document.getElementById('blockBtn').innerHTML=(b==='All'?'BLOCK':b)+' <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';applyFilter();}
-function changeDate(d){let inp=document.getElementById('fDate');let base=inp.value?new Date(inp.value):new Date();base.setDate(base.getDate()+d);inp.value=base.toISOString().slice(0,10);applyFilter();}
-document.getElementById('fDate').addEventListener('change',applyFilter);
-function renderPage(){
-let total=Math.ceil(filtered.length/perPage)||1;
-if(currentPage>total)currentPage=total;
-document.getElementById('pageInfo').textContent=currentPage+' / '+total;
-document.getElementById('prevBtn').disabled=currentPage<=1;
-document.getElementById('nextBtn').disabled=currentPage>=total;
-let start=(currentPage-1)*perPage;
-let pageData=filtered.slice(start,start+perPage);
-let html='';
-pageData.forEach(p=>{
-let shri=p.shri||p.shriId||'';let pmjay=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';let rawName=p.patientName||p.name||'UNKNOWN';
-let displayName=String(rawName).trim().split(/\s+/).join('  ').toUpperCase();
-let docs=docsCache[shri]||[];let get=(t)=>docs.find(d=>d.type===t);
-let s=get('discharge_summary');let ph=get('discharge_photo');let fb=get('feedback_form');
-html+=`<div class="patientBlock">
-<div class="headerTop"><div class="pTitle">${displayName}</div><div class="pTags"><span>SHRI: ${shri||'-'}</span><span>PMJAY: ${pmjay||'-'}</span><span>DATE: ${p.date||'-'} • TIME: ${p.time||'-'} • BLOCK: ${p.block||'-'}</span></div></div>
-<div class="uploadSection" data-shri="${shri}" data-id="${p._id}" data-name="${rawName.replace(/"/g,'')}" data-pmjay="${pmjay}">
-<div class="uploadCol"><b>DISCHARGE SUMMARY</b><div style="display:flex;width:100%;margin-top:8px"><div class="yellowBox ${s?'uploaded':''}" onclick="handleBox('${shri}','discharge_summary')">${s?s.fileName:'Click or Drop'}</div><button class="delIcon" onclick="delFile('${shri}','discharge_summary')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
-<div class="uploadCol"><b>DISCHARGE PHOTO</b><div style="display:flex;width:100%;margin-top:8px"><div class="yellowBox ${ph?'uploaded':''}" onclick="handleBox('${shri}','discharge_photo')">${ph?ph.fileName:'Click or Drop'}</div><button class="delIcon" onclick="delFile('${shri}','discharge_photo')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
-<div class="uploadCol"><b>FEEDBACK FORM</b><div style="display:flex;width:100%;margin-top:8px"><div class="yellowBox ${fb?'uploaded':''}" onclick="handleBox('${shri}','feedback_form')">${fb?fb.fileName:'Click or Drop'}</div><button class="delIcon" onclick="delFile('${shri}','feedback_form')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
-<div class="bottomBar"><div class="leftActions"><button class="btn btnEdit" onclick="editP('${shri}')">EDIT</button><button class="btn btnSave" onclick="saveP('${shri}')">SAVE</button></div><div class="rightActions"><div id="claim_${shri}" class="claimSlide"><input id="inp_${shri}" class="claimInput" placeholder="CLAIM ID"><button class="btn btnSave" onclick="doClaim('${shri}','${p._id}')">ADD</button><button class="btn btnEdit" onclick="toggleClaim('${shri}')">✕</button></div><button class="btn btnYellow" onclick="toggleClaim('${shri}')">CLAIM</button></div></div>
-</div></div>`;
-});
-if(html==='')html='<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:30px;text-align:center;font-weight:800;color:#64748b">No discharge patients for '+document.getElementById('fDate').value+'</div>';
-document.getElementById('allPatients').innerHTML=html;
-}
-function prevPage(){if(currentPage>1){currentPage--;renderPage();}}
-function nextPage(){let t=Math.ceil(filtered.length/perPage)||1;if(currentPage<t){currentPage++;renderPage();}}
-let pendShri=null,pendType=null;
-function handleBox(shri,type){let docs=docsCache[shri]||[];let d=docs.find(x=>x.type===type);if(d)openFile(shri,type);else trig(shri,type);}
-function editP(shri){trig(shri,'discharge_summary');}
-function saveP(shri){alert('✓ Saved '+(docsCache[shri]?.length||0)+' files for '+shri);}
-function trig(shri,type){pendShri=shri;pendType=type;let i=document.getElementById('hiddenFile');i.value='';i.click();}
-document.getElementById('hiddenFile').addEventListener('change',async function(){
-let file=this.files[0];if(!file||!pendShri)return;
-let shri=pendShri,type=pendType;
-let clean=shri.replace(/[^a-zA-Z0-9]/g,'_');
-let b64=await new Promise((res,rej)=>{let r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});
-let id=clean+'_'+type+'_'+Date.now();let chunks=[];for(let i=0;i<b64.length;i+=window._fb.CHUNK_SIZE){chunks.push(b64.substring(i,i+window._fb.CHUNK_SIZE));}
-await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id),{type:type,shri:shri,fileName:file.name,createdAt:Date.now(),saved:true});
-for(let j=0;j<chunks.length;j++){await window._fb.setDoc(window._fb.doc(window._fb.db,'patient_docs',id,'chunks',String(j)),{index:j,data:chunks[j]});}
-if(!docsCache[shri])docsCache[shri]=[];docsCache[shri]=docsCache[shri].filter(x=>x.type!==type);docsCache[shri].push({_id:id,type:type,shri:shri,fileName:file.name});renderPage();
-});
-async function getFull(id){let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',id,'chunks'));let arr=[];snap.forEach(d=>arr.push(d.data()));arr.sort((a,b)=>a.index-b.index);return arr.map(a=>a.data).join('');}
-async function openFile(shri,type){
-let docs=docsCache[shri]||[];let doc=docs.find(d=>d.type===type);if(!doc)return;
-let data=await getFull(doc._id);
-window._fb.curData=data;window._fb.curName=doc.fileName;
-document.getElementById('modalName').textContent=doc.fileName;
-let box=document.getElementById('paperBox');
-if(data.startsWith('data:application/pdf')||doc.fileName.toLowerCase().endsWith('.pdf')){
-box.innerHTML='<iframe src="'+data+'"></iframe>';
-}else{
-box.innerHTML='<img src="'+data+'" alt="'+doc.fileName+'">';
-}
-let modal=document.getElementById('fileModal');
-modal.style.display='flex';
-modal.classList.add('show');
-document.body.style.overflow='hidden';
-}
-function closeModal(){
-let modal=document.getElementById('fileModal');
-modal.classList.remove('show');
-modal.style.display='none';
-document.body.style.overflow='';
-}
-function downloadCurrent(){
-let a=document.createElement('a');
-a.href=window._fb.curData;
-a.download=window._fb.curName;
-a.click();
-}
-async function delFile(shri,type){
-let docs=docsCache[shri]||[];let doc=docs.find(d=>d.type===type);if(!doc)return;
-if(!confirm('Delete '+doc.fileName+' ?'))return;
-let csnap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patient_docs',doc._id,'chunks'));
-for(let c of csnap.docs){await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',doc._id,'chunks',c.id));}
-await window._fb.deleteDoc(window._fb.doc(window._fb.db,'patient_docs',doc._id));
-docsCache[shri]=docsCache[shri].filter(x=>x._id!==doc._id);
-renderPage();
-}
-function toggleClaim(shri){document.getElementById('claim_'+shri).classList.toggle('open');}
-// FIXED - NOW SAVES claimStatus CLAIMED SO IT SHOWS IN claim.html
-async function doClaim(shri,did){
-let inp=document.getElementById('inp_'+shri);
-let cid=inp.value.trim().toUpperCase();
-if(!cid){alert('Enter CLAIM ID');return;}
-let p = all.find(x=>x._id===did);
-try{
-await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',did),{
-  claimId:cid,
-  claimStatus:'CLAIMED',
-  claimedAt:new Date().toISOString(),
-  status:'claimed',
-  claimDate:new Date().toISOString().slice(0,10)
-},{merge:true});
-await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',did),{
-  dischargeId:did,
-  shri:shri,
-  shriId:shri,
-  patientName:p?.patientName||p?.name||'',
-  name:p?.patientName||p?.name||'',
-  pmjayCmhtId:p?.pmjayCmhtId||'',
-  date:p?.date||'',
-  time:p?.time||'',
-  block:p?.block||'',
-  claimId:cid,
-  claimStatus:'CLAIMED',
-  claimedAt:new Date().toISOString(),
-  claimDate:new Date().toISOString().slice(0,10)
-},{merge:true});
-all=all.filter(x=>x._id!==did);
-applyFilter();
-alert('✓ '+cid+' CLAIMED - Check claim.html');
-}catch(e){alert('Error: '+e.message)}
-}
-window.addEventListener('load',()=>{
-setTimeout(loadAll,700);
-document.getElementById('fileModal').addEventListener('click',e=>{
-if(e.target.id==='fileModal')closeModal();
-});
-});
-window.addEventListener('click',e=>{
-if(!e.target.closest('.filterWrap')){
-document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('show'));
-document.querySelectorAll('.filterBtn').forEach(b=>b.classList.remove('open'));
-}
-});
+function calcDays(a,b){if(!a||!b) return '-';let d1=new Date(a),d2=new Date(b);let diff=Math.ceil((d2-d1)/(1000*60*60*24));return diff>=0?diff+' days':'-';}
+function fmt(d){if(!d) return '-';try{return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}catch(e){return d}}
+function pad(n){return String(n).padStart(2,'0')}
+function localDateStr(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function parseLocalDate(s){let p=s.split('-');return new Date(Number(p[0]),Number(p[1])-1,Number(p[2]))}
+function todayLocalStr(){return localDateStr(new Date())}
 </script>
-<script type="module" src="maintenance.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(config);const db=getFirestore(app);
+let allData=[];
+let statFilter='all';
+let editingId=null;
+let viewMode='table';
+let currentPage=1;
+let perPage=9;
+let dateFilterActive=false;
+let activeDateFilter=null;
+let currentMonthNum=new Date().getMonth()+1;
+let currentYearNum=new Date().getFullYear();
+let pickerYear=new Date().getFullYear();
+const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+window.currentPage=1;
+function setDefaultDates(){
+  let today=new Date();
+  document.getElementById('filterDoa').value=localDateStr(today);
+  document.getElementById('filterDod').value=localDateStr(today);
+  currentMonthNum=today.getMonth()+1; currentYearNum=today.getFullYear(); pickerYear=currentYearNum;
+  document.getElementById('filterMonth').value=currentYearNum+'-'+pad(currentMonthNum);
+  document.getElementById('filterMonthDisplay').textContent=MONTHS_SHORT[currentMonthNum-1];
+  dateFilterActive=false; activeDateFilter=null;
+}
+setDefaultDates();
+window.shiftDate=(inputId,delta)=>{
+  let el=document.getElementById(inputId);
+  let cur=el.value ? parseLocalDate(el.value) : new Date();
+  cur.setDate(cur.getDate()+delta);
+  el.value=localDateStr(cur);
+  dateFilterActive=true; activeDateFilter=inputId;
+  onFilterChange();
+};
+window.shiftMonth=(delta)=>{
+  let d=new Date(currentYearNum,currentMonthNum-1+delta,1);
+  currentYearNum=d.getFullYear(); currentMonthNum=d.getMonth()+1; pickerYear=currentYearNum;
+  document.getElementById('filterMonth').value=currentYearNum+'-'+pad(currentMonthNum);
+  document.getElementById('filterMonthDisplay').textContent=MONTHS_SHORT[currentMonthNum-1];
+  dateFilterActive=true; activeDateFilter='filterMonth';
+  onFilterChange();
+};
+window.toggleMonthPicker=(e)=>{ e.stopPropagation(); renderMonthPicker(); document.getElementById('monthPicker').classList.toggle('show'); };
+window.closeMonthPicker=()=>{ document.getElementById('monthPicker').classList.remove('show'); };
+window.shiftPickerYear=(delta)=>{ pickerYear+=delta; renderMonthPicker(); };
+function renderMonthPicker(){
+  document.getElementById('pickerYear').textContent=pickerYear;
+  document.getElementById('mpGrid').innerHTML=MONTHS_SHORT.map((m,i)=>{
+    let isActive=(pickerYear===currentYearNum && (i+1)===currentMonthNum);
+    return `<button class="${isActive?'active':''}" onclick="pickMonth(${i+1})">${m}</button>`;
+  }).join('');
+}
+window.pickMonth=(m)=>{
+  currentMonthNum=m; currentYearNum=pickerYear;
+  document.getElementById('filterMonth').value=currentYearNum+'-'+pad(currentMonthNum);
+  document.getElementById('filterMonthDisplay').textContent=MONTHS_SHORT[currentMonthNum-1];
+  dateFilterActive=true; activeDateFilter='filterMonth';
+  closeMonthPicker(); onFilterChange();
+};
+document.addEventListener('click',(e)=>{ let p=document.getElementById('monthPicker'); if(p && !p.contains(e.target) && !e.target.classList.contains('monthDisplay')) p.classList.remove('show'); });
+window.onDateManualChange=(inputId)=>{ dateFilterActive=true; activeDateFilter=inputId; onFilterChange(); };
+window.onFilterChange=()=>{ currentPage=1; window.currentPage=1; renderList(); };
+window.changePerPage=()=>{ perPage=parseInt(document.getElementById('perPage').value); currentPage=1; window.currentPage=1; renderList(); };
+window.goPage=(p)=>{
+  let totalPages=Math.ceil(getFiltered().length/perPage)||1;
+  if(p<1) p=1; if(p>totalPages) p=totalPages;
+  currentPage=p; window.currentPage=p; renderList();
+  let w=document.getElementById('tableWrap'); if(w) window.scrollTo({top: w.offsetTop - 80, behavior:'smooth'});
+};
+window.setView=(v)=>{
+  viewMode=v;
+  document.getElementById('btnList').classList.toggle('active',v==='table');
+  document.getElementById('btnGrid').classList.toggle('active',v==='grid');
+  document.getElementById('tableWrap').style.display=v==='table'?'block':'none';
+  document.getElementById('gridView').style.display=v==='grid'?'grid':'none';
+  renderList();
+};
+window.toggleAddForm=()=>{
+  let f=document.getElementById('formCard');
+  if(f.style.display==='none'){ f.style.display='block'; document.getElementById('addPatientBtn').textContent='Close Form'; f.scrollIntoView({behavior:'smooth'}); document.getElementById('name').focus(); }
+  else{ closeAddForm(); }
+};
+window.closeAddForm=()=>{
+  document.getElementById('formCard').style.display='none';
+  document.getElementById('addPatientBtn').textContent='Add Patient';
+  clearForm();
+};
+window.setStatFilter=(type)=>{
+  statFilter=type; currentPage=1; window.currentPage=1;
+  document.getElementById('statTotal').classList.toggle('active',type==='all');
+  document.getElementById('statMonth').classList.toggle('active',type==='month');
+  document.getElementById('statToday').classList.toggle('active',type==='today');
+  renderList();
+  document.getElementById('tbody').scrollIntoView({behavior:'smooth',block:'start'});
+};
+window.clearFilters=()=>{
+  document.getElementById('search').value='';
+  setDefaultDates();
+  setStatFilter('all');
+};
+function clearForm(){ ['name','shri','ipno','doa','dod','claimid'].forEach(id=>document.getElementById(id).value=''); }
+window.clearForm=clearForm;
+window.saveClaim=async()=>{
+  let name=document.getElementById('name').value.trim();
+  let shri=document.getElementById('shri').value.trim();
+  let ipno=document.getElementById('ipno').value.trim();
+  let doa=document.getElementById('doa').value;
+  let dod=document.getElementById('dod').value;
+  let claimid=document.getElementById('claimid').value.trim();
+  let msg=document.getElementById('msg');
+  if(!name||!shri||!ipno||!doa||!claimid){msg.style.color='#dc2626';msg.textContent='Please fill Name, Shri ID, IP No, Admission Date & Claim ID';return;}
+  if(dod && dod<doa){msg.style.color='#dc2626';msg.textContent='Discharge date cannot be before Admission';return;}
+  let btn=document.getElementById('saveBtn');btn.textContent='Saving...';btn.disabled=true;
+  try{
+    await addDoc(collection(db,"inpatient_claims"),{name,shri,ipno,doa,dod: dod||'',claimid,createdAt:serverTimestamp(),createdDate:todayLocalStr()});
+    msg.style.color='#059669';msg.textContent='Saved Successfully!';
+    clearForm(); loadData();
+    setTimeout(()=>closeAddForm(),800);
+  }catch(e){msg.style.color='#dc2626';msg.textContent='Error: '+e.message;}
+  btn.textContent='Save';btn.disabled=false; setTimeout(()=>msg.textContent='',3000);
+};
+window.editClaim=(id)=>{
+  let x=allData.find(d=>d.id===id); if(!x) return;
+  editingId=id;
+  document.getElementById('edit_name').value=x.name||'';
+  document.getElementById('edit_shri').value=x.shri||'';
+  document.getElementById('edit_ipno').value=x.ipno||'';
+  document.getElementById('edit_doa').value=x.doa||'';
+  document.getElementById('edit_dod').value=x.dod||'';
+  document.getElementById('edit_claimid').value=x.claimid||'';
+  document.getElementById('editModalName').textContent='Editing: '+x.name;
+  document.getElementById('editMsg').textContent='';
+  document.getElementById('editModal').classList.add('show');
+  document.body.style.overflow='hidden';
+};
+window.closeEditModal=()=>{
+  document.getElementById('editModal').classList.remove('show');
+  document.body.style.overflow=''; editingId=null;
+};
+window.updateClaim=async()=>{
+  if(!editingId) return;
+  let name=document.getElementById('edit_name').value.trim();
+  let shri=document.getElementById('edit_shri').value.trim();
+  let ipno=document.getElementById('edit_ipno').value.trim();
+  let doa=document.getElementById('edit_doa').value;
+  let dod=document.getElementById('edit_dod').value;
+  let claimid=document.getElementById('edit_claimid').value.trim();
+  let msg=document.getElementById('editMsg');
+  if(!name||!shri||!ipno||!doa||!claimid){msg.style.color='#dc2626';msg.textContent='Please fill all required fields';return;}
+  if(dod && dod<doa){msg.style.color='#dc2626';msg.textContent='Discharge cannot be before Admission';return;}
+  let btn=document.getElementById('updateBtn');btn.textContent='Saving...';btn.disabled=true;
+  try{
+    await updateDoc(doc(db,"inpatient_claims",editingId),{name,shri,ipno,doa,dod: dod||'',claimid});
+    msg.style.color='#059669';msg.textContent='Updated Successfully!';
+    loadData();
+    setTimeout(()=>{closeEditModal();},600);
+  }catch(e){msg.style.color='#dc2626';msg.textContent='Error: '+e.message;}
+  btn.textContent='Save';btn.disabled=false;
+};
+async function loadData(){
+  try{
+    let snap=await getDocs(query(collection(db,"inpatient_claims"),orderBy("createdAt","desc")));
+    allData=[];snap.forEach(d=>allData.push({id:d.id,...d.data()}));
+    renderList();
+  }catch(e){document.getElementById('tbody').innerHTML='<tr><td colspan="9" class="empty">Error: '+e.message+'</td></tr>';}
+}
+function getFiltered(){
+  let q=(document.getElementById('search').value||'').toLowerCase();
+  let fDoa=document.getElementById('filterDoa').value;
+  let fDod=document.getElementById('filterDod').value;
+  let fMonth=document.getElementById('filterMonth').value;
+  let todayStr=todayLocalStr();
+  return allData.filter(x=>{
+    if(statFilter==='month' && !(x.doa && x.doa.slice(0,7)===todayStr.slice(0,7))) return false;
+    if(statFilter==='today' && x.createdDate!==todayStr) return false;
+    if(q && ![x.name,x.shri,x.ipno,x.claimid].join(' ').toLowerCase().includes(q)) return false;
+    if(dateFilterActive){
+      if(activeDateFilter==='filterDoa' && fDoa && x.doa!==fDoa) return false;
+      if(activeDateFilter==='filterDod' && fDod && x.dod!==fDod) return false;
+      if(activeDateFilter==='filterMonth' && fMonth && !(x.doa && x.doa.slice(0,7)===fMonth)) return false;
+    }
+    return true;
+  });
+}
+function renderPagination(total,totalPages){
+  let info=document.getElementById('pageInfo');
+  let start=total===0?0:(currentPage-1)*perPage+1;
+  let end=Math.min(currentPage*perPage,total);
+  info.textContent=`Showing ${start} to ${end} of ${total} patients  •  Page ${currentPage} of ${totalPages||1}`;
+  document.getElementById('topPageInfo').textContent=`Page ${currentPage} of ${totalPages||1}`;
+  document.getElementById('topPrev').disabled=currentPage<=1;
+  document.getElementById('topNext').disabled=currentPage>=totalPages;
+  let box=document.getElementById('pageBtns');
+  if(totalPages<=1){ box.innerHTML=''; return; }
+  let html=`<button class="pageBtn" ${currentPage===1?'disabled':''} onclick="goPage(${currentPage-1})">Prev</button>`;
+  let maxShow=5; let s=Math.max(1,currentPage-2); let e=Math.min(totalPages,s+maxShow-1);
+  if(e-s<maxShow-1) s=Math.max(1,e-maxShow+1);
+  if(s>1) html+=`<button class="pageBtn" onclick="goPage(1)">1</button>`+(s>2?`<span style="font-weight:700;color:#64748b">...</span>`:'');
+  for(let p=s;p<=e;p++){ html+=`<button class="pageBtn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`; }
+  if(e<totalPages) html+=(e<totalPages-1?`<span style="font-weight:700;color:#64748b">...</span>`:'')+`<button class="pageBtn" onclick="goPage(${totalPages})">${totalPages}</button>`;
+  html+=`<button class="pageBtn" ${currentPage===totalPages?'disabled':''} onclick="goPage(${currentPage+1})">Next</button>`;
+  box.innerHTML=html;
+}
+window.renderList=()=>{
+  let todayStr=todayLocalStr();
+  document.getElementById('totalCount').textContent=allData.length;
+  document.getElementById('monthCount').textContent=allData.filter(x=>x.doa && x.doa.slice(0,7)===todayStr.slice(0,7)).length;
+  document.getElementById('todayCount').textContent=allData.filter(x=>x.createdDate===todayStr).length;
+  let fullList=getFiltered();
+  let total=fullList.length;
+  let totalPages=Math.ceil(total/perPage)||1;
+  if(currentPage>totalPages) currentPage=totalPages;
+  if(currentPage<1) currentPage=1;
+  window.currentPage=currentPage;
+  let startIdx=(currentPage-1)*perPage;
+  let list=fullList.slice(startIdx,startIdx+perPage);
+  document.getElementById('showingCount').textContent=total+' Patients';
+  if(!list.length){ document.getElementById('tbody').innerHTML='<tr><td colspan="9" class="empty">No Patient Found for this Filter</td></tr>'; }
+  else{ document.getElementById('tbody').innerHTML=list.map((x,i)=>{ let sl=startIdx+i+1; return `<tr><td class="sl">${sl}</td><td><b>${x.name}</b></td><td>${x.shri}</td><td><span class="badge">${x.ipno}</span></td><td>${fmt(x.doa)}</td><td>${x.dod?fmt(x.dod):'-'}</td><td><span class="badge2">${x.claimid}</span></td><td>${calcDays(x.doa,x.dod)}</td><td><div class="actionBtns"><button class="editBtn" onclick="editClaim('${x.id}')">Edit</button><button class="delBtn" onclick="delClaim('${x.id}')">Delete</button></div></td></tr>`; }).join(''); }
+  let grid=document.getElementById('gridView');
+  if(!list.length){ grid.innerHTML='<div class="empty" style="grid-column:1/-1;background:#fff;border:1px solid #e2e8f0;border-radius:16px">No Patient Found for this Filter</div>'; }
+  else{ grid.innerHTML=list.map(x=>`<div class="pCard"><h3>${x.name}</h3><div class="shri">Shri ID: ${x.shri}</div><div class="pRow"><b>IP Number</b><span>${x.ipno}</span></div><div class="pRow"><b>Admission</b><span>${fmt(x.doa)}</span></div><div class="pRow"><b>Discharge</b><span>${x.dod?fmt(x.dod):'-'}</span></div><div class="pRow"><b>Claim ID</b><span>${x.claimid}</span></div><div class="pRow"><b>Stay</b><span>${calcDays(x.doa,x.dod)}</span></div><div class="pBtns"><button class="editBtn" onclick="editClaim('${x.id}')">Edit</button><button class="delBtn" onclick="delClaim('${x.id}')">Delete</button></div></div>`).join(''); }
+  renderPagination(total,totalPages);
+};
+window.delClaim=async(id)=>{
+  if(!confirm('Delete this In-Patient Claim?')) return;
+  await deleteDoc(doc(db,"inpatient_claims",id));
+  loadData();
+};
+window.exportExcel=()=>{
+  let list=getFiltered();
+  let rows=list.map((x,i)=>({ 'Sl No': i+1, Name:x.name,'Shri ID':x.shri,'IP Number':x.ipno,'Date of Admission':x.doa,'Date of Discharge':x.dod||'','Claim ID':x.claimid,Days:calcDays(x.doa,x.dod)}));
+  let ws=XLSX.utils.json_to_sheet(rows.length?rows:[{'Sl No':'No Data'}]);let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"InPatient Claim");XLSX.writeFile(wb,`InPatient_Claim_${todayLocalStr()}.xlsx`);
+};
+const ADMIN_PASSWORD="jack8189";
+document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{let pass=document.getElementById('adminPassInput').value.trim();if(pass!==ADMIN_PASSWORD){document.getElementById('passError').style.display='block';return;}document.getElementById('passError').style.display='none';let btn=document.getElementById('confirmLogoutAll');btn.innerText='...';btn.disabled=true;try{await setDoc(doc(db,"system","global_logout"),{logoutTime:Date.now(),timestamp:serverTimestamp(),triggeredBy:'admin'},{merge:true});alert('All devices logged out!');localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');location.href='login.html';}catch(err){alert(err.message);btn.innerText='Logout All';btn.disabled=false;}});
+document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{if(e.key==='Enter') document.getElementById('confirmLogoutAll').click();});
+try{onSnapshot(doc(db,"system","global_logout"),(snap)=>{if(!snap.exists()) return;let lt=snap.data().logoutTime||0;let my=parseInt(localStorage.getItem('shija_login_time')||'0');if(lt>my&&my!==0){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');alert('🔒 Logged out by admin');location.href='login.html?reason=global';}});}catch(e){}
+loadData();
+</script>
 </body>
 </html>
+Add maintenance code Don't change anything else other than this
