@@ -257,7 +257,22 @@ document.getElementById('rowsPerPage').addEventListener('change', renderPaginati
 document.getElementById('searchName').addEventListener('input', applyFilter);
 document.getElementById('filterTime').addEventListener('change', applyFilter);
 document.getElementById('filterBlock').addEventListener('change', applyFilter);
-window.addEventListener('load', async ()=>{updateDateDisplay();await buildMasterMap();updateStatusVisibility();setTimeout(onDateChange,200);});
+// FAST LOAD ONLY CHANGE - was: await buildMasterMap() then onDateChange() - now: show list first, master in background
+let masterLoaded=false, masterLoading=false;
+function refreshWithMaster(){
+  if(!allPatients.length) return;
+  let changed=false;
+  allPatients.forEach(p=>{let before=p.name+'|'+p.pmjayCmhtId;enrichPatient(p);if((p.name+'|'+p.pmjayCmhtId)!==before) changed=true;});
+  if(changed){applyFilter();}
+}
+async function loadMasterInBackground(){
+  if(masterLoaded||masterLoading) return;
+  masterLoading=true;
+  await buildMasterMap();
+  masterLoaded=true; masterLoading=false;
+  refreshWithMaster();
+}
+window.addEventListener('load', async ()=>{updateDateDisplay();updateStatusVisibility();onDateChange();loadMasterInBackground();});
 </script>
 <script type="module" src="maintenance.js"></script>
 </body>
