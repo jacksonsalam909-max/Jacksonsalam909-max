@@ -91,12 +91,13 @@ td{padding:14px;border-bottom:1px solid #f1f5f9;font-size:14px;font-weight:700;t
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(cfg,"view_"+Math.random());const db=getFirestore(app);
-window._viewDb={db,doc,getDoc,getDocs,collection};
+const app=initializeApp(cfg,"view_"+Math.random());const db=getFirestore(app);const storage=getStorage(app);
+window._viewDb={db,doc,getDoc,getDocs,collection,storage,ref,getDownloadURL};
 </script>
 <script>
-let allPatients=[],filtered=[],currentPage=1,pageSize=12,view='list',masterMap={},photoMap={},scheme='PMJAY';
+let allPatients=[],filtered=[],currentPage=1,pageSize=12,view='list',masterMap={},photoMap={},photoMapDigits={},scheme='PMJAY';
 function getToday(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function fmt(iso){if(!iso)return'';let p=iso.split('-');return `${p[2]}-${p[1]}-${p[0]}`;}
 function openDatePicker(){let i=document.getElementById('fDate');if(i.showPicker)i.showPicker();else i.click();}
@@ -104,33 +105,99 @@ function shiftDate(d){let inp=document.getElementById('fDate');let dt=inp.value?
 function setScheme(s){scheme=s;document.getElementById('tabPMJAY').classList.toggle('active',s==='PMJAY');document.getElementById('tabCMHT').classList.toggle('active',s==='CMHT');document.getElementById('statScheme').innerText=s;onDateChange();}
 function switchView(v){view=v;document.getElementById('btnGrid').classList.toggle('active',v==='grid');document.getElementById('btnList').classList.toggle('active',v==='list');document.getElementById('gridWrap').style.display=v==='grid'?'grid':'none';document.getElementById('tableWrap').style.display=v==='list'?'block':'none';render();}
 function initials(name){if(!name)return'?';let w=name.trim().split(/\s+/);if(w.length===1)return w[0].substring(0,2).toUpperCase();return (w[0][0]+w[1][0]).toUpperCase();}
-function getPhoto(p){return p.photoUrl||p.photo||p.imageUrl||p.image||p.profilePic||p.profilePhoto||p.avatar||'';}
+function digitsOnly(s){return String(s||'').replace(/[^0-9]/g,'');}
+function getRawPhoto(p){
+  if(!p) return '';
+  let keys=['photo','photoUrl','photoURL','photoPath','image','imageUrl','imageURL','img','profilePic','profilePhoto','profileImage','avatar','picture','photoBase64','imageBase64'];
+  for(let k of keys){ if(p[k] && String(p[k]).length>3) return String(p[k]); }
+  if(p.photo && typeof p.photo==='object' && p.photo.url) return p.photo.url;
+  return '';
+}
+// LIKE total.html - if photo is Storage path, convert to download URL
+async function resolvePhoto(raw){
+  if(!raw) return '';
+  raw=raw.trim();
+  if(raw.startsWith('data:') || raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('blob:')) return raw;
+  // Storage path like photos/xxx.jpg or gs://...
+  try{
+    let path=raw;
+    if(path.startsWith('gs://')) path=path.replace(/^gs:\/\/[^\/]+\//,'');
+    let url=await window._viewDb.getDownloadURL(window._viewDb.ref(window._viewDb.storage, path));
+    return url;
+  }catch(e){ console.log('Storage photo fail',raw,e.message); return ''; }
+}
 async function buildMaster(){
-  masterMap={};photoMap={};
+  masterMap={};photoMap={};photoMapDigits={};
   let loadColl=async(coll, isCMHT)=>{
-    try{let s=await window._viewDb.getDocs(window._viewDb.collection(window._viewDb.db,coll));
-    s.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!shri)return;
-      if(!masterMap[shri])masterMap[shri]={};
-      if(isCMHT) masterMap[shri].cmhtName=String(p.patientName||p.name||'').trim().toUpperCase();
-      else masterMap[shri].name=String(p.patientName||p.name||'').trim().toUpperCase();
-      let ph=getPhoto(p); if(ph) photoMap[shri]=ph;
-      if(p._photo) photoMap[shri]=p._photo;
-    });}catch(e){}
+    try{
+      let s=await window._viewDb.getDocs(window._viewDb.collection(window._viewDb.db,coll));
+      for(let d of s.docs){
+        let p=d.data(); if(p.deleted) continue;
+        let shriRaw=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();
+        if(!shriRaw) continue;
+        if(!masterMap[shriRaw]) masterMap[shriRaw]={};
+        if(isCMHT) masterMap[shriRaw].cmhtName=String(p.patientName||p.name||'').trim().toUpperCase();
+        else masterMap[shriRaw].name=String(p.patientName||p.name||'').trim().toUpperCase();
+        let raw=getRawPhoto(p);
+        if(raw){
+          let url=await resolvePhoto(raw);
+          if(url){ photoMap[shriRaw]=url; let dg=digitsOnly(shriRaw); if(dg) photoMapDigits[dg]=url; }
+          else { photoMap[shriRaw]=raw; }
+        }
+      }
+    }catch(e){ console.log('ERR',coll,e); }
   };
   await loadColl('patients',false);
   await loadColl('cmht_patients',true);
 }
-function enrich(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];if(m){if(scheme==='CMHT'&&m.cmhtName)p.name=m.cmhtName;else if(m.name)p.name=m.name;}let ph=getPhoto(p)||photoMap[k]||p._photo||'';if(ph)p._photo=ph;return p;}
-async function onDateChange(){let date=document.getElementById('fDate').value;document.getElementById('dateDisplay').innerText=fmt(date);document.getElementById('statDate2').innerText=fmt(date);let docId=date+'_'+scheme;try{let snap=await window._viewDb.getDoc(window._viewDb.doc(window._viewDb.db,'daily_dialysis_lists',docId));let list=snap.exists()?(snap.data().patients||[]):[];list=list.map((p,i)=>enrich({...p,sl:i+1}));if(scheme==='PMJAY')list=list.filter(p=>(p.patientStatus||'ENHANCEMENT')!=='DISCHARGE');allPatients=list;applyFilter();}catch(e){allPatients=[];applyFilter();}}
+async function enrichAsync(p){
+  let k=String(p.shri||'').trim().toUpperCase();
+  let m=masterMap[k];
+  if(m){ if(scheme==='CMHT'&&m.cmhtName) p.name=m.cmhtName; else if(m.name) p.name=m.name; }
+  let raw=getRawPhoto(p);
+  if(raw){ let url=await resolvePhoto(raw); if(url) p._photo=url; }
+  if(!p._photo) p._photo=photoMap[k] || photoMapDigits[digitsOnly(k)] || '';
+  return p;
+}
+async function onDateChange(){
+  let date=document.getElementById('fDate').value;
+  document.getElementById('dateDisplay').innerText=fmt(date);
+  document.getElementById('statDate2').innerText=fmt(date);
+  let docId=date+'_'+scheme;
+  try{
+    let snap=await window._viewDb.getDoc(window._viewDb.doc(window._viewDb.db,'daily_dialysis_lists',docId));
+    let list=snap.exists()?(snap.data().patients||[]):[];
+    let out=[];
+    for(let i=0;i<list.length;i++){ out.push(await enrichAsync({...list[i],sl:i+1})); }
+    if(scheme==='PMJAY') out=out.filter(p=>(p.patientStatus||'ENHANCEMENT')!=='DISCHARGE');
+    allPatients=out; applyFilter();
+  }catch(e){ allPatients=[]; applyFilter(); }
+}
 function norm(t){if(!t)return'';let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;return `${parseInt(m[1])}:${(m[2]||'00').padStart(2,'0')} ${m[3]||''}`.trim();}
 function applyFilter(){let q=(document.getElementById('searchName').value||'').toLowerCase().trim();let tf=document.getElementById('filterTime').value;let bf=document.getElementById('filterBlock').value;filtered=allPatients.filter(p=>{if(q){let n=String(p.name||'').toLowerCase();let sh=String(p.shri||'').toLowerCase();if(!n.includes(q)&&!sh.includes(q))return false;}if(tf&&norm(p.time)!==norm(tf))return false;if(bf&&p.block!==bf)return false;return true;});currentPage=1;render();}
-function photoHTML(p,cls){let ph=p._photo||'';if(ph){return `<div class="${cls}"><img src="${ph}" alt="" onerror="this.parentNode.classList.add('noPhoto');this.remove();this.parentNode.innerHTML='<span>${initials(p.name)}</span>'"></div>`;}return `<div class="${cls} noPhoto"><span>${initials(p.name)}</span></div>`;}
-function render(){let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;let start=(currentPage-1)*pageSize;let page=filtered.slice(start,start+pageSize);document.getElementById('statTotal').innerText=allPatients.length;document.getElementById('statFiltered').innerText=filtered.length;document.getElementById('emptyBox').style.display=filtered.length===0?'block':'none';let grid=document.getElementById('gridWrap');grid.innerHTML='';page.forEach((p)=>{let d=document.createElement('div');d.className='pCard';d.innerHTML=`${photoHTML(p,'pPhoto')}<div class="pCardTop"><span class="timeBadge">🕐 ${p.time||'-'}</span></div><div class="pName">${p.name||'NO NAME'}</div><span class="pShri">SHRI: ${p.shri||'—'}</span><div class="pMeta"><span>🏥 ${p.block||'-'}</span><span>PREV: ${p.prev||'-'}</span></div>`;grid.appendChild(d);});let tb=document.getElementById('tbody');tb.innerHTML='';page.forEach((p,i)=>{let tr=document.createElement('tr');tr.innerHTML=`<td>${p.sl||start+i+1}</td><td>${photoHTML(p,'tPhoto')}</td><td>${p.name||''}</td><td><span class="shriPill">${p.shri||''}</span></td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td>`;tb.appendChild(tr);});let pag=document.getElementById('pagination');pag.innerHTML='';for(let i=1;i<=totalPages;i++){let b=document.createElement('button');b.innerText=i;b.className=i===currentPage?'active':'';b.onclick=()=>{currentPage=i;render();};pag.appendChild(b);}}
+function photoHTML(p,cls){
+  let ph=p._photo||'';
+  if(ph && (ph.startsWith('http')||ph.startsWith('data:')||ph.startsWith('blob:'))){ return `<div class="${cls}"><img src="${ph}" alt="" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('noPhoto');this.remove();this.parentNode.innerHTML='<span>${initials(p.name)}</span>'"></div>`; }
+  return `<div class="${cls} noPhoto"><span>${initials(p.name)}</span></div>`;
+}
+function render(){
+  let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize)); if(currentPage>totalPages) currentPage=totalPages;
+  let start=(currentPage-1)*pageSize; let page=filtered.slice(start,start+pageSize);
+  document.getElementById('statTotal').innerText=allPatients.length;
+  document.getElementById('statFiltered').innerText=filtered.length;
+  document.getElementById('emptyBox').style.display=filtered.length===0?'block':'none';
+  let grid=document.getElementById('gridWrap'); grid.innerHTML='';
+  page.forEach((p)=>{let d=document.createElement('div'); d.className='pCard'; d.innerHTML=`${photoHTML(p,'pPhoto')}<div class="pCardTop"><span class="timeBadge">🕐 ${p.time||'-'}</span></div><div class="pName">${p.name||'NO NAME'}</div><span class="pShri">SHRI: ${p.shri||'—'}</span><div class="pMeta"><span>🏥 ${p.block||'-'}</span><span>PREV: ${p.prev||'-'}</span></div>`; grid.appendChild(d);});
+  let tb=document.getElementById('tbody'); tb.innerHTML='';
+  page.forEach((p,i)=>{let tr=document.createElement('tr'); tr.innerHTML=`<td>${p.sl||start+i+1}</td><td>${photoHTML(p,'tPhoto')}</td><td>${p.name||''}</td><td><span class="shriPill">${p.shri||''}</span></td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.prev||''}</td>`; tb.appendChild(tr);});
+  let pag=document.getElementById('pagination'); pag.innerHTML='';
+  for(let i=1;i<=totalPages;i++){let b=document.createElement('button'); b.innerText=i; b.className=i===currentPage?'active':''; b.onclick=()=>{currentPage=i;render();}; pag.appendChild(b);}
+}
 document.getElementById('fDate').addEventListener('change',onDateChange);
-let url=new URLSearchParams(location.search);if(url.get('scheme'))scheme=url.get('scheme');
-if(url.get('date'))document.getElementById('fDate').value=url.get('date');else document.getElementById('fDate').value=getToday();
-if(scheme==='CMHT'){document.getElementById('tabPMJAY').classList.remove('active');document.getElementById('tabCMHT').classList.add('active');}
-window.addEventListener('load',async()=>{await buildMaster();onDateChange();});
+let url=new URLSearchParams(location.search); if(url.get('scheme')) scheme=url.get('scheme');
+if(url.get('date')) document.getElementById('fDate').value=url.get('date'); else document.getElementById('fDate').value=getToday();
+if(scheme==='CMHT'){document.getElementById('tabPMJAY').classList.remove('active'); document.getElementById('tabCMHT').classList.add('active');}
+window.addEventListener('load',async()=>{ await buildMaster(); onDateChange(); });
 </script>
 <script type="module" src="maintenance.js"></script>
 </body>
