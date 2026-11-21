@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Notifications - SHIJA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
+body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
+.whiteBar.folded{width:72px!important;min-width:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
+.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
+.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0;border:1px solid #e2e8f0}
+.sLogo img{width:100%;height:100%;object-fit:contain;display:block}
+.sLogo b{color:#0f172a;font-size:18px;font-weight:900}
+.sTitle b{color:#0f172a;font-size:16px;font-weight:900;display:block;line-height:1}
+.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700;display:block;margin-top:2px}
+.whiteBar.folded .sTitle{display:none}
+.whiteBar.folded .sHead{justify-content:center;padding:14px 0}
+.sMenu{flex:1;padding:8px 8px;overflow-y:auto}
+.sMenu::-webkit-scrollbar{width:0}
+.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;transition:.2s}
+.sMenu a:hover{background:#1e293b;color:#fff}
+.sMenu a.active{background:#1e293b;color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px #334155}
+.mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px;flex-shrink:0}
+.mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sMenu a.active .mi{background:#2563eb}
+.sMenu a.active .mi svg{stroke:#fff}
+.ml{overflow:hidden;text-overflow:ellipsis}
+.whiteBar.folded .ml{display:none}
+.whiteBar.folded .sMenu a{justify-content:center;padding:12px 0}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;overflow:hidden;white-space:nowrap}
+.whiteBar.folded .sFoot{display:none}
+.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
+.menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
+.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(37,99,235,0.08) 1px, transparent 0);background-size:22px 22px;max-width:100%}
+.box{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:20px;width:100%;max-width:100%}
+.tabs{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+.tab{padding:9px 16px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;font-weight:800;font-size:12px;cursor:pointer}
+.tab.active{background:#0f172a;color:#fff;border-color:#0f172a}
+.nCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.nCard b{font-size:15px;color:#0f172a}
+.nCard small{color:#64748b;font-weight:600}
+.badgePMJAY{background:#f59e0b;color:#000;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:900}
+.badgeCMHT{background:#ede9fe;color:#5b21b6;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:900;border:1px solid #ddd6fe}
+.btnA{background:#22c55e;color:#fff;border:0;padding:11px 18px;border-radius:10px;font-weight:900;cursor:pointer;font-size:13px}
+.btnR{background:#fee2e2;color:#991b1b;border:0;padding:11px 18px;border-radius:10px;font-weight:900;cursor:pointer;font-size:13px}
+.btnView{background:#eef2ff;color:#2563eb;border:1.5px solid #c7d2fe;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer;font-size:12px}
+.pill{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800}
+.pill.pending{background:#fef3c7;color:#92400e}
+.pill.approved{background:#dcfce7;color:#166534}
+.pill.rejected{background:#fee2e2;color:#991b1b}
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
+  .content{padding:12px}
+  .box{padding:16px;border-radius:12px}
+  .top{padding:0 12px;height:60px}
+  .top .logo{font-size:14px}
+  .nCard{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<div id="mobOverlay" onclick="closeMob()"></div>
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_notif_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_notif2_"+Math.random()); }
+const db= getFirestore(app);
+try{ onSnapshot(doc(db,"system","global_logout"),(snap)=>{ if(!snap.exists()) return; let lt=snap.data().logoutTime||0; let my=parseInt(localStorage.getItem('shija_login_time')||'0'); if(lt>my && my!==0){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); localStorage.removeItem('shija_role'); alert('🔒 Logged out'); location.href='login.html?reason=global'; } }); }catch(e){}
+</script>
+
+<div class="whiteBar" id="whiteBar">
+<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+<div class="sHead"><div class="sLogo"><img src="logoc.png" id="logoImg" alt="SHIJA" onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'"><b id="logoFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center">S</b></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
+<div class="sMenu">
+<a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
+<a href="notifications.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><span class="ml">NOTIFICATIONS</span></a>
+<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
+<a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
+<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
+<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></span><span class="ml">OFFICE ASSISTANT</span></a>
+<a href="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
+<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
+<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
+<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
+<a href="addlist.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span><span class="ml">ADD LIST</span></a>
+<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
+<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT REPORT</span></a>
+<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/></svg></span><span class="ml">ADD PATIENT FOR PMJAY</span></a>
+<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span><span class="ml">BILL</span></a>
+<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
+</div>
+</div>
+<div class="sFoot">System Online • SHIJA</div>
+</div>
+
+<div class="mainWrap">
+<div class="top">
+<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> NOTIFICATIONS <span id="pendingCountTop" style="background:#ef4444;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:900">0 Pending</span></div>
+<div style="display:flex;align-items:center;gap:10px">
+  <a href="notifications.html" style="position:relative;width:42px;height:42px;border-radius:12px;background:#fff;border:1.5px solid #e2e8f0;display:grid;place-items:center;text-decoration:none">
+    <span style="font-size:20px">🔔</span>
+    <span id="bellCount" style="position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:20px;background:#ef4444;color:#fff;font-size:11px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid #fff">0</span>
+  </a>
+  <div id="adminMenuWrap" style="position:relative">
+    <button id="adminBtn" style="height:38px;padding:0 14px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:12px;cursor:pointer">Admin ▾</button>
+    <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
+      <button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button>
+      <button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="content">
+<div class="box">
+<h1 style="font-size:20px;font-weight:900;color:#0f172a">Patient Add Requests</h1>
+<p style="margin:4px 0 0;color:#64748b;font-size:12px;font-weight:600">Approve to add to Total List • Reject to remove • PMJAY → total.html • CMHT → cmht.html</p>
+
+<div class="tabs">
+<button class="tab active" id="tabPending" onclick="setFilter('pending')">Pending (<span id="cPending">0</span>)</button>
+<button class="tab" id="tabApproved" onclick="setFilter('approved')">Approved (<span id="cApproved">0</span>)</button>
+<button class="tab" id="tabRejected" onclick="setFilter('rejected')">Rejected (<span id="cRejected">0</span>)</button>
+<button class="tab" id="tabAll" onclick="setFilter('all')">All (<span id="cAll">0</span>)</button>
+</div>
+
+<div id="list">Loading...</div>
+</div>
+</div>
+<div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis • Notifications</div>
+</div>
+
+<div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)">
+  <div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0">
+    <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter admin password</div>
+    <input type="password" id="adminPassInput" placeholder="Password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none">
+    <div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div>
+    <div style="display:flex;gap:8px">
+      <button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:12px;cursor:pointer">Cancel</button>
+      <button id="confirmLogoutAll" style="flex:1;height:38px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer">Logout All</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleWhiteBar(){
+  if(window.innerWidth<=900){
+    document.getElementById('whiteBar').classList.toggle('mOpen');
+    document.getElementById('mobOverlay').classList.toggle('show');
+  }else{
+    document.getElementById('whiteBar').classList.toggle('folded');
+  }
+}
+function closeMob(){
+  document.getElementById('whiteBar').classList.remove('mOpen');
+  document.getElementById('mobOverlay').classList.remove('show');
+}
+document.addEventListener('DOMContentLoaded', function(){
+ document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
+ const adminBtn=document.getElementById('adminBtn');
+ const adminDropdown=document.getElementById('adminDropdown');
+ adminBtn.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
+ document.addEventListener('click',()=>{ adminDropdown.style.display='none'; });
+ document.getElementById('btnLogout').addEventListener('click',()=>{
+   if(confirm('Logout from this device?')){
+     localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); localStorage.removeItem('shija_role');
+     location.href='login.html';
+   }
+ });
+ document.getElementById('btnLogoutAll').addEventListener('click',()=>{
+   adminDropdown.style.display='none';
+   document.getElementById('logoutAllModal').style.display='flex';
+   document.getElementById('adminPassInput').value=''; document.getElementById('passError').style.display='none';
+   setTimeout(()=>document.getElementById('adminPassInput').focus(),100);
+ });
+ document.getElementById('cancelLogoutAll').addEventListener('click',()=>{ document.getElementById('logoutAllModal').style.display='none'; });
+ document.getElementById('logoutAllModal').addEventListener('click',(e)=>{ if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none'; });
+});
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let notifApp; try{ notifApp=initializeApp(firebaseConfig,"notif_page_"+Math.random()); }catch(e){ notifApp=initializeApp(firebaseConfig,"notif_page2_"+Math.random()); }
+const db=getFirestore(notifApp);
+const ADMIN_PASSWORD="jack8189";
+document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
+  let pass=document.getElementById('adminPassInput').value.trim();
+  if(pass!==ADMIN_PASSWORD){ document.getElementById('passError').style.display='block'; return; }
+  document.getElementById('passError').style.display='none';
+  let btn=document.getElementById('confirmLogoutAll'); btn.innerText='...'; btn.disabled=true;
+  try{
+    await setDoc(doc(db,"system","global_logout"),{ logoutTime: Date.now(), timestamp: serverTimestamp(), triggeredBy:'admin' },{merge:true});
+    alert('All devices logged out!');
+    localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); location.href='login.html';
+  }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
+});
+document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{ if(e.key==='Enter') document.getElementById('confirmLogoutAll').click(); });
+
+let allReq=[]; let filter='pending';
+window.setFilter=(f)=>{
+  filter=f;
+  ['pending','approved','rejected','all'].forEach(x=>{
+    let el=document.getElementById('tab'+x.charAt(0).toUpperCase()+x.slice(1));
+    if(el) el.classList.toggle('active', x===f);
+  });
+  render();
+};
+
+function render(){
+  let pending = allReq.filter(r=>r.status==='pending');
+  let approved = allReq.filter(r=>r.status==='approved');
+  let rejected = allReq.filter(r=>r.status==='rejected');
+  document.getElementById('cPending').textContent = pending.length;
+  document.getElementById('cApproved').textContent = approved.length;
+  document.getElementById('cRejected').textContent = rejected.length;
+  document.getElementById('cAll').textContent = allReq.length;
+  document.getElementById('pendingCountTop').textContent = pending.length + ' Pending';
+
+  // BELL COUNT - right corner of bell icon
+  let bell=document.getElementById('bellCount');
+  if(bell){ bell.textContent=pending.length; bell.style.display = pending.length>0 ? 'flex':'none'; }
+
+  let data = filter==='all' ? allReq : allReq.filter(r=>r.status===filter);
+  if(!data.length){
+    document.getElementById('list').innerHTML='<div style="text-align:center;padding:40px;color:#64748b;font-weight:600">No '+filter+' requests</div>';
+    return;
+  }
+  document.getElementById('list').innerHTML = data.map(p=>{
+    let isCMHT = (p.scheme||'').toUpperCase()==='CMHT';
+    let badge = isCMHT ? '<span class="badgeCMHT">CMHT</span>' : '<span class="badgePMJAY">PMJAY</span>';
+    let idLabel = isCMHT ? 'CMHT' : 'PMJAY';
+    let idVal = isCMHT ? (p.cmhtId||p.cmht||p.pmjayId||p.pmjay||'-') : (p.pmjayId||p.pmjay||p.cmhtId||p.cmht||'-');
+    let target = isCMHT ? 'cmht.html' : 'total.html';
+    let btns = '';
+    if(p.status==='pending'){
+      btns = `<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btnA" onclick="approveReq('${p.id}')">✓ Approve → ${target}</button><button class="btnR" onclick="rejectReq('${p.id}')">✕ Reject</button></div>`;
+    } else {
+      btns = `<span class="pill ${p.status}">${(p.status||'').toUpperCase()}</span> <button class="btnView" onclick="location.href='${target}'">View in ${target}</button>`;
+    }
+    return `<div class="nCard">
+      <div style="flex:1;min-width:220px">
+        <b>${p.patientName||p.name||'-'}</b> ${badge}<br>
+        <small>SHRI: ${p.shri||p.shriId||'-'} • ${idLabel}: ${idVal} • ${p.contact||p.contactNo||'-'}</small><br>
+        <small>${p.address||p.addr||''} • Age: ${p.age||'-'} • ${p.gender||p.sex||''} • Aadhaar: ${p.aadhaar||p.aadhaarNo||'-'}</small><br>
+        <small>Requested: ${p.createdAt ? new Date(p.createdAt).toLocaleString() : '-'}</small>
+      </div>
+      ${btns}
+    </div>`;
+  }).join('');
+}
+
+window.approveReq = async(id)=>{
+  let p = allReq.find(x=>x.id===id); if(!p) return;
+  let isCMHT = (p.scheme||'').toUpperCase()==='CMHT';
+  let col = isCMHT ? 'cmht_patients' : 'patients';
+  let targetPage = isCMHT ? 'cmht.html' : 'total.html';
+  if(!confirm('Approve '+(p.patientName||p.name)+' ?\nWill go to '+targetPage)) return;
+
+  let docId = String(p.shri || p.shriId || id).trim();
+  let idVal = isCMHT ? (p.cmhtId||p.cmht||p.pmjayId||p.pmjay||'') : (p.pmjayId||p.pmjay||p.cmhtId||p.cmht||'');
+
+  let data = {
+    patientName: p.patientName||p.name||'',
+    name: p.patientName||p.name||'',
+    shriId: p.shri||p.shriId||'',
+    shri: p.shri||p.shriId||'',
+    contactNo: p.contact||p.contactNo||'',
+    contact: p.contact||p.contactNo||'',
+    address: p.address||p.addr||'',
+    addr: p.address||p.addr||'',
+    age: p.age||'',
+    gender: p.gender||p.sex||'',
+    sex: p.gender||p.sex||'',
+    aadhaarNo: p.aadhaar||p.aadhaarNo||'',
+    aadhaar: p.aadhaar||p.aadhaarNo||'',
+    scheme: isCMHT ? 'CMHT' : 'PMJAY',
+    approved: true, approvedAt: Date.now(),
+    key: docId, deleted:false,
+    createdAt: p.createdAt ? new Date(p.createdAt).toISOString() : new Date().toISOString()
+  };
+  if(isCMHT){ data.cmhtId=idVal; data.cmht=idVal; data.pmjayId=idVal; data.pmjay=idVal; }
+  else { data.pmjayId=idVal; data.pmjay=idVal; data.cmhtId=idVal; data.cmht=idVal; }
+
+  try{
+    await setDoc(doc(db, col, docId), data, {merge:true});
+    await updateDoc(doc(db,"pending_patients",id),{status:'approved', approvedAt:Date.now()});
+    alert('✅ Approved! Now showing in '+targetPage);
+  }catch(e){ alert(e.message); }
+};
+
+window.rejectReq = async(id)=>{
+  let p = allReq.find(x=>x.id===id);
+  if(!confirm('Reject '+(p?p.patientName:'this request')+' ?')) return;
+  try{ await updateDoc(doc(db,"pending_patients",id),{status:'rejected', rejectedAt:Date.now()}); }
+  catch(e){ alert(e.message); }
+};
+
+// LIVE - new request appears directly, bell updates directly
+onSnapshot(collection(db,"pending_patients"), (snap)=>{
+  allReq=[]; snap.forEach(d=> allReq.push({id:d.id, ...d.data()}));
+  allReq.sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
+  render();
+});
+</script>
+<script type="module" src="maintenance.js"></script>
+</body>
+</html>
