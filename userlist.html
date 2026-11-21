@@ -159,7 +159,7 @@ import { getFirestore, collection, getDocs, doc, getDoc, setDoc, serverTimestamp
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app = initializeApp(firebaseConfig,"todayMain_"+Date.now());const db = getFirestore(app);
 let allPatients=[],filtered=[],currentPage=1,pageSize=12;
-let photoCache={}, currentPhotoKey=null, contactMap={};
+let photoCache={}, currentPhotoKey=null, masterMap={};
 function cleanKey(k){ return String(k).replace(/[^a-zA-Z0-9]/g,'_'); }
 function getToday(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function fmtDisp(iso){if(!iso)return'';let p=iso.split('-');return `${p[2]}-${p[1]}-${p[0]}`;}
@@ -176,16 +176,27 @@ document.getElementById('filterBlock').addEventListener('change',()=>{currentPag
 updateDateDisplay();
 function getInitial(name){ return (name||'P').trim().charAt(0).toUpperCase(); }
 function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim().replace(/\s+/g,' ');let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]);let mn=m[2]?m[2].padStart(2,'0'):'00';let ap=m[3]||(s.includes('AM')?'AM':s.includes('PM')?'PM':'');return ap?`${h}:${mn} ${ap}`:`${h}:${mn}`;}
-async function buildContactMap(){
-  contactMap={};
+async function buildMasterMap(){
+  masterMap={};
   for(let col of ['patients','cmht_patients']){
     try{
       let snap=await getDocs(collection(db,col));
       snap.forEach(d=>{
         let p=d.data(); if(p.deleted) return;
         let shri=String(p.shri||p.shriId||d.id||'').trim().toUpperCase();
+        if(!shri) return;
+        let fullName=String(p.patientName||p.name||'').trim();
         let contact=String(p.contact||p.contactNo||p.phone||p.mobile||'').trim();
-        if(shri && contact) contactMap[shri]=contact;
+        let edited={};
+        try{ edited=JSON.parse(localStorage.getItem('editedKeys')||'{}'); }catch(e){}
+        let ed=edited[shri]||edited[d.id];
+        if(ed){
+          if(ed.name) fullName=String(ed.name).trim();
+          if(ed.contact) contact=String(ed.contact).trim();
+        }
+        if(!masterMap[shri]) masterMap[shri]={name:'',contact:''};
+        if(fullName) masterMap[shri].name=fullName;
+        if(contact) masterMap[shri].contact=contact;
       });
     }catch(e){}
   }
@@ -270,13 +281,13 @@ window.renderAll=()=>{
  });
  if(data.length===0) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">No patients in list for this date</div>';
  document.getElementById('patientGrid').innerHTML=gridHtml;
- let html='<tr><th>SL No</th><th>Patient Name</th><th>Contact Number</th><th>SHRI ID</th><th>Scheme</th><th>Time</th><th>Block</th><th>Photo</th></tr>';
+ let html='<tr><th>SL No</th><th>Patient Name</th><th>Contact Number</th><th>SHRI ID</th><th>Photo</th><th>Time</th><th>Block</th><th>Scheme</th></tr>';
  data.forEach((p)=>{
    let ukey=p.key;
    let photo=photoCache[ukey];
    let thumb=photo?`<img src="${photo}">`:`${getInitial(p.name)}`;
    let slNo=start+data.indexOf(p)+1;
-   html+=`<tr><td><div class="sl">${slNo}</div></td><td><b>${p.name||'-'}</b></td><td><span class="pmjayTable">${p.contact||'-'}</span></td><td><span class="shriTable">${p.shri||'-'}</span></td><td>${p.scheme||'-'}</td><td>${p.time||'-'}</td><td>${p.block||'-'}</td><td><div class="tAvatar" data-ukey="${ukey}" onclick="openPhoto('${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}','${(p.name||'').replace(/'/g,"\\'")}')">${thumb}</div></td></tr>`;
+   html+=`<tr><td><div class="sl">${slNo}</div></td><td><b>${p.name||'-'}</b></td><td><span class="pmjayTable">${p.contact||'-'}</span></td><td><span class="shriTable">${p.shri||'-'}</span></td><td><div class="tAvatar" data-ukey="${ukey}" onclick="openPhoto('${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}','${(p.name||'').replace(/'/g,"\\'")}')">${thumb}</div></td><td>${p.time||'-'}</td><td>${p.block||'-'}</td><td>${p.scheme||'-'}</td></tr>`;
  });
  if(data.length===0) html+='<tr><td colspan="8" style="text-align:center;padding:20px">No patients in list for this date</td></tr>';
  document.getElementById('tbl').innerHTML=html;
@@ -288,7 +299,7 @@ window.prevPage=()=>{if(currentPage>1){currentPage--;renderAll();}};
 window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(currentPage<totalPages){currentPage++;renderAll();}};
 window.goPage=(n)=>{currentPage=n;renderAll();};
 async function loadToday(){
- await buildContactMap();
+ await buildMasterMap();
  let date=document.getElementById('fDate').value;
  let list=[];
  for(let scheme of ['PMJAY','CMHT']){
@@ -300,7 +311,10 @@ async function loadToday(){
          if((p.patientStatus||'ENHANCEMENT')==='DISCHARGE')return;
          let shri=String(p.shri||'').trim().toUpperCase();
          let key=shri||String(p.pmjayCmhtId||p.name||'').trim();
-         list.push({key:key,name:String(p.name||'').trim(),shri:shri,contact:contactMap[shri]||'',time:p.time||'',block:p.block||'',prev:p.prev||'',scheme:scheme,sl:p.sl||0});
+         let m=masterMap[shri];
+         let fullName = (m && m.name) ? m.name : String(p.name||'').trim();
+         let contact = (m && m.contact) ? m.contact : '';
+         list.push({key:key,name:fullName,shri:shri,contact:contact,time:p.time||'',block:p.block||'',prev:p.prev||'',scheme:scheme,sl:p.sl||0});
        });
      }
    }catch(e){}
