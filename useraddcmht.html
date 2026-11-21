@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Add Patient Request - CMHT - SHIJA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
+body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
+.whiteBar.folded{width:72px!important;min-width:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
+.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
+.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0;border:1px solid #e2e8f0}
+.sLogo img{width:100%;height:100%;object-fit:contain;display:block}
+.sLogo b{color:#0f172a;font-size:18px;font-weight:900}
+.sTitle b{color:#0f172a;font-size:16px;font-weight:900;display:block;line-height:1}
+.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700;display:block;margin-top:2px}
+.whiteBar.folded .sTitle{display:none}
+.whiteBar.folded .sHead{justify-content:center;padding:14px 0}
+.sMenu{flex:1;padding:8px 8px;overflow-y:auto}
+.sMenu::-webkit-scrollbar{width:0}
+.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;transition:.2s}
+.sMenu a:hover{background:#1e293b;color:#fff}
+.sMenu a.active{background:#1e293b;color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px #334155}
+.mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px;flex-shrink:0}
+.mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sMenu a.active .mi{background:#8b5cf6}
+.sMenu a.active .mi svg{stroke:#fff}
+.ml{overflow:hidden;text-overflow:ellipsis}
+.whiteBar.folded .ml{display:none}
+.whiteBar.folded .sMenu a{justify-content:center;padding:12px 0}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;overflow:hidden;white-space:nowrap}
+.whiteBar.folded .sFoot{display:none}
+.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
+.menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
+.badgeBlue{background:#ede9fe;color:#5b21b6;padding:6px 12px;border-radius:20px;font-weight:900;font-size:11px;border:1px solid #ddd6fe}
+.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(139,92,246,0.08) 1px, transparent 0);background-size:22px 22px;max-width:100%}
+.box{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:24px;width:100%;max-width:100%;min-height:calc(100vh - 140px)}
+.box label{font-size:11px;font-weight:800;color:#334155;display:block;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+.box input,.box select{width:100%;padding:14px 14px;border:2px solid #cbd5e1;border-radius:10px;margin:0;font-size:15px;font-weight:600;background:#fff;outline:0;transition:.2s}
+.box input:focus,.box select:focus{border-color:#8b5cf6;background:#f5f3ff}
+.row{display:flex;gap:14px}
+.row>div{flex:1}
+.btn{flex:1;padding:16px;background:#8b5cf6;color:#fff;border:0;border-radius:10px;font-weight:900;cursor:pointer;font-size:15px;letter-spacing:.5px}
+.btn:hover{background:#7c3aed}
+.addRow{display:flex;gap:12px;align-items:center;margin-top:22px}
+.ledLight{width:14px;min-width:14px;height:14px;border-radius:50%;background:#ef4444;box-shadow:0 0 0 3px #fecaca, 0 0 10px #ef4444;transition:.3s;flex-shrink:0}
+.ledLight.green{background:#10b981;box-shadow:0 0 0 3px #a7f3d0, 0 0 12px #10b981}
+.ledLight.red{background:#ef4444;box-shadow:0 0 0 3px #fecaca, 0 0 10px #ef4444}
+.myReq{margin-top:16px;background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:18px}
+.myReq h3{font-size:15px;font-weight:900;margin-bottom:8px}
+.reqItem{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:13px;gap:10px}
+.pill{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap}
+.pill.pending{background:#fef3c7;color:#92400e}
+.pill.approved{background:#dcfce7;color:#166534}
+.pill.rejected{background:#fee2e2;color:#991b1b}
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
+  .content{padding:12px}
+  .box{padding:16px;border-radius:12px;min-height:auto}
+  .row{flex-direction:column;gap:0}
+  .top{padding:0 12px;height:60px}
+  .top .logo{font-size:14px}
+}
+@media(max-width:480px){
+  .box input,.box select{padding:12px;font-size:16px}
+  .btn{padding:14px;font-size:14px}
+}
+.box input:hover, .box select:hover{border-color:#8b5cf6!important;background:#f5f3ff!important;transform:translateY(-1px);box-shadow:0 4px 12px rgba(139,92,246,0.15)}
+.box input, .box select{transition:all .22s ease}
+.btn{transition:all .22s ease}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(139,92,246,0.2)}
+.sMenu a{transition:all .22s ease}
+.sMenu a:hover{transform:translateX(3px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.box{transition:all .25s ease}
+.box:hover{box-shadow:0 12px 28px rgba(0,0,0,0.08);transform:translateY(-1px)}
+</style>
+</head>
+<body>
+<div id="mobOverlay" onclick="closeMob()"></div>
+<script>
+if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
+if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+let app; try{ app=initializeApp(cfg,"guard_usercmhtadd_"+Math.random()); }catch(e){ app=initializeApp(cfg,"guard_usercmhtadd2_"+Math.random()); }
+const db= getFirestore(app);
+try{ onSnapshot(doc(db,"system","global_logout"),(snap)=>{ if(!snap.exists()) return; let lt=snap.data().logoutTime||0; let my=parseInt(localStorage.getItem('shija_login_time')||'0'); if(lt>my && my!==0){ localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); localStorage.removeItem('shija_role'); alert('🔒 Logged out'); location.href='login.html?reason=global'; } }); }catch(e){}
+</script>
+
+<div class="whiteBar" id="whiteBar">
+<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+<div class="sHead"><div class="sLogo"><img src="logoc.png" id="logoImg" alt="SHIJA" onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'"><b id="logoFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center">S</b></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
+<div class="sMenu">
+<a href="userindex.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
+<a href="usertotal.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
+<a href="usercmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
+<a href="userkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT REPORT</span></a>
+<a href="usercmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
+<a href="userpatientsearch.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
+<a href="userlist.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
+<a href="useradd.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/></svg></span><span class="ml">ADD PATIENT FOR PMJAY</span></a>
+<a href="usercmhtadd.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/></svg></span><span class="ml">ADD PATIENT FOR CMHT</span></a>
+<a href="setting.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span class="ml">SETTING</span></a>
+</div>
+</div>
+<div class="sFoot">System Online • SHIJA</div>
+</div>
+
+<div class="mainWrap">
+<div class="top">
+<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> ADD PATIENT <div class="badgeBlue">CMHT</div></div>
+<div style="display:flex;align-items:center;">
+  <div id="adminMenuWrap" style="position:relative">
+    <button id="adminBtn" style="height:38px;padding:0 14px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:12px;cursor:pointer">User ▾</button>
+    <div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px">
+      <button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="content">
+<input type="text" style="display:none" aria-hidden="true">
+<input type="password" style="display:none" aria-hidden="true">
+<div class="box">
+<h1 style="font-size:20px;font-weight:900;color:#0f172a">ADD PATIENT FOR CMHT</h1><p id="msg" style="margin:4px 0 16px;color:#64748b;font-size:12px;font-weight:600">Will show in CMHT Total Patients only after Admin approves</p>
+
+<div class="row"><div style="flex:2"><label>PATIENT NAME *</label><input id="name" autocomplete="off" placeholder="ENTER FULL NAME"></div>
+<div style="flex:1"><label>SHRI ID</label>
+<input id="shri" type="text" autocomplete="new-password" data-lpignore="true" data-form-type="other" name="shri-id-field-xyz" readonly onfocus="this.removeAttribute('readonly')" placeholder="SHRI...">
+</div></div>
+
+<div class="row"><div><label>CMHT ID *</label><input id="cmht" autocomplete="off" placeholder="CMHT ID"></div><div><label>CONTACT NO</label><input id="contact" autocomplete="off" placeholder="MOBILE NUMBER"></div></div>
+<div class="row"><div><label>AADHAAR NUMBER</label><input id="aadhaar" autocomplete="off" maxlength="12" placeholder="12 DIGIT AADHAAR"></div><div><label>AGE</label><input id="age" autocomplete="off" type="number" placeholder="AGE"></div><div><label>SEX</label><select id="sex"><option value=""></option><option value="MALE">MALE</option><option value="FEMALE">FEMALE</option><option value="OTHER">OTHER</option></select></div></div>
+<label>ADDRESS</label><input id="addr" autocomplete="off" placeholder="FULL ADDRESS">
+<div class="addRow"><button class="btn" id="sendBtn" onclick="sendRequest()">SEND REQUEST TO ADMIN →</button><div class="ledLight red" id="statusCircle"></div></div>
+<div style="margin-top:14px;background:#ede9fe;border:1px solid #ddd6fe;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:600;color:#5b21b6">⚠️ CMHT patient will NOT appear in CMHT Total List until Admin approves in Notifications.</div>
+</div>
+
+<div class="myReq"><h3>My CMHT Requests</h3><div id="myList">Loading...</div></div>
+</div>
+<div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis • CMHT Add Patient Request</div>
+</div>
+
+<script>
+function toggleWhiteBar(){
+  if(window.innerWidth<=900){
+    document.getElementById('whiteBar').classList.toggle('mOpen');
+    document.getElementById('mobOverlay').classList.toggle('show');
+  }else{
+    document.getElementById('whiteBar').classList.toggle('folded');
+  }
+}
+function closeMob(){
+  document.getElementById('whiteBar').classList.remove('mOpen');
+  document.getElementById('mobOverlay').classList.remove('show');
+}
+document.addEventListener('DOMContentLoaded', function(){
+ document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
+ const n=document.getElementById('name'), s=document.getElementById('shri'), p=document.getElementById('cmht'), c=document.getElementById('statusCircle');
+ function upd(){ if(n.value.trim() && s.value.trim() && p.value.trim()){ c.className='ledLight green'; } else { c.className='ledLight red'; } }
+ n.addEventListener('input',upd); s.addEventListener('input',upd); p.addEventListener('input',upd);
+ const adminBtn=document.getElementById('adminBtn');
+ const adminDropdown=document.getElementById('adminDropdown');
+ adminBtn.addEventListener('click',(e)=>{e.stopPropagation(); adminDropdown.style.display = adminDropdown.style.display==='none' || adminDropdown.style.display==='' ? 'block':'none';});
+ document.addEventListener('click',()=>{ adminDropdown.style.display='none'; });
+ document.getElementById('btnLogout').addEventListener('click',()=>{
+   if(confirm('Logout?')){
+     localStorage.removeItem('shija_logged'); localStorage.removeItem('shija_login_time'); localStorage.removeItem('shija_role');
+     location.href='login.html';
+   }
+ });
+});
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app2=initializeApp(firebaseConfig,"userAddCMHT_"+Math.random());
+const db=getFirestore(app2);
+const userId = localStorage.getItem('shija_user_id') || 'user_1';
+
+window.sendRequest=async()=>{
+ let name=document.getElementById('name').value.trim();
+ let shri=document.getElementById('shri').value.trim();
+ let cmht=document.getElementById('cmht').value.trim();
+ let contact=document.getElementById('contact').value.trim();
+ let addr=document.getElementById('addr').value.trim();
+ let aadhaar=document.getElementById('aadhaar').value.trim();
+ let age=document.getElementById('age').value.trim();
+ let sex=document.getElementById('sex').value.trim();
+ if(!name){ alert('Enter Name'); return; }
+ if(!shri || shri.toLowerCase()==='admin'){ shri='SHRI'+Date.now().toString().slice(-6); }
+ let btn=document.getElementById('sendBtn'); btn.textContent='Sending...'; btn.disabled=true;
+ document.getElementById('msg').textContent='Sending request for '+shri+'...';
+ try{
+   await addDoc(collection(db,"pending_patients"),{
+     patientName:name, name:name,
+     shriId:shri, shri:shri,
+     cmhtId:cmht, cmht:cmht,
+     pmjayId:cmht, pmjay:cmht,
+     contactNo:contact, contact:contact,
+     address:addr, addr:addr,
+     aadhaarNo:aadhaar, aadhaar:aadhaar,
+     age:age, gender:sex, sex:sex,
+     scheme:'CMHT', status:'pending',
+     requestedBy:userId, createdAt:Date.now(), createdAtServer:serverTimestamp()
+   });
+   document.getElementById('msg').textContent='✅ CMHT Request sent! Wait for Admin approval.';
+   document.getElementById('name').value=''; document.getElementById('shri').value=''; document.getElementById('contact').value=''; document.getElementById('cmht').value=''; document.getElementById('addr').value=''; document.getElementById('aadhaar').value=''; document.getElementById('age').value=''; document.getElementById('sex').value='';
+   document.getElementById('statusCircle').className='ledLight red';
+   loadMine();
+ }catch(e){ document.getElementById('msg').textContent='Failed: '+e.message; alert(e.message); }
+ btn.textContent='SEND REQUEST TO ADMIN →'; btn.disabled=false;
+};
+async function loadMine(){
+  try{
+    let q=query(collection(db,"pending_patients"), where("requestedBy","==",userId), where("scheme","==","CMHT"));
+    let snap=await getDocs(q); let arr=[]; snap.forEach(d=>arr.push({id:d.id,...d.data()}));
+    arr.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    if(!arr.length){ document.getElementById('myList').innerHTML='No CMHT requests yet'; return; }
+    document.getElementById('myList').innerHTML=arr.map(p=>`<div class="reqItem"><div><b>${p.patientName}</b><br><small>${p.shri} • CMHT: ${p.cmhtId||p.pmjayId||''}</small></div><span class="pill ${p.status}">${(p.status||'pending').toUpperCase()}</span></div>`).join('');
+  }catch(e){ document.getElementById('myList').innerHTML='Could not load'; }
+}
+loadMine();
+</script>
+<script type="module" src="maintenance.js"></script>
+</body>
+</html>
