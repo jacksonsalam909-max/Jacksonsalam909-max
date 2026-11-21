@@ -90,6 +90,18 @@ tr{cursor:pointer}
 .detailCard.full{grid-column:1/-1}
 .detailCard span{display:block;font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;margin-bottom:4px}
 .detailCard b{display:block;font-size:14px;font-weight:800;color:#0f172a;word-break:break-word}
+.btnEditDetail{background:#facc15;color:#000;border:0;padding:9px 18px;border-radius:20px;font-weight:900;font-size:12px;cursor:pointer;box-shadow:0 2px 8px rgba(250,204,21,.4)}
+.btnEditDetail:hover{background:#eab308;transform:translateY(-1px)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;z-index:10000;padding:16px}
+.modal.show{display:grid}
+.modalBox{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:440px;max-height:92vh;overflow-y:auto}
+.modalBox h3{font-weight:900;margin-bottom:10px;font-size:17px}
+.modalBox label{font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;display:block;margin:10px 0 4px}
+.modalBox input{width:100%;padding:11px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:13px;outline:0}
+.modalBox input:focus{border-color:#2563eb}
+.mBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.saveBtn{background:#2563eb;color:#fff;padding:10px 18px;border-radius:10px;border:0;font-weight:800;cursor:pointer}
+.cancelBtn{background:#f1f5f9;padding:10px 16px;border-radius:10px;border:0;font-weight:700;cursor:pointer}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
 #photoPop{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:10001;display:none;align-items:center;justify-content:center;padding:20px}
@@ -112,6 +124,7 @@ tr{cursor:pointer}
     <div id="photoPopName"></div>
   </div>
 </div>
+<div class="modal" id="editModal" onclick="if(event.target.id==='editModal') closeEdit()"><div class="modalBox"><h3>Edit Patient</h3><label>Patient Name</label><input id="eName" placeholder="Name"><label>SHRI ID</label><input id="eShri" placeholder="SHRI ID"><label id="ePmjayLabel">PMJAY / CMHT ID</label><input id="ePmjay" placeholder="PMJAY / CMHT ID"><label>Contact Number</label><input id="eContact" placeholder="Contact"><label>Aadhaar Number</label><input id="eAadhaar" placeholder="Aadhaar"><label>Age</label><input id="eAge" placeholder="Age"><label>Gender</label><input id="eGender" placeholder="Male / Female"><label>Address</label><input id="eAddr" placeholder="Address"><div class="mBtns"><button class="cancelBtn" onclick="closeEdit()">Cancel</button><button class="saveBtn" id="saveBtn" onclick="saveEdit()">Save</button></div></div></div>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
 <div class="whiteBar" id="whiteBar"><div style="display:flex;flex-direction:column;height:100%;overflow:hidden"><div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
 <div class="sMenu">
@@ -155,7 +168,7 @@ tr{cursor:pointer}
 <div class="patientGrid hidden" id="patientGrid"></div>
 <div class="tableWrap hidden" id="tableWrap"><div style="overflow-x:auto"><table id="tbl"></table></div></div>
 <div id="detailView" class="detailView hidden">
-<div class="detailHead"><h2>Patient Information</h2><div style="display:flex;align-items:center;gap:10px"><span id="detailScheme" class="schemeBadge pmjay">PMJAY</span><div class="closeCircle" onclick="backToResults()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div></div>
+<div class="detailHead"><h2>Patient Information</h2><div style="display:flex;align-items:center;gap:10px"><span id="detailScheme" class="schemeBadge pmjay">PMJAY</span><button class="btnEditDetail" onclick="openEditDetail()">✎ Edit</button><div class="closeCircle" onclick="backToResults()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div></div>
 <div class="detailPhotoBox" id="detailPhotoBox" onclick="openPhotoPop()">
 <div class="detailPhoto" id="dPhotoBox"><img id="dPhoto" src="" alt="" style="display:none"><span id="dPhotoInitial">P</span></div>
 <div class="detailPhotoName"><b id="dPhotoName">PATIENT NAME</b><span id="dPhotoSub">SHRI ID • PMJAY ID</span></div>
@@ -181,13 +194,13 @@ function openPhotoPop(){
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 const app = initializeApp(firebaseConfig,"search_final_plain_"+Date.now());
 const db = getFirestore(app);
 let allPatients=[]; let filtered=[];
 let currentView='grid'; let currentScheme='ALL';
-
+let currentDetailKey=null;
 function cleanKey(k){ return String(k).replace(/[^a-zA-Z0-9]/g,'_'); }
 function isTestPatient(raw){
   let s = [raw.key||'', raw.id||'', raw.name||'', raw.patientName||'', raw.shri||'', raw.shriId||'', raw.pmjay||'', raw.pmjayId||''].join(' ').toLowerCase();
@@ -212,7 +225,6 @@ async function getFullPhotoSmart(ukey){
   }catch(e){}
   return null;
 }
-
 window.setView=(v)=>{
  currentView=v;
  document.getElementById('gridBtn').classList.toggle('active',v==='grid');
@@ -256,14 +268,7 @@ window.onSearch=()=>{
 };
 function getGradient(i){ const g=['gc1','gc2','gc3','gc4','gc5','gc6','gc7','gc8','gc9','gc10','gc11','gc12']; return g[i%12]; }
 function getInitial(n){ return (n||'P').trim().charAt(0).toUpperCase(); }
-
-window.selectPatient=async (key)=>{
- let p=allPatients.find(x=>x.key===key) || filtered.find(x=>x.key===key);
- if(!p) return;
- document.getElementById('patientGrid').classList.add('hidden');
- document.getElementById('tableWrap').classList.add('hidden');
- document.getElementById('emptyState').classList.add('hidden');
- document.getElementById('detailView').classList.remove('hidden');
+function fillDetail(p){
  document.getElementById('detailScheme').textContent=p.scheme;
  document.getElementById('detailScheme').className='schemeBadge '+(p.scheme==='CMHT'?'cmht':'pmjay');
  document.getElementById('dName').textContent=p.name||'-';
@@ -275,31 +280,35 @@ window.selectPatient=async (key)=>{
  document.getElementById('dContact').textContent=p.contact||'-';
  document.getElementById('dAadhaar').textContent=p.aadhaar||'-';
  document.getElementById('dAddr').textContent=p.addr||'-';
- let photoBox=document.getElementById('detailPhotoBox');
- if(p.scheme==='CMHT'){
-   photoBox.style.display='none';
- }else{
-   photoBox.style.display='flex';
-   document.getElementById('dPhotoName').textContent=p.name||'PATIENT';
-   document.getElementById('dPhotoSub').textContent=(p.shri||'-')+' • '+(p.pmjay||p.scheme);
-   let photoEl=document.getElementById('dPhoto');
-   let initEl=document.getElementById('dPhotoInitial');
-   let photo=await getFullPhotoSmart(p.key);
-   if(photo){
-     photoEl.src=photo;
-     photoEl.style.display='block';
-     initEl.style.display='none';
-   }else{
-     photoEl.style.display='none';
-     initEl.style.display='grid';
-     initEl.textContent=getInitial(p.name);
-   }
- }
+ document.getElementById('dPhotoName').textContent=p.name||'PATIENT';
+ document.getElementById('dPhotoSub').textContent=(p.shri||'-')+' • '+(p.pmjay||p.scheme);
  document.getElementById('info').textContent='Patient: '+p.name;
+}
+window.selectPatient=async (key)=>{
+ let p=allPatients.find(x=>x.key===key) || filtered.find(x=>x.key===key);
+ if(!p) return;
+ currentDetailKey=key;
+ document.getElementById('patientGrid').classList.add('hidden');
+ document.getElementById('tableWrap').classList.add('hidden');
+ document.getElementById('emptyState').classList.add('hidden');
+ document.getElementById('detailView').classList.remove('hidden');
+ fillDetail(p);
+ let photoBox=document.getElementById('detailPhotoBox');
+ photoBox.style.display='flex';
+ let photoEl=document.getElementById('dPhoto');
+ let initEl=document.getElementById('dPhotoInitial');
+ photoEl.style.display='none'; initEl.style.display='grid'; initEl.textContent=getInitial(p.name);
+ let photo=await getFullPhotoSmart(p.key);
+ if(photo){
+   photoEl.src=photo;
+   photoEl.style.display='block';
+   initEl.style.display='none';
+ }
  window.scrollTo({top:0,behavior:'smooth'});
 };
 window.backToResults=()=>{
  document.getElementById('detailView').classList.add('hidden');
+ currentDetailKey=null;
  if(filtered.length>0){
    document.getElementById('patientGrid').classList.toggle('hidden', currentView!=='grid');
    document.getElementById('tableWrap').classList.toggle('hidden', currentView!=='table');
@@ -307,7 +316,48 @@ window.backToResults=()=>{
    document.getElementById('emptyState').classList.remove('hidden');
  }
 };
-
+window.openEditDetail=()=>{
+ let p=allPatients.find(x=>x.key===currentDetailKey);
+ if(!p) return;
+ document.getElementById('eName').value=p.name||'';
+ document.getElementById('eShri').value=p.shri||'';
+ document.getElementById('ePmjay').value=p.pmjay||'';
+ document.getElementById('ePmjayLabel').textContent=p.scheme==='CMHT'?'CMHT ID':'PMJAY ID';
+ document.getElementById('eContact').value=p.contact||'';
+ document.getElementById('eAadhaar').value=p.aadhaar||'';
+ document.getElementById('eAge').value=p.age||'';
+ document.getElementById('eGender').value=p.gender||'';
+ document.getElementById('eAddr').value=p.addr||'';
+ document.getElementById('editModal').classList.add('show');
+};
+window.closeEdit=()=>{ document.getElementById('editModal').classList.remove('show'); };
+window.saveEdit=async()=>{
+ let p=allPatients.find(x=>x.key===currentDetailKey);
+ if(!p) return;
+ let btn=document.getElementById('saveBtn'); btn.textContent='Saving...'; btn.disabled=true;
+ let name=document.getElementById('eName').value.trim();
+ let shri=document.getElementById('eShri').value.trim();
+ let pmjay=document.getElementById('ePmjay').value.trim();
+ let contact=document.getElementById('eContact').value.trim();
+ let aadhaar=document.getElementById('eAadhaar').value.trim();
+ let age=document.getElementById('eAge').value.trim();
+ let gender=document.getElementById('eGender').value.trim();
+ let addr=document.getElementById('eAddr').value.trim();
+ if(!name){ alert('Enter name'); btn.textContent='Save'; btn.disabled=false; return; }
+ p.name=name; p.shri=shri; p.pmjay=pmjay; p.contact=contact; p.aadhaar=aadhaar; p.age=age; p.gender=gender; p.addr=addr;
+ let col=p.scheme==='CMHT'?'cmht_patients':'patients';
+ let updated={patientName:name,name:name,shriId:shri,shri:shri,contactNo:contact,contact:contact,address:addr,addr:addr,age:age,gender:gender,sex:gender,aadhaarNo:aadhaar,aadhaar:aadhaar};
+ if(p.scheme==='CMHT'){ updated.cmhtId=pmjay; updated.cmht=pmjay; } else { updated.pmjayId=pmjay; updated.pmjay=pmjay; }
+ try{ await setDoc(doc(db,col,p.key),updated,{merge:true}); }catch(e){ alert('Save failed: '+e.message); }
+ try{
+   let m={}; try{ m=JSON.parse(localStorage.getItem('editedKeys')||'{}'); }catch(e){}
+   m[p.key]=updated; localStorage.setItem('editedKeys',JSON.stringify(m));
+ }catch(e){}
+ fillDetail(p);
+ renderAll();
+ closeEdit();
+ btn.textContent='Save'; btn.disabled=false;
+};
 function renderAll(){
  if(filtered.length===0){
    if(document.getElementById('search').value.trim().length>0){
@@ -344,9 +394,12 @@ function renderAll(){
  });
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('info').textContent=filtered.length+' patient(s) found';
+ if(currentDetailKey){
+   let cur=allPatients.find(x=>x.key===currentDetailKey);
+   if(cur) fillDetail(cur);
+ }
 }
 window.renderAll=renderAll;
-
 document.addEventListener('DOMContentLoaded',()=>{
  document.getElementById('menuBtnTop')?.addEventListener('click',(e)=>{e.preventDefault(); toggleWhiteBar();});
  document.getElementById('gridBtn')?.addEventListener('click',()=>setView('grid'));
@@ -370,7 +423,6 @@ document.addEventListener('DOMContentLoaded',()=>{
    });
  }
 });
-
 async function init(){
  let map={};
  function addToMap(raw,scheme){
@@ -383,7 +435,7 @@ async function init(){
    if(!name) return;
    let lname=name.toLowerCase();
    if(lname.includes('test patient')) return;
-   let obj={ key:key, name:name, shri:String(raw.shri||raw.shriId||'').trim(), pmjay:String(raw.pmjay||raw.pmjayId||'').trim(), contact:String(raw.contact||raw.contactNo||'').trim(), aadhaar:String(raw.aadhaar||raw.aadhaarNo||'').trim(), addr:String(raw.addr||raw.address||'').trim(), age:String(raw.age||'').trim(), gender:String(raw.gender||raw.sex||'').trim(), scheme:scheme };
+   let obj={ key:key, name:name, shri:String(raw.shri||raw.shriId||'').trim(), pmjay:String(raw.pmjay||raw.pmjayId||raw.cmht||raw.cmhtId||'').trim(), contact:String(raw.contact||raw.contactNo||'').trim(), aadhaar:String(raw.aadhaar||raw.aadhaarNo||'').trim(), addr:String(raw.addr||raw.address||'').trim(), age:String(raw.age||'').trim(), gender:String(raw.gender||raw.sex||'').trim(), scheme:scheme };
    if(!map[key]) map[key]=obj;
  }
  try{ if(typeof patientData!=='undefined' && Array.isArray(patientData)){ patientData.forEach(pd=>addToMap(pd,'PMJAY')); } }catch(e){}
