@@ -62,7 +62,7 @@ textarea{resize:vertical}
 .loginCard label{text-align:left}
 .footer{text-align:center;padding:10px;font-size:11px;color:#94a3b8}
 .pageGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
-.pageCard{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;padding:14px;text-align:center;transition:.2s}
+.pageCard{background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:14px;padding:14px;text-align:center;transition:.2s}
 .pageCard:hover{border-color:#2563eb;box-shadow:0 8px 20px rgba(37,99,235,.12);transform:translateY(-2px)}
 .pageCard b{font-size:13px;word-break:break-all;display:block;min-height:32px}
 .pageCard .mini{font-size:11px;color:#94a3b8;margin-bottom:10px}
@@ -82,7 +82,6 @@ textarea{resize:vertical}
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
 <div class="sHead"><div class="sLogo"><img src="menu.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
-<!-- ONLY THIS MENU CHANGED - USER MENU LIKE userindex.html -->
 <div class="sMenu">
 <a href="userindex.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
 <a href="usertotal.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
@@ -122,9 +121,10 @@ textarea{resize:vertical}
     <button class="btn btnBlue" onclick="saveMsg()">Save Message</button>
   </div>
 
+  <!-- USER CARDS ONLY -->
   <div class="card">
-    <div class="sectionTitle">📄 Per-Page Control — Card View</div>
-    <p class="sub">Top button = Maintenance • Bottom button = Hide • Tap to ON / OFF</p>
+    <div class="sectionTitle">👤 Per-Page Control — User Pages Only <span class="tag green">USER</span></div>
+    <p class="sub">Top button = Maintenance • Bottom button = Hide • Tap to ON / OFF — Only User pages, no Admin pages here</p>
     <div id="pageList" class="pageGrid"></div>
   </div>
 
@@ -189,7 +189,8 @@ const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharg
 const app=initializeApp(cfg,"settings_"+Math.random());
 const db=getFirestore(app);
 const ref=doc(db,'site_settings','global');
-const PAGES=['index.html','list.html','total.html','cmht.html','claim.html','searchpatient.html','gda.html','gdacompleted.html','cmhtkft.html','addcmht.html','add.html','addlist.html','discharge.html','discharge_upload.html','kft.html','kftmaker.html','bill.html','dischargesummary.html','enhancement.html','inpatient.html','testpage.html','login.html'];
+/* USER CARDS ONLY - NO ADMIN PAGES */
+const PAGES=['userindex.html','usertotal.html','usercmht.html','userkft.html','usercmhtkft.html','userpatientsearch.html','userlist.html','useradd.html','useraddcmht.html','usersetting.html'];
 let data={globalMaintenance:false,globalHide:false,message:'We are updating the page.\nPlease come back in a while.',pages:{},password:'jack8189',loginPassword:'jack8189'};
 async function load(){ let s=await getDoc(ref); if(s.exists()) data={...data,...s.data()}; render(); }
 async function save(){ await setDoc(ref,data); showOk(); }
@@ -202,7 +203,7 @@ function render(){
   document.getElementById('globalTag').className='tag '+(data.globalMaintenance?'':'green');
   document.getElementById('msgInput').value=data.message||'';
   let html='';
-  PAGES.forEach(p=>{ let pg=data.pages[p]||{}; html+=`<div class="pageCard"><b>${p}</b><div class="mini">Per-page control</div><button class="pBtn ${pg.maintenance?'onMaint':''}" onclick="togglePage('${p}','maintenance')">🔧 Maintenance <span class="dot"></span></button><button class="pBtn ${pg.hide?'onHide':''}" onclick="togglePage('${p}','hide')">👁️ Hide Page <span class="dot"></span></button></div>`; });
+  PAGES.forEach(p=>{ let pg=data.pages[p]||{}; html+=`<div class="pageCard"><b>${p}</b><div class="mini">User page • Per-page control</div><button class="pBtn ${pg.maintenance?'onMaint':''}" onclick="togglePage('${p}','maintenance')">🔧 Maintenance <span class="dot"></span></button><button class="pBtn ${pg.hide?'onHide':''}" onclick="togglePage('${p}','hide')">👁️ Hide Page <span class="dot"></span></button></div>`; });
   document.getElementById('pageList').innerHTML=html;
 }
 window.toggleGlobal=async(k)=>{ data[k]=!data[k]; await save(); render(); };
