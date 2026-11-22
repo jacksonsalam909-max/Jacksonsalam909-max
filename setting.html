@@ -122,48 +122,22 @@ textarea{resize:vertical}
     <button class="btn btnBlue" onclick="saveMsg()">Save Message</button>
   </div>
 
-  <!-- USER CARDS ARE HERE - FIXED -->
   <div class="card">
     <div class="sectionTitle">👤 Per-Page Control — User Pages Only <span class="tag green">USER</span></div>
     <p class="sub">Top button = Maintenance • Bottom button = Hide • Tap to ON / OFF — Only User pages</p>
     <div id="pageList" class="pageGrid"></div>
   </div>
 
+  <!-- ONLY THIS CARD CHANGED - USER PASSWORD ONLY -->
   <div class="card">
-    <div class="sectionTitle">🔑 Change All Passwords From Here</div>
-    <p class="sub">Each one is separate — changing one will NOT change the other two</p>
-    <div class="grid3">
-      <div>
-        <div class="sectionTitle">👤 User Login Password</div>
-        <p class="sub">Login As User<br>Username: admin</p>
-        <label>Old User Login Password *</label>
-        <input type="password" id="oldUserLoginPass" placeholder="Enter OLD user password">
-        <label>New User Login Password</label>
-        <input type="password" id="newUserLoginPass" placeholder="New user password">
-        <input type="password" id="confirmUserLoginPass" placeholder="Confirm user password" style="margin-top:8px">
-        <button class="btn btnBlue" onclick="changeUserLoginPassword()">Update User Password</button>
-      </div>
-      <div>
-        <div class="sectionTitle">👑 Admin Login Password</div>
-        <p class="sub">Login As Admin<br>Username: jack123</p>
-        <label>Old Admin Login Password *</label>
-        <input type="password" id="oldAdminLoginPass" placeholder="Enter OLD admin password">
-        <label>New Admin Login Password</label>
-        <input type="password" id="newAdminLoginPass" placeholder="New admin password">
-        <input type="password" id="confirmAdminLoginPass" placeholder="Confirm admin password" style="margin-top:8px">
-        <button class="btn btnPurple" onclick="changeAdminLoginPassword()">Update Admin Password</button>
-      </div>
-      <div>
-        <div class="sectionTitle">⚙️ Settings Password</div>
-        <p class="sub">Opens setting.html / usersetting.html<br>Current: jack8189</p>
-        <label>Old Settings Password *</label>
-        <input type="password" id="oldPass" placeholder="Enter OLD settings password">
-        <label>New Settings Password</label>
-        <input type="password" id="newPass" placeholder="New settings password">
-        <input type="password" id="confirmPass" placeholder="Confirm settings password" style="margin-top:8px">
-        <button class="btn btnGreen" onclick="changePassword()">Update Settings Password</button>
-      </div>
-    </div>
+    <div class="sectionTitle">👤 User Login Password</div>
+    <p class="sub">Change User password from here only • Login As User — Username: admin • Admin & Setting passwords NOT changed here</p>
+    <label>Old User Login Password *</label>
+    <input type="password" id="oldUserLoginPass" placeholder="Enter OLD user password">
+    <label>New User Login Password</label>
+    <input type="password" id="newUserLoginPass" placeholder="New user password">
+    <input type="password" id="confirmUserLoginPass" placeholder="Confirm user password" style="margin-top:8px">
+    <button class="btn btnBlue" onclick="changeUserLoginPassword()">Update User Password</button>
     <button class="btn btnRed" onclick="location.reload()" style="margin-top:20px">Lock Settings</button>
   </div>
   <div class="footer">SHIJA Dialysis • Setting • Changes apply instantly to all devices</div>
@@ -202,10 +176,10 @@ const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharg
 const app=initializeApp(cfg,"settings_"+Math.random());
 const db=getFirestore(app);
 const ref=doc(db,'site_settings','global');
-/* FIXED: USER CARDS ONLY */
 const PAGES=['userindex.html','usertotal.html','usercmht.html','userkft.html','usercmhtkft.html','userpatientsearch.html','userlist.html','useradd.html','useraddcmht.html','usersetting.html'];
+/* USER PASSWORD ONLY */
 let data={globalMaintenance:false,globalHide:false,message:'We are updating the page.\nPlease come back in a while.',pages:{},password:'jack8189',loginPassword:'jack8189',userLoginPassword:'admin123',adminLoginPassword:'jack007'};
-async function load(){ let s=await getDoc(ref); if(s.exists()) data={...data,...s.data()}; if(!data.userLoginPassword) data.userLoginPassword='admin123'; if(!data.adminLoginPassword) data.adminLoginPassword=data.loginPassword||'jack007'; if(!data.loginPassword) data.loginPassword=data.adminLoginPassword; render(); }
+async function load(){ let s=await getDoc(ref); if(s.exists()) data={...data,...s.data()}; if(!data.userLoginPassword) data.userLoginPassword='admin123'; render(); }
 async function save(){ await setDoc(ref,data); showOk(); }
 function showOk(){ let o=document.getElementById('ok'); o.style.display='block'; setTimeout(()=>o.style.display='none',2000); }
 window.login=async()=>{ await load(); let v=document.getElementById('loginPass').value; if(v===data.password || v==='jack8189'){ document.getElementById('loginBox').style.display='none'; document.getElementById('mainBox').style.display='block'; render(); }else document.getElementById('err').style.display='block'; };
@@ -222,13 +196,7 @@ function render(){
 window.toggleGlobal=async(k)=>{ data[k]=!data[k]; await save(); render(); };
 window.togglePage=async(p,k)=>{ if(!data.pages[p]) data.pages[p]={}; data.pages[p][k]=!data.pages[p][k]; await save(); render(); };
 window.saveMsg=async()=>{ data.message=document.getElementById('msgInput').value.trim()||data.message; await save(); };
-window.changePassword=async()=>{
-  let oldP=document.getElementById('oldPass').value, n=document.getElementById('newPass').value, c=document.getElementById('confirmPass').value;
-  if(oldP!==data.password && oldP!=='jack8189') return alert('❌ Old Settings Password is WRONG. Cannot change.');
-  if(!n) return alert('Enter new settings password');
-  if(n!==c) return alert('New passwords do not match');
-  data.password=n; await save(); alert('✅ Settings password changed'); document.getElementById('oldPass').value=''; document.getElementById('newPass').value=''; document.getElementById('confirmPass').value='';
-};
+/* USER LOGIN PASSWORD ONLY - Admin & Setting NOT touched */
 window.changeUserLoginPassword=async()=>{
   let oldP=document.getElementById('oldUserLoginPass').value, n=document.getElementById('newUserLoginPass').value, c=document.getElementById('confirmUserLoginPass').value;
   if(oldP!==data.userLoginPassword && oldP!=='admin123') return alert('❌ Old User Login Password is WRONG. Cannot change.');
@@ -236,14 +204,6 @@ window.changeUserLoginPassword=async()=>{
   if(n!==c) return alert('New passwords do not match');
   data.userLoginPassword=n; await save(); alert('✅ User Login password changed to: '+n+'\nAdmin + Setting NOT changed'); document.getElementById('oldUserLoginPass').value=''; document.getElementById('newUserLoginPass').value=''; document.getElementById('confirmUserLoginPass').value='';
 };
-window.changeAdminLoginPassword=async()=>{
-  let oldP=document.getElementById('oldAdminLoginPass').value, n=document.getElementById('newAdminLoginPass').value, c=document.getElementById('confirmAdminLoginPass').value;
-  if(oldP!==data.adminLoginPassword && oldP!==data.loginPassword && oldP!=='jack007') return alert('❌ Old Admin Login Password is WRONG. Cannot change.');
-  if(!n) return alert('Enter new admin password');
-  if(n!==c) return alert('New passwords do not match');
-  data.adminLoginPassword=n; data.loginPassword=n; await save(); alert('✅ Admin Login password changed to: '+n+'\nUser + Setting NOT changed'); document.getElementById('oldAdminLoginPass').value=''; document.getElementById('newAdminLoginPass').value=''; document.getElementById('confirmAdminLoginPass').value='';
-};
-window.changeLoginPassword=window.changeAdminLoginPassword;
 const ADMIN_PASSWORD="jack8189";
 document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{let pass=document.getElementById('adminPassInput').value.trim();if(pass!==ADMIN_PASSWORD && pass!==data.password){document.getElementById('passError').style.display='block';return;}document.getElementById('passError').style.display='none';let btn=document.getElementById('confirmLogoutAll');btn.innerText='...';btn.disabled=true;try{await setDoc(doc(db,"system","global_logout"),{logoutTime:Date.now(),timestamp:serverTimestamp(),triggeredBy:'admin'},{merge:true});alert('All devices logged out!');localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}catch(err){alert(err.message);btn.innerText='Logout All';btn.disabled=false;}});
 document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{if(e.key==='Enter') document.getElementById('confirmLogoutAll').click();});
