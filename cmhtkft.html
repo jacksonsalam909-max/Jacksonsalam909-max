@@ -63,17 +63,20 @@ td{padding:12px 10px;font-size:12px;border-bottom:1px solid #f1f5f9;white-space:
 #tbl tbody tr:hover .sl{background:#8b5cf6;color:#fff;transform:scale(1.15)}
 #tbl tbody tr:hover .shri{transform:scale(1.05)}
 .rowPop{display:none!important}
-/* GRID VIEW ONLY - SAME AS TOTAL.HTML - 4 open / 5 folded, SQUARE, NEVER STRETCH */
 .gridWrap{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:12px;position:relative;min-height:520px;background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px;align-items:start;align-content:start;grid-auto-rows:min-content}
 .whiteBar.folded ~ .mainWrap .gridWrap{grid-template-columns:repeat(5,1fr);gap:12px}
-.gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center;position:relative;z-index:2;overflow:visible;transition:all .28s cubic-bezier(.34,1.56,.64,1);cursor:pointer;width:100%;aspect-ratio:1/1;align-self:start}
+.gridCard{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:10px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;position:relative;z-index:2;overflow:visible;transition:all .28s cubic-bezier(.34,1.56,.64,1);cursor:pointer;width:100%;aspect-ratio:1/1;align-self:start}
 .gridCard:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 14px 28px rgba(139,92,246,0.18);border-color:#8b5cf6;background:#fdfaff;z-index:20}
 .gridCard:hover .iconOnly{transform:scale(1.15);box-shadow:0 8px 18px rgba(139,92,246,0.25)}
 .gridCard:hover .hoverPop{opacity:1;visibility:visible;transform:translate(-50%, -8px) scale(1)}
-.iconOnly{width:48px;height:48px;border-radius:14px;background:#f3e8ff;display:grid;place-items:center;transition:all .28s ease;flex-shrink:0}
-.iconOnly svg{width:24px;height:24px;stroke:#8b5cf6;stroke-width:1.8;fill:none}
+.iconOnly{width:44px;height:44px;border-radius:14px;background:#f3e8ff;display:grid;place-items:center;transition:all .28s ease;flex-shrink:0}
+.iconOnly svg{width:22px;height:22px;stroke:#8b5cf6;stroke-width:1.8;fill:none}
 .gridCard b{font-size:12px;color:#0f172a;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .gridCard span.shriSmall{background:#f1f5f9;color:#475569;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700}
+.gridMeta{width:100%;display:flex;flex-direction:column;gap:3px}
+.gridMetaRow{display:flex;justify-content:space-between;align-items:center;background:#f8fafc;border:1px solid #f1f5f9;border-radius:6px;padding:4px 7px;text-align:left}
+.gridMetaRow span{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;flex-shrink:0}
+.gridMetaRow b{font-size:10.5px;font-weight:700;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
 .hoverPop{position:absolute;bottom:100%;left:50%;transform:translate(-50%, 6px) scale(0.92);background:#0f172a;color:#fff;border-radius:12px;padding:10px 12px;min-width:180px;max-width:220px;box-shadow:0 12px 28px rgba(0,0,0,0.35);opacity:0;visibility:hidden;transition:all .24s cubic-bezier(.34,1.56,.64,1);z-index:50;pointer-events:none;text-align:left}
 .hoverPop::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-top-color:#0f172a}
 .hoverPop .popRow{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid #1e293b;font-size:10px}
@@ -269,8 +272,8 @@ let monthSel=document.getElementById('monthSel');monthSel.value=new Date().toISO
 function getDateKey(){return `${yearSel.value}-${monthSel.value}-${document.getElementById('daySel').value}`;}
 let statusMap={};
 let openSlideId=null;
-async function init(){const snap=await getDocs(collection(db,"cmht_patients"));allCMHT=[];snap.forEach(d=>{let c=d.data();allCMHT.push({key:d.id,name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,contact:c.contactNo||c.contact||''});});loadKFT();}
-function getFiltered(){let searchQ=document.getElementById('searchAdded').value.toLowerCase().trim(); if(searchQ.includes('admin')){ document.getElementById('searchAdded').value=''; searchQ=''; } return allCMHT.filter(p=>{if(!searchQ) return true;return (p.name||'').toLowerCase().includes(searchQ) || (p.shri||'').toLowerCase().includes(searchQ) || (p.contact||'').toLowerCase().includes(searchQ);});}
+async function init(){const snap=await getDocs(collection(db,"cmht_patients"));allCMHT=[];snap.forEach(d=>{let c=d.data();allCMHT.push({key:d.id,name:c.patientName||c.name||'',shri:c.shriId||c.shri||d.id,cmht:c.cmhtId||c.cmht||'',contact:c.contactNo||c.contact||''});});loadKFT();}
+function getFiltered(){let searchQ=document.getElementById('searchAdded').value.toLowerCase().trim(); if(searchQ.includes('admin')){ document.getElementById('searchAdded').value=''; searchQ=''; } return allCMHT.filter(p=>{if(!searchQ) return true;return (p.name||'').toLowerCase().includes(searchQ) || (p.shri||'').toLowerCase().includes(searchQ) || (p.contact||'').toLowerCase().includes(searchQ) || (p.cmht||'').toLowerCase().includes(searchQ);});}
 function renderPageBtns(total,totalPages){let wrap=document.getElementById('pageBtns');let info=document.getElementById('pageInfo');if(totalPages<=1){wrap.innerHTML='';info.textContent=total>0?`Showing 1 - ${total}`:'';return;}let start=(currentPage-1)*pageSize+1;let end=Math.min(currentPage*pageSize,total);info.textContent=`${start}-${end} of ${total} | Page ${currentPage}/${totalPages}`;let html=`<button onclick="goToPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹ Prev</button>`;let s=Math.max(1,currentPage-2);let e=Math.min(totalPages,s+4);if(e-s<4)s=Math.max(1,e-4);for(let i=s;i<=e;i++){html+=`<button onclick="goToPage(${i})" class="${i===currentPage?'active':''}">${i}</button>`;}html+=`<button onclick="goToPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next ›</button>`;wrap.innerHTML=html;}
 window.goToPage=(p)=>{let filtered=getFiltered();let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(p<1)p=1;if(p>totalPages)p=totalPages;currentPage=p;renderNow();};
 window.changePageSize=()=>{let v=document.getElementById('pageSizeSel').value;pageSize=parseInt(v);currentPage=1;renderNow();};
@@ -330,8 +333,8 @@ function renderNow(){
     `<div class="kftCell"><span class="badgeRecv" onclick="event.stopPropagation();toggleSlide('${safeShri}','${gridSlideId}')">RECEIVED ✓</span><div class="kftSlide" id="${gridSlideId}"><span class="q">NOT-RECEIVED?</span><button class="yes" onclick="event.stopPropagation();confirmYes('${safeShri}','${dateKey}','${status}','${safeName}')">YES</button><button class="no" onclick="event.stopPropagation();confirmNo()">NO</button></div></div>`:
     `<div class="kftCell"><span class="badgeNot" onclick="event.stopPropagation();toggleSlide('${safeShri}','${gridSlideId}')">NOT-RECEIVED ✗</span><div class="kftSlide" id="${gridSlideId}"><span class="q">RECEIVED?</span><button class="yes" onclick="event.stopPropagation();confirmYes('${safeShri}','${dateKey}','${status}','${safeName}')">YES</button><button class="no" onclick="event.stopPropagation();confirmNo()">NO</button></div></div>`;
   gridHtml+=`<div class="gridCard">
-    <div class="hoverPop"><div class="popTitle">${p.name||'No Name'}</div><div class="popRow"><span>SHRI ID:</span><span>${p.shri}</span></div><div class="popRow"><span>Contact:</span><span>${p.contact||'-'}</span></div><div class="popRow"><span>KFT:</span><span>${status}</span></div><div class="popRow"><span>Date:</span><span>${dateKey}</span></div></div>
-    <div class="iconOnly" style="background:${bgColor}"><svg viewBox="0 0 24 24" style="stroke:${iconColor}"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><b>${p.name||'No Name'}</b><span class="shriSmall">${p.shri}</span><div>${gridBadge}</div></div>`;
+    <div class="hoverPop"><div class="popTitle">${p.name||'No Name'}</div><div class="popRow"><span>SHRI ID:</span><span>${p.shri}</span></div><div class="popRow"><span>Contact:</span><span>${p.contact||'-'}</span></div><div class="popRow"><span>CMHT ID:</span><span>${p.cmht||'-'}</span></div><div class="popRow"><span>KFT:</span><span>${status}</span></div><div class="popRow"><span>Date:</span><span>${dateKey}</span></div></div>
+    <div class="iconOnly" style="background:${bgColor}"><svg viewBox="0 0 24 24" style="stroke:${iconColor}"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><b>${p.name||'No Name'}</b><div class="gridMeta"><div class="gridMetaRow"><span>SHRI ID</span><b>${p.shri||'-'}</b></div><div class="gridMetaRow"><span>Contact</span><b>${p.contact||'-'}</b></div><div class="gridMetaRow"><span>CMHT ID</span><b>${p.cmht||'-'}</b></div></div><div>${gridBadge}</div></div>`;
  }
  if(filtered.length===0){html+=`<tr><td colspan="6" style="text-align:center;padding:20px">No patient</td></tr>`;gridHtml=`<div class="tableWatermark"><img src="loko.png" alt="SHIJA Logo"></div><div style="grid-column:1/-1;text-align:center;padding:20px;background:#fff;border-radius:14px;position:relative;z-index:2">No patient</div>`;}
  document.getElementById('tbl').innerHTML=html;
