@@ -1,320 +1,170 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>CMHT Total Patient - SHIJA</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Photo & OPD Capture - SHIJA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
-.whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
-.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
-.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
-.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
-.sLogo img{width:100%;height:100%;object-fit:contain}
-.sTitle b{color:#0f172a;font-size:16px;font-weight:900}
-.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
-.whiteBar.folded .sTitle{display:none}
-.whiteBar.folded .sHead{justify-content:center;padding:14px 0}
-.sMenu{flex:1;padding:8px 8px;overflow-y:auto}
-.sMenu::-webkit-scrollbar{width:0}
-.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;transition:.2s}
-.sMenu a:hover{background:#1e293b;color:#fff}
-.sMenu a.active{background:#1e293b;color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px #334155}
-.mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px;flex-shrink:0}
-.mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.sMenu a:hover .mi{background:#334155}
-.sMenu a:hover .mi svg{stroke:#fff}
-.sMenu a.active .mi{background:#8b5cf6}
-.sMenu a.active .mi svg{stroke:#fff}
-.ml{overflow:hidden;text-overflow:ellipsis}
-.whiteBar.folded .ml{display:none}
-.whiteBar.folded .sMenu a{justify-content:center;padding:12px 0}
-.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;overflow:hidden;white-space:nowrap}
-.whiteBar.folded .sFoot{display:none}
-.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
-.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
-.menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
-.menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
-.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(139,92,246,0.08) 1px, transparent 0);background-size:22px 22px;max-width:100%}
-.pageHead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:18px}
-.pageHead h1{font-size:26px;font-weight:900;color:#0f172a}
-.pageHead p{color:#64748b;font-size:13px;font-weight:600;margin-top:4px}
-.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#fff;border:1.5px solid #e2e8f0;padding:12px;border-radius:16px;box-shadow:0 4px 12px #00000006}
-.controls input{flex:1;min-width:180px;padding:11px 14px;border-radius:10px;border:1.5px solid #cbd5e1;font-size:13px;outline:0;background:#f8fafc}
-.controls input:focus{border-color:#8b5cf6;background:#fff}
-.viewToggle{display:flex;background:#f1f5f9;border-radius:10px;padding:3px;border:1px solid #e2e8f0}
-.vBtn{width:42px;height:36px;border-radius:8px;border:0;background:transparent;font-weight:700;font-size:18px;cursor:pointer;transition:.2s;display:grid;place-items:center}
-.vBtn.active{background:#0f172a;color:#fff;box-shadow:0 2px 8px #0002}
-.pSelect{padding:10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700;background:#fff}
-.addBtn{padding:10px 16px;background:#8b5cf6;color:#fff;border-radius:10px;text-decoration:none;font-weight:800;font-size:13px;box-shadow:0 4px 12px #8b5cf640}
-/* === GRID VIEW - SAME AS TOTAL.HTML === */
-.patientGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;position:relative;z-index:2}
-.pCard{border-radius:18px;background:#fff;border:2px solid #e2e8f0;box-shadow:0 2px 12px rgba(0,0,0,.06);text-align:center;overflow:hidden;will-change:transform;transform:translateZ(0);backface-visibility:hidden;transition:transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease}
-.pCardBody{padding:20px 14px}
-.pCardAvatar{width:92px;height:92px;min-width:92px;min-height:92px;background:#eef2ff;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#2563eb;font-size:28px;margin:6px auto 12px;cursor:pointer;overflow:hidden;border:4px solid #fff;box-shadow:0 6px 16px rgba(0,0,0,.10);transform:translateZ(0)}
-.pCardAvatar img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
-.pCardName{font-weight:800;font-size:15px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pCardSub{font-size:11px;color:#64748b;font-weight:600;margin-bottom:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pCardMeta{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.pCardRow2{display:flex;justify-content:space-between;align-items:center;background:#f8fafc;border:1px solid #f1f5f9;border-radius:8px;padding:7px 10px;text-align:left}
-.pCardRow2 span{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase}
-.pCardRow2 b{font-size:12px;font-weight:700;color:#0f172a;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pCardActions{display:flex;gap:8px}
-.btnEdit{flex:1;padding:9px 10px;border-radius:8px;border:0;background:#facc15;color:#000;font-weight:800;font-size:12px;cursor:pointer}
-.btnDel{flex:1;padding:9px 10px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer}
-.pCard:hover{transform:translateY(-6px) translateZ(0);box-shadow:0 12px 24px rgba(37,99,235,0.14), 0 4px 12px rgba(0,0,0,0.08);border-color:#2563eb!important;background:#fff!important}
-.pCard:hover .pCardAvatar{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,0.15), 0 8px 20px rgba(37,99,235,0.2)}
-.pCard:hover .pCardName{color:#2563eb}
-.tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-top:16px;box-shadow:0 4px 16px #00000006;position:relative;min-height:520px}
-table{width:100%;border-collapse:collapse;min-width:1100px}
-th{padding:14px 12px;font-size:11px;color:#64748b;background:#f8fafc;text-align:left;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;position:relative;z-index:2}
-td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-align:middle;white-space:nowrap;position:relative;z-index:2}
-.sl{background:#f3e8ff;width:36px;height:28px;display:grid;place-items:center;border-radius:8px;font-weight:800;font-size:12px;color:#6b21a8}
-.shriTable{color:#64748b;background:#f1f5f9;padding:5px 10px;border-radius:8px;font-weight:700;font-size:11px;border:1px solid #e2e8f0;display:inline-block;min-width:80px;text-align:center}
-.cmhtTable{background:#8b5cf6;color:#fff;padding:6px 12px;border-radius:8px;font-weight:800;font-size:11px;display:inline-block;min-width:110px;text-align:center;box-shadow:0 2px 6px #8b5cf630}
-.tAvatar{width:50px;height:50px;border-radius:12px;background:#ede9fe;display:grid;place-items:center;font-weight:800;color:#6b21a8;cursor:pointer;overflow:hidden;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.12)}
-.tAvatar img{width:100%;height:100%;object-fit:cover;display:block}
-.pager{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:8px;position:relative;z-index:12}
-.pBtn{padding:8px 14px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;font-weight:700;cursor:pointer;font-size:13px}
-.pBtn:disabled{opacity:.4}
-.hidden{display:none!important}
-#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
-#mobOverlay.show{display:block}
-.gridWrap{position:relative;min-height:420px;margin-top:16px;background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:12px;overflow:hidden}
-.tableWatermark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;max-width:70%;z-index:10;pointer-events:none;opacity:0.38}
-.tableWatermark img{width:100%;height:auto;display:block}
-.gridWrap .tableWatermark{width:460px;max-width:75%;opacity:0.32;z-index:10}
-.modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:10000}.modal.show{display:grid}
-.modalBox{background:#fff;border-radius:18px;padding:20px;width:90%;max-width:420px}.modalBox input{width:100%;padding:11px;border:1.5px solid #cbd5e1;border-radius:10px;margin:6px 0;font-size:13px}
-.mBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}.save{background:#8b5cf6;color:#fff;padding:9px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}.cancel{background:#f1f5f9;padding:9px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer}
-/* === PHOTO POPUP - SAME AS TOTAL.HTML === */
-#photoModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:10001;align-items:center;justify-content:center;padding:20px;flex-direction:column}
-#photoModal.show{display:flex}
-#photoView{width:90vw;max-width:420px;aspect-ratio:1/1;object-fit:cover;border-radius:20px;border:4px solid #fff;display:block}
-#photoName{color:#fff;font-weight:800;margin-top:14px;font-size:15px;text-align:center}
-.photoActions{margin-top:14px;display:flex;gap:10px}
-.photoActions button{padding:10px 16px;border-radius:20px;border:0;font-weight:800;cursor:pointer;font-size:12px}
-@media(max-width:900px){
-  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
-  .whiteBar.mOpen{transform:translateX(0)}
-  .mainWrap{margin-left:0!important;width:100%!important}
-  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
-  .patientGrid{grid-template-columns:repeat(2,1fr)}
-  .content{padding:12px}
-  .controls{flex-direction:column;align-items:stretch}
-  .tableWatermark{width:300px}
-  .gridWrap .tableWatermark{width:340px}
-}
-@media(max-width:400px){.patientGrid{grid-template-columns:1fr}}
-table tr{transition:all .18s ease}
-table tr:hover td{background:#f3e8ff!important;transform:scale(1.005)}
-table tr:hover .sl{transform:scale(1.1);background:#8b5cf6;color:#fff}
-table tr:hover .cmhtTable{transform:scale(1.05);box-shadow:0 4px 10px rgba(139,92,246,0.3)}
+body{background:#F8FAFC;color:#0F172A}
+.topbar{height:52px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:20}
+.backBtn{border:1px solid #E2E8F0;background:#fff;padding:7px 12px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;color:#334155}
+.logoutBtn{border:1px solid #FECACA;background:#FEF2F2;color:#DC2626;padding:7px 12px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer}
+.wrap{max-width:1200px;margin:0 auto;padding:18px 16px 80px}
+.head{display:flex;gap:12px;align-items:flex-start;margin-bottom:18px}
+.headIcon{width:44px;height:44px;min-width:44px;background:#059669;border-radius:10px;display:grid;place-items:center;color:#fff;font-size:20px}
+.head h1{font-size:19px;font-weight:800}.head p{font-size:12px;color:#64748B;margin-top:3px}
+.adminPill{margin-left:auto;border:1px solid #E2E8F0;background:#fff;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:600;color:#64748B;white-space:nowrap}
+.cardF{background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
+.fGrid{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:14px}.fGrid2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}.fGrid3{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.flabel{font-size:11px;font-weight:600;color:#475569;margin-bottom:6px}
+.inp{width:100%;height:38px;border:1px solid #E2E8F0;border-radius:8px;padding:0 10px;font-size:13px;font-weight:500;outline:none;background:#fff}
+.inp:focus{border-color:#059669}
+.dateWrap{display:flex;align-items:center;gap:4px;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;background:#fff}
+.dateWrap button{width:32px;height:36px;border:0;background:#fff;font-size:16px;cursor:pointer;color:#334155}
+.dateWrap b{flex:1;text-align:center;font-size:13px;cursor:pointer}
+.note{font-size:11.5px;color:#64748B;line-height:1.5}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;background:#fff;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;margin-bottom:14px}
+.stat{padding:14px;border-right:1px solid #F1F5F9}.stat:last-child{border:0}.stat span{font-size:10.5px;color:#64748B;display:block}.stat b{font-size:20px;font-weight:800;margin-top:2px;display:block}
+.barTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.barTop span{font-size:11.5px;color:#94A3B8}
+.viewToggle{display:flex;background:#fff;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden}.viewToggle button{border:0;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#64748B}.viewToggle button.on{background:#059669;color:#fff}
+/* CARD - EXACT LIKE YOUR SCREENSHOT */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:#fff;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;padding:18px}
+.card:hover{box-shadow:0 8px 20px rgba(0,0,0,.07)}
+.cTop{display:flex;gap:12px;align-items:flex-start;margin-bottom:18px}
+.avatar{width:52px;height:52px;min-width:52px;border-radius:50%;background:#FEE2E2;display:grid;place-items:center;font-weight:800;font-size:13px;color:#991B1B;overflow:hidden;cursor:pointer;position:relative;border:1px solid #FECACA}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.cName{font-size:15px;font-weight:800;line-height:1.25;text-transform:uppercase;color:#0F172A}
+.schemeBadge{display:inline-block;margin-top:6px;background:#0EA5E9;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.slNum{font-size:11px;color:#94A3B8;font-weight:600;margin-left:6px}
+.infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px;margin-bottom:20px}
+.infoGrid label{font-size:10.5px;letter-spacing:.06em;color:#94A3B8;font-weight:600;text-transform:uppercase;display:block;margin-bottom:4px}
+.infoGrid b{font-size:13px;font-weight:500;color:#334155;word-break:break-all}
+.statusRow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.statusRow label{font-size:11.5px;color:#64748B;display:block;margin-bottom:8px}
+.pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-block}
+.pillNot{background:#475569;color:#fff}.pillYes{background:#059669;color:#fff}
+.markBtn{width:100%;height:34px;border:1px solid #BBF7D0;background:#fff;color:#059669;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;margin-top:10px}
+.markBtn.done{background:#059669;color:#fff;border-color:#059669}
+.gpsBtn{width:100%;height:38px;border:0;background:#14B8A6;color:#fff;font-size:12px;font-weight:700;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px}
+.gpsHint{font-size:10.5px;color:#94A3B8;line-height:1.4;margin-top:8px}
+.selectGps{margin-top:12px;font-size:12px;font-weight:600;color:#64748B;cursor:pointer;display:flex;align-items:center;gap:6px}
+.listRow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:12px;margin-bottom:8px}
+#confirmModal{position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.5)}
+.confirmBox{background:#fff;width:90%;max-width:320px;border-radius:12px;padding:20px;text-align:center}
+.confirmBtns{display:flex;gap:8px;margin-top:14px}.confirmBtns button{flex:1;height:38px;border-radius:8px;font-weight:700;cursor:pointer}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;padding:10px 16px;border-radius:100px;font-size:12px;font-weight:700;z-index:1000;display:none}.toast.show{display:block}
+@media(max-width:900px){.fGrid,.fGrid2{grid-template-columns:1fr 1fr}.fGrid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.fGrid2,.fGrid3{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.adminPill{display:none}.head h1{font-size:16px}}
 </style>
 </head>
 <body>
-<div id="mobOverlay" onclick="closeMob()"></div>
-<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
-<div class="whiteBar" id="whiteBar">
-<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
-<div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
-<div class="sMenu">
-<a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
-<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
-<a href="cmht.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
-<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="ml">CLAIM</span></a>
-<a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
-<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="ml">OFFICE ASSISTANT LIST</span></a>
-<a href="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
-<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
-<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
-<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">PMJAY DAILY DIALYSIS</span></a>
-<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
-<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
-<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></span><span class="ml">KFT REPORT</span></a>
-<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">ADD PATIENT</span></a>
-<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="ml">BILL</span></a>
-<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
+<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'};if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}</script>
+<div class="topbar"><button class="backBtn" onclick="location.href='index.html'">← Back to dashboard</button><button class="logoutBtn" id="btnLogout">Logout</button></div>
+<div class="wrap">
+<div class="head"><div class="headIcon">📷</div><div><h1>Photo & OPD Capture</h1><p>Daily dialysis documentation · <span id="headDate">Saturday, 21 Nov 2026</span></p></div><div class="adminPill">👤 Admin view</div></div>
+<div class="cardF">
+<div class="fGrid">
+<div><div class="flabel">📅 Filter by date</div><div class="dateWrap"><button id="datePrev">‹</button><b id="dateDisplay">21-Nov-2026</b><button id="calIcon">📅</button><button id="dateNext">›</button></div></div>
+<div><div class="flabel">🏥 Health scheme</div><select id="fType" class="inp"><option value="">All schemes</option><option>PMJAY</option><option>CMHT</option></select></div>
+<div><div class="flabel">🔍 Search patient</div><input id="searchName" class="inp" placeholder="Patient name, SHRI ID, PMJAY ID, or CMHT ID"></div>
+</div>
+<div class="fGrid2">
+<div><div class="flabel">⏱ Filter by timing</div><select id="fTime" class="inp"><option value="">All timings</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
+<div><div class="flabel">⇄ Filter by shift</div><select id="fShift" class="inp"><option value="">All shifts</option><option value="7:00 AM">Morning</option><option value="12:00 PM">Afternoon</option><option value="5:00 PM">Evening</option><option value="9:00 PM">Night</option></select></div>
+<div><div class="flabel">🏢 Filter by block</div><select id="filterBlock" class="inp"><option value="">All blocks</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
+</div>
+<div class="fGrid3">
+<div><div class="flabel">📷 Photo status</div><select id="fPhoto" class="inp"><option value="">All photo statuses</option><option value="done">Photo Captured</option><option value="pending">Photo Pending</option></select></div>
+<div><div class="flabel">📄 OPD status</div><select id="fOpd" class="inp"><option value="">All OPD statuses</option><option value="done">OPD Captured</option><option value="pending">OPD Pending</option></select></div>
 </div>
 </div>
-<div class="sFoot">System Online • SHIJA</div>
+<div class="note">Admin monitoring: Staff and admins share the same saved capture status for each dialysis date. Review pending items below or update a status when needed.</div>
+<div class="stats">
+<div class="stat"><span>Patients in view</span><b id="stTotal">0</b></div>
+<div class="stat"><span>Patient photo captured</span><b id="stPhotoDone" style="color:#059669">0</b></div>
+<div class="stat"><span>Patient photo pending</span><b id="stPhotoPend" style="color:#D97706">0</b></div>
+<div class="stat"><span>OPD slip captured</span><b id="stOpdDone" style="color:#059669">0</b></div>
+<div class="stat"><span>OPD slip pending</span><b id="stOpdPend" style="color:#D97706">0</b></div>
 </div>
-
-<div class="mainWrap">
-<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA Dialysis</div><div id="adminMenuWrap" style="position:relative"><button id="adminBtn" style="height:38px;padding:0 10px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:11px">Admin ▾</button><div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px"><button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;font-size:10px">Logout</button><button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;font-size:10px">Logout All</button></div></div></div>
-<div class="content">
-<div class="pageHead"><div><h1>CMHT Total Patient</h1><p id="info">Loading...</p></div><a href="addcmht.html" class="addBtn">+ Add CMHT</a></div>
-<div class="controls"><input type="text" name="fakeusernameremembered" style="display:none"><input type="password" name="fakepasswordremembered" style="display:none"><input id="search" type="search" name="cmht_search_no_autofill" placeholder="Search name, SHRI, CMHT, Aadhaar..." autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="onSearch()"><div class="viewToggle"><button class="vBtn" id="gridBtn" onclick="setView('grid')" title="Grid">⊞</button><button class="vBtn active" id="tableBtn" onclick="setView('table')" title="List">☰</button></div><select id="pageSize" class="pSelect" onchange="changePageSize()"><option value="12" selected>12 / page</option><option value="24">24 / page</option><option value="48">48 / page</option></select></div>
-
-<div class="gridWrap hidden" id="gridWrap">
-  <div class="tableWatermark"><img src="loko.png" alt="SHIJA Logo"></div>
-  <div class="patientGrid" id="patientGrid" style="position:relative;z-index:2"></div>
-  <div class="pagerGrid" id="pagerGrid" style="position:relative;z-index:12;margin-top:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtnGrid" onclick="prevPage()">←</button><button class="pBtn" id="nextBtnGrid" onclick="nextPage()">→</button></div><div id="pageInfoGrid" style="font-weight:700;font-size:12px"></div><div id="pageNumsGrid" style="display:flex;gap:6px"></div></div>
+<div class="barTop"><span id="searchInfo">Showing 1-20 of 0 patients</span><div style="display:flex;gap:8px;align-items:center"><div class="viewToggle"><button id="btnGrid" class="on">⊞ Grid</button><button id="btnList">☰ List</button></div><div style="display:flex;gap:4px;align-items:center;background:#fff;border:1px solid #E2E8F0;border-radius:8px;padding:3px"><button id="prevBtn" style="border:0;background:#fff;padding:4px 8px;cursor:pointer;font-weight:800">‹</button><span id="pageIndicator" style="font-size:12px;font-weight:700">1/1</span><button id="nextBtn" style="border:0;background:#fff;padding:4px 8px;cursor:pointer;font-weight:800">›</button></div></div></div>
+<div class="grid" id="grid"></div>
+<div id="listWrap" style="display:none"></div>
+<div style="text-align:center;font-size:11px;color:#94A3B8;margin-top:12px">Tap photo to take / upload • Swipe left / right to change page</div>
 </div>
-
-<div class="tableWrap" id="tableWrap">
-  <div class="tableWatermark"><img src="loko.png" alt="SHIJA Logo"></div>
-  <div style="overflow-x:auto;position:relative;z-index:2"><table id="tbl"></table></div><div class="pager"><div style="display:flex;gap:6px"><button class="pBtn" id="prevBtn" onclick="prevPage()">←</button><button class="pBtn" id="nextBtn" onclick="nextPage()">→</button></div><div id="pageInfo" style="font-weight:700;font-size:12px"></div><div id="pageNums" style="display:flex;gap:6px"></div></div>
-</div>
-
-</div></div></div>
-<div class="modal" id="editModal"><div class="modalBox"><h3 style="font-weight:900;margin-bottom:10px">Edit Patient</h3><input id="eName" placeholder="Name"><input id="eShri" placeholder="SHRI ID"><input id="eContact" placeholder="Contact"><input id="eCmht" placeholder="CMHT ID"><input id="eAadhaar" placeholder="Aadhaar"><input id="eAddr" placeholder="Address"><div class="mBtns"><button class="cancel" onclick="closeEdit()">Cancel</button><button class="save" onclick="saveEdit()">Save</button></div></div></div>
-<div id="photoModal" onclick="closePhoto()"><img id="photoView" src="" onclick="event.stopPropagation(); triggerUploadFromModal()"><div id="photoName"></div><div class="photoActions"><button onclick="triggerUploadFromModal()" style="background:#fff;color:#000">Change Photo</button><button onclick="deletePhoto()" style="background:#ef4444;color:#fff">Delete</button><button onclick="closePhoto()" style="background:#334155;color:#fff">Close</button></div></div>
-<div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)"><div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center"><div style="font-size:14px;font-weight:800;margin-bottom:6px">Logout from all devices?</div><input type="password" id="adminPassInput" placeholder="Password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;margin-bottom:8px"><div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div><div style="display:flex;gap:8px"><button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;cursor:pointer">Cancel</button><button id="confirmLogoutAll" style="flex:1;height:38px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;cursor:pointer">Logout All</button></div></div></div>
+<input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none">
+<input type="date" id="fDate" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none">
+<div id="confirmModal"><div class="confirmBox"><div id="confirmTitle" style="font-weight:800;font-size:15px">Are you sure?</div><div id="confirmSub" style="font-size:12px;color:#64748B;margin-top:6px">Complete?</div><div class="confirmBtns"><button id="btnNotSure" style="background:#F1F5F9;border:1px solid #E2E8F0">NOT SURE</button><button id="btnSure" style="background:#0F172A;color:#fff;border:0">SURE</button></div></div></div>
+<div class="toast" id="toast">Saved</div>
 <script>
-function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{document.getElementById('whiteBar').classList.toggle('folded');}}
-function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
-document.addEventListener('DOMContentLoaded',function(){
-  document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
-  const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');if(adminBtn){adminBtn.addEventListener('click',(e)=>{e.stopPropagation();adminDropdown.style.display=adminDropdown.style.display==='none'||adminDropdown.style.display===''?'block':'none';});document.addEventListener('click',(e)=>{if(!e.target.closest('#adminMenuWrap'))adminDropdown.style.display='none';});}
-  document.getElementById('btnLogout')?.addEventListener('click',()=>{if(confirm('Logout from this device?')){localStorage.removeItem('shija_logged');location.href='login.html';}});
-  document.getElementById('btnLogoutAll')?.addEventListener('click',()=>{adminDropdown.style.display='none';document.getElementById('logoutAllModal').style.display='flex';});
-  document.getElementById('cancelLogoutAll')?.addEventListener('click',()=>{document.getElementById('logoutAllModal').style.display='none';});
-  setTimeout(()=>{var s=document.getElementById('search'); if(s && s.value.toLowerCase()==='admin'){s.value=''; onSearch();}},300);
-});
-let currentView='table';
-window.setView=(v)=>{
- currentView=v;
- document.getElementById('gridBtn').classList.toggle('active',v==='grid');
- document.getElementById('tableBtn').classList.toggle('active',v==='table');
- document.getElementById('gridWrap').classList.toggle('hidden',v!=='grid');
- document.getElementById('tableWrap').classList.toggle('hidden',v!=='table');
- renderAll();
-};
-</script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app2=initializeApp(firebaseConfig,"cmhtMain_"+Math.random());const db2=getFirestore(app2);
-let allPatients=[],filtered=[],currentPage=1,pageSize=12,editIndex=-1;
-let photoCache={}, currentPhotoKey=null, currentPhotoShri=null;
-function cleanKey(k){ return String(k).replace(/[^a-zA-Z0-9]/g,'_'); }
-function getKey(p){ return String(p.key||p.shri||p.id||p.name).trim(); }
-window.onSearch=()=>{currentPage=1;applyFilter();};
-window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderAll();};
-window.applyFilter=()=>{let q=document.getElementById('search').value.toLowerCase();filtered=allPatients.filter(p=>[p.name,p.shri,p.cmht,p.contact,p.aadhaar,p.addr].join(' ').toLowerCase().includes(q));renderAll();};
-function getInitial(n){return (n||'P').trim().charAt(0).toUpperCase();}
-window.closeEdit=()=>document.getElementById('editModal').classList.remove('show');
-window.openEdit=(idx)=>{editIndex=idx;let p=allPatients[idx];document.getElementById('eName').value=p.name;document.getElementById('eShri').value=p.shri;document.getElementById('eContact').value=p.contact;document.getElementById('eCmht').value=p.cmht;document.getElementById('eAadhaar').value=p.aadhaar;document.getElementById('eAddr').value=p.addr;document.getElementById('editModal').classList.add('show');};
-window.saveEdit=async()=>{let p=allPatients[editIndex];if(!p)return;let updated={patientName:document.getElementById('eName').value.trim(),name:document.getElementById('eName').value.trim(),shriId:document.getElementById('eShri').value.trim(),shri:document.getElementById('eShri').value.trim(),contactNo:document.getElementById('eContact').value.trim(),contact:document.getElementById('eContact').value.trim(),cmhtId:document.getElementById('eCmht').value.trim(),cmht:document.getElementById('eCmht').value.trim(),aadhaarNo:document.getElementById('eAadhaar').value.trim(),aadhaar:document.getElementById('eAadhaar').value.trim(),address:document.getElementById('eAddr').value.trim(),addr:document.getElementById('eAddr').value.trim()};p.name=updated.name;p.shri=updated.shri;p.contact=updated.contact;p.cmht=updated.cmht;p.aadhaar=updated.aadhaar;p.addr=updated.addr;closeEdit();applyFilter();try{await setDoc(doc(db2,"cmht_patients",p.key),updated,{merge:true});}catch(e){}};
-window.triggerPhoto=(ukey)=>{ let el=document.getElementById('file_'+cleanKey(ukey)); if(el) el.click(); }
-window.triggerUploadFromModal=()=>{ if(currentPhotoKey) triggerPhoto(currentPhotoKey); }
-async function getFullPhotoSmart(ukey){
-  let c=cleanKey(ukey);
-  try{
-    let snap=await getDoc(doc(db2,"patient_photos",c+"_photo"));
-    if(snap.exists()){
-      let d=snap.data();
-      if(d.full && d.full.length>100) return d.full;
-      if(d.thumb && d.chunkCount===0) return d.thumb;
-    }
-    let snap2=await getDocs(collection(db2,"patient_photos",c+"_photo","chunks"));
-    if(!snap2.empty){
-      let arr=[]; snap2.forEach(d=>arr.push(d.data())); arr.sort((a,b)=>a.index-b.index);
-      let full=arr.map(a=>a.data).join('');
-      if(full) return full;
-    }
-    if(snap.exists() && snap.data().thumb) return snap.data().thumb;
-  }catch(e){}
-  return null;
+const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
+function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function fmtDMY(s){let p=s.split('-');return `${p[2]}-${p[1]}-${p[0]}`;}
+function fmtLong(s){try{let d=new Date(s+'T00:00:00');return d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'short',year:'numeric'});}catch(e){return s;}}
+function addDays(s,n){let d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function updDate(){let v=document.getElementById('fDate').value;document.getElementById('dateDisplay').innerText=fmtDMY(v);document.getElementById('headDate').innerText=fmtLong(v);}
+let fDateEl=document.getElementById('fDate');fDateEl.value=new URLSearchParams(location.search).get('date')||getTodayIST();updDate();
+document.getElementById('datePrev').onclick=()=>{fDateEl.value=addDays(fDateEl.value,-1);updDate();loadData();};
+document.getElementById('dateNext').onclick=()=>{fDateEl.value=addDays(fDateEl.value,1);updDate();loadData();};
+document.getElementById('calIcon').onclick=()=>{try{document.getElementById('fDate').showPicker();}catch(e){}};
+document.getElementById('dateDisplay').onclick=()=>{try{document.getElementById('fDate').showPicker();}catch(e){}};
+fDateEl.onchange=()=>{updDate();loadData();};
+let allPatients=[],statusMap={},masterMap={},searchQuery='',currentPage=1,pendingShri=null,pendingType=null,pendingPhotoShri=null,viewMode='grid';
+function getPageSize(){return 20;}
+function normalizeTime(t){let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
+function shiftName(t){let n=normalizeTime(t);if(n==='7:00 AM')return'Morning / 7am';if(n==='12:00 PM')return'Afternoon / 12pm';if(n==='5:00 PM')return'Evening / 5pm';if(n==='9:00 PM')return'Night / 9pm';if(n==='12:00 AM')return'Night / 12am';if(n==='2:00 AM')return'Night / 2am';return t||'—';}
+function getPhotoField(p){if(!p)return'';let v=p.photo||p.photoUrl||p.photoURL||p.image||p.profilePic||p.avatar||p.photoBase64||p.patientPhoto||'';if(typeof v!=='string')return'';if(v.startsWith('data:')||v.startsWith('http')||v.startsWith('blob:'))return v;return'';}
+async function buildMasterMap(){masterMap={};try{let s=await db.collection('patients').get();s.forEach(d=>{let p=d.data();if(p.deleted)return;let sh=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!sh)return;masterMap[sh]={pmjayName:String(p.patientName||p.name||'').trim().toUpperCase(),cmhtName:'',pmjayId:String(p.pmjayId||p.pmjay||p.ayushmanId||''),cmhtId:String(p.cmhtId||p.cmht||''),photo:getPhotoField(p),docId:d.id};});}catch(e){}try{let s2=await db.collection('cmht_patients').get();s2.forEach(d=>{let p=d.data();if(p.deleted)return;let sh=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!sh)return;if(!masterMap[sh])masterMap[sh]={pmjayName:'',cmhtName:'',pmjayId:'',cmhtId:'',photo:'',docId:d.id};masterMap[sh].cmhtName=String(p.patientName||p.name||'').trim().toUpperCase();if(!masterMap[sh].cmhtId)masterMap[sh].cmhtId=String(p.cmhtId||p.cmht||'');let ph=getPhotoField(p);if(ph)masterMap[sh].photo=ph;});}catch(e){}try{let ss=await db.collection('patient_photos').get();ss.forEach(d=>{let p=d.data();let sh=String(d.id||p.shri||'').trim().toUpperCase();if(!sh||!getPhotoField(p))return;if(!masterMap[sh])masterMap[sh]={pmjayName:'',cmhtName:'',pmjayId:'',cmhtId:'',photo:'',docId:''};masterMap[sh].photo=getPhotoField(p);});}catch(e){}}
+function enrich(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];let scheme=document.getElementById('fType').value;if(m){if(scheme==='PMJAY'&&m.pmjayName)p.name=m.pmjayName;else if(scheme==='CMHT'&&m.cmhtName)p.name=m.cmhtName;else if(!p.name)p.name=m.pmjayName||m.cmhtName;if(m.photo)p.photo=m.photo;if(!p.pmjayId&&m.pmjayId)p.pmjayId=m.pmjayId;if(!p.cmhtId&&m.cmhtId)p.cmhtId=m.cmhtId;}let dp=getPhotoField(p);if(dp)p.photo=dp;return p;}
+async function loadData(){try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value||'PMJAY';let id=d+'_'+s;await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let pats=snap.exists?(snap.data().patients||[]):[];allPatients=pats.map((p,i)=>{let e=enrich({...p});e.sl=i+1;return e;});let ss=await db.collection('daily_photo_opd').doc(id).get();statusMap=ss.exists?(ss.data().status||{}):{};render();}catch(e){document.getElementById('searchInfo').innerText='Error: '+e.message;}}
+async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value||'PMJAY';await db.collection('daily_photo_opd').doc(d+'_'+s).set({date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()},{merge:true});}
+function showConfirm(sh,type){pendingShri=sh;pendingType=type;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let st=statusMap[sh]||{photoTaken:false,opdDone:false};let isDone=type==='photo'?st.photoTaken:st.opdDone;document.getElementById('confirmTitle').innerText='Are you sure?';document.getElementById('confirmSub').innerText=(isDone?(type==='photo'?'PHOTO':'OPD')+' not done for ':(type==='photo'?'PHOTO':'OPD')+' done for ')+(p?p.name:sh);document.getElementById('confirmModal').style.display='flex';}
+function hideConfirm(){document.getElementById('confirmModal').style.display='none';pendingShri=null;pendingType=null;}
+async function confirmSure(){if(!pendingShri)return;if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};let st=statusMap[pendingShri];if(pendingType==='photo')st.photoTaken=true;else st.opdDone=true;await saveStatus();hideConfirm();render();}
+async function confirmNotSure(){if(!pendingShri)return;if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};let st=statusMap[pendingShri];if(pendingType==='photo')st.photoTaken=false;else st.opdDone=false;await saveStatus();hideConfirm();render();}
+document.getElementById('btnSure').onclick=confirmSure;document.getElementById('btnNotSure').onclick=confirmNotSure;
+document.getElementById('confirmModal').onclick=e=>{if(e.target.id==='confirmModal')hideConfirm();};
+function getFiltered(){let fTime=document.getElementById('fTime').value,fShift=document.getElementById('fShift').value,bf=document.getElementById('filterBlock').value,fPhoto=document.getElementById('fPhoto').value,fOpd=document.getElementById('fOpd').value,sq=searchQuery.toLowerCase().trim();let effTime=fTime||fShift;return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;let st=statusMap[sh]||{photoTaken:false,opdDone:false};if(effTime&&normalizeTime(p.time)!==normalizeTime(effTime))return false;if(bf&&p.block!==bf)return false;if(fPhoto==='done'&&!st.photoTaken)return false;if(fPhoto==='pending'&&st.photoTaken)return false;if(fOpd==='done'&&!st.opdDone)return false;if(fOpd==='pending'&&st.opdDone)return false;if(sq){let n=String(p.name||'').toLowerCase();let pid=String(p.pmjayId||p.cmhtId||'').toLowerCase();if(!n.includes(sq)&&!sh.toLowerCase().includes(sq)&&!pid.includes(sq))return false;}return true;});}
+function openPhotoPicker(sh){pendingPhotoShri=sh;document.getElementById('photoInput').click();}
+document.getElementById('photoInput').onchange=function(e){let f=e.target.files[0];if(!f||!pendingPhotoShri)return;let r=new FileReader();r.onload=function(ev){let img=new Image();img.onload=function(){let c=document.createElement('canvas');let max=400,w=img.width,h=img.height;if(w>h&&w>max){h=h*max/w;w=max;}else if(h>max){w=w*max/h;h=max;}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);savePhoto(pendingPhotoShri,c.toDataURL('image/jpeg',0.75));};img.src=ev.target.result;};r.readAsDataURL(f);e.target.value='';};
+async function savePhoto(sh,dataUrl){let toast=document.getElementById('toast');toast.innerText='Saving photo...';toast.classList.add('show');try{await db.collection('patient_photos').doc(sh).set({shri:sh,photo:dataUrl,updatedAt:new Date().toISOString()},{merge:true});allPatients.forEach(p=>{if(String(p.shri||'').toUpperCase()===sh)p.photo=dataUrl;});if(masterMap[sh])masterMap[sh].photo=dataUrl;toast.innerText='Photo saved ✓';}catch(err){toast.innerText='Error: '+err.message;}setTimeout(()=>toast.classList.remove('show'),1500);render();}
+function render(){let filtered=getFiltered();let total=allPatients.length;let pDone=0,oDone=0;allPatients.forEach(p=>{let st=statusMap[String(p.shri||'').toUpperCase()]||{};if(st.photoTaken)pDone++;if(st.opdDone)oDone++;});document.getElementById('stTotal').innerText=filtered.length;document.getElementById('stPhotoDone').innerText=pDone;document.getElementById('stPhotoPend').innerText=total-pDone;document.getElementById('stOpdDone').innerText=oDone;document.getElementById('stOpdPend').innerText=total-oDone;
+let ps=getPageSize(),pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;let items=filtered.slice((currentPage-1)*ps,currentPage*ps);let from=filtered.length?((currentPage-1)*ps+1):0,to=Math.min(currentPage*ps,filtered.length);document.getElementById('searchInfo').innerText=`Showing ${from}-${to} of ${filtered.length} patients`;document.getElementById('pageIndicator').innerText=`${currentPage}/${pages}`;
+let grid=document.getElementById('grid'),list=document.getElementById('listWrap');grid.innerHTML='';list.innerHTML='';
+let scheme=document.getElementById('fType').value||'PMJAY';
+items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh]||{photoTaken:false,opdDone:false};let initials=(p.name||'').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';let photoHtml=p.photo?`<div class="avatar" data-photo="${sh}"><img src="${p.photo}"></div>`:`<div class="avatar" data-photo="${sh}">${initials}</div>`;
+let pmjayId=p.pmjayId||p.cmhtId||p.pmjay||p.cmht||'—';let blockTxt=(p.block||'MAIN');blockTxt=blockTxt.charAt(0).toUpperCase()+blockTxt.slice(1).toLowerCase();
+let card=document.createElement('div');card.className='card';card.innerHTML=`
+<div class="cTop">${photoHtml}<div style="flex:1;min-width:0"><div class="cName">${p.name||''}</div><div><span class="schemeBadge">${scheme}</span><span class="slNum">#${p.sl||''}</span></div></div></div>
+<div class="infoGrid"><div><label>${scheme} ID</label><b>${pmjayId}</b></div><div><label>SHRI ID</label><b>${sh}</b></div><div><label>Block</label><b>${blockTxt}</b></div><div><label>Shift / Time</label><b>${shiftName(p.time)}</b></div></div>
+<div class="statusRow"><div><label>Patient photo captured</label><span class="pill ${st.photoTaken?'pillYes':'pillNot'}">${st.photoTaken?'✓ Captured':'Not captured'}</span><button class="markBtn ${st.photoTaken?'done':''}" data-shri="${sh}" data-type="photo">✓ Mark captured</button></div><div><label>OPD slip captured</label><span class="pill ${st.opdDone?'pillYes':'pillNot'}">${st.opdDone?'✓ Captured':'Not captured'}</span><button class="markBtn ${st.opdDone?'done':''}" data-shri="${sh}" data-type="opd">✓ Mark captured</button></div></div>
+<button class="gpsBtn" data-gps="${sh}">📷 Open GPS Map Camera</button>
+<div class="gpsHint">If the app opens, take the photo there. Return and select it from Gallery.</div>
+<div class="selectGps" data-photo="${sh}">🖼️ Select GPS photo</div>`;
+grid.appendChild(card);
+let row=document.createElement('div');row.className='listRow';row.innerHTML=`${photoHtml}<div style="flex:1"><div class="cName">${p.name||''}</div><div style="font-size:11px;color:#64748B">${sh} • ${blockTxt} • ${shiftName(p.time)}</div></div><button class="markBtn" style="max-width:130px;margin:0" data-shri="${sh}" data-type="photo">✓ Mark captured</button><button class="markBtn" style="max-width:130px;margin:0" data-shri="${sh}" data-type="opd">✓ Mark captured</button>`;list.appendChild(row);});
+if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:30px;background:#fff;border-radius:12px;border:1px solid #E2E8F0;font-weight:700">No patients found</div>`;}
+if(viewMode==='grid'){grid.style.display='grid';list.style.display='none';}else{grid.style.display='none';list.style.display='block';}
+document.querySelectorAll('.avatar').forEach(av=>av.onclick=e=>{e.stopPropagation();openPhotoPicker(av.dataset.photo);});
+document.querySelectorAll('.selectGps').forEach(el=>el.onclick=e=>{e.stopPropagation();openPhotoPicker(el.dataset.photo);});
+document.querySelectorAll('.gpsBtn').forEach(b=>b.onclick=e=>{e.stopPropagation();pendingPhotoShri=b.dataset.gps;try{window.open('https://play.google.com/store/apps/details?id=com.gpsmapcamera','_blank');}catch(err){}setTimeout(()=>document.getElementById('photoInput').click(),600);});
+document.querySelectorAll('.markBtn').forEach(b=>{if(!b.dataset.shri)return;b.onclick=e=>{e.stopPropagation();showConfirm(b.dataset.shri,b.dataset.type);};});
 }
-window.openPhoto=async(ukey,shri,name)=>{
-  currentPhotoKey=ukey; currentPhotoShri=shri;
-  document.getElementById('photoName').textContent=name+' - '+shri;
-  document.getElementById('photoView').src = photoCache[ukey+'_full'] || photoCache[ukey] || '';
-  document.getElementById('photoModal').classList.add('show');
-  let f=await getFullPhotoSmart(ukey);
-  if(f){
-    photoCache[ukey]=f; photoCache[ukey+'_full']=f;
-    if(currentPhotoKey===ukey) document.getElementById('photoView').src=f;
-    document.querySelectorAll(`.pCardAvatar[data-ukey="${CSS.escape(ukey)}"] img, .tAvatar[data-ukey="${CSS.escape(ukey)}"] img`).forEach(img=>img.src=f);
-  }
-}
-window.closePhoto=()=>{ document.getElementById('photoModal').classList.remove('show'); }
-window.deletePhoto=async()=>{
-  if(!currentPhotoKey) return;
-  if(!confirm('Delete photo of '+currentPhotoShri+' ?')) return;
-  let c=cleanKey(currentPhotoKey);
-  try{
-    let csnap=await getDocs(collection(db2,"patient_photos",c+"_photo","chunks"));
-    for(let d of csnap.docs){ await deleteDoc(doc(db2,"patient_photos",c+"_photo","chunks",d.id)); }
-    await deleteDoc(doc(db2,"patient_photos",c+"_photo"));
-    delete photoCache[currentPhotoKey]; delete photoCache[currentPhotoKey+'_full'];
-    currentPhotoKey=null; closePhoto(); renderAll();
-  }catch(e){ alert('Delete failed'); }
-}
-window.uploadPhoto=async(file,ukey,shri)=>{
-  if(!file) return;
-  let base64=await new Promise(res=>{ let r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); });
-  let c=cleanKey(ukey);
-  let id=c+"_photo";
-  photoCache[ukey]=base64; photoCache[ukey+'_full']=base64;
-  document.querySelectorAll(`.pCardAvatar[data-ukey="${CSS.escape(ukey)}"], .tAvatar[data-ukey="${CSS.escape(ukey)}"]`).forEach(el=>{
-    el.innerHTML = `<img src="${base64}" style="width:100%;height:100%;object-fit:cover;display:block">`;
-  });
-  if(document.getElementById('photoModal').classList.contains('show')) document.getElementById('photoView').src=base64;
-  try{
-    let chunks=[]; const CHUNK=700000;
-    for(let i=0;i<base64.length;i+=CHUNK) chunks.push(base64.substring(i,i+CHUNK));
-    await setDoc(doc(db2,"patient_photos",id),{ukey:ukey, shri:shri, cleanKey:c, chunkCount:chunks.length, createdAt:Date.now()});
-    for(let j=0;j<chunks.length;j++){ await setDoc(doc(db2,"patient_photos",id,"chunks",String(j)),{index:j,data:chunks[j]}); }
-  }catch(e){ alert("Upload failed "+e.message); }
-}
-async function loadPhotoCache(){
-  let start=(currentPage-1)*pageSize;
-  let pageData=filtered.slice(start,start+pageSize);
-  let toLoad=pageData.filter(p=>!photoCache[p.key] && !p._photoLoading);
-  if(toLoad.length===0) return;
-  await Promise.all(toLoad.map(async p=>{
-    p._photoLoading = true;
-    let full = await getFullPhotoSmart(p.key);
-    if(full){
-      photoCache[p.key]=full; photoCache[p.key+'_full']=full;
-      document.querySelectorAll(`.pCardAvatar[data-ukey="${CSS.escape(p.key)}"]`).forEach(el=>{
-        if(!el.querySelector('img')) el.innerHTML = `<img src="${full}" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:50%">`;
-        else el.querySelector('img').src = full;
-      });
-      document.querySelectorAll(`.tAvatar[data-ukey="${CSS.escape(p.key)}"]`).forEach(el=>{
-        if(!el.querySelector('img')) el.innerHTML = `<img src="${full}" style="width:100%;height:100%;object-fit:cover;display:block">`;
-        else el.querySelector('img').src = full;
-      });
-    }
-    p._photoLoading = false;
-  }));
-}
-window.renderAll=()=>{
- let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;
- let start=(currentPage-1)*pageSize;let data=filtered.slice(start,start+pageSize);
- let gridHtml='';data.forEach((p,idx)=>{let real=allPatients.indexOf(p);let ukey=p.key;let c=cleanKey(ukey);let photo=photoCache[ukey];let avatar=photo?`<img src="${photo}">`:`${getInitial(p.name)}`;gridHtml+=`<div class="pCard"><div class="pCardBody"><div class="pCardAvatar" data-ukey="${ukey}" onclick="openPhoto('${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}','${(p.name||'').replace(/'/g,"\\'")}')">${avatar}</div><div class="pCardName">${p.name||'Unknown'}</div><div class="pCardSub">${p.addr||'No address'}</div><div class="pCardMeta"><div class="pCardRow2"><span>CMHT ID</span><b>${p.cmht||'-'}</b></div><div class="pCardRow2"><span>SHRI ID</span><b>${p.shri||'-'}</b></div><div class="pCardRow2"><span>Contact</span><b>${p.contact||'-'}</b></div></div><div class="pCardActions"><button class="btnEdit" onclick="openEdit(${real})">Edit</button><button class="btnDel" onclick="deletePatient(${real})">Delete</button></div></div><input type="file" id="file_${c}" style="display:none" accept="image/*" onchange="uploadPhoto(this.files[0],'${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}')"></div>`;});
- if(!data.length) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;position:relative;z-index:2">No patients</div>';
- document.getElementById('patientGrid').innerHTML=gridHtml;
- let html='<tr><th>SL No</th><th>Patient Name</th><th>CMHT ID</th><th>SHRI ID</th><th>Contact</th><th>Photo</th><th>Aadhaar</th><th>Address</th><th>Action</th></tr>';
- data.forEach((p,i)=>{let real=allPatients.indexOf(p);let ukey=p.key;let c=cleanKey(ukey);let photo=photoCache[ukey];let thumb=photo?`<img src="${photo}">`:`${getInitial(p.name)}`;html+=`<tr><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b></td><td><span class="cmhtTable">${p.cmht}</span></td><td><span class="shriTable">${p.shri}</span></td><td>${p.contact}</td><td><div class="tAvatar" data-ukey="${ukey}" onclick="openPhoto('${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}','${(p.name||'').replace(/'/g,"\\'")}')">${thumb}</div><input type="file" id="file_${c}" style="display:none" accept="image/*" onchange="uploadPhoto(this.files[0],'${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}')"></td><td>${p.aadhaar}</td><td>${p.addr}</td><td><div style="display:flex;gap:6px"><button class="btnEdit" onclick="openEdit(${real})">Edit</button><button class="btnDel" onclick="deletePatient(${real})">Delete</button></div></td></tr>`;});
- if(!data.length) html+='<tr><td colspan="9" style="text-align:center;padding:20px">No patients</td></tr>';
- document.getElementById('tbl').innerHTML=html;
- document.getElementById('info').textContent=filtered.length+' CMHT patients • Page '+currentPage+' of '+totalPages;
- ['','Grid'].forEach(s=>{let pInfo=document.getElementById('pageInfo'+s);let prev=document.getElementById('prevBtn'+s);let next=document.getElementById('nextBtn'+s);let nums=document.getElementById('pageNums'+s);if(pInfo)pInfo.textContent='Page '+currentPage+' of '+totalPages;if(prev)prev.disabled=currentPage<=1;if(next)next.disabled=currentPage>=totalPages;if(nums){let n='';for(let i=1;i<=Math.min(totalPages,10);i++)n+=`<button class="pBtn" style="${i===currentPage?'background:#0f172a;color:#fff':''}" onclick="goPage(${i})">${i}</button>`;nums.innerHTML=n;}});
- setTimeout(loadPhotoCache,120);
-};
-window.prevPage=()=>{if(currentPage>1){currentPage--;renderAll();}};
-window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(currentPage<totalPages){currentPage++;renderAll();}};
-window.goPage=(n)=>{currentPage=n;renderAll();};
-window.deletePatient=async(idx)=>{let p=allPatients[idx];if(!confirm('Delete '+p.name+'?'))return;try{await deleteDoc(doc(db2,"cmht_patients",p.key));allPatients.splice(idx,1);applyFilter();}catch(e){alert(e.message);}};
-async function init(){try{const snap=await getDocs(collection(db2,"cmht_patients"));allPatients=[];snap.forEach(d=>{let c=d.data();allPatients.push({key:d.id,name:c.patientName||c.name||'',shri:c.shriId||c.shri||'',cmht:c.cmhtId||c.cmht||'',contact:c.contactNo||c.contact||'',aadhaar:c.aadhaarNo||c.aadhaar||'',addr:c.address||c.addr||''});});allPatients.sort((a,b)=>a.name.localeCompare(b.name));applyFilter();}catch(e){}}init();
-const ADMIN_PASSWORD="jack8189";
-const adminApp2=initializeApp(firebaseConfig,"admin_cmht_"+Math.random());
-const adminDb=getFirestore(adminApp2);
-document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
-  let pass=document.getElementById('adminPassInput').value.trim();
-  if(pass!==ADMIN_PASSWORD){ document.getElementById('passError').style.display='block'; return; }
-  document.getElementById('passError').style.display='none';
-  let btn=document.getElementById('confirmLogoutAll'); btn.innerText='...'; btn.disabled=true;
-  try{ await setDoc(doc(adminDb,"system","global_logout"),{ logoutTime: Date.now(), timestamp: serverTimestamp(), triggeredBy:'admin' },{merge:true}); alert('All devices logged out!'); localStorage.removeItem('shija_logged'); location.href='login.html'; }catch(err){ alert(err.message); btn.innerText='Logout All'; btn.disabled=false; }
-});
+function goNext(){let pages=Math.max(1,Math.ceil(getFiltered().length/getPageSize()));if(currentPage<pages){currentPage++;render();}}
+function goPrev(){if(currentPage>1){currentPage--;render();}}
+document.getElementById('nextBtn').onclick=goNext;document.getElementById('prevBtn').onclick=goPrev;
+document.getElementById('btnGrid').onclick=()=>{viewMode='grid';document.getElementById('btnGrid').classList.add('on');document.getElementById('btnList').classList.remove('on');render();};
+document.getElementById('btnList').onclick=()=>{viewMode='list';document.getElementById('btnList').classList.add('on');document.getElementById('btnGrid').classList.remove('on');render();};
+['fType','fTime','fShift','filterBlock','fPhoto','fOpd'].forEach(id=>{document.getElementById(id).onchange=()=>{currentPage=1;if(id==='fType')loadData();else render();};});
+document.getElementById('searchName').oninput=e=>{searchQuery=e.target.value;currentPage=1;render();};
+document.getElementById('btnLogout').onclick=()=>{if(confirm('Logout?')){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}};
+let sx=0;document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;},{passive:true});document.addEventListener('touchend',e=>{let d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>70){if(d<0)goNext();else goPrev();}},{passive:true});
+window.addEventListener('load',()=>setTimeout(loadData,300));
 </script>
 <script type="module" src="maintenance.js"></script>
 </body>
