@@ -73,13 +73,18 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .markBtn.done{background:#059669;color:#fff;border-color:#059669}
 .gpsBtn{width:100%;height:42px;border:0;background:linear-gradient(135deg,#0EA5E9 0%,#14B8A6 100%);color:#fff;font-size:12.5px;font-weight:800;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;box-shadow:0 6px 16px rgba(14,165,233,.35);letter-spacing:.2px}
 .gpsBtn:active{transform:scale(.98)}
-.selectGps{margin-top:12px;font-size:12px;font-weight:600;color:#64748B;cursor:pointer;display:flex;align-items:center;gap:6px}
 #confirmModal{position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.5)}
 .confirmBox{background:#fff;width:90%;max-width:320px;border-radius:12px;padding:20px;text-align:center}
 .confirmBtns{display:flex;gap:8px;margin-top:14px}.confirmBtns button{flex:1;height:38px;border-radius:8px;font-weight:700;cursor:pointer}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;padding:10px 16px;border-radius:100px;font-size:12px;font-weight:700;z-index:1000;display:none}.toast.show{display:block}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
+#photoModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:10001;align-items:center;justify-content:center;padding:20px}
+#photoModal.show{display:flex}
+.photoBox{position:relative;width:90vw;max-width:420px}
+#photoView{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:20px;border:4px solid #fff;display:block;background:#111}
+#photoName{color:#fff;font-weight:800;margin-top:14px;font-size:15px;text-align:center}
+.photoClose{position:absolute;top:-14px;right:-14px;width:36px;height:36px;border-radius:50%;border:0;background:#fff;color:#000;font-size:20px;font-weight:900;cursor:pointer;line-height:1;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.4);z-index:2}
 @media(max-width:900px){
   .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
   .whiteBar.mOpen{transform:translateX(0)}
@@ -138,12 +143,12 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 <div class="note">Staff and admins share the same saved status for each dialysis date. Review items below or update a status when needed.</div>
 <div class="barTop"><span id="searchInfo">Showing 1-20 of 0 patients</span><div style="display:flex;gap:4px;align-items:center;background:#fff;border:1px solid #E2E8F0;border-radius:8px;padding:3px"><button id="prevBtn" style="border:0;background:#fff;padding:4px 8px;cursor:pointer;font-weight:800">‹</button><span id="pageIndicator" style="font-size:12px;font-weight:700">1/1</span><button id="nextBtn" style="border:0;background:#fff;padding:4px 8px;cursor:pointer;font-weight:800">›</button></div></div>
 <div class="grid" id="grid"></div>
-<div style="text-align:center;font-size:11px;color:#94A3B8;margin-top:12px">Tap photo to take / upload • Swipe left / right to change page</div>
+<div style="text-align:center;font-size:11px;color:#94A3B8;margin-top:12px">Tap photo to view • Swipe left / right to change page</div>
 </div></div></div>
-<input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none">
 <input type="date" id="fDate" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none">
 <div id="confirmModal"><div class="confirmBox"><div id="confirmTitle" style="font-weight:800;font-size:15px">Are you sure?</div><div id="confirmSub" style="font-size:12px;color:#64748B;margin-top:6px">Complete?</div><div class="confirmBtns"><button id="btnNotSure" style="background:#F1F5F9;border:1px solid #E2E8F0">NOT SURE</button><button id="btnSure" style="background:#0F172A;color:#fff;border:0">SURE</button></div></div></div>
 <div class="toast" id="toast">Saved</div>
+<div id="photoModal" onclick="closePhoto()"><div class="photoBox" onclick="event.stopPropagation()"><button class="photoClose" onclick="closePhoto()">×</button><img id="photoView" src=""><div id="photoName"></div></div></div>
 <script>
 function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{document.getElementById('whiteBar').classList.toggle('folded');}}
 function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
@@ -161,13 +166,12 @@ document.getElementById('dateNext').onclick=()=>{fDateEl.value=addDays(fDateEl.v
 document.getElementById('calIcon').onclick=()=>{try{document.getElementById('fDate').showPicker();}catch(e){}};
 document.getElementById('dateDisplay').onclick=()=>{try{document.getElementById('fDate').showPicker();}catch(e){}};
 fDateEl.onchange=()=>{updDate();loadData();};
-let allPatients=[],statusMap={},masterMap={},searchQuery='',currentPage=1,pendingShri=null,pendingType=null,pendingPhotoShri=null;
+let allPatients=[],statusMap={},masterMap={},searchQuery='',currentPage=1,pendingShri=null,pendingType=null;
 let photoCache={};
 function getPageSize(){return 20;}
 function cleanKey(k){return String(k).replace(/[^a-zA-Z0-9]/g,'_');}
 function normalizeTime(t){let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
 function shiftName(t){let n=normalizeTime(t);if(n==='7:00 AM')return'Morning / 7am';if(n==='12:00 PM')return'Afternoon / 12pm';if(n==='5:00 PM')return'Evening / 5pm';if(n==='9:00 PM')return'Night / 9pm';if(n==='12:00 AM')return'Night / 12am';if(n==='2:00 AM')return'Night / 2am';return t||'—';}
-function getPhotoField(p){if(!p)return'';let v=p.photo||p.photoUrl||p.photoURL||p.image||p.profilePic||p.avatar||p.photoBase64||p.patientPhoto||'';if(typeof v!=='string')return'';if(v.startsWith('data:')||v.startsWith('http')||v.startsWith('blob:'))return v;return'';}
 function titleCase(s){return String(s||'').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());}
 async function getFullPhotoSmart(ukey){
   let c=cleanKey(ukey);
@@ -208,6 +212,19 @@ async function loadPhotoCache(){
     p._photoLoading=false;
   }));
 }
+// VIEW ONLY - no change, no delete
+async function openPhoto(sh){
+  let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);
+  let src=photoCache[sh]||p?.photo||'loko.png';
+  document.getElementById('photoView').src=src;
+  document.getElementById('photoName').textContent=(p?p.name:sh)+' - '+sh;
+  document.getElementById('photoModal').classList.add('show');
+  if(!photoCache[sh]){
+    let full=await getFullPhotoSmart(sh);
+    if(full){ photoCache[sh]=full; document.getElementById('photoView').src=full; }
+  }
+}
+function closePhoto(){ document.getElementById('photoModal').classList.remove('show'); }
 async function buildMasterMap(){masterMap={};try{let s=await db.collection('patients').get();s.forEach(d=>{let p=d.data();if(p.deleted)return;let sh=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!sh)return;masterMap[sh]={pmjayName:titleCase(p.patientName||p.name||''),cmhtName:'',pmjayId:String(p.pmjayId||p.pmjay||p.ayushmanId||''),cmhtId:String(p.cmhtId||p.cmht||''),photo:'',docId:d.id};});}catch(e){}try{let s2=await db.collection('cmht_patients').get();s2.forEach(d=>{let p=d.data();if(p.deleted)return;let sh=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!sh)return;if(!masterMap[sh])masterMap[sh]={pmjayName:'',cmhtName:'',pmjayId:'',cmhtId:'',photo:'',docId:d.id};masterMap[sh].cmhtName=titleCase(p.patientName||p.name||'');if(!masterMap[sh].cmhtId)masterMap[sh].cmhtId=String(p.cmhtId||p.cmht||'');});}catch(e){}}
 function enrich(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];let scheme=document.getElementById('fType').value;if(m){if(scheme==='PMJAY'&&m.pmjayName)p.name=m.pmjayName;else if(scheme==='CMHT'&&m.cmhtName)p.name=m.cmhtName;else if(!p.name)p.name=m.pmjayName||m.cmhtName;else p.name=titleCase(p.name);if(!p.pmjayId&&m.pmjayId)p.pmjayId=m.pmjayId;if(!p.cmhtId&&m.cmhtId)p.cmhtId=m.cmhtId;}if(photoCache[k])p.photo=photoCache[k];return p;}
 async function loadData(){try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value||'PMJAY';let id=d+'_'+s;await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let pats=snap.exists?(snap.data().patients||[]):[];allPatients=pats.map((p,i)=>{let e=enrich({...p});e.sl=i+1;return e;});let ss=await db.collection('daily_photo_opd').doc(id).get();statusMap=ss.exists?(ss.data().status||{}):{};render();}catch(e){document.getElementById('searchInfo').innerText='Error: '+e.message;}}
@@ -219,22 +236,6 @@ async function confirmNotSure(){if(!pendingShri)return;if(!statusMap[pendingShri
 document.getElementById('btnSure').onclick=confirmSure;document.getElementById('btnNotSure').onclick=confirmNotSure;
 document.getElementById('confirmModal').onclick=e=>{if(e.target.id==='confirmModal')hideConfirm();};
 function getFiltered(){let fTime=document.getElementById('fTime').value,fShift=document.getElementById('fShift').value,bf=document.getElementById('filterBlock').value,sq=searchQuery.toLowerCase().trim();let effTime=fTime||fShift;return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(effTime&&normalizeTime(p.time)!==normalizeTime(effTime))return false;if(bf&&p.block!==bf)return false;if(sq){let n=String(p.name||'').toLowerCase();let pid=String(p.pmjayId||p.cmhtId||'').toLowerCase();if(!n.includes(sq)&&!sh.toLowerCase().includes(sq)&&!pid.includes(sq))return false;}return true;});}
-function openPhotoPicker(sh){pendingPhotoShri=sh;document.getElementById('photoInput').click();}
-document.getElementById('photoInput').onchange=function(e){let f=e.target.files[0];if(!f||!pendingPhotoShri)return;let r=new FileReader();r.onload=function(ev){let img=new Image();img.onload=function(){let c=document.createElement('canvas');let max=800,w=img.width,h=img.height;if(w>h&&w>max){h=h*max/w;w=max;}else if(h>max){w=w*max/h;h=max;}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);savePhoto(pendingPhotoShri,c.toDataURL('image/jpeg',0.85));};img.src=ev.target.result;};r.readAsDataURL(f);e.target.value='';};
-async function savePhoto(sh,dataUrl){
-  let toast=document.getElementById('toast');toast.innerText='Saving photo...';toast.classList.add('show');
-  try{
-    let c=cleanKey(sh);let id=c+"_photo";
-    let chunks=[];const CHUNK=700000;
-    for(let i=0;i<dataUrl.length;i+=CHUNK) chunks.push(dataUrl.substring(i,i+CHUNK));
-    await db.collection("patient_photos").doc(id).set({ukey:sh,shri:sh,cleanKey:c,chunkCount:chunks.length,createdAt:Date.now()});
-    for(let j=0;j<chunks.length;j++){ await db.collection("patient_photos").doc(id).collection("chunks").doc(String(j)).set({index:j,data:chunks[j]}); }
-    photoCache[sh]=dataUrl;
-    allPatients.forEach(p=>{if(String(p.shri||'').toUpperCase()===sh)p.photo=dataUrl;});
-    toast.innerText='Photo saved';
-  }catch(err){toast.innerText='Error: '+err.message;}
-  setTimeout(()=>toast.classList.remove('show'),1500);render();
-}
 function goEnhancement(sh){let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value||'PMJAY';let q=new URLSearchParams({shri:sh,name:p?p.name:'',scheme:scheme,date:date,pmjayId:p?(p.pmjayId||p.cmhtId||''):'' ,block:p?(p.block||''):'' ,time:p?(p.time||''):''});location.href='enhancement.html?'+q.toString();}
 function render(){let filtered=getFiltered();
 let ps=getPageSize(),pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;let items=filtered.slice((currentPage-1)*ps,currentPage*ps);let from=filtered.length?((currentPage-1)*ps+1):0,to=Math.min(currentPage*ps,filtered.length);document.getElementById('searchInfo').innerText=`Showing ${from}-${to} of ${filtered.length} patients`;document.getElementById('pageIndicator').innerText=`${currentPage}/${pages}`;
@@ -250,7 +251,7 @@ let card=document.createElement('div');card.className='card';card.innerHTML=`
 <button class="gpsBtn" data-gps="${sh}">Enhancement <svg style="width:14px;height:14px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>`;
 grid.appendChild(card);});
 if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:30px;background:#fff;border-radius:12px;border:1px solid #E2E8F0;font-weight:700">No patients found</div>`;}
-document.querySelectorAll('.avatar').forEach(av=>av.onclick=e=>{e.stopPropagation();openPhotoPicker(av.dataset.photo);});
+document.querySelectorAll('.avatar').forEach(av=>av.onclick=e=>{e.stopPropagation();openPhoto(av.dataset.photo);});
 document.querySelectorAll('.gpsBtn').forEach(b=>b.onclick=e=>{e.stopPropagation();goEnhancement(b.dataset.gps);});
 document.querySelectorAll('.markBtn').forEach(b=>{if(!b.dataset.shri)return;b.onclick=e=>{e.stopPropagation();showConfirm(b.dataset.shri,b.dataset.type);};});
 setTimeout(loadPhotoCache,120);
