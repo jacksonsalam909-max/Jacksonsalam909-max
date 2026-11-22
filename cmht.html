@@ -50,7 +50,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .vBtn.active{background:#0f172a;color:#fff;box-shadow:0 2px 8px #0002}
 .pSelect{padding:10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700;background:#fff}
 .addBtn{padding:10px 16px;background:#8b5cf6;color:#fff;border-radius:10px;text-decoration:none;font-weight:800;font-size:13px;box-shadow:0 4px 12px #8b5cf640}
-/* === GRID VIEW - SAME AS TOTAL.HTML === */
 .patientGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative;z-index:2;align-items:start}
 .whiteBar.folded ~ .mainWrap .patientGrid{grid-template-columns:repeat(5,1fr);gap:12px}
 .pCard{width:100%;aspect-ratio:1/1;border-radius:18px;background:#fff;border:2px solid #e2e8f0;box-shadow:0 2px 12px rgba(0,0,0,.06);text-align:center;overflow:hidden;will-change:transform;transform:translateZ(0);backface-visibility:hidden;transition:transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;display:flex;flex-direction:column}
@@ -75,6 +74,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 table{width:100%;border-collapse:collapse;min-width:1100px}
 th{padding:14px 12px;font-size:11px;color:#64748b;background:#f8fafc;text-align:left;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;position:relative;z-index:2}
 td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-align:middle;white-space:nowrap;position:relative;z-index:2}
+#tbl td:nth-child(8){white-space:normal!important;word-break:break-word!important;min-width:220px;max-width:320px;line-height:1.4;text-align:left}
 .sl{background:#f3e8ff;width:36px;height:28px;display:grid;place-items:center;border-radius:8px;font-weight:800;font-size:12px;color:#6b21a8}
 .shriTable{color:#64748b;background:#f1f5f9;padding:5px 10px;border-radius:8px;font-weight:700;font-size:11px;border:1px solid #e2e8f0;display:inline-block;min-width:80px;text-align:center}
 .cmhtTable{background:#8b5cf6;color:#fff;padding:6px 12px;border-radius:8px;font-weight:800;font-size:11px;display:inline-block;min-width:110px;text-align:center;box-shadow:0 2px 6px #8b5cf630}
@@ -297,7 +297,7 @@ window.renderAll=()=>{
  if(!data.length) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;position:relative;z-index:2">No patients</div>';
  document.getElementById('patientGrid').innerHTML=gridHtml;
  let html='<tr><th>SL No</th><th>Patient Name</th><th>CMHT ID</th><th>SHRI ID</th><th>Contact</th><th>Photo</th><th>Aadhaar</th><th>Address</th><th>Action</th></tr>';
- data.forEach((p,i)=>{let real=allPatients.indexOf(p);let ukey=p.key;let c=cleanKey(ukey);let photo=photoCache[ukey];let thumb=photo?`<img src="${photo}">`:`${getInitial(p.name)}`;html+=`<tr><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b></td><td><span class="cmhtTable">${p.cmht}</span></td><td><span class="shriTable">${p.shri}</span></td><td>${p.contact}</td><td><div class="tAvatar" data-ukey="${ukey}" onclick="openPhoto('${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}','${(p.name||'').replace(/'/g,"\\'")}')">${thumb}</div><input type="file" id="file_${c}" style="display:none" accept="image/*" onchange="uploadPhoto(this.files[0],'${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}')"></td><td>${p.aadhaar}</td><td>${p.addr}</td><td><div style="display:flex;gap:6px"><button class="btnEdit" onclick="openEdit(${real})">Edit</button><button class="btnDel" onclick="deletePatient(${real})">Delete</button></div></td></tr>`;});
+ data.forEach((p,i)=>{let real=allPatients.indexOf(p);let ukey=p.key;let c=cleanKey(ukey);let photo=photoCache[ukey];let thumb=photo?`<img src="${photo}">`:`${getInitial(p.name)}`;html+=`<tr><td><div class="sl">${start+i+1}</div></td><td><b>${p.name}</b></td><td><span class="cmhtTable">${p.cmht}</span></td><td><span class="shriTable">${p.shri}</span></td><td>${p.contact}</td><td><div class="tAvatar" data-ukey="${ukey}" onclick="openPhoto('${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}','${(p.name||'').replace(/'/g,"\\'")}')">${thumb}</div><input type="file" id="file_${c}" style="display:none" accept="image/*" onchange="uploadPhoto(this.files[0],'${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}')"></td><td>${p.aadhaar}</td><td>${(p.addr||'-').replace(/</g,'&lt;')}</td><td><div style="display:flex;gap:6px"><button class="btnEdit" onclick="openEdit(${real})">Edit</button><button class="btnDel" onclick="deletePatient(${real})">Delete</button></div></td></tr>`;});
  if(!data.length) html+='<tr><td colspan="9" style="text-align:center;padding:20px">No patients</td></tr>';
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('info').textContent=filtered.length+' CMHT patients • Page '+currentPage+' of '+totalPages;
