@@ -129,7 +129,6 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-ali
 </div>
 <div class="patientGrid hidden" id="patientGrid"></div>
 <div class="tableWrap" id="tableWrap"><div class="tableWatermark"><img src="loko.png"></div><div style="overflow-x:auto;position:relative;z-index:2"><table id="tbl"></table></div></div>
-<!-- PAGER MOVED TO BOTTOM ONLY -->
 <div class="pagerTop"><div style="display:flex;gap:6px"><button class="pBtn" onclick="prevPage()">← PREV</button><button class="pBtn" onclick="nextPage()">NEXT →</button></div><div id="pageInfoTop" style="font-weight:700;font-size:12px"></div><div id="pageNumsTop" style="display:flex;gap:6px"></div></div>
 </div></div>
 <div id="photoModal" onclick="closePhoto()"><div class="photoWrap"><button class="photoCloseBtn" onclick="event.stopPropagation();closePhoto()">✕</button><img id="photoView" src="" onclick="event.stopPropagation()"></div><div id="photoName"></div></div>
@@ -159,6 +158,7 @@ let masterMapLoadedAt=0, masterMapLoading=null;
 function cleanKey(k){ return String(k).replace(/[^a-zA-Z0-9]/g,'_'); }
 function getToday(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function fmtDisp(iso){if(!iso)return'';let p=iso.split('-');return `${p[2]}-${p[1]}-${p[0]}`;}
+function fmtPrev(v){ if(!v) return '-'; let s=String(v).trim(); if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return fmtDisp(s); return s; }
 function updateDateDisplay(){document.getElementById('dateDisplay').innerText=fmtDisp(document.getElementById('fDate').value);}
 function shiftDate(d){let inp=document.getElementById('fDate');let dt=new Date(inp.value);dt.setDate(dt.getDate()+d);inp.value=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;updateDateDisplay();loadToday();}
 document.getElementById('fDate').value=getToday();
@@ -172,7 +172,6 @@ document.getElementById('filterBlock').addEventListener('change',()=>{currentPag
 updateDateDisplay();
 function getInitial(name){ return (name||'P').trim().charAt(0).toUpperCase(); }
 function normalizeTime(t){if(!t)return'';let s=String(t).toUpperCase().trim().replace(/\s+/g,' ');let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]);let mn=m[2]?m[2].padStart(2,'0'):'00';let ap=m[3]||(s.includes('AM')?'AM':s.includes('PM')?'PM':'');return ap?`${h}:${mn} ${ap}`:`${h}:${mn}`;}
-/* SPEED: buildMasterMap once, cache 5 min, both collections in parallel */
 async function buildMasterMap(){
   if(Date.now()-masterMapLoadedAt < 5*60*1000 && Object.keys(masterMap).length) return;
   if(masterMapLoading) return masterMapLoading;
@@ -223,7 +222,6 @@ window.openPhoto=async(ukey,shri,name)=>{
   if(f){ photoCache[ukey]=f; if(currentPhotoKey===ukey) document.getElementById('photoView').src=f; }
 }
 window.closePhoto=()=>{ document.getElementById('photoModal').classList.remove('show'); }
-/* SPEED: debounce search so typing does not re-render every keystroke */
 let searchTimer=null;
 window.onSearch=()=>{ clearTimeout(searchTimer); searchTimer=setTimeout(()=>{currentPage=1;applyFilter();},120); };
 window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderAll();};
@@ -241,7 +239,6 @@ window.applyFilter=()=>{
   });
   renderAll();
 };
-/* SPEED: photos only for visible page, max 4 at a time, after paint */
 async function loadPhotoCache(){
   let start=(currentPage-1)*pageSize;
   let pageData=filtered.slice(start,start+pageSize);
@@ -270,29 +267,27 @@ window.renderAll=()=>{
    let ukey=p.key;
    let photo=photoCache[ukey];
    let avatar=photo?`<img src="${photo}">`:`${getInitial(p.name)}`;
-   gridHtml+=`<div class="pCard"><div class="pCardBody"><div class="pCardAvatar" data-ukey="${ukey}" onclick="openPhoto('${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}','${(p.name||'').replace(/'/g,"\\'")}')">${avatar}</div><div class="pCardName">${p.name||'Unknown'}</div><div class="pCardSub">${p.scheme||''} • ${p.time||''} • ${p.block||''}</div><div class="pCardMeta"><div class="pCardRow2"><span>CONTACT NUMBER</span><b>${p.contact||'-'}</b></div><div class="pCardRow2"><span>SHRI ID</span><b>${p.shri||'-'}</b></div><div class="pCardRow2"><span>TIME</span><b>${p.time||'-'}</b></div><div class="pCardRow2"><span>BLOCK</span><b>${p.block||'-'}</b></div></div></div></div>`;
+   gridHtml+=`<div class="pCard"><div class="pCardBody"><div class="pCardAvatar" data-ukey="${ukey}" onclick="openPhoto('${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}','${(p.name||'').replace(/'/g,"\\'")}')">${avatar}</div><div class="pCardName">${p.name||'Unknown'}</div><div class="pCardSub">${p.scheme||''} • ${p.time||''} • ${p.block||''}</div><div class="pCardMeta"><div class="pCardRow2"><span>SHRI ID</span><b>${p.shri||'-'}</b></div><div class="pCardRow2"><span>TIME</span><b>${p.time||'-'}</b></div><div class="pCardRow2"><span>BLOCK</span><b>${p.block||'-'}</b></div><div class="pCardRow2"><span>PREV</span><b>${fmtPrev(p.prev)}</b></div></div></div></div>`;
  });
  if(data.length===0) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">No patients in list for this date</div>';
  document.getElementById('patientGrid').innerHTML=gridHtml;
- let html='<tr><th>SL No</th><th>Patient Name</th><th>Contact Number</th><th>SHRI ID</th><th>Photo</th><th>Time</th><th>Block</th><th>Scheme</th></tr>';
+ let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Photo</th><th>Time</th><th>Block</th><th>Prev</th><th>Scheme</th></tr>';
  data.forEach((p,idx)=>{
    let ukey=p.key;
    let photo=photoCache[ukey];
    let thumb=photo?`<img src="${photo}">`:`${getInitial(p.name)}`;
    let slNo=start+idx+1;
-   html+=`<tr><td><div class="sl">${slNo}</div></td><td><b>${p.name||'-'}</b></td><td><span class="pmjayTable">${p.contact||'-'}</span></td><td><span class="shriTable">${p.shri||'-'}</span></td><td><div class="tAvatar" data-ukey="${ukey}" onclick="openPhoto('${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}','${(p.name||'').replace(/'/g,"\\'")}')">${thumb}</div></td><td>${p.time||'-'}</td><td>${p.block||'-'}</td><td>${p.scheme||'-'}</td></tr>`;
+   html+=`<tr><td><div class="sl">${slNo}</div></td><td><b>${p.name||'-'}</b></td><td><span class="shriTable">${p.shri||'-'}</span></td><td><div class="tAvatar" data-ukey="${ukey}" onclick="openPhoto('${ukey.replace(/'/g,"\\'")}','${(p.shri||'').replace(/'/g,"\\'")}','${(p.name||'').replace(/'/g,"\\'")}')">${thumb}</div></td><td>${p.time||'-'}</td><td>${p.block||'-'}</td><td>${fmtPrev(p.prev)}</td><td>${p.scheme||'-'}</td></tr>`;
  });
  if(data.length===0) html+='<tr><td colspan="8" style="text-align:center;padding:20px">No patients in list for this date</td></tr>';
  document.getElementById('tbl').innerHTML=html;
  document.getElementById('info').textContent=filtered.length+' patients • Page '+currentPage+' of '+totalPages+' • Date: '+fmtDisp(document.getElementById('fDate').value);
  let pInfo=document.getElementById('pageInfoTop');let numsEl=document.getElementById('pageNumsTop');if(pInfo) pInfo.textContent='Page '+currentPage+' of '+totalPages;if(numsEl){let nums='';for(let i=1;i<=Math.min(totalPages,8);i++){nums+=`<button class="pBtn" style="${i===currentPage?'background:#0f172a;color:#fff':''}" onclick="goPage(${i})">${i}</button>`;}numsEl.innerHTML=nums;}
- /* SPEED: paint list first, photos after */
  requestAnimationFrame(()=>setTimeout(loadPhotoCache,80));
 };
 window.prevPage=()=>{if(currentPage>1){currentPage--;renderAll();window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});}};
 window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(currentPage<totalPages){currentPage++;renderAll();window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});}};
 window.goPage=(n)=>{currentPage=n;renderAll();};
-/* SPEED: PMJAY + CMHT daily lists in parallel, render immediately */
 async function loadToday(){
  document.getElementById('info').textContent='Loading...';
  let date=document.getElementById('fDate').value;
@@ -309,7 +304,7 @@ async function loadToday(){
        let m=masterMap[shri];
        let fullName=(m && m.name) ? m.name : String(p.name||'').trim();
        let contact=(m && m.contact) ? m.contact : '';
-       list.push({key:key,name:fullName,shri:shri,contact:contact,time:p.time||'',block:p.block||'',prev:p.prev||'',scheme:scheme,sl:p.sl||0});
+       list.push({key:key,name:fullName,shri:shri,contact:contact,time:p.time||'',block:p.block||'',prev:p.prev||p.prevDate||p.prevDialysisDate||'',scheme:scheme,sl:p.sl||0});
      });
    }
  });
