@@ -186,7 +186,36 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 window.allForSearch=[];
 function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{document.getElementById('whiteBar').classList.toggle('folded');}}
 function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
-function doGlobalSearch(){let el=document.getElementById('globalSearch');let q=(el.value||'').toLowerCase().trim();if(q.includes('admin')){el.value='';q='';document.getElementById('searchResult').classList.remove('show');return;}let box=document.getElementById('searchResult');if(!q){box.classList.remove('show');return;}let f=window.allForSearch.filter(p=>[p.name,p.shri,p.pmjay,p.contact,p.aadhaar,p.addr,p.scheme].join(' ').toLowerCase().includes(q)).slice(0,20);if(!f.length){box.innerHTML='<div class="sItem"><b>No patient</b></div>';box.classList.add('show');return;}let h='';f.forEach(p=>{let badge=p.scheme==='CMHT'?'<span class="badgeCMHT">CMHT</span>':'<span class="badgePMJAY">PMJAY</span>';h+=`<div class="sItem" onclick="location.href='searchpatient.html?shri=${encodeURIComponent(p.shri)}'"><div><b>${p.name}</b> <small>${p.shri}</small> ${badge}</div></div>`;});box.innerHTML=h;box.classList.add('show');}
+function doGlobalSearch(){
+  let el=document.getElementById('globalSearch');
+  let q=(el.value||'').toLowerCase().trim();
+  let box=document.getElementById('searchResult');
+  if(q.includes('admin')){el.value='';q='';box.classList.remove('show');return;}
+  if(!q){box.classList.remove('show');return;}
+  // SAME AS SEARCH PATIENT: name + shri + pmjay + contact + aadhaar + addr + scheme
+  let f=window.allForSearch.filter(p=>[p.name,p.shri,p.pmjay,p.contact,p.aadhaar,p.addr,p.scheme].join(' ').toLowerCase().includes(q)).slice(0,20);
+  if(!f.length){box.innerHTML='<div class="sItem"><b>No patient found</b></div>';box.classList.add('show');return;}
+  let grads=['linear-gradient(135deg,#C850C0,#4158D0)','linear-gradient(135deg,#FF5E3A,#FF2A68)','linear-gradient(135deg,#38BDF8,#2563EB)','linear-gradient(135deg,#6366F1,#4F46E5)','linear-gradient(135deg,#22D3EE,#06B6D4)','linear-gradient(135deg,#FBBF24,#F97316)'];
+  let h='';
+  f.forEach((p,idx)=>{
+    let badge=p.scheme==='CMHT'?'<span class="badgeCMHT">CMHT</span>':'<span class="badgePMJAY">PMJAY</span>';
+    let label=p.scheme==='CMHT'?'CMHT id :':'PMJAY id :';
+    let initial=(p.name||'P').trim().charAt(0).toUpperCase();
+    let g=grads[idx%grads.length];
+    h+=`<div class="sItem" onclick="location.href='searchpatient.html?shri=${encodeURIComponent(p.shri)}'" style="padding:0;overflow:hidden;align-items:stretch">
+      <div style="display:flex;gap:10px;align-items:center;width:100%;padding:10px 12px">
+        <div style="width:42px;min-width:42px;height:42px;border-radius:11px;background:${g};display:grid;place-items:center;color:#fff;font-weight:900;font-size:15px">${initial}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px"><b style="font-size:13px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</b> ${badge}</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px">Shri id : <b style="color:#0f172a">${p.shri||'-'}</b> • ${label} <b style="color:#0f172a">${p.pmjay||'-'}</b></div>
+          <div style="font-size:11px;color:#64748b">Contact : <b style="color:#0f172a">${p.contact||'-'}</b></div>
+        </div>
+        <div style="font-size:11px;color:#94a3b8;font-weight:600;white-space:nowrap">Click to view ›</div>
+      </div>
+    </div>`;
+  });
+  box.innerHTML=h;box.classList.add('show');
+}
 document.addEventListener('DOMContentLoaded',function(){document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});let gs=document.getElementById('globalSearch');if(gs){gs.value='';gs.addEventListener('focus',function(){if(this.value.toLowerCase().includes('admin')) this.value='';});gs.addEventListener('input',doGlobalSearch);}document.addEventListener('click',function(e){if(!e.target.closest('.searchWrap') && !e.target.closest('#adminMenuWrap')){document.getElementById('searchResult').classList.remove('show');}});const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');adminBtn.addEventListener('click',(e)=>{e.stopPropagation();adminDropdown.style.display=adminDropdown.style.display==='none'||adminDropdown.style.display===''?'block':'none';});document.addEventListener('click',(e)=>{if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none';});document.getElementById('btnLogout').addEventListener('click',()=>{if(confirm('Logout from this device?')){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');location.href='login.html';}});document.getElementById('btnLogoutAll').addEventListener('click',()=>{adminDropdown.style.display='none';document.getElementById('logoutAllModal').style.display='flex';document.getElementById('adminPassInput').value='';document.getElementById('passError').style.display='none';});document.getElementById('cancelLogoutAll').addEventListener('click',()=>{document.getElementById('logoutAllModal').style.display='none';});document.getElementById('logoutAllModal').addEventListener('click',(e)=>{if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none';});});
 </script>
 <script type="module">
