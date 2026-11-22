@@ -1,26 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Photo & OPD Capture - SHIJA</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Office Assistant - SHIJA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#F8FAFC;color:#0F172A}
-.topbar{height:52px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:20}
-.backBtn{border:1px solid #E2E8F0;background:#fff;padding:7px 12px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;color:#334155}
-.logoutBtn{border:1px solid #FECACA;background:#FEF2F2;color:#DC2626;padding:7px 12px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer}
-.wrap{max-width:1200px;margin:0 auto;padding:18px 16px 80px}
-.head{display:flex;gap:12px;align-items:flex-start;margin-bottom:18px}
-.headIcon{width:44px;height:44px;min-width:44px;background:#059669;border-radius:10px;display:grid;place-items:center;color:#fff;font-size:20px}
-.head h1{font-size:19px;font-weight:800}.head p{font-size:12px;color:#64748B;margin-top:3px}
-.adminPill{margin-left:auto;border:1px solid #E2E8F0;background:#fff;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:600;color:#64748B;white-space:nowrap}
+body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
+.ic{width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
+.whiteBar.folded{width:72px!important;min-width:72px!important}
+.mainWrap{flex:1;margin-left:270px;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px)}
+.whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)}
+.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
+.sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
+.sLogo img{width:100%;height:100%;object-fit:contain}
+.sTitle b{color:#0f172a;font-size:16px;font-weight:900}
+.sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
+.whiteBar.folded .sTitle{display:none}
+.whiteBar.folded .sHead{justify-content:center;padding:14px 0}
+.sMenu{flex:1;padding:8px 8px;overflow-y:auto}
+.sMenu::-webkit-scrollbar{width:0}
+.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;transition:.2s}
+.sMenu a:hover{background:#1e293b;color:#fff}
+.sMenu a.active{background:#1e293b;color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px #334155}
+.mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px;flex-shrink:0}
+.mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sMenu a:hover .mi{background:#334155}
+.sMenu a:hover .mi svg{stroke:#fff}
+.sMenu a.active .mi{background:#8b5cf6}
+.sMenu a.active .mi svg{stroke:#fff}
+.ml{overflow:hidden;text-overflow:ellipsis}
+.whiteBar.folded .ml{display:none}
+.whiteBar.folded .sMenu a{justify-content:center;padding:12px 0}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;overflow:hidden;white-space:nowrap}
+.whiteBar.folded .sFoot{display:none}
+.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
+.menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
+.content{flex:1;padding:20px 24px;position:relative;background-color:#f8fafc;background-image: radial-gradient(circle at 1px 1px, rgba(139,92,246,0.08) 1px, transparent 0);background-size:22px 22px;max-width:100%}
+.pageHead{display:flex;gap:12px;align-items:flex-start;margin-bottom:18px}
+.headIcon{width:44px;height:44px;min-width:44px;background:#059669;border-radius:10px;display:grid;place-items:center;color:#fff}
+.headIcon svg{width:22px;height:22px;stroke:#fff;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.pageHead h1{font-size:22px;font-weight:900;line-height:1.2}
+.pageHead p{font-size:12px;color:#64748B;margin-top:3px;font-weight:600}
 .cardF{background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
 .fGrid{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:14px}.fGrid2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}.fGrid3{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.flabel{font-size:11px;font-weight:600;color:#475569;margin-bottom:6px}
+.flabel{font-size:11px;font-weight:600;color:#475569;margin-bottom:6px;display:flex;gap:5px;align-items:center}
 .inp{width:100%;height:38px;border:1px solid #E2E8F0;border-radius:8px;padding:0 10px;font-size:13px;font-weight:500;outline:none;background:#fff}
 .inp:focus{border-color:#059669}
 .dateWrap{display:flex;align-items:center;gap:4px;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;background:#fff}
@@ -30,60 +59,95 @@ body{background:#F8FAFC;color:#0F172A}
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;background:#fff;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;margin-bottom:14px}
 .stat{padding:14px;border-right:1px solid #F1F5F9}.stat:last-child{border:0}.stat span{font-size:10.5px;color:#64748B;display:block}.stat b{font-size:20px;font-weight:800;margin-top:2px;display:block}
 .barTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.barTop span{font-size:11.5px;color:#94A3B8}
-.viewToggle{display:flex;background:#fff;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden}.viewToggle button{border:0;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#64748B}.viewToggle button.on{background:#059669;color:#fff}
-/* CARD - EXACT LIKE YOUR SCREENSHOT */
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .card{background:#fff;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;padding:18px}
 .card:hover{box-shadow:0 8px 20px rgba(0,0,0,.07)}
 .cTop{display:flex;gap:12px;align-items:flex-start;margin-bottom:18px}
-.avatar{width:52px;height:52px;min-width:52px;border-radius:50%;background:#FEE2E2;display:grid;place-items:center;font-weight:800;font-size:13px;color:#991B1B;overflow:hidden;cursor:pointer;position:relative;border:1px solid #FECACA}
-.avatar img{width:100%;height:100%;object-fit:cover}
-.cName{font-size:15px;font-weight:800;line-height:1.25;text-transform:uppercase;color:#0F172A}
+.avatar{width:52px;height:52px;min-width:52px;border-radius:50%;background:#EEF2FF;display:grid;place-items:center;font-weight:800;font-size:13px;color:#2563EB;overflow:hidden;cursor:pointer;position:relative;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar .ph{width:100%;height:100%;object-fit:cover}
+.cName{font-size:15px;font-weight:800;line-height:1.25;color:#0F172A;text-transform:none}
 .schemeBadge{display:inline-block;margin-top:6px;background:#0EA5E9;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
 .slNum{font-size:11px;color:#94A3B8;font-weight:600;margin-left:6px}
 .infoGrid{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px;margin-bottom:20px}
 .infoGrid label{font-size:10.5px;letter-spacing:.06em;color:#94A3B8;font-weight:600;text-transform:uppercase;display:block;margin-bottom:4px}
-.infoGrid b{font-size:13px;font-weight:500;color:#334155;word-break:break-all}
+.infoGrid b{font-size:13px;font-weight:500;color:#334155;word-break:break-all;text-transform:none}
 .statusRow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .statusRow label{font-size:11.5px;color:#64748B;display:block;margin-bottom:8px}
-.pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-block}
+.pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
 .pillNot{background:#475569;color:#fff}.pillYes{background:#059669;color:#fff}
 .markBtn{width:100%;height:34px;border:1px solid #BBF7D0;background:#fff;color:#059669;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;margin-top:10px}
 .markBtn.done{background:#059669;color:#fff;border-color:#059669}
-.gpsBtn{width:100%;height:38px;border:0;background:#14B8A6;color:#fff;font-size:12px;font-weight:700;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px}
+.gpsBtn{width:100%;height:42px;border:0;background:linear-gradient(135deg,#0EA5E9 0%,#14B8A6 100%);color:#fff;font-size:12.5px;font-weight:800;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;box-shadow:0 6px 16px rgba(14,165,233,.35);letter-spacing:.2px}
+.gpsBtn:active{transform:scale(.98)}
 .gpsHint{font-size:10.5px;color:#94A3B8;line-height:1.4;margin-top:8px}
 .selectGps{margin-top:12px;font-size:12px;font-weight:600;color:#64748B;cursor:pointer;display:flex;align-items:center;gap:6px}
-.listRow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:12px;margin-bottom:8px}
 #confirmModal{position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.5)}
 .confirmBox{background:#fff;width:90%;max-width:320px;border-radius:12px;padding:20px;text-align:center}
 .confirmBtns{display:flex;gap:8px;margin-top:14px}.confirmBtns button{flex:1;height:38px;border-radius:8px;font-weight:700;cursor:pointer}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;padding:10px 16px;border-radius:100px;font-size:12px;font-weight:700;z-index:1000;display:none}.toast.show{display:block}
-@media(max-width:900px){.fGrid,.fGrid2{grid-template-columns:1fr 1fr}.fGrid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){.fGrid2,.fGrid3{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.adminPill{display:none}.head h1{font-size:16px}}
+#mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+#mobOverlay.show{display:block}
+@media(max-width:900px){
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
+  .whiteBar.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
+  .fGrid,.fGrid2{grid-template-columns:1fr 1fr}.fGrid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,1fr)}.content{padding:12px}
+}
+@media(max-width:520px){.fGrid2,.fGrid3{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.pageHead h1{font-size:18px}}
 </style>
 </head>
 <body>
+<div id="mobOverlay" onclick="closeMob()"></div>
 <script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'};if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}</script>
-<div class="topbar"><button class="backBtn" onclick="location.href='index.html'">← Back to dashboard</button><button class="logoutBtn" id="btnLogout">Logout</button></div>
-<div class="wrap">
-<div class="head"><div class="headIcon">📷</div><div><h1>Photo & OPD Capture</h1><p>Daily dialysis documentation · <span id="headDate">Saturday, 21 Nov 2026</span></p></div><div class="adminPill">👤 Admin view</div></div>
+<div class="whiteBar" id="whiteBar">
+<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+<div class="sHead"><div class="sLogo"><img src="logoc.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
+<div class="sMenu">
+<a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
+<a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
+<a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
+<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
+<a href="gda.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="ml">OFFICE ASSISTANT LIST</span></a>
+<a href="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
+<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
+<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
+<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">PMJAY DAILY DIALYSIS</span></a>
+<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
+<a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
+<a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></span><span class="ml">KFT REPORT</span></a>
+<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">ADD PATIENT</span></a>
+<a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="ml">BILL</span></a>
+<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
+</div>
+</div>
+<div class="sFoot">System Online • SHIJA</div>
+</div>
+
+<div class="mainWrap">
+<div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA Dialysis</div></div>
+<div class="content">
+<div class="pageHead"><div class="headIcon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><div><h1>Office Assistant</h1><p>Daily dialysis documentation · <span id="headDate">Saturday, 21 Nov 2026</span></p></div></div>
+
 <div class="cardF">
 <div class="fGrid">
-<div><div class="flabel">📅 Filter by date</div><div class="dateWrap"><button id="datePrev">‹</button><b id="dateDisplay">21-Nov-2026</b><button id="calIcon">📅</button><button id="dateNext">›</button></div></div>
-<div><div class="flabel">🏥 Health scheme</div><select id="fType" class="inp"><option value="">All schemes</option><option>PMJAY</option><option>CMHT</option></select></div>
-<div><div class="flabel">🔍 Search patient</div><input id="searchName" class="inp" placeholder="Patient name, SHRI ID, PMJAY ID, or CMHT ID"></div>
+<div><div class="flabel"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Filter by date</div><div class="dateWrap"><button id="datePrev">‹</button><b id="dateDisplay">21-Nov-2026</b><button id="calIcon"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><button id="dateNext">›</button></div></div>
+<div><div class="flabel"><svg class="ic" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Health scheme</div><select id="fType" class="inp"><option value="">All schemes</option><option>PMJAY</option><option>CMHT</option></select></div>
+<div><div class="flabel"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Search patient</div><input id="searchName" class="inp" placeholder="Patient name, SHRI ID, PMJAY ID, or CMHT ID"></div>
 </div>
 <div class="fGrid2">
-<div><div class="flabel">⏱ Filter by timing</div><select id="fTime" class="inp"><option value="">All timings</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
-<div><div class="flabel">⇄ Filter by shift</div><select id="fShift" class="inp"><option value="">All shifts</option><option value="7:00 AM">Morning</option><option value="12:00 PM">Afternoon</option><option value="5:00 PM">Evening</option><option value="9:00 PM">Night</option></select></div>
-<div><div class="flabel">🏢 Filter by block</div><select id="filterBlock" class="inp"><option value="">All blocks</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
+<div><div class="flabel"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Filter by timing</div><select id="fTime" class="inp"><option value="">All timings</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
+<div><div class="flabel"><svg class="ic" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Filter by shift</div><select id="fShift" class="inp"><option value="">All shifts</option><option value="7:00 AM">Morning</option><option value="12:00 PM">Afternoon</option><option value="5:00 PM">Evening</option><option value="9:00 PM">Night</option></select></div>
+<div><div class="flabel"><svg class="ic" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg> Filter by block</div><select id="filterBlock" class="inp"><option value="">All blocks</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
 </div>
 <div class="fGrid3">
-<div><div class="flabel">📷 Photo status</div><select id="fPhoto" class="inp"><option value="">All photo statuses</option><option value="done">Photo Captured</option><option value="pending">Photo Pending</option></select></div>
-<div><div class="flabel">📄 OPD status</div><select id="fOpd" class="inp"><option value="">All OPD statuses</option><option value="done">OPD Captured</option><option value="pending">OPD Pending</option></select></div>
+<div><div class="flabel"><svg class="ic" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Photo status</div><select id="fPhoto" class="inp"><option value="">All photo statuses</option><option value="done">Photo Captured</option><option value="pending">Photo Pending</option></select></div>
+<div><div class="flabel"><svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> OPD status</div><select id="fOpd" class="inp"><option value="">All OPD statuses</option><option value="done">OPD Captured</option><option value="pending">OPD Pending</option></select></div>
 </div>
 </div>
-<div class="note">Admin monitoring: Staff and admins share the same saved capture status for each dialysis date. Review pending items below or update a status when needed.</div>
+<div class="note">Staff and admins share the same saved capture status for each dialysis date. Review pending items below or update a status when needed.</div>
 <div class="stats">
 <div class="stat"><span>Patients in view</span><b id="stTotal">0</b></div>
 <div class="stat"><span>Patient photo captured</span><b id="stPhotoDone" style="color:#059669">0</b></div>
@@ -91,16 +155,18 @@ body{background:#F8FAFC;color:#0F172A}
 <div class="stat"><span>OPD slip captured</span><b id="stOpdDone" style="color:#059669">0</b></div>
 <div class="stat"><span>OPD slip pending</span><b id="stOpdPend" style="color:#D97706">0</b></div>
 </div>
-<div class="barTop"><span id="searchInfo">Showing 1-20 of 0 patients</span><div style="display:flex;gap:8px;align-items:center"><div class="viewToggle"><button id="btnGrid" class="on">⊞ Grid</button><button id="btnList">☰ List</button></div><div style="display:flex;gap:4px;align-items:center;background:#fff;border:1px solid #E2E8F0;border-radius:8px;padding:3px"><button id="prevBtn" style="border:0;background:#fff;padding:4px 8px;cursor:pointer;font-weight:800">‹</button><span id="pageIndicator" style="font-size:12px;font-weight:700">1/1</span><button id="nextBtn" style="border:0;background:#fff;padding:4px 8px;cursor:pointer;font-weight:800">›</button></div></div></div>
+<div class="barTop"><span id="searchInfo">Showing 1-20 of 0 patients</span><div style="display:flex;gap:4px;align-items:center;background:#fff;border:1px solid #E2E8F0;border-radius:8px;padding:3px"><button id="prevBtn" style="border:0;background:#fff;padding:4px 8px;cursor:pointer;font-weight:800">‹</button><span id="pageIndicator" style="font-size:12px;font-weight:700">1/1</span><button id="nextBtn" style="border:0;background:#fff;padding:4px 8px;cursor:pointer;font-weight:800">›</button></div></div>
 <div class="grid" id="grid"></div>
-<div id="listWrap" style="display:none"></div>
 <div style="text-align:center;font-size:11px;color:#94A3B8;margin-top:12px">Tap photo to take / upload • Swipe left / right to change page</div>
-</div>
+</div></div></div>
 <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none">
 <input type="date" id="fDate" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none">
 <div id="confirmModal"><div class="confirmBox"><div id="confirmTitle" style="font-weight:800;font-size:15px">Are you sure?</div><div id="confirmSub" style="font-size:12px;color:#64748B;margin-top:6px">Complete?</div><div class="confirmBtns"><button id="btnNotSure" style="background:#F1F5F9;border:1px solid #E2E8F0">NOT SURE</button><button id="btnSure" style="background:#0F172A;color:#fff;border:0">SURE</button></div></div></div>
 <div class="toast" id="toast">Saved</div>
 <script>
+function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{document.getElementById('whiteBar').classList.toggle('folded');}}
+function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
+document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
 const firebaseConfig={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
 firebase.initializeApp(firebaseConfig);const db=firebase.firestore();
 function getTodayIST(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
@@ -114,16 +180,17 @@ document.getElementById('dateNext').onclick=()=>{fDateEl.value=addDays(fDateEl.v
 document.getElementById('calIcon').onclick=()=>{try{document.getElementById('fDate').showPicker();}catch(e){}};
 document.getElementById('dateDisplay').onclick=()=>{try{document.getElementById('fDate').showPicker();}catch(e){}};
 fDateEl.onchange=()=>{updDate();loadData();};
-let allPatients=[],statusMap={},masterMap={},searchQuery='',currentPage=1,pendingShri=null,pendingType=null,pendingPhotoShri=null,viewMode='grid';
+let allPatients=[],statusMap={},masterMap={},searchQuery='',currentPage=1,pendingShri=null,pendingType=null,pendingPhotoShri=null;
 function getPageSize(){return 20;}
 function normalizeTime(t){let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
 function shiftName(t){let n=normalizeTime(t);if(n==='7:00 AM')return'Morning / 7am';if(n==='12:00 PM')return'Afternoon / 12pm';if(n==='5:00 PM')return'Evening / 5pm';if(n==='9:00 PM')return'Night / 9pm';if(n==='12:00 AM')return'Night / 12am';if(n==='2:00 AM')return'Night / 2am';return t||'—';}
 function getPhotoField(p){if(!p)return'';let v=p.photo||p.photoUrl||p.photoURL||p.image||p.profilePic||p.avatar||p.photoBase64||p.patientPhoto||'';if(typeof v!=='string')return'';if(v.startsWith('data:')||v.startsWith('http')||v.startsWith('blob:'))return v;return'';}
-async function buildMasterMap(){masterMap={};try{let s=await db.collection('patients').get();s.forEach(d=>{let p=d.data();if(p.deleted)return;let sh=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!sh)return;masterMap[sh]={pmjayName:String(p.patientName||p.name||'').trim().toUpperCase(),cmhtName:'',pmjayId:String(p.pmjayId||p.pmjay||p.ayushmanId||''),cmhtId:String(p.cmhtId||p.cmht||''),photo:getPhotoField(p),docId:d.id};});}catch(e){}try{let s2=await db.collection('cmht_patients').get();s2.forEach(d=>{let p=d.data();if(p.deleted)return;let sh=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!sh)return;if(!masterMap[sh])masterMap[sh]={pmjayName:'',cmhtName:'',pmjayId:'',cmhtId:'',photo:'',docId:d.id};masterMap[sh].cmhtName=String(p.patientName||p.name||'').trim().toUpperCase();if(!masterMap[sh].cmhtId)masterMap[sh].cmhtId=String(p.cmhtId||p.cmht||'');let ph=getPhotoField(p);if(ph)masterMap[sh].photo=ph;});}catch(e){}try{let ss=await db.collection('patient_photos').get();ss.forEach(d=>{let p=d.data();let sh=String(d.id||p.shri||'').trim().toUpperCase();if(!sh||!getPhotoField(p))return;if(!masterMap[sh])masterMap[sh]={pmjayName:'',cmhtName:'',pmjayId:'',cmhtId:'',photo:'',docId:''};masterMap[sh].photo=getPhotoField(p);});}catch(e){}}
-function enrich(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];let scheme=document.getElementById('fType').value;if(m){if(scheme==='PMJAY'&&m.pmjayName)p.name=m.pmjayName;else if(scheme==='CMHT'&&m.cmhtName)p.name=m.cmhtName;else if(!p.name)p.name=m.pmjayName||m.cmhtName;if(m.photo)p.photo=m.photo;if(!p.pmjayId&&m.pmjayId)p.pmjayId=m.pmjayId;if(!p.cmhtId&&m.cmhtId)p.cmhtId=m.cmhtId;}let dp=getPhotoField(p);if(dp)p.photo=dp;return p;}
+function titleCase(s){return String(s||'').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());}
+async function buildMasterMap(){masterMap={};try{let s=await db.collection('patients').get();s.forEach(d=>{let p=d.data();if(p.deleted)return;let sh=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!sh)return;masterMap[sh]={pmjayName:titleCase(p.patientName||p.name||''),cmhtName:'',pmjayId:String(p.pmjayId||p.pmjay||p.ayushmanId||''),cmhtId:String(p.cmhtId||p.cmht||''),photo:getPhotoField(p),docId:d.id};});}catch(e){}try{let s2=await db.collection('cmht_patients').get();s2.forEach(d=>{let p=d.data();if(p.deleted)return;let sh=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!sh)return;if(!masterMap[sh])masterMap[sh]={pmjayName:'',cmhtName:'',pmjayId:'',cmhtId:'',photo:'',docId:d.id};masterMap[sh].cmhtName=titleCase(p.patientName||p.name||'');if(!masterMap[sh].cmhtId)masterMap[sh].cmhtId=String(p.cmhtId||p.cmht||'');let ph=getPhotoField(p);if(ph)masterMap[sh].photo=ph;});}catch(e){}try{let ss=await db.collection('patient_photos').get();ss.forEach(d=>{let p=d.data();let sh=String(d.id||p.shri||'').trim().toUpperCase();if(!sh||!getPhotoField(p))return;if(!masterMap[sh])masterMap[sh]={pmjayName:'',cmhtName:'',pmjayId:'',cmhtId:'',photo:'',docId:''};masterMap[sh].photo=getPhotoField(p);});}catch(e){}}
+function enrich(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];let scheme=document.getElementById('fType').value;if(m){if(scheme==='PMJAY'&&m.pmjayName)p.name=m.pmjayName;else if(scheme==='CMHT'&&m.cmhtName)p.name=m.cmhtName;else if(!p.name)p.name=m.pmjayName||m.cmhtName;else p.name=titleCase(p.name);if(m.photo)p.photo=m.photo;if(!p.pmjayId&&m.pmjayId)p.pmjayId=m.pmjayId;if(!p.cmhtId&&m.cmhtId)p.cmhtId=m.cmhtId;}let dp=getPhotoField(p);if(dp)p.photo=dp;return p;}
 async function loadData(){try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value||'PMJAY';let id=d+'_'+s;await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let pats=snap.exists?(snap.data().patients||[]):[];allPatients=pats.map((p,i)=>{let e=enrich({...p});e.sl=i+1;return e;});let ss=await db.collection('daily_photo_opd').doc(id).get();statusMap=ss.exists?(ss.data().status||{}):{};render();}catch(e){document.getElementById('searchInfo').innerText='Error: '+e.message;}}
 async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value||'PMJAY';await db.collection('daily_photo_opd').doc(d+'_'+s).set({date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()},{merge:true});}
-function showConfirm(sh,type){pendingShri=sh;pendingType=type;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let st=statusMap[sh]||{photoTaken:false,opdDone:false};let isDone=type==='photo'?st.photoTaken:st.opdDone;document.getElementById('confirmTitle').innerText='Are you sure?';document.getElementById('confirmSub').innerText=(isDone?(type==='photo'?'PHOTO':'OPD')+' not done for ':(type==='photo'?'PHOTO':'OPD')+' done for ')+(p?p.name:sh);document.getElementById('confirmModal').style.display='flex';}
+function showConfirm(sh,type){pendingShri=sh;pendingType=type;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let st=statusMap[sh]||{photoTaken:false,opdDone:false};let isDone=type==='photo'?st.photoTaken:st.opdDone;document.getElementById('confirmTitle').innerText='Are you sure?';document.getElementById('confirmSub').innerText=(isDone?(type==='photo'?'Photo':'OPD')+' not done for ':(type==='photo'?'Photo':'OPD')+' done for ')+(p?p.name:sh);document.getElementById('confirmModal').style.display='flex';}
 function hideConfirm(){document.getElementById('confirmModal').style.display='none';pendingShri=null;pendingType=null;}
 async function confirmSure(){if(!pendingShri)return;if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};let st=statusMap[pendingShri];if(pendingType==='photo')st.photoTaken=true;else st.opdDone=true;await saveStatus();hideConfirm();render();}
 async function confirmNotSure(){if(!pendingShri)return;if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};let st=statusMap[pendingShri];if(pendingType==='photo')st.photoTaken=false;else st.opdDone=false;await saveStatus();hideConfirm();render();}
@@ -133,36 +200,33 @@ function getFiltered(){let fTime=document.getElementById('fTime').value,fShift=d
 function openPhotoPicker(sh){pendingPhotoShri=sh;document.getElementById('photoInput').click();}
 document.getElementById('photoInput').onchange=function(e){let f=e.target.files[0];if(!f||!pendingPhotoShri)return;let r=new FileReader();r.onload=function(ev){let img=new Image();img.onload=function(){let c=document.createElement('canvas');let max=400,w=img.width,h=img.height;if(w>h&&w>max){h=h*max/w;w=max;}else if(h>max){w=w*max/h;h=max;}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);savePhoto(pendingPhotoShri,c.toDataURL('image/jpeg',0.75));};img.src=ev.target.result;};r.readAsDataURL(f);e.target.value='';};
 async function savePhoto(sh,dataUrl){let toast=document.getElementById('toast');toast.innerText='Saving photo...';toast.classList.add('show');try{await db.collection('patient_photos').doc(sh).set({shri:sh,photo:dataUrl,updatedAt:new Date().toISOString()},{merge:true});allPatients.forEach(p=>{if(String(p.shri||'').toUpperCase()===sh)p.photo=dataUrl;});if(masterMap[sh])masterMap[sh].photo=dataUrl;toast.innerText='Photo saved ✓';}catch(err){toast.innerText='Error: '+err.message;}setTimeout(()=>toast.classList.remove('show'),1500);render();}
+function goEnhancement(sh){let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value||'PMJAY';let q=new URLSearchParams({shri:sh,name:p?p.name:'',scheme:scheme,date:date,pmjayId:p?(p.pmjayId||p.cmhtId||''):'' ,block:p?(p.block||''):'' ,time:p?(p.time||''):''});location.href='enhancement.html?'+q.toString();}
 function render(){let filtered=getFiltered();let total=allPatients.length;let pDone=0,oDone=0;allPatients.forEach(p=>{let st=statusMap[String(p.shri||'').toUpperCase()]||{};if(st.photoTaken)pDone++;if(st.opdDone)oDone++;});document.getElementById('stTotal').innerText=filtered.length;document.getElementById('stPhotoDone').innerText=pDone;document.getElementById('stPhotoPend').innerText=total-pDone;document.getElementById('stOpdDone').innerText=oDone;document.getElementById('stOpdPend').innerText=total-oDone;
 let ps=getPageSize(),pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;let items=filtered.slice((currentPage-1)*ps,currentPage*ps);let from=filtered.length?((currentPage-1)*ps+1):0,to=Math.min(currentPage*ps,filtered.length);document.getElementById('searchInfo').innerText=`Showing ${from}-${to} of ${filtered.length} patients`;document.getElementById('pageIndicator').innerText=`${currentPage}/${pages}`;
-let grid=document.getElementById('grid'),list=document.getElementById('listWrap');grid.innerHTML='';list.innerHTML='';
+let grid=document.getElementById('grid');grid.innerHTML='';
 let scheme=document.getElementById('fType').value||'PMJAY';
-items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh]||{photoTaken:false,opdDone:false};let initials=(p.name||'').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';let photoHtml=p.photo?`<div class="avatar" data-photo="${sh}"><img src="${p.photo}"></div>`:`<div class="avatar" data-photo="${sh}">${initials}</div>`;
+items.forEach(p=>{let sh=String(p.shri||'').toUpperCase();let st=statusMap[sh]||{photoTaken:false,opdDone:false};
+let photoHtml=p.photo?`<div class="avatar" data-photo="${sh}"><img src="${p.photo}"></div>`:`<div class="avatar" data-photo="${sh}"><img class="ph" src="loko.png" onerror="this.src='logoc.png'"></div>`;
 let pmjayId=p.pmjayId||p.cmhtId||p.pmjay||p.cmht||'—';let blockTxt=(p.block||'MAIN');blockTxt=blockTxt.charAt(0).toUpperCase()+blockTxt.slice(1).toLowerCase();
 let card=document.createElement('div');card.className='card';card.innerHTML=`
 <div class="cTop">${photoHtml}<div style="flex:1;min-width:0"><div class="cName">${p.name||''}</div><div><span class="schemeBadge">${scheme}</span><span class="slNum">#${p.sl||''}</span></div></div></div>
 <div class="infoGrid"><div><label>${scheme} ID</label><b>${pmjayId}</b></div><div><label>SHRI ID</label><b>${sh}</b></div><div><label>Block</label><b>${blockTxt}</b></div><div><label>Shift / Time</label><b>${shiftName(p.time)}</b></div></div>
-<div class="statusRow"><div><label>Patient photo captured</label><span class="pill ${st.photoTaken?'pillYes':'pillNot'}">${st.photoTaken?'✓ Captured':'Not captured'}</span><button class="markBtn ${st.photoTaken?'done':''}" data-shri="${sh}" data-type="photo">✓ Mark captured</button></div><div><label>OPD slip captured</label><span class="pill ${st.opdDone?'pillYes':'pillNot'}">${st.opdDone?'✓ Captured':'Not captured'}</span><button class="markBtn ${st.opdDone?'done':''}" data-shri="${sh}" data-type="opd">✓ Mark captured</button></div></div>
-<button class="gpsBtn" data-gps="${sh}">📷 Open GPS Map Camera</button>
-<div class="gpsHint">If the app opens, take the photo there. Return and select it from Gallery.</div>
-<div class="selectGps" data-photo="${sh}">🖼️ Select GPS photo</div>`;
-grid.appendChild(card);
-let row=document.createElement('div');row.className='listRow';row.innerHTML=`${photoHtml}<div style="flex:1"><div class="cName">${p.name||''}</div><div style="font-size:11px;color:#64748B">${sh} • ${blockTxt} • ${shiftName(p.time)}</div></div><button class="markBtn" style="max-width:130px;margin:0" data-shri="${sh}" data-type="photo">✓ Mark captured</button><button class="markBtn" style="max-width:130px;margin:0" data-shri="${sh}" data-type="opd">✓ Mark captured</button>`;list.appendChild(row);});
+<div class="statusRow"><div><label>Patient photo captured</label><span class="pill ${st.photoTaken?'pillYes':'pillNot'}">${st.photoTaken?'✓ Captured':'Not captured'}</span><button class="markBtn ${st.photoTaken?'done':''}" data-shri="${sh}" data-type="photo"><svg class="ic" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Mark captured</button></div><div><label>OPD slip captured</label><span class="pill ${st.opdDone?'pillYes':'pillNot'}">${st.opdDone?'✓ Captured':'Not captured'}</span><button class="markBtn ${st.opdDone?'done':''}" data-shri="${sh}" data-type="opd"><svg class="ic" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Mark captured</button></div></div>
+<button class="gpsBtn" data-gps="${sh}"><svg style="width:18px;height:18px;stroke:#fff;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Open GPS Map Camera <svg style="width:14px;height:14px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+<div class="gpsHint">Tap to open enhancement for this patient.</div>
+<div class="selectGps" data-photo="${sh}"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg> Select GPS photo</div>`;
+grid.appendChild(card);});
 if(filtered.length===0){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:30px;background:#fff;border-radius:12px;border:1px solid #E2E8F0;font-weight:700">No patients found</div>`;}
-if(viewMode==='grid'){grid.style.display='grid';list.style.display='none';}else{grid.style.display='none';list.style.display='block';}
 document.querySelectorAll('.avatar').forEach(av=>av.onclick=e=>{e.stopPropagation();openPhotoPicker(av.dataset.photo);});
 document.querySelectorAll('.selectGps').forEach(el=>el.onclick=e=>{e.stopPropagation();openPhotoPicker(el.dataset.photo);});
-document.querySelectorAll('.gpsBtn').forEach(b=>b.onclick=e=>{e.stopPropagation();pendingPhotoShri=b.dataset.gps;try{window.open('https://play.google.com/store/apps/details?id=com.gpsmapcamera','_blank');}catch(err){}setTimeout(()=>document.getElementById('photoInput').click(),600);});
+document.querySelectorAll('.gpsBtn').forEach(b=>b.onclick=e=>{e.stopPropagation();goEnhancement(b.dataset.gps);});
 document.querySelectorAll('.markBtn').forEach(b=>{if(!b.dataset.shri)return;b.onclick=e=>{e.stopPropagation();showConfirm(b.dataset.shri,b.dataset.type);};});
 }
 function goNext(){let pages=Math.max(1,Math.ceil(getFiltered().length/getPageSize()));if(currentPage<pages){currentPage++;render();}}
 function goPrev(){if(currentPage>1){currentPage--;render();}}
 document.getElementById('nextBtn').onclick=goNext;document.getElementById('prevBtn').onclick=goPrev;
-document.getElementById('btnGrid').onclick=()=>{viewMode='grid';document.getElementById('btnGrid').classList.add('on');document.getElementById('btnList').classList.remove('on');render();};
-document.getElementById('btnList').onclick=()=>{viewMode='list';document.getElementById('btnList').classList.add('on');document.getElementById('btnGrid').classList.remove('on');render();};
 ['fType','fTime','fShift','filterBlock','fPhoto','fOpd'].forEach(id=>{document.getElementById(id).onchange=()=>{currentPage=1;if(id==='fType')loadData();else render();};});
 document.getElementById('searchName').oninput=e=>{searchQuery=e.target.value;currentPage=1;render();};
-document.getElementById('btnLogout').onclick=()=>{if(confirm('Logout?')){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}};
 let sx=0;document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;},{passive:true});document.addEventListener('touchend',e=>{let d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>70){if(d<0)goNext();else goPrev();}},{passive:true});
 window.addEventListener('load',()=>setTimeout(loadData,300));
 </script>
