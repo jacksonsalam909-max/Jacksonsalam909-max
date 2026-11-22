@@ -40,14 +40,20 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .controls{background:#fff;border:1.5px solid #e2e8f0;padding:16px 16px 12px;border-radius:16px}
 .filterGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px 20px}
 .fGroup{display:flex;flex-direction:column;gap:8px;min-width:0}
-.fGroup.wide{grid-column:span 2}
 .fLabel{font-size:14px;font-weight:800;color:#1e3a5f;display:flex;align-items:center;gap:6px}
 .fLabel span{font-size:14px}
 .fInput,.fSelect{width:100%;height:48px;padding:0 14px;border:1.5px solid #e2e8f0;border-radius:10px;background:#fff;font-size:15px;font-weight:500;color:#334155;outline:none;appearance:none;-webkit-appearance:none}
-.fSelect{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%2364748b' stroke-width='2'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
+.fSelect{background-image:url("data:image/svg+xml;utf8,[STRIPPED]");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
 .fInput:focus,.fSelect:focus{border-color:#2563eb}
+/* Search with icon inside right corner */
+.searchWrap{position:relative;width:100%}
+.searchWrap .fInput{padding-right:44px}
+.searchIcon{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:22px;height:22px;display:grid;place-items:center;color:#64748b;pointer-events:none}
+.searchIcon svg{width:20px;height:20px;stroke:#64748b;stroke-width:2.2;fill:none;stroke-linecap:round}
 .datePill{display:flex;align-items:stretch;height:48px;border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden;background:#fff}
-.dateArrow{width:36px;border:0;background:#64748b;color:#fff;font-size:14px;font-weight:900;cursor:pointer;display:grid;place-items:center;flex-shrink:0}
+/* Date arrows - NO gray colour */
+.dateArrow{width:36px;border:0;background:#fff!important;color:#1e3a5f!important;font-size:18px;font-weight:900;cursor:pointer;display:grid;place-items:center;flex-shrink:0}
+.dateArrow:active{background:#f1f5f9!important}
 .dateMiddle{flex:1;display:grid;place-items:center;font-size:15px;font-weight:600;color:#334155;cursor:pointer;min-width:0}
 #fDate{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
 .dateNote{font-size:12.5px;color:#64748b;line-height:1.4;margin-top:2px}
@@ -101,8 +107,8 @@ td.remarkTd{white-space:normal!important;word-break:break-word!important;min-wid
 #photoView{width:90vw;max-width:420px;aspect-ratio:1/1;object-fit:cover;border-radius:20px;border:4px solid #fff;display:block}
 #photoName{color:#fff;font-weight:800;margin-top:14px;font-size:15px;text-align:center}
 @media(max-width:1100px){.patientGrid{grid-template-columns:repeat(3,1fr)}.whiteBar.folded ~ .mainWrap .patientGrid{grid-template-columns:repeat(4,1fr)}}
-@media(max-width:900px){.whiteBar{transform:translateX(-100%);width:270px!important}.whiteBar.mOpen{transform:translateX(0)}.mainWrap{margin-left:0!important;width:100%!important}.whiteBar.folded ~ .mainWrap .patientGrid{grid-template-columns:repeat(2,1fr)}.patientGrid{grid-template-columns:repeat(2,1fr)}.filterGrid{grid-template-columns:1fr 1fr}.fGroup.wide{grid-column:span 2}}
-@media(max-width:600px){.patientGrid{grid-template-columns:repeat(2,1fr);gap:8px}.filterGrid{grid-template-columns:1fr}.fGroup.wide{grid-column:span 1}}
+@media(max-width:900px){.whiteBar{transform:translateX(-100%);width:270px!important}.whiteBar.mOpen{transform:translateX(0)}.mainWrap{margin-left:0!important;width:100%!important}.whiteBar.folded ~ .mainWrap .patientGrid{grid-template-columns:repeat(2,1fr)}.patientGrid{grid-template-columns:repeat(2,1fr)}.filterGrid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.patientGrid{grid-template-columns:repeat(2,1fr);gap:8px}.filterGrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -126,12 +132,14 @@ td.remarkTd{white-space:normal!important;word-break:break-word!important;min-wid
 <div class="content">
 <div class="controls">
 <div class="filterGrid">
+<!-- ROW 1: Search | Scheme | Date -->
+<div class="fGroup"><label class="fLabel"><span>🔍</span> Search Patient</label><div class="searchWrap"><input id="search" type="search" class="fInput" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" placeholder="Search Patient..." oninput="onSearch()"><span class="searchIcon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span></div></div>
 <div class="fGroup"><label class="fLabel"><span>▦</span> Health Scheme</label><select id="fType" class="fSelect"><option value="" selected>All schemes</option><option value="PMJAY">PMJAY</option><option value="CMHT">CMHT</option></select></div>
 <div class="fGroup"><label class="fLabel"><span>📅</span> Filter by date</label><div class="datePill"><button type="button" class="dateArrow" id="datePrev">‹</button><div class="dateMiddle" id="dateDisplay">11/20/2026</div><input type="date" id="fDate"><button type="button" class="dateArrow" id="dateNext">›</button></div><div class="dateNote">Defaults to today. Use the arrows to view another day.</div></div>
-<div class="fGroup"><label class="fLabel"><span>🔍</span> Search patient or client site</label><input id="search" type="search" class="fInput" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" placeholder="Search name, PMJAY ID, SHRI ID, or site" oninput="onSearch()"></div>
-<div class="fGroup wide"><label class="fLabel"><span>🕐</span> Filter by timing</label><select id="filterTime" class="fSelect"><option value="">All timings</option><option value="7:00 AM">7 AM</option><option value="12:00 PM">12 PM</option><option value="5:00 PM">5 PM</option><option value="9:00 PM">9 PM</option><option value="12:00 AM">12 AM</option><option value="2:00 AM">2 AM</option></select></div>
+<!-- ROW 2: Time | Block | Shift -->
+<div class="fGroup"><label class="fLabel"><span>🕐</span> Filter by timing</label><select id="filterTime" class="fSelect"><option value="">All timings</option><option value="7:00 AM">7 AM</option><option value="12:00 PM">12 PM</option><option value="5:00 PM">5 PM</option><option value="9:00 PM">9 PM</option><option value="12:00 AM">12 AM</option><option value="2:00 AM">2 AM</option></select></div>
+<div class="fGroup"><label class="fLabel"><span>🏢</span> Filter by block</label><select id="filterBlock" class="fSelect"><option value="">All blocks</option><option value="MAIN">Main</option><option value="ITOCHA">Itocha</option></select></div>
 <div class="fGroup"><label class="fLabel"><span>⇄</span> Filter by shift</label><select id="filterShift" class="fSelect"><option value="">All shifts</option><option value="Morning">Morning</option><option value="Afternoon">Afternoon</option><option value="Evening">Evening</option><option value="Night">Night</option><option value="Midnight">Midnight</option></select></div>
-<div class="fGroup wide"><label class="fLabel"><span>🏢</span> Filter by block</label><select id="filterBlock" class="fSelect"><option value="">All blocks</option><option value="MAIN">Main</option><option value="ITOCHA">Itocha</option></select></div>
 </div>
 <div class="viewRow"><div class="viewToggle"><button class="vBtn" id="gridBtn" onclick="setView('grid')">⊞</button><button class="vBtn active" id="tableBtn" onclick="setView('table')">☰</button></div><select id="pageSize" class="pSelect" onchange="changePageSize()"><option value="12" selected>12 / page</option><option value="24">24 / page</option><option value="48">48 / page</option></select></div>
 </div>
@@ -198,11 +206,11 @@ async function loadPhotoCache(){let start=(currentPage-1)*pageSize;let pageData=
 window.renderAll=()=>{
   let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;let start=(currentPage-1)*pageSize;let data=filtered.slice(start,start+pageSize);
   let gridHtml='';data.forEach((p)=>{let r=remarkText(p);let rc=remarkClass(r);let avatar=p.photo?`<img src="${escHtml(p.photo)}">`:getInitial(p.name);
-  gridHtml+=`<div class="pCard"><div class="pCardBody"><div class="pCardAvatar" data-ukey="${escHtml(p.key)}" onclick="openPhoto('${escHtml(p.key)}','${escHtml(p.shri||'')}','${escHtml(p.name||'')}')">${avatar}</div><div class="pCardName">${escHtml(p.name||'Unknown')}</div><div class="pCardSub">SHRI ${escHtml(p.shri||'-')}</div><div class="pCardMeta"><div class="pCardRow2"><span>SHRI ID</span><b>${escHtml(p.shri||'-')}</b></div><div class="pCardRow2"><span>Shift</span><b>${shiftFromTime(p.time)}</b></div><div class="pCardRow2"><span>Time</span><b>${escHtml(normalizeTime(p.time)||'-')}</b></div><div class="pCardRow2"><span>Block</span><b>${escHtml(p.block||'Main')}</b></div><div class="pCardRow2"><span>Last Dialysis</span><b>${escHtml(fmtPrev(p.prev||p.lastDialysis||''))}</b></div><div class="pCardRow2 remarkRow"><span>Remark</span><b class="${rc}">${escHtml(r)}</b></div></div></div></div>`;});
+  gridHtml+=`<div class="pCard"><div class="pCardBody"><div class="pCardAvatar" data-ukey="${escHtml(p.key)}" onclick="openPhoto('${escHtml(p.key)}','${escHtml(p.shri||'')}','${escHtml(p.name||'')}')">${avatar}</div><div class="pCardName">${escHtml(p.name||'Unknown')}</div><div class="pCardSub">SHRI ${escHtml(p.shri||'-')}</div><div class="pCardMeta"><div class="pCardRow2"><span>SHRI ID</span><b>${escHtml(p.shri||'-')}</b></div><div class="pCardRow2"><span>Block</span><b>${escHtml(p.block||'Main')}</b></div><div class="pCardRow2"><span>Shift</span><b>${shiftFromTime(p.time)}</b></div><div class="pCardRow2"><span>Time</span><b>${escHtml(normalizeTime(p.time)||'-')}</b></div><div class="pCardRow2"><span>Last Dialysis</span><b>${escHtml(fmtPrev(p.prev||p.lastDialysis||''))}</b></div><div class="pCardRow2 remarkRow"><span>Remark</span><b class="${rc}">${escHtml(r)}</b></div></div></div></div>`;});
   if(data.length===0)gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">No patients</div>';document.getElementById('patientGrid').innerHTML=gridHtml;
-  let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Shift</th><th>Time</th><th>Patient Photo</th><th>Block</th><th>Last Dialysis</th><th>Remark</th></tr>';
+  let html='<tr><th>SL No</th><th>Patient Name</th><th>Photo</th><th>SHRI ID</th><th>Block</th><th>Shift</th><th>Time</th><th>Last Dialysis</th><th>Remark</th></tr>';
   data.forEach((p)=>{let r=remarkText(p);let rc=remarkClass(r);let slNo=start+data.indexOf(p)+1;let thumb=p.photo?`<img src="${escHtml(p.photo)}">`:getInitial(p.name);
-  html+=`<tr><td><div class="sl">${slNo}</div></td><td><b>${escHtml(p.name||'-')}</b></td><td><span class="shriTable">${escHtml(p.shri||'-')}</span></td><td>${shiftFromTime(p.time)}</td><td>${escHtml(normalizeTime(p.time)||'-')}</td><td><div class="tAvatar" data-ukey="${escHtml(p.key)}" onclick="openPhoto('${escHtml(p.key)}','${escHtml(p.shri||'')}','${escHtml(p.name||'')}')">${thumb}</div></td><td>${escHtml(p.block||'Main')}</td><td>${escHtml(fmtPrev(p.prev||p.lastDialysis||''))}</td><td class="remarkTd"><span class="remarkText ${rc}">${escHtml(r)}</span></td></tr>`;});
+  html+=`<tr><td><div class="sl">${slNo}</div></td><td><b>${escHtml(p.name||'-')}</b></td><td><div class="tAvatar" data-ukey="${escHtml(p.key)}" onclick="openPhoto('${escHtml(p.key)}','${escHtml(p.shri||'')}','${escHtml(p.name||'')}')">${thumb}</div></td><td><span class="shriTable">${escHtml(p.shri||'-')}</span></td><td>${escHtml(p.block||'Main')}</td><td>${shiftFromTime(p.time)}</td><td>${escHtml(normalizeTime(p.time)||'-')}</td><td>${escHtml(fmtPrev(p.prev||p.lastDialysis||''))}</td><td class="remarkTd"><span class="remarkText ${rc}">${escHtml(r)}</span></td></tr>`;});
   if(data.length===0)html+='<tr><td colspan="9" style="text-align:center;padding:20px">No patients</td></tr>';document.getElementById('tbl').innerHTML=html;['','Grid'].forEach(suffix=>{let numsEl=document.getElementById('pageNums'+suffix);if(numsEl){let nums='';for(let i=1;i<=Math.min(totalPages,8);i++){nums+=`<button class="pBtn" style="${i===currentPage?'background:#0f172a;color:#fff':''}" onclick="goPage(${i})">${i}</button>`;}numsEl.innerHTML=nums;}});setTimeout(loadPhotoCache,120);};
 window.prevPage=()=>{if(currentPage>1){currentPage--;renderAll();}};
 window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(currentPage<totalPages){currentPage++;renderAll();}};
