@@ -85,6 +85,12 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 #photoView{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:20px;border:4px solid #fff;display:block;background:#111}
 #photoName{color:#fff;font-weight:800;margin-top:14px;font-size:15px;text-align:center}
 .photoClose{position:absolute;top:-14px;right:-14px;width:36px;height:36px;border-radius:50%;border:0;background:#fff;color:#000;font-size:20px;font-weight:900;cursor:pointer;line-height:1;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.4);z-index:2}
+#enhanceModal{display:none;position:fixed;inset:0;background:#fff;z-index:10002;flex-direction:column}
+#enhanceModal.show{display:flex}
+.enhanceTop{height:52px;min-height:52px;background:#0f172a;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px}
+.enhanceTop b{font-size:14px}
+.enhanceClose{width:36px;height:36px;border-radius:50%;border:0;background:#fff;color:#000;font-size:22px;font-weight:900;cursor:pointer;line-height:1;display:grid;place-items:center}
+#enhanceFrame{flex:1;width:100%;border:0;background:#fff}
 @media(max-width:900px){
   .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
   .whiteBar.mOpen{transform:translateX(0)}
@@ -149,6 +155,7 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 <div id="confirmModal"><div class="confirmBox"><div id="confirmTitle" style="font-weight:800;font-size:15px">Are you sure?</div><div id="confirmSub" style="font-size:12px;color:#64748B;margin-top:6px">Complete?</div><div class="confirmBtns"><button id="btnNotSure" style="background:#F1F5F9;border:1px solid #E2E8F0">NOT SURE</button><button id="btnSure" style="background:#0F172A;color:#fff;border:0">SURE</button></div></div></div>
 <div class="toast" id="toast">Saved</div>
 <div id="photoModal" onclick="closePhoto()"><div class="photoBox" onclick="event.stopPropagation()"><button class="photoClose" onclick="closePhoto()">×</button><img id="photoView" src=""><div id="photoName"></div></div></div>
+<div id="enhanceModal"><div class="enhanceTop"><b id="enhanceTitle">Enhancement</b><button class="enhanceClose" onclick="closeEnhancement()">×</button></div><iframe id="enhanceFrame" src=""></iframe></div>
 <script>
 function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{document.getElementById('whiteBar').classList.toggle('folded');}}
 function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
@@ -168,8 +175,12 @@ document.getElementById('dateDisplay').onclick=()=>{try{document.getElementById(
 fDateEl.onchange=()=>{updDate();loadData();};
 let allPatients=[],statusMap={},masterMap={},searchQuery='',currentPage=1,pendingShri=null,pendingType=null;
 let photoCache={};
+let enhancedSet=new Set();
 function getPageSize(){return 20;}
 function cleanKey(k){return String(k).replace(/[^a-zA-Z0-9]/g,'_');}
+function enhancedKey(){return 'enhanced_'+document.getElementById('fDate').value+'_'+(document.getElementById('fType').value||'PMJAY');}
+function loadEnhanced(){try{enhancedSet=new Set(JSON.parse(localStorage.getItem(enhancedKey())||'[]'));}catch(e){enhancedSet=new Set();}}
+function saveEnhanced(){localStorage.setItem(enhancedKey(),JSON.stringify([...enhancedSet]));}
 function normalizeTime(t){let s=String(t).toUpperCase().trim();let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/);if(!m)return s;let h=parseInt(m[1]),mi=m[2]?m[2].padStart(2,'0'):'00',ap=m[3]||'';if(!ap){if(s.includes('AM'))ap='AM';else if(s.includes('PM'))ap='PM';}return ap?`${h}:${mi} ${ap}`:`${h}:${mi}`;}
 function shiftName(t){let n=normalizeTime(t);if(n==='7:00 AM')return'Morning / 7am';if(n==='12:00 PM')return'Afternoon / 12pm';if(n==='5:00 PM')return'Evening / 5pm';if(n==='9:00 PM')return'Night / 9pm';if(n==='12:00 AM')return'Night / 12am';if(n==='2:00 AM')return'Night / 2am';return t||'—';}
 function titleCase(s){return String(s||'').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());}
@@ -212,7 +223,6 @@ async function loadPhotoCache(){
     p._photoLoading=false;
   }));
 }
-// VIEW ONLY - no change, no delete
 async function openPhoto(sh){
   let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);
   let src=photoCache[sh]||p?.photo||'loko.png';
@@ -225,9 +235,33 @@ async function openPhoto(sh){
   }
 }
 function closePhoto(){ document.getElementById('photoModal').classList.remove('show'); }
+// ENHANCEMENT - NO REDIRECT, popup on same page, patient disappears
+function goEnhancement(sh){
+  let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);
+  let date=document.getElementById('fDate').value;
+  let scheme=document.getElementById('fType').value||'PMJAY';
+  // 1. Hide patient from this page + remember it
+  enhancedSet.add(sh);
+  saveEnhanced();
+  render();
+  // 2. Show that patient in enhancement.html INSIDE this page (no redirect)
+  let q=new URLSearchParams({shri:sh,name:p?p.name:'',scheme:scheme,date:date,pmjayId:p?(p.pmjayId||p.cmhtId||''):'' ,block:p?(p.block||''):'' ,time:p?(p.time||''):''});
+  document.getElementById('enhanceTitle').innerText='Enhancement - '+(p?p.name:sh)+' ('+sh+')';
+  document.getElementById('enhanceFrame').src='enhancement.html?'+q.toString();
+  document.getElementById('enhanceModal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeEnhancement(){
+  document.getElementById('enhanceModal').classList.remove('show');
+  document.getElementById('enhanceFrame').src='';
+  document.body.style.overflow='';
+}
+window.addEventListener('message',function(e){
+  if(e.data==='close-enhancement' || e.data==='enhancement-done'){ closeEnhancement(); }
+});
 async function buildMasterMap(){masterMap={};try{let s=await db.collection('patients').get();s.forEach(d=>{let p=d.data();if(p.deleted)return;let sh=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!sh)return;masterMap[sh]={pmjayName:titleCase(p.patientName||p.name||''),cmhtName:'',pmjayId:String(p.pmjayId||p.pmjay||p.ayushmanId||''),cmhtId:String(p.cmhtId||p.cmht||''),photo:'',docId:d.id};});}catch(e){}try{let s2=await db.collection('cmht_patients').get();s2.forEach(d=>{let p=d.data();if(p.deleted)return;let sh=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();if(!sh)return;if(!masterMap[sh])masterMap[sh]={pmjayName:'',cmhtName:'',pmjayId:'',cmhtId:'',photo:'',docId:d.id};masterMap[sh].cmhtName=titleCase(p.patientName||p.name||'');if(!masterMap[sh].cmhtId)masterMap[sh].cmhtId=String(p.cmhtId||p.cmht||'');});}catch(e){}}
 function enrich(p){let k=String(p.shri||'').trim().toUpperCase();let m=masterMap[k];let scheme=document.getElementById('fType').value;if(m){if(scheme==='PMJAY'&&m.pmjayName)p.name=m.pmjayName;else if(scheme==='CMHT'&&m.cmhtName)p.name=m.cmhtName;else if(!p.name)p.name=m.pmjayName||m.cmhtName;else p.name=titleCase(p.name);if(!p.pmjayId&&m.pmjayId)p.pmjayId=m.pmjayId;if(!p.cmhtId&&m.cmhtId)p.cmhtId=m.cmhtId;}if(photoCache[k])p.photo=photoCache[k];return p;}
-async function loadData(){try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value||'PMJAY';let id=d+'_'+s;await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let pats=snap.exists?(snap.data().patients||[]):[];allPatients=pats.map((p,i)=>{let e=enrich({...p});e.sl=i+1;return e;});let ss=await db.collection('daily_photo_opd').doc(id).get();statusMap=ss.exists?(ss.data().status||{}):{};render();}catch(e){document.getElementById('searchInfo').innerText='Error: '+e.message;}}
+async function loadData(){loadEnhanced();try{let d=document.getElementById('fDate').value,s=document.getElementById('fType').value||'PMJAY';let id=d+'_'+s;await buildMasterMap();let snap=await db.collection('daily_dialysis_lists').doc(id).get();let pats=snap.exists?(snap.data().patients||[]):[];allPatients=pats.map((p,i)=>{let e=enrich({...p});e.sl=i+1;return e;});let ss=await db.collection('daily_photo_opd').doc(id).get();statusMap=ss.exists?(ss.data().status||{}):{};render();}catch(e){document.getElementById('searchInfo').innerText='Error: '+e.message;}}
 async function saveStatus(){let d=document.getElementById('fDate').value,s=document.getElementById('fType').value||'PMJAY';await db.collection('daily_photo_opd').doc(d+'_'+s).set({date:d,scheme:s,status:statusMap,updatedAt:new Date().toISOString()},{merge:true});}
 function showConfirm(sh,type){pendingShri=sh;pendingType=type;let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let st=statusMap[sh]||{photoTaken:false,opdDone:false};let isDone=type==='photo'?st.photoTaken:st.opdDone;let label=type==='photo'?'Photo Taken':'OPD Done';document.getElementById('confirmTitle').innerText='Are you sure?';document.getElementById('confirmSub').innerText=(isDone?label+' - Undo for ' :label+' for ')+(p?p.name:sh);document.getElementById('confirmModal').style.display='flex';}
 function hideConfirm(){document.getElementById('confirmModal').style.display='none';pendingShri=null;pendingType=null;}
@@ -235,8 +269,7 @@ async function confirmSure(){if(!pendingShri)return;if(!statusMap[pendingShri])s
 async function confirmNotSure(){if(!pendingShri)return;if(!statusMap[pendingShri])statusMap[pendingShri]={photoTaken:false,opdDone:false};let st=statusMap[pendingShri];if(pendingType==='photo')st.photoTaken=false;else st.opdDone=false;await saveStatus();hideConfirm();render();}
 document.getElementById('btnSure').onclick=confirmSure;document.getElementById('btnNotSure').onclick=confirmNotSure;
 document.getElementById('confirmModal').onclick=e=>{if(e.target.id==='confirmModal')hideConfirm();};
-function getFiltered(){let fTime=document.getElementById('fTime').value,fShift=document.getElementById('fShift').value,bf=document.getElementById('filterBlock').value,sq=searchQuery.toLowerCase().trim();let effTime=fTime||fShift;return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(effTime&&normalizeTime(p.time)!==normalizeTime(effTime))return false;if(bf&&p.block!==bf)return false;if(sq){let n=String(p.name||'').toLowerCase();let pid=String(p.pmjayId||p.cmhtId||'').toLowerCase();if(!n.includes(sq)&&!sh.toLowerCase().includes(sq)&&!pid.includes(sq))return false;}return true;});}
-function goEnhancement(sh){let p=allPatients.find(x=>String(x.shri||'').toUpperCase()===sh);let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value||'PMJAY';let q=new URLSearchParams({shri:sh,name:p?p.name:'',scheme:scheme,date:date,pmjayId:p?(p.pmjayId||p.cmhtId||''):'' ,block:p?(p.block||''):'' ,time:p?(p.time||''):''});location.href='enhancement.html?'+q.toString();}
+function getFiltered(){let fTime=document.getElementById('fTime').value,fShift=document.getElementById('fShift').value,bf=document.getElementById('filterBlock').value,sq=searchQuery.toLowerCase().trim();let effTime=fTime||fShift;return allPatients.filter(p=>{let sh=String(p.shri||'').toUpperCase();if(!sh)return false;if(enhancedSet.has(sh))return false;if(effTime&&normalizeTime(p.time)!==normalizeTime(effTime))return false;if(bf&&p.block!==bf)return false;if(sq){let n=String(p.name||'').toLowerCase();let pid=String(p.pmjayId||p.cmhtId||'').toLowerCase();if(!n.includes(sq)&&!sh.toLowerCase().includes(sq)&&!pid.includes(sq))return false;}return true;});}
 function render(){let filtered=getFiltered();
 let ps=getPageSize(),pages=Math.max(1,Math.ceil(filtered.length/ps));if(currentPage>pages)currentPage=pages;let items=filtered.slice((currentPage-1)*ps,currentPage*ps);let from=filtered.length?((currentPage-1)*ps+1):0,to=Math.min(currentPage*ps,filtered.length);document.getElementById('searchInfo').innerText=`Showing ${from}-${to} of ${filtered.length} patients`;document.getElementById('pageIndicator').innerText=`${currentPage}/${pages}`;
 let grid=document.getElementById('grid');grid.innerHTML='';
