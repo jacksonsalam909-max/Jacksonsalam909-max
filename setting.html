@@ -57,7 +57,6 @@ textarea{resize:vertical}
 .tag{display:inline-block;font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;background:#fee2e2;color:#991b1b}
 .tag.green{background:#dcfce7;color:#14532d}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 .loginCard{max-width:440px;margin:60px auto;background:#fff;border-radius:20px;padding:28px;box-shadow:0 20px 50px rgba(0,0,0,.12);text-align:center}
 .loginCard p{color:#64748b;font-size:13px;margin:8px 0 18px;line-height:1.5}
 .loginCard label{text-align:left}
@@ -76,7 +75,7 @@ textarea{resize:vertical}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
 @media(max-width:900px){.whiteBar{transform:translateX(-100%);width:310px!important}.whiteBar.mOpen{transform:translateX(0)}.mainWrap{margin-left:0!important;width:100%!important}}
-@media(max-width:760px){.pageGrid{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}.wrap{padding:12px}.card{padding:16px}}
+@media(max-width:760px){.pageGrid{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.wrap{padding:12px}.card{padding:16px}}
 @media(max-width:480px){.pageGrid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -145,9 +144,8 @@ textarea{resize:vertical}
     <div id="userPageList" class="pageGrid"></div>
   </div>
 
-  <!-- ONLY THIS PART ADDED - USER PASSWORD BOX, OTHER 2 BOXES SAME -->
   <div class="card">
-    <div class="grid3">
+    <div class="grid2">
       <div>
         <div class="sectionTitle">🔑 Settings Password</div>
         <p class="sub">Opens setting.html only</p>
@@ -168,16 +166,17 @@ textarea{resize:vertical}
         <input type="password" id="confirmLoginPass" placeholder="Confirm login password" style="margin-top:8px">
         <button class="btn btnBlue" onclick="changeLoginPassword()">Update Login Password</button>
       </div>
-      <div>
+    </div>
+    <!-- ONLY ADDED: USER PASSWORD BELOW, SAME OLD STYLE, NO CSS CHANGE -->
+    <div style="margin-top:20px;border-top:1px solid #e2e8f0;padding-top:16px">
         <div class="sectionTitle">👤 User Login Password</div>
-        <p class="sub">Login As User • Username: admin • Only User password</p>
+        <p class="sub">Login As User • Username: admin • Only User password, Admin + Setting NOT changed</p>
         <label>Old User Password *</label>
         <input type="password" id="oldUserLoginPass" placeholder="Enter OLD user password">
         <label>New User Password</label>
         <input type="password" id="newUserLoginPass" placeholder="New user password">
         <input type="password" id="confirmUserLoginPass" placeholder="Confirm user password" style="margin-top:8px">
         <button class="btn btnBlue" onclick="changeUserLoginPassword()">Update User Password</button>
-      </div>
     </div>
     <button class="btn btnRed" onclick="location.reload()" style="margin-top:20px">Lock Settings</button>
   </div>
@@ -219,7 +218,6 @@ const db=getFirestore(app);
 const ref=doc(db,'site_settings','global');
 const PAGES=['index.html','list.html','total.html','cmht.html','claim.html','searchpatient.html','gda.html','gdacompleted.html','cmhtkft.html','addcmht.html','add.html','addlist.html','discharge.html','discharge_upload.html','kft.html','kftmaker.html','bill.html','dischargesummary.html','enhancement.html','inpatient.html','testpage.html','login.html'];
 const USER_PAGES=['userindex.html','usertotal.html','usercmht.html','userkft.html','usercmhtkft.html','userpatientsearch.html','userlist.html','useradd.html','useraddcmht.html','usersetting.html'];
-/* ADDED ONLY: userLoginPassword */
 let data={globalMaintenance:false,globalHide:false,message:'We are updating the page.\nPlease come back in a while.',pages:{},password:'jack8189',loginPassword:'jack8189',userLoginPassword:'admin123'};
 async function load(){ let s=await getDoc(ref); if(s.exists()) data={...data,...s.data()}; if(!data.userLoginPassword) data.userLoginPassword='admin123'; render(); }
 async function save(){ await setDoc(ref,data); showOk(); }
@@ -255,13 +253,12 @@ window.changeLoginPassword=async()=>{
   if(n!==c) return alert('New passwords do not match');
   data.loginPassword=n; await save(); alert('✅ Login password changed to: '+n); document.getElementById('oldLoginPass').value=''; document.getElementById('newLoginPass').value=''; document.getElementById('confirmLoginPass').value='';
 };
-/* ADDED ONLY: CHANGE USER PASSWORD */
 window.changeUserLoginPassword=async()=>{
   let oldP=document.getElementById('oldUserLoginPass').value, n=document.getElementById('newUserLoginPass').value, c=document.getElementById('confirmUserLoginPass').value;
   if(oldP!==data.userLoginPassword && oldP!=='admin123') return alert('❌ Old User Password is WRONG. Cannot change.');
   if(!n) return alert('Enter new user password');
   if(n!==c) return alert('New passwords do not match');
-  data.userLoginPassword=n; await save(); alert('✅ User Login password changed to: '+n+'\nAdmin + Setting NOT changed'); document.getElementById('oldUserLoginPass').value=''; document.getElementById('newUserLoginPass').value=''; document.getElementById('confirmUserLoginPass').value='';
+  data.userLoginPassword=n; await save(); alert('✅ User Login password changed to: '+n); document.getElementById('oldUserLoginPass').value=''; document.getElementById('newUserLoginPass').value=''; document.getElementById('confirmUserLoginPass').value='';
 };
 const ADMIN_PASSWORD="jack8189";
 document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{let pass=document.getElementById('adminPassInput').value.trim();if(pass!==ADMIN_PASSWORD){document.getElementById('passError').style.display='block';return;}document.getElementById('passError').style.display='none';let btn=document.getElementById('confirmLogoutAll');btn.innerText='...';btn.disabled=true;try{await setDoc(doc(db,"system","global_logout"),{logoutTime:Date.now(),timestamp:serverTimestamp(),triggeredBy:'admin'},{merge:true});alert('All devices logged out!');localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}catch(err){alert(err.message);btn.innerText='Logout All';btn.disabled=false;}});
