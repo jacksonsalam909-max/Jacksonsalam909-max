@@ -63,7 +63,7 @@ textarea{resize:vertical}
 .loginCard label{text-align:left}
 .footer{text-align:center;padding:10px;font-size:11px;color:#94a3b8}
 .pageGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
-.pageCard{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;padding:14px;text-align:center;transition:.2s}
+.pageCard{background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:14px;padding:14px;text-align:center;transition:.2s}
 .pageCard:hover{border-color:#2563eb;box-shadow:0 8px 20px rgba(37,99,235,.12);transform:translateY(-2px)}
 .pageCard b{font-size:13px;word-break:break-all;display:block;min-height:32px}
 .pageCard .mini{font-size:11px;color:#94a3b8;margin-bottom:10px}
@@ -122,13 +122,13 @@ textarea{resize:vertical}
     <button class="btn btnBlue" onclick="saveMsg()">Save Message</button>
   </div>
 
+  <!-- USER CARDS ARE HERE - FIXED -->
   <div class="card">
-    <div class="sectionTitle">📄 Per-Page Control — Card View</div>
-    <p class="sub">Top button = Maintenance • Bottom button = Hide • Tap to ON / OFF</p>
+    <div class="sectionTitle">👤 Per-Page Control — User Pages Only <span class="tag green">USER</span></div>
+    <p class="sub">Top button = Maintenance • Bottom button = Hide • Tap to ON / OFF — Only User pages</p>
     <div id="pageList" class="pageGrid"></div>
   </div>
 
-  <!-- ONLY THIS CARD CHANGED - NOW 3 PASSWORDS -->
   <div class="card">
     <div class="sectionTitle">🔑 Change All Passwords From Here</div>
     <p class="sub">Each one is separate — changing one will NOT change the other two</p>
@@ -202,8 +202,8 @@ const cfg={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharg
 const app=initializeApp(cfg,"settings_"+Math.random());
 const db=getFirestore(app);
 const ref=doc(db,'site_settings','global');
-const PAGES=['index.html','list.html','total.html','cmht.html','claim.html','searchpatient.html','gda.html','gdacompleted.html','cmhtkft.html','addcmht.html','add.html','addlist.html','discharge.html','discharge_upload.html','kft.html','kftmaker.html','bill.html','dischargesummary.html','enhancement.html','inpatient.html','testpage.html','login.html'];
-/* 3 SEPARATE PASSWORDS - USER / ADMIN / SETTING */
+/* FIXED: USER CARDS ONLY */
+const PAGES=['userindex.html','usertotal.html','usercmht.html','userkft.html','usercmhtkft.html','userpatientsearch.html','userlist.html','useradd.html','useraddcmht.html','usersetting.html'];
 let data={globalMaintenance:false,globalHide:false,message:'We are updating the page.\nPlease come back in a while.',pages:{},password:'jack8189',loginPassword:'jack8189',userLoginPassword:'admin123',adminLoginPassword:'jack007'};
 async function load(){ let s=await getDoc(ref); if(s.exists()) data={...data,...s.data()}; if(!data.userLoginPassword) data.userLoginPassword='admin123'; if(!data.adminLoginPassword) data.adminLoginPassword=data.loginPassword||'jack007'; if(!data.loginPassword) data.loginPassword=data.adminLoginPassword; render(); }
 async function save(){ await setDoc(ref,data); showOk(); }
@@ -216,13 +216,12 @@ function render(){
   document.getElementById('globalTag').className='tag '+(data.globalMaintenance?'':'green');
   document.getElementById('msgInput').value=data.message||'';
   let html='';
-  PAGES.forEach(p=>{ let pg=data.pages[p]||{}; html+=`<div class="pageCard"><b>${p}</b><div class="mini">Per-page control</div><button class="pBtn ${pg.maintenance?'onMaint':''}" onclick="togglePage('${p}','maintenance')">🔧 Maintenance <span class="dot"></span></button><button class="pBtn ${pg.hide?'onHide':''}" onclick="togglePage('${p}','hide')">👁️ Hide Page <span class="dot"></span></button></div>`; });
+  PAGES.forEach(p=>{ let pg=data.pages[p]||{}; html+=`<div class="pageCard"><b>${p}</b><div class="mini">User page • Per-page control</div><button class="pBtn ${pg.maintenance?'onMaint':''}" onclick="togglePage('${p}','maintenance')">🔧 Maintenance <span class="dot"></span></button><button class="pBtn ${pg.hide?'onHide':''}" onclick="togglePage('${p}','hide')">👁️ Hide Page <span class="dot"></span></button></div>`; });
   document.getElementById('pageList').innerHTML=html;
 }
 window.toggleGlobal=async(k)=>{ data[k]=!data[k]; await save(); render(); };
 window.togglePage=async(p,k)=>{ if(!data.pages[p]) data.pages[p]={}; data.pages[p][k]=!data.pages[p][k]; await save(); render(); };
 window.saveMsg=async()=>{ data.message=document.getElementById('msgInput').value.trim()||data.message; await save(); };
-/* SETTINGS PASSWORD ONLY */
 window.changePassword=async()=>{
   let oldP=document.getElementById('oldPass').value, n=document.getElementById('newPass').value, c=document.getElementById('confirmPass').value;
   if(oldP!==data.password && oldP!=='jack8189') return alert('❌ Old Settings Password is WRONG. Cannot change.');
@@ -230,7 +229,6 @@ window.changePassword=async()=>{
   if(n!==c) return alert('New passwords do not match');
   data.password=n; await save(); alert('✅ Settings password changed'); document.getElementById('oldPass').value=''; document.getElementById('newPass').value=''; document.getElementById('confirmPass').value='';
 };
-/* USER LOGIN PASSWORD ONLY */
 window.changeUserLoginPassword=async()=>{
   let oldP=document.getElementById('oldUserLoginPass').value, n=document.getElementById('newUserLoginPass').value, c=document.getElementById('confirmUserLoginPass').value;
   if(oldP!==data.userLoginPassword && oldP!=='admin123') return alert('❌ Old User Login Password is WRONG. Cannot change.');
@@ -238,7 +236,6 @@ window.changeUserLoginPassword=async()=>{
   if(n!==c) return alert('New passwords do not match');
   data.userLoginPassword=n; await save(); alert('✅ User Login password changed to: '+n+'\nAdmin + Setting NOT changed'); document.getElementById('oldUserLoginPass').value=''; document.getElementById('newUserLoginPass').value=''; document.getElementById('confirmUserLoginPass').value='';
 };
-/* ADMIN LOGIN PASSWORD ONLY - also syncs loginPassword for Admin setting.html */
 window.changeAdminLoginPassword=async()=>{
   let oldP=document.getElementById('oldAdminLoginPass').value, n=document.getElementById('newAdminLoginPass').value, c=document.getElementById('confirmAdminLoginPass').value;
   if(oldP!==data.adminLoginPassword && oldP!==data.loginPassword && oldP!=='jack007') return alert('❌ Old Admin Login Password is WRONG. Cannot change.');
@@ -246,7 +243,6 @@ window.changeAdminLoginPassword=async()=>{
   if(n!==c) return alert('New passwords do not match');
   data.adminLoginPassword=n; data.loginPassword=n; await save(); alert('✅ Admin Login password changed to: '+n+'\nUser + Setting NOT changed'); document.getElementById('oldAdminLoginPass').value=''; document.getElementById('newAdminLoginPass').value=''; document.getElementById('confirmAdminLoginPass').value='';
 };
-/* OLD NAME - KEEP FOR COMPATIBILITY, NOW = ADMIN */
 window.changeLoginPassword=window.changeAdminLoginPassword;
 const ADMIN_PASSWORD="jack8189";
 document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{let pass=document.getElementById('adminPassInput').value.trim();if(pass!==ADMIN_PASSWORD && pass!==data.password){document.getElementById('passError').style.display='block';return;}document.getElementById('passError').style.display='none';let btn=document.getElementById('confirmLogoutAll');btn.innerText='...';btn.disabled=true;try{await setDoc(doc(db,"system","global_logout"),{logoutTime:Date.now(),timestamp:serverTimestamp(),triggeredBy:'admin'},{merge:true});alert('All devices logged out!');localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}catch(err){alert(err.message);btn.innerText='Logout All';btn.disabled=false;}});
