@@ -57,8 +57,8 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .topToolbar .fInput{height:42px}
 .topToolbar .pSelect{height:42px}
 .viewToggle{display:flex;background:#f1f5f9;border-radius:10px;padding:3px;border:1px solid #e2e8f0;flex-shrink:0}
-.vBtn{width:42px;height:36px;border-radius:8px;border:0;background:transparent;cursor:pointer;display:grid;place-items:center;transition:.2s}
-.vBtn svg{width:17px;height:17px;stroke:#334155;stroke-width:2;fill:none;stroke-linecap:round;transition:.2s}
+.vBtn{width:42px;height:36px;border-radius:8px;border:0;background:#f1f5f9!important;cursor:pointer;display:grid;place-items:center;transition:.2s}
+.vBtn svg{width:17px;height:17px;stroke:#334155!important;stroke-width:2;fill:none;stroke-linecap:round;transition:.2s}
 .vBtn.active{background:#2563eb!important}
 .vBtn.active svg{stroke:#fff!important}
 .exportBtn{padding:0 14px;height:48px;border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;width:100%}
@@ -142,7 +142,6 @@ td.remarkTd{white-space:normal!important;word-break:break-word!important;min-wid
 <div class="fGroup"><label class="fLabel"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export CSV</label><button class="exportBtn" onclick="exportCSV()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export CSV</button></div>
 </div>
 </div>
-<!-- TOP BAR : Search + Grid/List + 12/page - PAGE STAYS UP, NOT DOWN -->
 <div class="topToolbar">
 <div class="searchWrap"><input id="search" type="search" class="fInput" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" placeholder="Search name, SHRI ID..." oninput="onSearch()"><span class="searchIcon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span></div>
 <div class="viewToggle"><button class="vBtn" id="gridBtn" onclick="setView('grid')" title="Grid View"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></button><button class="vBtn active" id="tableBtn" onclick="setView('table')" title="List View"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button></div>
@@ -158,7 +157,8 @@ td.remarkTd{white-space:normal!important;word-break:break-word!important;min-wid
 function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{let bar=document.getElementById('whiteBar');bar.classList.toggle('folded');localStorage.setItem('whiteBarFolded', bar.classList.contains('folded') ? 'true' : 'false');}}
 function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
 document.addEventListener('DOMContentLoaded',function(){let saved=localStorage.getItem('whiteBarFolded');if(saved==='true'&&window.innerWidth>900){document.getElementById('whiteBar').classList.add('folded');}document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});});
-let currentView='table';window.setView=(v)=>{currentView=v;document.getElementById('gridBtn').classList.toggle('active',v==='grid');document.getElementById('tableBtn').classList.toggle('active',v==='table');document.getElementById('patientGrid').classList.toggle('hidden',v!=='grid');document.getElementById('pagerGrid').classList.toggle('hidden',v!=='grid');document.getElementById('tableWrap').classList.toggle('hidden',v!=='table');renderAll();};
+let currentView='table';
+window.setView=(v)=>{currentView=v;let g=document.getElementById('gridBtn');let t=document.getElementById('tableBtn');g.classList.remove('active');t.classList.remove('active');if(v==='grid'){g.classList.add('active');}else{t.classList.add('active');}document.getElementById('patientGrid').classList.toggle('hidden',v!=='grid');document.getElementById('pagerGrid').classList.toggle('hidden',v!=='grid');document.getElementById('tableWrap').classList.toggle('hidden',v!=='table');renderAll();};
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
