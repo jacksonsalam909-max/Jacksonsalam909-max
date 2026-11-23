@@ -52,7 +52,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .dateArrow{width:36px;border:0;background:#fff!important;color:#1e3a5f!important;font-size:18px;font-weight:900;cursor:pointer;display:grid;place-items:center;flex-shrink:0}
 .dateMiddle{flex:1;display:grid;place-items:center;font-size:15px;font-weight:600;color:#334155;cursor:pointer;min-width:0}
 #fDate{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
-/* TOP BAR LIKE SCREENSHOT : Search + Grid/List + 12/page */
 .topToolbar{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:12px 14px;margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .topToolbar .searchWrap{flex:1;min-width:220px}
 .topToolbar .fInput{height:42px}
@@ -83,7 +82,6 @@ td.remarkTd{white-space:normal!important;word-break:break-word!important;min-wid
 #tbl tbody tr:hover td{background:#f0f7ff!important}
 .patientGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px;position:relative;min-height:400px;align-items:start}
 .whiteBar.folded ~ .mainWrap .patientGrid{grid-template-columns:repeat(4,1fr);gap:14px}
-/* GRID CARD - LIKE SCREENSHOT */
 .pCard{width:100%;border-radius:14px;background:#fff;border:1.5px solid #e2e8f0;box-shadow:0 2px 10px rgba(0,0,0,.05);overflow:hidden;display:flex;flex-direction:column;padding:16px 14px 12px;text-align:center}
 .pCardAvatar{width:62px;height:62px;min-width:62px;min-height:62px;background:#dbeafe;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#1e40af;font-size:22px;overflow:hidden;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.12);flex-shrink:0;cursor:pointer;margin:0 auto}
 .pCardAvatar img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
@@ -144,6 +142,7 @@ td.remarkTd{white-space:normal!important;word-break:break-word!important;min-wid
 <div class="fGroup"><label class="fLabel"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export CSV</label><button class="exportBtn" onclick="exportCSV()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export CSV</button></div>
 </div>
 </div>
+<!-- TOP BAR : Search + Grid/List + 12/page - PAGE STAYS UP, NOT DOWN -->
 <div class="topToolbar">
 <div class="searchWrap"><input id="search" type="search" class="fInput" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" placeholder="Search name, SHRI ID..." oninput="onSearch()"><span class="searchIcon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span></div>
 <div class="viewToggle"><button class="vBtn" id="gridBtn" onclick="setView('grid')" title="Grid View"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></button><button class="vBtn active" id="tableBtn" onclick="setView('table')" title="List View"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button></div>
@@ -180,7 +179,6 @@ function cleanKey(k){return String(k).replace(/[^a-zA-Z0-9]/g,'_');}
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function remarkText(p){let r=String(p.remark||'N/A').trim();return r||'N/A';}
 function remarkClass(r){if(r==='CASH PAYMENT')return'cash';if(r==='KFT DUE')return'kft';if(r==='N/A')return'na';return'custom';}
-function getContact(p){return p.contact||p.phone||p.mobile||p.contactNo||p.phoneNo||p.mobileNo||'-';}
 let urlParams=new URLSearchParams(window.location.search);
 document.getElementById('fDate').value=urlParams.get('date')&&urlParams.get('force')==='1'?urlParams.get('date'):getTodayIST();
 if(urlParams.get('scheme'))document.getElementById('fType').value=urlParams.get('scheme');else document.getElementById('fType').value='';
@@ -204,8 +202,8 @@ window.renderAll=()=>{
   let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;let start=(currentPage-1)*pageSize;let data=filtered.slice(start,start+pageSize);
   let showingEl=document.getElementById('showingText');if(showingEl)showingEl.innerText=`Showing ${data.length?start+1:0}-${start+data.length} of ${filtered.length} patients`;
   let showingGrid=document.getElementById('showingTextGrid');if(showingGrid)showingGrid.innerText=`Showing ${data.length?start+1:0}-${start+data.length} of ${filtered.length} patients`;
-  let gridHtml='';data.forEach((p,idx)=>{let avatar=p.photo?`<img src="${escHtml(p.photo)}">`:getInitial(p.name);let contact=getContact(p);
-  gridHtml+=`<div class="pCard"><div class="pCardAvatar" data-ukey="${escHtml(p.key)}" onclick="openPhoto('${escHtml(p.key)}','${escHtml(p.shri||'')}','${escHtml(p.name||'')}')">${avatar}</div><div class="pCardName">${escHtml(p.name||'Unknown')}</div><div class="pCardBody"><div class="pCardRow2"><span>PMJAY ID</span><b>${escHtml(p.pmjayCmhtId||'-')}</b></div><div class="pCardRow2"><span>SHRI ID</span><b>${escHtml(p.shri||'-')}</b></div><div class="pCardRow2"><span>CONTACT</span><b>${escHtml(contact)}</b></div></div></div>`;});
+  let gridHtml='';data.forEach((p,idx)=>{let avatar=p.photo?`<img src="${escHtml(p.photo)}">`:getInitial(p.name);
+  gridHtml+=`<div class="pCard"><div class="pCardAvatar" data-ukey="${escHtml(p.key)}" onclick="openPhoto('${escHtml(p.key)}','${escHtml(p.shri||'')}','${escHtml(p.name||'')}')">${avatar}</div><div class="pCardName">${escHtml(p.name||'Unknown')}</div><div class="pCardBody"><div class="pCardRow2"><span>PMJAY ID</span><b>${escHtml(p.pmjayCmhtId||'-')}</b></div><div class="pCardRow2"><span>SHRI ID</span><b>${escHtml(p.shri||'-')}</b></div><div class="pCardRow2"><span>SHIFT</span><b>${shiftFromTime(p.time)}</b></div></div></div>`;});
   if(data.length===0)gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">No patients</div>';document.getElementById('patientGrid').innerHTML=gridHtml;
   let html='<tr><th>SL No</th><th>Patient Name</th><th>SHRI ID</th><th>Shift</th><th>Time</th><th>Photo</th><th>Last Dialysis</th><th>Block</th><th>Remark</th></tr>';
   data.forEach((p)=>{let r=remarkText(p);let rc=remarkClass(r);let slNo=start+data.indexOf(p)+1;let thumb=p.photo?`<img src="${escHtml(p.photo)}">`:getInitial(p.name);
