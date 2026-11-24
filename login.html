@@ -12,11 +12,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{min-height:100vh;display:grid;place-items:center;background:#0f172a;position:relative;overflow:hidden}
-.bg{position:fixed;inset:0;z-index:0}
-.bg img{width:100%;height:100%;object-fit:cover;filter:blur(10px) brightness(0.75);transform:scale(1.2)}
-.bg::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.12)}
-.hsCard{position:relative;z-index:2;width:94%;max-width:920px;height:500px;background:#fff;border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,0.40);display:flex;overflow:hidden}
+html,body{width:100%;height:100%}
+body{min-height:100dvh;display:grid;place-items:center;background:#fff;overflow:auto}
+/* BACKGROUND REMOVED - NO .bg */
+.hsCard{position:relative;z-index:2;width:min(920px,94vw);height:500px;max-height:100dvh;background:#fff;border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,0.40);display:flex;overflow:hidden}
 .left{width:62%;position:relative;background:#000;overflow:hidden}
 .slide{position:absolute;inset:0;opacity:0;transition:opacity 1s ease}
 .slide.active{opacity:1}
@@ -31,7 +30,7 @@ body{min-height:100vh;display:grid;place-items:center;background:#0f172a;positio
 .carouselBtn{position:absolute;bottom:32px;right:20px;z-index:3;display:flex;gap:8px}
 .cBtn{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.18);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.30);display:grid;place-items:center;color:#fff;cursor:pointer;font-size:18px;font-weight:700}
 .cBtn:hover{background:rgba(255,255,255,0.30)}
-.right{width:38%;background:#fff;position:relative;padding:32px 32px;display:flex;flex-direction:column;justify-content:center}
+.right{width:38%;background:#fff;position:relative;padding:32px 32px;display:flex;flex-direction:column;justify-content:center;overflow-y:auto}
 .right::before{content:'';position:absolute;left:-40px;top:0;bottom:0;width:80px;background:#fff;clip-path:ellipse(100% 55% at 100% 50%)}
 .logoTop{display:flex;align-items:center;gap:10px;margin-bottom:22px;position:relative;z-index:2}
 .logoIcon{width:72px;height:72px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;display:grid;place-items:center;padding:6px;box-shadow:0 4px 14px rgba(0,0,0,0.08)}
@@ -54,20 +53,32 @@ body{min-height:100vh;display:grid;place-items:center;background:#0f172a;positio
 .inlineMsg{display:none;font-size:11px;font-weight:600;color:#0f3d4a;margin-top:12px;text-align:center;position:relative;z-index:2;animation:fadeIn .3s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 .trap{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0}
+.btnPublic{width:100%;height:42px;background:#fff;color:#0f3d4a;border:1.5px solid #0f3d4a;border-radius:20px;font-weight:700;font-size:13px;cursor:pointer;margin-top:10px;position:relative;z-index:2}
+.divider{display:flex;align-items:center;gap:8px;margin-top:16px;color:#94a3b8;font-size:10px;font-weight:700;text-transform:uppercase;position:relative;z-index:2}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:#e2e8f0}
+/* FIT ANY SCREEN UNIVERSALLY */
 @media(max-width:800px){
-  .hsCard{flex-direction:column;height:auto;max-width:420px}
-  .left{width:100%;height:240px}
-  .right{width:100%;padding:24px}
+  body{display:block}
+  .hsCard{flex-direction:column;height:auto;min-height:100dvh;width:100%;max-width:100%;border-radius:0;box-shadow:none}
+  .left{width:100%;height:240px;flex-shrink:0}
+  .right{width:100%;padding:24px;overflow:visible}
   .right::before{display:none}
   .slideText{bottom:16px;left:20px;right:20px}
   .slideText h2{font-size:16px}
   .dots{bottom:70px;left:20px}
 }
+@media(max-height:560px) and (min-width:801px){
+  .hsCard{height:auto;min-height:100dvh;border-radius:0}
+}
+@media(max-width:360px){
+  .right{padding:18px}
+  .logoIcon{width:60px;height:60px}
+  .logoName{font-size:22px}
+}
 </style>
 </head>
 <body>
 <div class="trap"><form autocomplete="on"><input type="text" autocomplete="username"><input type="password" autocomplete="current-password"></form></div>
-<div class="bg"><img src="bgraphic.jpg" alt="Background" onerror="this.src='graphic.jpg'"></div>
 <div class="hsCard">
   <div class="left" id="slider">
     <div class="slide active"><img src="newlogin.jpg"><div class="slideOverlay"></div><div class="slideText"><h2>An Enterprise Hospital Information System</h2><p>Transforming Healthcare Workflow through Efficient & Quality patient care management - SHIJA Dialysis</p></div></div>
@@ -79,13 +90,15 @@ body{min-height:100vh;display:grid;place-items:center;background:#0f172a;positio
   </div>
   <div class="right">
     <div class="logoTop"><div class="logoIcon"><img src="logoc.png" onerror="this.onerror=null;this.src='Logoc.png';this.onerror=null;this.src='logoc.jpg'"></div><div class="logoName">SHIJA</div></div>
-    <h2>Welcome Back!</h2><p class="sub">Please login to get access</p>
+    <h2>Welcome Back!</h2><p class="sub">Admin login. Public users click below - no login needed.</p>
     <div id="errBox" class="error"></div>
     <form autocomplete="off" onsubmit="return false">
       <div class="field"><label>Username</label><div class="inputBox"><input id="shija_user_x9271" type="text" placeholder="Enter username" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" style="flex:1"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div></div>
       <div class="field"><label>Password</label><div class="inputBox"><input id="shija_pass_x9271" type="password" placeholder="Enter password" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" readonly onfocus="this.removeAttribute('readonly')" style="flex:1"><svg onclick="togglePass()" style="cursor:pointer" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div></div>
       <button id="loginBtn" class="btn" type="button" onclick="doLogin()">LOGIN</button>
     </form>
+    <div class="divider">Public Access</div>
+    <button class="btnPublic" type="button" onclick="goPublic()">Continue as Public User →</button>
     <div class="bottomLinks">
       <a class="link" onclick="showMsg('Contact Admin - Jacky')">Forgot password?</a>
       <a class="link" onclick="showMsg('Contact Admin : 9233287710')">Contact Admin</a>
@@ -120,7 +133,6 @@ function doLogin(){
   if(!u||!p){err.textContent='Please enter username and password manually';err.style.display='block';return}
   err.style.display='none';btn.textContent='Signing in...';btn.disabled=true;
   setTimeout(()=>{
-    // NEW LOGIN - ONLY jack123 / jack007
     if(u==='jack123' && p==='jack007'){
       localStorage.setItem('shija_logged','1');
       localStorage.setItem('shija_login_time',Date.now().toString());
@@ -129,6 +141,9 @@ function doLogin(){
       err.textContent='Invalid username or password';err.style.display='block';btn.textContent='LOGIN';btn.disabled=false;pEl.value=''
     }
   },600)
+}
+function goPublic(){
+  location.href='userindex.html';
 }
 document.addEventListener('DOMContentLoaded',()=>{clearAll();[10,100,300,600,1000,2000].forEach(t=>setTimeout(clearAll,t))});
 window.addEventListener('load',clearAll);window.addEventListener('pageshow',clearAll);document.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
