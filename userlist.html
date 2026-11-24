@@ -75,6 +75,15 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden;overflow
 .toolSelect:hover{border-color:#2563eb;background:#eff6ff;box-shadow:0 4px 12px rgba(37,99,235,.12)}
 .pSelect{padding:0 12px;height:48px;border-radius:10px;border:1.5px solid #cbd5e1;font-weight:600;background:#fff;cursor:pointer;white-space:nowrap;font-size:14px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,[STRIPPED]");background-repeat:no-repeat;background-position:right 10px center;padding-right:32px;transition:border-color .2s,background .2s,box-shadow .2s}
 .pSelect:hover{border-color:#2563eb;background:#eff6ff;box-shadow:0 4px 12px rgba(37,99,235,.12)}
+.exportWrap{position:relative;flex-shrink:0}
+.exportBtn{height:34px;padding:0 12px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.exportBtn:hover{background:#f8fafc;border-color:#cbd5e1}
+.exportBtn .arrow{font-size:9px;color:#64748b;transition:transform .25s}
+.exportWrap.open .exportBtn .arrow{transform:rotate(180deg)}
+.exportDropdown{position:absolute;top:calc(100% + 6px);right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 12px 24px rgba(0,0,0,.12);overflow:hidden;z-index:100;opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .25s,transform .25s}
+.exportWrap.open .exportDropdown{opacity:1;transform:translateY(0);pointer-events:auto}
+.exportOpt{width:100%;height:40px;border:0;background:#fff;color:#0f172a;font-weight:600;font-size:12.5px;cursor:pointer;display:flex;align-items:center;padding:0 12px;text-align:left}
+.exportOpt:hover{background:#f8fafc}
 .tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-top:16px;position:relative;min-height:520px;box-shadow:0 4px 20px rgba(0,0,0,.04)}
 table{width:100%;border-collapse:separate;border-spacing:0;min-width:1250px}
 th{padding:18px 14px;font-size:13px;color:#0f172a;background:#eef1f4;text-align:left;text-transform:uppercase;white-space:nowrap;position:sticky;top:0;z-index:1;font-weight:600;letter-spacing:.2px;transition:background .15s}
@@ -117,6 +126,7 @@ td.remarkTd{white-space:normal!important;word-break:break-word!important;min-wid
 .pager{display:flex;align-items:center;justify-content:space-between;padding:14px;flex-wrap:wrap;gap:10px}
 .pagerCenter{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .pagerGrid{display:flex;align-items:center;justify-content:space-between;padding:14px 2px;flex-wrap:wrap;gap:8px}
+.pagerTotal{flex:1;text-align:center;font-size:14px;font-weight:800;color:#0f172a;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:9px 12px;min-width:120px;margin:0 10px;white-space:nowrap}
 .showingText{font-size:14px;color:#0f172a;font-weight:500}
 .pBtn{padding:9px 14px;border-radius:8px;border:0;background:#e2e8f0;font-weight:600;cursor:pointer;font-size:14px;color:#0f172a;min-width:38px;transition:background .18s,color .18s,box-shadow .18s}
 .pBtn:hover{background:#0f172a!important;color:#fff!important;box-shadow:0 6px 14px rgba(0,0,0,.18)}
@@ -134,12 +144,11 @@ td.remarkTd{white-space:normal!important;word-break:break-word!important;min-wid
 #photoName{color:#fff;font-weight:800;margin-top:14px;font-size:15px;text-align:center}
 @media(max-width:1100px){.patientGrid{grid-template-columns:repeat(3,1fr)}.pageHead h1{font-size:34px}}
 @media(max-width:900px){.whiteBar{transform:translateX(-100%);width:270px!important}.whiteBar.mOpen{transform:translateX(0)}.mainWrap{margin-left:0!important;width:100%!important}.patientGrid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.patientGrid{grid-template-columns:1fr;gap:10px}.topToolbar .searchWrap{flex-basis:100%}.pageHead h1{font-size:30px}.datePill{flex-basis:100%}.dateMiddle{flex:1}}
+@media(max-width:600px){.patientGrid{grid-template-columns:1fr;gap:10px}.topToolbar .searchWrap{flex-basis:100%}.pageHead h1{font-size:30px}.datePill{flex-basis:100%}.dateMiddle{flex:1}.pagerTotal{flex-basis:100%;margin:8px 0 0}}
 </style>
 </head>
 <body>
 <div id="mobOverlay" onclick="closeMob()"></div>
-<div style="display:none"><select id="filterTime"><option value="">All timings</option><option value="7:00 AM">7 AM</option><option value="12:00 PM">12 PM</option><option value="5:00 PM">5 PM</option><option value="9:00 PM">9 PM</option><option value="12:00 AM">12 AM</option><option value="2:00 AM">2 AM</option></select></div>
 <div class="whiteBar" id="whiteBar"><div style="display:flex;flex-direction:column;height:100%;overflow:hidden"><div class="sHead"><div class="sLogo"><img src="logoc.png" onerror="this.style.display='none'"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
 <div class="sMenu">
 <a href="usertotal.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
@@ -148,12 +157,12 @@ td.remarkTd{white-space:normal!important;word-break:break-word!important;min-wid
 <a href="usercmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
 <a href="userpatientsearch.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
 <a href="userlist.html?scheme=CMHT&force=1" id="cmhtLink"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
-<a href="userlist.html?scheme=PMJAY&force=1" id="pmjayLink" class="active"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
+<a href="userlist.html" id="pmjayLink" class="active"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
 <a href="useradd.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT</span></a>
 <a href="useraddcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
 <a href="usersetting.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg></span><span class="ml">SETTING</span></a>
 </div></div><div class="sFoot">System Online • SHIJA Hospital</div></div>
-<div class="mainWrap"><div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> Daily Dialysis Patient List</div></div>
+<div class="mainWrap"><div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> Daily Dialysis Patient List</div><div class="exportWrap" id="exportWrap"><button class="exportBtn" onclick="toggleExport(event)">Export <span class="arrow">▼</span></button><div class="exportDropdown"><button class="exportOpt" onclick="closeExport();exportExcel()">Excel</button><button class="exportOpt" onclick="closeExport();exportPDF()">PDF</button></div></div></div>
 <div class="content">
 <div class="pageHead"><h1>Patient List</h1><p>Manage and monitor dialysis patients</p></div>
 <div class="topToolbar">
@@ -162,18 +171,22 @@ td.remarkTd{white-space:normal!important;word-break:break-word!important;min-wid
 <div class="datePill"><button type="button" class="dateArrow" id="datePrev">‹</button><div class="dateMiddle"><span id="dateDisplay">11/23/2026</span><input type="date" id="fDate"></div><button type="button" class="dateArrow" id="dateNext">›</button></div>
 <select id="filterBlock" class="toolSelect"><option value="">Block: All Blocks</option><option value="MAIN">Block: Main</option><option value="ITOCHA">Block: Itocha</option></select>
 <select id="filterShift" class="toolSelect"><option value="">Shift: All Shifts</option><option value="Morning">Shift: Morning</option><option value="Afternoon">Shift: Afternoon</option><option value="Evening">Shift: Evening</option><option value="Night">Shift: Night</option><option value="Midnight">Shift: Midnight</option></select>
+<select id="filterTime" class="toolSelect"><option value="">Time: All Times</option><option value="7:00 AM">Time: 7 AM</option><option value="12:00 PM">Time: 12 PM</option><option value="5:00 PM">Time: 5 PM</option><option value="9:00 PM">Time: 9 PM</option><option value="12:00 AM">Time: 12 AM</option><option value="2:00 AM">Time: 2 AM</option></select>
 <div class="viewToggle"><button class="vBtn" id="gridBtn" onclick="setView('grid')" title="Grid View"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></button><button class="vBtn active" id="tableBtn" onclick="setView('table')" title="List View"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button></div>
 </div>
 <div class="patientGrid hidden" id="patientGrid"></div>
-<div class="pagerGrid hidden" id="pagerGrid"><div class="pagerCenter"><button class="pBtn" onclick="prevPage()">‹</button><div id="pageNumsGrid" style="display:flex;gap:6px"></div><button class="pBtn" onclick="nextPage()">›</button></div><select id="pageSizeGrid" class="pSelect" onchange="changePageSizeFrom(this)"><option value="10" selected>10 per page</option><option value="20">20 per page</option><option value="30">30 per page</option><option value="40">40 per page</option><option value="50">50 per page</option></select></div>
+<div class="pagerGrid hidden" id="pagerGrid"><div class="pagerCenter"><button class="pBtn" onclick="prevPage()">‹</button><div id="pageNumsGrid" style="display:flex;gap:6px"></div><button class="pBtn" onclick="nextPage()">›</button></div><div class="pagerTotal" id="pagerTotalGrid">Total: 0</div><select id="pageSizeGrid" class="pSelect" onchange="changePageSizeFrom(this)"><option value="10" selected>10 per page</option><option value="20">20 per page</option><option value="30">30 per page</option><option value="40">40 per page</option><option value="50">50 per page</option></select></div>
 <div class="tableWrap" id="tableWrap"><div style="padding:14px 14px 0;position:relative;z-index:2"><div style="overflow-x:auto"><table id="tbl"></table></div></div>
 <div style="padding:14px 14px 4px"><span class="showingText" id="showingText"></span></div>
-<div class="pager"><div class="pagerCenter"><button class="pBtn" onclick="prevPage()">‹</button><div id="pageNums" style="display:flex;gap:6px"></div><button class="pBtn" onclick="nextPage()">›</button></div><select id="pageSize" class="pSelect" onchange="changePageSize()"><option value="10" selected>10 per page</option><option value="20">20 per page</option><option value="30">30 per page</option><option value="40">40 per page</option><option value="50">50 per page</option></select></div></div>
+<div class="pager"><div class="pagerCenter"><button class="pBtn" onclick="prevPage()">‹</button><div id="pageNums" style="display:flex;gap:6px"></div><button class="pBtn" onclick="nextPage()">›</button></div><div class="pagerTotal" id="pagerTotal">Total: 0</div><select id="pageSize" class="pSelect" onchange="changePageSize()"><option value="10" selected>10 per page</option><option value="20">20 per page</option><option value="30">30 per page</option><option value="40">40 per page</option><option value="50">50 per page</option></select></div></div>
 </div></div>
 <div id="photoModal" onclick="closePhoto()"><div class="photoBox" onclick="event.stopPropagation()"><img id="photoView" src=""><button class="photoClose" onclick="closePhoto()" aria-label="Close">×</button></div><div id="photoName"></div></div>
 <script>
 function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{let bar=document.getElementById('whiteBar');bar.classList.toggle('folded');localStorage.setItem('whiteBarFolded', bar.classList.contains('folded') ? 'true' : 'false');}}
 function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
+function toggleExport(e){if(e)e.stopPropagation();document.getElementById('exportWrap').classList.toggle('open');}
+function closeExport(){document.getElementById('exportWrap').classList.remove('open');}
+document.addEventListener('click',function(e){let w=document.getElementById('exportWrap');if(w && !w.contains(e.target)) w.classList.remove('open');});
 document.addEventListener('DOMContentLoaded',function(){let saved=localStorage.getItem('whiteBarFolded');if(saved==='true'&&window.innerWidth>900){document.getElementById('whiteBar').classList.add('folded');}document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});});
 let currentView='table';
 window.setView=(v)=>{currentView=v;let g=document.getElementById('gridBtn');let t=document.getElementById('tableBtn');g.classList.remove('active');t.classList.remove('active');if(v==='grid'){g.classList.add('active');}else{t.classList.add('active');}document.getElementById('patientGrid').classList.toggle('hidden',v!=='grid');document.getElementById('pagerGrid').classList.toggle('hidden',v!=='grid');document.getElementById('tableWrap').classList.toggle('hidden',v!=='table');renderAll();};
@@ -194,12 +207,17 @@ function shiftFromTime(t){let n=normalizeTime(t);let m=n.match(/(\d{1,2}):(\d{2}
 function getInitial(name){return (name||'P').trim().charAt(0).toUpperCase();}
 function cleanKey(k){return String(k).replace(/[^a-zA-Z0-9]/g,'_');}
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escCsv(s){let v=String(s??'').replace(/"/g,'""');return `"${v}"`;}
 function remarkText(p){let r=String(p.remark||'N/A').trim();return r||'N/A';}
 function remarkClass(r){if(r==='CASH PAYMENT')return'cash';if(r==='KFT DUE')return'kft';if(r==='N/A')return'na';return'custom';}
 function getIds(p){let id=p.pmjayCmhtId||'-';if(p.scheme==='CMHT')return{pmjay:'N/A',cmht:id};if(p.scheme==='PMJAY')return{pmjay:id,cmht:'N/A'};return{pmjay:id,cmht:'N/A'};}
+function timeOrder(t){let n=normalizeTime(t);let order={'7:00 AM':0,'12:00 PM':1,'5:00 PM':2,'9:00 PM':3,'12:00 AM':4,'2:00 AM':5};if(order.hasOwnProperty(n))return order[n];let m=n.match(/(\d{1,2}):(\d{2})\s*([AP]M)/);if(!m)return 99;let h=parseInt(m[1]);let ap=m[3];let h24=ap==='PM'?(h===12?12:h+12):(h===12?0:h);return 10+h24;}
+function sortByTime(a,b){let d=timeOrder(a.time)-timeOrder(b.time);if(d!==0)return d;return String(a.name||'').localeCompare(String(b.name||''));}
 let urlParams=new URLSearchParams(window.location.search);
 document.getElementById('fDate').value=urlParams.get('date')&&urlParams.get('force')==='1'?urlParams.get('date'):getTodayIST();
-if(urlParams.get('scheme'))document.getElementById('fType').value=urlParams.get('scheme');else document.getElementById('fType').value='';
+if(urlParams.get('scheme')==='CMHT' && urlParams.get('force')==='1'){document.getElementById('fType').value='CMHT';}
+else if(urlParams.get('scheme')==='PMJAY' && urlParams.get('force')==='1'){document.getElementById('fType').value='PMJAY';}
+else{document.getElementById('fType').value='';}
 updateDateDisplay();
 document.getElementById('datePrev').addEventListener('click',()=>shiftDate(-1));
 document.getElementById('dateNext').addEventListener('click',()=>shiftDate(1));
@@ -223,7 +241,6 @@ async function loadDischargedPatients(date, prevMapFromDaily){
         if(d && d!==date) return;
         if(!d){let idDate=String(docId||'').slice(0,10);if(/^\d{4}-\d{2}-\d{2}$/.test(idDate) && idDate!==date) return;}
       }
-      // PREV FIX: if discharges doc has no PREV, copy from daily list of SAME date + SAME SHRI + SAME PMJAY, exactly
       if(!cleanPrev(p.prev) && !cleanPrev(p.lastDialysis)){
         let k=String(p.shri||p.shriId||'').trim().toUpperCase()+'|'+String(p.pmjayCmhtId||p.pmjayId||'').trim().toUpperCase();
         if(prevMap[k]) p.prev=prevMap[k];
@@ -259,13 +276,16 @@ async function loadDischargedPatients(date, prevMapFromDaily){
 }
 async function loadRawScheme(date,scheme){try{let snap=await getDoc(doc(db,"daily_dialysis_lists",date+'_'+scheme));let patients=snap.exists()?(snap.data().patients||[]):[];return patients.map(p=>({...p,scheme}));}catch(e){return[];}}
 async function onDateChange(){
-  let myToken=++loadToken;updateDateDisplay();let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;
+  let myToken=++loadToken;updateDateDisplay();
+  let date=document.getElementById('fDate').value;
+  let schemeRaw=String(document.getElementById('fType').value||'').trim().toUpperCase();
+  let isAll=(schemeRaw===''||schemeRaw==='ALL');
+  let schemes=isAll?['PMJAY','CMHT']:[schemeRaw];
   try{
-    let schemes=scheme?[scheme]:['PMJAY','CMHT'];
     let [rawLists]=await Promise.all([Promise.all(schemes.map(s=>loadRawScheme(date,s)))]);
     if(myToken!==loadToken)return;
     let rawAll=[];rawLists.forEach((arr,idx)=>arr.forEach(p=>rawAll.push({...p,scheme:schemes[idx]})));
-    // PREV MAP for THIS DATE ONLY: SHRI|PMJAY -> prev, from daily list (includes hidden / discharged)
+    if(!isAll){rawAll=rawAll.filter(p=>String(p.scheme||'').toUpperCase()===schemeRaw);}
     let prevMap={};
     rawAll.forEach(p=>{
       let v=cleanPrev(p.prev)||cleanPrev(p.lastDialysis);
@@ -274,10 +294,11 @@ async function onDateChange(){
       prevMap[k]=v;
     });
     await buildMasterMapFor(rawAll);if(myToken!==loadToken)return;
-    let disList=scheme==='CMHT'?[]:await loadDischargedPatients(date, prevMap);
+    let disList=(schemeRaw==='CMHT')?[]:await loadDischargedPatients(date, prevMap);
     if(myToken!==loadToken)return;
     await buildMasterMapFor(disList);if(myToken!==loadToken)return;
     disList=disList.map(p=>{let savedPrev=cleanPrev(p.prev)||cleanPrev(p.lastDialysis);let e=enrichPatient({...p},'PMJAY');e.scheme='PMJAY';e.patientStatus='DISCHARGE';if(savedPrev){e.prev=savedPrev;e.lastDialysis=savedPrev;}e._fromDaily=p._fromDaily;e._fromDischarges=p._fromDischarges;e._dischargeDocId=p._dischargeDocId;if(!e.name&&p.patientName)e.name=p.patientName;if(!e.shri&&p.shriId)e.shri=p.shriId;return e;}).filter(Boolean);
+    if(!isAll){disList=disList.filter(p=>String(p.scheme||'').toUpperCase()===schemeRaw);}
     let seen=new Set();allPatients=[];
     rawAll.forEach(p=>{
       let e=enrichPatient({...p},p.scheme);e.scheme=p.scheme;if(!e.patientStatus)e.patientStatus='ENHANCEMENT';if(!e.remark)e.remark='N/A';e.key=String(e.shri||e.pmjayCmhtId||e.name||'').trim();
@@ -285,22 +306,82 @@ async function onDateChange(){
       let k=e.shri+'|'+normalizeTime(e.time)+'|'+e.scheme;if(seen.has(k))return;seen.add(k);allPatients.push(e);
     });
     disList.forEach(p=>{let k=p.shri+'|'+normalizeTime(p.time)+'|'+p.scheme+'|DISCHARGE';if(seen.has(k))return;seen.add(k);allPatients.push(p);});
+    allPatients.sort(sortByTime);
     allPatients.forEach((p,i)=>p.sl=i+1);applyFilter();
   }catch(e){if(myToken!==loadToken)return;allPatients=[];applyFilter();}
 }
 window.onSearch=()=>{currentPage=1;applyFilter();};
 window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);let g=document.getElementById('pageSizeGrid');if(g)g.value=pageSize;currentPage=1;renderAll();};
 window.changePageSizeFrom=(el)=>{pageSize=parseInt(el.value);let m=document.getElementById('pageSize');if(m)m.value=pageSize;currentPage=1;renderAll();};
-window.applyFilter=()=>{let q=document.getElementById('search').value.trim().toLowerCase();let timeF=document.getElementById('filterTime').value;let timeN=normalizeTime(timeF);let shiftF=document.getElementById('filterShift')?document.getElementById('filterShift').value:'';let blockF=document.getElementById('filterBlock').value;filtered=allPatients.filter(p=>{if(q){let n=String(p.name||'').toLowerCase(),s=String(p.shri||'').toLowerCase(),id=String(p.pmjayCmhtId||'').toLowerCase();if(!n.includes(q)&&!s.includes(q)&&!id.includes(q))return false;}if(timeF&&normalizeTime(p.time)!==timeN)return false;if(shiftF&&shiftFromTime(p.time)!==shiftF)return false;if(blockF&&String(p.block||'').toUpperCase()!==blockF)return false;return true;});renderAll();};
+window.applyFilter=()=>{
+  let q=document.getElementById('search').value.trim().toLowerCase();
+  let timeF=document.getElementById('filterTime').value;let timeN=normalizeTime(timeF);
+  let shiftF=document.getElementById('filterShift')?document.getElementById('filterShift').value:'';
+  let blockF=document.getElementById('filterBlock').value;
+  let schemeF=String(document.getElementById('fType').value||'').trim().toUpperCase();
+  let isAll=(schemeF===''||schemeF==='ALL');
+  filtered=allPatients.filter(p=>{
+    if(!isAll && String(p.scheme||'').toUpperCase()!==schemeF) return false;
+    if(q){let n=String(p.name||'').toLowerCase(),s=String(p.shri||'').toLowerCase(),id=String(p.pmjayCmhtId||'').toLowerCase();if(!n.includes(q)&&!s.includes(q)&&!id.includes(q))return false;}
+    if(timeF&&normalizeTime(p.time)!==timeN)return false;
+    if(shiftF&&shiftFromTime(p.time)!==shiftF)return false;
+    if(blockF&&String(p.block||'').toUpperCase()!==blockF)return false;
+    return true;
+  });
+  filtered.sort(sortByTime);
+  renderAll();
+};
 async function getFullPhotoSmart(ukey,needFull){if(photoCache[ukey]&&(!needFull||photoCache[ukey].length>1000))return photoCache[ukey];let c=cleanKey(ukey);try{let snap=await getDoc(doc(db,"patient_photos",c+"_photo"));if(!snap.exists())return null;let d=snap.data();if(d.thumb&&!photoCache[ukey]){photoCache[ukey]=d.thumb;applyPhotoToDOM(ukey,d.thumb);}if(!needFull){if(d.thumb)return d.thumb;if(d.full)return d.full;}if(d.full&&d.full.length>100){photoCache[ukey]=d.full;return d.full;}if(d.thumb&&d.chunkCount===0)return d.thumb;let snap2=await getDocs(collection(db,"patient_photos",c+"_photo","chunks"));if(!snap2.empty){let arr=[];snap2.forEach(x=>arr.push(x.data()));arr.sort((a,b)=>a.index-b.index);let full=arr.map(a=>a.data).join('');if(full){photoCache[ukey]=full;return full;}}if(d.thumb)return d.thumb;}catch(e){}return null;}
 function applyPhotoToDOM(ukey,src){document.querySelectorAll(`.pCardAvatar[data-ukey="${CSS.escape(ukey)}"]`).forEach(el=>{let img=el.querySelector('img');if(!img){el.innerHTML=`<img src="${src}" loading="eager" decoding="async">`;}else if(img.src!==src){img.src=src;}});document.querySelectorAll(`.tAvatar[data-ukey="${CSS.escape(ukey)}"]`).forEach(el=>{let img=el.querySelector('img');if(!img){el.innerHTML=`<img src="${src}" loading="eager" decoding="async">`;}else if(img.src!==src){img.src=src;}});}
 window.openPhoto=async(ukey,shri,name)=>{currentPhotoKey=ukey;document.getElementById('photoName').textContent=name+' - '+shri;document.getElementById('photoView').src=photoCache[ukey]||'';document.getElementById('photoModal').classList.add('show');let f=await getFullPhotoSmart(ukey,true);if(f){photoCache[ukey]=f;if(currentPhotoKey===ukey)document.getElementById('photoView').src=f;applyPhotoToDOM(ukey,f);}};
 window.closePhoto=()=>{document.getElementById('photoModal').classList.remove('show');};
 async function loadPhotoCache(){let start=(currentPage-1)*pageSize;let pageData=filtered.slice(start,start+pageSize);let toLoad=pageData.filter(p=>!photoCache[p.key]&&!photoLoadingSet.has(p.key));if(toLoad.length===0)return;let run=()=>Promise.all(toLoad.map(async p=>{photoLoadingSet.add(p.key);let thumb=await getFullPhotoSmart(p.key,false);if(thumb){photoCache[p.key]=thumb;applyPhotoToDOM(p.key,thumb);}photoLoadingSet.delete(p.key);}));if(window.requestIdleCallback)requestIdleCallback(run,{timeout:300});else setTimeout(run,0);}
+function exportRows(){return filtered.map((p,i)=>{let ids=getIds(p);return{sl:i+1,name:p.name||'-',scheme:p.scheme||'-',pmjay:ids.pmjay,shri:p.shri||'-',cmht:ids.cmht,block:p.block||'Main',shift:shiftFromTime(p.time),time:normalizeTime(p.time)||'-',prev:fmtPrev(p.prev||p.lastDialysis||''),remark:remarkText(p)};});}
+window.exportExcel=()=>{
+  if(!filtered.length){alert('No patients to export');return;}
+  let rows=exportRows();let date=document.getElementById('fDate').value||'';let scheme=document.getElementById('fType').value||'ALL';
+  let csv=['SHIJA DIALYSIS - DAILY DIALYSIS PATIENT LIST',`Date: ${date} | Scheme: ${scheme||'ALL'}`, '', 'SL,Patient Name,Scheme,PMJAY ID,SHRI ID,CMHT ID,Block,Shift,Time,Last Dialysis,Remarks'];
+  rows.forEach(r=>{csv.push([r.sl,escCsv(r.name),r.scheme,escCsv(r.pmjay),escCsv(r.shri),escCsv(r.cmht),escCsv(r.block),r.shift,escCsv(r.time),escCsv(r.prev),escCsv(r.remark)].join(','));});
+  csv.push('');csv.push(`Total: ${filtered.length}`);
+  let blob=new Blob(['\uFEFF'+csv.join('\n')],{type:'text/csv;charset=utf-8;'});
+  let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`SHIJA_Patient_List_${date}_${scheme||'ALL'}.csv`;a.click();URL.revokeObjectURL(a.href);
+};
+window.exportPDF=()=>{
+  if(!filtered.length){alert('No patients to export');return;}
+  let rows=exportRows();let date=document.getElementById('fDate').value||'';let scheme=document.getElementById('fType').value||'ALL';
+  let rowsHtml=rows.map(r=>`<tr><td>${r.sl}</td><td>${escHtml(r.name)}</td><td>${r.scheme}</td><td>${escHtml(r.pmjay)}</td><td>${escHtml(r.shri)}</td><td>${escHtml(r.cmht)}</td><td>${escHtml(r.block)}</td><td>${r.shift}</td><td>${escHtml(r.time)}</td><td>${escHtml(r.prev)}</td><td>${escHtml(r.remark)}</td></tr>`).join('');
+  let w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>SHIJA Patient List - ${date}</title><style>
+  @page{size:A4 portrait;margin:12mm}
+  *{box-sizing:border-box;font-family:Inter,Arial,sans-serif}
+  body{margin:0;padding:12mm}
+  h1{font-size:20px;margin:0;text-align:center}
+  p.sub{text-align:center;color:#64748b;font-size:12px;margin:4px 0 12px}
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th,td{border:1px solid #cbd5e1;padding:6px 5px;text-align:left;word-break:break-word}
+  th{background:#0f172a;color:#fff}
+  tr:nth-child(even) td{background:#f8fafc}
+  .totals{margin-top:14px;text-align:center;font-weight:800;font-size:13px;border:1px solid #0f172a;padding:10px;border-radius:8px}
+  .footer{margin-top:8px;text-align:center;font-size:11px;color:#64748b}
+  @media print{body{padding:0}}
+  </style></head><body>
+  <h1>SHIJA DIALYSIS - DAILY DIALYSIS PATIENT LIST</h1>
+  <p class="sub">Date: ${escHtml(date)} &nbsp;|&nbsp; Scheme: ${escHtml(scheme||'ALL')}</p>
+  <table><thead><tr><th>SL</th><th>Patient Name</th><th>Scheme</th><th>PMJAY ID</th><th>SHRI ID</th><th>CMHT ID</th><th>Block</th><th>Shift</th><th>Time</th><th>Last Dialysis</th><th>Remarks</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+  <div class="totals">Total: ${filtered.length}</div>
+  <div class="footer">SHIJA Hospital • Generated from Daily Dialysis List</div>
+  </body></html>`);
+  w.document.close();w.focus();setTimeout(()=>w.print(),300);
+};
 window.renderAll=()=>{
+  // ALL SCHEME: force TIME order on every render (table + grid + pagination)
+  let _schemeF=String(document.getElementById('fType').value||'').trim().toUpperCase();
+  if(_schemeF===''||_schemeF==='ALL'){filtered.sort(sortByTime);}
   let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;let start=(currentPage-1)*pageSize;let data=filtered.slice(start,start+pageSize);
   let showingTxt=`Showing ${data.length?start+1:0}-${start+data.length} of ${filtered.length} patients`;
   let showingEl=document.getElementById('showingText');if(showingEl)showingEl.innerText=showingTxt;
+  let pt=document.getElementById('pagerTotal');if(pt)pt.innerText=`Total: ${filtered.length}`;
+  let ptG=document.getElementById('pagerTotalGrid');if(ptG)ptG.innerText=`Total: ${filtered.length}`;
   let gridHtml='';data.forEach((p,idx)=>{let avatar=(photoCache[p.key]||p.photo)?`<img src="${escHtml(photoCache[p.key]||p.photo)}" loading="eager" decoding="async">`:getInitial(p.name);let shift=shiftFromTime(p.time);
   gridHtml+=`<div class="pCard"><div class="pCardAvatar" data-ukey="${escHtml(p.key)}" onclick="openPhoto('${escHtml(p.key)}','${escHtml(p.shri||'')}','${escHtml(p.name||'')}')">${avatar}</div><div class="pCardName">${escHtml(p.name||'Unknown')}</div><div style="margin-bottom:10px"><span class="shiftPill ${shift}">${shift}</span></div><div class="pCardBody"><div class="pCardRow2"><span>PMJAY ID</span><b>${escHtml(p.pmjayCmhtId||'-')}</b></div><div class="pCardRow2"><span>SHRI ID</span><b>${escHtml(p.shri||'-')}</b></div><div class="pCardRow2"><span>TIME</span><b>${escHtml(normalizeTime(p.time)||'-')}</b></div><div class="pCardRow2"><span>BLOCK</span><b>${escHtml(p.block||'Main')}</b></div><div class="pCardRow2"><span>LAST DIALYSIS</span><b>${escHtml(fmtPrev(p.prev||p.lastDialysis||''))}</b></div></div></div>`;});
   if(data.length===0)gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">No patients</div>';document.getElementById('patientGrid').innerHTML=gridHtml;
@@ -311,12 +392,18 @@ window.renderAll=()=>{
 window.prevPage=()=>{if(currentPage>1){currentPage--;renderAll();}};
 window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(currentPage<totalPages){currentPage++;renderAll();}};
 window.goPage=(n)=>{currentPage=n;renderAll();};
-document.getElementById('fType').addEventListener('change',onDateChange);
+document.getElementById('fType').addEventListener('change',()=>{currentPage=1;onDateChange();});
 document.getElementById('fDate').addEventListener('change',()=>{updateDateDisplay();onDateChange();});
 document.getElementById('filterTime').addEventListener('change',applyFilter);
 document.getElementById('filterShift').addEventListener('change',applyFilter);
 document.getElementById('filterBlock').addEventListener('change',applyFilter);
-window.addEventListener('load',async()=>{let scheme=urlParams.get('scheme')||document.getElementById('fType').value;document.querySelectorAll('.sMenu a').forEach(a=>a.classList.remove('active'));if(scheme==='CMHT'){document.getElementById('cmhtLink')?.classList.add('active');}else if(scheme==='PMJAY'){document.getElementById('pmjayLink')?.classList.add('active');}onDateChange();});
+window.addEventListener('load',async()=>{
+  let scheme=urlParams.get('scheme');
+  document.querySelectorAll('.sMenu a').forEach(a=>a.classList.remove('active'));
+  if(scheme==='CMHT' && urlParams.get('force')==='1'){document.getElementById('cmhtLink')?.classList.add('active');}
+  else{document.getElementById('pmjayLink')?.classList.add('active');}
+  onDateChange();
+});
 </script>
 <script type="module" src="maintenance.js"></script>
 </body>
