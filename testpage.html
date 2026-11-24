@@ -211,9 +211,10 @@ function escCsv(s){let v=String(s??'').replace(/"/g,'""');return `"${v}"`;}
 function remarkText(p){let r=String(p.remark||'N/A').trim();return r||'N/A';}
 function remarkClass(r){if(r==='CASH PAYMENT')return'cash';if(r==='KFT DUE')return'kft';if(r==='N/A')return'na';return'custom';}
 function getIds(p){let id=p.pmjayCmhtId||'-';if(p.scheme==='CMHT')return{pmjay:'N/A',cmht:id};if(p.scheme==='PMJAY')return{pmjay:id,cmht:'N/A'};return{pmjay:id,cmht:'N/A'};}
+function timeOrder(t){let n=normalizeTime(t);let order={'7:00 AM':0,'12:00 PM':1,'5:00 PM':2,'9:00 PM':3,'12:00 AM':4,'2:00 AM':5};if(order.hasOwnProperty(n))return order[n];let m=n.match(/(\d{1,2}):(\d{2})\s*([AP]M)/);if(!m)return 99;let h=parseInt(m[1]);let ap=m[3];let h24=ap==='PM'?(h===12?12:h+12):(h===12?0:h);return 10+h24;}
+function sortByTime(a,b){let d=timeOrder(a.time)-timeOrder(b.time);if(d!==0)return d;return String(a.name||'').localeCompare(String(b.name||''));}
 let urlParams=new URLSearchParams(window.location.search);
 document.getElementById('fDate').value=urlParams.get('date')&&urlParams.get('force')==='1'?urlParams.get('date'):getTodayIST();
-// DEFAULT = ALL SCHEMES (PMJAY + CMHT). Only CMHT menu link forces CMHT.
 if(urlParams.get('scheme')==='CMHT' && urlParams.get('force')==='1'){document.getElementById('fType').value='CMHT';}
 else if(urlParams.get('scheme')==='PMJAY' && urlParams.get('force')==='1'){document.getElementById('fType').value='PMJAY';}
 else{document.getElementById('fType').value='';}
@@ -284,6 +285,7 @@ async function onDateChange(){
     let [rawLists]=await Promise.all([Promise.all(schemes.map(s=>loadRawScheme(date,s)))]);
     if(myToken!==loadToken)return;
     let rawAll=[];rawLists.forEach((arr,idx)=>arr.forEach(p=>rawAll.push({...p,scheme:schemes[idx]})));
+    if(!isAll){rawAll=rawAll.filter(p=>String(p.scheme||'').toUpperCase()===schemeRaw);}
     let prevMap={};
     rawAll.forEach(p=>{
       let v=cleanPrev(p.prev)||cleanPrev(p.lastDialysis);
@@ -296,6 +298,7 @@ async function onDateChange(){
     if(myToken!==loadToken)return;
     await buildMasterMapFor(disList);if(myToken!==loadToken)return;
     disList=disList.map(p=>{let savedPrev=cleanPrev(p.prev)||cleanPrev(p.lastDialysis);let e=enrichPatient({...p},'PMJAY');e.scheme='PMJAY';e.patientStatus='DISCHARGE';if(savedPrev){e.prev=savedPrev;e.lastDialysis=savedPrev;}e._fromDaily=p._fromDaily;e._fromDischarges=p._fromDischarges;e._dischargeDocId=p._dischargeDocId;if(!e.name&&p.patientName)e.name=p.patientName;if(!e.shri&&p.shriId)e.shri=p.shriId;return e;}).filter(Boolean);
+    if(!isAll){disList=disList.filter(p=>String(p.scheme||'').toUpperCase()===schemeRaw);}
     let seen=new Set();allPatients=[];
     rawAll.forEach(p=>{
       let e=enrichPatient({...p},p.scheme);e.scheme=p.scheme;if(!e.patientStatus)e.patientStatus='ENHANCEMENT';if(!e.remark)e.remark='N/A';e.key=String(e.shri||e.pmjayCmhtId||e.name||'').trim();
@@ -303,8 +306,7 @@ async function onDateChange(){
       let k=e.shri+'|'+normalizeTime(e.time)+'|'+e.scheme;if(seen.has(k))return;seen.add(k);allPatients.push(e);
     });
     disList.forEach(p=>{let k=p.shri+'|'+normalizeTime(p.time)+'|'+p.scheme+'|DISCHARGE';if(seen.has(k))return;seen.add(k);allPatients.push(p);});
-    // ALL SCHEME: MIX PMJAY + CMHT ALPHABETICALLY BY NAME
-    if(isAll){allPatients.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));}
+    allPatients.sort(sortByTime);
     allPatients.forEach((p,i)=>p.sl=i+1);applyFilter();
   }catch(e){if(myToken!==loadToken)return;allPatients=[];applyFilter();}
 }
@@ -326,8 +328,7 @@ window.applyFilter=()=>{
     if(blockF&&String(p.block||'').toUpperCase()!==blockF)return false;
     return true;
   });
-  // Keep alphabetical mix for All Schemes even after filtering
-  if(isAll){filtered.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));}
+  filtered.sort(sortByTime);
   renderAll();
 };
 async function getFullPhotoSmart(ukey,needFull){if(photoCache[ukey]&&(!needFull||photoCache[ukey].length>1000))return photoCache[ukey];let c=cleanKey(ukey);try{let snap=await getDoc(doc(db,"patient_photos",c+"_photo"));if(!snap.exists())return null;let d=snap.data();if(d.thumb&&!photoCache[ukey]){photoCache[ukey]=d.thumb;applyPhotoToDOM(ukey,d.thumb);}if(!needFull){if(d.thumb)return d.thumb;if(d.full)return d.full;}if(d.full&&d.full.length>100){photoCache[ukey]=d.full;return d.full;}if(d.thumb&&d.chunkCount===0)return d.thumb;let snap2=await getDocs(collection(db,"patient_photos",c+"_photo","chunks"));if(!snap2.empty){let arr=[];snap2.forEach(x=>arr.push(x.data()));arr.sort((a,b)=>a.index-b.index);let full=arr.map(a=>a.data).join('');if(full){photoCache[ukey]=full;return full;}}if(d.thumb)return d.thumb;}catch(e){}return null;}
@@ -373,6 +374,9 @@ window.exportPDF=()=>{
   w.document.close();w.focus();setTimeout(()=>w.print(),300);
 };
 window.renderAll=()=>{
+  // ALL SCHEME: force TIME order on every render (table + grid + pagination)
+  let _schemeF=String(document.getElementById('fType').value||'').trim().toUpperCase();
+  if(_schemeF===''||_schemeF==='ALL'){filtered.sort(sortByTime);}
   let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;let start=(currentPage-1)*pageSize;let data=filtered.slice(start,start+pageSize);
   let showingTxt=`Showing ${data.length?start+1:0}-${start+data.length} of ${filtered.length} patients`;
   let showingEl=document.getElementById('showingText');if(showingEl)showingEl.innerText=showingTxt;
@@ -388,7 +392,7 @@ window.renderAll=()=>{
 window.prevPage=()=>{if(currentPage>1){currentPage--;renderAll();}};
 window.nextPage=()=>{let totalPages=Math.ceil(filtered.length/pageSize);if(currentPage<totalPages){currentPage++;renderAll();}};
 window.goPage=(n)=>{currentPage=n;renderAll();};
-document.getElementById('fType').addEventListener('change',onDateChange);
+document.getElementById('fType').addEventListener('change',()=>{currentPage=1;onDateChange();});
 document.getElementById('fDate').addEventListener('change',()=>{updateDateDisplay();onDateChange();});
 document.getElementById('filterTime').addEventListener('change',applyFilter);
 document.getElementById('filterShift').addEventListener('change',applyFilter);
