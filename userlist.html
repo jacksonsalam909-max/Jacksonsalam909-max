@@ -206,21 +206,90 @@ updateDateDisplay();
 document.getElementById('datePrev').addEventListener('click',()=>shiftDate(-1));
 document.getElementById('dateNext').addEventListener('click',()=>shiftDate(1));
 function isPmjayDischarge(raw){return String(raw.scheme||raw.Scheme||'').trim().toUpperCase()!=='CMHT';}
-function wasInListBefore(p,rawAll){return true;}
 function mergeMaster(shri,pmjayData,cmhtData){if(!shri)return;if(!pmjayData&&!cmhtData)return;let m=masterMap[shri]||{shri,pmjayId:'',pmjayName:'',cmhtId:'',cmhtName:'',photo:''};if(pmjayData){if(pmjayData.pmjayId||pmjayData.pmjay)m.pmjayId=String(pmjayData.pmjayId||pmjayData.pmjay||'').trim().toUpperCase();if(pmjayData.patientName||pmjayData.name)m.pmjayName=String(pmjayData.patientName||pmjayData.name||'').trim().toUpperCase();if(pmjayData.photo||pmjayData.photoUrl||pmjayData.image)m.photo=pmjayData.photo||pmjayData.photoUrl||pmjayData.image;}if(cmhtData){if(cmhtData.cmhtId||cmhtData.cmht||cmhtData.pmjayId||cmhtData.pmjay)m.cmhtId=String(cmhtData.cmhtId||cmhtData.cmht||cmhtData.pmjayId||cmhtData.pmjay||'').trim().toUpperCase();if(cmhtData.patientName||cmhtData.name)m.cmhtName=String(cmhtData.patientName||cmhtData.name||'').trim().toUpperCase();let ph=cmhtData.photo||cmhtData.photoUrl||cmhtData.image;if(ph)m.photo=ph;}masterMap[shri]=m;}
 async function loadMasterForShri(shri,altIds){if(!shri)return;if(masterMap[shri]&&masterMap[shri]._complete)return;try{let ids=[shri,...(altIds||[])].map(x=>String(x||'').trim()).filter(Boolean);let uniq=[...new Set(ids)];for(let id of uniq){let [a,b]=await Promise.all([getDoc(doc(db,"patients",id)).catch(()=>null),getDoc(doc(db,"cmht_patients",id)).catch(()=>null)]);mergeMaster(shri,a&&a.exists()?a.data():null,b&&b.exists()?b.data():null);if(masterMap[shri]&&(masterMap[shri].pmjayId||masterMap[shri].cmhtId))break;}}catch(e){}if(masterMap[shri])masterMap[shri]._complete=true;}
 async function buildMasterMapFor(list){let jobs=[];list.forEach(p=>{let shri=String(p.shri||p.shriId||'').trim().toUpperCase();if(!shri)return;let alt=[p.pmjayCmhtId,p.pmjayId,p.cmhtId];jobs.push(loadMasterForShri(shri,alt));});await Promise.all(jobs);return masterMap;}
-async function buildMasterMap(){return buildMasterMapFor(allPatients);}
 function enrichPatient(p,scheme){let k=String(p.shri||'').trim().toUpperCase();if(!k)return p;let m=masterMap[k];if(!m)return p;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;if(m.pmjayId)p.pmjayCmhtId=m.pmjayId;}else if(scheme==='CMHT'){if(m.cmhtName)p.name=m.cmhtName;if(m.cmhtId)p.pmjayCmhtId=m.cmhtId;else if(m.pmjayId)p.pmjayCmhtId=m.pmjayId;}else{if(m.cmhtName&&!m.pmjayName)p.name=m.cmhtName;if(m.pmjayName&&!m.cmhtName)p.name=m.pmjayName;}if(m.photo)p.photo=m.photo;if(!p.patientStatus)p.patientStatus='ENHANCEMENT';return p;}
 function normDischargeDate(v){if(!v)return'';let s=String(v).trim();if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;let d=new Date(s);if(!isNaN(d))return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;return s;}
 function extractPatientsFromDocData(d,scheme){if(!d)return[];if(Array.isArray(d.patients))return d.patients;if(Array.isArray(d.list))return d.list;if(Array.isArray(d.data))return d.data;if(d.shri||d.patientName||d.name)return[d];return[];}
-function inferSchemeFromMaster(p){let shri=String(p.shri||p.shriId||'').trim().toUpperCase();let id=String(p.pmjayCmhtId||p.pmjayId||p.cmhtId||'').trim().toUpperCase();let m=masterMap[shri];if(m){if(m.cmhtId&&m.cmhtId===id)return'CMHT';if(m.pmjayId&&m.pmjayId===id)return'PMJAY';if(m.cmhtId&&!m.pmjayId)return'CMHT';if(m.pmjayId&&!m.cmhtId)return'PMJAY';if(m.cmhtName&&!m.pmjayName)return'CMHT';if(m.pmjayName&&!m.cmhtName)return'PMJAY';}return'';}
-function inferSchemeFromFields(p){if(String(p.cmhtId||'').trim()&&!String(p.pmjayId||'').trim())return'CMHT';if(String(p.pmjayId||'').trim()&&!String(p.cmhtId||'').trim())return'PMJAY';let cmhtField=String(p.cmhtId||'').trim().toUpperCase();let pmjayField=String(p.pmjayId||'').trim().toUpperCase();let main=String(p.pmjayCmhtId||'').trim().toUpperCase();if(main&&cmhtField&&main===cmhtField)return'CMHT';if(main&&pmjayField&&main===pmjayField)return'PMJAY';return inferSchemeFromMaster(p);}
-function resolveDischargeScheme(raw,docScheme){return 'PMJAY';}
-async function loadDischargedPatients(date){let out=[];let seenKeys=new Set();let push=(arr,docScheme,fromDaily,fromDischarges,docId)=>{arr.forEach((raw,idx)=>{let p={...raw};if(!isPmjayDischarge(p))return;if(fromDischarges){let d=normDischargeDate(p.date||p.dischargeDate||p.dischargedAt||'');if(d && d!==date) return;if(!d){let idDate=String(docId||'').slice(0,10);if(/^\d{4}-\d{2}-\d{2}$/.test(idDate) && idDate!==date) return;}}p._fromDaily=!!fromDaily;p._fromDischarges=!!fromDischarges;if(!p.name&&p.patientName)p.name=p.patientName;if(!p.shri&&p.shriId)p.shri=p.shriId;if(!p.pmjayCmhtId&&(p.pmjayId||p.cmhtId||p.pmjayCmhtId))p.pmjayCmhtId=p.pmjayId||p.cmhtId||p.pmjayCmhtId;if(!p.patientStatus)p.patientStatus='DISCHARGE';let e=enrichPatient({...p},'PMJAY');e.scheme='PMJAY';e.patientStatus='DISCHARGE';e._fromDaily=!!fromDaily;e._fromDischarges=!!fromDischarges;if(!e.name&&p.patientName)e.name=p.patientName;if(!e.shri&&p.shriId)e.shri=p.shriId;if(!e.remark)e.remark='N/A';e.key=String(e.shri||e.pmjayCmhtId||e.name||'').trim();e._fromDischarge=true;e._dischargeDocId=docId||('idx_'+idx);let dk=e.shri+'|'+e.pmjayCmhtId+'|'+date;if(seenKeys.has(dk))return;seenKeys.add(dk);out.push(e);});};let specs=[{id:date+'_PMJAY_DISCHARGE',scheme:'PMJAY'},{id:date+'_DISCHARGE',scheme:'PMJAY'},{id:date+'_PMJAY',scheme:'PMJAY'}];let results=await Promise.all(specs.map(s=>getDoc(doc(db,"daily_dialysis_lists",s.id)).catch(()=>null)));results.forEach((snap,idx)=>{if(!snap||!snap.exists())return;let spec=specs[idx];let arr=extractPatientsFromDocData(snap.data(),spec.scheme);if(spec.id.includes('DISCHARGE'))push(arr,spec.scheme,true,false,spec.id);else push(arr.filter(x=>String(x.patientStatus||x.status||'').toUpperCase().includes('DISCHARGE')||x.discharged||x.hidden),spec.scheme,true,false,spec.id);});let extra=await Promise.all([getDoc(doc(db,"discharge_lists",date+'_PMJAY')).catch(()=>null),getDoc(doc(db,"discharge_lists",date)).catch(()=>null),getDocs(collection(db,"discharges")).catch(()=>null),getDocs(collection(db,"discharged_patients")).catch(()=>null)]);if(extra[0]&&extra[0].exists())push(extractPatientsFromDocData(extra[0].data(),'PMJAY'),'PMJAY',true,false,'discharge_lists_'+date+'_PMJAY');if(extra[1]&&extra[1].exists())push(extractPatientsFromDocData(extra[1].data(),'PMJAY'),'PMJAY',true,false,'discharge_lists_'+date);if(extra[2]&&!extra[2].empty){extra[2].forEach(d=>{let p=d.data();if(p.deleted)return;push([p],'PMJAY',false,true,d.id);});}if(extra[3]&&!extra[3].empty){extra[3].forEach(d=>{let p=d.data();if(p.deleted)return;let dd=normDischargeDate(p.date||p.dischargeDate||p.dischargedAt||'');if(dd && dd!==date) return;push([p],'PMJAY',false,false,d.id);});}return out;}
+function cleanPrev(v){return String(v||'').trim();}
+async function loadDischargedPatients(date, prevMapFromDaily){
+  let prevMap = prevMapFromDaily || {};
+  let out=[];let seenKeys=new Set();
+  let push=(arr,docScheme,fromDaily,fromDischarges,docId)=>{
+    arr.forEach((raw,idx)=>{
+      let p={...raw};
+      if(!isPmjayDischarge(p))return;
+      if(fromDischarges){
+        let d=normDischargeDate(p.date||p.dischargeDate||p.dischargedAt||'');
+        if(d && d!==date) return;
+        if(!d){let idDate=String(docId||'').slice(0,10);if(/^\d{4}-\d{2}-\d{2}$/.test(idDate) && idDate!==date) return;}
+      }
+      // PREV FIX: if discharges doc has no PREV, copy from daily list of SAME date + SAME SHRI + SAME PMJAY, exactly
+      if(!cleanPrev(p.prev) && !cleanPrev(p.lastDialysis)){
+        let k=String(p.shri||p.shriId||'').trim().toUpperCase()+'|'+String(p.pmjayCmhtId||p.pmjayId||'').trim().toUpperCase();
+        if(prevMap[k]) p.prev=prevMap[k];
+      }
+      p._fromDaily=!!fromDaily;p._fromDischarges=!!fromDischarges;
+      if(!p.name&&p.patientName)p.name=p.patientName;
+      if(!p.shri&&p.shriId)p.shri=p.shriId;
+      if(!p.pmjayCmhtId&&(p.pmjayId||p.cmhtId))p.pmjayCmhtId=p.pmjayId||p.cmhtId;
+      if(!p.patientStatus)p.patientStatus='DISCHARGE';
+      let savedPrev=cleanPrev(p.prev)||cleanPrev(p.lastDialysis);
+      let e=enrichPatient({...p},'PMJAY');
+      e.scheme='PMJAY';e.patientStatus='DISCHARGE';
+      if(savedPrev) { e.prev=savedPrev; e.lastDialysis=savedPrev; }
+      e._fromDaily=!!fromDaily;e._fromDischarges=!!fromDischarges;
+      if(!e.name&&p.patientName)e.name=p.patientName;
+      if(!e.shri&&p.shriId)e.shri=p.shriId;
+      if(!e.remark)e.remark='N/A';
+      e.key=String(e.shri||e.pmjayCmhtId||e.name||'').trim();
+      e._fromDischarge=true;e._dischargeDocId=docId||('idx_'+idx);
+      let dk=e.shri+'|'+e.pmjayCmhtId+'|'+date;
+      if(seenKeys.has(dk))return;seenKeys.add(dk);out.push(e);
+    });
+  };
+  let specs=[{id:date+'_PMJAY_DISCHARGE',scheme:'PMJAY'},{id:date+'_DISCHARGE',scheme:'PMJAY'},{id:date+'_PMJAY',scheme:'PMJAY'}];
+  let results=await Promise.all(specs.map(s=>getDoc(doc(db,"daily_dialysis_lists",s.id)).catch(()=>null)));
+  results.forEach((snap,idx)=>{if(!snap||!snap.exists())return;let spec=specs[idx];let arr=extractPatientsFromDocData(snap.data(),spec.scheme);if(spec.id.includes('DISCHARGE'))push(arr,spec.scheme,true,false,spec.id);else push(arr.filter(x=>String(x.patientStatus||x.status||'').toUpperCase().includes('DISCHARGE')||x.discharged||x.hidden),spec.scheme,true,false,spec.id);});
+  let extra=await Promise.all([getDoc(doc(db,"discharge_lists",date+'_PMJAY')).catch(()=>null),getDoc(doc(db,"discharge_lists",date)).catch(()=>null),getDocs(collection(db,"discharges")).catch(()=>null),getDocs(collection(db,"discharged_patients")).catch(()=>null)]);
+  if(extra[0]&&extra[0].exists())push(extractPatientsFromDocData(extra[0].data(),'PMJAY'),'PMJAY',true,false,'discharge_lists_'+date+'_PMJAY');
+  if(extra[1]&&extra[1].exists())push(extractPatientsFromDocData(extra[1].data(),'PMJAY'),'PMJAY',true,false,'discharge_lists_'+date);
+  if(extra[2]&&!extra[2].empty){extra[2].forEach(d=>{let p=d.data();if(p.deleted)return;push([p],'PMJAY',false,true,d.id);});}
+  if(extra[3]&&!extra[3].empty){extra[3].forEach(d=>{let p=d.data();if(p.deleted)return;let dd=normDischargeDate(p.date||p.dischargeDate||p.dischargedAt||'');if(dd && dd!==date) return;push([p],'PMJAY',false,false,d.id);});}
+  return out;
+}
 async function loadRawScheme(date,scheme){try{let snap=await getDoc(doc(db,"daily_dialysis_lists",date+'_'+scheme));let patients=snap.exists()?(snap.data().patients||[]):[];return patients.map(p=>({...p,scheme}));}catch(e){return[];}}
-async function loadOneScheme(date,scheme){let raw=await loadRawScheme(date,scheme);let patients=raw.map((p,i)=>{let e=enrichPatient({...p,sl:i+1},scheme);e.sl=i+1;e.scheme=scheme;if(!e.patientStatus)e.patientStatus='ENHANCEMENT';if(!e.remark)e.remark='N/A';e.key=String(e.shri||e.pmjayCmhtId||e.name||'').trim();return e;});if(scheme==='PMJAY')patients=patients.filter(p=>(p.patientStatus||'ENHANCEMENT')!=='DISCHARGE');return patients;}
-async function onDateChange(){let myToken=++loadToken;updateDateDisplay();let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;try{let schemes=scheme?[scheme]:['PMJAY','CMHT'];let [rawLists]=await Promise.all([Promise.all(schemes.map(s=>loadRawScheme(date,s)))]);if(myToken!==loadToken)return;let rawAll=[];rawLists.forEach((arr,idx)=>arr.forEach(p=>rawAll.push({...p,scheme:schemes[idx]})));await buildMasterMapFor(rawAll);if(myToken!==loadToken)return;let disList=scheme==='CMHT'?[]:await loadDischargedPatients(date);if(myToken!==loadToken)return;await buildMasterMapFor(disList);if(myToken!==loadToken)return;disList=disList.map(p=>{let e=enrichPatient({...p},'PMJAY');e.scheme='PMJAY';e.patientStatus='DISCHARGE';e._fromDaily=p._fromDaily;e._fromDischarges=p._fromDischarges;e._dischargeDocId=p._dischargeDocId;if(!e.name&&p.patientName)e.name=p.patientName;if(!e.shri&&p.shriId)e.shri=p.shriId;return e;}).filter(Boolean);let seen=new Set();allPatients=[];rawAll.forEach(p=>{let e=enrichPatient({...p},p.scheme);e.scheme=p.scheme;if(!e.patientStatus)e.patientStatus='ENHANCEMENT';if(!e.remark)e.remark='N/A';e.key=String(e.shri||e.pmjayCmhtId||e.name||'').trim();if(p.scheme==='PMJAY'&&(e.patientStatus||'ENHANCEMENT')==='DISCHARGE')return;let k=e.shri+'|'+normalizeTime(e.time)+'|'+e.scheme;if(seen.has(k))return;seen.add(k);allPatients.push(e);});disList.forEach(p=>{let k=p.shri+'|'+normalizeTime(p.time)+'|'+p.scheme+'|DISCHARGE';if(seen.has(k))return;seen.add(k);allPatients.push(p);});allPatients.forEach((p,i)=>p.sl=i+1);applyFilter();}catch(e){if(myToken!==loadToken)return;allPatients=[];applyFilter();}}
+async function onDateChange(){
+  let myToken=++loadToken;updateDateDisplay();let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;
+  try{
+    let schemes=scheme?[scheme]:['PMJAY','CMHT'];
+    let [rawLists]=await Promise.all([Promise.all(schemes.map(s=>loadRawScheme(date,s)))]);
+    if(myToken!==loadToken)return;
+    let rawAll=[];rawLists.forEach((arr,idx)=>arr.forEach(p=>rawAll.push({...p,scheme:schemes[idx]})));
+    // PREV MAP for THIS DATE ONLY: SHRI|PMJAY -> prev, from daily list (includes hidden / discharged)
+    let prevMap={};
+    rawAll.forEach(p=>{
+      let v=cleanPrev(p.prev)||cleanPrev(p.lastDialysis);
+      if(!v) return;
+      let k=String(p.shri||p.shriId||'').trim().toUpperCase()+'|'+String(p.pmjayCmhtId||p.pmjayId||'').trim().toUpperCase();
+      prevMap[k]=v;
+    });
+    await buildMasterMapFor(rawAll);if(myToken!==loadToken)return;
+    let disList=scheme==='CMHT'?[]:await loadDischargedPatients(date, prevMap);
+    if(myToken!==loadToken)return;
+    await buildMasterMapFor(disList);if(myToken!==loadToken)return;
+    disList=disList.map(p=>{let savedPrev=cleanPrev(p.prev)||cleanPrev(p.lastDialysis);let e=enrichPatient({...p},'PMJAY');e.scheme='PMJAY';e.patientStatus='DISCHARGE';if(savedPrev){e.prev=savedPrev;e.lastDialysis=savedPrev;}e._fromDaily=p._fromDaily;e._fromDischarges=p._fromDischarges;e._dischargeDocId=p._dischargeDocId;if(!e.name&&p.patientName)e.name=p.patientName;if(!e.shri&&p.shriId)e.shri=p.shriId;return e;}).filter(Boolean);
+    let seen=new Set();allPatients=[];
+    rawAll.forEach(p=>{
+      let e=enrichPatient({...p},p.scheme);e.scheme=p.scheme;if(!e.patientStatus)e.patientStatus='ENHANCEMENT';if(!e.remark)e.remark='N/A';e.key=String(e.shri||e.pmjayCmhtId||e.name||'').trim();
+      if(p.scheme==='PMJAY'&&(e.patientStatus||'ENHANCEMENT')==='DISCHARGE')return;
+      let k=e.shri+'|'+normalizeTime(e.time)+'|'+e.scheme;if(seen.has(k))return;seen.add(k);allPatients.push(e);
+    });
+    disList.forEach(p=>{let k=p.shri+'|'+normalizeTime(p.time)+'|'+p.scheme+'|DISCHARGE';if(seen.has(k))return;seen.add(k);allPatients.push(p);});
+    allPatients.forEach((p,i)=>p.sl=i+1);applyFilter();
+  }catch(e){if(myToken!==loadToken)return;allPatients=[];applyFilter();}
+}
 window.onSearch=()=>{currentPage=1;applyFilter();};
 window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);let g=document.getElementById('pageSizeGrid');if(g)g.value=pageSize;currentPage=1;renderAll();};
 window.changePageSizeFrom=(el)=>{pageSize=parseInt(el.value);let m=document.getElementById('pageSize');if(m)m.value=pageSize;currentPage=1;renderAll();};
@@ -235,7 +304,7 @@ window.renderAll=()=>{
   let showingTxt=`Showing ${data.length?start+1:0}-${start+data.length} of ${filtered.length} patients`;
   let showingEl=document.getElementById('showingText');if(showingEl)showingEl.innerText=showingTxt;
   let gridHtml='';data.forEach((p,idx)=>{let avatar=(photoCache[p.key]||p.photo)?`<img src="${escHtml(photoCache[p.key]||p.photo)}" loading="eager" decoding="async">`:getInitial(p.name);let shift=shiftFromTime(p.time);
-  gridHtml+=`<div class="pCard"><div class="pCardAvatar" data-ukey="${escHtml(p.key)}" onclick="openPhoto('${escHtml(p.key)}','${escHtml(p.shri||'')}','${escHtml(p.name||'')}')">${avatar}</div><div class="pCardName">${escHtml(p.name||'Unknown')}</div><div style="margin-bottom:10px"><span class="shiftPill ${shift}">${shift}</span></div><div class="pCardBody"><div class="pCardRow2"><span>PMJAY ID</span><b>${escHtml(p.pmjayCmhtId||'-')}</b></div><div class="pCardRow2"><span>SHRI ID</span><b>${escHtml(p.shri||'-')}</b></div><div class="pCardRow2"><span>TIME</span><b>${escHtml(normalizeTime(p.time)||'-')}</b></div><div class="pCardRow2"><span>BLOCK</span><b>${escHtml(p.block||'Main')}</b></div></div></div>`;});
+  gridHtml+=`<div class="pCard"><div class="pCardAvatar" data-ukey="${escHtml(p.key)}" onclick="openPhoto('${escHtml(p.key)}','${escHtml(p.shri||'')}','${escHtml(p.name||'')}')">${avatar}</div><div class="pCardName">${escHtml(p.name||'Unknown')}</div><div style="margin-bottom:10px"><span class="shiftPill ${shift}">${shift}</span></div><div class="pCardBody"><div class="pCardRow2"><span>PMJAY ID</span><b>${escHtml(p.pmjayCmhtId||'-')}</b></div><div class="pCardRow2"><span>SHRI ID</span><b>${escHtml(p.shri||'-')}</b></div><div class="pCardRow2"><span>TIME</span><b>${escHtml(normalizeTime(p.time)||'-')}</b></div><div class="pCardRow2"><span>BLOCK</span><b>${escHtml(p.block||'Main')}</b></div><div class="pCardRow2"><span>LAST DIALYSIS</span><b>${escHtml(fmtPrev(p.prev||p.lastDialysis||''))}</b></div></div></div>`;});
   if(data.length===0)gridHtml='<div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:16px;border:1px solid #e2e8f0">No patients</div>';document.getElementById('patientGrid').innerHTML=gridHtml;
   let html='<tr><th>SL No</th><th>Patient Name</th><th>Photo</th><th>PMJAY ID</th><th>SHRI ID</th><th>CMHT ID</th><th>Block</th><th>Shift</th><th>Time</th><th>Last Dialysis</th><th>Remarks</th></tr>';
   data.forEach((p)=>{let r=remarkText(p);let rc=remarkClass(r);let slNo=start+data.indexOf(p)+1;let thumb=(photoCache[p.key]||p.photo)?`<img src="${escHtml(photoCache[p.key]||p.photo)}" loading="eager" decoding="async">`:getInitial(p.name);let ids=getIds(p);let shift=shiftFromTime(p.time);
