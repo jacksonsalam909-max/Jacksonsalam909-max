@@ -213,6 +213,7 @@ function remarkClass(r){if(r==='CASH PAYMENT')return'cash';if(r==='KFT DUE')retu
 function getIds(p){let id=p.pmjayCmhtId||'-';if(p.scheme==='CMHT')return{pmjay:'N/A',cmht:id};if(p.scheme==='PMJAY')return{pmjay:id,cmht:'N/A'};return{pmjay:id,cmht:'N/A'};}
 let urlParams=new URLSearchParams(window.location.search);
 document.getElementById('fDate').value=urlParams.get('date')&&urlParams.get('force')==='1'?urlParams.get('date'):getTodayIST();
+// DEFAULT = ALL SCHEMES (PMJAY + CMHT). Only CMHT menu link forces CMHT.
 if(urlParams.get('scheme')==='CMHT' && urlParams.get('force')==='1'){document.getElementById('fType').value='CMHT';}
 else if(urlParams.get('scheme')==='PMJAY' && urlParams.get('force')==='1'){document.getElementById('fType').value='PMJAY';}
 else{document.getElementById('fType').value='';}
@@ -277,7 +278,8 @@ async function onDateChange(){
   let myToken=++loadToken;updateDateDisplay();
   let date=document.getElementById('fDate').value;
   let schemeRaw=String(document.getElementById('fType').value||'').trim().toUpperCase();
-  let schemes=(schemeRaw===''||schemeRaw==='ALL')?['PMJAY','CMHT']:[schemeRaw];
+  let isAll=(schemeRaw===''||schemeRaw==='ALL');
+  let schemes=isAll?['PMJAY','CMHT']:[schemeRaw];
   try{
     let [rawLists]=await Promise.all([Promise.all(schemes.map(s=>loadRawScheme(date,s)))]);
     if(myToken!==loadToken)return;
@@ -301,6 +303,8 @@ async function onDateChange(){
       let k=e.shri+'|'+normalizeTime(e.time)+'|'+e.scheme;if(seen.has(k))return;seen.add(k);allPatients.push(e);
     });
     disList.forEach(p=>{let k=p.shri+'|'+normalizeTime(p.time)+'|'+p.scheme+'|DISCHARGE';if(seen.has(k))return;seen.add(k);allPatients.push(p);});
+    // ALL SCHEME: MIX PMJAY + CMHT ALPHABETICALLY BY NAME
+    if(isAll){allPatients.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));}
     allPatients.forEach((p,i)=>p.sl=i+1);applyFilter();
   }catch(e){if(myToken!==loadToken)return;allPatients=[];applyFilter();}
 }
@@ -313,14 +317,17 @@ window.applyFilter=()=>{
   let shiftF=document.getElementById('filterShift')?document.getElementById('filterShift').value:'';
   let blockF=document.getElementById('filterBlock').value;
   let schemeF=String(document.getElementById('fType').value||'').trim().toUpperCase();
+  let isAll=(schemeF===''||schemeF==='ALL');
   filtered=allPatients.filter(p=>{
-    if(schemeF && schemeF!=='ALL' && String(p.scheme||'').toUpperCase()!==schemeF) return false;
+    if(!isAll && String(p.scheme||'').toUpperCase()!==schemeF) return false;
     if(q){let n=String(p.name||'').toLowerCase(),s=String(p.shri||'').toLowerCase(),id=String(p.pmjayCmhtId||'').toLowerCase();if(!n.includes(q)&&!s.includes(q)&&!id.includes(q))return false;}
     if(timeF&&normalizeTime(p.time)!==timeN)return false;
     if(shiftF&&shiftFromTime(p.time)!==shiftF)return false;
     if(blockF&&String(p.block||'').toUpperCase()!==blockF)return false;
     return true;
   });
+  // Keep alphabetical mix for All Schemes even after filtering
+  if(isAll){filtered.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));}
   renderAll();
 };
 async function getFullPhotoSmart(ukey,needFull){if(photoCache[ukey]&&(!needFull||photoCache[ukey].length>1000))return photoCache[ukey];let c=cleanKey(ukey);try{let snap=await getDoc(doc(db,"patient_photos",c+"_photo"));if(!snap.exists())return null;let d=snap.data();if(d.thumb&&!photoCache[ukey]){photoCache[ukey]=d.thumb;applyPhotoToDOM(ukey,d.thumb);}if(!needFull){if(d.thumb)return d.thumb;if(d.full)return d.full;}if(d.full&&d.full.length>100){photoCache[ukey]=d.full;return d.full;}if(d.thumb&&d.chunkCount===0)return d.thumb;let snap2=await getDocs(collection(db,"patient_photos",c+"_photo","chunks"));if(!snap2.empty){let arr=[];snap2.forEach(x=>arr.push(x.data()));arr.sort((a,b)=>a.index-b.index);let full=arr.map(a=>a.data).join('');if(full){photoCache[ukey]=full;return full;}}if(d.thumb)return d.thumb;}catch(e){}return null;}
