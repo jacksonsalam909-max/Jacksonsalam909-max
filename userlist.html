@@ -331,11 +331,47 @@ window.applyFilter=()=>{
   filtered.sort(sortByTime);
   renderAll();
 };
-async function getFullPhotoSmart(ukey,needFull){if(photoCache[ukey]&&(!needFull||photoCache[ukey].length>1000))return photoCache[ukey];let c=cleanKey(ukey);try{let snap=await getDoc(doc(db,"patient_photos",c+"_photo"));if(!snap.exists())return null;let d=snap.data();if(d.thumb&&!photoCache[ukey]){photoCache[ukey]=d.thumb;applyPhotoToDOM(ukey,d.thumb);}if(!needFull){if(d.thumb)return d.thumb;if(d.full)return d.full;}if(d.full&&d.full.length>100){photoCache[ukey]=d.full;return d.full;}if(d.thumb&&d.chunkCount===0)return d.thumb;let snap2=await getDocs(collection(db,"patient_photos",c+"_photo","chunks"));if(!snap2.empty){let arr=[];snap2.forEach(x=>arr.push(x.data()));arr.sort((a,b)=>a.index-b.index);let full=arr.map(a=>a.data).join('');if(full){photoCache[ukey]=full;return full;}}if(d.thumb)return d.thumb;}catch(e){}return null;}
+// PHOTO FIX ONLY: try every possible key for a patient, not just SHRI
+function photoCandidatesFor(p){
+  if(!p) return [];
+  let m={};if(p.shri){let k=String(p.shri).trim().toUpperCase();let mm=masterMap[k];if(mm)m=mm;}
+  let vals=[p.key,p.shri,p.shriId,p.pmjayCmhtId,p.pmjayId,p.cmhtId,p.name,p.patientName,m.pmjayId,m.cmhtId,m.pmjayName,m.cmhtName];
+  let out=[];vals.forEach(v=>{let s=String(v||'').trim();if(!s||s==='-'||s==='N/A')return;if(!out.includes(s))out.push(s);});
+  return out;
+}
+async function getPhotoBySingleKey(ukey,needFull){
+  if(!ukey) return null;
+  if(photoCache[ukey]&&(!needFull||photoCache[ukey].length>1000))return photoCache[ukey];
+  let c=cleanKey(ukey);
+  try{
+    let snap=await getDoc(doc(db,"patient_photos",c+"_photo"));
+    if(!snap.exists())return null;
+    let d=snap.data();
+    if(d.thumb&&!photoCache[ukey]){photoCache[ukey]=d.thumb;}
+    if(!needFull){if(d.thumb)return d.thumb;if(d.full)return d.full;}
+    if(d.full&&d.full.length>100){photoCache[ukey]=d.full;return d.full;}
+    if(d.thumb&&d.chunkCount===0)return d.thumb;
+    let snap2=await getDocs(collection(db,"patient_photos",c+"_photo","chunks"));
+    if(!snap2.empty){let arr=[];snap2.forEach(x=>arr.push(x.data()));arr.sort((a,b)=>a.index-b.index);let full=arr.map(a=>a.data).join('');if(full){photoCache[ukey]=full;return full;}}
+    if(d.thumb)return d.thumb;
+  }catch(e){}
+  return null;
+}
+async function getFullPhotoSmart(ukey,needFull){
+  let p=(allPatients||[]).find(x=>x.key===ukey)||(filtered||[]).find(x=>x.key===ukey)||null;
+  if(p && p.photo && (!needFull||String(p.photo).length>1000)) return p.photo;
+  let cands=p?photoCandidatesFor(p):[ukey];
+  for(let cand of cands){
+    let r=await getPhotoBySingleKey(cand,needFull);
+    if(r){photoCache[ukey]=r;if(p)p.photo=r;return r;}
+  }
+  return p?p.photo||null:null;
+}
 function applyPhotoToDOM(ukey,src){document.querySelectorAll(`.pCardAvatar[data-ukey="${CSS.escape(ukey)}"]`).forEach(el=>{let img=el.querySelector('img');if(!img){el.innerHTML=`<img src="${src}" loading="eager" decoding="async">`;}else if(img.src!==src){img.src=src;}});document.querySelectorAll(`.tAvatar[data-ukey="${CSS.escape(ukey)}"]`).forEach(el=>{let img=el.querySelector('img');if(!img){el.innerHTML=`<img src="${src}" loading="eager" decoding="async">`;}else if(img.src!==src){img.src=src;}});}
 window.openPhoto=async(ukey,shri,name)=>{currentPhotoKey=ukey;document.getElementById('photoName').textContent=name+' - '+shri;document.getElementById('photoView').src=photoCache[ukey]||'';document.getElementById('photoModal').classList.add('show');let f=await getFullPhotoSmart(ukey,true);if(f){photoCache[ukey]=f;if(currentPhotoKey===ukey)document.getElementById('photoView').src=f;applyPhotoToDOM(ukey,f);}};
 window.closePhoto=()=>{document.getElementById('photoModal').classList.remove('show');};
-async function loadPhotoCache(){let start=(currentPage-1)*pageSize;let pageData=filtered.slice(start,start+pageSize);let toLoad=pageData.filter(p=>!photoCache[p.key]&&!photoLoadingSet.has(p.key));if(toLoad.length===0)return;let run=()=>Promise.all(toLoad.map(async p=>{photoLoadingSet.add(p.key);let thumb=await getFullPhotoSmart(p.key,false);if(thumb){photoCache[p.key]=thumb;applyPhotoToDOM(p.key,thumb);}photoLoadingSet.delete(p.key);}));if(window.requestIdleCallback)requestIdleCallback(run,{timeout:300});else setTimeout(run,0);}
+async function loadPhotoCache(){let start=(currentPage-1)*pageSize;let pageData=filtered.slice(start,start+pageSize);let toLoad=pageData.filter(p=>!photoCache[p.key]&&!photoLoadingSet.has(p.key)&&!p.photo);if(toLoad.length===0){pageData.forEach(p=>{if(p.photo&&!photoCache[p.key]){photoCache[p.key]=p.photo;applyPhotoToDOM(p.key,p.photo);}});return;}
+  let run=()=>Promise.all(toLoad.map(async p=>{photoLoadingSet.add(p.key);let thumb=await getFullPhotoSmart(p.key,false);if(thumb){photoCache[p.key]=thumb;p.photo=thumb;applyPhotoToDOM(p.key,thumb);}photoLoadingSet.delete(p.key);}));if(window.requestIdleCallback)requestIdleCallback(run,{timeout:300});else setTimeout(run,0);}
 function exportRows(){return filtered.map((p,i)=>{let ids=getIds(p);return{sl:i+1,name:p.name||'-',scheme:p.scheme||'-',pmjay:ids.pmjay,shri:p.shri||'-',cmht:ids.cmht,block:p.block||'Main',shift:shiftFromTime(p.time),time:normalizeTime(p.time)||'-',prev:fmtPrev(p.prev||p.lastDialysis||''),remark:remarkText(p)};});}
 window.exportExcel=()=>{
   if(!filtered.length){alert('No patients to export');return;}
@@ -374,7 +410,6 @@ window.exportPDF=()=>{
   w.document.close();w.focus();setTimeout(()=>w.print(),300);
 };
 window.renderAll=()=>{
-  // ALL SCHEME: force TIME order on every render (table + grid + pagination)
   let _schemeF=String(document.getElementById('fType').value||'').trim().toUpperCase();
   if(_schemeF===''||_schemeF==='ALL'){filtered.sort(sortByTime);}
   let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>totalPages)currentPage=totalPages;let start=(currentPage-1)*pageSize;let data=filtered.slice(start,start+pageSize);
