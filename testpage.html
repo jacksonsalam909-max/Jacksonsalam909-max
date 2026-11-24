@@ -13,9 +13,9 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
 body{min-height:100vh;display:grid;place-items:center;background:#0f172a;position:relative;overflow:hidden}
-.bg{position:fixed;inset:0;z-index:0}
+.bg{position:fixed;inset:0;z-index:0;background:#0f172a}
 .bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.75)}
-.bg video{width:100%;height:100%;object-fit:cover;filter:brightness(0.75);display:block}
+.bg video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(0.75);display:block;background:#000}
 .bg::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.12);pointer-events:none}
 .hsCard{position:relative;z-index:2;width:94%;max-width:920px;height:500px;background:#fff;border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,0.40);display:flex;overflow:hidden}
 .left{width:62%;position:relative;background:#000;overflow:hidden}
@@ -69,7 +69,7 @@ body{min-height:100vh;display:grid;place-items:center;background:#0f172a;positio
 <body>
 <div class="trap"><form autocomplete="on"><input type="text" autocomplete="username"><input type="password" autocomplete="current-password"></form></div>
 <div class="bg" id="bgArea">
-  <video id="bgVideo" src="video.mp4" muted loop playsinline preload="metadata" poster="photo.jpg" disablepictureinpicture></video>
+  <video id="bgVideo" muted loop playsinline preload="auto" disablepictureinpicture></video>
   <img id="bgFallback" src="photo.jpg" alt="Background" style="display:none">
 </div>
 <div class="hsCard">
@@ -135,7 +135,6 @@ function doLogin(){
   if(!u||!p){err.textContent='Please enter username and password manually';err.style.display='block';return}
   err.style.display='none';btn.textContent='Signing in...';btn.disabled=true;
   setTimeout(()=>{
-    // NEW LOGIN - ONLY jack123 / jack007
     if(u==='jack123' && p==='jack007'){
       localStorage.setItem('shija_logged','1');
       localStorage.setItem('shija_login_time',Date.now().toString());
@@ -147,19 +146,29 @@ function doLogin(){
 }
 document.addEventListener('DOMContentLoaded',()=>{clearAll();[10,100,300,600,1000,2000].forEach(t=>setTimeout(clearAll,t))});
 window.addEventListener('load',clearAll);window.addEventListener('pageshow',clearAll);document.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }
+// Clear old service-worker cache once so new video version loads
+if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().then(function(regs){ regs.forEach(function(r){ r.unregister(); }); }); if('caches' in window){ caches.keys().then(function(keys){ keys.forEach(function(k){ caches.delete(k); }); }); } }
 
 // BACKGROUND VIDEO - PLAY ON CURSOR OVER BACKGROUND, PAUSE OTHERWISE
 (function(){
   var video=document.getElementById('bgVideo');
   var fallback=document.getElementById('bgFallback');
   if(!video) return;
+  var tries=['video.mp4?v=2','video.mp4','Video.mp4?v=2','./video.mp4?v=2'];
+  var tryIdx=0;
+  function showFallback(){ video.style.display='none'; if(fallback) fallback.style.display='block'; }
+  function tryNext(){
+    if(tryIdx>=tries.length){ showFallback(); return; }
+    video.src=tries[tryIdx++];
+    video.load();
+  }
+  video.addEventListener('error',function(){ tryNext(); });
+  video.addEventListener('canplay',function(){ video.style.display='block'; if(fallback) fallback.style.display='none'; });
+  video.addEventListener('loadeddata',function(){ video.style.display='block'; if(fallback) fallback.style.display='none'; });
+  tryNext();
   video.pause();
-  video.addEventListener('error',function(){ video.style.display='none'; if(fallback) fallback.style.display='block'; });
-  // If video file missing, the error above shows photo.jpg again
   function playVideo(){ if(video.style.display==='none') return; if(video.paused){ var pr=video.play(); if(pr&&pr.catch) pr.catch(function(){}); } }
   function pauseVideo(){ if(!video.paused) video.pause(); }
-  // Cursor over card = NOT background, so pause. Cursor anywhere else = background, so play.
   document.addEventListener('mousemove',function(e){
     if(e.target && e.target.closest && e.target.closest('.hsCard')){ pauseVideo(); }
     else{ playVideo(); }
@@ -170,7 +179,6 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }
   });
   document.addEventListener('mouseleave',pauseVideo);
   document.addEventListener('visibilitychange',function(){ if(document.hidden) pauseVideo(); });
-  // Touch: play while touching background, pause when touching card / lifting finger
   document.addEventListener('touchstart',function(e){
     if(e.target && e.target.closest && e.target.closest('.hsCard')){ pauseVideo(); }
     else{ playVideo(); }
