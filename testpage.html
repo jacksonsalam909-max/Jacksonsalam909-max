@@ -1,266 +1,439 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>SHIJA Dialysis</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no">
+<title>CLAIM - FINAL</title>
+<script src="Patient.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui}
-body{background:#f1f5f9;display:flex;overflow-x:hidden}
-.whiteBar{position:fixed;left:0;top:0;bottom:0;width:310px!important;min-width:310px!important;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;overflow:hidden;transition:width .32s ease, transform .32s ease}
+html,body{width:100%;max-width:100vw;overflow-x:hidden!important}
+body{background:#f1f5f9;display:flex;min-height:100vh}
+@media(min-width:901px){ body{zoom:1.18} }
+.whiteBar{position:fixed;left:0;top:0;bottom:0;width:270px;min-width:270px;height:100vh;background:#0f172a;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;z-index:90;transition:.32s ease;scrollbar-width:none!important;-ms-overflow-style:none!important}
 .whiteBar.folded{width:72px!important;min-width:72px!important}
-.mainWrap{flex:1;margin-left:310px!important;transition:margin-left .32s ease;min-height:100vh;display:flex;flex-direction:column;background:#f1f5f9;width:calc(100% - 310px)!important}
+.mainWrap{flex:1;margin-left:270px;transition:.32s ease;min-height:100vh;display:flex;flex-direction:column;background:#eef2ff;width:calc(100% - 270px);max-width:calc(100% - 270px);overflow-x:hidden!important}
 .whiteBar.folded ~ .mainWrap{margin-left:72px!important;width:calc(100% - 72px)!important}
-.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0;overflow:hidden}
+.sHead{padding:16px 12px;display:flex;align-items:center;gap:12px;background:#fff!important;border-bottom:1px solid #e2e8f0;flex-shrink:0}
 .sLogo{width:42px;min-width:42px;height:42px;background:#fff;border-radius:12px;display:grid;place-items:center;overflow:hidden;padding:3px;border:1px solid #e2e8f0}
 .sLogo img{width:100%;height:100%;object-fit:contain}
 .sTitle b{color:#0f172a;font-size:16px;font-weight:900}
 .sTitle span{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
 .whiteBar.folded .sTitle{display:none}
 .whiteBar.folded .sHead{justify-content:center;padding:14px 0}
-.sMenu{flex:1;padding:8px 8px;overflow-y:auto;background:#0f172a}
-.sMenu::-webkit-scrollbar{width:0}
-.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;transition:.2s}
-.sMenu a:hover{background:#1e293b;color:#fff}
-.sMenu a.active{background:#1e293b;color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px #334155}
-.mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px;flex-shrink:0}
+.sMenu{flex:1;padding:8px;overflow-y:auto;scrollbar-width:none!important}
+.sMenu::-webkit-scrollbar,.whiteBar::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+.sMenu a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:12px;text-decoration:none;color:#94a3b8;font-size:13px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;transition:all .28s cubic-bezier(.34,1.56,.64,1)!important;border-left:3px solid transparent}
+.sMenu a:hover{background:#1e293b!important;color:#fff!important;transform:translateX(6px) scale(1.02);border-left-color:#2563eb;box-shadow:0 4px 12px rgba(37,99,235,.25)}
+.sMenu a.active{background:#1e293b;color:#fff;font-weight:600;border-left-color:#2563eb;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.mi{width:36px;min-width:36px;height:36px;display:grid;place-items:center;background:#1e293b;border-radius:10px;flex-shrink:0;transition:.28s}
 .mi svg{width:18px;height:18px;stroke:#94a3b8;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.ml{overflow:hidden;text-overflow:ellipsis}
+.sMenu a:hover .mi{transform:scale(1.1);background:#2563eb}
+.sMenu a:hover .mi svg,.sMenu a.active .mi svg{stroke:#fff}
+.sMenu a.active .mi{background:#2563eb}
 .whiteBar.folded .ml{display:none}
 .whiteBar.folded .sMenu a{justify-content:center;padding:12px 0}
-.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b}
+.sFoot{padding:12px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;overflow:hidden;white-space:nowrap}
 .whiteBar.folded .sFoot{display:none}
-.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20;gap:12px}
-.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px}
-.menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
-.menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
-.topSearchArea{flex:1;max-width:480px;margin:0 16px;display:flex;align-items:center;gap:6px}
-.searchWrap{flex:1;position:relative}
-.search{width:100%;background:#ffffff!important;border:1.5px solid #e2e8f0;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:8px}
-.search input{background:#fff!important;border:0;outline:0;width:100%;font-size:13px;color:#0f172a}
-.search input::placeholder{color:#94a3b8}
-.search:focus-within{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
-.searchResult{position:absolute;top:100%;left:0;right:0;margin-top:8px;background:#fff;border-radius:12px;box-shadow:0 12px 30px #0002;border:1px solid #e2e8f0;max-height:340px;overflow-y:auto;display:none;z-index:100}
-.searchResult.show{display:block}
-.sItem{padding:10px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.badgePMJAY{background:#2563eb;color:#fff;padding:2px 6px;border-radius:10px;font-size:9px;font-weight:800}
-.badgeCMHT{background:#8b5cf6;color:#fff;padding:2px 6px;border-radius:10px;font-size:9px;font-weight:800}
-.bellWrap{position:relative;flex-shrink:0}
-.bellBtn{position:relative;width:42px;height:42px;min-width:42px;border:none!important;background:transparent!important;display:grid;place-items:center;cursor:pointer;transition:.2s;flex-shrink:0;outline:none}
-.bellBtn:hover{background:#f1f5f9!important;transform:scale(1.08)}
-.bellBtn svg{width:23px;height:23px;stroke:#0f172a;stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.bellBtn.ring svg{animation:bellRing .6s ease}
-@keyframes bellRing{0%{transform:rotate(0)}20%{transform:rotate(15deg)}40%{transform:rotate(-12deg)}60%{transform:rotate(8deg)}80%{transform:rotate(-4deg)}100%{transform:rotate(0)}}
-.bellBadge{position:absolute;top:-3px;right:-3px;min-width:20px;height:20px;padding:0 5px;border-radius:20px;background:#ef4444;color:#fff;font-size:11px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid #fff;line-height:1}
-.bellDot{display:none!important}
-/* PAPER - RIGHT SIDE, CLOSE TO BELL */
-.notifPaper{position:fixed;top:68px;right:auto;left:auto;width:260px;max-width:92vw;height:300px;max-height:300px;background:#fff;border:1px solid #e2e8f0;border-radius:0;box-shadow:0 24px 50px rgba(0,0,0,.22);z-index:200;overflow:hidden;transform:translateY(-18px) scale(.97);transform-origin:top left;opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.34,1.4,.64,1),opacity .28s ease;display:flex;flex-direction:column}
-.notifPaper.show{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
-.notifHead{padding:12px 14px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid #f1f5f9;background:#fff}
-.notifHead b{font-size:13px;font-weight:800;color:#0f172a}
-.notifHead span{font-size:11px;font-weight:700;color:#64748b}
-.notifList{flex:1;overflow-y:auto;padding:0;background:#fff;min-height:0}
-.notifItem{display:flex;gap:0;padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;text-align:left;width:100%;background:#fff;border:0}
-.notifItem:hover{background:#f8fafc}
-.notifItem b{font-size:13px;color:#0f172a;display:block;line-height:1.35;font-weight:700;text-transform:uppercase;word-break:break-word}
-.notifItem small{font-size:11.5px;color:#94a3b8;display:block;margin-top:4px;font-weight:500}
-.notifEmpty{padding:28px 14px;text-align:center;color:#64748b;font-size:12px;font-weight:600}
-.notifFooter{padding:8px;border-top:1px solid #e2e8f0;background:#fff;display:flex;justify-content:center;flex-shrink:0}
-.seeAllBtn{width:170px;height:34px;border:1px solid #e2e8f0;border-radius:0;background:#fff;color:#0f172a;font-weight:700;font-size:11.5px;cursor:pointer}
-.seeAllBtn:hover{background:#f8fafc}
-.content{flex:1;padding:20px 24px;max-width:100%}
-.head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px}
-.head h1{font-size:24px;font-weight:900;color:#0f172a}
-.head p{color:#64748b;font-size:12px;font-weight:600;margin-top:4px}
-.dateBar{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid #e2e8f0;padding:8px 12px;border-radius:12px;flex-wrap:wrap}
-.dateBar input{background:#f8fafc;border:1px solid #e2e8f0;padding:6px 10px;border-radius:8px;font-size:12px;outline:0}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start}
-.card{border-radius:16px;padding:18px;height:190px!important;min-height:190px;max-height:190px;text-decoration:none;color:#fff;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px #00000010;position:relative;overflow:hidden;transition:all .30s ease}
-.card:hover{transform:translateY(-5px) scale(1.01);box-shadow:0 16px 32px rgba(0,0,0,0.18)}
-.card .icon{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.20);display:grid;place-items:center;border:1px solid rgba(255,255,255,.30);position:relative;z-index:2}
-.card .icon svg{width:22px;height:22px;stroke:#fff;stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.card b{font-size:11px;margin-top:12px;display:block;font-weight:800;letter-spacing:.4px;text-transform:uppercase;position:relative;z-index:2;line-height:1.3}
-.card h2{font-size:24px;font-weight:900;margin:6px 0;position:relative;z-index:2}
-.card small{font-size:11px;opacity:.90;position:relative;z-index:2;font-weight:500}
-.cardWatermark{position:absolute;right:14px;bottom:12px;opacity:0.14;pointer-events:none;z-index:1;line-height:0;transition:.30s}
-.cardWatermark svg{width:70px;height:70px;fill:none;stroke:#fff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.card:hover .cardWatermark{opacity:0.24;transform:scale(1.08) translateY(-2px)}
-.whiteBar.folded ~ .mainWrap .grid{grid-template-columns:repeat(5,1fr);gap:12px}
-.whiteBar.folded ~ .mainWrap .card{height:185px!important;min-height:185px;max-height:185px}
-.c1{background:linear-gradient(135deg,#C850C0,#4158D0)} .c7{background:linear-gradient(135deg,#FF5E3A,#FF2A68)} .cClaim{background:linear-gradient(135deg,#2563EB,#1E40AF)} .cInpatient{background:linear-gradient(135deg,#F59E0B,#D97706)} .c9{background:linear-gradient(135deg,#38BDF8,#2563EB)} .c2{background:linear-gradient(135deg,#6366F1,#4F46E5)} .c8{background:linear-gradient(135deg,#22D3EE,#06B6D4)} .c4{background:linear-gradient(135deg,#7DD3FC,#A78BFA)} .c5{background:linear-gradient(135deg,#F9A8D4,#A78BFA)} .c6{background:linear-gradient(135deg,#FBBF24,#F97316)} .c10{background:linear-gradient(135deg,#E879F9,#A855F7)} .c11{background:linear-gradient(135deg,#F9A8D4,#F472B6)} .cKftEditor{background:linear-gradient(135deg,#10B981,#059669)}
-.btn{padding:10px 14px;border:0;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px}.btnP{background:#059669;color:#fff}.btnG{background:#e2e8f0;color:#0f172a}
-.modal{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:100}
-.modalBox{background:#fff;border-radius:16px;padding:22px;width:90%;max-width:420px}
-.opt{padding:12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:10px;cursor:pointer;background:#f8fafc}
+.top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20;width:100%;box-sizing:border-box}
+.logo{display:flex;align-items:center;gap:8px;font-weight:900;font-size:16px;color:#0f172a}
+.menuBtnTop{width:36px;height:32px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.menuBtnTop span{display:block;width:18px;height:2.5px;background:#475569;border-radius:2px}
+.badgeBlue{background:#e2e8f0;color:#334155;padding:5px 10px;border-radius:20px;font-weight:900;font-size:10px;border:1px solid #cbd5e1;white-space:nowrap}
+.content{flex:1;padding:12px;width:100%;max-width:100%;box-sizing:border-box;overflow-x:hidden!important;background-color:#f8fafc;position:relative}
+.card{background:#fff;border-radius:12px;padding:10px;margin-bottom:10px;border:1px solid #e2e8f0;width:100%;box-sizing:border-box;position:relative}
+.label{font-size:10px;font-weight:800;color:#64748b;margin-bottom:6px;text-transform:uppercase}
+.input{padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;font-weight:600;font-size:12px;background:#f8fafc;width:100%;outline:0;color:#0f172a;box-sizing:border-box}
+.searchBox{position:relative;width:100%}
+.searchResults{position:absolute;top:42px;left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;max-height:300px;overflow:auto;z-index:500;display:none;box-shadow:0 10px 30px rgba(0,0,0,0.15)}
+.searchResults.open{display:block}
+.sItem{padding:10px 12px;border-bottom:1px solid #f8fafc;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:.22s}
+.sItem:hover{background:#eef4ff}
+.sName{font-weight:800;font-size:11px;color:#0f172a;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.sMeta{font-size:9px;color:#64748b;font-weight:600}
+.controlsWrap{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;width:100%;box-sizing:border-box}
+.filterRow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:#fff;border:1.5px solid #e2e8f0;padding:8px;border-radius:12px;width:100%;box-sizing:border-box}
+.searchRow{display:flex;gap:6px;align-items:center;background:#fff;border:1.5px solid #e2e8f0;padding:8px;border-radius:12px;width:100%;box-sizing:border-box}
+.viewToggle{display:flex;background:#e2e8f0;border-radius:8px;padding:2px;border:1px solid #cbd5e1;flex-shrink:0}
+.vBtn{width:36px;height:32px;border-radius:6px;border:0;background:transparent;font-weight:700;font-size:16px;cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:.22s;color:#64748b}
+.vBtn:hover{transform:scale(1.1);background:#cbd5e1}
+.vBtn.active{background:#94a3b8;color:#fff}
+.patientGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;box-sizing:border-box;position:relative}
+.whiteBar.folded ~ .mainWrap .patientGrid{grid-template-columns:repeat(5,1fr)}
+.pCard{border-radius:12px;overflow:visible;background:#fff;border:1px solid #e2e8f0;width:100%;box-sizing:border-box;transition:all .32s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:2}
+.pCardTop{height:42px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;color:#334155;background:#dbe4ee;border-bottom:1px solid #cbd5e1;border-radius:12px 12px 0 0}
+.pCardAvatar{width:28px;height:28px;background:#fff;border:1px solid #cbd5e1;border-radius:6px;display:grid;place-items:center;font-weight:900;color:#334155;font-size:11px;flex-shrink:0;transition:.28s}
+.pCardBody{padding:10px;min-width:0}
+.pCardName{font-weight:800;font-size:12px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.claimBadge{background:#fff;color:#334155;padding:3px 8px;border-radius:20px;font-weight:800;font-size:9px;flex-shrink:0;max-width:38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid #cbd5e1}
+.pCardRow{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;gap:4px;min-width:0}
+.pCardRow span{color:#64748b;font-weight:600;font-size:9px;flex-shrink:0}
+.pCardRow b{color:#0f172a;font-weight:700;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;text-align:right}
+.pCardActions{display:flex;gap:6px;margin-top:8px}
+.btnEditText{flex:1;height:30px;border-radius:6px;border:0;background:#dbe4ee;font-weight:800;font-size:10px;cursor:pointer;color:#334155;transition:.22s}
+.btnEditText:hover{background:#c6d4e4;transform:scale(1.05)}
+.btnDelText{flex:1;height:30px;border-radius:6px;border:0;background:#e6d9d9;color:#5b4040;font-weight:800;font-size:10px;cursor:pointer;transition:.22s}
+.btnDelText:hover{background:#d9c2c2;transform:scale(1.05)}
+.tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;overflow:hidden;width:100%;box-sizing:border-box;position:relative}
+.tableScroll{overflow-x:auto;width:100%;display:block;position:relative;z-index:2}
+table{border-collapse:collapse;width:100%;min-width:640px;position:relative;z-index:2}
+th{position:sticky;top:0;background:#334155;color:#fff;padding:10px 6px;font-size:9px;text-align:center;z-index:2;font-weight:800;white-space:nowrap}
+td{border-bottom:1px solid #f1f5f9;padding:10px 6px;height:42px;font-size:10px;font-weight:600;text-align:center;text-transform:uppercase;background:#fff;color:#0f172a;white-space:nowrap;position:relative;transition:.28s}
+td.nameCol{text-align:left;padding-left:8px;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+#tbl th:nth-child(5),#tbl td:nth-child(5){width:auto!important;max-width:none!important;min-width:110px!important;padding-left:6px!important;padding-right:6px!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
+#tbl td:nth-child(5) span{padding:3px 8px!important;font-size:9px!important;max-width:none!important;overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important;display:inline-block}
+.pager,.pagerGrid{display:flex;align-items:center;justify-content:space-between;padding:10px;background:#f8fafc;border-top:1px solid #e2e8f0;flex-wrap:wrap;gap:6px;width:100%;box-sizing:border-box}
+.pagerGrid{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;margin-top:10px}
+.pBtn{padding:6px 10px;border-radius:6px;border:1.5px solid #cbd5e1;background:#e2e8f0;font-weight:700;cursor:pointer;font-size:11px;transition:.22s;color:#334155}
+.pBtn:hover{border-color:#94a3b8;color:#1e293b;background:#cbd5e1;transform:scale(1.08)}
+.pBtn:disabled{opacity:.4}
+.hidden{display:none!important}
+.inlineBar{display:none;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:0;margin-top:10px;overflow:hidden;width:100%;box-sizing:border-box}
+.inlineBar.show{display:block}
+.inlineBarHead{padding:10px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.inlineBarHead b{font-size:10px;font-weight:900;color:#0f172a;text-transform:uppercase;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inlineBarBody{padding:12px;width:100%;box-sizing:border-box}
+.formGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end;width:100%;box-sizing:border-box}
+.formGroup{display:flex;flex-direction:column;gap:4px;min-width:0}
+.formGroup label{font-size:8px;font-weight:800;color:#64748b;text-transform:uppercase}
+.fInput{height:36px;padding:0 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:11px;font-weight:600;background:#fff;color:#0f172a;outline:0;width:100%;box-sizing:border-box;min-width:0}
+.fInput.select{padding-right:28px;background-image: linear-gradient(45deg, transparent 50%, #64748b 50%), linear-gradient(135deg, #64748b 50%, transparent 50%);background-position: calc(100% - 14px) calc(50% - 2px), calc(100% - 9px) calc(50% - 2px);background-size: 5px 5px, 5px 5px;background-repeat: no-repeat;cursor:pointer}
+.fInput.patientBox{display:flex;align-items:center;background:#f8fafc;font-weight:800;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inlineActions{display:flex;gap:6px;margin-top:10px;justify-content:flex-end;border-top:1px solid #f1f5f9;padding-top:8px}
+.btnCancel{height:32px;padding:0 12px;border-radius:8px;border:1px solid #cbd5e1;background:#e4e1dc;color:#475569;font-weight:700;font-size:11px;cursor:pointer}
+.btnAdd{height:32px;padding:0 16px;border-radius:8px;border:0;background:#d3e0d8;color:#33473c;font-weight:800;font-size:11px;cursor:pointer;transition:.22s}
+.btnAdd:hover{background:#bccdbd;transform:scale(1.05)}
+.datePill{display:flex;align-items:center;background:#fff;border:1.5px solid #cbd5e1;border-radius:8px;overflow:visible;height:42px;min-width:0;flex:1 1 140px;max-width:100%}
+.dateArrow{width:32px;min-width:32px;height:100%;border:0;background:#e2e8f0;font-size:12px;font-weight:900;color:#475569;cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:.22s}
+.dateArrow:hover{background:#cbd5e1;color:#1e293b}
+.dateMiddle{flex:1 0 120px;height:100%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#0f172a;cursor:pointer;background:#fff;min-width:120px;padding:0 10px;white-space:nowrap;overflow:visible;letter-spacing:0.2px}
+#fDateFilter{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
+.fSelect{height:36px;padding:0 8px;border:1.5px solid #cbd5e1;border-radius:8px;font-weight:700;font-size:10px;background:#fff;color:#0f172a;outline:0;cursor:pointer;min-width:0;flex:1 1 80px;max-width:100%;box-sizing:border-box}
+.searchInputClaim{flex:1 1 auto;min-width:0;width:100%;padding:10px 10px;border-radius:8px;border:1.5px solid #cbd5e1;font-size:12px;outline:0;background:#f8fafc;box-sizing:border-box}
 #mobOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
 #mobOverlay.show{display:block}
-@media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}.whiteBar.folded ~ .mainWrap .grid{grid-template-columns:repeat(4,1fr)}}
+.tableWatermark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;max-width:70%;z-index:5!important;pointer-events:none!important;opacity:0.14!important}
+.tableWatermark img{width:100%;height:auto;display:block;filter:grayscale(0.1)}
+#tbl tbody tr{position:relative;transition:all .24s ease}
+#tbl tbody tr:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(37,99,235,0.15);z-index:30}
+#tbl tbody tr:hover td{background:#eef4ff!important}
+.pCard:hover{transform:translateY(-6px) scale(1.02)!important;box-shadow:0 18px 32px rgba(37,99,235,0.22)!important;border-color:#2563eb!important;background:#fff!important;z-index:20}
+.pCard:hover .pCardAvatar{transform:scale(1.1)}
+.hoverPop{position:absolute;bottom:100%;left:50%;transform:translate(-50%, 6px) scale(0.92);background:#ffffff;color:#334155;border:1px solid #cbd5e1;border-radius:12px;padding:10px 12px;min-width:180px;max-width:220px;box-shadow:0 12px 28px rgba(15,23,42,0.14);opacity:0;visibility:hidden;transition:all .24s cubic-bezier(.34,1.56,.64,1);z-index:50;pointer-events:none;text-align:left}
+.pCard:hover .hoverPop{opacity:1;visibility:visible;transform:translate(-50%, -8px) scale(1)}
+.hoverPop::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-top-color:#ffffff}
+.hoverPop .popRow{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid #e2e8f0;font-size:10px}
+.hoverPop .popRow:last-child{border-bottom:0}
+.hoverPop .popRow span:first-child{color:#64748b;font-weight:600}
+.hoverPop .popRow span:last-child{color:#334155;font-weight:700;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hoverPop .popTitle{font-size:11px;font-weight:900;color:#1e293b;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#editModal{display:none;position:fixed;inset:0;width:100vw;height:100vh;background:rgba(0,0,0,0.55)!important;z-index:999999;align-items:center;justify-content:center;padding:12px}
+#editModal.show{display:flex!important}
+.editCard{background:#ffffff!important;border-radius:12px!important;width:90vw!important;max-width:360px!important;overflow:hidden!important;box-shadow:0 16px 48px rgba(0,0,0,.22)!important;border:1.5px solid #e2e8f0!important}
+.editHead{padding:12px 14px;background:#ffffff!important;color:#0f172a!important;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e2e8f0}
+.editHead b{font-size:12px;font-weight:900;text-transform:uppercase;color:#0f172a}
+.editBody{padding:12px;display:flex;flex-direction:column;gap:10px;background:#ffffff!important}
+.editField{display:flex;flex-direction:column;gap:4px}
+.editField label{font-size:8px;font-weight:800;color:#64748b;text-transform:uppercase}
+.editField input,.editField select{height:36px;padding:0 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:11px;background:#ffffff!important;outline:0;color:#0f172a;width:100%}
+.editActions{display:flex;gap:8px;margin-top:6px}
+.btnCancelEdit{flex:1;height:36px;border-radius:8px;border:1.5px solid #cbd5e1;background:#e4e1dc!important;color:#475569;font-weight:800;font-size:11px;cursor:pointer}
+.btnSaveEdit{flex:1;height:36px;border-radius:8px;border:0;background:#334155;color:#fff;font-weight:900;font-size:11px;cursor:pointer}
 @media(max-width:900px){
-  .whiteBar{transform:translateX(-100%);width:310px!important}
+  html,body{overflow-x:hidden!important;max-width:100vw!important}
+  .whiteBar{transform:translateX(-100%);width:270px!important;min-width:270px!important}
   .whiteBar.mOpen{transform:translateX(0)}
-  .mainWrap{margin-left:0!important;width:100%!important}
-  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important}
-  .whiteBar.folded ~ .mainWrap .grid{grid-template-columns:repeat(2,1fr)}
-  .grid{grid-template-columns:repeat(2,1fr)}
-  .card{height:160px!important;min-height:160px;max-height:160px}
-  .content{padding:14px}
-  .topSearchArea{margin:0 8px}
-  .notifPaper{position:fixed;top:68px;right:auto;left:auto;width:260px;max-width:calc(100vw - 24px);height:300px;max-height:300px}
+  .whiteBar.folded{width:270px!important;min-width:270px!important;transform:translateX(-100%)}
+  .whiteBar.folded.mOpen{transform:translateX(0)}
+  .mainWrap{margin-left:0!important;width:100%!important;max-width:100%!important}
+  .whiteBar.folded ~ .mainWrap{margin-left:0!important;width:100%!important;max-width:100%!important}
+  .content{padding:8px!important;width:100%!important;max-width:100vw!important}
+  .patientGrid{grid-template-columns:repeat(2, minmax(0,1fr))!important;gap:6px!important}
+  .filterRow{gap:5px!important;padding:6px!important}
+  .searchRow{gap:5px!important;padding:6px!important}
+  .datePill{flex:1 1 100%!important;width:100%!important;min-width:0!important;min-height:44px!important;height:44px!important;max-width:100%!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;overflow:visible!important}
+  .dateMiddle{flex:1 1 auto!important;min-width:130px!important;width:auto!important;font-size:14px!important;font-weight:800!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:visible!important;white-space:nowrap!important;padding:0 12px!important}
+  .fSelect{flex:1 1 calc(50% - 5px)!important;max-width:calc(50% - 5px)!important;height:36px!important}
+  .filterRow button:last-child{flex:1 1 100%!important;height:36px!important}
+  table{min-width:500px!important}
+  .hoverPop{display:none!important;opacity:0!important;visibility:hidden!important}
 }
-@media(max-width:480px){.grid{grid-template-columns:1fr 1fr;gap:10px}.card{padding:14px;height:150px!important;min-height:150px}.card h2{font-size:20px}.cardWatermark svg{width:55px;height:55px}}
+@media(max-width:600px){ .patientGrid{grid-template-columns:repeat(2, minmax(0,1fr))!important} .formGrid{grid-template-columns:1fr!important} }
+@media(max-width:380px){ .patientGrid{grid-template-columns:1fr!important} .fSelect{flex:1 1 100%!important;max-width:100%!important} }
 </style>
 </head>
 <body>
 <div id="mobOverlay" onclick="closeMob()"></div>
-<script>
-if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}
-if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_time',Date.now().toString())}
-</script>
+<script>if(localStorage.getItem('shija_logged')!=='1'){location.href='login.html'}</script>
 <div class="whiteBar" id="whiteBar">
 <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
-<div class="sHead"><div class="sLogo"><img src="menu.png"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
+<div class="sHead"><div class="sLogo"><img src="logoc.png" onerror="this.style.display='none'"></div><div class="sTitle"><b>SHIJA</b><span>DIALYSIS CARE</span></div></div>
 <div class="sMenu">
-<a href="index.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
-<a href="notification.html"><span class="mi" style="position:relative"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span id="sideBellBadge" style="position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 4px;border-radius:20px;background:#ef4444;color:#fff;font-size:10px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid #0f172a">0</span></span><span class="ml">NOTIFICATION</span></a>
+<a href="index.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="ml">HOME</span></a>
 <a href="total.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">TOTAL PATIENT</span></a>
 <a href="cmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT TOTAL PATIENT</span></a>
-<a href="claim.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">CLAIM</span></a>
-<a href="inpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">IN-PATIENT CLAIM</span></a>
-<a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
-<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span class="ml">OFFICE ASSISTANT LIST</span></a>
+<a href="claim.html" class="active"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="ml">CLAIM</span></a>
+<a href="searchpatient.html"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/></svg></span><span class="ml">SEARCH PATIENT</span></a>
+<a href="gda.html"><span class="mi"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg></span><span class="ml">OFFICE ASSISTANT</span></a>
 <a href="cmhtkft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span class="ml">CMHT KFT REPORT</span></a>
-<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
-<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
-<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="ml">PMJAY DAILY DIALYSIS</span></a>
-<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
+<a href="list.html?scheme=CMHT&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">CMHT DAILY DIALYSIS</span></a>
+<a href="addcmht.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">CMHT ADD PATIENT</span></a>
+<a href="list.html?scheme=PMJAY&force=1"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></span><span class="ml">DAILY DIALYSIS LIST</span></a>
 <a href="discharge.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="ml">DISCHARGE PATIENT</span></a>
 <a href="kft.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">KFT REPORT</span></a>
-<a href="kftmaker.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span><span class="ml">KFT EDITOR</span></a>
-<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span><span class="ml">ADD PATIENT</span></a>
+<a href="add.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="ml">ADD PATIENT</span></a>
 <a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="ml">BILL</span></a>
-<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
+<a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
 </div>
 </div>
-<div class="sFoot">System Online • SHIJA Hospital</div>
+<div class="sFoot">System Online • SHIJA</div>
 </div>
-<div class="mainWrap">
+<div class="mainWrap" id="mainWrap">
 <div class="top">
-<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> SHIJA Dialysis</div>
-<div class="topSearchArea">
-<div class="searchWrap"><form autocomplete="off" onsubmit="return false" style="margin:0;padding:0;width:100%"><div class="search"><input id="globalSearch" name="shija_home_q_9271" type="search" placeholder="Search patients - PMJAY / CMHT..." autocomplete="new-password" data-lpignore="true" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')"></div></form><div class="searchResult" id="searchResult"></div></div>
-<div class="bellWrap" id="bellWrap">
-<button type="button" class="bellBtn" id="bellBtn" title="Notification">
-  <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-  <span class="bellBadge" id="bellCount">0</span>
-  <span class="bellDot" id="bellDot"></span>
-</button>
+<div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> CLAIM <div class="badgeBlue" id="countBadge">0 CLAIMED</div></div>
+</div>
+<div class="content">
+<div class="card" style="background:#eff6ff;border:1px solid #bfdbfe">
+<div class="label" style="color:#0f172a">ADD CLAIM PATIENT - SEARCH FIREBASE + Patient.js (LIVE)</div>
+<div class="searchBox"><input type="search" id="searchTotal" autocomplete="off" class="input" placeholder="TYPE PATIENT NAME..." style="border:1.5px solid #0f172a;padding:12px;background:#fff"><div class="searchResults" id="searchResults"></div></div>
+<div class="inlineBar" id="inlineBar">
+<div class="inlineBarHead"><b id="selPatientHead">Add Claim</b><span>Select options</span></div>
+<div class="inlineBarBody">
+<div class="formGrid">
+<div class="formGroup"><label>Patient</label><div class="fInput patientBox" id="selPatientLabel">-</div></div>
+<div class="formGroup"><label>Claim ID</label><input id="inlineClaimId" type="text" autocomplete="off" class="fInput" placeholder="Enter Claim ID"></div>
+<div class="formGroup"><label>Date</label><input id="inlineDate" class="fInput select" type="date"></div>
+<div class="formGroup"><label>Time Slot</label><select id="inlineTime" class="fInput select"><option value="">Select Time</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
+<div class="formGroup"><label>Block</label><select id="inlineBlock" class="fInput select"><option value="">Select Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
+<div class="formGroup"><label style="opacity:0">Action</label><button type="button" class="btnAdd" onclick="finalAddClaim()" style="width:100%;height:36px">Add to Claim</button></div>
+</div>
+<div class="inlineActions"><button type="button" class="btnCancel" onclick="closeInlineBar()">Cancel</button></div>
 </div>
 </div>
-<div id="adminMenuWrap" style="position:relative"><button id="adminBtn" style="height:38px;padding:0 14px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:12px;cursor:pointer">Admin ▾</button><div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px"><button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button><button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button></div></div>
 </div>
-<div class="notifPaper" id="notifPaper">
-  <div class="notifHead"><b id="notifPaperTitle">0 unread notifications</b><span id="notifPaperCount"></span></div>
-  <div class="notifList" id="notifList"><div class="notifEmpty">Loading...</div></div>
-  <div class="notifFooter"><button class="seeAllBtn" onclick="location.href='notification.html'">See all notifications</button></div>
+<div class="controlsWrap">
+  <div class="filterRow">
+    <div class="datePill">
+      <button type="button" class="dateArrow" id="fDatePrev">◀</button>
+      <div class="dateMiddle" id="fDateDisplay">LOADING...</div>
+      <input type="date" id="fDateFilter">
+      <button type="button" class="dateArrow" id="fDateNext">▶</button>
+    </div>
+    <select id="fTime" class="fSelect"><option value="">ALL TIME</option><option value="7:00 AM">7 AM</option><option value="12:00 PM">12 PM</option><option value="5:00 PM">5 PM</option><option value="9:00 PM">9 PM</option><option value="12:00 AM">12 AM</option><option value="2:00 AM">2 AM</option></select>
+    <select id="fBlock" class="fSelect"><option value="">ALL BLOCK</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select>
+    <select id="pageSize" class="fSelect" onchange="changePageSize()"><option value="12" selected>12 / page</option><option value="24">24 / page</option><option value="48">48 / page</option></select>
+    <button type="button" onclick="clearFilters()" style="height:36px;padding:0 14px;border-radius:8px;border:0;background:#dddbe6;color:#475569;font-weight:800;font-size:10px;cursor:pointer;flex-shrink:0">CLEAR</button>
+  </div>
+  <div class="searchRow">
+    <input id="fSearch" class="searchInputClaim" type="search" autocomplete="off" placeholder="Search claimed patients only...">
+    <div class="viewToggle">
+      <button type="button" class="vBtn" id="gridBtn" onclick="setView('grid')">⊞</button>
+      <button type="button" class="vBtn active" id="tableBtn" onclick="setView('table')">☰</button>
+    </div>
+  </div>
 </div>
-<div class="main"><div class="content">
-<div class="head"><div><h1>Dashboard Overview</h1><p>Welcome back • Premium Minimal</p></div><div class="dateBar"><input type="date" id="dashDate"><button class="btn btnP" onclick="document.getElementById('expModal').style.display='grid'">Export Report</button></div></div>
-<div class="grid">
-<a href="total.html" class="card c1"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><b>PMJAY Total Patient</b><h2 id="v1">0</h2><small>All time PMJAY</small></div></a>
-<a href="cmht.html" class="card c7"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><circle cx="19" cy="8" r="3"/><path d="M20 21v-1.5a3 3 0 0 0-3-3"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><b>CMHT Total Patient</b><h2 id="vCMHT">0</h2><small>CMHT Scheme</small></div></a>
-<a href="claim.html" class="card cClaim"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><b>CLAIM</b><h2 style="font-size:26px;margin:6px 0">Open</h2><small>PMJAY & CMHT Claim</small></div></a>
-<a href="inpatient.html" class="card cInpatient"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><b>IN-PATIENT CLAIM</b><h2 style="font-size:26px;margin:6px 0">Open</h2><small>In-Patient Claim</small></div></a>
-<a href="cmhtkft.html" class="card c9"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 10a5 5 0 0 0 5 5H9a5 5 0 0 0 5-5"/><path d="M8 21h8"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><b>CMHT KFT Report</b><h2 id="vCKFT">0 Received</h2><small>16th to 30th</small></div></a>
-<a href="add.html" class="card c2"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div><b>ADD PMJAY PATIENT</b><h2 style="font-size:20px;font-weight:900;margin:6px 0">Add</h2><small>Create PMJAY record</small></div></a>
-<a href="addcmht.html" class="card c8"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><circle cx="19" cy="9" r="3"/><path d="M19 7v4M17 9h4"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div><b>ADD CMHT PATIENT</b><h2 style="font-size:20px;font-weight:900;margin:6px 0">Add</h2><small>Add CMHT record</small></div></a>
-<a href="kft.html" class="card c4"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M10 2v8l-2 8h8l-2-8V2"/><path d="M8 2h8"/></svg></div><b>PMJAY KFT REPORT</b><h2 id="v4">0 Submitted</h2><small>16th to 30th</small></div></a>
-<a href="bill.html" class="card c5"><div class="cardWatermark"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div><b>Bill</b><h2 id="v5">0 Print</h2><small>No prints</small></div></a>
-<a href="discharge.html" class="card c6"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div><b>Discharge</b><h2 id="v6">0</h2><small>For selected date</small></div></a>
-<a href="dischargesummary.html" class="card c10"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><b>DISCHARGE SUMMARY</b><h2 style="font-size:26px;font-weight:900;margin:6px 0">Open</h2><small>Create discharge summary</small></div></a>
-<a href="list.html" class="card c11"><div class="cardWatermark"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><b>DAILY DIALYSIS LIST</b><h2 style="font-size:26px;font-weight:900;margin:6px 0">Open</h2><small>Daily Dialysis List - PMJAY & CMHT</small></div></a>
-<a href="kftmaker.html" class="card cKftEditor"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><b>KFT EDITOR</b><h2 style="font-size:26px;font-weight:900;margin:6px 0">Open</h2><small>Create & edit KFT report</small></div></a>
-<a href="notification.html" class="card" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><b>NOTIFICATION</b><h2 style="font-size:26px;font-weight:900;margin:6px 0"><span id="dashPending">0</span> Pending</h2><small>Approve PMJAY / CMHT requests</small></div></a>
-<a href="setting.html" class="card" style="background:linear-gradient(135deg,#64748b,#334155)"><div class="cardWatermark"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div><div class="icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><b>SETTING</b><h2 style="font-size:26px;font-weight:900;margin:6px 0">Open</h2><small>Maintenance Mode</small></div></a>
+<div class="patientGrid hidden" id="patientGrid"></div>
+<div class="pagerGrid hidden" id="pagerGrid"><div style="display:flex;gap:6px"><button type="button" class="pBtn" id="prevBtnGrid" onclick="changePage(-1)">←</button><button type="button" class="pBtn" id="nextBtnGrid" onclick="changePage(1)">→</button></div><div id="pageInfoGrid" style="font-weight:700;font-size:11px"></div><div id="pageNumsGrid" style="display:flex;gap:4px;flex-wrap:wrap"></div></div>
+<div class="tableWrap" id="tableWrap"><div class="tableWatermark"><img src="logoc.png"></div><div class="tableScroll"><table id="tbl"><thead><tr><th>SL</th><th>PATIENT NAME</th><th>SHRI ID</th><th>PMJAY ID</th><th>CLAIM ID</th><th>TIME</th><th>BLOCK</th><th>DATE</th><th>ACTION</th></tr></thead><tbody id="tbody"></tbody></table></div><div class="pager"><div style="display:flex;gap:6px"><button type="button" class="pBtn" id="prevBtn" onclick="changePage(-1)">←</button><button type="button" class="pBtn" id="nextBtn" onclick="changePage(1)">→</button></div><div id="pageInfo" style="font-weight:700;font-size:11px"></div><div id="pageNums" style="display:flex;gap:4px;flex-wrap:wrap"></div></div></div>
+</div>
+<div style="text-align:center;padding:10px;font-size:10px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis</div>
+</div>
+<div id="editModal">
+<div class="editCard">
+<div class="editHead"><b id="editModalTitle">EDIT CLAIM</b><button onclick="closeEditModal()" style="background:#e4e1dc;border:1px solid #cbd5e1;border-radius:6px;color:#475569;font-weight:900;font-size:12px;cursor:pointer;padding:4px 8px">✕</button></div>
+<div class="editBody">
+<div class="editField"><label>Patient</label><div id="editPatientName" style="height:36px;display:flex;align-items:center;padding:0 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-weight:800;font-size:11px;color:#0f172a">-</div></div>
+<div class="editField"><label>Claim ID</label><input id="editClaimId" type="text" placeholder="Enter Claim ID"></div>
+<div class="editField"><label>Date</label><input id="editDate" type="date"></div>
+<div class="editField"><label>Time Slot</label><select id="editTime"><option value="">Select Time</option><option value="7:00 AM">7:00 AM</option><option value="12:00 PM">12:00 PM</option><option value="5:00 PM">5:00 PM</option><option value="9:00 PM">9:00 PM</option><option value="12:00 AM">12:00 AM</option><option value="2:00 AM">2:00 AM</option></select></div>
+<div class="editField"><label>Block</label><select id="editBlock"><option value="">Select Block</option><option value="MAIN">MAIN</option><option value="ITOCHA">ITOCHA</option></select></div>
+<div class="editActions"><button class="btnCancelEdit" onclick="closeEditModal()">Cancel</button><button class="btnSaveEdit" onclick="saveEditClaim()">SAVE</button></div>
 </div>
 </div>
-<div style="text-align:center;padding:12px;font-size:11px;color:#64748b;background:#fff;border-top:1px solid #e2e8f0">SHIJA Dialysis • Premium Minimal</div>
 </div>
-</div>
-<div class="modal" id="expModal"><div class="modalBox"><h3>Export Report</h3><div class="opt" onclick="exportExcel('total')"><b>PMJAY Total Patient Record</b></div><div class="opt" onclick="exportExcel('cmht_total')"><b>CMHT Total Patient Record</b></div><div class="opt" onclick="exportExcel('kft')"><b>PMJAY KFT REPORT Record</b></div><div class="opt" onclick="exportExcel('cmhtkft')"><b>CMHT KFT REPORT Record</b></div><div class="opt" onclick="exportExcel('daily')"><b>PMJAY DAILY DIALYSIS LIST Record</b></div><div class="opt" onclick="exportExcel('cmhtdaily')"><b>CMHT Daily Dialysis Record</b></div><button class="btn btnG" style="width:100%;margin-top:10px" onclick="document.getElementById('expModal').style.display='none'">Cancel</button></div></div>
-<div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)"><div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0"><div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div><div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter admin password</div><input type="password" id="adminPassInput" placeholder="Password" autocomplete="new-password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none"><div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div><div style="display:flex;gap:8px"><button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:12px;cursor:pointer">Cancel</button><button id="confirmLogoutAll" style="flex:1;height:38px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer">Logout All</button></div></div></div>
-<script>
-window.allForSearch=[];window.notifList=[];window.notifUnread=0;
-function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{document.getElementById('whiteBar').classList.toggle('folded');}}
-function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
-function toggleNotifPaper(e){if(e)e.stopPropagation();var p=document.getElementById('notifPaper');if(!p)return;var bell=document.getElementById('bellBtn');if(bell){var r=bell.getBoundingClientRect();var w=p.offsetWidth||260;var left=r.right-40;if(left<8)left=8;if(left+w>window.innerWidth-8)left=window.innerWidth-w-8;p.style.left=left+'px';p.style.top=(r.bottom+4)+'px';}p.classList.toggle('show');if(p.classList.contains('show'))renderNotifPaper();}
-function closeNotifPaper(){var p=document.getElementById('notifPaper');if(p)p.classList.remove('show');}
-function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function fmtNotifDate(ts){var t=null;if(!ts)return'';if(typeof ts==='number')t=new Date(ts);else if(ts.seconds)t=new Date(ts.seconds*1000);else if(ts.toDate)t=ts.toDate();else t=new Date(ts);if(!t||isNaN(t))return'';var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var h=t.getHours(),ap=h>=12?'PM':'AM';h=h%12;if(h===0)h=12;return months[t.getMonth()]+' '+t.getDate()+', '+t.getFullYear()+' at '+h+':'+String(t.getMinutes()).padStart(2,'0')+' '+ap;}
-function renderNotifPaper(){
-  var list=document.getElementById('notifList');var title=document.getElementById('notifPaperTitle');if(!list)return;
-  var all=window.notifList||[];var items=all.slice(0,5);
-  if(title)title.textContent=(window.notifUnread||0)+' unread notifications';
-  if(!items.length){list.innerHTML='<div class="notifEmpty">🔔 No notifications</div>';return;}
-  list.innerHTML=items.map(function(n){
-    var name=escHtml(n.patientName||n.name||n.title||'');
-    var msg=n.message||n.text||'';
-    var text='';
-    if(msg){ text=escHtml(msg); }
-    else if(name){ text=name+' added as a patient'; }
-    else{ text='New notification'; }
-    return '<button type="button" class="notifItem" onclick="location.href=\'notification.html\'"><span style="flex:1;min-width:0"><b>'+text+'</b><small>'+fmtNotifDate(n.createdAt||n.timestamp||n.time||n.date)+'</small></span></button>';
-  }).join('');
-}
-function doGlobalSearch(){let el=document.getElementById('globalSearch');let q=(el.value||'').toLowerCase().trim();if(q.includes('admin')){el.value='';q='';document.getElementById('searchResult').classList.remove('show');return;}let box=document.getElementById('searchResult');if(!q){box.classList.remove('show');return;}let f=window.allForSearch.filter(p=>[p.name,p.shri,p.pmjay,p.contact,p.aadhaar,p.addr,p.scheme].join(' ').toLowerCase().includes(q)).slice(0,20);if(!f.length){box.innerHTML='<div class="sItem"><b>No patient</b></div>';box.classList.add('show');return;}let h='';f.forEach(p=>{let badge=p.scheme==='CMHT'?'<span class="badgeCMHT">CMHT</span>':'<span class="badgePMJAY">PMJAY</span>';h+=`<div class="sItem" onclick="location.href='searchpatient.html?shri=${encodeURIComponent(p.shri)}'"><div><b>${p.name}</b> <small>${p.shri}</small> ${badge}</div></div>`;});box.innerHTML=h;box.classList.add('show');}
-document.addEventListener('DOMContentLoaded',function(){document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});var bell=document.getElementById('bellBtn');if(bell)bell.addEventListener('click',toggleNotifPaper);document.addEventListener('click',function(e){if(!e.target.closest('#bellWrap') && !e.target.closest('#notifPaper'))closeNotifPaper();if(!e.target.closest('.searchWrap') && !e.target.closest('#adminMenuWrap')){document.getElementById('searchResult').classList.remove('show');}});let gs=document.getElementById('globalSearch');if(gs){gs.value='';gs.addEventListener('focus',function(){if(this.value.toLowerCase().includes('admin')) this.value='';});gs.addEventListener('input',doGlobalSearch);}const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');adminBtn.addEventListener('click',(e)=>{e.stopPropagation();adminDropdown.style.display=adminDropdown.style.display==='none'||adminDropdown.style.display===''?'block':'none';});document.addEventListener('click',(e)=>{if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none';});document.getElementById('btnLogout').addEventListener('click',()=>{if(confirm('Logout from this device?')){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');location.href='login.html';}});document.getElementById('btnLogoutAll').addEventListener('click',()=>{adminDropdown.style.display='none';document.getElementById('logoutAllModal').style.display='flex';document.getElementById('adminPassInput').value='';document.getElementById('passError').style.display='none';});document.getElementById('cancelLogoutAll').addEventListener('click',()=>{document.getElementById('logoutAllModal').style.display='none';});document.getElementById('logoutAllModal').addEventListener('click',(e)=>{if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none';});});
-</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const config={apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
-const app=initializeApp(config);const db=getFirestore(app);
-let todayStr=new Date().toISOString().slice(0,10);let dd=document.getElementById('dashDate');if(dd){dd.value=todayStr;dd.addEventListener('change',loadDashboard);}
-async function loadDashboard(){try{let snap=await getDocs(collection(db,"patients"));document.getElementById('v1').textContent=snap.size;window.allForSearch=[];snap.forEach(d=>{let p=d.data();window.allForSearch.push({name:p.patientName||p.name||'',shri:p.shriId||p.shri||d.id,pmjay:p.pmjayId||p.pmjay||'',contact:p.contactNo||'',aadhaar:p.aadhaar||'',addr:p.address||'',scheme:'PMJAY'});});let csnap=await getDocs(collection(db,"cmht_patients"));document.getElementById('vCMHT').textContent=csnap.size;csnap.forEach(d=>{let p=d.data();window.allForSearch.push({name:p.patientName||p.name||'',shri:p.shriId||p.shri||d.id,pmjay:p.cmhtId||p.cmht||'',contact:p.contactNo||'',aadhaar:p.aadhaar||'',addr:p.address||'',scheme:'CMHT'});});window.allForSearch.sort((a,b)=>a.name.localeCompare(b.name));}catch(e){}}
-loadDashboard();
-window.exportExcel=async(type)=>{let sel=document.getElementById('dashDate').value;let wb=XLSX.utils.book_new();let ws=XLSX.utils.json_to_sheet([{Date:sel}]);XLSX.utils.book_append_sheet(wb,ws,"Export");XLSX.writeFile(wb,`${type}_${sel}.xlsx`);document.getElementById('expModal').style.display='none';};
-const ADMIN_PASSWORD="jack8189";
-const adminApp2=initializeApp(config,"admin_idx_"+Math.random());
-const adminDb=getFirestore(adminApp2);
-document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{let pass=document.getElementById('adminPassInput').value.trim();if(pass!==ADMIN_PASSWORD){document.getElementById('passError').style.display='block';return;}document.getElementById('passError').style.display='none';let btn=document.getElementById('confirmLogoutAll');btn.innerText='...';btn.disabled=true;try{await setDoc(doc(adminDb,"system","global_logout"),{logoutTime:Date.now(),timestamp:serverTimestamp(),triggeredBy:'admin'},{merge:true});alert('All devices logged out!');localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');location.href='login.html';}catch(err){alert(err.message);btn.innerText='Logout All';btn.disabled=false;}});
-document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{if(e.key==='Enter') document.getElementById('confirmLogoutAll').click();});
-try{onSnapshot(doc(db,"system","global_logout"),(snap)=>{if(!snap.exists()) return;let lt=snap.data().logoutTime||0;let my=parseInt(localStorage.getItem('shija_login_time')||'0');if(lt>my&&my!==0){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');alert('🔒 Logged out by admin');location.href='login.html?reason=global';}});}catch(e){}
-let lastPending=-1;
-function applyNotifSnapshot(snap, isPending){
-  let arr=[]; snap.forEach(d=>{let data=d.data(); if(isPending && (data.status||'pending')!=='pending') return; arr.push({id:d.id,...data});});
-  arr.sort((a,b)=>{let ta=a.createdAt?.seconds||a.createdAt||0, tb=b.createdAt?.seconds||b.createdAt||0; if(typeof ta==='object')ta=ta.seconds||0; if(typeof tb==='object')tb=tb.seconds||0; return tb-ta;});
-  return arr;
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {apiKey:"AIzaSyB8Eu2ScZyR62gfkGXKs1sMp3ZudLtGdFE",authDomain:"discharge-b9528.firebaseapp.com",projectId:"discharge-b9528",storageBucket:"discharge-b9528.firebasestorage.app",messagingSenderId:"1076050472607",appId:"1:1076050472607:web:736e0688a41462460efcaa"};
+const app=initializeApp(firebaseConfig,"claim_white_small_"+Math.random());
+const db=getFirestore(app);
+window._fb={db,collection,getDocs,doc,setDoc,deleteDoc};
+</script>
+<script>
+let allClaimed=[],filtered=[],masterPatients=[],currentPage=1,pageSize=12,urlClaimId='',selectedTotalPatient=null,currentView='table',filterDateValue='',editingId=null;
+function toggleWhiteBar(){ let bar=document.getElementById('whiteBar'); if(window.innerWidth<=900){ bar.classList.toggle('mOpen'); document.getElementById('mobOverlay').classList.toggle('show'); }else{ bar.classList.toggle('folded'); let wrap=document.getElementById('mainWrap'); if(bar.classList.contains('folded')){ wrap.style.marginLeft='72px'; wrap.style.width='calc(100% - 72px)'; wrap.style.maxWidth='calc(100% - 72px)'; }else{ wrap.style.marginLeft='270px'; wrap.style.width='calc(100% - 270px)'; wrap.style.maxWidth='calc(100% - 270px)'; } } }
+function closeMob(){ document.getElementById('whiteBar').classList.remove('mOpen'); document.getElementById('mobOverlay').classList.remove('show'); }
+function todayISO(){ let d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});
+  document.getElementById('fDatePrev').addEventListener('click',()=>shiftFilterDate(-1));
+  document.getElementById('fDateNext').addEventListener('click',()=>shiftFilterDate(1));
+  document.getElementById('fDateDisplay').addEventListener('click',()=>{ let i=document.getElementById('fDateFilter'); if(i.showPicker) i.showPicker(); else i.click(); });
+  document.getElementById('fDateFilter').addEventListener('change',()=>{ filterDateValue=document.getElementById('fDateFilter').value; updateFilterDateDisplay(); applyFilter(); });
+  document.getElementById('fTime').addEventListener('change',applyFilter);
+  document.getElementById('fBlock').addEventListener('change',applyFilter);
+  filterDateValue=todayISO();
+  document.getElementById('fDateFilter').value=filterDateValue;
+  updateFilterDateDisplay();
+  document.getElementById('editModal').addEventListener('click',e=>{ if(e.target.id==='editModal') closeEditModal(); });
+});
+function formatDisplay(iso){ if(!iso || iso=="0" || iso=="0-0-0") { let d=todayISO(); let p=d.split("-"); return `${p[2]}-${p[1]}-${p[0]}`; } let p=iso.split('-'); if(p.length!==3) return iso; return `${p[2]}-${p[1]}-${p[0]}`; }
+function updateFilterDateDisplay(){ if(!filterDateValue || filterDateValue=="0") filterDateValue=todayISO(); document.getElementById('fDateDisplay').innerText=formatDisplay(filterDateValue); }
+function shiftFilterDate(delta){ if(!filterDateValue || filterDateValue=="0") filterDateValue=todayISO(); let dt=new Date(filterDateValue); dt.setDate(dt.getDate()+delta); filterDateValue=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`; document.getElementById('fDateFilter').value=filterDateValue; updateFilterDateDisplay(); applyFilter(); }
+function clearFilters(){ filterDateValue=todayISO(); document.getElementById('fDateFilter').value=filterDateValue; document.getElementById('fTime').value=''; document.getElementById('fBlock').value=''; document.getElementById('fSearch').value=''; updateFilterDateDisplay(); applyFilter(); }
+function getClaimIdFromURL(){ return new URLSearchParams(location.search).get('claimId')||''; }
+window.setView=(v)=>{ currentView=v; document.getElementById('gridBtn').classList.toggle('active',v==='grid'); document.getElementById('tableBtn').classList.toggle('active',v==='table'); document.getElementById('patientGrid').classList.toggle('hidden',v!=='grid'); document.getElementById('pagerGrid').classList.toggle('hidden',v!=='grid'); document.getElementById('tableWrap').classList.toggle('hidden',v!=='table'); renderAll(); };
+window.changePageSize=()=>{pageSize=parseInt(document.getElementById('pageSize').value);currentPage=1;renderAll();};
+async function loadMaster(){
+  masterPatients=[];
+  let map={};
+  function add(raw){ let shri=String(raw.shri||raw.shriId||'').trim().toUpperCase(); let name=String(raw.name||raw.patientName||'').trim().toUpperCase(); let pmjay=String(raw.pmjay||raw.pmjayId||'').trim().toUpperCase(); if(!shri) return; if(!map[shri]) map[shri]={shri,name,pmjayId:pmjay}; }
+  try{ if(typeof patientData!=='undefined' && Array.isArray(patientData)){ patientData.forEach(add); } }catch(e){}
+  try{ const snap=await window._fb.getDocs(window._fb.collection(window._fb.db,"patients")); snap.forEach(d=>{ let data=d.data(); if(data.deleted) return; add({shri:data.shri||data.shriId||d.id, name:data.name||data.patientName||'', pmjay:data.pmjay||data.pmjayId||''}); }); }catch(e){}
+  Object.values(map).forEach(v=>masterPatients.push(v));
+  masterPatients.sort((a,b)=>a.name.localeCompare(b.name));
 }
-try{
-  onSnapshot(collection(db,"notifications"),(snap)=>{
-    let arr=applyNotifSnapshot(snap,false);
-    window.notifList=arr;
-    window.notifUnread=arr.filter(d=>d.read!==true && d.isRead!==true && (d.status||'unread')!=='read').length;
-    if(document.getElementById('notifPaper')?.classList.contains('show'))renderNotifPaper();
-    let dash=document.getElementById('dashPending'); if(dash) dash.textContent=window.notifUnread;
+async function loadAll(){ 
+ try{ 
+  let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'discharges')); 
+  allClaimed=[]; 
+  snap.forEach(d=>{ let o=d.data(); o._id=d.id; if(o.claimId && String(o.claimId).trim()!==''){ allClaimed.push(o); }});
+  let snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,'claims')).catch(()=>null);
+  if(snap2){ snap2.forEach(d=>{ let o=d.data(); o._id=d.id; if(o.claimId && String(o.claimId).trim()!==''){ if(!allClaimed.find(x=>x._id===d.id)) allClaimed.push(o); }}); }
+  allClaimed.sort((a,b)=> new Date(b.claimedAt||b.claimDate||0)-new Date(a.claimedAt||a.claimDate||0)); 
+ }catch(e){} applyFilter(); 
+}
+function normalizeTime(t){ if(!t) return ''; let s=String(t).toUpperCase().trim().replace(/\s+/g,' ').replace(/\./g,''); let m=s.match(/(\d{1,2})(?::(\d{1,2}))?\s*([AP]M)?/); if(!m) return s; let h=parseInt(m[1]); let mm=m[2]?m[2].padStart(2,'0'):'00'; let ap=m[3]||''; if(!ap){ if(s.includes('AM')) ap='AM'; else if(s.includes('PM')) ap='PM'; } if(ap) return `${h}:${mm} ${ap}`; return `${h}:${mm}`; }
+function applyFilter(){
+  let search=document.getElementById('fSearch').value.toLowerCase().trim();
+  let timeFilter=document.getElementById('fTime').value;
+  let blockFilter=document.getElementById('fBlock').value;
+  let timeNorm=normalizeTime(timeFilter);
+  filtered=allClaimed.filter(p=>{
+    if(urlClaimId && (p.claimId||'').toUpperCase()!==urlClaimId.toUpperCase()) return false;
+    if(search){ let s=`${p.patientName||p.name||''} ${p.shriId||p.shri||''} ${p.pmjayCmhtId||p.pmjayId||''} ${p.claimId||''}`.toLowerCase(); if(!s.includes(search)) return false; }
+    if(filterDateValue){ let d=String(p.date||p.claimDate||'').slice(0,10); if(d!==filterDateValue) return false; }
+    if(timeFilter){ if(normalizeTime(p.time||'')!==timeNorm) return false; }
+    if(blockFilter){ if((p.block||'').toUpperCase()!==blockFilter.toUpperCase()) return false; }
+    return true;
   });
-}catch(e){}
-try{
-  onSnapshot(collection(db,"pending_patients"),(snap)=>{
-    let pending=0; snap.forEach(d=>{ if((d.data().status||'pending')==='pending') pending++; });
-    let bell=document.getElementById('bellCount'); let dot=document.getElementById('bellDot'); let side=document.getElementById('sideBellBadge'); let btn=document.getElementById('bellBtn');
-    if(!(window.notifList||[]).length && pending>0){
-      let arr=[]; snap.forEach(d=>{let data=d.data(); if((data.status||'pending')==='pending') arr.push({id:d.id,patientName:data.patientName||data.name,message:(data.patientName||data.name||'')+' added as a patient',createdAt:data.createdAt||data.timestamp});});
-      window.notifList=arr; window.notifUnread=pending;
-      if(document.getElementById('notifPaper')?.classList.contains('show'))renderNotifPaper();
-    }
-    if(bell){ bell.textContent = pending>99 ? '99+' : pending; bell.style.display = pending>0 ? 'flex':'none'; }
-    if(dot){ dot.style.display = pending>0 ? 'block':'none'; }
-    if(side){ side.textContent = pending>99 ? '99+' : pending; side.style.display = pending>0 ? 'flex':'none'; }
-    if(btn && pending>lastPending && lastPending!==-1 && pending>0){ btn.classList.remove('ring'); void btn.offsetWidth; btn.classList.add('ring'); }
-    lastPending=pending;
+  currentPage=1; renderAll();
+}
+function getInitial(name){ return (name||'P').trim().charAt(0).toUpperCase(); }
+function renderAll(){
+  let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize)); if(currentPage>totalPages) currentPage=totalPages;
+  let start=(currentPage-1)*pageSize; let data=filtered.slice(start,start+pageSize);
+  document.getElementById('countBadge').innerText=`${filtered.length} / ${allClaimed.length} CLAIMED`;
+  let gridHtml='';
+  data.forEach((p)=>{
+    let pmjay=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';
+    gridHtml+=`<div class="pCard">
+      <div class="hoverPop"><div class="popTitle">${p.patientName||p.name||'No Name'}</div><div class="popRow"><span>SHRI ID:</span><span>${p.shriId||p.shri||'-'}</span></div><div class="popRow"><span>PMJAY ID:</span><span>${pmjay||'-'}</span></div><div class="popRow"><span>Claim ID:</span><span>${p.claimId||'-'}</span></div><div class="popRow"><span>Time:</span><span>${p.time||'-'}</span></div><div class="popRow"><span>Block:</span><span>${p.block||'-'}</span></div><div class="popRow"><span>Date:</span><span>${p.date||p.claimDate||'-'}</span></div></div>
+      <div class="pCardTop"><div class="pCardAvatar">${getInitial(p.patientName||p.name)}</div><span class="claimBadge">${p.claimId||'-'}</span></div><div class="pCardBody"><div class="pCardName">${p.patientName||p.name||''}</div><div class="pCardRow"><span>SHRI</span><b>${p.shriId||p.shri||'-'}</b></div><div class="pCardRow"><span>PMJAY</span><b>${pmjay||'-'}</b></div><div class="pCardRow"><span>DATE</span><b>${p.date||p.claimDate||'-'}</b></div><div class="pCardRow"><span>TIME • BLOCK</span><b>${p.time||'-'} • ${p.block||'-'}</b></div><div class="pCardActions"><button type="button" class="btnEditText" onclick="editClaim('${p._id}')">EDIT</button><button type="button" class="btnDelText" onclick="removeClaim('${p._id}')">DELETE</button></div></div></div>`;
   });
-}catch(e){}
+  if(data.length===0) gridHtml='<div style="grid-column:1/-1;text-align:center;padding:24px;background:#fff;border-radius:12px;border:1px solid #e2e8f0;width:100%;box-sizing:border-box;position:relative;z-index:2">No claimed patients for '+filterDateValue+'</div>';
+  document.getElementById('patientGrid').innerHTML=gridHtml;
+  let tbody=document.getElementById('tbody'); tbody.innerHTML='';
+  if(data.length===0){ tbody.innerHTML=`<tr><td colspan="9" style="padding:20px;text-align:center">NO CLAIMED PATIENTS FOR ${filterDateValue}</td></tr>`; }
+  else{
+    data.forEach((p,i)=>{
+      let pmjay=p.pmjayCmhtId||p.pmjayId||p.pmjay||'';
+      let tr=document.createElement('tr');
+      tr.innerHTML=`<td>${start+i+1}</td><td class="nameCol"><b>${p.patientName||p.name||''}</b></td><td>${p.shriId||p.shri||''}</td><td style="font-weight:900">${pmjay}</td><td><span style="background:#f1f5f9;color:#0f172a;padding:3px 8px;border-radius:20px;font-weight:800;font-size:9px;border:1px solid #e2e8f0">${p.claimId}</span></td><td>${p.time||''}</td><td>${p.block||''}</td><td>${p.date||p.claimDate||''}</td><td><div style="display:flex;gap:4px;justify-content:center"><button type="button" style="height:28px;padding:0 8px;border-radius:6px;border:0;background:#dbe4ee;font-weight:800;font-size:10px;cursor:pointer;color:#334155" onclick="editClaim('${p._id}')">EDIT</button><button type="button" style="height:28px;padding:0 8px;border-radius:6px;border:0;background:#e6d9d9;color:#5b4040;font-weight:800;font-size:10px;cursor:pointer" onclick="removeClaim('${p._id}')">DELETE</button></div></td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  ['','Grid'].forEach(suffix=>{
+    let pInfo=document.getElementById('pageInfo'+suffix);
+    let prevBtn=document.getElementById('prevBtn'+suffix);
+    let nextBtn=document.getElementById('nextBtn'+suffix);
+    let numsEl=document.getElementById('pageNums'+suffix);
+    if(pInfo) pInfo.textContent='Page '+currentPage+' of '+totalPages;
+    if(prevBtn) prevBtn.disabled=currentPage<=1;
+    if(nextBtn) nextBtn.disabled=currentPage>=totalPages;
+    if(numsEl){ let nums=''; for(let i=1;i<=Math.min(totalPages,8);i++){ nums+=`<button type="button" class="pBtn" style="${i===currentPage?'background:#94a3b8;color:#fff':''}" onclick="goPage(${i})">${i}</button>`; } numsEl.innerHTML=nums; }
+  });
+}
+function changePage(d){ let tp=Math.max(1,Math.ceil(filtered.length/pageSize)); currentPage+=d; if(currentPage<1) currentPage=1; if(currentPage>tp) currentPage=tp; renderAll(); }
+function goPage(n){currentPage=n;renderAll();}
+document.getElementById('searchTotal').addEventListener('input', async (e)=>{
+  let q=e.target.value.toLowerCase().trim();
+  let box=document.getElementById('searchResults');
+  if(q.length<1){box.classList.remove('open');return;}
+  box.classList.add('open');
+  let allPatients = [];
+  try{ if(typeof patientData!=='undefined' && Array.isArray(patientData)){ patientData.forEach(pd=>{ let shri=String(pd.shri||pd.shriId||'').trim().toUpperCase(); let name=String(pd.name||pd.patientName||'').trim().toUpperCase(); let pmjay=String(pd.pmjay||pd.pmjayId||'').trim().toUpperCase(); if(shri) allPatients.push({shri, name, pmjayId:pmjay}); }); } }catch(err){}
+  try{ const snap = await window._fb.getDocs(window._fb.collection(window._fb.db,"patients")); snap.forEach(d=>{ let data=d.data(); if(data.deleted===true) return; let shri=String(data.shri||data.shriId||d.id).trim().toUpperCase(); let name=String(data.name||data.patientName||'').trim().toUpperCase(); let pmjay=String(data.pmjay||data.pmjayId||'').trim().toUpperCase(); if(!shri) return; if(!allPatients.find(p=>p.shri===shri)){ allPatients.push({shri, name, pmjayId:pmjay}); } }); }catch(err){ box.innerHTML=`<div class="sItem" style="color:red">Error: ${err.message}</div>`; return; }
+  masterPatients = allPatients;
+  let res = allPatients.filter(p=> `${p.name} ${p.shri} ${p.pmjayId}`.toLowerCase().includes(q)).slice(0,15);
+  if(res.length===0){ box.innerHTML=`<div class="sItem">No patient found</div>`; return; }
+  box.innerHTML=res.map(p=>`<div class="sItem" onclick="openInlineBar('${p.shri}')"><div style="min-width:0"><div class="sName">${p.name}</div><div class="sMeta">SHRI: ${p.shri} | PMJAY: ${p.pmjayId}</div></div><div style="padding:4px 8px;background:#e2e8f0;color:#334155;border-radius:6px;font-size:9px;font-weight:800;flex-shrink:0">ADD</div></div>`).join('');
+});
+function openInlineBar(shri){ selectedTotalPatient=masterPatients.find(x=>x.shri===shri); if(!selectedTotalPatient) return; document.getElementById('searchResults').classList.remove('open'); document.getElementById('searchTotal').value=''; document.getElementById('selPatientHead').textContent='Add Claim - '+selectedTotalPatient.name; document.getElementById('selPatientLabel').textContent=selectedTotalPatient.name+' • '+selectedTotalPatient.shri; document.getElementById('inlineClaimId').value=urlClaimId||''; document.getElementById('inlineDate').valueAsDate=new Date(); document.getElementById('inlineTime').value=''; document.getElementById('inlineBlock').value=''; document.getElementById('inlineBar').classList.add('show'); document.getElementById('inlineClaimId').focus(); }
+function closeInlineBar(){ document.getElementById('inlineBar').classList.remove('show'); selectedTotalPatient=null; }
+async function finalAddClaim(){
+  let claimId=document.getElementById('inlineClaimId').value.trim().toUpperCase();
+  let date=document.getElementById('inlineDate').value;
+  let time=document.getElementById('inlineTime').value;
+  let block=document.getElementById('inlineBlock').value;
+  if(!selectedTotalPatient){ alert('Select patient'); return; }
+  if(!claimId){ alert('Enter Claim ID'); return; }
+  if(!date){ alert('Select Date'); return; }
+  if(!time){ alert('Select Time'); return; }
+  if(!block){ alert('Select Block'); return; }
+  let docId=`${date}_${selectedTotalPatient.shri}_${Date.now()}`;
+  try{
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',docId),{ date:date, scheme:'PMJAY', shriId:selectedTotalPatient.shri, shri:selectedTotalPatient.shri, patientName:selectedTotalPatient.name, name:selectedTotalPatient.name, pmjayCmhtId:selectedTotalPatient.pmjayId, pmjayId:selectedTotalPatient.pmjayId, time:time, block:block, claimId:claimId, claimStatus:'CLAIMED', claimedAt:new Date().toISOString(), status:'DISCHARGE', dischargedAt:new Date().toISOString() });
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',docId),{ date:date, shriId:selectedTotalPatient.shri, shri:selectedTotalPatient.shri, patientName:selectedTotalPatient.name, name:selectedTotalPatient.name, pmjayCmhtId:selectedTotalPatient.pmjayId, pmjayId:selectedTotalPatient.pmjayId, time:time, block:block, claimId:claimId, claimStatus:'CLAIMED', claimedAt:new Date().toISOString() });
+    closeInlineBar(); await loadAll();
+  }catch(e){ alert(e.message); }
+}
+async function removeClaim(id){
+  if(!confirm('Remove from CLAIM LIST only?')) return;
+  try{
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',id),{claimId:'',claimStatus:'',claimedAt:''},{merge:true});
+    await window._fb.deleteDoc(window._fb.doc(window._fb.db,'claims',id));
+    await loadAll();
+  }catch(e){ alert(e.message); }
+}
+function editClaim(id){
+  let p=allClaimed.find(x=>x._id===id);
+  if(!p) return;
+  editingId=id;
+  document.getElementById('editModalTitle').innerText='EDIT - '+(p.patientName||p.name||'');
+  document.getElementById('editPatientName').innerText=(p.patientName||p.name||'')+' • SHRI: '+(p.shriId||p.shri||'')+' • PMJAY: '+(p.pmjayCmhtId||p.pmjayId||'');
+  document.getElementById('editClaimId').value=p.claimId||'';
+  document.getElementById('editDate').value=(p.date||p.claimDate||'').slice(0,10);
+  document.getElementById('editTime').value=p.time||'';
+  document.getElementById('editBlock').value=p.block||'';
+  document.getElementById('editModal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeEditModal(){
+  document.getElementById('editModal').classList.remove('show');
+  document.body.style.overflow='';
+  editingId=null;
+}
+async function saveEditClaim(){
+  if(!editingId) return;
+  let claimId=document.getElementById('editClaimId').value.trim().toUpperCase();
+  let date=document.getElementById('editDate').value;
+  let time=document.getElementById('editTime').value;
+  let block=document.getElementById('editBlock').value;
+  if(!claimId){alert('Enter Claim ID');return;}
+  if(!date){alert('Select Date');return;}
+  if(!time){alert('Select Time');return;}
+  if(!block){alert('Select Block');return;}
+  try{
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'discharges',editingId),{claimId:claimId,date:date,claimDate:date,time:time,block:block,claimedAt:new Date().toISOString(),claimStatus:'CLAIMED'},{merge:true});
+    await window._fb.setDoc(window._fb.doc(window._fb.db,'claims',editingId),{claimId:claimId,date:date,claimDate:date,time:time,block:block,claimedAt:new Date().toISOString(),claimStatus:'CLAIMED'},{merge:true});
+    closeEditModal();
+    await loadAll();
+  }catch(e){ alert(e.message); }
+}
+document.getElementById('fSearch').addEventListener('input', applyFilter);
+window.addEventListener('load', async ()=>{ urlClaimId=getClaimIdFromURL(); if(!filterDateValue || filterDateValue=="0"){ filterDateValue=todayISO(); document.getElementById('fDateFilter').value=filterDateValue; updateFilterDateDisplay(); } await loadMaster(); await loadAll(); });
 </script>
 <script type="module" src="maintenance.js"></script>
 </body>
