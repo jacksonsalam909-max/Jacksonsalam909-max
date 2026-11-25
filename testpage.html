@@ -54,21 +54,20 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
 @keyframes bellRing{0%{transform:rotate(0)}20%{transform:rotate(15deg)}40%{transform:rotate(-12deg)}60%{transform:rotate(8deg)}80%{transform:rotate(-4deg)}100%{transform:rotate(0)}}
 .bellBadge{position:absolute;top:-3px;right:-3px;min-width:20px;height:20px;padding:0 5px;border-radius:20px;background:#ef4444;color:#fff;font-size:11px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid #fff;line-height:1}
 .bellDot{display:none!important}
-.notifPaper{position:absolute;top:52px;right:0;width:300px;max-width:92vw;min-height:0;background:#fffef5;background-image:repeating-linear-gradient(transparent,transparent 31px,#e8e8e8 32px);border:1px solid #e2e8f0;border-radius:0;box-shadow:0 24px 50px rgba(0,0,0,.22);z-index:200;overflow:hidden;transform:translateY(-18px) scale(.97);transform-origin:top center;opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.34,1.4,.64,1),opacity .28s ease;display:flex;flex-direction:column}
+/* PAPER - ALWAYS RIGHT SIDE */
+.notifPaper{position:fixed;top:68px;right:12px;left:auto;width:300px;max-width:92vw;height:360px;max-height:360px;background:#fff;border:1px solid #e2e8f0;border-radius:0;box-shadow:0 24px 50px rgba(0,0,0,.22);z-index:200;overflow:hidden;transform:translateY(-18px) scale(.97);transform-origin:top right;opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.34,1.4,.64,1),opacity .28s ease;display:flex;flex-direction:column}
 .notifPaper.show{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
-.notifPaper::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#ef4444,#f59e0b,#2563eb)}
-.notifHead{padding:14px 14px 10px;display:flex;align-items:center;justify-content:space-between}
-.notifHead b{font-size:14px;font-weight:900;color:#0f172a}
-.notifHead span{font-size:11px;font-weight:800;color:#fff;background:#ef4444;padding:3px 8px;border-radius:20px}
-.notifList{max-height:240px;overflow-y:auto;padding:0 10px 6px;flex:1}
-.notifItem{display:flex;gap:10px;padding:11px 8px;border-bottom:1px dashed #e2e8f0;cursor:pointer;border-radius:8px;text-align:left;width:100%;background:transparent;border:0}
-.notifItem:hover{background:#fff7ed}
-.notifAvatar{width:38px;min-width:38px;height:38px;border-radius:50%;background:#fee2e2;display:grid;place-items:center;font-size:16px}
-.notifItem b{font-size:13px;color:#0f172a;display:block;line-height:1.3;text-transform:uppercase}
-.notifItem small{font-size:11px;color:#64748b;display:block;margin-top:2px}
-.notifTime{font-size:10px;color:#94a3b8;font-weight:700;white-space:nowrap}
+.notifHead{padding:12px 14px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid #f1f5f9;background:#fff}
+.notifHead b{font-size:13px;font-weight:800;color:#0f172a}
+.notifHead span{font-size:11px;font-weight:700;color:#64748b}
+.notifList{flex:1;overflow-y:auto;padding:0;background:#fff;min-height:0}
+.notifItem{display:flex;gap:10px;padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;text-align:left;width:100%;background:#fff;border:0}
+.notifItem:hover{background:#f8fafc}
+.notifAvatar{width:28px;min-width:28px;height:28px;display:grid;place-items:center;font-size:14px;flex-shrink:0}
+.notifItem b{font-size:13px;color:#0f172a;display:block;line-height:1.35;font-weight:700;text-transform:uppercase;word-break:break-word}
+.notifItem small{font-size:11.5px;color:#94a3b8;display:block;margin-top:4px;font-weight:500}
 .notifEmpty{padding:28px 14px;text-align:center;color:#64748b;font-size:12px;font-weight:600}
-.notifFooter{padding:10px;border-top:1px solid #e2e8f0;background:#fff;display:flex;justify-content:center}
+.notifFooter{padding:8px;border-top:1px solid #e2e8f0;background:#fff;display:flex;justify-content:center;flex-shrink:0}
 .seeAllBtn{width:170px;height:34px;border:1px solid #e2e8f0;border-radius:0;background:#fff;color:#0f172a;font-weight:700;font-size:11.5px;cursor:pointer}
 .seeAllBtn:hover{background:#f8fafc}
 .content{flex:1;padding:20px 24px;max-width:100%}
@@ -108,7 +107,7 @@ body{background:#f1f5f9;display:flex;overflow-x:hidden}
   .card{height:160px!important;min-height:160px;max-height:160px}
   .content{padding:14px}
   .topSearchArea{margin:0 8px}
-  .notifPaper{position:fixed;top:68px;right:10px;left:10px;width:auto;min-height:0}
+  .notifPaper{position:fixed;top:68px;right:12px;left:auto;width:300px;max-width:calc(100vw - 24px);height:360px;max-height:360px}
 }
 @media(max-width:480px){.grid{grid-template-columns:1fr 1fr;gap:10px}.card{padding:14px;height:150px!important;min-height:150px}.card h2{font-size:20px}.cardWatermark svg{width:55px;height:55px}}
 </style>
@@ -157,14 +156,15 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
   <span class="bellBadge" id="bellCount">0</span>
   <span class="bellDot" id="bellDot"></span>
 </button>
-<div class="notifPaper" id="notifPaper">
-  <div class="notifHead"><b>Notifications</b><span id="notifPaperCount">0 New</span></div>
-  <div class="notifList" id="notifList"><div class="notifEmpty">Loading...</div></div>
-  <div class="notifFooter"><button class="seeAllBtn" onclick="location.href='notification.html'">See all notifications</button></div>
-</div>
 </div>
 </div>
 <div id="adminMenuWrap" style="position:relative"><button id="adminBtn" style="height:38px;padding:0 14px;border-radius:8px;border:1px solid #d0d9ea;background:#fff;color:#0f172a;font-weight:600;font-size:12px;cursor:pointer">Admin ▾</button><div id="adminDropdown" style="display:none;position:absolute;top:44px;right:0;width:150px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:999;padding:4px"><button id="btnLogout" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer;margin-bottom:4px">Logout</button><button id="btnLogoutAll" style="width:100%;height:28px;border:1px solid #eee;border-radius:6px;background:#fff;color:#333;font-weight:500;font-size:10px;cursor:pointer">Logout from all devices</button></div></div>
+</div>
+<!-- PAPER MOVED OUTSIDE TOP BAR SO IT STAYS ON RIGHT SIDE -->
+<div class="notifPaper" id="notifPaper">
+  <div class="notifHead"><b id="notifPaperTitle">0 unread notifications</b><span id="notifPaperCount"></span></div>
+  <div class="notifList" id="notifList"><div class="notifEmpty">Loading...</div></div>
+  <div class="notifFooter"><button class="seeAllBtn" onclick="location.href='notification.html'">See all notifications</button></div>
 </div>
 <div class="main"><div class="content">
 <div class="head"><div><h1>Dashboard Overview</h1><p>Welcome back • Premium Minimal</p></div><div class="dateBar"><input type="date" id="dashDate"><button class="btn btnP" onclick="document.getElementById('expModal').style.display='grid'">Export Report</button></div></div>
@@ -192,16 +192,30 @@ if(!localStorage.getItem('shija_login_time')){localStorage.setItem('shija_login_
 <div class="modal" id="expModal"><div class="modalBox"><h3>Export Report</h3><div class="opt" onclick="exportExcel('total')"><b>PMJAY Total Patient Record</b></div><div class="opt" onclick="exportExcel('cmht_total')"><b>CMHT Total Patient Record</b></div><div class="opt" onclick="exportExcel('kft')"><b>PMJAY KFT REPORT Record</b></div><div class="opt" onclick="exportExcel('cmhtkft')"><b>CMHT KFT REPORT Record</b></div><div class="opt" onclick="exportExcel('daily')"><b>PMJAY DAILY DIALYSIS LIST Record</b></div><div class="opt" onclick="exportExcel('cmhtdaily')"><b>CMHT Daily Dialysis Record</b></div><button class="btn btnG" style="width:100%;margin-top:10px" onclick="document.getElementById('expModal').style.display='none'">Cancel</button></div></div>
 <div id="logoutAllModal" style="position:fixed;inset:0;z-index:10002;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.6)"><div style="background:#fff;width:90%;max-width:340px;border-radius:14px;padding:20px;text-align:center;border:1px solid #e2e8f0"><div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px">Logout from all devices?</div><div style="font-size:11px;color:#64748b;margin-bottom:12px">Enter admin password</div><input type="password" id="adminPassInput" placeholder="Password" autocomplete="new-password" style="width:100%;height:40px;border:1px solid #cbd5e1;border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;margin-bottom:8px;outline:none"><div id="passError" style="color:#ef4444;font-size:11px;font-weight:700;margin-bottom:8px;display:none">Wrong password!</div><div style="display:flex;gap:8px"><button id="cancelLogoutAll" style="flex:1;height:38px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;font-weight:600;font-size:12px;cursor:pointer">Cancel</button><button id="confirmLogoutAll" style="flex:1;height:38px;border-radius:8px;border:0;background:#ef4444;color:#fff;font-weight:700;font-size:12px;cursor:pointer">Logout All</button></div></div></div>
 <script>
-window.allForSearch=[];window.notifList=[];
+window.allForSearch=[];window.notifList=[];window.notifUnread=0;
 function toggleWhiteBar(){if(window.innerWidth<=900){document.getElementById('whiteBar').classList.toggle('mOpen');document.getElementById('mobOverlay').classList.toggle('show');}else{document.getElementById('whiteBar').classList.toggle('folded');}}
 function closeMob(){document.getElementById('whiteBar').classList.remove('mOpen');document.getElementById('mobOverlay').classList.remove('show');}
 function toggleNotifPaper(e){if(e)e.stopPropagation();var p=document.getElementById('notifPaper');if(!p)return;p.classList.toggle('show');if(p.classList.contains('show'))renderNotifPaper();}
 function closeNotifPaper(){var p=document.getElementById('notifPaper');if(p)p.classList.remove('show');}
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function timeAgo(ts){if(!ts)return'';var t=typeof ts==='number'?ts:(ts.seconds?ts.seconds*1000:Date.parse(ts));if(!t||isNaN(t))return'';var d=Date.now()-t;if(d<60000)return'Just now';if(d<3600000)return Math.floor(d/60000)+'m ago';if(d<86400000)return Math.floor(d/3600000)+'h ago';return Math.floor(d/86400000)+'d ago';}
-function renderNotifPaper(){var list=document.getElementById('notifList');var cnt=document.getElementById('notifPaperCount');if(!list)return;var items=(window.notifList||[]).slice(0,8);if(cnt)cnt.textContent=(window.notifList||[]).length+' New';if(!items.length){list.innerHTML='<div class="notifEmpty">🔔 No new notifications</div>';return;}list.innerHTML=items.map(function(n){var scheme=(n.scheme||n.type||'PMJAY').toString().toUpperCase();var badge=scheme==='CMHT'?'<span class="badgeCMHT">CMHT</span>':'<span class="badgePMJAY">PMJAY</span>';return '<button type="button" class="notifItem" onclick="location.href=\'notification.html\'"><span class="notifAvatar">🔔</span><span style="flex:1;min-width:0"><b>'+escHtml(n.patientName||n.name||'New Patient')+'</b><small>'+badge+' &nbsp;'+escHtml(n.shriId||n.shri||n.id||'')+' • Approval pending</small></span><span class="notifTime">'+timeAgo(n.createdAt||n.timestamp||n.time)+'</span></button>';}).join('');}
+function fmtNotifDate(ts){var t=null;if(!ts)return'';if(typeof ts==='number')t=new Date(ts);else if(ts.seconds)t=new Date(ts.seconds*1000);else if(ts.toDate)t=ts.toDate();else t=new Date(ts);if(!t||isNaN(t))return'';var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var h=t.getHours(),ap=h>=12?'PM':'AM';h=h%12;if(h===0)h=12;return months[t.getMonth()]+' '+t.getDate()+', '+t.getFullYear()+' at '+h+':'+String(t.getMinutes()).padStart(2,'0')+' '+ap;}
+function renderNotifPaper(){
+  var list=document.getElementById('notifList');var title=document.getElementById('notifPaperTitle');if(!list)return;
+  var all=window.notifList||[];var items=all.slice(0,5);
+  if(title)title.textContent=(window.notifUnread||0)+' unread notifications';
+  if(!items.length){list.innerHTML='<div class="notifEmpty">🔔 No notifications</div>';return;}
+  list.innerHTML=items.map(function(n){
+    var name=escHtml(n.patientName||n.name||n.title||'');
+    var msg=n.message||n.text||'';
+    var text='';
+    if(msg){ text=escHtml(msg); }
+    else if(name){ text=name+' added as a patient'; }
+    else{ text='New notification'; }
+    return '<button type="button" class="notifItem" onclick="location.href=\'notification.html\'"><span class="notifAvatar">👤</span><span style="flex:1;min-width:0"><b>'+text+'</b><small>'+fmtNotifDate(n.createdAt||n.timestamp||n.time||n.date)+'</small></span></button>';
+  }).join('');
+}
 function doGlobalSearch(){let el=document.getElementById('globalSearch');let q=(el.value||'').toLowerCase().trim();if(q.includes('admin')){el.value='';q='';document.getElementById('searchResult').classList.remove('show');return;}let box=document.getElementById('searchResult');if(!q){box.classList.remove('show');return;}let f=window.allForSearch.filter(p=>[p.name,p.shri,p.pmjay,p.contact,p.aadhaar,p.addr,p.scheme].join(' ').toLowerCase().includes(q)).slice(0,20);if(!f.length){box.innerHTML='<div class="sItem"><b>No patient</b></div>';box.classList.add('show');return;}let h='';f.forEach(p=>{let badge=p.scheme==='CMHT'?'<span class="badgeCMHT">CMHT</span>':'<span class="badgePMJAY">PMJAY</span>';h+=`<div class="sItem" onclick="location.href='searchpatient.html?shri=${encodeURIComponent(p.shri)}'"><div><b>${p.name}</b> <small>${p.shri}</small> ${badge}</div></div>`;});box.innerHTML=h;box.classList.add('show');}
-document.addEventListener('DOMContentLoaded',function(){document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});var bell=document.getElementById('bellBtn');if(bell)bell.addEventListener('click',toggleNotifPaper);document.addEventListener('click',function(e){if(!e.target.closest('#bellWrap'))closeNotifPaper();if(!e.target.closest('.searchWrap') && !e.target.closest('#adminMenuWrap')){document.getElementById('searchResult').classList.remove('show');}});let gs=document.getElementById('globalSearch');if(gs){gs.value='';gs.addEventListener('focus',function(){if(this.value.toLowerCase().includes('admin')) this.value='';});gs.addEventListener('input',doGlobalSearch);}const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');adminBtn.addEventListener('click',(e)=>{e.stopPropagation();adminDropdown.style.display=adminDropdown.style.display==='none'||adminDropdown.style.display===''?'block':'none';});document.addEventListener('click',(e)=>{if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none';});document.getElementById('btnLogout').addEventListener('click',()=>{if(confirm('Logout from this device?')){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');location.href='login.html';}});document.getElementById('btnLogoutAll').addEventListener('click',()=>{adminDropdown.style.display='none';document.getElementById('logoutAllModal').style.display='flex';document.getElementById('adminPassInput').value='';document.getElementById('passError').style.display='none';});document.getElementById('cancelLogoutAll').addEventListener('click',()=>{document.getElementById('logoutAllModal').style.display='none';});document.getElementById('logoutAllModal').addEventListener('click',(e)=>{if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none';});});
+document.addEventListener('DOMContentLoaded',function(){document.getElementById('menuBtnTop').addEventListener('click',function(e){e.preventDefault();toggleWhiteBar();});var bell=document.getElementById('bellBtn');if(bell)bell.addEventListener('click',toggleNotifPaper);document.addEventListener('click',function(e){if(!e.target.closest('#bellWrap') && !e.target.closest('#notifPaper'))closeNotifPaper();if(!e.target.closest('.searchWrap') && !e.target.closest('#adminMenuWrap')){document.getElementById('searchResult').classList.remove('show');}});let gs=document.getElementById('globalSearch');if(gs){gs.value='';gs.addEventListener('focus',function(){if(this.value.toLowerCase().includes('admin')) this.value='';});gs.addEventListener('input',doGlobalSearch);}const adminBtn=document.getElementById('adminBtn');const adminDropdown=document.getElementById('adminDropdown');adminBtn.addEventListener('click',(e)=>{e.stopPropagation();adminDropdown.style.display=adminDropdown.style.display==='none'||adminDropdown.style.display===''?'block':'none';});document.addEventListener('click',(e)=>{if(!e.target.closest('#adminMenuWrap')) adminDropdown.style.display='none';});document.getElementById('btnLogout').addEventListener('click',()=>{if(confirm('Logout from this device?')){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');location.href='login.html';}});document.getElementById('btnLogoutAll').addEventListener('click',()=>{adminDropdown.style.display='none';document.getElementById('logoutAllModal').style.display='flex';document.getElementById('adminPassInput').value='';document.getElementById('passError').style.display='none';});document.getElementById('cancelLogoutAll').addEventListener('click',()=>{document.getElementById('logoutAllModal').style.display='none';});document.getElementById('logoutAllModal').addEventListener('click',(e)=>{if(e.target.id==='logoutAllModal') e.currentTarget.style.display='none';});});
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -219,18 +233,33 @@ document.getElementById('confirmLogoutAll')?.addEventListener('click',async()=>{
 document.getElementById('adminPassInput')?.addEventListener('keydown',(e)=>{if(e.key==='Enter') document.getElementById('confirmLogoutAll').click();});
 try{onSnapshot(doc(db,"system","global_logout"),(snap)=>{if(!snap.exists()) return;let lt=snap.data().logoutTime||0;let my=parseInt(localStorage.getItem('shija_login_time')||'0');if(lt>my&&my!==0){localStorage.removeItem('shija_logged');localStorage.removeItem('shija_login_time');localStorage.removeItem('shija_role');alert('🔒 Logged out by admin');location.href='login.html?reason=global';}});}catch(e){}
 let lastPending=-1;
+function applyNotifSnapshot(snap, isPending){
+  let arr=[]; snap.forEach(d=>{let data=d.data(); if(isPending && (data.status||'pending')!=='pending') return; arr.push({id:d.id,...data});});
+  arr.sort((a,b)=>{let ta=a.createdAt?.seconds||a.createdAt||0, tb=b.createdAt?.seconds||b.createdAt||0; if(typeof ta==='object')ta=ta.seconds||0; if(typeof tb==='object')tb=tb.seconds||0; return tb-ta;});
+  return arr;
+}
+try{
+  onSnapshot(collection(db,"notifications"),(snap)=>{
+    let arr=applyNotifSnapshot(snap,false);
+    window.notifList=arr;
+    window.notifUnread=arr.filter(d=>d.read!==true && d.isRead!==true && (d.status||'unread')!=='read').length;
+    if(document.getElementById('notifPaper')?.classList.contains('show'))renderNotifPaper();
+    let dash=document.getElementById('dashPending'); if(dash) dash.textContent=window.notifUnread;
+  });
+}catch(e){}
 try{
   onSnapshot(collection(db,"pending_patients"),(snap)=>{
-    let pending=0;let arr=[];snap.forEach(d=>{let data=d.data();if((data.status||'pending')==='pending'){pending++;arr.push({id:d.id,...data});}});
-    arr.sort((a,b)=>{let ta=a.createdAt?.seconds||0,tb=b.createdAt?.seconds||0;return tb-ta;});
-    window.notifList=arr;
-    let bell=document.getElementById('bellCount');let dot=document.getElementById('bellDot');let side=document.getElementById('sideBellBadge');let dash=document.getElementById('dashPending');let btn=document.getElementById('bellBtn');
-    if(bell){bell.textContent=pending>99?'99+':pending;bell.style.display=pending>0?'flex':'none';}
-    if(dot){dot.style.display=pending>0?'block':'none';}
-    if(side){side.textContent=pending>99?'99+':pending;side.style.display=pending>0?'flex':'none';}
-    if(dash){dash.textContent=pending;}
-    if(document.getElementById('notifPaper')?.classList.contains('show'))renderNotifPaper();
-    if(btn && pending>lastPending && lastPending!==-1 && pending>0){btn.classList.remove('ring');void btn.offsetWidth;btn.classList.add('ring');}
+    let pending=0; snap.forEach(d=>{ if((d.data().status||'pending')==='pending') pending++; });
+    let bell=document.getElementById('bellCount'); let dot=document.getElementById('bellDot'); let side=document.getElementById('sideBellBadge'); let btn=document.getElementById('bellBtn');
+    if(!(window.notifList||[]).length && pending>0){
+      let arr=[]; snap.forEach(d=>{let data=d.data(); if((data.status||'pending')==='pending') arr.push({id:d.id,patientName:data.patientName||data.name,message:(data.patientName||data.name||'')+' added as a patient',createdAt:data.createdAt||data.timestamp});});
+      window.notifList=arr; window.notifUnread=pending;
+      if(document.getElementById('notifPaper')?.classList.contains('show'))renderNotifPaper();
+    }
+    if(bell){ bell.textContent = pending>99 ? '99+' : pending; bell.style.display = pending>0 ? 'flex':'none'; }
+    if(dot){ dot.style.display = pending>0 ? 'block':'none'; }
+    if(side){ side.textContent = pending>99 ? '99+' : pending; side.style.display = pending>0 ? 'flex':'none'; }
+    if(btn && pending>lastPending && lastPending!==-1 && pending>0){ btn.classList.remove('ring'); void btn.offsetWidth; btn.classList.add('ring'); }
     lastPending=pending;
   });
 }catch(e){}
