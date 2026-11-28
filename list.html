@@ -62,7 +62,7 @@ td.nameCol{text-align:left;max-width:340px !important;min-width:240px;white-spac
 .gridWrap{display:none;grid-template-columns:repeat(4, minmax(0,1fr));gap:14px;padding:16px;position:relative;z-index:2;min-height:400px;width:100%!important;max-width:100%!important;box-sizing:border-box!important;align-items:start}
 .whiteBar.folded ~ .mainWrap .gridWrap{grid-template-columns:repeat(5, minmax(0,1fr));gap:12px}
 .gridWrap.show{display:grid!important}
-.pCard{perspective:1000px;height:285px;background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;cursor:pointer}
+.pCard{perspective:1000px;height:295px;background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;cursor:pointer}
 .pCardInner{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.34,1.3,.64,1);transform-style:preserve-3d}
 .pCard.flipped .pCardInner{transform:rotateY(180deg)}
 .pCardFace{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#fff!important;border:2px solid #e2e8f0;border-radius:18px;padding:12px 12px 10px;box-shadow:0 2px 12px rgba(0,0,0,.06);display:flex;flex-direction:column;align-items:center;text-align:center;overflow:hidden}
@@ -108,7 +108,8 @@ td.nameCol{text-align:left;max-width:340px !important;min-width:240px;white-spac
 .filterBar::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}
 .fGroup{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
 .fGroup label{font-size:9px;font-weight:800;color:#64748b;text-transform:uppercase}
-.fInputSm{height:36px;min-width:90px;max-width:110px;padding:0 12px;border:1px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:13.5px;background:#fff;outline:0}
+.fInputSm{height:36px;min-width:90px;max-width:110px;padding:0 10px;border:1px solid #e2e8f0;border-radius:8px;font-weight:700;font-size:13.5px;background:#fff;outline:0;appearance:none!important;-webkit-appearance:none!important;-moz-appearance:none!important;background-image:none!important;cursor:pointer}
+.fInputSm::-ms-expand{display:none!important}
 .fInputSm.scheme{background:#fef3c7;border:1.5px solid #f59e0b}
 .clearBtn{height:36px;min-width:68px;background:#FFD60A;color:#000;font-weight:800;font-size:11px;padding:0 12px;border-radius:8px;border:1px solid #eab308;cursor:pointer}
 .addBtn{height:36px;min-width:74px;background:#16a34a;color:#fff;font-weight:800;font-size:11px;padding:0 12px;border-radius:8px;border:0;cursor:pointer}
@@ -232,8 +233,9 @@ function switchView(view){currentView=view;document.getElementById('btnListView'
 function clearFiltersDirect(){document.getElementById('filterTime').value='';document.getElementById('filterBlock').value='';let s=document.getElementById('searchName');if(s)s.value='';applyFilter();}
 function toggleHidden(){ showHidden=!showHidden; let b=document.getElementById('hiddenBtn'); b.classList.toggle('active',showHidden); b.innerText='DISCHARGE PATIENT'; if(showHidden){ switchView('list'); } else { switchView('list'); } applyFilter(); }
 function updateStatusVisibility(){let scheme=document.getElementById('fType').value;document.getElementById('thStatus').classList.toggle('hidden',scheme!=='PMJAY');}
-async function buildMasterMap(){masterMap={};try{let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patients'));snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let pmjay=String(p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={shri:shri,pmjayId:pmjay,pmjayName:name,cmhtId:'',cmhtName:''};});}catch(e){}try{let snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,'cmht_patients'));snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let cmht=String(p.cmhtId||p.cmht||p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={shri:shri,pmjayId:'',pmjayName:'',cmhtId:'',cmhtName:''};masterMap[shri].cmhtId=cmht;masterMap[shri].cmhtName=name;});}catch(e){}return masterMap;}
-function enrichPatient(p){let shriKey=String(p.shri||'').trim().toUpperCase();if(!shriKey)return p;let m=masterMap[shriKey];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;if(m.pmjayId)p.pmjayCmhtId=m.pmjayId;}else if(scheme==='CMHT'){if(m.cmhtName)p.name=m.cmhtName;if(m.cmhtId)p.pmjayCmhtId=m.cmhtId;else if(m.pmjayId)p.pmjayCmhtId=m.pmjayId;}if(!p.patientStatus){p.patientStatus='ENHANCEMENT';}return p;}
+function getPhoneOf(p){ return String(p.phone||p.mobile||p.contact||p.contactNumber||p.phoneNumber||p.mobileNumber||p.contactNo||'').trim(); }
+async function buildMasterMap(){masterMap={};try{let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patients'));snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let pmjay=String(p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={shri:shri,pmjayId:pmjay,pmjayName:name,cmhtId:'',cmhtName:'',phone:getPhoneOf(p)};});}catch(e){}try{let snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,'cmht_patients'));snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let cmht=String(p.cmhtId||p.cmht||p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={shri:shri,pmjayId:'',pmjayName:'',cmhtId:'',cmhtName:'',phone:''};masterMap[shri].cmhtId=cmht;masterMap[shri].cmhtName=name;if(!masterMap[shri].phone)masterMap[shri].phone=getPhoneOf(p);});}catch(e){}return masterMap;}
+function enrichPatient(p){let shriKey=String(p.shri||'').trim().toUpperCase();if(!shriKey)return p;let m=masterMap[shriKey];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;if(m.pmjayId)p.pmjayCmhtId=m.pmjayId;}else if(scheme==='CMHT'){if(m.cmhtName)p.name=m.cmhtName;if(m.cmhtId)p.pmjayCmhtId=m.cmhtId;else if(m.pmjayId)p.pmjayCmhtId=m.pmjayId;}if(!getPhoneOf(p)&&m.phone)p.phone=m.phone;if(!p.patientStatus){p.patientStatus='ENHANCEMENT';}return p;}
 function setStatus(t,m){let el=document.getElementById('status');el.className='status '+t;el.innerText=m;}
 async function autoSaveToFirebase(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;let docId=date+'_'+scheme;setStatus('saving','SAVING...');try{await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId),{date:date,scheme:scheme,patients:allPatients,count:allPatients.length,updatedAt:new Date().toISOString()});setStatus('saved',`SAVED ${allPatients.length}`);}catch(e){setStatus('saved','SAVED LOCAL');}}
 async function onDateChange(){updateDateDisplay();let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;let docId=date+'_'+scheme;updateStatusVisibility();setStatus('saving','LOADING...');try{let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));let patients=snap.exists()?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let enriched=enrichPatient({...p,sl:i+1});enriched.sl=i+1;if(!enriched.patientStatus)enriched.patientStatus='ENHANCEMENT';if(!enriched.remark)enriched.remark='N/A';if(!enriched.remarkView)enriched.remarkView=enriched.remark;return enriched;});allPatients=patients;filteredPatients=[...allPatients];currentPage=1;if(patients.length===0){setStatus('blank','BLANK');}else{setStatus('saved',`${patients.length} PATIENTS`);}applyFilter();}catch(e){setStatus('saved','ERROR');}}
@@ -295,7 +297,8 @@ function applyFilter(){
       let name=String(p.name||'').toLowerCase();
       let shri=String(p.shri||'').toLowerCase();
       let pid=String(p.pmjayCmhtId||'').toLowerCase();
-      if(!name.includes(search)&&!shri.includes(search)&&!pid.includes(search))return false;
+      let ph=getPhoneOf(p).toLowerCase();
+      if(!name.includes(search)&&!shri.includes(search)&&!pid.includes(search)&&!ph.includes(search))return false;
     }
     if(timeFilter){ let pTimeNorm=normalizeTime(p.time); if(pTimeNorm!==timeFilterNorm)return false; }
     if(blockFilter&&p.block!==blockFilter)return false;
@@ -343,6 +346,7 @@ function renderGrid(){
     let ukey=String(p.shri||p.name||'').trim();
     let photo=photoCache[ukey];
     let avatarInner = photo ? `<img src="${photo}">` : getInitial(p.name);
+    let contactVal=getPhoneOf(p)||'-';
     let div=document.createElement('div');div.className='pCard';
     div.innerHTML=`
       <div class="pCardInner">
@@ -354,6 +358,7 @@ function renderGrid(){
             <div class="pCardRow2"><span>PMJAY ID</span><b>${escHtml(p.pmjayCmhtId||'-')}</b></div>
             <div class="pCardRow2"><span>SHRI ID</span><b>${escHtml(p.shri||'-')}</b></div>
             <div class="pCardRow2"><span>TIME</span><b>${escHtml(p.time||'-')}</b></div>
+            <div class="pCardRow2"><span>CONTACT</span><b>${escHtml(contactVal)}</b></div>
           </div>
           <div class="pCardBlock">Block ${escHtml(p.block||'')}</div>
         </div>
