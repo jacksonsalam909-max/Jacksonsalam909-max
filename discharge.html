@@ -49,7 +49,6 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .pSelect{padding:10px;border-radius:8px;border:1.5px solid #cbd5e1;font-weight:700;background:#fff}
 .clearBtn{padding:10px 16px;border-radius:10px;border:0;background:#0F766E;color:#fff;font-weight:800;font-size:13px;cursor:pointer}
 .clearBtn:hover{background:#0D5C55}
-/* ===== TABLE - EXACT LIKE total.html LIST VIEW ===== */
 .tableWrap{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-top:16px;position:relative;min-height:520px}
 .tableScroll{overflow-x:auto;overflow-y:auto;position:relative;z-index:2;max-height:78vh;scrollbar-width:thin;scrollbar-color:#94A3B8 #E2E8F0;-webkit-overflow-scrolling:touch}
 .tableScroll::-webkit-scrollbar{height:12px!important;width:10px!important;display:block!important}
@@ -67,7 +66,6 @@ td{padding:14px 12px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-ali
 .pmjayTable{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;padding:6px 12px;border-radius:8px;font-weight:700;font-size:11px;display:inline-block;min-width:110px;text-align:center}
 .timeCol{color:#1D4ED8!important;font-weight:800!important;font-size:13px}
 .blockCol{color:#0f172a!important;font-weight:800!important;font-size:13px;text-align:left!important}
-/* PHOTO IN CIRCLE - LIST VIEW */
 .tAvatar{width:50px;height:50px;border-radius:50%!important;background:#dbeafe;display:grid;place-items:center;font-weight:800;color:#1e40af;cursor:pointer;overflow:hidden;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.12);transform:translateZ(0);flex-shrink:0;font-size:18px}
 .tAvatar img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%!important}
 #tbl tbody tr:hover .tAvatar{border-color:#2563eb}
@@ -207,12 +205,12 @@ async function loadPhotoCache(){
 window.renderAll=()=>{
   let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>totalPages) currentPage=totalPages;
   let start=(currentPage-1)*pageSize;let data=filtered.slice(start,start+pageSize);
-  let html='<tr><th>SL No</th><th>Patient Name</th><th>PMJAY ID</th><th>SHRI ID</th><th>Time</th><th>Block</th><th>Photo</th><th>Action</th></tr>';
+  let html='<tr><th>SL No</th><th>Patient Name</th><th>Photo</th><th>PMJAY ID</th><th>SHRI ID</th><th>Time</th><th>Block</th><th>Action</th></tr>';
   data.forEach((p)=>{
     let shriVal=p.shriId||p.shri||'';let nameVal=p.patientName||p.name||'';let nameDisplay=formatName(nameVal);let pmjayShow=p.pmjayCmhtId||p.pmjayId||'';let dateVal=p.date||'';let timeVal=p.time||'';let blockVal=p.block||'';
     let k=patientKeyFor(shriVal);let photo=photoCache[k];let thumb=photo?'<img src="'+photo+'">':getInitial(nameDisplay);
     let slNo=start+data.indexOf(p)+1;
-    html+='<tr><td><div class="sl">'+slNo+'</div></td><td><b>'+nameDisplay+'</b></td><td><span class="pmjayTable">'+pmjayShow+'</span></td><td><span class="shriTable">'+shriVal+'</span></td><td class="timeCol">'+timeVal+'</td><td class="blockCol">'+blockVal+'</td><td><div class="tAvatar" data-ukey="'+k+'" onclick="openPhoto(\''+k.replace(/'/g,"\\'")+'\',\''+shriVal.replace(/'/g,"\\'")+'\',\''+nameDisplay.replace(/'/g,"\\'")+'\')">'+thumb+'</div></td><td><div style="display:flex;gap:6px;align-items:center"><button class="openBtn" onclick="goToUpload(\''+shriVal+'\',\''+nameVal.replace(/'/g,"\\'")+'\',\''+pmjayShow+'\',\''+dateVal+'\',\''+timeVal+'\',\''+blockVal+'\',\''+p._id+'\')">OPEN</button><button class="delBtn" onclick="delDischarge(\''+p._id+'\')">X</button></div></td></tr>';
+    html+='<tr><td><div class="sl">'+slNo+'</div></td><td><b>'+nameDisplay+'</b></td><td><div class="tAvatar" data-ukey="'+k+'" onclick="openPhoto(\''+k.replace(/'/g,"\\'")+'\',\''+shriVal.replace(/'/g,"\\'")+'\',\''+nameDisplay.replace(/'/g,"\\'")+'\')">'+thumb+'</div></td><td><span class="pmjayTable">'+pmjayShow+'</span></td><td><span class="shriTable">'+shriVal+'</span></td><td class="timeCol">'+timeVal+'</td><td class="blockCol">'+blockVal+'</td><td><div style="display:flex;gap:6px;align-items:center"><button class="openBtn" onclick="goToUpload(\''+shriVal+'\',\''+nameVal.replace(/'/g,"\\'")+'\',\''+pmjayShow+'\',\''+dateVal+'\',\''+timeVal+'\',\''+blockVal+'\',\''+p._id+'\')">OPEN</button><button class="delBtn" onclick="delDischarge(\''+p._id+'\')">X</button></div></td></tr>';
   });
   if(data.length===0) html+='<tr><td colspan="8" style="text-align:center;padding:20px">NO DISCHARGED</td></tr>';
   document.getElementById('tbl').innerHTML=html;
