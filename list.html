@@ -38,9 +38,9 @@ body{background:#f1f5f9;display:flex;min-height:100vh; font-size:15.5px}
 .whiteBar.folded .sFoot{display:none}
 .top{height:74px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:30}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px;color:#0f172a}
-.menuBtnTop{width:48px;height:44px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:.22s;border-radius:8px}
-.menuBtnTop:hover{background:#f1f5f9!important;transform:scale(1.08)}
-.menuBtnTop span{display:block;width:26px;height:3px;background:#0f172a;border-radius:2px}
+.menuBtnTop{width:48px;height:44px;background:transparent!important;border:0!important;outline:none!important;box-shadow:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:.22s;border-radius:8px}
+.menuBtnTop:hover{background:transparent!important;transform:scale(1.08)}
+.menuBtnTop span{display:block;width:26px;height:3px;background:#fff!important;border-radius:2px}
 .btn{padding:7px 12px;border:0;border-radius:8px;font-weight:800;font-size:12.5px;cursor:pointer;min-height:32px;transition:.22s}
 .btnDark{background:#0f172a;color:#fff;min-width:32px!important;min-height:30px!important;padding:0 10px!important;font-size:11px!important}
 .btnDark:hover{background:#2563eb}
@@ -62,7 +62,7 @@ td.nameCol{text-align:left;max-width:340px !important;min-width:240px;white-spac
 .gridWrap{display:none;grid-template-columns:repeat(4, minmax(0,1fr));gap:14px;padding:16px;position:relative;z-index:2;min-height:400px;width:100%!important;max-width:100%!important;box-sizing:border-box!important;align-items:start}
 .whiteBar.folded ~ .mainWrap .gridWrap{grid-template-columns:repeat(5, minmax(0,1fr));gap:12px}
 .gridWrap.show{display:grid!important}
-.pCard{perspective:1000px;height:295px;background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;cursor:pointer}
+.pCard{perspective:1000px;height:325px;background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;cursor:pointer}
 .pCardInner{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.34,1.3,.64,1);transform-style:preserve-3d}
 .pCard.flipped .pCardInner{transform:rotateY(180deg)}
 .pCardFace{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#fff!important;border:2px solid #e2e8f0;border-radius:18px;padding:12px 12px 10px;box-shadow:0 2px 12px rgba(0,0,0,.06);display:flex;flex-direction:column;align-items:center;text-align:center;overflow:hidden}
@@ -78,6 +78,9 @@ td.nameCol{text-align:left;max-width:340px !important;min-width:240px;white-spac
 .pCardRow2{display:flex;justify-content:space-between;align-items:center;background:#f8fafc;border:1px solid #f1f5f9;border-radius:8px;padding:5px 9px;text-align:left}
 .pCardRow2 span{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;flex-shrink:0;margin-right:6px}
 .pCardRow2 b{font-size:11.5px;font-weight:700;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
+.pCardRowAddr{display:flex;justify-content:space-between;align-items:flex-start;background:#f8fafc;border:1px solid #f1f5f9;border-radius:8px;padding:5px 9px;text-align:left;gap:6px}
+.pCardRowAddr span{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;flex-shrink:0;margin-top:2px}
+.pCardRowAddr b{font-size:11px;font-weight:700;color:#0f172a;text-align:right;line-height:1.35;word-break:break-word;white-space:normal!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pCardBlock{background:#2563eb!important;color:#fff;font-weight:800;font-size:12px;padding:8px 18px;border-radius:999px;margin-bottom:8px}
 .backAvatar{width:64px;height:64px;background:#eef2ff;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#2563eb;font-size:22px;margin-bottom:10px;overflow:hidden;border:4px solid #fff;box-shadow:0 6px 16px rgba(0,0,0,.10);flex-shrink:0;cursor:pointer}
 .backAvatar img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
@@ -234,8 +237,9 @@ function clearFiltersDirect(){document.getElementById('filterTime').value='';doc
 function toggleHidden(){ showHidden=!showHidden; let b=document.getElementById('hiddenBtn'); b.classList.toggle('active',showHidden); b.innerText='DISCHARGE PATIENT'; if(showHidden){ switchView('list'); } else { switchView('list'); } applyFilter(); }
 function updateStatusVisibility(){let scheme=document.getElementById('fType').value;document.getElementById('thStatus').classList.toggle('hidden',scheme!=='PMJAY');}
 function getPhoneOf(p){ return String(p.phone||p.mobile||p.contact||p.contactNumber||p.phoneNumber||p.mobileNumber||p.contactNo||'').trim(); }
-async function buildMasterMap(){masterMap={};try{let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patients'));snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let pmjay=String(p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={shri:shri,pmjayId:pmjay,pmjayName:name,cmhtId:'',cmhtName:'',phone:getPhoneOf(p)};});}catch(e){}try{let snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,'cmht_patients'));snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let cmht=String(p.cmhtId||p.cmht||p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={shri:shri,pmjayId:'',pmjayName:'',cmhtId:'',cmhtName:'',phone:''};masterMap[shri].cmhtId=cmht;masterMap[shri].cmhtName=name;if(!masterMap[shri].phone)masterMap[shri].phone=getPhoneOf(p);});}catch(e){}return masterMap;}
-function enrichPatient(p){let shriKey=String(p.shri||'').trim().toUpperCase();if(!shriKey)return p;let m=masterMap[shriKey];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;if(m.pmjayId)p.pmjayCmhtId=m.pmjayId;}else if(scheme==='CMHT'){if(m.cmhtName)p.name=m.cmhtName;if(m.cmhtId)p.pmjayCmhtId=m.cmhtId;else if(m.pmjayId)p.pmjayCmhtId=m.pmjayId;}if(!getPhoneOf(p)&&m.phone)p.phone=m.phone;if(!p.patientStatus){p.patientStatus='ENHANCEMENT';}return p;}
+function getAddressOf(p){ return String(p.address||p.addr||p.homeAddress||p.patientAddress||p.fullAddress||p.location||'').trim(); }
+async function buildMasterMap(){masterMap={};try{let snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'patients'));snap.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let pmjay=String(p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;masterMap[shri]={shri:shri,pmjayId:pmjay,pmjayName:name,cmhtId:'',cmhtName:'',phone:getPhoneOf(p),address:getAddressOf(p)};});}catch(e){}try{let snap2=await window._fb.getDocs(window._fb.collection(window._fb.db,'cmht_patients'));snap2.forEach(d=>{let p=d.data();if(p.deleted)return;let shri=String(p.shriId||p.shri||d.id||'').trim().toUpperCase();let cmht=String(p.cmhtId||p.cmht||p.pmjayId||p.pmjay||'').trim().toUpperCase();let name=String(p.patientName||p.name||'').trim().toUpperCase();if(!shri)return;if(!masterMap[shri])masterMap[shri]={shri:shri,pmjayId:'',pmjayName:'',cmhtId:'',cmhtName:'',phone:'',address:''};masterMap[shri].cmhtId=cmht;masterMap[shri].cmhtName=name;if(!masterMap[shri].phone)masterMap[shri].phone=getPhoneOf(p);if(!masterMap[shri].address)masterMap[shri].address=getAddressOf(p);});}catch(e){}return masterMap;}
+function enrichPatient(p){let shriKey=String(p.shri||'').trim().toUpperCase();if(!shriKey)return p;let m=masterMap[shriKey];if(!m)return p;let scheme=document.getElementById('fType').value;if(scheme==='PMJAY'){if(m.pmjayName)p.name=m.pmjayName;if(m.pmjayId)p.pmjayCmhtId=m.pmjayId;}else if(scheme==='CMHT'){if(m.cmhtName)p.name=m.cmhtName;if(m.cmhtId)p.pmjayCmhtId=m.cmhtId;else if(m.pmjayId)p.pmjayCmhtId=m.pmjayId;}if(!getPhoneOf(p)&&m.phone)p.phone=m.phone;if(!getAddressOf(p)&&m.address)p.address=m.address;if(!p.patientStatus){p.patientStatus='ENHANCEMENT';}return p;}
 function setStatus(t,m){let el=document.getElementById('status');el.className='status '+t;el.innerText=m;}
 async function autoSaveToFirebase(){let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;let docId=date+'_'+scheme;setStatus('saving','SAVING...');try{await window._fb.setDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId),{date:date,scheme:scheme,patients:allPatients,count:allPatients.length,updatedAt:new Date().toISOString()});setStatus('saved',`SAVED ${allPatients.length}`);}catch(e){setStatus('saved','SAVED LOCAL');}}
 async function onDateChange(){updateDateDisplay();let date=document.getElementById('fDate').value;let scheme=document.getElementById('fType').value;let docId=date+'_'+scheme;updateStatusVisibility();setStatus('saving','LOADING...');try{let snap=await window._fb.getDoc(window._fb.doc(window._fb.db,'daily_dialysis_lists',docId));let patients=snap.exists()?(snap.data().patients||[]):[];patients=patients.map((p,i)=>{let enriched=enrichPatient({...p,sl:i+1});enriched.sl=i+1;if(!enriched.patientStatus)enriched.patientStatus='ENHANCEMENT';if(!enriched.remark)enriched.remark='N/A';if(!enriched.remarkView)enriched.remarkView=enriched.remark;return enriched;});allPatients=patients;filteredPatients=[...allPatients];currentPage=1;if(patients.length===0){setStatus('blank','BLANK');}else{setStatus('saved',`${patients.length} PATIENTS`);}applyFilter();}catch(e){setStatus('saved','ERROR');}}
@@ -298,7 +302,8 @@ function applyFilter(){
       let shri=String(p.shri||'').toLowerCase();
       let pid=String(p.pmjayCmhtId||'').toLowerCase();
       let ph=getPhoneOf(p).toLowerCase();
-      if(!name.includes(search)&&!shri.includes(search)&&!pid.includes(search)&&!ph.includes(search))return false;
+      let ad=getAddressOf(p).toLowerCase();
+      if(!name.includes(search)&&!shri.includes(search)&&!pid.includes(search)&&!ph.includes(search)&&!ad.includes(search))return false;
     }
     if(timeFilter){ let pTimeNorm=normalizeTime(p.time); if(pTimeNorm!==timeFilterNorm)return false; }
     if(blockFilter&&p.block!==blockFilter)return false;
@@ -347,6 +352,7 @@ function renderGrid(){
     let photo=photoCache[ukey];
     let avatarInner = photo ? `<img src="${photo}">` : getInitial(p.name);
     let contactVal=getPhoneOf(p)||'-';
+    let addressVal=getAddressOf(p)||'-';
     let div=document.createElement('div');div.className='pCard';
     div.innerHTML=`
       <div class="pCardInner">
@@ -359,6 +365,7 @@ function renderGrid(){
             <div class="pCardRow2"><span>SHRI ID</span><b>${escHtml(p.shri||'-')}</b></div>
             <div class="pCardRow2"><span>TIME</span><b>${escHtml(p.time||'-')}</b></div>
             <div class="pCardRow2"><span>CONTACT</span><b>${escHtml(contactVal)}</b></div>
+            <div class="pCardRowAddr"><span>ADDRESS</span><b>${escHtml(addressVal)}</b></div>
           </div>
           <div class="pCardBlock">Block ${escHtml(p.block||'')}</div>
         </div>
