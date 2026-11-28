@@ -34,8 +34,10 @@ body{background:#f1f5f9;display:flex;min-height:100vh;overflow-x:hidden}
 .whiteBar.folded .sFoot{display:none}
 .top{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:20}
 .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;color:#0f172a}
-.menuBtnTop{width:40px;height:36px;background:transparent!important;border:none!important;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
-.menuBtnTop span{display:block;width:20px;height:2.5px;background:#0f172a;border-radius:2px}
+.menuBtnTop{width:40px;height:36px;background:#fff!important;border:0!important;outline:none!important;box-shadow:none!important;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:none!important;transform:none!important;padding:0!important;flex-shrink:0}
+.menuBtnTop:hover,.menuBtnTop:active,.menuBtnTop:focus{background:#fff!important;border:0!important;outline:none!important;box-shadow:none!important;transform:none!important}
+.menuBtnTop svg{display:block!important;width:24px!important;height:18px!important;flex:none!important}
+.menuBtnTop svg line{stroke:#0f172a!important;stroke-width:2.5!important;stroke-linecap:round!important}
 .badgeBlue{background:#E07A5F;color:#fff;padding:7px 14px;border-radius:20px;font-weight:900;font-size:13px;border:1px solid #E07A5F}
 .content{flex:1;padding:20px 24px;position:relative;background:#f8fafc}
 .pageHead{display:flex;justify-content:flex-start!important;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px}
@@ -115,7 +117,7 @@ td{padding:10px 8px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-alig
 <a href="bill.html"><span class="mi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/></svg></span><span class="ml">BILL</span></a>
 <a href="dischargesummary.html"><span class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span><span class="ml">DISCHARGE SUMMARY</span></a>
 </div></div><div class="sFoot">SHIJA • FINAL</div></div>
-<div class="mainWrap"><div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><span></span><span></span><span></span></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY</div></div></div>
+<div class="mainWrap"><div class="top"><div class="logo"><button type="button" class="menuBtnTop" id="menuBtnTop"><svg viewBox="0 0 24 18" width="24" height="18"><line x1="1" y1="2" x2="23" y2="2"/><line x1="1" y1="9" x2="23" y2="9"/><line x1="1" y1="16" x2="23" y2="16"/></svg></button> DISCHARGE PATIENT <div class="badgeBlue">PMJAY</div></div></div>
 <div class="content">
 <div class="pageHead"><a href="list.html" class="addBtn">+ Add Discharge Patient</a></div>
 <div class="controls" id="searchControls">
@@ -206,12 +208,12 @@ async function loadPhotoCache(){
 window.renderAll=()=>{
   let totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));if(currentPage>totalPages) currentPage=totalPages;
   let start=(currentPage-1)*pageSize;let data=filtered.slice(start,start+pageSize);
-  let html='<tr><th>SL No</th><th>Patient Name</th><th>Photo</th><th>PMJAY ID</th><th>SHRI ID</th><th>Time</th><th>Block</th><th>Action</th></tr>';
+  let html='<tr><th>SL No</th><th>Patient Name</th><th>PMJAY ID</th><th>SHRI ID</th><th>Photo</th><th>Time</th><th>Block</th><th>Action</th></tr>';
   data.forEach((p)=>{
     let shriVal=p.shriId||p.shri||'';let nameVal=p.patientName||p.name||'';let nameDisplay=formatName(nameVal);let pmjayShow=p.pmjayCmhtId||p.pmjayId||'';let dateVal=p.date||'';let timeVal=p.time||'';let blockVal=p.block||'';
     let k=patientKeyFor(shriVal);let photo=photoCache[k];let thumb=photo?'<img src="'+photo+'">':getInitial(nameDisplay);
     let slNo=start+data.indexOf(p)+1;
-    html+='<tr><td><div class="sl">'+slNo+'</div></td><td><b>'+nameDisplay+'</b></td><td><div class="tAvatar" data-ukey="'+k+'" onclick="openPhoto(\''+k.replace(/'/g,"\\'")+'\',\''+shriVal.replace(/'/g,"\\'")+'\',\''+nameDisplay.replace(/'/g,"\\'")+'\')">'+thumb+'</div></td><td><span class="pmjayTable">'+pmjayShow+'</span></td><td><span class="shriTable">'+shriVal+'</span></td><td class="timeCol">'+timeVal+'</td><td class="blockCol">'+blockVal+'</td><td><div style="display:flex;gap:6px;align-items:center"><button class="openBtn" onclick="goToUpload(\''+shriVal+'\',\''+nameVal.replace(/'/g,"\\'")+'\',\''+pmjayShow+'\',\''+dateVal+'\',\''+timeVal+'\',\''+blockVal+'\',\''+p._id+'\')">OPEN</button><button class="delBtn" onclick="delDischarge(\''+p._id+'\')">X</button></div></td></tr>';
+    html+='<tr><td><div class="sl">'+slNo+'</div></td><td><b>'+nameDisplay+'</b></td><td><span class="pmjayTable">'+pmjayShow+'</span></td><td><span class="shriTable">'+shriVal+'</span></td><td><div class="tAvatar" data-ukey="'+k+'" onclick="openPhoto(\''+k.replace(/'/g,"\\'")+'\',\''+shriVal.replace(/'/g,"\\'")+'\',\''+nameDisplay.replace(/'/g,"\\'")+'\')">'+thumb+'</div></td><td class="timeCol">'+timeVal+'</td><td class="blockCol">'+blockVal+'</td><td><div style="display:flex;gap:6px;align-items:center"><button class="openBtn" onclick="goToUpload(\''+shriVal+'\',\''+nameVal.replace(/'/g,"\\'")+'\',\''+pmjayShow+'\',\''+dateVal+'\',\''+timeVal+'\',\''+blockVal+'\',\''+p._id+'\')">OPEN</button><button class="delBtn" onclick="delDischarge(\''+p._id+'\')">X</button></div></td></tr>';
   });
   if(data.length===0) html+='<tr><td colspan="8" style="text-align:center;padding:20px">NO DISCHARGED</td></tr>';
   document.getElementById('tbl').innerHTML=html;
